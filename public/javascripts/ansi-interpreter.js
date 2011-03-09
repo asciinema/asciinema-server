@@ -79,7 +79,13 @@ SP.AnsiInterpreter.prototype = {
     "\x1b\x3e": function(data) { // DECKPNM - Set keypad to numeric mode (digits intead of ESCape seq)
     },
 
-    "\x1b\\\x5d\x30\x3b(?:.)*?\x07": function(data, match) { // OSC - Operating System Command (terminal title)
+    "\x1b\\\x5d[012]\x3b(?:.)*?\x07": function(data, match) { // OSC - Operating System Command (terminal title)
+    },
+
+    "\x1b\\[>c": function(data) { // Secondary Device Attribute request (?)
+    },
+
+    "\x1bP([^\\\\])*?\\\\": function(data) { // DCS, Device Control String
     },
 
     "\x1b\x37": function(data) { // save cursor pos and char attrs
