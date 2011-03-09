@@ -142,38 +142,38 @@ SP.AnsiInterpreter.prototype = {
   },
 
   feed: function(data) {
-    if (data.length == 0) return;
-
-    // console.log(data);
-
     var match;
     var handler;
 
-    for (var i=0; i<this.COMPILED_PATTERNS.length; i++) {
-      var pattern = this.COMPILED_PATTERNS[i];
-      match = pattern[0].exec(data);
-      if (match) {
-        handler = pattern[1];
-        break;
+    while (data.length > 0) {
+      match = handler = null;
+
+      for (var i=0; i<this.COMPILED_PATTERNS.length; i++) {
+        var pattern = this.COMPILED_PATTERNS[i];
+        match = pattern[0].exec(data);
+        if (match) {
+          handler = pattern[1];
+          break;
+        }
       }
-    }
 
-    if (handler) {
+      if (handler) {
 
-      handler.call(this, data, match);
-      this.feed(data.slice(match[0].length));
+        handler.call(this, data, match);
+        data = data.slice(match[0].length)
 
-    } else {
+      } else {
 
-      var s = data.slice(0, 10);
-      var hex = '';
-      for (i=0; i<s.length; i++) {
-        hex += '0x' + s[i].charCodeAt(0).toString(16) + ',';
+        var s = data.slice(0, 10);
+        var hex = '';
+        for (i=0; i<s.length; i++) {
+          hex += '0x' + s[i].charCodeAt(0).toString(16) + ',';
+        }
+        console.log("failed matching: '" + s + "' (" + hex + ")");
+
+        throw 'bummer';
+        return;
       }
-      console.log("failed matching: '" + s + "' (" + hex + ")");
-
-      throw 'bummer';
-      return;
 
     }
   }

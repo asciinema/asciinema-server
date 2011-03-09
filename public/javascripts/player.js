@@ -25,7 +25,7 @@ SP.Player.prototype = {
 
     this.terminal.restartCursorBlink();
 
-    // setTimeout(function() {
+    setTimeout(function() {
       // console.log(this.dataIndex);
       // console.log(this.currentData);
       this.interpreter.feed(this.currentData);
@@ -39,7 +39,7 @@ SP.Player.prototype = {
       if (!window.stopped) {
         this.nextFrame();
       }
-    // }.bind(this), timing[0] * 1000 * (1.0 / speed));
+    }.bind(this), timing[0] * 1000 * (1.0 / speed));
   }
 }
 
