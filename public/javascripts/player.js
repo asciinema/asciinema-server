@@ -26,19 +26,31 @@ SP.Player.prototype = {
     this.terminal.restartCursorBlink();
 
     setTimeout(function() {
-      // console.log(this.dataIndex);
-      // console.log(this.currentData);
-      this.interpreter.feed(this.currentData);
+      var rest = this.interpreter.feed(this.currentData);
       this.terminal.updateDirtyLines();
       var n = timing[1];
-      console.log(timing[0]);
-      console.log(n);
-      this.currentData = this.data.slice(this.dataIndex, this.dataIndex + n);
+
+      if (rest.length > 0)
+        console.log('rest: ' + rest);
+
+      this.currentData = rest + this.data.slice(this.dataIndex, this.dataIndex + n);
       this.dataIndex += n;
       this.frame += 1;
+
+      if (rest.length > 20) {
+        var s = rest.slice(0, 10);
+        var hex = '';
+        for (i=0; i<s.length; i++) {
+          hex += '0x' + s[i].charCodeAt(0).toString(16) + ',';
+        }
+        console.log("failed matching: '" + s + "' (" + hex + ")");
+        return;
+      }
+
       if (!window.stopped) {
         this.nextFrame();
       }
+
     }.bind(this), timing[0] * 1000 * (1.0 / speed));
   }
 }

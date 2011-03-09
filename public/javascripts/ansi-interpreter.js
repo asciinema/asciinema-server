@@ -163,23 +163,13 @@ SP.AnsiInterpreter.prototype = {
       }
 
       if (handler) {
-
         handler.call(this, data, match);
         data = data.slice(match[0].length)
-
       } else {
-
-        var s = data.slice(0, 10);
-        var hex = '';
-        for (i=0; i<s.length; i++) {
-          hex += '0x' + s[i].charCodeAt(0).toString(16) + ',';
-        }
-        console.log("failed matching: '" + s + "' (" + hex + ")");
-
-        throw 'bummer';
-        return;
+        return data;
       }
-
     }
+
+    return '';
   }
 }
