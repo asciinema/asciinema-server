@@ -1,0 +1,9 @@
+<h2>Ansi.tv</h2>
+
+<ul class="movies">
+  <% @movies.each do |movie| %>
+    <li class="movie">
+      <a href="/<%= movie.id %>"><%= movie.id %></a>
+    </li>
+  <% end %>
+</ul>

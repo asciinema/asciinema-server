@@ -1,0 +1,31 @@
+<html>
+<head>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type="text/javascript"></script>
+  <script src="/javascripts/utf8.js" type="text/javascript"></script>
+  <script src="/javascripts/misc.js" type="text/javascript"></script>
+  <script src="/javascripts/player.js" type="text/javascript"></script>
+  <script src="/javascripts/ansi-interpreter.js" type="text/javascript"></script>
+  <script src="/javascripts/terminal.js" type="text/javascript"></script>
+  <link rel="stylesheet" href="/stylesheets/reset.css" />
+  <link rel="stylesheet" href="/stylesheets/main.css" />
+</head>
+<body>
+  <div id="all">
+    <div id="top">
+      <div id="logo">
+        <h1>vterm.tv</h1>
+      </div>
+      <div id="menu">
+        <ul class="links">
+          <li>Sign in</li>
+          <li>Sign up</li>
+        </ul>
+      </div>
+    </div>
+    <div id="main">
+      <%= yield %>
+      <div class="clear"></div>
+    </div>
+  </div>
+</body>
+</html>
