@@ -6,11 +6,10 @@ SP.AnsiInterpreter = function(terminal) {
 SP.AnsiInterpreter.prototype = {
   PATTERNS: {
     "\x07": function(data) {
-      console.log("bell!");
+      // bell
     },
 
     "\x08": function(data) {
-      // console.log("bs");
       this.terminal.bs();
     },
 
