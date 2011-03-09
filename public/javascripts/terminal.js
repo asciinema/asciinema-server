@@ -329,6 +329,11 @@ SP.Terminal.prototype = {
     text = Utf8.decode(text);
 
     for (var i=0; i<text.length; i++) {
+      if (this.cursorCol >= this.cols) {
+        this.cursorLine += 1;
+        this.cursorCol = 0;
+      }
+
       this.fill(this.cursorLine, this.cursorCol, 1, text[i]);
       this.cursorCol = this.cursorCol + 1;
     }
