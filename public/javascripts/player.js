@@ -1,6 +1,7 @@
 var SP = {};
 
 var speed = 1.0;
+var minDelay = 0.01;
 
 SP.Player = function(cols, lines, data, time) {
   this.terminal = new SP.Terminal(cols, lines);
@@ -25,7 +26,7 @@ SP.Player.prototype = {
 
     this.terminal.restartCursorBlink();
 
-    setTimeout(function() {
+    var run = function() {
       var rest = this.interpreter.feed(this.currentData);
       this.terminal.updateDirtyLines();
       var n = timing[1];
@@ -50,8 +51,14 @@ SP.Player.prototype = {
       if (!window.stopped) {
         this.nextFrame();
       }
+    }.bind(this);
 
-    }.bind(this), timing[0] * 1000 * (1.0 / speed));
+
+    if (timing[0] > minDelay) {
+      setTimeout(run, timing[0] * 1000 * (1.0 / speed));
+    } else {
+      run();
+    }
   }
 }
 
