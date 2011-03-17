@@ -28,7 +28,7 @@ SP.Player.prototype = {
 
     var run = function() {
       var rest = this.interpreter.feed(this.currentData);
-      this.terminal.updateDirtyLines();
+      this.terminal.renderDirtyLines();
       var n = timing[1];
 
       if (rest.length > 0)

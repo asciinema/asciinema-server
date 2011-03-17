@@ -59,17 +59,25 @@ SP.AnsiInterpreter.prototype = {
     "\x1b\\[\\?([\x30-\x3f]+)([hlsr])": function(data, match) { // private standards
       // h = Sets DEC/xterm specific mode (http://ttssh2.sourceforge.jp/manual/en/about/ctrlseq.html#decmode)
       // l = Resets mode (http://ttssh2.sourceforge.jp/manual/en/about/ctrlseq.html#mode)
-      // 1049 + h = Save cursor position, switch to alternate screen buffer, and clear screen.
-      // 1049 + l = Clear screen, switch to normal screen buffer, and restore cursor position.
       // 1001 + s = ?
       // 1001 + r = ?
 
       if (match[1] == '1049') {
         if (match[2] == 'h') {
+          // 1049 + h = Save cursor position, switch to alternate screen buffer, and clear screen.
           this.terminal.saveCursor();
+          this.terminal.switchToAlternateBuffer();
+          this.terminal.clearScreen();
         } else if (match[2] == 'l') {
+          // 1049 + l = Clear screen, switch to normal screen buffer, and restore cursor position.
+          this.terminal.clearScreen();
+          this.terminal.switchToNormalBuffer();
           this.terminal.restoreCursor();
         }
+      } else if (match[1] == '1002') {
+        // 2002 + h / l = mouse tracking stuff
+      } else if (match[1] == '1') {
+        // 1 + h / l = cursor keys stuff
       }
     },
 
