@@ -16,7 +16,7 @@ SP.Terminal.prototype = {
     var container = $(".player .term");
     this.element = container;
     this.renderLine(0); // we only need 1 line
-    this.element.css({ height: this.element.height() * this.lines });
+    this.element.css({ width: this.element.width(), height: this.element.height() * this.lines });
   },
 
   getLine: function(n) {
