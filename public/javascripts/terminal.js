@@ -111,6 +111,12 @@ SP.Terminal.prototype = {
         this.fg = n - 30;
       } else if (n >= 40 && n <= 47) {
         this.bg = n - 40;
+      } else if (n == 38) {
+        this.fg = codes[i+2];
+        i += 2;
+      } else if (n == 48) {
+        this.bg = codes[i+2];
+        i += 2;
       }
     }
   },
