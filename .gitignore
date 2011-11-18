@@ -1,3 +1,4 @@
 *.sqlite3
 *.rbc
 public/system/*
+.rvmrc
