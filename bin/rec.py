@@ -10,6 +10,9 @@ import termios
 import fcntl
 import select
 import time
+import json
+import getopt
+import subprocess
 
 class TimedFile(object):
     '''File wrapper that records write times in separate file.'''
@@ -32,17 +35,18 @@ class TimedFile(object):
         self.old_time = now
 
 
-class Recorder(object):
+class PtyRecorder(object):
     '''Pseudo-terminal recorder.
 
     Creates new pseudo-terminal for spawned process
     and saves stdin/stderr (and timing) to files.
     '''
 
-    def __init__(self, filename, command):
+    def __init__(self, base_filename, command, record_input):
         self.master_fd = None
-        self.filename = filename
+        self.base_filename = base_filename
         self.command = command
+        self.record_input = record_input
 
     def run(self):
         self.open_files()
@@ -53,12 +57,14 @@ class Recorder(object):
         return success
 
     def open_files(self):
-        self.stdin_file = TimedFile(self.filename + '.stdin')
-        self.stdout_file = TimedFile(self.filename + '.stdout')
+        self.stdout_file = TimedFile(self.base_filename + '.stdout')
+        if self.record_input:
+            self.stdin_file = TimedFile(self.base_filename + '.stdin')
 
     def close_files(self):
-        self.stdin_file.close()
         self.stdout_file.close()
+        if self.record_input:
+            self.stdin_file.close()
 
     def spawn(self):
         '''Create a spawned process.
@@ -150,7 +156,8 @@ class Recorder(object):
         '''Handles new data on child process stdin.'''
 
         self.write_master(data)
-        self.stdin_file.write(data)
+        if self.record_input:
+            self.stdin_file.write(data)
 
     def write_stdout(self, data):
         '''Writes to stdout as if the child process had written the data.'''
@@ -167,16 +174,110 @@ class Recorder(object):
             data = data[n:]
 
 
+class AsciiCast(object):
+    '''Asciicast model.
+
+    Manages recording and uploading of asciicast.
+    '''
+
+    def __init__(self, command, title=None, record_input=False):
+        self.base_filename = str(int(time.time()))
+        self.command = command
+        self.title = title
+        self.record_input = record_input
+
+    def create(self):
+        ret = self.record()
+        if ret:
+            self.write_metadata()
+            self.upload()
+
+    def record(self):
+        rec = PtyRecorder(self.base_filename, self.command, self.record_input)
+        return rec.run()
+
+    def write_metadata(self):
+        info_file = open(self.base_filename + '.json', 'wb')
+
+        json_data = {
+                'title': self.title,
+                'command': ' '.join(self.command),
+                'term': {
+                    'type': os.environ['TERM'],
+                    'lines': int(self.get_output(['tput', 'lines'])),
+                    'columns': int(self.get_output(['tput', 'cols'])),
+                    },
+                'shell': os.environ['SHELL'],
+                'uname': self.get_output(['uname', '-osrvp'])
+                }
+
+        json_string = json.dumps(json_data, sort_keys=True, indent=2)
+        info_file.write(json_string + '\n')
+        info_file.close()
+
+    def get_output(self, args):
+        process = subprocess.Popen(args, stdout=subprocess.PIPE)
+        return process.communicate()[0].strip()
+
+    def upload(self):
+        up = Uploader(self.base_filename)
+        up.upload()
+        pass
+
+
+class Uploader(object):
+    '''Asciicast uploader.
+
+    Uploads recorded script to website using HTTP based API.
+    '''
+
+    def __init__(self, base_filename):
+        self.base_filename = base_filename
+
+    def upload(self):
+        print 'uploadin'
+
+
 def main():
-    filename = 'typescript'
+    '''Parses command-line options and creates asciicast.'''
 
-    if len(sys.argv) > 1:
-        command = sys.argv[1:]
-    else:
-        command = os.environ['SHELL'].split()
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], 'c:t:ih', ['help'])
+    except getopt.error as msg:
+        print('%s: %s' % (sys.argv[0], msg))
+        print('Run "%s --help" for list of available options' % sys.argv[0])
+        sys.exit(2)
 
-    rec = Recorder(filename, command)
-    rec.run()
+    command = os.environ['SHELL'].split()
+    title = None
+    record_input = False
+
+    for opt, arg in opts:
+        if opt in ('-h', '--help'):
+            usage()
+            sys.exit(0)
+        elif opt == '-c':
+            command = arg.split()
+        elif opt == '-t':
+            title = arg
+        elif opt == '-i':
+            record_input = True
+
+    ac = AsciiCast(command, title, record_input)
+    ac.create()
+
+
+def usage():
+    text = '''usage: %s [-h] [-i] [-c <command>] [-t <title>]
+
+Asciicast recorder+uploader.
+
+optional arguments:
+ -h, --help    show this help message and exit
+ -i            record stdin (keystrokes will be shown during replay)
+ -c command    run specified command instead of shell ($SHELL)
+ -t title      specify title of recorded asciicast''' % sys.argv[0]
+    print text
 
 if __name__ == '__main__':
     main()
