@@ -1,7 +1,0 @@
-SCRIPT=/tmp/test.script
-TIMING=/tmp/test.time
-
-script -q -t $SCRIPT 2>$TIMING
-
-echo "Uploading..."
-curl -F terminal_cols=`tput cols` -F terminal_lines=`tput lines` -F typescript=@$SCRIPT -F timing=@$TIMING localhost:4000/scripts
