@@ -4,4 +4,4 @@
 
 require File.expand_path('../config/application', __FILE__)
 
-T3rminalTv::Application.load_tasks
+AsciiIo::Application.load_tasks
