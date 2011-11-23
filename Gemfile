@@ -2,6 +2,7 @@ source 'http://rubygems.org'
 
 gem 'rails'
 gem 'jquery-rails'
+gem 'mysql2'
 gem 'tzinfo'
 gem 'carrierwave'
 
@@ -15,6 +16,8 @@ end
 
 group :test, :development do
   gem "rspec-rails"
+  gem 'factory_girl_rails'
+  gem 'awesome_print', :require => 'ap'
 end
 
 group :test do
