@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111123210607) do
+ActiveRecord::Schema.define(:version => 20111123214033) do
 
   create_table "asciicasts", :force => true do |t|
     t.integer  "user_id"
@@ -26,6 +26,10 @@ ActiveRecord::Schema.define(:version => 20111123210607) do
     t.string   "uname"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "stdin"
+    t.string   "stdin_timing"
+    t.string   "stdout"
+    t.string   "stdout_timing"
   end
 
   add_index "asciicasts", ["created_at"], :name => "index_asciicasts_on_created_at"
