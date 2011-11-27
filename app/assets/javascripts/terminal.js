@@ -24,6 +24,9 @@ SP.Terminal.prototype = {
   getLine: function(n) {
     n = (typeof n != "undefined" ? n : this.cursorY);
 
+    if (n >= this.lines)
+      throw 'cant getLine ' + n;
+
     var line = this.lineData[n];
 
     if (typeof line == 'undefined') {
