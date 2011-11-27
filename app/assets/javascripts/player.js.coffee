@@ -23,7 +23,7 @@ class AsciiIo.Player
 
     run = () =>
       rest = @interpreter.feed(@currentData)
-      @terminal.renderDirtyLines()
+      @terminal.render()
       n = timing[1]
 
       if rest.length > 0

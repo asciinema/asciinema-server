@@ -67,7 +67,7 @@ SP.Terminal.prototype = {
     this.element.find(".line:eq(" + n + ")").html(html.join(''));
   },
 
-  renderDirtyLines: function() {
+  render: function() {
     var updated = [];
 
     for (var i=0; i<this.dirtyLines.length; i++) {
