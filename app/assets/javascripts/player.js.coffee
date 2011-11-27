@@ -2,7 +2,7 @@ class AsciiIo.Player
   constructor: (cols, lines, data, time) ->
     @minDelay = 0.01
     @speed = 1.0
-    @terminal = new SP.Terminal(cols, lines)
+    @terminal = new AsciiIo.Terminal(cols, lines)
     @interpreter = new AsciiIo.AnsiInterpreter(@terminal)
     @data = data
     @time = time
