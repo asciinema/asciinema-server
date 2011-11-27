@@ -6,4 +6,9 @@
 //
 //= require jquery
 //= require jquery_ujs
+//= require utf8
+//= require helpers
+//= require player
+//= require ansi-interpreter
+//= require terminal
 //= require_tree .

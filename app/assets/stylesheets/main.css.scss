@@ -1,0 +1,84 @@
+.clear {
+  clear: both;
+  display: block;
+  visibility: hidden;
+}
+
+body {
+  background-color: #E7E7DE;
+  margin: 0;
+  padding: 0;
+}
+
+body, div, p {
+  font-family: arial, helvetica;
+  font-size: 12px;
+}
+
+/* 325A66 */
+/* DEA140 */
+/* A32B26 */
+/* 590D0B */
+
+h1 {
+  color: #3e3e3e;
+  font-family: 'Trebuchet MS';
+  font-size: 42px;
+  padding: 15px 0;
+}
+
+h2 {
+  color: #3e3e3e;
+  font-family: 'Trebuchet MS';
+  font-size: 26px;
+  padding: 15px 15px 40px 15px;
+}
+
+#top {
+  position: relative;
+  height: 80px;
+}
+
+#logo {
+  display: block;
+  width: 300px;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+#menu {
+  display: block;
+  width: 300px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 11px;
+  font-family: Verdana;
+}
+
+#menu .links {
+  background-color: #172322;
+  list-style: none;
+  padding: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+#menu .links li {
+  color: #eee;
+  display: inline-block;
+  margin-right: 20px;
+}
+
+#all {
+  margin: 0 auto;
+  width: 980px;
+  text-align: left;
+}
+
+#main {
+  background-color: white;
+  width: 980px;
+  font-size: 11px;
+  border-top-left-radius: 10px;
+}
