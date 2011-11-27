@@ -8,6 +8,7 @@
 //= require jquery_ujs
 //= require utf8
 //= require helpers
+//= require namespace
 //= require player
 //= require ansi-interpreter
 //= require terminal

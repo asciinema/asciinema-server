@@ -19,7 +19,7 @@ module AsciicastsHelper
   var time = #{j var_time};
   var cols = #{asciicast.terminal_columns};
   var lines = #{asciicast.terminal_lines};
-  $(function() { new SP.Player(cols, lines, data, time); });
+  $(function() { new AsciiIo.Player(cols, lines, data, time); });
 </script>
 EOS
   end
