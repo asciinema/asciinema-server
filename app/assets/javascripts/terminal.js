@@ -234,7 +234,7 @@ SP.Terminal.prototype = {
 
   eraseData: function(n) {
     if (n == 0) {
-      this.eraseLine(0);
+      this.eraseInLine(0);
       for (var l=this.cursorY+1; l<this.lines; l++) {
         this.clearLineData(l);
         this.updateLine(l);
@@ -244,7 +244,7 @@ SP.Terminal.prototype = {
         this.clearLineData(l);
         this.updateLine(l);
       }
-      this.eraseLine(n);
+      this.eraseInLine(n);
     } else if (n == 2) {
       for (var l=0; l<this.lines; l++) {
         this.clearLineData(l);
@@ -253,7 +253,7 @@ SP.Terminal.prototype = {
     }
   },
 
-  eraseLine: function(n) {
+  eraseInLine: function(n) {
     if (n == 0) {
       this.fill(this.cursorY, this.cursorX, this.cols - this.cursorX, ' ');
       this.updateLine();
