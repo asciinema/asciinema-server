@@ -94,6 +94,14 @@ SP.Terminal.prototype = {
     }
   },
 
+  showCursor: function(show) {
+    if (show) {
+      this.element.addClass('cursor-on');
+    } else {
+      this.element.removeClass('cursor-on');
+    }
+  },
+
   setSGR: function(codes) {
     if (codes.length == 0) {
       codes = [0];
@@ -250,10 +258,35 @@ SP.Terminal.prototype = {
     }
   },
 
+  clearLineData: function(n) {
+    this.fill(n, 0, this.cols, ' ');
+  },
+
   reserveCharacters: function(n) {
     var line = this.getLine();
     this.lineData[this.cursorLine] = line.slice(0, this.cursorCol).concat(" ".times(n).split(''), line.slice(this.cursorCol, this.cols - n));
     this.updateLine();
+  },
+
+  ri: function(n) {
+    for (var i=0; i<n; i++) {
+      if (this.cursorY == 0) {
+        this.insertLines(0, n);
+      } else {
+        this.cursorUp();
+      }
+    }
+  },
+
+  insertLines: function(l, n) {
+    for (var i=0; i<n; i++) {
+      this.lineData.splice(l, 0, []);
+      this.clearLineData(l);
+    }
+
+    this.lineData.length = this.lines;
+
+    this.updateScreen();
   },
 
   fill: function(line, col, n, char) {

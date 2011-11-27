@@ -61,23 +61,52 @@ SP.AnsiInterpreter.prototype = {
       // l = Resets mode (http://ttssh2.sourceforge.jp/manual/en/about/ctrlseq.html#mode)
       // 1001 + s = ?
       // 1001 + r = ?
+      var modes = match[1].split(';');
+      var action = match[2];
+      var mode;
 
-      if (match[1] == '1049') {
-        if (match[2] == 'h') {
-          // 1049 + h = Save cursor position, switch to alternate screen buffer, and clear screen.
-          this.terminal.saveCursor();
-          this.terminal.switchToAlternateBuffer();
-          this.terminal.clearScreen();
-        } else if (match[2] == 'l') {
-          // 1049 + l = Clear screen, switch to normal screen buffer, and restore cursor position.
-          this.terminal.clearScreen();
-          this.terminal.switchToNormalBuffer();
-          this.terminal.restoreCursor();
+      for (var i=0; i<modes.length; i++) {
+        mode = modes[i];
+
+        if (mode == '1049') {
+          if (action == 'h') {
+            // Save cursor position, switch to alternate screen buffer, and clear screen.
+            this.terminal.saveCursor();
+            this.terminal.switchToAlternateBuffer();
+            this.terminal.clearScreen();
+          } else if (action == 'l') {
+            // Clear screen, switch to normal screen buffer, and restore cursor position.
+            this.terminal.clearScreen();
+            this.terminal.switchToNormalBuffer();
+            this.terminal.restoreCursor();
+          }
+        } else if (mode == '1002') {
+          // 2002 + h / l = mouse tracking stuff
+        } else if (mode == '1001') {
+          // pbly sth with mouse/keys...
+        } else if (mode == '1') {
+          // 1 + h / l = cursor keys stuff
+        } else if (mode == '47') {
+          if (action == 'h') {
+            this.terminal.switchToAlternateBuffer();
+          } else if (action == 'l') {
+            this.terminal.switchToNormalBuffer();
+          }
+        } else if (mode == '25') {
+          if (action == 'h') {
+            this.terminal.showCursor(true);
+          } else if (action == 'l') {
+            this.terminal.showCursor(false);
+          }
+        } else if (mode == '12') {
+          if (action == 'h') {
+            // blinking cursor
+          } else if (action == 'l') {
+            // steady cursor
+          }
+        } else {
+          throw 'unknown mode: ' + mode + action;
         }
-      } else if (match[1] == '1002') {
-        // 2002 + h / l = mouse tracking stuff
-      } else if (match[1] == '1') {
-        // 1 + h / l = cursor keys stuff
       }
     },
 
@@ -94,6 +123,10 @@ SP.AnsiInterpreter.prototype = {
     },
 
     "\x1bP([^\\\\])*?\\\\": function(data) { // DCS, Device Control String
+    },
+
+    "\x1bM": function() {
+      this.terminal.ri(this.n || 1);
     },
 
     "\x1b\x37": function(data) { // save cursor pos and char attrs
@@ -131,6 +164,9 @@ SP.AnsiInterpreter.prototype = {
       case "K":
         this.terminal.eraseLine(this.n || 0);
         break;
+      case "L":
+        this.terminal.insertLines(this.cursorY, this.n || 1);
+        break;
       case "l": // l, Reset mode
         console.log("(TODO) reset: " + this.n);
         break;
@@ -140,7 +176,7 @@ SP.AnsiInterpreter.prototype = {
       case "r": // Set top and bottom margins (scroll region on VT100)
         break;
       default:
-        console.log('no handler for CSI term: ' + term);
+        throw 'no handler for CSI term: ' + term;
     }
   },
 

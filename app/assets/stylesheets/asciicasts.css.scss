@@ -32,11 +32,11 @@
   /* margin: 0;*/
 }
 
-.line span.cursor, .line .cursor > span {
+.cursor-on .line span.cursor, .cursor-on .line .cursor > span {
   background-color: #D3D7CF;
 }
 
-.line span.cursor.inverted, .line .cursor.inverted > span {
+.cursor-on .line span.cursor.inverted, .cursor-on .line .cursor.inverted > span {
   background-color: inherit;
 }
 
