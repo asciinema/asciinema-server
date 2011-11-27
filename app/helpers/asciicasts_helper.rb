@@ -13,13 +13,15 @@ module AsciicastsHelper
     end
     var_time = "[#{time_lines.join(',')}]"
 
-    out = "<script>\n"
-    out << "var data = #{var_data};\n"
-    out << "var time = #{j var_time};\n"
-    out << "var cols = #{asciicast.terminal_columns};\n"
-    out << "var lines = #{asciicast.terminal_lines};\n"
-    out << "</script>"
-    out.html_safe
+    <<EOS.html_safe
+<script>
+  var data = #{var_data};
+  var time = #{j var_time};
+  var cols = #{asciicast.terminal_columns};
+  var lines = #{asciicast.terminal_lines};
+  $(function() { new SP.Player(cols, lines, data, time); });
+</script>
+EOS
   end
 
 end

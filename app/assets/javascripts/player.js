@@ -69,5 +69,3 @@ $(function() {
       }
   });
 });
-
-$(function() { new SP.Player(cols, lines, data, time) });
