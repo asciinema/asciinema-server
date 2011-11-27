@@ -1,4 +1,6 @@
 SP.Terminal = function(cols, lines) {
+  this.element = $(".player .term");
+
   this.cols = cols;
   this.lines = lines;
 
@@ -8,17 +10,27 @@ SP.Terminal = function(cols, lines) {
   this.normalBuffer = [];
   this.alternateBuffer = [];
   this.lineData = this.normalBuffer;
-  this.fg = this.bg = undefined;
   this.dirtyLines = [];
-  this.initialize();
+
+  this.fg = this.bg = undefined;
+
+  this.createChildElements();
+  this.showCursor(true);
+
+  // this.updateScreen();
+  // this.render();
+
+  // this.renderLine(0); // we only need 1 line
+  // this.element.css({ width: this.element.width(), height: this.element.height() });
 };
 
 SP.Terminal.prototype = {
-  initialize: function() {
-    var container = $(".player .term");
-    this.element = container;
-    this.renderLine(0); // we only need 1 line
-    this.element.css({ width: this.element.width(), height: this.element.height() * this.lines });
+  createChildElements: function() {
+    for (var i = 0; i < this.lines; i++) {
+      var row = $('<span class="line">');
+      this.element.append(row);
+      this.element.append("\n");
+    }
   },
 
   getLine: function(n) {
@@ -85,7 +97,7 @@ SP.Terminal.prototype = {
   updateScreen: function() {
     this.dirtyLines = [];
 
-    for (var l=0; l<this.lineData.length; l++) {
+    for (var l=0; l<this.lines; l++) {
       this.dirtyLines.push(l);
     }
   },
