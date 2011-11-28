@@ -52,20 +52,24 @@ class AsciiIo.AnsiInterpreter
             @terminal.clearScreen()
             @terminal.switchToNormalBuffer()
             @terminal.restoreCursor()
-        else if mode is "1002"
-          # 2002 + h / l = mouse tracking stuff
+        else if mode is "1000"
+          # Enables/disables normal mouse tracking
         else if mode is "1001"
           # pbly sth with mouse/keys...
+        else if mode is "1002"
+          # 2002 + h / l = mouse tracking stuff
         else if mode is "1"
           # 1 + h / l = cursor keys stuff
         else if mode is "47"
           if action is "h"
             @terminal.switchToAlternateBuffer()
-          else @terminal.switchToNormalBuffer()  if action is "l"
+          else if action is "l"
+            @terminal.switchToNormalBuffer()
         else if mode is "25"
           if action is "h"
             @terminal.showCursor true
-          else @terminal.showCursor false  if action is "l"
+          else if action is "l"
+            @terminal.showCursor false
         else if mode is "12"
           if action is "h"
             # blinking cursor
