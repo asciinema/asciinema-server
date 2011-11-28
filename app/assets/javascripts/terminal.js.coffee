@@ -189,8 +189,7 @@ class AsciiIo.Terminal
 
   bs: ->
     if @cursorX > 0
-      @getLine()[@cursorX - 1] = " "
-      @cursorX -= 1
+      @cursorLeft()
       @updateLine()
 
   print: (text) ->
