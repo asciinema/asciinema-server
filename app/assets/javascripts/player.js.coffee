@@ -27,7 +27,7 @@ class AsciiIo.Player
       n = timing[1]
 
       if rest.length > 0
-        console.log 'rest: ' + rest
+        console.log 'rest: ' + Utf8.decode(rest)
 
       @currentData = rest + @data.slice(@dataIndex, @dataIndex + n)
       @dataIndex += n
@@ -36,7 +36,7 @@ class AsciiIo.Player
       if rest.length > 20
         head = rest.slice(0, 10)
         hex = ("0x#{c.charCodeAt(0).toString(16)}" for c in head)
-        console.log "failed matching: '" + head + "' (" + hex.join() + ")"
+        console.log "failed matching: '" + Utf8.decode(head) + "' (" + hex.join() + ")"
         return
 
       unless window.stopped
