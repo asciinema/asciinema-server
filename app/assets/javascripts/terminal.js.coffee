@@ -242,6 +242,10 @@ class AsciiIo.Terminal
   clearLineData: (n) ->
     @fill n, 0, @cols, " "
 
+  deleteCharacter: (n) ->
+    @getLine().splice(@cursorX, n)
+    @updateLine()
+
   reserveCharacters: (n) ->
     line = @getLine()
     @lineData[@cursorY] = line.slice(0, @cursorX).concat(" ".times(n).split(""), line.slice(@cursorX, @cols - n))

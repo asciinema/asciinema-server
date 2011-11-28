@@ -122,6 +122,8 @@ class AsciiIo.AnsiInterpreter
         console.log "(TODO) reset: " + @n
       when "m"
         @terminal.setSGR @params
+      when "P" # DCH - Delete Character, from current position to end of field
+        @terminal.deleteCharacter @n or 1
       when "r" # Set top and bottom margins (scroll region on VT100)
       else
         throw "no handler for CSI term: " + term
