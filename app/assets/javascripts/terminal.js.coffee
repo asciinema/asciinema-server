@@ -236,13 +236,12 @@ class AsciiIo.Terminal
   eraseInLine: (n) ->
     if n is 0
       @fill @cursorY, @cursorX, @cols - @cursorX, " "
-      @updateLine()
     else if n is 1
       @fill @cursorY, 0, @cursorX, " "
-      @updateLine()
     else if n is 2
       @fill @cursorY, 0, @cols, " "
-      @updateLine()
+
+    @updateLine()
 
   clearLineData: (n) ->
     @fill n, 0, @cols, " "
