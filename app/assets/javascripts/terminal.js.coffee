@@ -10,6 +10,7 @@ class AsciiIo.Terminal
     @lineData = @normalBuffer
     @dirtyLines = []
     @fg = @bg = undefined
+    @underline = false
 
     @createChildElements()
     @showCursor true
@@ -104,8 +105,13 @@ class AsciiIo.Terminal
       if n is 0
         @fg = @bg = undefined
         @bright = false
+        @underline = false
       else if n is 1
         @bright = true
+      else if n is 4
+        @underline = true
+      else if n is 24
+        @underline = false
       else if n >= 30 and n <= 37
         @fg = n - 30
       else if n >= 40 and n <= 47
@@ -274,7 +280,7 @@ class AsciiIo.Terminal
     prefix = ""
     postfix = ""
 
-    if @fg isnt undefined or @bg isnt undefined or @bright
+    if @fg isnt undefined or @bg isnt undefined or @bright or @underline
       prefix = "<span class=\""
       brightOffset = (if @bright then 8 else 0)
 
@@ -282,6 +288,9 @@ class AsciiIo.Terminal
         prefix += " fg" + (@fg + brightOffset)
       else if @bright
         prefix += " bright"
+
+      if @underline
+        prefix += " underline"
 
       prefix += " bg" + @bg if @bg isnt undefined
       prefix += "\">"
