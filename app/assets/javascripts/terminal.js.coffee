@@ -156,20 +156,22 @@ class AsciiIo.Terminal
       @cursorX += 1
       @updateLine()
 
-  cursorUp: ->
-    if @cursorY > 0
-      @cursorY -= 1
-      @updateLine @cursorY
-      @updateLine @cursorY + 1
+  cursorUp: (n) ->
+    for i in [0...n]
+      if @cursorY > 0
+        @cursorY -= 1
+        @updateLine @cursorY
+        @updateLine @cursorY + 1
 
-  cursorDown: ->
-    if @cursorY + 1 < @lines
-      @cursorY += 1
-      @updateLine @cursorY - 1
-      @updateLine @cursorY
-    else
-      @lineData.splice 0, 1
-      @updateScreen()
+  cursorDown: (n) ->
+    for i in [0...n]
+      if @cursorY + 1 < @lines
+        @cursorY += 1
+        @updateLine @cursorY - 1
+        @updateLine @cursorY
+      else
+        @lineData.splice 0, 1
+        @updateScreen()
 
   cursorForward: (n) ->
     i = 0

@@ -6,7 +6,7 @@ class AsciiIo.AnsiInterpreter
   PATTERNS:
     "\x07": (data) -> # bell
     "\x08": (data) -> @terminal.bs()
-    "\x0a": (data) -> @terminal.cursorDown()
+    "\x0a": (data) -> @terminal.cursorDown 1
     "\x0d": (data) -> @terminal.cr()
     "\x0e": (data) ->
     "\x0f": (data) ->
