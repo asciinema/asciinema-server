@@ -10,13 +10,14 @@ class AsciiIo.Player
     @frame = 0
     @currentData = ""
     console.log "started"
+    @startTime = (new Date()).getTime()
     @nextFrame()
 
   nextFrame: () ->
     timing = @time[@frame]
 
     unless timing
-      console.log "finished"
+      console.log "finished in #{((new Date()).getTime() - @startTime) / 1000} seconds"
       return
 
     @terminal.restartCursorBlink()
