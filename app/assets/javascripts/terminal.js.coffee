@@ -8,7 +8,7 @@ class AsciiIo.Terminal
     @normalBuffer = []
     @alternateBuffer = []
     @lineData = @normalBuffer
-    @dirtyLines = []
+    @dirtyLines = {}
     @fg = @bg = undefined
     @underline = false
 
@@ -65,29 +65,17 @@ class AsciiIo.Terminal
     @element.find(".line:eq(" + n + ")").html html.join("")
 
   render: ->
-    updated = []
+    for _, n of @dirtyLines
+      @renderLine n
 
-    i = 0
-    while i < @dirtyLines.length
-      n = @dirtyLines[i]
-      if updated.indexOf(n) is -1
-        @renderLine n
-        updated.push n
-      i++
-
-    @dirtyLines = []
+    @dirtyLines = {}
 
   updateLine: (n) ->
     n = (if typeof n isnt "undefined" then n else @cursorY)
-    @dirtyLines.push n
+    @dirtyLines[n] = n
 
   updateScreen: ->
-    @dirtyLines = []
-
-    l = 0
-    while l < @lines
-      @dirtyLines.push l
-      l++
+    @dirtyLines[n] = n for n in [0...@lines]
 
   showCursor: (show) ->
     if show
