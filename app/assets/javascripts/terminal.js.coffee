@@ -174,16 +174,10 @@ class AsciiIo.Terminal
         @updateScreen()
 
   cursorForward: (n) ->
-    i = 0
-    while i < n
-      @cursorRight()
-      i++
+    @cursorRight() for i in [0...n]
 
   cursorBack: (n) ->
-    i = 0
-    while i < n
-      @cursorLeft()
-      i++
+    @cursorLeft() for i in [0...n]
 
   cr: ->
     @cursorX = 0
