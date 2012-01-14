@@ -83,7 +83,7 @@ class AsciiIo.AnsiInterpreter
 
     "\x1b\x3e": (data) -> # DECKPNM - Set keypad to numeric mode (digits intead of ESCape seq)
 
-    "\x1b\\\x5d[012]\x3b(?:.)*?\x07": (data, match) -> # OSC - Operating System Command (terminal title)
+    "\x1b\x5d[012]\x3b.*?\x07": (data, match) -> # OSC - Operating System Command (terminal title)
 
     "\x1b\\[>c": (data) -> # Secondary Device Attribute request (?)
 
