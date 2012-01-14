@@ -11,12 +11,12 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111123214033) do
+ActiveRecord::Schema.define(:version => 20120114195316) do
 
   create_table "asciicasts", :force => true do |t|
     t.integer  "user_id"
     t.string   "title"
-    t.integer  "duration",         :null => false
+    t.float    "duration",         :null => false
     t.datetime "recorded_at"
     t.string   "terminal_type"
     t.integer  "terminal_columns", :null => false
