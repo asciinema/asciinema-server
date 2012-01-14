@@ -2,6 +2,10 @@ AsciiIo::Application.routes.draw do
   resources :asciicasts
   match ':id' => 'asciicasts#show', :constraints => { :id => /\d+/ }
 
+  namespace :api do
+    resources :asciicasts
+  end
+
   # The priority is based upon order of creation:
   # first created -> highest priority.
 
