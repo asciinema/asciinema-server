@@ -34,10 +34,10 @@ class AsciiIo.Player
       @dataIndex += n
       @frame += 1
 
-      if rest.length > 20
-        head = rest.slice(0, 10)
+      if rest.length > 100
+        head = rest.slice(0, 100)
         hex = ("0x#{c.charCodeAt(0).toString(16)}" for c in head)
-        console.log "failed matching: '" + Utf8.decode(head) + "' (" + hex.join() + ")"
+        console.log "failed matching: '" + Utf8.decode(head) + "' (" + hex.join() + ") [pos: " + (@dataIndex - n) + "]"
         return
 
       unless window.stopped
