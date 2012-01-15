@@ -5,7 +5,7 @@ class Api::AsciicastsController < ApplicationController
     ac = Asciicast.new(params[:asciicast])
 
     if ac.save
-      render :text => asciicast_url(ac), :status => 201
+      render :text => asciicast_url(ac), :status => :created, :location => ac
     else
       render :text => ac.errors.full_messages, :status => 422
     end
