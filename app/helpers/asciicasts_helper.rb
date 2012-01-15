@@ -1,7 +1,7 @@
 module AsciicastsHelper
 
   def player_data(asciicast)
-    data = File.read(asciicast.stdout.path).split("\n", 2)[1]
+    data = File.read(asciicast.stdout.path)
     time = File.read(asciicast.stdout_timing.path)
 
     data_hex_array = data.bytes.map { |b| '\x' + format('%02x', b) }
