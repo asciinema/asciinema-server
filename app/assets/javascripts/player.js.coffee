@@ -1,58 +1,59 @@
 class AsciiIo.Player
-  constructor: (cols, lines, data, time) ->
-    @minDelay = 0.01
-    @speed = 1.0
+  MIN_DELAY: 0.01
+  SPEED: 1.0
+
+  constructor: (cols, lines, data, timing) ->
     @terminal = new AsciiIo.Terminal(cols, lines)
     @interpreter = new AsciiIo.AnsiInterpreter(@terminal)
     @data = data
-    @time = time
+    @timing = timing
     @dataIndex = 0
-    @frame = 0
+    @frameNo = 0
     @currentData = ""
     console.log "started"
     @startTime = (new Date()).getTime()
     @nextFrame()
 
   nextFrame: () ->
-    timing = @time[@frame]
+    frame = @timing[@frameNo]
 
-    unless timing
+    unless frame
+      @terminal.stopCursorBlink()
       console.log "finished in #{((new Date()).getTime() - @startTime) / 1000} seconds"
       return
 
-    @terminal.restartCursorBlink()
+    @frameNo += 1
 
-    run = () =>
-      rest = @interpreter.feed(@currentData)
-      @terminal.render()
-      n = timing[1]
+    [delay, count] = frame
 
-      if rest.length > 0
-        console.log 'rest: ' + Utf8.decode(rest)
+    if delay > @MIN_DELAY
+      realDelay = delay * 1000 * (1.0 / @SPEED)
 
-      @currentData = rest + @data.slice(@dataIndex, @dataIndex + n)
-      @dataIndex += n
-      @frame += 1
-
-      if rest.length > 100
-        head = rest.slice(0, 100)
-        hex = ("0x#{c.charCodeAt(0).toString(16)}" for c in head)
-        console.log "failed matching: '" + Utf8.decode(head) + "' (" + hex.join() + ") [pos: " + (@dataIndex - n) + "]"
-        return
-
-      unless window.stopped
-        @nextFrame()
-
-    if timing[0] > @minDelay
-      setTimeout(run, timing[0] * 1000 * (1.0 / @speed))
+      setTimeout(
+        =>
+          @terminal.restartCursorBlink()
+          @processFrame(count)
+          @nextFrame()
+        realDelay
+      )
     else
-      run()
+      @processFrame(count)
+      @nextFrame()
 
+  processFrame: (count) ->
+    @currentData += @data.slice(@dataIndex, @dataIndex + count)
+    @dataIndex += count
 
-# $(function() {
-#   $(window).bind('keyup', function(event) {
-#       if (event.keyCode == 27) {
-#         window.stopped = true
-#       }
-#   })
-# })
+    @currentData = @interpreter.feed(@currentData)
+
+    if @currentData.length > 0
+      @logStatus()
+
+  logStatus: ->
+    console.log 'rest: ' + Utf8.decode(@currentData)
+
+    if @currentData.length > 100
+      head = @currentData.slice(0, 100)
+      hex = ("0x#{c.charCodeAt(0).toString(16)}" for c in head)
+      console.log "failed matching: '" + Utf8.decode(head) + "' (" + hex.join() + ") [pos: " + (@dataIndex - count) + "]"
+      return

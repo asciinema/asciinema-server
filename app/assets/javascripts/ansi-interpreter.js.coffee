@@ -138,6 +138,7 @@ class AsciiIo.AnsiInterpreter
   feed: (data) ->
     match = undefined
     handler = undefined
+
     while data.length > 0
       match = handler = null
       i = 0
@@ -149,9 +150,12 @@ class AsciiIo.AnsiInterpreter
           handler = pattern[1]
           break
         i++
+
       if handler
         handler.call this, data, match
         data = data.slice(match[0].length)
       else
-        return data
-    ""
+        break
+
+    @terminal.render()
+    data
