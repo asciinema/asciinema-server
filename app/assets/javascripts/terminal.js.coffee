@@ -293,9 +293,14 @@ class AsciiIo.Terminal
     else
       cursor.addClass "inverted"
 
-  restartCursorBlink: ->
+  startCursorBlink: ->
+    @cursorTimerId = setInterval(@blinkCursor.bind(this), 500)
+
+  stopCursorBlink: ->
     if @cursorTimerId
       clearInterval @cursorTimerId
       @cursorTimerId = null
 
-    @cursorTimerId = setInterval(@blinkCursor.bind(this), 500)
+  restartCursorBlink: ->
+    @stopCursorBlink()
+    @startCursorBlink()
