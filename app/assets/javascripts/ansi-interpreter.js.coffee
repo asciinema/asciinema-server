@@ -136,26 +136,19 @@ class AsciiIo.AnsiInterpreter
       @COMPILED_PATTERNS.push [ regexp, @PATTERNS[re] ]
 
   feed: (data) ->
-    match = undefined
-    handler = undefined
-
     while data.length > 0
-      match = handler = null
-      i = 0
+      match = null
 
-      while i < @COMPILED_PATTERNS.length
-        pattern = @COMPILED_PATTERNS[i]
+      for pattern in @COMPILED_PATTERNS
         match = pattern[0].exec(data)
+
         if match
           handler = pattern[1]
+          handler.call(this, data, match)
+          data = data.slice(match[0].length)
           break
-        i++
 
-      if handler
-        handler.call this, data, match
-        data = data.slice(match[0].length)
-      else
-        break
+      break unless match
 
     @terminal.render()
     data
