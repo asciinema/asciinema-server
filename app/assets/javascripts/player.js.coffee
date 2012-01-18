@@ -15,6 +15,8 @@ class AsciiIo.Player
     @nextFrame()
 
   nextFrame: () ->
+    return if @currentData.length > 100
+
     frame = @timing[@frameNo]
 
     unless frame
