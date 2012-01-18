@@ -23,7 +23,7 @@ class AsciiIo.AnsiInterpreter
       @params = []
       re = /(\d+)/g
       m = undefined
-      @params.push parseInt(m[1])  while m = re.exec(match[0])
+      @params.push parseInt(m[1]) while m = re.exec(match[0])
       @n = @params[0]
       @m = @params[1]
       @handleCSI match[1]
@@ -37,10 +37,8 @@ class AsciiIo.AnsiInterpreter
       modes = match[1].split(";")
       action = match[2]
       mode = undefined
-      i = 0
 
-      while i < modes.length
-        mode = modes[i]
+      for mode in modes
         if mode is "1049"
           if action is "h"
             # Save cursor position, switch to alternate screen buffer, and clear screen.
@@ -77,7 +75,6 @@ class AsciiIo.AnsiInterpreter
             # steady cursor
         else
           throw "unknown mode: " + mode + action
-        i++
 
     "\x1b\x3d": (data) -> # DECKPAM - Set keypad to applications mode (ESCape instead of digits)
 
@@ -129,11 +126,7 @@ class AsciiIo.AnsiInterpreter
         throw "no handler for CSI term: " + term
 
   compilePatterns: ->
-    @COMPILED_PATTERNS = []
-    regexp = undefined
-    for re of @PATTERNS
-      regexp = new RegExp("^" + re)
-      @COMPILED_PATTERNS.push [ regexp, @PATTERNS[re] ]
+    @COMPILED_PATTERNS = ([new RegExp("^" + re), f] for re, f of @PATTERNS)
 
   feed: (data) ->
     while data.length > 0
