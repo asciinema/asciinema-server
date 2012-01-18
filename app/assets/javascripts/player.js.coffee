@@ -49,9 +49,9 @@ class AsciiIo.Player
     @currentData = @interpreter.feed(@currentData)
 
     if @currentData.length > 0
-      @logStatus()
+      @logStatus(count)
 
-  logStatus: ->
+  logStatus: (count) ->
     console.log 'rest: ' + Utf8.decode(@currentData)
 
     if @currentData.length > 100
