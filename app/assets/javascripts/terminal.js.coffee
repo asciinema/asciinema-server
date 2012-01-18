@@ -102,14 +102,18 @@ class AsciiIo.Terminal
         @underline = false
       else if n >= 30 and n <= 37
         @fg = n - 30
-      else if n >= 40 and n <= 47
-        @bg = n - 40
       else if n is 38
         @fg = codes[i + 2]
         i += 2
+      else if n is 39
+        @fg = undefined
+      else if n >= 40 and n <= 47
+        @bg = n - 40
       else if n is 48
         @bg = codes[i + 2]
         i += 2
+      else if n is 49
+        @bg = undefined
       i++
 
   setCursorPos: (line, col) ->
