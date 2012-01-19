@@ -6,6 +6,7 @@ class AsciiIo.AnsiInterpreter
   PATTERNS:
     "\x07": (data) -> # bell
     "\x08": (data) -> @terminal.bs()
+    "\x09": (data) -> # Moves the cursor to the next tab stop
     "\x0a": (data) -> @terminal.cursorDown 1
     "\x0d": (data) -> @terminal.cr()
     "\x0e": (data) ->
