@@ -110,6 +110,8 @@ class AsciiIo.AnsiInterpreter
         @terminal.cursorForward @n or 1
       when "D"
         @terminal.cursorBack @n or 1
+      when "G"
+        @terminal.setCursorColumn @n
       when "H"
         @terminal.setCursorPos @n or 1, @m or 1
       when "J"

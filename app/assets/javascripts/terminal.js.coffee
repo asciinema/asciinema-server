@@ -116,14 +116,19 @@ class AsciiIo.Terminal
         @bg = undefined
       i++
 
-  setCursorPos: (line, col) ->
-    line -= 1
-    col -= 1
+  setCursorLine: (line) ->
     oldLine = @cursorY
-    @cursorY = line
-    @cursorX = col
+    @cursorY = line - 1
     @updateLine oldLine
     @updateLine()
+
+  setCursorColumn: (col) ->
+    @cursorX = col - 1
+    @updateLine()
+
+  setCursorPos: (line, col) ->
+    @setCursorLine(line)
+    @setCursorColumn(col)
 
   saveCursor: ->
     @savedCol = @cursorX
