@@ -1,8 +1,8 @@
 module AsciicastsHelper
 
   def player_data(asciicast)
-    data = File.read(asciicast.stdout.path)
-    time = File.read(asciicast.stdout_timing.path)
+    data = `bzip2 -d -c #{asciicast.stdout.path}`
+    time = `bzip2 -d -c #{asciicast.stdout_timing.path}`
 
     data_hex_array = data.bytes.map { |b| '\x' + format('%02x', b) }
     var_data = "'#{data_hex_array.join}'"
