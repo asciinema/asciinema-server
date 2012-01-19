@@ -40,7 +40,32 @@ class AsciiIo.AnsiInterpreter
       mode = undefined
 
       for mode in modes
-        if mode is "1049"
+        if mode is "1"
+          # 1 + h / l = cursor keys stuff
+        else if mode is "7"
+          # Enables/disables autowrap mode
+        else if mode is "12"
+          if action is "h"
+            # blinking cursor
+          else action is "l"
+            # steady cursor
+        else if mode is "25"
+          if action is "h"
+            @terminal.showCursor true
+          else if action is "l"
+            @terminal.showCursor false
+        else if mode is "47"
+          if action is "h"
+            @terminal.switchToAlternateBuffer()
+          else if action is "l"
+            @terminal.switchToNormalBuffer()
+        else if mode is "1000"
+          # Enables/disables normal mouse tracking
+        else if mode is "1001"
+          # pbly sth with mouse/keys...
+        else if mode is "1002"
+          # 2002 + h / l = mouse tracking stuff
+        else if mode is "1049"
           if action is "h"
             # Save cursor position, switch to alternate screen buffer, and clear screen.
             @terminal.saveCursor()
@@ -51,29 +76,6 @@ class AsciiIo.AnsiInterpreter
             @terminal.clearScreen()
             @terminal.switchToNormalBuffer()
             @terminal.restoreCursor()
-        else if mode is "1000"
-          # Enables/disables normal mouse tracking
-        else if mode is "1001"
-          # pbly sth with mouse/keys...
-        else if mode is "1002"
-          # 2002 + h / l = mouse tracking stuff
-        else if mode is "1"
-          # 1 + h / l = cursor keys stuff
-        else if mode is "47"
-          if action is "h"
-            @terminal.switchToAlternateBuffer()
-          else if action is "l"
-            @terminal.switchToNormalBuffer()
-        else if mode is "25"
-          if action is "h"
-            @terminal.showCursor true
-          else if action is "l"
-            @terminal.showCursor false
-        else if mode is "12"
-          if action is "h"
-            # blinking cursor
-          else action is "l"
-            # steady cursor
         else
           throw "unknown mode: " + mode + action
 
