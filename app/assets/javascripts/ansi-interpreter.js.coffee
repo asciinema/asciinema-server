@@ -120,6 +120,8 @@ class AsciiIo.AnsiInterpreter
         @terminal.eraseInLine @n or 0
       when "L"
         @terminal.insertLines @cursorY, @n or 1
+      when "M"
+        @terminal.deleteLines @cursorY, @n or 1
       when "d" # VPA - Vertical Position Absolute
         @terminal.setCursorLine(@n)
       when "l" # l, Reset mode

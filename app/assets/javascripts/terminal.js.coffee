@@ -264,7 +264,17 @@ class AsciiIo.Terminal
       @clearLineData l
       i++
 
+    # trim lineData to max size
     @lineData.length = @lines
+
+    @updateScreen()
+
+  deleteLines: (l, n) ->
+    @lineData.splice l, n
+
+    # expand lineData to max size
+    @lineData.length = @lines
+
     @updateScreen()
 
   fill: (line, col, n, char) ->
