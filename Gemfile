@@ -18,6 +18,11 @@ group :test, :development do
   gem "rspec-rails"
   gem 'factory_girl_rails'
   gem 'awesome_print', :require => 'ap'
+  gem 'jasmine'
+  gem 'jasmine-headless-webkit'
+  gem 'guard'
+  gem 'guard-jasmine-headless-webkit'
+  gem 'libnotify'
 end
 
 group :test do
