@@ -1,4 +1,2 @@
-class AsciiIo.HudView
-  constructor: (element) ->
-    @element = $(element)
-
+class AsciiIo.HudView extends Backbone.View
+  initialize: (options) ->

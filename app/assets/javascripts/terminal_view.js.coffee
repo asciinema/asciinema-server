@@ -1,6 +1,10 @@
-class AsciiIo.TerminalView
-  constructor: (element, @cols, @lines) ->
-    @element = $(element) # $(".player .term")
+class AsciiIo.TerminalView extends Backbone.View
+
+  initialize: (options) ->
+    # @element = $(element) # $(".player .term")
+    @element = @$el
+    @cols = options.cols
+    @lines = options.lines
     @cursorX = 0
     @cursorY = 0
     @normalBuffer = []

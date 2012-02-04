@@ -10,27 +10,54 @@ describe AsciiIo.PlayerView, ->
 
   describe 'constructor', ->
     it 'creates needed DOM elements inside player element', ->
-      player = new AsciiIo.PlayerView(element, cols, lines, data, timing)
+      player = new AsciiIo.PlayerView({
+        el: element, cols: cols, lines: lines, data: data, timing: timing
+      })
+
       expect(element.find('.terminal').length).toBe(1)
       expect(element.find('.hud').length).toBe(1)
 
     it 'creates TerminalView instance passing proper DOM element', ->
-      spyOn(AsciiIo, 'TerminalView')
-      player = new AsciiIo.PlayerView(element, cols, lines, data, timing)
-      expect(AsciiIo.TerminalView).toHaveBeenCalledWith(element.find('.terminal')[0], cols, lines)
+      spyOn(AsciiIo, 'TerminalView').andReturn({ on: -> 'foo' })
+
+      player = new AsciiIo.PlayerView({
+        el: element, cols: cols, lines: lines, data: data, timing: timing
+      })
+
+      expect(AsciiIo.TerminalView).toHaveBeenCalledWith({
+        el: element.find('.terminal')[0], cols: cols, lines: lines
+      })
 
     it 'creates HudView instance passing proper DOM element', ->
       spyOn(AsciiIo, 'HudView')
-      player = new AsciiIo.PlayerView(element, cols, lines, data, timing)
-      expect(AsciiIo.HudView).toHaveBeenCalledWith(element.find('.hud')[0])
+
+      player = new AsciiIo.PlayerView({
+        el: element, cols: cols, lines: lines, data: data, timing: timing
+      })
+
+      expect(AsciiIo.HudView).toHaveBeenCalledWith({
+        el: element.find('.hud')[0]
+      })
 
     it 'creates Movie instance', ->
-      spyOn(AsciiIo, 'Movie')
-      player = new AsciiIo.PlayerView(element, cols, lines, data, timing)
+      spyOn(AsciiIo, 'Movie').andCallThrough()
+
+      player = new AsciiIo.PlayerView({
+        el: element, cols: cols, lines: lines, data: data, timing: timing
+      })
+
       expect(AsciiIo.Movie).toHaveBeenCalledWith(data, timing)
 
   describe 'events', ->
     it 'toggles movie playback when terminal-click is fired on terminal', ->
+      player = new AsciiIo.PlayerView({
+        el: element, cols: cols, lines: lines, data: data, timing: timing
+      })
+      spyOn player.movie, 'togglePlay'
+
+      player.terminal.trigger 'terminal-click'
+
+      expect(player.movie.togglePlay).toHaveBeenCalled()
 
     it 'toggles movie playback when hud-play-click is fired on hud', ->
 

@@ -9,6 +9,9 @@ class AsciiIo.Movie
   play: ->
     @nextFrame()
 
+  togglePlay: ->
+
+
   nextFrame: () ->
     return if @currentData.length > 100
 

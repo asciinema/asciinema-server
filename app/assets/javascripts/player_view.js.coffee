@@ -1,6 +1,7 @@
-class AsciiIo.PlayerView
+class AsciiIo.PlayerView extends Backbone.View
+  initialize: (options) ->
+    @element = @$el
 
-  constructor: (@element, cols, lines, data, timing) ->
     terminalElement = $('<pre class="terminal">')
     hudElement = $('<div class="hud">')
 
@@ -8,6 +9,11 @@ class AsciiIo.PlayerView
     @element.append(hudElement)
 
     # @interpreter ?
-    @terminal = new AsciiIo.TerminalView(terminalElement[0], cols, lines)
-    @hud = new AsciiIo.HudView(hudElement[0])
-    @movie = new AsciiIo.Movie(data, timing)
+    @terminal = new AsciiIo.TerminalView({
+      el: terminalElement[0], cols: options.cols, lines: options.lines
+    })
+    @hud = new AsciiIo.HudView({ el: hudElement[0] })
+    @movie = new AsciiIo.Movie(options.data, options.timing)
+
+    @terminal.on 'terminal-click', =>
+      @movie.togglePlay()
