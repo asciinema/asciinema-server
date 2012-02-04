@@ -9,7 +9,7 @@
 //= require utf8
 //= require helpers
 //= require namespace
-//= require player
+//= require player_view
 //= require ansi-interpreter
-//= require terminal
+//= require terminal_view
 //= require_tree .

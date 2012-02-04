@@ -1,8 +1,6 @@
-class AsciiIo.Terminal
-  constructor: (cols, lines) ->
-    @element = $(".player .term")
-    @cols = cols
-    @lines = lines
+class AsciiIo.TerminalView
+  constructor: (element, @cols, @lines) ->
+    @element = $(element) # $(".player .term")
     @cursorX = 0
     @cursorY = 0
     @normalBuffer = []

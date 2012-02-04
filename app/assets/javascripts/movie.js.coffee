@@ -1,17 +1,12 @@
-class AsciiIo.Player
+class AsciiIo.Movie
   MIN_DELAY: 0.01
   SPEED: 1.0
 
-  constructor: (cols, lines, data, timing) ->
-    @terminal = new AsciiIo.Terminal(cols, lines)
-    @interpreter = new AsciiIo.AnsiInterpreter(@terminal)
-    @data = data
-    @timing = timing
-    @dataIndex = 0
-    @frameNo = 0
-    @currentData = ""
-    console.log "started"
-    @startTime = (new Date()).getTime()
+  constructor: (@data, @timing) ->
+    @currentTime = 0
+    @processedFramesTime = 0
+
+  play: ->
     @nextFrame()
 
   nextFrame: () ->
