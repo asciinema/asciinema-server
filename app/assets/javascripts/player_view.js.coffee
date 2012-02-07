@@ -1,19 +1,41 @@
 class AsciiIo.PlayerView extends Backbone.View
+
   initialize: (options) ->
-    @element = @$el
-
-    terminalElement = $('<pre class="terminal">')
-    hudElement = $('<div class="hud">')
-
-    @element.append(terminalElement)
-    @element.append(hudElement)
-
-    # @interpreter ?
-    @terminal = new AsciiIo.TerminalView({
-      el: terminalElement[0], cols: options.cols, lines: options.lines
-    })
-    @hud = new AsciiIo.HudView({ el: hudElement[0] })
     @movie = new AsciiIo.Movie(options.data, options.timing)
+    @screenBuffer = new AsciiIo.ScreenBuffer(options.cols, options.lines)
+    @interpreter = new AsciiIo.AnsiInterpreter(@screenBuffer)
 
-    @terminal.on 'terminal-click', =>
+    @createChildViews()
+    @bindEvents()
+
+  createChildViews: ->
+    @terminalView = new AsciiIo.TerminalView(
+      cols:  this.options.cols
+      lines: this.options.lines
+    )
+    @$el.append(@terminalView.$el)
+
+    @hudView = new AsciiIo.HudView()
+    @$el.append(@hudView.$el)
+
+  bindEvents: ->
+    @terminalView.on 'terminal-click', =>
       @movie.togglePlay()
+
+    @hudView.on 'hud-play-click', =>
+      @movie.togglePlay()
+
+    @hudView.on 'hud-seek-click', (percent) =>
+      @movie.seek(percent)
+
+    @movie.on 'movie-frame', (frame) =>
+      @interpreter.feed(frame)
+      changes = @screenBuffer.changes()
+      @terminalView.render(changes)
+      @screenBuffer.clearChanges()
+
+    @movie.on 'movie-finished', =>
+      @terminalView.stopCursorBlink()
+
+  play: ->
+    @movie.play()

@@ -1,18 +1,10 @@
 class AsciiIo.TerminalView extends Backbone.View
+  tagName: 'pre'
+  className: 'terminal'
 
   initialize: (options) ->
-    # @element = $(element) # $(".player .term")
-    @element = @$el
     @cols = options.cols
     @lines = options.lines
-    @cursorX = 0
-    @cursorY = 0
-    @normalBuffer = []
-    @alternateBuffer = []
-    @lineData = @normalBuffer
-    @dirtyLines = {}
-    @fg = @bg = undefined
-    @underline = false
 
     @createChildElements()
     @showCursor true
@@ -28,35 +20,20 @@ class AsciiIo.TerminalView extends Backbone.View
 
     while i < @lines
       row = $("<span class=\"line\">")
-      @element.append row
-      @element.append "\n"
+      @$el.append row
+      @$el.append "\n"
       i++
-
-  getLine: (n) ->
-    n = (if typeof n isnt "undefined" then n else @cursorY)
-
-    throw "cant getLine " + n  if n >= @lines
-
-    line = @lineData[n]
-
-    if typeof line is "undefined"
-      line = @lineData[n] = []
-      @fill n, 0, @cols, " "
-
-    line
 
   clearScreen: ->
     # this.lineData.length = 0;
     @cursorY = @cursorX = 0
-    @element.find(".line").empty()
+    @$el.find(".line").empty()
 
-  switchToNormalBuffer: ->
-    @lineData = @normalBuffer
-    @updateScreen()
+  render: ->
+    for _, n of @dirtyLines
+      @renderLine n
 
-  switchToAlternateBuffer: ->
-    @lineData = @alternateBuffer
-    @updateScreen()
+    # @dirtyLines = {}
 
   renderLine: (n) ->
     html = @getLine(n)
@@ -64,251 +41,16 @@ class AsciiIo.TerminalView extends Backbone.View
     if n is @cursorY
       html = html.slice(0, @cursorX).concat([ "<span class=\"cursor\">" + (html[@cursorX] or "") + "</span>" ], html.slice(@cursorX + 1) or [])
 
-    @element.find(".line:eq(" + n + ")").html html.join("")
-
-  render: ->
-    for _, n of @dirtyLines
-      @renderLine n
-
-    @dirtyLines = {}
-
-  updateLine: (n) ->
-    n = (if typeof n isnt "undefined" then n else @cursorY)
-    @dirtyLines[n] = n
-
-  updateScreen: ->
-    @dirtyLines[n] = n for n in [0...@lines]
+    @$el.find(".line:eq(" + n + ")").html html.join("")
 
   showCursor: (show) ->
     if show
-      @element.addClass "cursor-on"
+      @$el.addClass "cursor-on"
     else
-      @element.removeClass "cursor-on"
-
-  setSGR: (codes) ->
-    codes = [0] if codes.length is 0
-
-    i = 0
-    while i < codes.length
-      n = codes[i]
-
-      if n is 0
-        @fg = @bg = undefined
-        @bright = false
-        @underline = false
-      else if n is 1
-        @bright = true
-      else if n is 4
-        @underline = true
-      else if n is 24
-        @underline = false
-      else if n >= 30 and n <= 37
-        @fg = n - 30
-      else if n is 38
-        @fg = codes[i + 2]
-        i += 2
-      else if n is 39
-        @fg = undefined
-      else if n >= 40 and n <= 47
-        @bg = n - 40
-      else if n is 48
-        @bg = codes[i + 2]
-        i += 2
-      else if n is 49
-        @bg = undefined
-      i++
-
-  setCursorLine: (line) ->
-    oldLine = @cursorY
-    @cursorY = line - 1
-    @updateLine oldLine
-    @updateLine()
-
-  setCursorColumn: (col) ->
-    @cursorX = col - 1
-    @updateLine()
-
-  setCursorPos: (line, col) ->
-    @setCursorLine(line)
-    @setCursorColumn(col)
-
-  saveCursor: ->
-    @savedCol = @cursorX
-    @savedLine = @cursorY
-
-  restoreCursor: ->
-    oldLine = @cursorY
-
-    @cursorY = @savedLine
-    @cursorX = @savedCol
-
-    @updateLine oldLine
-    @updateLine()
-
-  cursorLeft: ->
-    if @cursorX > 0
-      @cursorX -= 1
-      @updateLine()
-
-  cursorRight: ->
-    if @cursorX < @cols
-      @cursorX += 1
-      @updateLine()
-
-  cursorUp: (n) ->
-    for i in [0...n]
-      if @cursorY > 0
-        @cursorY -= 1
-        @updateLine @cursorY
-        @updateLine @cursorY + 1
-
-  cursorDown: (n) ->
-    for i in [0...n]
-      if @cursorY + 1 < @lines
-        @cursorY += 1
-        @updateLine @cursorY - 1
-        @updateLine @cursorY
-      else
-        @lineData.splice 0, 1
-        @updateScreen()
-
-  cursorForward: (n) ->
-    @cursorRight() for i in [0...n]
-
-  cursorBack: (n) ->
-    @cursorLeft() for i in [0...n]
-
-  cr: ->
-    @cursorX = 0
-    @updateLine()
-
-  bs: ->
-    if @cursorX > 0
-      @cursorLeft()
-      @updateLine()
-
-  print: (text) ->
-    text = Utf8.decode(text)
-
-    i = 0
-    while i < text.length
-      if @cursorX >= @cols
-        @cursorY += 1
-        @cursorX = 0
-
-      @fill @cursorY, @cursorX, 1, text[i]
-      @cursorX += 1
-      i++
-
-    @updateLine()
-
-  eraseData: (n) ->
-    if n is 0
-      @eraseInLine 0
-
-      l = @cursorY + 1
-      while l < @lines
-        @clearLineData l
-        @updateLine l
-        l++
-
-    else if n is 1
-      l = 0
-      while l < @cursorY
-        @clearLineData l
-        @updateLine l
-        l++
-
-      @eraseInLine n
-
-    else if n is 2
-      l = 0
-      while l < @lines
-        @clearLineData l
-        @updateLine l
-        l++
-
-  eraseInLine: (n) ->
-    if n is 0
-      @fill @cursorY, @cursorX, @cols - @cursorX, " "
-    else if n is 1
-      @fill @cursorY, 0, @cursorX, " "
-    else if n is 2
-      @fill @cursorY, 0, @cols, " "
-
-    @updateLine()
-
-  clearLineData: (n) ->
-    @fill n, 0, @cols, " "
-
-  deleteCharacter: (n) ->
-    @getLine().splice(@cursorX, n)
-    @updateLine()
-
-  reserveCharacters: (n) ->
-    line = @getLine()
-    @lineData[@cursorY] = line.slice(0, @cursorX).concat(" ".times(n).split(""), line.slice(@cursorX, @cols - n))
-    @updateLine()
-
-  ri: (n) ->
-    i = 0
-    while i < n
-      if @cursorY is 0
-        @insertLines 0, n
-      else
-        @cursorUp()
-      i++
-
-  insertLines: (l, n) ->
-    i = 0
-    while i < n
-      @lineData.splice l, 0, []
-      @clearLineData l
-      i++
-
-    # trim lineData to max size
-    @lineData.length = @lines
-
-    @updateScreen()
-
-  deleteLines: (l, n) ->
-    @lineData.splice l, n
-
-    # expand lineData to max size
-    @lineData.length = @lines
-
-    @updateScreen()
-
-  fill: (line, col, n, char) ->
-    prefix = ""
-    postfix = ""
-
-    if @fg isnt undefined or @bg isnt undefined or @bright or @underline
-      prefix = "<span class=\""
-      brightOffset = (if @bright then 8 else 0)
-
-      if @fg isnt undefined
-        prefix += " fg" + (@fg + brightOffset)
-      else if @bright
-        prefix += " bright"
-
-      if @underline
-        prefix += " underline"
-
-      prefix += " bg" + @bg if @bg isnt undefined
-      prefix += "\">"
-      postfix = "</span>"
-
-    char = prefix + char + postfix
-    lineArr = @getLine(line)
-
-    i = 0
-    while i < n
-      lineArr[col + i] = char
-      i++
+      @$el.removeClass "cursor-on"
 
   blinkCursor: ->
-    cursor = @element.find(".cursor")
+    cursor = @$el.find(".cursor")
     if cursor.hasClass("inverted")
       cursor.removeClass "inverted"
     else

@@ -1,14 +1,88 @@
 class AsciiIo.AnsiInterpreter
-  constructor: (terminal) ->
-    @terminal = terminal
+
+  constructor: (screenBuffer) ->
+    @sb = screenBuffer
+
+    @fg = @bg = undefined
+    @bright = false
+    @underline = false
+
     @compilePatterns()
 
+  noop: ->
+
+  # handleC0ControlSet: (data) ->
+  #   console.log 'handling C0'
+
+  handlePrintableCharacters: (text) ->
+
+  # handleC1ControlSet: (data) ->
+
+  # handleControlSequence: (data) ->
+
+  _C0_PATTERNS:
+    # C0 set of 7-bit control characters
+    "[\x00-\x1f]":
+      # bell
+      "\x07": (data) -> @sb.bell()
+
+      # backspace
+      "\x08": (data) -> @sb.backspace()
+
+      # Move the cursor to the next tab stop
+      "\x09": (data) ->
+
+      "\x0a": (data) -> @sb.cursorDown 1
+
+      "\x0d": (data) -> @sb.cr()
+
+      "\x0e": (data) ->
+
+      "\x0f": (data) ->
+
+      # Reserved (?)
+      "\x82": (data) ->
+
+      # Cancel Character, ignore previous character
+      "\x94": (data) ->
+
+      # Escape sequence
+      "\x1b": _.extend({}, @_C0_PATTERNS, {
+
+        # Control sequence
+        "\x1b\\[": @_CS_PATTERNS
+      })
+
+  _CS_PATTERNS:
+    "sth": 1
+
+  _PATTERNS: _.extend({}, @_C0_PATTERNS, {
+    # Printable characters
+    "([\x20-\x7e])+": @handlePrintableCharacters
+
+    # "Delete", always and everywhere ignored
+    "[\x7f\xff]": @noop
+
+    # C1 control set
+    "[\x80-\x9f]":
+
+      # Control sequence
+      "\x9b": @_CS_PATTERNS
+
+    # G1 Displayable, 94 additional displayable characters
+    "[\xa1-\xfe]": @handlePrintableCharacters
+
+    # Always and everywhere a blank space
+    "\xa0": -> @handlePrintableCharacters(' ')
+
+  })
+
   PATTERNS:
-    "\x07": (data) -> # bell
-    "\x08": (data) -> @terminal.bs()
+    "\x07": (data) -> @sb.bell()
+    "\x08": (data) -> @sb.backspace()
     "\x09": (data) -> # Moves the cursor to the next tab stop
-    "\x0a": (data) -> @terminal.cursorDown 1
-    "\x0d": (data) -> @terminal.cr()
+    "\x0a": (data) -> @sb.cursorDown 1
+    "\x0d": (data) -> @sb.cr()
     "\x0e": (data) ->
     "\x0f": (data) ->
     "\x82": (data) -> # Reserved (?)
@@ -16,18 +90,19 @@ class AsciiIo.AnsiInterpreter
 
     # 20 - 7e
     "([\x20-\x7e]|\xe2..|[\xc2\xc4\xc5].)+": (data, match) ->
-      @terminal.print match[0]
+      @sb.print match[0]
 
     "\x1b\\(B": (data) -> # SCS (Set G0 Character SET)
 
-    "\x1b\\[(?:[0-9]+)?(?:;[0-9]+)*([\x40-\x7e])": (data, match) ->
-      @params = []
-      re = /(\d+)/g
-      m = undefined
-      @params.push parseInt(m[1]) while m = re.exec(match[0])
+    "\x1b\\[([0-9;]*)([\x40-\x7e])": (data, match) ->
+      if match[1].length == 0
+        @params = []
+      else
+        @params = _(match[1].split(';')).map (n) -> if n is '' then undefined else parseInt(n)
+
       @n = @params[0]
       @m = @params[1]
-      @handleCSI match[1]
+      @handleCSI match[2]
 
     # private standards
     "\x1b\\[\\?([\x30-\x3f]+)([hlsr])": (data, match) ->
@@ -51,14 +126,14 @@ class AsciiIo.AnsiInterpreter
             # steady cursor
         else if mode is "25"
           if action is "h"
-            @terminal.showCursor true
+            @sb.showCursor true
           else if action is "l"
-            @terminal.showCursor false
+            @sb.showCursor false
         else if mode is "47"
           if action is "h"
-            @terminal.switchToAlternateBuffer()
+            @sb.switchToAlternateBuffer()
           else if action is "l"
-            @terminal.switchToNormalBuffer()
+            @sb.switchToNormalBuffer()
         else if mode is "1000"
           # Enables/disables normal mouse tracking
         else if mode is "1001"
@@ -68,14 +143,14 @@ class AsciiIo.AnsiInterpreter
         else if mode is "1049"
           if action is "h"
             # Save cursor position, switch to alternate screen buffer, and clear screen.
-            @terminal.saveCursor()
-            @terminal.switchToAlternateBuffer()
-            @terminal.clearScreen()
+            @sb.saveCursor()
+            @sb.switchToAlternateBuffer()
+            @sb.clearScreen()
           else if action is "l"
             # Clear screen, switch to normal screen buffer, and restore cursor position.
-            @terminal.clearScreen()
-            @terminal.switchToNormalBuffer()
-            @terminal.restoreCursor()
+            @sb.clearScreen()
+            @sb.switchToNormalBuffer()
+            @sb.restoreCursor()
         else
           throw "unknown mode: " + mode + action
 
@@ -90,49 +165,91 @@ class AsciiIo.AnsiInterpreter
     "\x1bP([^\\\\])*?\\\\": (data) -> # DCS, Device Control String
 
     "\x1bM": ->
-      @terminal.ri @n or 1
+      @sb.ri @n or 1
 
     "\x1b\x37": (data) -> # save cursor pos and char attrs
-      @terminal.saveCursor()
+      @sb.saveCursor()
 
     "\x1b\x38": (data) -> # restore cursor pos and char attrs
-      @terminal.restoreCursor()
+      @sb.restoreCursor()
 
   handleCSI: (term) ->
     switch term
       when "@"
-        @terminal.reserveCharacters @n
+        @sb.reserveCharacters @n
       when "A"
-        @terminal.cursorUp @n or 1
+        @sb.cursorUp @n or 1
       when "B"
-        @terminal.cursorDown @n or 1
+        @sb.cursorDown @n or 1
       when "C"
-        @terminal.cursorForward @n or 1
+        @sb.cursorForward @n or 1
       when "D"
-        @terminal.cursorBack @n or 1
+        @sb.cursorBack @n or 1
       when "G"
-        @terminal.setCursorColumn @n
+        @sb.setCursorColumn @n
       when "H"
-        @terminal.setCursorPos @n or 1, @m or 1
+        @sb.setCursorPos @n or 1, @m or 1
       when "J"
-        @terminal.eraseData @n or 0
+        @sb.eraseData @n or 0
       when "K"
-        @terminal.eraseInLine @n or 0
+        @sb.eraseInLine @n or 0
       when "L"
-        @terminal.insertLines @cursorY, @n or 1
+        @sb.insertLines @n or 1
       when "M"
-        @terminal.deleteLines @cursorY, @n or 1
+        @sb.deleteLines @n or 1
       when "d" # VPA - Vertical Position Absolute
-        @terminal.setCursorLine(@n)
+        @sb.setCursorLine(@n)
       when "l" # l, Reset mode
         console.log "(TODO) reset: " + @n
       when "m"
-        @terminal.setSGR @params
+        @handleSGR @params
       when "P" # DCH - Delete Character, from current position to end of field
-        @terminal.deleteCharacter @n or 1
+        @sb.deleteCharacter @n or 1
       when "r" # Set top and bottom margins (scroll region on VT100)
       else
         throw "no handler for CSI term: " + term
+
+  handleSGR: (numbers) ->
+    numbers = [0] if numbers.length is 0
+
+    i = 0
+    while i < numbers.length
+      n = numbers[i]
+
+      if n is 0
+        @fg = @bg = undefined
+        @bright = false
+        @underline = false
+      else if n is 1
+        @bright = true
+      else if n is 4
+        @underline = true
+      else if n is 24
+        @underline = false
+      else if n >= 30 and n <= 37
+        @fg = n - 30
+      else if n is 38
+        @fg = numbers[i + 2]
+        i += 2
+      else if n is 39
+        @fg = undefined
+      else if n >= 40 and n <= 47
+        @bg = n - 40
+      else if n is 48
+        @bg = numbers[i + 2]
+        i += 2
+      else if n is 49
+        @bg = undefined
+
+      i++
+
+    props = {}
+    props.fg = @fg if @fg
+    props.bg = @bg if @bg
+    props.bright = true if @bright
+    props.underline = true if @underline
+
+    @sb.setBrush AsciiIo.Brush.create(props)
 
   compilePatterns: ->
     @COMPILED_PATTERNS = ([new RegExp("^" + re), f] for re, f of @PATTERNS)
@@ -152,5 +269,4 @@ class AsciiIo.AnsiInterpreter
 
       break unless match
 
-    @terminal.render()
     data

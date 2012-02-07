@@ -1,0 +1,3 @@
+describe AsciiIo.ScreenBuffer, ->
+
+

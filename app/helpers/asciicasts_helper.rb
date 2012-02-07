@@ -19,7 +19,17 @@ module AsciicastsHelper
   var time = #{j var_time};
   var cols = #{asciicast.terminal_columns};
   var lines = #{asciicast.terminal_lines};
-  $(function() { new AsciiIo.Player(cols, lines, data, time); });
+  $(function() {
+    window.player = new AsciiIo.PlayerView({
+      el: $('.player'),
+      cols: cols,
+      lines: lines,
+      data: data,
+      timing: time
+    });
+
+    window.player.play();
+  });
 </script>
 EOS
   end
