@@ -11,6 +11,9 @@ class AsciiIo.ScreenBuffer
   setBrush: (brush) ->
     @brush = brush
 
+  clear: ->
+    @lineData.length = 0
+
   getLine: (n) ->
     n = (if typeof n isnt "undefined" then n else @cursorY)
 
@@ -108,9 +111,6 @@ class AsciiIo.ScreenBuffer
       @cursorLeft()
       @updateLine()
 
-  bell: ->
-    # nothing to do
-
   print: (text) ->
     text = Utf8.decode(text)
 
@@ -174,7 +174,7 @@ class AsciiIo.ScreenBuffer
     @lineData[@cursorY] = line.slice(0, @cursorX).concat(" ".times(n).split(""), line.slice(@cursorX, @cols - n))
     @updateLine()
 
-  ri: (n) ->
+  ri: (n=1) ->
     i = 0
     while i < n
       if @cursorY is 0

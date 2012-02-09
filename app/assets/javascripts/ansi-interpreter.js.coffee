@@ -78,6 +78,7 @@ class AsciiIo.AnsiInterpreter
   })
 
   PATTERNS:
+    "\x00": (data) ->
     "\x07": (data) -> @sb.bell()
     "\x08": (data) -> @sb.backspace()
     "\x09": (data) -> # Moves the cursor to the next tab stop
@@ -145,10 +146,10 @@ class AsciiIo.AnsiInterpreter
             # Save cursor position, switch to alternate screen buffer, and clear screen.
             @sb.saveCursor()
             @sb.switchToAlternateBuffer()
-            @sb.clearScreen()
+            @sb.clear()
           else if action is "l"
             # Clear screen, switch to normal screen buffer, and restore cursor position.
-            @sb.clearScreen()
+            @sb.clear()
             @sb.switchToNormalBuffer()
             @sb.restoreCursor()
         else
@@ -165,7 +166,7 @@ class AsciiIo.AnsiInterpreter
     "\x1bP([^\\\\])*?\\\\": (data) -> # DCS, Device Control String
 
     "\x1bM": ->
-      @sb.ri @n or 1
+      @sb.ri()
 
     "\x1b\x37": (data) -> # save cursor pos and char attrs
       @sb.saveCursor()
@@ -269,4 +270,4 @@ class AsciiIo.AnsiInterpreter
 
       break unless match
 
-    data
+    data.length is 0

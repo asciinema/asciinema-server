@@ -3,6 +3,11 @@ describe AsciiIo.AnsiInterpreter, ->
   cols = 80
   lines = 24
 
+  isSwallowed = (d) ->
+    screenBuffer = {} # will throw 'undefined is not a function'
+    interpreter = new AsciiIo.AnsiInterpreter(screenBuffer)
+    expect(interpreter.feed(d || data)).toEqual(true)
+
   beforeEach ->
     screenBuffer = new AsciiIo.ScreenBuffer(cols, lines)
     interpreter = new AsciiIo.AnsiInterpreter(screenBuffer)
@@ -12,15 +17,6 @@ describe AsciiIo.AnsiInterpreter, ->
     describe 'C0 set control character', ->
       # A single character with an ASCII code within the ranges: 000 to 037 and
       # 200 to 237 octal, 00 - 1F and 80 - 9F hex.
-
-      describe 'x00', ->
-        beforeEach ->
-          screenBuffer = {} # will throw 'undefined is not a function'
-          interpreter = new AsciiIo.AnsiInterpreter(screenBuffer)
-
-        it 'is ignored', ->
-          data += '\x00'
-          interpreter.feed(data)
 
       describe 'x07', ->
         it 'calls bell', ->
@@ -49,6 +45,12 @@ describe AsciiIo.AnsiInterpreter, ->
           spyOn screenBuffer, 'cr'
           interpreter.feed(data)
           expect(screenBuffer.cr).toHaveBeenCalled()
+
+      describe 'other', ->
+        it "is swallowed", ->
+          for c in ['\x00', '\x09', '\x0e', '\x0f', '\x82', '\x94']
+            isSwallowed(c)
+
 
     describe 'printable character', ->
       describe 'from ASCII range (0x20-0x7e)', ->
@@ -80,8 +82,11 @@ describe AsciiIo.AnsiInterpreter, ->
       beforeEach ->
         data += '\x1b'
 
-      describe 'with ESC + control character inside', ->
+      describe 'with C0 control nested inside another escape sequence', ->
+        # C0 Control = 00-1F
         # Interpret the character, then resume processing the sequence.
+        # Example: CR, LF, XON, and XOFF work as normal within an ESCape
+        # sequence.
 
         # it 'aaa', ->
         #   data += '[1\x1b\x0dm'
@@ -91,7 +96,126 @@ describe AsciiIo.AnsiInterpreter, ->
         #   expect(screenBuffer.cr).toHaveBeenCalled()
         #   expect(screenBuffer.setSGR).toHaveBeenCalledWith([1])
 
-      describe 'control sequence', ->
+      describe 'with intermediate', ->
+        # Intermediate = 20-2F !"#$%&'()*+,-./
+        # Expect zero or more intermediates, a parameter terminates a private
+        # function, an alphabetic terminates a standard sequence.  Example: ESC
+        # ( A defines standard character set, ESC ( 0 a DEC set.
+
+        describe '(', ->
+
+          beforeEach ->
+            data += '('
+
+          describe 'B', ->
+
+            beforeEach ->
+              data += 'B'
+
+            it 'is swallowed', isSwallowed
+
+        describe 'followed by parameter', ->
+          # private function
+
+        describe 'followed by an alphabetic', ->
+          # standard sequence
+
+      describe 'with parameter', ->
+        # Parameter = 30-3F 0123456789:;<=>?
+        # End of a private 2-character escape sequence.  Example: ESC = sets
+        # special keypad mode, ESC > clears it.
+
+        describe '7', ->
+          beforeEach ->
+            data += '7'
+
+          it 'saves cursor', ->
+            spyOn screenBuffer, 'saveCursor'
+            interpreter.feed(data)
+            expect(screenBuffer.saveCursor).toHaveBeenCalled()
+
+        describe '8', ->
+          beforeEach ->
+            data += '8'
+
+          it 'restores cursor', ->
+            spyOn screenBuffer, 'restoreCursor'
+            interpreter.feed(data)
+            expect(screenBuffer.restoreCursor).toHaveBeenCalled()
+
+        describe '=', ->
+          beforeEach ->
+            data += '='
+
+          it 'is swallowed', isSwallowed
+
+        describe '>', ->
+          beforeEach ->
+            data += '>'
+
+          it 'is swallowed', isSwallowed
+
+      describe 'with uppercase', ->
+        # Uppercase = 40-5F @ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_
+        # Translate it into a C1 control character and act on it.  Example: ESC
+        # D does indexes down, ESC M indexes up. (CSI is special)
+
+        describe 'M', ->
+          # Reverse Index, go up one line, reverse scroll if necessary
+
+          beforeEach ->
+            data += 'M'
+
+          it 'goes up 1 line', ->
+            spyOn screenBuffer, 'ri'
+            interpreter.feed(data)
+            expect(screenBuffer.ri).toHaveBeenCalled()
+
+        describe 'P', ->
+          # Device Control String, terminated by ST
+
+          beforeEach ->
+            data += 'Pfoobar\\'
+
+          it 'is swallowed', isSwallowed
+
+        describe ']', ->
+          # Operating system command
+
+          beforeEach ->
+            screenBuffer = {} # will throw 'undefined is not a function'
+            interpreter = new AsciiIo.AnsiInterpreter(screenBuffer)
+
+          describe '0;...BELL', ->
+            beforeEach ->
+              data += ']0;foobar\x07'
+
+            it 'is swallowed', isSwallowed
+
+          describe '1;...BELL', ->
+            beforeEach ->
+              data += ']1;foobar\x07'
+
+            it 'is swallowed', isSwallowed
+
+          describe '2;...BELL', ->
+            beforeEach ->
+              data += ']2;foobar\x07'
+
+            it 'is swallowed', isSwallowed
+
+
+      describe 'with lowercase', ->
+        # Lowercase = 60-7E `abcdefghijlkmnopqrstuvwxyz{|}~
+        # End of a standard 2-character escape sequence.  Example: ESC c resets
+        # the terminal.
+
+      describe 'with delete', ->
+        # Delete = 7F
+        # Ignore it, and continue interpreting the ESCape sequence C1 and G1:
+        # Treat the same as their 7-bit counterparts
+
+      describe 'with control sequence', ->
         # A string starting with CSI (233 octal, 9B hex) or with ESC[
         # (Left-Bracket) and terminated by an alphabetic character.  Any number of
         # parameter characters (digits 0 to 9, semicolon, and question mark) may
@@ -102,11 +226,11 @@ describe AsciiIo.AnsiInterpreter, ->
           data += '['
 
         describe 'buffering', ->
-          it 'allows parsing in chunks', ->
-            spyOn interpreter, 'handleSGR'
-            interpreter.feed(data)
-            interpreter.feed('m')
-            expect(interpreter.handleSGR).toHaveBeenCalled()
+          # it 'allows parsing in chunks', ->
+          #   spyOn interpreter, 'handleSGR'
+          #   interpreter.feed(data)
+          #   interpreter.feed('m')
+          #   expect(interpreter.handleSGR).toHaveBeenCalled()
 
         describe '@', ->
           it 'calls reserveCharacters', ->
@@ -289,6 +413,95 @@ describe AsciiIo.AnsiInterpreter, ->
             spyOn screenBuffer, 'deleteCharacter'
             interpreter.feed(data)
             expect(screenBuffer.deleteCharacter).toHaveBeenCalledWith(3)
+
+        describe 'c', ->
+          beforeEach ->
+            data += '>c'
+
+          it 'is swallowed', isSwallowed
+
+        describe 'from private standards', ->
+          # first character after CSI is one of: " < = > (074-077 octal, 3C-3F )
+
+        describe 'DEC/xterm specific', ->
+          describe '$~', ->
+            beforeEach ->
+              data += '$~'
+
+            it 'is swallowed', isSwallowed
+
+          describe '?', ->
+            beforeEach ->
+              data += '?'
+
+            describe '1h', ->
+              beforeEach ->
+                data += '1h'
+
+              it 'is swallowed', isSwallowed
+
+            describe '25h', ->
+              beforeEach ->
+                data += '25h'
+
+              it 'shows cursor', ->
+                spyOn screenBuffer, 'showCursor'
+                interpreter.feed(data)
+                expect(screenBuffer.showCursor).toHaveBeenCalledWith(true)
+
+            describe '25l', ->
+              beforeEach ->
+                data += '25l'
+
+              it 'hides cursor', ->
+                spyOn screenBuffer, 'showCursor'
+                interpreter.feed(data)
+                expect(screenBuffer.showCursor).toHaveBeenCalledWith(false)
+
+            describe '47h', ->
+              beforeEach ->
+                data += '47h'
+
+              it 'switches to alternate buffer', ->
+                spyOn screenBuffer, 'switchToAlternateBuffer'
+                interpreter.feed(data)
+                expect(screenBuffer.switchToAlternateBuffer).toHaveBeenCalled()
+
+            describe '47l', ->
+              beforeEach ->
+                data += '47l'
+
+              it 'switches to normal buffer', ->
+                spyOn screenBuffer, 'switchToNormalBuffer'
+                interpreter.feed(data)
+                expect(screenBuffer.switchToNormalBuffer).toHaveBeenCalled()
+
+            describe '1049h', ->
+              beforeEach ->
+                data += '1049h'
+
+              it 'saves cursor position, switches to alternate buffer and clear screen', ->
+                spyOn screenBuffer, 'saveCursor'
+                spyOn screenBuffer, 'switchToAlternateBuffer'
+                spyOn screenBuffer, 'clear'
+                interpreter.feed(data)
+                expect(screenBuffer.saveCursor).toHaveBeenCalled()
+                expect(screenBuffer.switchToAlternateBuffer).toHaveBeenCalled()
+                expect(screenBuffer.clear).toHaveBeenCalled()
+
+            describe '1049l', ->
+              beforeEach ->
+                data += '1049l'
+
+              it 'clears screen, switches to normal buffer and restores cursor position', ->
+                spyOn screenBuffer, 'clear'
+                spyOn screenBuffer, 'switchToNormalBuffer'
+                spyOn screenBuffer, 'restoreCursor'
+                interpreter.feed(data)
+                expect(screenBuffer.clear).toHaveBeenCalled()
+                expect(screenBuffer.switchToNormalBuffer).toHaveBeenCalled()
+                expect(screenBuffer.restoreCursor).toHaveBeenCalled()
+
 
   describe '#handleSGR', ->
     numbers = undefined
