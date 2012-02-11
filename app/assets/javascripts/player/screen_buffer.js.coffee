@@ -7,6 +7,7 @@ class AsciiIo.ScreenBuffer
     @alternateBuffer = []
     @lineData = @normalBuffer
     @dirtyLines = {}
+    @brush = AsciiIo.Brush.create({})
 
   setBrush: (brush) ->
     @brush = brush
@@ -204,34 +205,19 @@ class AsciiIo.ScreenBuffer
     @updateScreen()
 
   fill: (line, col, n, char) ->
-    prefix = ""
-    postfix = ""
-
-    if @fg isnt undefined or @bg isnt undefined or @bright or @underline
-      prefix = "<span class=\""
-      brightOffset = (if @bright then 8 else 0)
-
-      if @fg isnt undefined
-        prefix += " fg" + (@fg + brightOffset)
-      else if @bright
-        prefix += " bright"
-
-      if @underline
-        prefix += " underline"
-
-      prefix += " bg" + @bg if @bg isnt undefined
-      prefix += "\">"
-      postfix = "</span>"
-
-    char = prefix + char + postfix
     lineArr = @getLine(line)
 
     i = 0
     while i < n
-      lineArr[col + i] = char
+      lineArr[col + i] = [char, @brush]
       i++
 
   changes: ->
-    {}
+    c = {}
+    for _, n of @dirtyLines
+      c[n] = @lineData[n]
+
+    c
 
   clearChanges: ->
+    @dirtyLines = {}

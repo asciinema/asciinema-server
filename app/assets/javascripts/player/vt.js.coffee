@@ -1,7 +1,7 @@
-class AsciiIo.AnsiInterpreter
+class AsciiIo.VT
 
-  constructor: (screenBuffer) ->
-    @sb = screenBuffer
+  constructor: (cols, lines, @renderer) ->
+    @sb = new AsciiIo.ScreenBuffer(cols, lines)
 
     @fg = @bg = undefined
     @bright = false
@@ -79,7 +79,7 @@ class AsciiIo.AnsiInterpreter
 
   PATTERNS:
     "\x00": (data) ->
-    "\x07": (data) -> @sb.bell()
+    "\x07": (data) -> @bell()
     "\x08": (data) -> @sb.backspace()
     "\x09": (data) -> # Moves the cursor to the next tab stop
     "\x0a": (data) -> @sb.cursorDown 1
@@ -127,9 +127,9 @@ class AsciiIo.AnsiInterpreter
             # steady cursor
         else if mode is "25"
           if action is "h"
-            @sb.showCursor true
+            @renderer.showCursor true
           else if action is "l"
-            @sb.showCursor false
+            @renderer.showCursor false
         else if mode is "47"
           if action is "h"
             @sb.switchToAlternateBuffer()
@@ -252,6 +252,10 @@ class AsciiIo.AnsiInterpreter
 
     @sb.setBrush AsciiIo.Brush.create(props)
 
+  bell: ->
+    @renderer.visualBell()
+    # @trigger('bell')
+
   compilePatterns: ->
     @COMPILED_PATTERNS = ([new RegExp("^" + re), f] for re, f of @PATTERNS)
 
@@ -269,5 +273,9 @@ class AsciiIo.AnsiInterpreter
           break
 
       break unless match
+
+    changes = @sb.changes()
+    @renderer.render(changes, @sb.cursorX, @sb.cursorY)
+    @sb.clearChanges()
 
     data.length is 0

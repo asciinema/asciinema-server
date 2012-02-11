@@ -6,13 +6,8 @@
 //
 //= require jquery
 //= require jquery_ujs
-//= require utf8
-//= require helpers
 //= require vendor/underscore-min
 //= require vendor/backbone-min
 //= require backbone/ascii_io
-//= require namespace
-//= require terminal_view
-//= require player_view
-//= require ansi-interpreter
+//= require player/player
 //= require_tree .
