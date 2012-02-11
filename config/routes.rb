@@ -63,5 +63,6 @@ AsciiIo::Application.routes.draw do
   # Note: This route will make all actions in every controller accessible via GET requests.
   # match ':controller(/:action(/:id(.:format)))'
 
-  match "*a", :to => "exceptions#not_found"
+  # 404 for routing error (prevents engines' routes to work though)
+  # match "*a", :to => "exceptions#not_found"
 end

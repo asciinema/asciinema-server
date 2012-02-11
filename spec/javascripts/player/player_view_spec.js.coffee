@@ -1,4 +1,4 @@
-describe AsciiIo.PlayerView, ->
+describe 'AsciiIo.PlayerView', ->
   element = null
   cols = 2
   lines = 5
@@ -87,23 +87,11 @@ describe AsciiIo.PlayerView, ->
 
     it 'feeds interpreter when movie-frame is fired on movie', ->
       frame = { some: 'Frame' }
-      spyOn player.interpreter, 'feed'
+      spyOn player.vt, 'feed'
 
       player.movie.trigger 'movie-frame', frame
 
-      expect(player.interpreter.feed).toHaveBeenCalledWith(frame)
-
-    it 'renders and clears buffer changes when movie-frame is fired on movie', ->
-      frame = { some: 'Frame' }
-      changes = { someChanges: 'here' }
-      spyOn player.terminalView, 'render'
-      spyOn(player.screenBuffer, 'changes').andReturn(changes)
-      spyOn(player.screenBuffer, 'clearChanges')
-
-      player.movie.trigger 'movie-frame', frame
-
-      expect(player.terminalView.render).toHaveBeenCalledWith(changes)
-      expect(player.screenBuffer.clearChanges).toHaveBeenCalled()
+      expect(player.vt.feed).toHaveBeenCalledWith(frame)
 
   describe '#play', ->
     it 'starts movie playback', ->

@@ -1,4 +1,6 @@
-describe AsciiIo.Movie, ->
+#=require player/movie
+
+describe 'AsciiIo.Movie', ->
   movie = data = timing = null
 
   beforeEach ->
@@ -54,7 +56,7 @@ describe AsciiIo.Movie, ->
               obj.callback.callCount == 1 and obj.callback.argsForCall[0][0] == data
             actualDelay = ((new Date).getTime() - nextFrameCallTime) / 1000 # seconds
             diff = actualDelay - (timing[0][0] * (1.0 / AsciiIo.Movie::SPEED))
-            isProperDelay = diff < Math.abs(0.02)
+            isProperDelay = Math.abs(diff) < 0.05
             called and isProperDelay
           'movie-frame event not triggered in <delay> time'
           1000

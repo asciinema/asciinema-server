@@ -19,10 +19,12 @@ group :test, :development do
   gem 'factory_girl_rails'
   gem 'awesome_print', :require => 'ap'
   gem 'jasmine'
-  gem 'jasmine-headless-webkit'
+  gem 'jasminerice'
   gem 'guard'
-  gem 'guard-jasmine-headless-webkit'
+  gem 'guard-jasmine'
   gem 'libnotify'
+  # gem 'jasmine-headless-webkit'
+  # gem 'guard-jasmine-headless-webkit'
 end
 
 group :test do

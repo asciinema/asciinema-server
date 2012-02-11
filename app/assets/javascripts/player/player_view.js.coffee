@@ -30,9 +30,6 @@ class AsciiIo.PlayerView extends Backbone.View
 
     @movie.on 'movie-frame', (frame) =>
       @vt.feed(frame)
-      # changes = @screenBuffer.changes()
-      # @terminalView.render(changes)
-      # @screenBuffer.clearChanges()
 
     @movie.on 'movie-finished', =>
       @terminalView.stopCursorBlink()

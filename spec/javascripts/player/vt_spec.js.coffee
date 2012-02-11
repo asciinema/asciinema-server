@@ -1,22 +1,33 @@
-describe AsciiIo.VT, ->
+describe 'AsciiIo.VT', ->
   vt = renderer = data = undefined
   cols = 80
   lines = 24
 
   isSwallowed = (d) ->
-    # vt = new AsciiIo.VT(cols, lines, renderer)
-    vt.sb = {} # will throw 'undefined is not a function'
+    vt.sb = # will throw 'undefined is not a function' for anything else
+      changes: ->
+      clearChanges: ->
+
     expect(vt.feed(d || data)).toEqual(true)
 
   beforeEach ->
-    console.log 'kurwa'
-    console.log AsciiIo.TerminalView
     renderer = new AsciiIo.TerminalView({ cols: cols, lines: lines })
     vt = new AsciiIo.VT(cols, lines, renderer)
-    console.log vt
     data = ''
 
   describe '#feed', ->
+    it 'renders and clears buffer changes', ->
+      changes = { someChanges: 'here' }
+      spyOn vt.renderer, 'render'
+      spyOn(vt.sb, 'changes').andReturn(changes)
+      spyOn(vt.sb, 'clearChanges')
+
+      vt.feed('')
+
+      expect(vt.renderer.render).toHaveBeenCalledWith(changes, vt.sb.cursorX,
+                                                      vt.sb.cursorY)
+      expect(vt.sb.clearChanges).toHaveBeenCalled()
+
     describe 'C0 set control character', ->
       # A single character with an ASCII code within the ranges: 000 to 037 and
       # 200 to 237 octal, 00 - 1F and 80 - 9F hex.

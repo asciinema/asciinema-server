@@ -1,4 +1,4 @@
-describe AsciiIo.Brush, ->
+describe 'AsciiIo.Brush', ->
 
   describe '.clearCache', ->
 

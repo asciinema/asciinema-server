@@ -1,4 +1,4 @@
-describe AsciiIo.HudView, ->
+describe 'AsciiIo.HudView', ->
 
   describe 'constructor', ->
     it 'creates child elements', ->

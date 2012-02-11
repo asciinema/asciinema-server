@@ -1,4 +1,4 @@
-describe AsciiIo.TerminalView, ->
+describe 'AsciiIo.TerminalView', ->
 
   describe 'constructor', ->
     it 'creates child elements', ->
