@@ -81,10 +81,14 @@ class AsciiIo.TerminalView extends Backbone.View
 
   blinkCursor: ->
     cursor = @$el.find(".cursor")
-    if cursor.hasClass("inverted")
-      cursor.removeClass "inverted"
+    if cursor.hasClass("visible")
+      cursor.removeClass "visible"
     else
-      cursor.addClass "inverted"
+      cursor.addClass "visible"
+
+  resetCursorState: ->
+    cursor = @$el.find(".cursor")
+    cursor.addClass "visible"
 
   startCursorBlink: ->
     @cursorTimerId = setInterval(@blinkCursor.bind(this), 500)
@@ -96,6 +100,7 @@ class AsciiIo.TerminalView extends Backbone.View
 
   restartCursorBlink: ->
     @stopCursorBlink()
+    @resetCursorState()
     @startCursorBlink()
 
   visualBell: ->
