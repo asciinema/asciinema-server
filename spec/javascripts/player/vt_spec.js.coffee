@@ -196,10 +196,6 @@ describe 'AsciiIo.VT', ->
         describe ']', ->
           # Operating system command
 
-          # beforeEach ->
-          #   vt = new AsciiIo.VT(cols, lines, renderer)
-            # vt.sb = {} # will throw 'undefined is not a function'
-
           describe '0;...BELL', ->
             beforeEach ->
               data += ']0;foobar\x07'
@@ -240,11 +236,11 @@ describe 'AsciiIo.VT', ->
           data += '['
 
         describe 'buffering', ->
-          # it 'allows parsing in chunks', ->
-          #   spyOn vt, 'handleSGR'
-          #   vt.feed(data)
-          #   vt.feed('m')
-          #   expect(vt.handleSGR).toHaveBeenCalled()
+          it 'allows parsing in chunks', ->
+            spyOn vt, 'handleSGR'
+            vt.feed(data)
+            vt.feed('m')
+            expect(vt.handleSGR).toHaveBeenCalled()
 
         describe '@', ->
           it 'calls reserveCharacters', ->

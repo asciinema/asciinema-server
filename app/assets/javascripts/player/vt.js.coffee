@@ -1,6 +1,7 @@
 class AsciiIo.VT
 
   constructor: (cols, lines, @renderer) ->
+    @data = ''
     @sb = new AsciiIo.ScreenBuffer(cols, lines)
 
     @fg = @bg = undefined
@@ -260,16 +261,18 @@ class AsciiIo.VT
     @COMPILED_PATTERNS = ([new RegExp("^" + re), f] for re, f of @PATTERNS)
 
   feed: (data) ->
-    while data.length > 0
+    @data += data
+
+    while @data.length > 0
       match = null
 
       for pattern in @COMPILED_PATTERNS
-        match = pattern[0].exec(data)
+        match = pattern[0].exec(@data)
 
         if match
           handler = pattern[1]
-          handler.call(this, data, match)
-          data = data.slice(match[0].length)
+          handler.call(this, @data, match)
+          @data = @data.slice(match[0].length)
           break
 
       break unless match
@@ -278,4 +281,4 @@ class AsciiIo.VT
     @renderer.render(changes, @sb.cursorX, @sb.cursorY)
     @sb.clearChanges()
 
-    data.length is 0
+    @data.length is 0
