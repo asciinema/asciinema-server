@@ -217,9 +217,9 @@ class AsciiIo.VT
       when "P" # DCH - Delete Character, from current position to end of field
         @deleteCharacters @n or 1
       when "S"
-        @scrollUp @n or 1
+        @scrollUp @n
       when "T"
-        @scrollDown @n or 1
+        @scrollDown @n
       when "X"
         @eraseCharacters @n
       when "Z"
@@ -524,14 +524,22 @@ class AsciiIo.VT
 
   setLineWrap: (linewrap) ->
 
-  scrollUp: ->
-    # @lineData.splice l, 0, []
-    # @clearLineData l
-    @insertLine 1, 0
+  scrollUp: (n = 1) ->
+    i = 0
+    while i < n
+      @lineData.splice @bottomMargin, 1
+      @lineData.splice @topMargin, 0, []
+      i++
+
     @updateScreen()
 
-  scrollDown: ->
-    @lineData.splice 0, 1
+  scrollDown: (n = 1) ->
+    i = 0
+    while i < n
+      @lineData.splice @topMargin, 1
+      @lineData.splice @bottomMargin, 0, []
+      i++
+
     @updateScreen()
 
   insertLine: (n, l = @cursorY) ->
@@ -573,19 +581,11 @@ class AsciiIo.VT
     else
       @priorRow()
 
-    # if @cursorY is 0
-    #   @insertLine 1, 0
-    # else
-    #   @priorRow()
-
   goToNextRow: ->
-    # if @cursorY is @bottomMargin
-    # else
-
-    if @cursorY + 1 < @lines
-      @nextRow()
-    else
+    if @cursorY is @bottomMargin
       @scrollDown()
+    else
+      @nextRow()
 
   goToNextRowFirstColumn: ->
     @carriageReturn()
