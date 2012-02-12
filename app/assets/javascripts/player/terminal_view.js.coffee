@@ -37,41 +37,51 @@ class AsciiIo.TerminalView extends Backbone.View
       @renderLine n, data || [], c
 
   renderLine: (n, data, cursorX) ->
-    html = []
+    html = ''
     i = 0
+    prevBrush = undefined
 
     for d in data
       if d
         [char, brush] = d
-        html[i] = @createSpan(char, brush, i is cursorX)
+
+        if brush != prevBrush or i is cursorX or i is (cursorX + 1)
+          if prevBrush
+            html += '</span>'
+
+          html += @createSpan(brush, i is cursorX)
+
+          prevBrush = brush
+
+        html += char
       else
-        html[i] = ' '
+        html += ' '
       i++
 
-    @$el.find(".line:eq(" + n + ")").html html.join("")
+    html += '</span>' if html.length > 0
 
-  createSpan: (char, brush, hasCursor) ->
-    prefix = ""
-    postfix = ""
+    @$el.find(".line:eq(" + n + ")").html html #.join("")
+
+  createSpan: (brush, hasCursor) ->
+    span = ""
 
     if hasCursor or brush.fg isnt undefined or brush.bg isnt undefined or brush.bright or brush.underline
-      prefix = "<span class=\""
+      span = "<span class=\""
       brightOffset = (if brush.bright then 8 else 0)
 
       if brush.fg isnt undefined
-        prefix += " fg" + (brush.fg + brightOffset)
+        span += " fg" + (brush.fg + brightOffset)
       else if brush.bright
-        prefix += " bright"
+        span += " bright"
 
       if brush.underline
-        prefix += " underline"
+        span += " underline"
 
-      prefix += " bg" + brush.bg if brush.bg isnt undefined
-      prefix += " cursor visible" if hasCursor
-      prefix += "\">"
-      postfix = "</span>"
+      span += " bg" + brush.bg if brush.bg isnt undefined
+      span += " cursor visible" if hasCursor
+      span += "\">"
 
-    prefix + char + postfix
+    span
 
   showCursor: (show) ->
     if show
