@@ -525,44 +525,32 @@ class AsciiIo.VT
   setLineWrap: (linewrap) ->
 
   scrollUp: (n = 1) ->
-    i = 0
-    while i < n
-      @lineData.splice @bottomMargin, 1
-      @lineData.splice @topMargin, 0, []
-      i++
-
-    @updateScreen()
+    @insertLine n, @topMargin
 
   scrollDown: (n = 1) ->
-    i = 0
-    while i < n
-      @lineData.splice @topMargin, 1
-      @lineData.splice @bottomMargin, 0, []
-      i++
-
-    @updateScreen()
+    @deleteLine n, @topMargin
 
   insertLine: (n, l = @cursorY) ->
     return unless @inScrollRegion()
 
     i = 0
     while i < n
+      @lineData.splice @bottomMargin, 1
       @lineData.splice l, 0, []
       @clearLineData l
       i++
-
-    # trim lineData to max size
-    @lineData.length = @lines
 
     @updateScreen()
 
   deleteLine: (n, l = @cursorY) ->
     return unless @inScrollRegion()
 
-    @lineData.splice l, n
-
-    # expand lineData to max size
-    @lineData.length = @lines
+    i = 0
+    while i < n
+      @lineData.splice l, 1
+      @lineData.splice @bottomMargin, 0, []
+      @clearLineData @bottomMargin
+      i++
 
     @updateScreen()
 
