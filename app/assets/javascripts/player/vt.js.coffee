@@ -530,14 +530,20 @@ class AsciiIo.VT
   scrollDown: (n = 1) ->
     @deleteLine n, @topMargin
 
+  _addEmptyLine: (l) ->
+    @lineData.splice l, 0, []
+    @clearLineData l
+
+  _removeLine: (l) ->
+    @lineData.splice l, 1
+
   insertLine: (n, l = @cursorY) ->
     return unless @inScrollRegion()
 
     i = 0
     while i < n
-      @lineData.splice @bottomMargin, 1
-      @lineData.splice l, 0, []
-      @clearLineData l
+      @_removeLine @bottomMargin
+      @_addEmptyLine l
       i++
 
     @updateScreen()
@@ -547,9 +553,8 @@ class AsciiIo.VT
 
     i = 0
     while i < n
-      @lineData.splice l, 1
-      @lineData.splice @bottomMargin, 0, []
-      @clearLineData @bottomMargin
+      @_removeLine l
+      @_addEmptyLine @bottomMargin
       i++
 
     @updateScreen()
