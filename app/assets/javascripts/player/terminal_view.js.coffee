@@ -67,7 +67,7 @@ class AsciiIo.TerminalView extends Backbone.View
         prefix += " underline"
 
       prefix += " bg" + brush.bg if brush.bg isnt undefined
-      prefix += " cursor" if hasCursor
+      prefix += " cursor visible" if hasCursor
       prefix += "\">"
       postfix = "</span>"
 
