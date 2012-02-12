@@ -1,22 +1,8 @@
 class AsciiIo.VT
 
   constructor: (@cols, @lines, @renderer) ->
-    @cursorX = 0
-    @cursorY = 0
-    @topMargin = 0
-    @bottomMargin = @lines - 1
-    @normalBuffer = []
-    @alternateBuffer = []
-    @lineData = @normalBuffer
-    @dirtyLines = {}
-    @brush = AsciiIo.Brush.create({})
     @data = ''
-    # @sb = new AsciiIo.ScreenBuffer(cols, lines)
-
-    @fg = @bg = undefined
-    @bright = false
-    @underline = false
-
+    @resetTerminal()
     @compilePatterns()
 
   noop: ->
@@ -44,7 +30,7 @@ class AsciiIo.VT
 
       "\x0a": (data) -> @lineFeed()
 
-      "\x0d": (data) -> @cr()
+      "\x0d": (data) -> @carriageReturn()
 
       "\x0e": (data) ->
 
@@ -91,12 +77,15 @@ class AsciiIo.VT
     "\x00": (data) ->
     "\x07": (data) -> @bell()
     "\x08": (data) -> @backspace()
-    "\x09": (data) -> # Moves the cursor to the next tab stop
+    "\x09": (data) -> @goToNextHorizontalTabStop()
     "\x0a": (data) -> @lineFeed()
-    "\x0d": (data) -> @cr()
+    "\x0b": (data) -> @verticalTab()
+    "\x0c": (data) -> @formFeed()
+    "\x0d": (data) -> @carriageReturn()
     "\x0e": (data) ->
     "\x0f": (data) ->
     "\x82": (data) -> # Reserved (?)
+    "\x85": (data) -> @setHorizontalTabStop()
     "\x94": (data) -> # Cancel Character, ignore previous character
 
     # 20 - 7e
@@ -137,9 +126,9 @@ class AsciiIo.VT
             # steady cursor
         else if mode is "25"
           if action is "h"
-            @renderer.showCursor true
+            @showCursor()
           else if action is "l"
-            @renderer.showCursor false
+            @hideCursor()
         else if mode is "47"
           if action is "h"
             @switchToAlternateBuffer()
@@ -173,54 +162,92 @@ class AsciiIo.VT
 
     "\x1b\\[>c": (data) -> # Secondary Device Attribute request (?)
 
+    "\x1bc": -> @resetTerminal()
     "\x1bP([^\\\\])*?\\\\": (data) -> # DCS, Device Control String
+    "\x1bD": -> @index()
+    "\x1bE": -> @newLine()
+    "\x1bM": -> @reverseIndex()
 
-    "\x1bD": ->
-      console.log 'ya yebie'
+    "\x1b7": (data) -> # save cursor pos and char attrs
+      @saveTerminalState()
 
-    "\x1bM": ->
-      @reverseIndex()
-
-    "\x1b\x37": (data) -> # save cursor pos and char attrs
-      @saveCursor()
-
-    "\x1b\x38": (data) -> # restore cursor pos and char attrs
-      @restoreCursor()
+    "\x1b8": (data) -> # restore cursor pos and char attrs
+      @restoreTerminalState()
 
   handleCSI: (term) ->
     switch term
       when "@"
-        @reserveCharacters @n
+        @insertCharacters @n
       when "A"
-        @cursorUp @n or 1
+        @priorRow @n
       when "B"
-        @cursorDown @n or 1
+        @nextRow @n
       when "C"
-        @cursorForward @n or 1
+        @nextColumn @n
       when "D"
-        @cursorBack @n or 1
+        @priorColumn @n
+      when "E"
+        @nextRowFirstColumn @n
+      when "F"
+        @priorRowFirstColumn @n
       when "G"
-        @setCursorColumn @n
+        @goToColumn @n
       when "H"
-        @setCursorPos @n or 1, @m or 1
+        @goToRowAndColumn @n, @m
+      when "I"
+        @goToNextHorizontalTabStop @n
       when "J"
-        @eraseData @n or 0
+        if @n is 2
+          @eraseScreen()
+        else if @n is 1
+          @eraseFromScreenStart()
+        else
+          @eraseToScreenEnd()
       when "K"
-        @eraseInLine @n or 0
+        if @n is 2
+          @eraseRow()
+        else if @n is 1
+          @eraseFromRowStart()
+        else
+          @eraseToRowEnd()
       when "L"
-        @insertLines @n or 1
+        @insertLine @n or 1
       when "M"
-        @deleteLines @n or 1
+        @deleteLine @n or 1
+      when "P" # DCH - Delete Character, from current position to end of field
+        @deleteCharacters @n or 1
+      when "S"
+        @scrollUp @n or 1
+      when "T"
+        @scrollDown @n or 1
+      when "X"
+        @eraseCharacters @n
+      when "Z"
+        @goToPriorHorizontalTabStop @n
+
+      when "b"
+        @repeatLastCharacter @n
       when "d" # VPA - Vertical Position Absolute
-        @setCursorLine(@n)
+        @goToRow @n
+      when "f"
+        @goToRowAndColumn @n, @m
+      when "g"
+        if !@n or @n is 0
+          @clearHorizontalTabStop()
+        else if @n is 3
+          @clearAllHorizontalTabStops()
       when "l" # l, Reset mode
         console.log "(TODO) reset: " + @n
       when "m"
         @handleSGR @params
-      when "P" # DCH - Delete Character, from current position to end of field
-        @deleteCharacter @n or 1
+      when "n"
+        @reportRowAndColumn()
       when "r" # Set top and bottom margins (scroll region on VT100)
-        @setScrollRegion(@n, @m)
+        @setScrollRegion @n or 0, @m or @lines - 1
+      when "s"
+        @saveCursor()
+      when "u"
+        @restoreCursor()
       else
         throw "no handler for CSI term: " + term
 
@@ -298,9 +325,6 @@ class AsciiIo.VT
 
   # ==== Screen buffer operations
 
-  setBrush: (brush) ->
-    @brush = brush
-
   clearScreen: ->
     @lineData.length = 0
 
@@ -325,10 +349,6 @@ class AsciiIo.VT
     @lineData = @alternateBuffer
     @updateScreen()
 
-  setScrollRegion: (top, bottom) ->
-    @topMargin = top - 1
-    @bottomMargin = bottom - 1
-
   updateLine: (n) ->
     n = (if typeof n isnt "undefined" then n else @cursorY)
     @dirtyLines[n] = n
@@ -336,71 +356,11 @@ class AsciiIo.VT
   updateScreen: ->
     @dirtyLines[n] = n for n in [0...@lines]
 
-  setCursorLine: (line) ->
-    oldLine = @cursorY
-    @cursorY = line - 1
-    @updateLine oldLine
-    @updateLine()
-
-  setCursorColumn: (col) ->
-    @cursorX = col - 1
-    @updateLine()
-
-  setCursorPos: (line, col) ->
-    @setCursorLine(line)
-    @setCursorColumn(col)
-
-  saveCursor: ->
-    @savedCol = @cursorX
-    @savedLine = @cursorY
-
-  restoreCursor: ->
-    oldLine = @cursorY
-
-    @cursorY = @savedLine
-    @cursorX = @savedCol
-
-    @updateLine oldLine
-    @updateLine()
-
-  cursorLeft: ->
-    if @cursorX > 0
-      @cursorX -= 1
-      @updateLine()
-
-  cursorRight: ->
-    if @cursorX < @cols
-      @cursorX += 1
-      @updateLine()
-
-  cursorUp: (n = 1) ->
-    for i in [0...n]
-      if @cursorY > 0
-        @cursorY -= 1
-        @updateLine @cursorY
-        @updateLine @cursorY + 1
-
-  cursorDown: (n = 1) ->
-    for i in [0...n]
-      if @cursorY + 1 < @lines
-        @cursorY += 1
-        @updateLine @cursorY - 1
-        @updateLine @cursorY
-
-  cursorForward: (n) ->
-    @cursorRight() for i in [0...n]
-
-  cursorBack: (n) ->
-    @cursorLeft() for i in [0...n]
-
-  cr: ->
-    @cursorX = 0
-    @updateLine()
+  carriageReturn: ->
+    @goToFirstColumn()
 
   backspace: ->
-    if @cursorX > 0
-      @cursorLeft()
-      @updateLine()
+    @priorColumn()
 
   print: (text) ->
     text = Utf8.decode(text)
@@ -417,71 +377,166 @@ class AsciiIo.VT
 
     @updateLine()
 
-  eraseData: (n) ->
-    if n is 0
-      @eraseInLine 0
-
-      l = @cursorY + 1
-      while l < @lines
-        @clearLineData l
-        @updateLine l
-        l++
-
-    else if n is 1
-      l = 0
-      while l < @cursorY
-        @clearLineData l
-        @updateLine l
-        l++
-
-      @eraseInLine n
-
-    else if n is 2
-      l = 0
-      while l < @lines
-        @clearLineData l
-        @updateLine l
-        l++
-
-  eraseInLine: (n) ->
-    if n is 0
-      @fill @cursorY, @cursorX, @cols - @cursorX, " "
-    else if n is 1
-      @fill @cursorY, 0, @cursorX, " "
-    else if n is 2
-      @fill @cursorY, 0, @cols, " "
-
-    @updateLine()
-
   clearLineData: (n) ->
     @fill n, 0, @cols, " "
 
-  deleteCharacter: (n) ->
-    @getLine().splice(@cursorX, n)
-    @updateLine()
+  fill: (line, col, n, char) ->
+    lineArr = @getLine(line)
 
-  reserveCharacters: (n) ->
-    line = @getLine()
-    @lineData[@cursorY] = line.slice(0, @cursorX).concat(" ".times(n).split(""), line.slice(@cursorX, @cols - n))
-    @updateLine()
+    i = 0
+    while i < n
+      lineArr[col + i] = [char, @brush]
+      i++
 
-  lineFeed: ->
-    @index()
+  inScrollRegion: ->
+    @cursorY >= @topMargin and @cursorY <= @bottomMargin
 
-  index: ->
-    if @cursorY + 1 < @lines
-      @cursorDown()
-    else
-      @lineData.splice 0, 1
-      @updateScreen()
+  changes: ->
+    c = {}
+    for _, n of @dirtyLines
+      c[n] = @lineData[n]
+
+    c
+
+  clearChanges: ->
+    @dirtyLines = {}
+
+  # === ANSI handlers
+
+  # ------ Cursor control
+
+  # ----- Scroll control
 
   reverseIndex: ->
-    if @cursorY is 0
-      @insertLines 1, 0
-    else
-      @cursorUp()
+    @goToPriorRow()
 
-  insertLines: (n, l = @cursorY) ->
+  lineFeed: ->
+    @goToNextRow()
+
+  verticalTab: ->
+    @goToNextRow()
+
+  formFeed: ->
+    @goToNextRow()
+
+  index: ->
+    @goToNextRow()
+
+  newLine: ->
+    @goToNextRowFirstColumn()
+
+
+  # === Commands
+
+  # ----- Cursor control
+
+  priorRow: (n = 1) ->
+    for i in [0...n]
+      if @cursorY > 0
+        @cursorY -= 1
+        @updateLine @cursorY
+        @updateLine @cursorY + 1
+
+  nextRow: (n = 1) ->
+    for i in [0...n]
+      if @cursorY + 1 < @lines
+        @cursorY += 1
+        @updateLine @cursorY - 1
+        @updateLine @cursorY
+
+  nextColumn: (n = 1) ->
+    @_cursorRight() for i in [0...n]
+
+  priorColumn: (n = 1) ->
+    @_cursorLeft() for i in [0...n]
+
+  _cursorLeft: ->
+    if @cursorX > 0
+      @cursorX -= 1
+      @updateLine()
+
+  _cursorRight: ->
+    if @cursorX < @cols
+      @cursorX += 1
+      @updateLine()
+
+  priorRowFirstColumn: (n = 1) ->
+    @carriageReturn()
+    @priorRow n
+
+  nextRowFirstColumn: (n = 1) ->
+    @carriageReturn()
+    @nextRow n
+
+  goToColumn: (col = 1) ->
+    @cursorX = col - 1
+    @updateLine()
+
+  goToRow: (line = 1) ->
+    oldLine = @cursorY
+    @cursorY = line - 1
+    @updateLine oldLine
+    @updateLine()
+
+  goToRowAndColumn: (line = 1, col = 1) ->
+    @goToRow line
+    @goToColumn col
+
+  setHorizontalTabStop: ->
+    # @tabStops << @cursorX
+
+  goToNextHorizontalTabStop: ->
+
+  goToPriorHorizontalTabStop: ->
+
+  clearHorizontalTabStop: ->
+
+  clearAllHorizontalTabStops: ->
+
+  saveCursor: ->
+    @savedCol = @cursorX
+    @savedLine = @cursorY
+
+  restoreCursor: ->
+    oldLine = @cursorY
+
+    @cursorY = @savedLine
+    @cursorX = @savedCol
+
+    @updateLine oldLine
+    @updateLine()
+
+  showCursor: ->
+    @renderer.showCursor true
+
+  hideCursor: ->
+    @renderer.showCursor false
+
+  goToFirstColumn: ->
+    @cursorX = 0
+    @updateLine()
+
+  # ----- Scroll control
+
+  setScrollRegion: (top, bottom) ->
+    @topMargin = top - 1
+    @bottomMargin = bottom - 1
+
+  setLineWrap: (linewrap) ->
+
+  scrollUp: ->
+    # @lineData.splice l, 0, []
+    # @clearLineData l
+    @insertLine 1, 0
+    @updateScreen()
+
+  scrollDown: ->
+    @lineData.splice 0, 1
+    @updateScreen()
+
+  insertLine: (n, l = @cursorY) ->
+    return unless @inScrollRegion()
+
     i = 0
     while i < n
       @lineData.splice l, 0, []
@@ -493,7 +548,9 @@ class AsciiIo.VT
 
     @updateScreen()
 
-  deleteLines: (n, l = @cursorY) ->
+  deleteLine: (n, l = @cursorY) ->
+    return unless @inScrollRegion()
+
     @lineData.splice l, n
 
     # expand lineData to max size
@@ -501,20 +558,132 @@ class AsciiIo.VT
 
     @updateScreen()
 
-  fill: (line, col, n, char) ->
-    lineArr = @getLine(line)
+  deleteCharacters: (n) ->
+    @getLine().splice(@cursorX, n)
+    @updateLine()
 
-    i = 0
-    while i < n
-      lineArr[col + i] = [char, @brush]
-      i++
+  insertCharacters: (n) ->
+    line = @getLine()
+    @lineData[@cursorY] = line.slice(0, @cursorX).concat(" ".times(n).split(""), line.slice(@cursorX, @cols - n))
+    @updateLine()
 
-  changes: ->
-    c = {}
-    for _, n of @dirtyLines
-      c[n] = @lineData[n]
+  goToPriorRow: ->
+    if @cursorY is @topMargin
+      @scrollUp()
+    else
+      @priorRow()
 
-    c
+    # if @cursorY is 0
+    #   @insertLine 1, 0
+    # else
+    #   @priorRow()
 
-  clearChanges: ->
+  goToNextRow: ->
+    # if @cursorY is @bottomMargin
+    # else
+
+    if @cursorY + 1 < @lines
+      @nextRow()
+    else
+      @scrollDown()
+
+  goToNextRowFirstColumn: ->
+    @carriageReturn()
+    @goToNextRow()
+
+  saveScrollRegion: ->
+    @savedTopMargin = @topMargin
+    @savedBottomMargin = @bottomMargin
+
+  restoreScrollRegion: ->
+    @topMargin = @savedTopMargin
+    @bottomMargin = @savedBottomMargin
+
+  # ----- Terminal control
+
+  resetTerminal: ->
+    @cursorX = 0
+    @cursorY = 0
+    @topMargin = 0
+    @bottomMargin = @lines - 1
+    @normalBuffer = []
+    @alternateBuffer = []
+    @lineData = @normalBuffer
     @dirtyLines = {}
+    @brush = AsciiIo.Brush.create({})
+
+    @fg = @bg = undefined
+    @bright = false
+    @underline = false
+
+    @updateScreen()
+
+  saveTerminalState: ->
+    @saveCursor()
+    @saveScrollRegion()
+    @saveBrush()
+
+  restoreTerminalState: ->
+    @restoreBrush()
+    @restoreScrollRegion()
+    @restoreCursor()
+
+  reportRowAndColumn: ->
+
+  # ----- Attribute control
+
+  setBrush: (brush) ->
+    @brush = brush
+
+  saveBrush: ->
+    @savedBrush = @brush
+
+  restoreBrush: ->
+    @brush = @savedBrush
+
+  repeatLastCharacter: (n = 1) ->
+
+  # ----- Erase control
+
+  eraseScreen: ->
+    l = 0
+    while l < @lines
+      @clearLineData l
+      @updateLine l
+      l++
+
+  eraseFromScreenStart: ->
+    l = 0
+    while l < @cursorY
+      @clearLineData l
+      @updateLine l
+      l++
+
+    @eraseFromRowStart()
+
+  eraseToScreenEnd: ->
+    @eraseToRowEnd()
+
+    l = @cursorY + 1
+    while l < @lines
+      @clearLineData l
+      @updateLine l
+      l++
+
+  eraseRow: ->
+    @fill @cursorY, 0, @cols, " "
+    @updateLine()
+
+  eraseFromRowStart: ->
+    @fill @cursorY, 0, @cursorX, " "
+    @updateLine()
+
+  eraseToRowEnd: ->
+    @fill @cursorY, @cursorX, @cols - @cursorX, " "
+    @updateLine()
+
+  eraseCharacters: (n = 1) ->
+    @fill @cursorY, @cursorX, n, " "
+    @updateLine()
+
+# http://www.shaels.net/index.php/propterm/documents
