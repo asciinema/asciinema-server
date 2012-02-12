@@ -373,14 +373,14 @@ class AsciiIo.VT
       @cursorX += 1
       @updateLine()
 
-  cursorUp: (n) ->
+  cursorUp: (n = 1) ->
     for i in [0...n]
       if @cursorY > 0
         @cursorY -= 1
         @updateLine @cursorY
         @updateLine @cursorY + 1
 
-  cursorDown: (n) ->
+  cursorDown: (n = 1) ->
     for i in [0...n]
       if @cursorY + 1 < @lines
         @cursorY += 1
