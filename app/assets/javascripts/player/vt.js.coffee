@@ -349,12 +349,11 @@ class AsciiIo.VT
     @lineData = @alternateBuffer
     @updateScreen()
 
-  updateLine: (n) ->
-    n = (if typeof n isnt "undefined" then n else @cursorY)
-    @dirtyLines[n] = n
+  updateLine: (n = @cursorY) ->
+    @dirtyLines[n] = @lineData[n]
 
   updateScreen: ->
-    @dirtyLines[n] = n for n in [0...@lines]
+    @dirtyLines[n] = @lineData[n] for n in [0...@lines]
 
   carriageReturn: ->
     @goToFirstColumn()
@@ -392,11 +391,7 @@ class AsciiIo.VT
     @cursorY >= @topMargin and @cursorY <= @bottomMargin
 
   changes: ->
-    c = {}
-    for _, n of @dirtyLines
-      c[n] = @lineData[n]
-
-    c
+    @dirtyLines
 
   clearChanges: ->
     @dirtyLines = {}
