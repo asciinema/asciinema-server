@@ -4,10 +4,13 @@ class AsciiIo.Brush
   @clearCache: ->
     @cache = {}
 
+  @hash: (brush) ->
+    "#{brush.fg}_#{brush.bg}_#{brush.bright}_#{brush.underline}"
+
   @create: (options) ->
     options ||= {}
 
-    key = "#{options.fg}_#{options.bg}_#{options.bright}_#{options.underline}"
+    key = @hash(options)
     brush = @cache[key]
 
     if not brush

@@ -5,6 +5,7 @@ class AsciiIo.TerminalView extends Backbone.View
   initialize: (options) ->
     @cols = options.cols
     @lines = options.lines
+    @cachedSpans = {}
 
     @createChildElements()
     @showCursor true
@@ -49,7 +50,7 @@ class AsciiIo.TerminalView extends Backbone.View
           if prevBrush
             html += '</span>'
 
-          html += @createSpan(brush, i is cursorX)
+          html += @spanFromBrush(brush, i is cursorX)
 
           prevBrush = brush
 
@@ -62,24 +63,30 @@ class AsciiIo.TerminalView extends Backbone.View
 
     @$el.find(".line:eq(" + n + ")").html html #.join("")
 
-  createSpan: (brush, hasCursor) ->
-    span = ""
+  spanFromBrush: (brush, hasCursor) ->
+    key = "#{AsciiIo.Brush.hash(brush)}_#{hasCursor}"
+    span = @cachedSpans[key]
 
-    if hasCursor or brush.fg isnt undefined or brush.bg isnt undefined or brush.bright or brush.underline
-      span = "<span class=\""
-      brightOffset = (if brush.bright then 8 else 0)
+    if not span
+      span = ""
 
-      if brush.fg isnt undefined
-        span += " fg" + (brush.fg + brightOffset)
-      else if brush.bright
-        span += " bright"
+      if hasCursor or brush.fg isnt undefined or brush.bg isnt undefined or brush.bright or brush.underline
+        span = "<span class=\""
+        brightOffset = (if brush.bright then 8 else 0)
 
-      if brush.underline
-        span += " underline"
+        if brush.fg isnt undefined
+          span += " fg" + (brush.fg + brightOffset)
+        else if brush.bright
+          span += " bright"
 
-      span += " bg" + brush.bg if brush.bg isnt undefined
-      span += " cursor visible" if hasCursor
-      span += "\">"
+        if brush.underline
+          span += " underline"
+
+        span += " bg" + brush.bg if brush.bg isnt undefined
+        span += " cursor visible" if hasCursor
+        span += "\">"
+
+      @cachedSpans[key] = span
 
     span
 
