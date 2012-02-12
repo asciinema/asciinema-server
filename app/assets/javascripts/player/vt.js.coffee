@@ -352,8 +352,14 @@ class AsciiIo.VT
   updateLine: (n = @cursorY) ->
     @dirtyLines[n] = @lineData[n]
 
+  updateLines: (a, b) ->
+    n = a
+    while n <= b
+      @updateLine n
+      n++
+
   updateScreen: ->
-    @dirtyLines[n] = @lineData[n] for n in [0...@lines]
+    @updateLine n for n in [0...@lines]
 
   carriageReturn: ->
     @goToFirstColumn()
@@ -541,7 +547,7 @@ class AsciiIo.VT
       @_addEmptyLine l
       i++
 
-    @updateScreen()
+    @updateLines(l, @bottomMargin)
 
   deleteLine: (n, l = @cursorY) ->
     return unless @inScrollRegion()
@@ -552,7 +558,7 @@ class AsciiIo.VT
       @_addEmptyLine @bottomMargin
       i++
 
-    @updateScreen()
+    @updateLines(l, @bottomMargin)
 
   deleteCharacters: (n) ->
     @getLine().splice(@cursorX, n)
