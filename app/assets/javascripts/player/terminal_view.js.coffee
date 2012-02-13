@@ -74,11 +74,13 @@ class AsciiIo.TerminalView extends Backbone.View
 
       if hasCursor or brush.fg isnt undefined or brush.bg isnt undefined or brush.bright or brush.underline
         span = "<span class=\""
-        brightOffset = (if brush.bright then 8 else 0)
 
         if brush.fg isnt undefined
-          span += " fg" + (brush.fg + brightOffset)
-        else if brush.bright
+          fg = brush.fg
+          fg += 8 if fg < 8 and brush.bright
+          span += " fg" + fg
+
+        if brush.bright
           span += " bright"
 
         if brush.underline
