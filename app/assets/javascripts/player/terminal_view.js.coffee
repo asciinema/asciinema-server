@@ -46,6 +46,8 @@ class AsciiIo.TerminalView extends Backbone.View
       if d
         [char, brush] = d
 
+        char = char.replace('&', '&amp;').replace('<', '&lt;')
+
         if brush != prevBrush or i is cursorX or i is (cursorX + 1)
           if prevBrush
             html += '</span>'
