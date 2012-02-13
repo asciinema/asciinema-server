@@ -31,6 +31,9 @@ class AsciiIo.PlayerView extends Backbone.View
     @movie.on 'movie-frame', (frame) =>
       @vt.feed(frame)
 
+    @movie.on 'movie-awake', (frame) =>
+      @terminalView.restartCursorBlink()
+
     @movie.on 'movie-finished', =>
       @terminalView.stopCursorBlink()
 

@@ -36,7 +36,7 @@ class AsciiIo.Movie
         realDelay = delay * 1000 * (1.0 / @SPEED)
         setTimeout(
           =>
-            @trigger('movie-awake') # @terminal.restartCursorBlink()
+            @trigger('movie-awake')
             @triggerAndSchedule(frameData)
           realDelay
         )
