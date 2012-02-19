@@ -462,7 +462,7 @@ class AsciiIo.VT
       @updateLine()
 
   _cursorRight: ->
-    if @cursorX < @cols
+    if @cursorX < @cols - 1
       @cursorX += 1
       @updateLine()
 
