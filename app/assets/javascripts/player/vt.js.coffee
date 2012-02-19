@@ -592,7 +592,7 @@ class AsciiIo.VT
     line = @getLine()
     brush = line[line.length-1][1]
     line.splice(@cursorX, n)
-    @fill(@cursorY, @cols - n - 1, n, ' ', brush)
+    @fill(@cursorY, @cols - n, n, ' ', brush)
     @updateLine()
 
   insertCharacters: (n) ->
