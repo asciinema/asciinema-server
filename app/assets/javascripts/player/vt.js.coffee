@@ -385,12 +385,12 @@ class AsciiIo.VT
   clearLineData: (n) ->
     @fill n, 0, @cols, " "
 
-  fill: (line, col, n, char) ->
+  fill: (line, col, n, char, brush=@brush) ->
     lineArr = @getLine(line)
 
     i = 0
     while i < n
-      lineArr[col + i] = [char, @brush]
+      lineArr[col + i] = [char, brush]
       i++
 
   inScrollRegion: ->
@@ -589,7 +589,10 @@ class AsciiIo.VT
     @updateLines(l, @bottomMargin)
 
   deleteCharacters: (n) ->
-    @getLine().splice(@cursorX, n)
+    line = @getLine()
+    brush = line[line.length-1][1]
+    line.splice(@cursorX, n)
+    @fill(@cursorY, @cols - n - 1, n, ' ', brush)
     @updateLine()
 
   insertCharacters: (n) ->
