@@ -166,6 +166,7 @@ class AsciiIo.VT
     "\x1bP([^\\\\])*?\\\\": (data) -> # DCS, Device Control String
     "\x1bD": -> @index()
     "\x1bE": -> @newLine()
+    "\x1bH": -> @setHorizontalTabStop()
     "\x1bM": -> @reverseIndex()
 
     "\x1b7": (data) -> # save cursor pos and char attrs
@@ -224,7 +225,6 @@ class AsciiIo.VT
         @eraseCharacters @n
       when "Z"
         @goToPriorHorizontalTabStop @n
-
       when "b"
         @repeatLastCharacter @n
       when "d" # VPA - Vertical Position Absolute
@@ -484,15 +484,43 @@ class AsciiIo.VT
     @goToColumn col
 
   setHorizontalTabStop: ->
-    # @tabStops << @cursorX
+    unless _(@tabStops).include(@cursorX)
+      pos = _(@tabStops).sortedIndex(@cursorX)
+      @tabStops.splice(pos, 0, @cursorX)
 
-  goToNextHorizontalTabStop: ->
+  goToNextHorizontalTabStop: (n) ->
+    x = @getNextTabStop()
+    @goToRowAndColumn(@cursorY + 1, x + 1)
+    @updateLine()
 
-  goToPriorHorizontalTabStop: ->
+  goToPriorHorizontalTabStop: (n) ->
+    x = @getPriorTabStop()
+    @goToRowAndColumn(@cursorY + 1, x + 1)
+    @updateLine()
+
+  getNextTabStop: ->
+    for x in @tabStops
+      if x > @cursorX
+        return x
+
+    @cols
+
+  getPriorTabStop: ->
+    ret = 0
+
+    for x in @tabStops
+      if x > @cursorX
+        break
+
+      ret = x
+
+    ret
 
   clearHorizontalTabStop: ->
+    console.log 'clearHorizontalTabStop'
 
   clearAllHorizontalTabStops: ->
+    console.log 'clearAllHorizontalTabStops'
 
   saveCursor: ->
     @savedCol = @cursorX
@@ -605,6 +633,7 @@ class AsciiIo.VT
     @lineData = @normalBuffer
     @dirtyLines = {}
     @brush = AsciiIo.Brush.create({})
+    @tabStops = (x for x in [0...@cols] when x % 8 is 0)
 
     @fg = @bg = undefined
     @bright = false
