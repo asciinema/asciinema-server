@@ -37,12 +37,18 @@ class AsciiIo.TerminalView extends Backbone.View
       c = if parseInt(n) is cursorY then cursorX else undefined
       @renderLine n, data || [], c
 
+  afterInsertedToDom: ->
+    width = @$el.width()
+    height = @$el.height()
+    @$el.css(width: width + 'px', height: height + 'px')
+
   renderLine: (n, data, cursorX) ->
     html = ''
-    i = 0
     prevBrush = undefined
 
-    for d in data
+    for i in [0...@cols]
+      d = data[i]
+
       if d
         [char, brush] = d
 
@@ -59,7 +65,6 @@ class AsciiIo.TerminalView extends Backbone.View
         html += char
       else
         html += ' '
-      i++
 
     html += '</span>' if html.length > 0
 

@@ -3,6 +3,7 @@ class AsciiIo.VT
   constructor: (@cols, @lines, @renderer) ->
     @data = ''
     @resetTerminal()
+    @render()
     @compilePatterns()
 
   noop: ->
@@ -322,11 +323,14 @@ class AsciiIo.VT
 
       break unless match
 
+    @render()
+
+    @data.length is 0
+
+  render: ->
     changes = @changes()
     @renderer.render(changes, @cursorX, @cursorY)
     @clearChanges()
-
-    @data.length is 0
 
   # ==== Screen buffer operations
 

@@ -14,6 +14,7 @@ class AsciiIo.PlayerView extends Backbone.View
 
   createChildViews: ->
     @$el.append(@terminalView.$el)
+    @terminalView.afterInsertedToDom()
 
     @hudView = new AsciiIo.HudView()
     @$el.append(@hudView.$el)
