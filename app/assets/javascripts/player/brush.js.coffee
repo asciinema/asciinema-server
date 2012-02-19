@@ -5,7 +5,7 @@ class AsciiIo.Brush
     @cache = {}
 
   @hash: (brush) ->
-    "#{brush.fg}_#{brush.bg}_#{brush.bright}_#{brush.underline}"
+    "#{brush.fg}_#{brush.bg}_#{brush.bright}_#{brush.underline}_#{brush.italic}"
 
   @create: (options) ->
     options ||= {}
@@ -24,3 +24,4 @@ class AsciiIo.Brush
     @bg        = options.bg
     @bright    = options.bright
     @underline = options.underline
+    @italic    = options.italic

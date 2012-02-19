@@ -86,6 +86,9 @@ class AsciiIo.TerminalView extends Backbone.View
         if brush.underline
           span += " underline"
 
+        if brush.italic
+          span += " italic"
+
         span += " bg" + brush.bg if brush.bg isnt undefined
         span += " cursor visible" if hasCursor
         span += "\">"
