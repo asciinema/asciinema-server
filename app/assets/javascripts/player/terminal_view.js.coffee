@@ -85,6 +85,11 @@ class AsciiIo.TerminalView extends Backbone.View
           fg += 8 if fg < 8 and brush.bright
           span += " fg" + fg
 
+        if brush.bg isnt undefined
+          bg = brush.bg
+          bg += 8 if bg < 8 and brush.blink
+          span += " bg" + bg
+
         if brush.bright
           span += " bright"
 
@@ -94,7 +99,6 @@ class AsciiIo.TerminalView extends Backbone.View
         if brush.italic
           span += " italic"
 
-        span += " bg" + brush.bg if brush.bg isnt undefined
         span += " cursor visible" if hasCursor
         span += "\">"
 

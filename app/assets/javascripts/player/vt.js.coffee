@@ -269,10 +269,14 @@ class AsciiIo.VT
         @italic = true
       else if n is 4
         @underline = true
+      else if n is 5
+        @blink = true
       else if n is 23
         @italic = false
       else if n is 24
         @underline = false
+      else if n is 25
+        @blink = false
       else if n >= 30 and n <= 37
         @fg = n - 30
       else if n is 38
@@ -291,11 +295,12 @@ class AsciiIo.VT
       i++
 
     props = {}
-    props.fg = @fg if @fg
-    props.bg = @bg if @bg
+    props.fg = @fg if @fg isnt undefined
+    props.bg = @bg if @bg isnt undefined
     props.bright = true if @bright
     props.underline = true if @underline
     props.italic = true if @italic
+    props.blink = true if @blink
 
     @setBrush AsciiIo.Brush.create(props)
 
