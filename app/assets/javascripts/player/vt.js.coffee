@@ -159,6 +159,8 @@ class AsciiIo.VT
 
     "\x1b\x3e": (data) -> # DECKPNM - Set keypad to numeric mode (digits intead of ESCape seq)
 
+    "\x1b\\\\": -> # String Terminator (VT125 exits graphics)
+
     "\x1b\x5d[012]\x3b.*?\x07": (data, match) -> # OSC - Operating System Command (terminal title)
 
     "\x1b\\[>c": (data) -> # Secondary Device Attribute request (?)
@@ -169,6 +171,7 @@ class AsciiIo.VT
     "\x1bE": -> @newLine()
     "\x1bH": -> @setHorizontalTabStop()
     "\x1bM": -> @reverseIndex()
+    "\x1bk": -> # NAPLPS lock-shift G1 to GR
 
     "\x1b7": (data) -> # save cursor pos and char attrs
       @saveTerminalState()
