@@ -5,6 +5,7 @@ gem 'jquery-rails'
 gem 'mysql2'
 gem 'tzinfo'
 gem 'carrierwave'
+gem 'confstruct'
 
 # Gems used only for assets and not required
 # in production environments by default.

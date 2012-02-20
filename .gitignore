@@ -16,3 +16,4 @@ config/*.yml
 rerun.txt
 pickle-email-*.html
 .jhw-cache/
+config/local.yml
