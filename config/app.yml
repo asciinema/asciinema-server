@@ -1,0 +1,6 @@
+defaults: &defaults
+  carrierwave_storage: :fog
+
+development:
+  <<: *defaults
+  carrierwave_storage: :file
