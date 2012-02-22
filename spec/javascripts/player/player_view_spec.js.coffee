@@ -18,10 +18,14 @@ describe 'AsciiIo.PlayerView', ->
       expect(element.find('.hud').length).toBe(1)
 
     it 'creates TerminalView instance passing proper DOM element', ->
-      spyOn(AsciiIo, 'TerminalView').andReturn({ on: -> 'foo' })
+      spyOn(AsciiIo, 'TerminalView').andReturn(
+        on: -> 'foo',
+        render: -> undefined,
+        afterInsertedToDom: -> undefined
+      )
 
       player = new AsciiIo.PlayerView({
-        el: element, cols: cols, lines: lines, data: data, timing: timing
+        cols: cols, lines: lines, data: data, timing: timing
       })
 
       expect(AsciiIo.TerminalView).toHaveBeenCalledWith({
