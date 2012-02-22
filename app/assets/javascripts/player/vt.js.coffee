@@ -118,6 +118,8 @@ class AsciiIo.VT
       for mode in modes
         if mode is "1"
           # 1 + h / l = cursor keys stuff
+        else if mode is "5"
+          # Reverse/normal video
         else if mode is "7"
           # Enables/disables autowrap mode
         else if mode is "12"
