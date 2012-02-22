@@ -517,96 +517,96 @@ describe 'AsciiIo.VT', ->
     numbers = undefined
 
     it 'resets brush for 0', ->
-      spyOn vt.sb, 'setBrush'
+      spyOn vt, 'setBrush'
 
       numbers = [31]
       vt.handleSGR(numbers)
       expectedBrush = AsciiIo.Brush.create({ fg: 1 })
-      expect(vt.sb.setBrush).toHaveBeenCalledWith(expectedBrush)
+      expect(vt.setBrush).toHaveBeenCalledWith(expectedBrush)
 
       numbers = [0]
       vt.handleSGR(numbers)
       expectedBrush = AsciiIo.Brush.create({})
-      expect(vt.sb.setBrush).toHaveBeenCalledWith(expectedBrush)
+      expect(vt.setBrush).toHaveBeenCalledWith(expectedBrush)
 
     it 'sets bright attr for 1', ->
       numbers = [1]
-      spyOn vt.sb, 'setBrush'
+      spyOn vt, 'setBrush'
       vt.handleSGR(numbers)
       expectedBrush = AsciiIo.Brush.create({ bright: true })
-      expect(vt.sb.setBrush).toHaveBeenCalledWith(expectedBrush)
+      expect(vt.setBrush).toHaveBeenCalledWith(expectedBrush)
 
     it 'sets underline attr for 4', ->
       numbers = [4]
-      spyOn vt.sb, 'setBrush'
+      spyOn vt, 'setBrush'
       vt.handleSGR(numbers)
       expectedBrush = AsciiIo.Brush.create({ underline: true })
-      expect(vt.sb.setBrush).toHaveBeenCalledWith(expectedBrush)
+      expect(vt.setBrush).toHaveBeenCalledWith(expectedBrush)
 
     it 'unsets underline attr for 24', ->
-      spyOn vt.sb, 'setBrush'
+      spyOn vt, 'setBrush'
 
       numbers = [31, 4]
       vt.handleSGR(numbers)
       expectedBrush = AsciiIo.Brush.create({ fg: 1, underline: true })
-      expect(vt.sb.setBrush).toHaveBeenCalledWith(expectedBrush)
+      expect(vt.setBrush).toHaveBeenCalledWith(expectedBrush)
 
       numbers = [24]
       vt.handleSGR(numbers)
       expectedBrush = AsciiIo.Brush.create({ fg: 1 })
-      expect(vt.sb.setBrush).toHaveBeenCalledWith(expectedBrush)
+      expect(vt.setBrush).toHaveBeenCalledWith(expectedBrush)
 
     it 'sets foreground for 30-37', ->
       numbers = [32]
-      spyOn vt.sb, 'setBrush'
+      spyOn vt, 'setBrush'
       vt.handleSGR(numbers)
       expectedBrush = AsciiIo.Brush.create({ fg: 2 })
-      expect(vt.sb.setBrush).toHaveBeenCalledWith(expectedBrush)
+      expect(vt.setBrush).toHaveBeenCalledWith(expectedBrush)
 
     it 'sets foreground for 38;5;x', ->
       numbers = [38, 5, 100]
-      spyOn vt.sb, 'setBrush'
+      spyOn vt, 'setBrush'
       vt.handleSGR(numbers)
       expectedBrush = AsciiIo.Brush.create({ fg: 100 })
-      expect(vt.sb.setBrush).toHaveBeenCalledWith(expectedBrush)
+      expect(vt.setBrush).toHaveBeenCalledWith(expectedBrush)
 
     it 'unsets foreground for 39', ->
-      spyOn vt.sb, 'setBrush'
+      spyOn vt, 'setBrush'
 
       numbers = [32]
       vt.handleSGR(numbers)
       expectedBrush = AsciiIo.Brush.create({ fg: 2 })
-      expect(vt.sb.setBrush).toHaveBeenCalledWith(expectedBrush)
+      expect(vt.setBrush).toHaveBeenCalledWith(expectedBrush)
 
       numbers = [39]
       vt.handleSGR(numbers)
       expectedBrush = AsciiIo.Brush.create({})
-      expect(vt.sb.setBrush).toHaveBeenCalledWith(expectedBrush)
+      expect(vt.setBrush).toHaveBeenCalledWith(expectedBrush)
 
     it 'sets background for 40-47', ->
       numbers = [42]
-      spyOn vt.sb, 'setBrush'
+      spyOn vt, 'setBrush'
       vt.handleSGR(numbers)
       expectedBrush = AsciiIo.Brush.create({ bg: 2 })
-      expect(vt.sb.setBrush).toHaveBeenCalledWith(expectedBrush)
+      expect(vt.setBrush).toHaveBeenCalledWith(expectedBrush)
 
     it 'sets background for 48;5;x', ->
       numbers = [48, 5, 200]
-      spyOn vt.sb, 'setBrush'
+      spyOn vt, 'setBrush'
       vt.handleSGR(numbers)
       expectedBrush = AsciiIo.Brush.create({ bg: 200 })
-      expect(vt.sb.setBrush).toHaveBeenCalledWith(expectedBrush)
+      expect(vt.setBrush).toHaveBeenCalledWith(expectedBrush)
 
     it 'unsets background for 49', ->
-      spyOn vt.sb, 'setBrush'
+      spyOn vt, 'setBrush'
 
       numbers = [42]
       vt.handleSGR(numbers)
       expectedBrush = AsciiIo.Brush.create({ bg: 2 })
-      expect(vt.sb.setBrush).toHaveBeenCalledWith(expectedBrush)
+      expect(vt.setBrush).toHaveBeenCalledWith(expectedBrush)
 
       numbers = [49]
       vt.handleSGR(numbers)
       expectedBrush = AsciiIo.Brush.create({})
-      expect(vt.sb.setBrush).toHaveBeenCalledWith(expectedBrush)
+      expect(vt.setBrush).toHaveBeenCalledWith(expectedBrush)
 
