@@ -252,6 +252,8 @@ class AsciiIo.VT
         @saveCursor()
       when "u"
         @restoreCursor()
+      when "^"
+        # reserved
       else
         throw "no handler for CSI term: " + term
 
