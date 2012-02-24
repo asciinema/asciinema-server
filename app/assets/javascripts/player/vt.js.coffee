@@ -103,7 +103,7 @@ class AsciiIo.VT
 
       @n = @params[0]
       @m = @params[1]
-      @handleCSI match[2]
+      @handleCS match[2]
 
     # private standards
     "\x1b\\[\\?([\x30-\x3f]+)([hlsr])": (data, match) ->
