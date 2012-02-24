@@ -250,6 +250,8 @@ class AsciiIo.VT
         @setScrollRegion @n or 0, @m or @lines - 1
       when "^"
         # reserved
+        # Privacy Message (password verification), terminated by ST
+        # TODO
       else
         throw "no handler for CSI term: " + term
 
