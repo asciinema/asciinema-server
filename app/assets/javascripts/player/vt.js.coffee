@@ -264,6 +264,7 @@ class AsciiIo.VT
         @fg = @bg = undefined
         @bright = false
         @underline = false
+        # TODO: reset blink (and others?)
       else if n is 1
         @bright = true
       else if n is 3
