@@ -248,10 +248,6 @@ class AsciiIo.VT
         @reportRowAndColumn()
       when "r" # Set top and bottom margins (scroll region on VT100)
         @setScrollRegion @n or 0, @m or @lines - 1
-      when "s"
-        @saveCursor()
-      when "u"
-        @restoreCursor()
       when "^"
         # reserved
       else
