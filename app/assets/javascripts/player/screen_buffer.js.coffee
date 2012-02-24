@@ -7,10 +7,6 @@ class AsciiIo.ScreenBuffer
     @cursorX = 0
     @cursorY = 0
 
-    @fg = @bg = undefined
-    @bright = false
-    @underline = false
-    @italic = false
     @brush = AsciiIo.Brush.create({})
 
   topMargin: ->

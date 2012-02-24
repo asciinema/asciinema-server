@@ -415,6 +415,11 @@ class AsciiIo.VT
     @alternateBuffer = new AsciiIo.ScreenBuffer(@cols, @lines, @scrollRegion, @tabStops)
     @buffer = @normalBuffer
 
+    @fg = @bg = undefined
+    @bright = false
+    @underline = false
+    @italic = false
+
     @updateScreen()
 
   saveTerminalState: ->
