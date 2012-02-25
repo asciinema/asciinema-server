@@ -9,7 +9,6 @@ describe User do
   end
 
   describe ".create_with_omniauth" do
-    let(:email)    { "foo@bar.com" }
     let(:uid)      { "123" }
     let(:provider) { "twitter" }
     let(:name)     { "foo" }
@@ -18,9 +17,8 @@ describe User do
       {
         "provider" => provider,
         "uid" => uid,
-        "user_info" => {
-          "name" => name,
-          "email" => email }
+        "info" => {
+          "name" => name }
       }
     end
 
@@ -29,7 +27,6 @@ describe User do
       user.provider.should == provider
       user.uid.should == uid
       user.name.should == name
-      user.email.should == email
     end
 
   end
