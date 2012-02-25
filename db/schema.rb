@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120114195316) do
+ActiveRecord::Schema.define(:version => 20120225124004) do
 
   create_table "asciicasts", :force => true do |t|
     t.integer  "user_id"
@@ -24,8 +24,8 @@ ActiveRecord::Schema.define(:version => 20120114195316) do
     t.string   "command"
     t.string   "shell"
     t.string   "uname"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",       :null => false
+    t.datetime "updated_at",       :null => false
     t.string   "stdin"
     t.string   "stdin_timing"
     t.string   "stdout"
@@ -35,5 +35,16 @@ ActiveRecord::Schema.define(:version => 20120114195316) do
   add_index "asciicasts", ["created_at"], :name => "index_asciicasts_on_created_at"
   add_index "asciicasts", ["recorded_at"], :name => "index_asciicasts_on_recorded_at"
   add_index "asciicasts", ["user_id"], :name => "index_asciicasts_on_user_id"
+
+  create_table "users", :force => true do |t|
+    t.string   "provider"
+    t.string   "uid"
+    t.string   "email"
+    t.string   "name"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  add_index "users", ["provider", "uid"], :name => "index_users_on_provider_and_uid", :unique => true
 
 end
