@@ -15,8 +15,12 @@
       </div>
       <div id="menu">
         <ul class="links">
-          <li>Sign in</li>
-          <li>Sign up</li>
+          <% if current_user %>
+            <li><%= link_to "Sign out", logout_path %></li>
+          <% else %>
+            <li><%= link_to "Twitter Sign in", "/auth/twitter" %></li>
+            <li><%= link_to "Github Sign in", "/auth/twitter" %></li>
+          <% end %>
         </ul>
       </div>
     </div>

@@ -1,6 +1,17 @@
 defaults: &defaults
   carrierwave_storage: :fog
+  oauth:
+    twitter:
+      consumer_key: "qAFaJs7lyIm3xjtdtFaQ"
+      consumer_secret: "Ytqj4IfXmQ7gn0yWf2GgFUpFDAWfqYpVkX3P1ng0TU"
+    github:
+      consumer_key: "455d7cde838004d7d46a"
+      consumer_secret: "5e076dbe06e79f6a7e329a4c7b306c0a0c6055c1"
 
 development:
+  <<: *defaults
+  carrierwave_storage: :file
+
+test:
   <<: *defaults
   carrierwave_storage: :file
