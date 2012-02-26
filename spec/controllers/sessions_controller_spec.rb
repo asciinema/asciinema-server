@@ -23,7 +23,7 @@ describe SessionsController do
 
       it "should create session" do
         session[:user_id].should_not be_nil
-        assigns[:current_user].should_not be_nil
+        @controller.current_user.should_not be_nil
       end
 
       it "should redirects user to root url" do
@@ -62,7 +62,7 @@ describe SessionsController do
 
     it "should destroy session" do
       session[:user_id].should be_nil
-      assigns[:current_user].should be_nil
+      @controller.current_user.should be_nil
     end
 
     it "should redirects to root_url" do
