@@ -4,8 +4,9 @@ FactoryGirl.define do
   factory :user do
     provider "twitter"
     uid "1234"
+    nickname "mrFoo"
     email nil
-    name "foo"
+    name nil
     avatar_url nil
   end
 end

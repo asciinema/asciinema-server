@@ -11,14 +11,16 @@ describe User do
   describe ".create_with_omniauth" do
     let(:uid)      { "123" }
     let(:provider) { "twitter" }
-    let(:name)     { "foo" }
+    let(:nickname) { "foo" }
+    let(:name)     { "Foo Bar" }
 
     let(:auth) do
       {
         "provider" => provider,
         "uid" => uid,
         "info" => {
-          "name" => name }
+          "name" => name,
+          "nickname" => nickname }
       }
     end
 
@@ -26,6 +28,7 @@ describe User do
       user = User.create_with_omniauth(auth)
       user.provider.should == provider
       user.uid.should == uid
+      user.nickname.should == nickname
       user.name.should == name
       user.avatar_url.should be_nil
     end
