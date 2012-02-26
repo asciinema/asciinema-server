@@ -22,11 +22,12 @@ describe User do
       }
     end
 
-    it "should create user with valid attributes" do
+    it "creates user with valid attributes" do
       user = User.create_with_omniauth(auth)
       user.provider.should == provider
       user.uid.should == uid
       user.name.should == name
     end
+
   end
 end
