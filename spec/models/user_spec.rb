@@ -5,7 +5,7 @@ describe User do
   let(:user) { Factory.build(:user) }
 
   it "has valid factory" do
-    Factory.build(:user).valid?.should be_true
+    Factory.build(:user).should be_valid
   end
 
   describe ".create_with_omniauth" do
@@ -28,6 +28,5 @@ describe User do
       user.uid.should == uid
       user.name.should == name
     end
-
   end
 end
