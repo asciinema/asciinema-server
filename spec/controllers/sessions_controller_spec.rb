@@ -80,7 +80,7 @@ describe SessionsController do
     end
 
     it "should redirects to root_url and set error message" do
-      flash[:error].should == message
+      flash[:alert].should == message
       should redirect_to(root_url)
     end
   end
