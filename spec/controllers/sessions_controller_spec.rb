@@ -57,16 +57,15 @@ describe SessionsController do
   describe "#destroy" do
     before do
       session[:user_id] = "123"
+      get :destroy
     end
 
     it "should destroy session" do
-      delete :destroy
       session[:user_id].should be_nil
       assigns[:current_user].should be_nil
     end
 
     it "should redirects to root_url" do
-      delete :destroy
       flash[:notice].should == "Signed out!"
       should redirect_to(root_url)
     end
