@@ -27,7 +27,21 @@ describe User do
       user.provider.should == provider
       user.uid.should == uid
       user.name.should == name
+      user.avatar_url.should be_nil
     end
 
+    context "when avatar available" do
+      let(:avatar_url) { "http://foo.bar/avatar.jpg"}
+
+      before do
+        OauthHelper.stub(:get_avatar_url).and_return(avatar_url)
+      end
+
+      it "assigns avatar_url" do
+        user = User.create_with_omniauth(auth)
+        user.avatar_url.should == avatar_url
+      end
+
+    end
   end
 end

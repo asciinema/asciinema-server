@@ -37,10 +37,11 @@ ActiveRecord::Schema.define(:version => 20120225124004) do
   add_index "asciicasts", ["user_id"], :name => "index_asciicasts_on_user_id"
 
   create_table "users", :force => true do |t|
-    t.string   "provider"
-    t.string   "uid"
+    t.string   "provider",   :null => false
+    t.string   "uid",        :null => false
     t.string   "email"
     t.string   "name"
+    t.string   "avatar_url"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end

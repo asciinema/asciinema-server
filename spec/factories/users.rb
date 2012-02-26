@@ -6,5 +6,6 @@ FactoryGirl.define do
     uid "1234"
     email "foo@bar.com"
     name "foo"
+    avatar_url ""
   end
 end
