@@ -18,8 +18,8 @@
           <% if current_user %>
             <li><%= link_to "Sign out", logout_path %></li>
           <% else %>
-            <li><%= link_to "Twitter Sign in", "/auth/twitter" %></li>
-            <li><%= link_to "Github Sign in", "/auth/twitter" %></li>
+            <li><%= link_to "Twitter Sign in", twitter_auth_path %></li>
+            <li><%= link_to "Github Sign in", github_auth_path %></li>
           <% end %>
         </ul>
       </div>
