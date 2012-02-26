@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe SessionsController do
 
-  describe "create" do
+  describe "#create" do
     let(:provider) { "twitter" }
     let(:uid)      { 1234 }
 
@@ -23,9 +23,11 @@ describe SessionsController do
 
       it "should create session" do
         session[:user_id].should_not be_nil
+        assigns[:current_user].should_not be_nil
       end
 
       it "should redirects user to root url" do
+        flash[:notice].should == "Signed in!"
         should redirect_to(root_url)
       end
     end
@@ -50,10 +52,9 @@ describe SessionsController do
         session[:user_id].should_not be_nil
       end
     end
-
   end
 
-  describe "destroy" do
+  describe "#destroy" do
     before do
       session[:user_id] = "123"
     end
@@ -61,7 +62,27 @@ describe SessionsController do
     it "should destroy session" do
       delete :destroy
       session[:user_id].should be_nil
+      assigns[:current_user].should be_nil
     end
 
+    it "should redirects to root_url" do
+      delete :destroy
+      flash[:notice].should == "Signed out!"
+      should redirect_to(root_url)
+    end
   end
+
+  describe "#failure" do
+    let(:message) { "something went wrong" }
+
+    before do
+      get :failure, :message => message
+    end
+
+    it "should redirects to root_url and set error message" do
+      flash[:error].should == message
+      should redirect_to(root_url)
+    end
+  end
+
 end
