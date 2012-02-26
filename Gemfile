@@ -6,6 +6,9 @@ gem 'mysql2'
 gem 'tzinfo'
 gem 'carrierwave'
 gem 'confstruct'
+gem 'omniauth'
+gem 'omniauth-twitter'
+gem 'omniauth-github'
 
 # Gems used only for assets and not required
 # in production environments by default.
@@ -16,6 +19,7 @@ group :assets do
 end
 
 group :test, :development do
+  gem 'ruby-debug19', :require => false
   gem "rspec-rails"
   gem 'factory_girl_rails'
   gem 'awesome_print', :require => 'ap'
