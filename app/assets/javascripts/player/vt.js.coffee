@@ -1,6 +1,6 @@
 class AsciiIo.VT
 
-  constructor: (@cols, @lines, @renderer) ->
+  constructor: (@cols, @lines, @view) ->
     @data = ''
     @resetTerminal()
     @render()
@@ -309,7 +309,7 @@ class AsciiIo.VT
     @buffer.setBrush AsciiIo.Brush.create(props)
 
   bell: ->
-    @renderer.visualBell()
+    @view.visualBell()
     # @trigger('bell')
 
   compilePatterns: ->
@@ -334,10 +334,15 @@ class AsciiIo.VT
 
     @render()
 
+    if @data.length > 500
+      head = @data.slice(0, 100)
+      hex = ("0x#{c.charCodeAt(0).toString(16)}" for c in head)
+      console.log "failed matching: '" + Utf8.decode(head) + "' (" + hex.join() + ")" # [pos: " + (@dataIndex - count) + "]"
+
     @data.length is 0
 
   render: ->
-    @renderer.render(@buffer.changes(), @buffer.cursorX, @buffer.cursorY)
+    @view.render(@buffer.changes(), @buffer.cursorX, @buffer.cursorY)
     @buffer.clearChanges()
 
   # ==== Screen buffer operations
@@ -368,10 +373,10 @@ class AsciiIo.VT
   # ------ Cursor control
 
   showCursor: ->
-    @renderer.showCursor true
+    @view.showCursor true
 
   hideCursor: ->
-    @renderer.showCursor false
+    @view.showCursor false
 
   # ----- Scroll control
 
