@@ -15,8 +15,7 @@ class SessionsController < ApplicationController
   end
 
   def failure
-    flash[:error] = params[:message]
-    redirect_to root_url
+    redirect_to root_url, :alert => params[:message]
   end
 
   private
