@@ -7,9 +7,7 @@ class AsciiIo.Brush
   @hash: (brush) ->
     "#{brush.fg}_#{brush.bg}_#{brush.bright}_#{brush.underline}_#{brush.italic}_#{brush.blink}"
 
-  @create: (options) ->
-    options ||= {}
-
+  @create: (options = {}) ->
     key = @hash(options)
     brush = @cache[key]
 
@@ -19,10 +17,16 @@ class AsciiIo.Brush
 
     brush
 
+  @normal: ->
+    @_normal ||= @create()
+
   constructor: (options) ->
     @fg        = options.fg
     @bg        = options.bg
-    @bright    = options.bright
-    @underline = options.underline
-    @italic    = options.italic
     @blink     = options.blink
+    @bright    = options.bright
+    @italic    = options.italic
+    @underline = options.underline
+
+  hash: ->
+    AsciiIo.Brush.hash(this)

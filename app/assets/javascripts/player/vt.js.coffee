@@ -1,6 +1,7 @@
 class AsciiIo.VT
 
   constructor: (@cols, @lines, @view) ->
+    @sgrInterpreter = new AsciiIo.SgrInterpreter()
     @data = ''
     @resetTerminal()
     @render()
@@ -256,57 +257,7 @@ class AsciiIo.VT
         throw "no handler for CSI term: " + term
 
   handleSGR: (numbers) ->
-    numbers = [0] if numbers.length is 0
-
-    i = 0
-    while i < numbers.length
-      n = numbers[i]
-
-      if n is 0
-        @fg = @bg = undefined
-        @bright = false
-        @underline = false
-        # TODO: reset blink (and others?)
-      else if n is 1
-        @bright = true
-      else if n is 3
-        @italic = true
-      else if n is 4
-        @underline = true
-      else if n is 5
-        @blink = true
-      else if n is 23
-        @italic = false
-      else if n is 24
-        @underline = false
-      else if n is 25
-        @blink = false
-      else if n >= 30 and n <= 37
-        @fg = n - 30
-      else if n is 38
-        @fg = numbers[i + 2]
-        i += 2
-      else if n is 39
-        @fg = undefined
-      else if n >= 40 and n <= 47
-        @bg = n - 40
-      else if n is 48
-        @bg = numbers[i + 2]
-        i += 2
-      else if n is 49
-        @bg = undefined
-
-      i++
-
-    props = {}
-    props.fg = @fg if @fg isnt undefined
-    props.bg = @bg if @bg isnt undefined
-    props.bright = true if @bright
-    props.underline = true if @underline
-    props.italic = true if @italic
-    props.blink = true if @blink
-
-    @buffer.setBrush AsciiIo.Brush.create(props)
+    @buffer.setBrush @sgrInterpreter.buildBrush(@buffer.brush, numbers)
 
   bell: ->
     @view.visualBell()

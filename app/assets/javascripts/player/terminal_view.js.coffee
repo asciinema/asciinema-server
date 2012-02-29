@@ -71,13 +71,13 @@ class AsciiIo.TerminalView extends Backbone.View
     @$el.find(".line:eq(" + n + ")").html html
 
   spanFromBrush: (brush, hasCursor) ->
-    key = "#{AsciiIo.Brush.hash(brush)}_#{hasCursor}"
+    key = "#{brush.hash()}_#{hasCursor}"
     span = @cachedSpans[key]
 
     if not span
       span = ""
 
-      if hasCursor or brush.fg isnt undefined or brush.bg isnt undefined or brush.bright or brush.underline
+      if hasCursor or brush != AsciiIo.Brush.normal()
         span = "<span class=\""
 
         if brush.fg isnt undefined
