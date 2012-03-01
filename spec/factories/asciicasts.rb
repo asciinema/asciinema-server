@@ -3,6 +3,8 @@
 FactoryGirl.define do
   factory :asciicast do
     user_id 1
+    stdout "MyString"
+    stdout_timing "MyString"
     title "MyString"
     duration 1
     recorded_at "2011-11-23 22:06:07"

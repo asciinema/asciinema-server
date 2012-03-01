@@ -11,6 +11,7 @@ RSpec.configure do |config|
   config.mock_with :rspec
 
   config.use_transactional_fixtures = true
+  config.include(ControllerMacros, :type => :controller)
 
   config.infer_base_class_for_anonymous_controllers = false
 end

@@ -4,6 +4,8 @@ class ApplicationController < ActionController::Base
   protect_from_forgery
   rescue_from(ActiveRecord::RecordNotFound) { render 'exceptions/not_found' }
 
+  class Unauthorized < Exception; end
+
   helper_method :current_user
 
   def current_user
@@ -18,6 +20,12 @@ class ApplicationController < ActionController::Base
       @current_user = nil
       session[:user_id] = nil
     end
+  end
+
+  private
+
+  def ensure_authenticated!
+    raise Unauthorized unless current_user
   end
 
 end

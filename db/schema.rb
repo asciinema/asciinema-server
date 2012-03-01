@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120226184448) do
+ActiveRecord::Schema.define(:version => 20120227230718) do
 
   create_table "asciicasts", :force => true do |t|
     t.integer  "user_id"
@@ -35,6 +35,17 @@ ActiveRecord::Schema.define(:version => 20120226184448) do
   add_index "asciicasts", ["created_at"], :name => "index_asciicasts_on_created_at"
   add_index "asciicasts", ["recorded_at"], :name => "index_asciicasts_on_recorded_at"
   add_index "asciicasts", ["user_id"], :name => "index_asciicasts_on_user_id"
+
+  create_table "comments", :force => true do |t|
+    t.text     "body"
+    t.integer  "user_id"
+    t.integer  "asciicast_id"
+    t.datetime "created_at",   :null => false
+    t.datetime "updated_at",   :null => false
+  end
+
+  add_index "comments", ["asciicast_id"], :name => "index_comments_on_asciicast_id"
+  add_index "comments", ["user_id"], :name => "index_comments_on_user_id"
 
   create_table "users", :force => true do |t|
     t.string   "provider",   :null => false
