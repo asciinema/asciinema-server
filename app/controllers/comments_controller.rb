@@ -18,10 +18,7 @@ class CommentsController < ApplicationController
     respond_with @comment
   end
 
-  def update
-    respond_with Comment.update(params[:id], params[:comment])
-  end
-
+  #TODO Add Authorization
   def destroy
     respond_with Comment.destroy(params[:id])
   end
