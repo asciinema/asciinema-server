@@ -9,7 +9,7 @@ describe OauthHelper do
         {
           "provider" => "github",
           "extra" => {
-            "raw_info" -> {
+            "raw_info" => {
               "avatar_url" => avatar_url
             }
           }
