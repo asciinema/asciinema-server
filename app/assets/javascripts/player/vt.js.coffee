@@ -205,7 +205,6 @@ class AsciiIo.VT
     action = data[data.length - 1]
     modes = @parseParams(params)
 
-    console.log "private: #{@formattedData(data)}, action: #{action}, modes: #{modes}"
     for mode in modes
       if mode is 25
         if action is "h"
@@ -220,12 +219,10 @@ class AsciiIo.VT
       else if mode is 1049
         if action is "h"
           # Save cursor position, switch to alternate screen buffer, and clear screen.
-          console.log 'switching'
           @switchToAlternateBuffer()
           @clearScreen()
         else if action is "l"
           # Clear screen, switch to normal screen buffer, and restore cursor position.
-          console.log 'switching back'
           @clearScreen()
           @switchToNormalBuffer()
       # else
