@@ -43,7 +43,7 @@ class AsciiIo.TerminalView extends Backbone.View
     @$el.css(width: width + 'px', height: height + 'px')
 
   renderLine: (n, data, cursorX) ->
-    html = ''
+    html = []
     prevBrush = undefined
 
     for i in [0...@cols]
@@ -56,19 +56,19 @@ class AsciiIo.TerminalView extends Backbone.View
 
         if brush != prevBrush or i is cursorX or i is (cursorX + 1)
           if prevBrush
-            html += '</span>'
+            html.push '</span>'
 
-          html += @spanFromBrush(brush, i is cursorX)
+          html.push @spanFromBrush(brush, i is cursorX)
 
           prevBrush = brush
 
-        html += char
+        html.push char
       else
-        html += ' '
+        html.push ' '
 
-    html += '</span>' if prevBrush
+    html.push '</span>' if prevBrush
 
-    @$el.find(".line:eq(" + n + ")").html html
+    @$el.find(".line:eq(" + n + ")").html html.join('')
 
   spanFromBrush: (brush, hasCursor) ->
     key = "#{brush.hash()}_#{hasCursor}"
