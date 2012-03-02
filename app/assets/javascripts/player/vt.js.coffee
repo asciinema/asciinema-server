@@ -344,14 +344,14 @@ class AsciiIo.VT
     @updateScreen()
 
   saveTerminalState: ->
-    @saveCursor()
+    @buffer.saveCursor()
     @scrollRegion.save()
-    @saveBrush()
+    @buffer.saveBrush()
 
   restoreTerminalState: ->
-    @restoreBrush()
+    @buffer.restoreBrush()
     @scrollRegion.restore()
-    @restoreCursor()
+    @buffer.restoreCursor()
 
   reportRowAndColumn: ->
 
