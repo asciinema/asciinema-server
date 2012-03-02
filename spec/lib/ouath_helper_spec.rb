@@ -8,8 +8,10 @@ describe OauthHelper do
       let(:auth) do
         {
           "provider" => "github",
-          "extra_info" => {
-            "avatar_url" => avatar_url
+          "extra" => {
+            "raw_info" -> {
+              "avatar_url" => avatar_url
+            }
           }
         }
       end

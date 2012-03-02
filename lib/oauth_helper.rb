@@ -4,7 +4,7 @@ class OauthHelper
     if auth["provider"] == "twitter"
       auth["info"]["image"]
     elsif auth["provider"] == "github"
-      auth["extra_info"]["avatar_url"]
+      auth["extra"]["raw_info"]["avatar_url"]
     end
   end
 
