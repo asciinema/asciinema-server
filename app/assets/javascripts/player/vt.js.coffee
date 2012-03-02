@@ -297,13 +297,13 @@ class AsciiIo.VT
   # ----- Scroll control
 
   reverseIndex: ->
-    @goToPriorRow()
+    @buffer.goToPriorRow()
 
   lineFeed: ->
     @buffer.goToNextRow()
 
   verticalTab: ->
-    @goToNextRow()
+    @buffer.goToNextRow()
 
   formFeed: ->
     @buffer.goToNextRow()
