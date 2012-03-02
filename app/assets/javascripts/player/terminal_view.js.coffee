@@ -68,7 +68,7 @@ class AsciiIo.TerminalView extends Backbone.View
 
     html.push '</span>' if prevBrush
 
-    @$el.find(".line:eq(" + n + ")").html html.join('')
+    @$el.find(".line:eq(" + n + ")")[0].innerHTML = html.join('')
 
   spanFromBrush: (brush, hasCursor) ->
     key = "#{brush.hash()}_#{hasCursor}"
