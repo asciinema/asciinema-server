@@ -2,12 +2,19 @@ class AsciiIo.Movie
   MIN_DELAY: 0.01
   SPEED: 1.0
 
-  constructor: (@data, @timing) ->
+  constructor: (@model) ->
     @frameNo = 0
     @dataIndex = 0
     @currentTime = 0
     @processedFramesTime = 0
     _.extend(this, Backbone.Events)
+
+  isLoaded: ->
+    @model.get('escaped_stdout_data') != undefined
+
+  load: ->
+    @model.fetch
+      success: => @play()
 
   play: ->
     @nextFrame()
@@ -21,13 +28,22 @@ class AsciiIo.Movie
   seek: (percent) ->
     # TODO
 
+  timing: ->
+    @model.get('stdout_timing_data')
+
+  data: ->
+    unless @_data
+      @_data = eval "'" + @model.get('escaped_stdout_data') + "'"
+
+    @_data
+
   nextFrame: () ->
     # return if @currentData.length > 100
 
-    if frame = @timing[@frameNo++] # @frameNo += 1
+    if frame = @timing()[@frameNo++] # @frameNo += 1
       [delay, count] = frame
 
-      frameData = @data.slice(@dataIndex, @dataIndex + count)
+      frameData = @data().slice(@dataIndex, @dataIndex + count)
       @dataIndex += count
 
       if delay <= @MIN_DELAY

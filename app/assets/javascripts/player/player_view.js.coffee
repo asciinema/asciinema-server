@@ -1,7 +1,9 @@
 class AsciiIo.PlayerView extends Backbone.View
 
   initialize: (options) ->
-    @movie = new AsciiIo.Movie(options.data, options.timing)
+    @movie = new AsciiIo.Movie(@model)
+    @movie.load()
+
     @terminalView = new AsciiIo.TerminalView(
       cols:  this.options.cols
       lines: this.options.lines
@@ -39,4 +41,5 @@ class AsciiIo.PlayerView extends Backbone.View
       @terminalView.stopCursorBlink()
 
   play: ->
-    @movie.play()
+    if @movie.isLoaded()
+      @movie.play()
