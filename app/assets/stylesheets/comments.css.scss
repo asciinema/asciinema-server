@@ -1,0 +1,38 @@
+#comments { }
+.comments { }
+
+#new-comment {
+  padding: 10px;
+
+  textarea{
+    width: 350px;
+    height: 60px;
+  }
+}
+
+li.comment {
+  list-style-type: none;
+  margin: 20px 10px;
+
+  width: 450px;
+  .left {
+    float: left;
+    width: 100px;
+  }
+
+  .right {
+    float:right;
+    width: 350px;
+  }
+
+  .when {
+    color: #969696;
+  }
+
+  .user-name{
+    color: #2786C2;
+  }
+  .body {
+    padding: 20px 0;
+  }
+}
