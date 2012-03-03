@@ -7,6 +7,7 @@ defaults: &defaults
     github:
       consumer_key: "455d7cde838004d7d46a"
       consumer_secret: "5e076dbe06e79f6a7e329a4c7b306c0a0c6055c1"
+  google_analytics_id: 
 
 development:
   <<: *defaults
