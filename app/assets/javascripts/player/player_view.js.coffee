@@ -31,6 +31,18 @@ class AsciiIo.PlayerView extends Backbone.View
     @hudView.on 'hud-seek-click', (percent) =>
       @movie.seek(percent)
 
+    @movie.on 'movie-loaded', (asciicast) =>
+      @hudView.setDuration(asciicast.get('duration'))
+
+    @movie.on 'movie-playback-paused', =>
+      @hudView.onPause()
+
+    @movie.on 'movie-playback-resumed', =>
+      @hudView.onResume()
+
+    @movie.on 'movie-time', (time) =>
+      @hudView.updateTime(time)
+
     @movie.on 'movie-frame', (frame) =>
       @vt.feed(frame)
 
@@ -39,7 +51,4 @@ class AsciiIo.PlayerView extends Backbone.View
 
     @movie.on 'movie-finished', =>
       @terminalView.stopCursorBlink()
-
-  play: ->
-    if @movie.isLoaded()
-      @movie.play()
+      @hudView.setProgress(100)

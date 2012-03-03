@@ -10,8 +10,6 @@ module AsciicastsHelper
       lines: #{asciicast.terminal_lines},
       model: new AsciiIo.Asciicast({ id: #{asciicast.id} })
     });
-
-    window.player.play();
   });
 </script>
 EOS

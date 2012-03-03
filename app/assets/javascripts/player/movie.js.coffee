@@ -3,30 +3,26 @@ class AsciiIo.Movie
   SPEED: 1.0
 
   constructor: (@model) ->
+    @reset()
+    @startTimeReporter()
+    _.extend(this, Backbone.Events)
+
+  reset: ->
     @frameNo = 0
     @dataIndex = 0
-    @currentTime = 0
-    @processedFramesTime = 0
-    _.extend(this, Backbone.Events)
+    @playedTimeSum = 0
+    @playing = false
+    @lastFrameTime = undefined
+    @timeElapsedBeforePause = undefined
 
   isLoaded: ->
     @model.get('escaped_stdout_data') != undefined
 
   load: ->
     @model.fetch
-      success: => @play()
-
-  play: ->
-    @nextFrame()
-
-  pause: ->
-    # TODO
-
-  togglePlay: ->
-    # TODO
-
-  seek: (percent) ->
-    # TODO
+      success: =>
+        @trigger('movie-loaded', @model)
+        @play()
 
   timing: ->
     @model.get('stdout_timing_data')
@@ -40,56 +36,123 @@ class AsciiIo.Movie
 
     @_data
 
-  nextFrame: () ->
-    # return if @currentData.length > 100
+  play: ->
+    return if @isPlaying()
 
-    if frame = @timing()[@frameNo++] # @frameNo += 1
+    if @isFinished()
+      @restart()
+    else if @isPaused()
+      @resume()
+    else
+      @start()
+
+  start: ->
+    @playing = true
+    @lastFrameTime = (new Date()).getTime()
+    @nextFrame()
+
+  stop: ->
+    @playing = false
+    clearInterval @nextFrameTimeoutId
+    @timeElapsedBeforePause = (new Date()).getTime() - @lastFrameTime
+
+  restart: ->
+    @reset()
+    @start()
+    @startTimeReporter()
+
+  pause: ->
+    return if @isPaused()
+
+    @stop()
+    @trigger('movie-playback-paused')
+
+  resume: ->
+    return if @isPlaying()
+
+    @playing = true
+    frame = @timing()[@frameNo]
+    [delay, count] = frame
+    delay -= @timeElapsedBeforePause
+    @processFrameWithDelay(delay)
+    @trigger('movie-playback-resumed')
+
+  togglePlay: ->
+    if @isPlaying() then @pause() else @play()
+
+  isPlaying: ->
+    @playing
+
+  isPaused: ->
+    !@isPlaying() and !@isFinished()
+
+  isFinished: ->
+    !@isPlaying() and @isLoaded() and @frameNo >= @timing().length
+
+  seek: (percent) ->
+    @pause()
+    @rewindTo(percent)
+    @play()
+
+  rewindTo: (percent) ->
+    # TODO
+
+  startTimeReporter: ->
+    @timeReportId = setInterval(
+      => @trigger('movie-time', @currentTime())
+      100
+    )
+
+  stopTimeReporter: ->
+    clearInterval @timeReportId
+
+  currentTime: ->
+    if @isPlaying()
+      now = (new Date()).getTime()
+      delta = now - @lastFrameTime
+      @playedTimeSum + delta
+    else if @isPaused()
+      @playedTimeSum + @timeElapsedBeforePause
+    else if @isFinished()
+      @playedTimeSum
+    else
+      0 # not started
+
+  nextFrame: ->
+    if frame = @timing()[@frameNo]
       [delay, count] = frame
 
-      frameData = @data().slice(@dataIndex, @dataIndex + count)
-      @dataIndex += count
-
       if delay <= @MIN_DELAY
-        @triggerAndSchedule(frameData)
+        @processFrame()
       else
         realDelay = delay * 1000 * (1.0 / @SPEED)
-        setTimeout(
-          =>
-            @trigger('movie-awake')
-            @triggerAndSchedule(frameData)
-          realDelay
-        )
+        @processFrameWithDelay(realDelay)
 
       true
     else
+      @playing = false
+      @stopTimeReporter()
       @trigger('movie-finished')
-      # @terminal.stopCursorBlink()
-      # console.log "finished in #{((new Date()).getTime() - @startTime) / 1000} seconds"
-
       false
 
-  triggerAndSchedule: (data) ->
-    @trigger('movie-frame', data)
+  processFrameWithDelay: (delay) ->
+    @nextFrameTimeoutId = setTimeout(
+      =>
+        @trigger('movie-awake')
+        @processFrame()
+      delay
+    )
+
+  processFrame: ->
+    frame = @timing()[@frameNo]
+    [delay, count] = frame
+
+    frameData = @data().slice(@dataIndex, @dataIndex + count)
+    @trigger('movie-frame', frameData)
+
+    @frameNo += 1
+    @dataIndex += count
+    @playedTimeSum += delay * 1000
+    @lastFrameTime = (new Date()).getTime()
+
     @nextFrame()
-
-  # processFrame: (count) ->
-  #   # return
-  #   # @currentData += @data.slice(@dataIndex, @dataIndex + count)
-  #   data = @data.slice(@dataIndex, @dataIndex + count)
-  #   # console.log data
-  #   @dataIndex += count
-  #   @trigger('movie-frame', data)
-
-    # @currentData = @interpreter.feed(@currentData)
-
-    # if @currentData.length > 0
-    #   @logStatus(count)
-
-  # logStatus: (count) ->
-  #   console.log 'rest: ' + Utf8.decode(@currentData)
-
-  #   if @currentData.length > 100
-  #     head = @currentData.slice(0, 100)
-  #     hex = ("0x#{c.charCodeAt(0).toString(16)}" for c in head)
-  #     console.log "failed matching: '" + Utf8.decode(head) + "' (" + hex.join() + ") [pos: " + (@dataIndex - count) + "]"
-  #     return

@@ -12,9 +12,6 @@ class AsciiIo.TerminalView extends Backbone.View
     @startCursorBlink()
     # this.updateScreen();
     # this.render();
-    #
-    # this.renderLine(0); // we only need 1 line
-    # this.element.css({ width: this.element.width(), height: this.element.height() });
 
   createChildElements: ->
     i = 0
