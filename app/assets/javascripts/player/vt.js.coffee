@@ -109,6 +109,9 @@ class AsciiIo.VT
     last = data[data.length - 1]
 
     switch last
+      when "0"
+        if intermediate is '('
+          @setSpecialCharset()
       when "7"
         @saveTerminalState()
       when "8"

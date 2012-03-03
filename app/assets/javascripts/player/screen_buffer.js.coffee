@@ -8,7 +8,7 @@ class AsciiIo.ScreenBuffer
     @cursorY = 0
 
     @brush = AsciiIo.Brush.create({})
-    @charsetModifier = @usCharsetModifier
+    @setCharset('us')
 
   topMargin: ->
     @scrollRegion.getTop()
@@ -290,4 +290,29 @@ class AsciiIo.ScreenBuffer
   eraseCharacters: (n = 1) ->
     @fill @cursorY, @cursorX, n, " "
     @updateLine()
+
+  # ------ Charset control
+
+  setCharset: (charset) ->
+    @charset = charset
+
+    switch charset
+      when 'uk'
+        @charsetModifier = @ukCharsetModifier
+      when 'us'
+        @charsetModifier = @usCharsetModifier
+      when 'special'
+        @charsetModifier = @specialCharsetModifier
+
+  getCharset: ->
+    @charset
+
+  usCharsetModifier: (char) ->
+    char
+
+  ukCharsetModifier: (char) ->
+    char
+
+  specialCharsetModifier: (char) ->
+    AsciiIo.SpecialCharset[char.charCodeAt(0)] or char
 
