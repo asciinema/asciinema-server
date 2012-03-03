@@ -27,7 +27,7 @@ class Asciicast < ActiveRecord::Base
 
   def escaped_stdout_data
     if data = stdout.read
-      Bzip2.uncompress(data).bytes.map { |b| '\x' + format('%02x', b) }.join
+      data.bytes.map { |b| '\x' + format('%02x', b) }.join
     else
       nil
     end

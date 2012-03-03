@@ -33,7 +33,10 @@ class AsciiIo.Movie
 
   data: ->
     unless @_data
-      @_data = eval "'" + @model.get('escaped_stdout_data') + "'"
+      d = @model.get('escaped_stdout_data')
+      d = eval "'" + d + "'"
+      d = ArchUtils.bz2.decode(d)
+      @_data = d
 
     @_data
 

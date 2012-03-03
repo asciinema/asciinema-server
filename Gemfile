@@ -9,7 +9,6 @@ gem 'confstruct'
 gem 'omniauth'
 gem 'omniauth-twitter'
 gem 'omniauth-github'
-gem 'bzip2-ruby'
 
 # Gems used only for assets and not required
 # in production environments by default.
