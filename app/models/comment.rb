@@ -7,4 +7,6 @@ class Comment < ActiveRecord::Base
   belongs_to :user
   belongs_to :asciicast
 
+  attr_accessible :body
+
 end
