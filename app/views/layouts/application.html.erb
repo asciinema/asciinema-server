@@ -13,15 +13,8 @@
       <div id="logo">
         <h1>ascii.io</h1>
       </div>
-      <div id="menu">
-        <ul class="links">
-          <% if current_user %>
-            <li><%= link_to "Sign out", logout_path %></li>
-          <% else %>
-            <li><%= link_to "Twitter Sign in", twitter_auth_path %></li>
-            <li><%= link_to "Github Sign in", github_auth_path %></li>
-          <% end %>
-        </ul>
+      <div id="topnav">
+        <%= render :partial => 'layouts/session_info' %>
       </div>
     </div>
     <div id="main">

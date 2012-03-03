@@ -47,7 +47,7 @@ h2 {
   left: 0;
 }
 
-#menu {
+#topnav {
   display: block;
   width: 300px;
   position: absolute;
@@ -57,17 +57,22 @@ h2 {
   font-family: Verdana;
 }
 
-#menu .links {
+#session-info {
   background-color: #172322;
   list-style: none;
   padding: 10px;
   border-bottom-left-radius: 10px;
-}
 
-#menu .links li {
-  color: #eee;
-  display: inline-block;
-  margin-right: 20px;
+  li {
+    color: #eee;
+    display: inline-block;
+    margin-right: 20px;
+  }
+
+  .avatar {
+    width: 24px;
+    height: 24px;
+  }
 }
 
 #all {
