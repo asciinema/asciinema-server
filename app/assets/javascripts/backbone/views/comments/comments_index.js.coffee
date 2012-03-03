@@ -10,8 +10,11 @@ class AsciiIo.Views.CommentsIndex extends Backbone.View
     @collection.on('reset', @render, this)
     @collection.on('add', @render, this)
 
+    @current_user = AsciiIo.current_user
+
   render: ->
-    $(@el).html @template
+    $(@el).html @template( show_form: @current_user )
+
     $comments = this.$('.comments')
 
     @collection.each (comment) ->

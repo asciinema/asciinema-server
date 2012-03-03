@@ -1,6 +1,7 @@
 <ul class="comments">
 </ul>
 
+{{#if show_form}}
 <form id="new-comment">
   <p>
     <textarea type="text" name="body" id="comment-body"></textarea>
@@ -8,3 +9,6 @@
 
   <input type="submit" value="Post">
 </form>
+{{else}}
+  <div>You need to sign in to create a comment.</div>
+{{/if}}
