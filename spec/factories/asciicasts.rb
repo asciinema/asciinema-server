@@ -1,10 +1,11 @@
 # Read about factories at http://github.com/thoughtbot/factory_girl
+include ActionDispatch::TestProcess
 
 FactoryGirl.define do
   factory :asciicast do
     user_id 1
-    stdout "MyString"
-    stdout_timing "MyString"
+    stdout { fixture_file_upload("spec/fixtures/stdout", "application/octet-stream") }
+    stdout_timing { fixture_file_upload("spec/fixtures/stdout", "application/octet-stream") }
     title "MyString"
     duration 1
     recorded_at "2011-11-23 22:06:07"
