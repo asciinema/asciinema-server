@@ -9,4 +9,19 @@ class Comment < ActiveRecord::Base
 
   attr_accessible :body
 
+  def created
+    created_at.to_s
+  end
+
+  def as_json(options = {})
+    super({
+      :include => {
+        :user => {
+          :only => [ :nickname, :avatar_url ]
+         }
+       },
+       :methods => [:created]
+    }.merge(options))
+  end
+
 end
