@@ -40,4 +40,13 @@ class AsciiIo.HudView extends Backbone.View
     @$('.gutter').width("#{percent}%")
 
   formattedTime: (time) ->
-    (time / 1000).toFixed(2)
+    secondsTotal = time / 1000
+    minutes = (secondsTotal / 60).toFixed(0)
+    seconds = (secondsTotal % 60).toFixed(0)
+    "#{@pad2(minutes)}:#{@pad2(seconds)}"
+
+  pad2: (number) ->
+    if number < 10
+      '0' + number
+    else
+      number
