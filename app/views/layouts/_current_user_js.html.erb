@@ -1,0 +1,5 @@
+<script type="text/javascript">
+  jQuery(document).ready(function(){
+    AsciiIo.current_user = <%= raw current_user.to_json(:only => [:nickname, :avatar_url]) %>;
+  });
+</script>
