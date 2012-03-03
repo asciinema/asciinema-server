@@ -26,6 +26,7 @@
       color: #ccc;
       overflow: auto;
       overflow-x: hidden;
+      cursor: pointer;
 
       .line {
         font-size: 12px;
@@ -60,6 +61,7 @@
         width: 30px;
         height: 100%;
         float: left;
+        cursor: pointer;
 
         &.paused {
           background-color: orange;
@@ -71,6 +73,7 @@
         width: 60%;
         height: 100%;
         float: left;
+        cursor: pointer;
 
         .gutter {
           background-color: #333;

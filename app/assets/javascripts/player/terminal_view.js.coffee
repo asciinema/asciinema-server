@@ -2,6 +2,9 @@ class AsciiIo.TerminalView extends Backbone.View
   tagName: 'pre'
   className: 'terminal'
 
+  events:
+    'click': 'onClick'
+
   initialize: (options) ->
     @cols = options.cols
     @lines = options.lines
@@ -21,6 +24,9 @@ class AsciiIo.TerminalView extends Backbone.View
       @$el.append row
       @$el.append "\n"
       i++
+
+  onClick: ->
+    @trigger('terminal-click')
 
   clearScreen: ->
     # this.lineData.length = 0;
