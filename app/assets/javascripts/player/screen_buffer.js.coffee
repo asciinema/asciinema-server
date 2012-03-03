@@ -8,6 +8,7 @@ class AsciiIo.ScreenBuffer
     @cursorY = 0
 
     @brush = AsciiIo.Brush.create({})
+    @charsetModifier = @usCharsetModifier
 
   topMargin: ->
     @scrollRegion.getTop()
@@ -84,7 +85,7 @@ class AsciiIo.ScreenBuffer
         @cursorX = 0
         # TODO: updateLine?
 
-      @fill @cursorY, @cursorX, 1, text[i]
+      @fill @cursorY, @cursorX, 1, @charsetModifier(text[i])
       @cursorX += 1
       i++
 

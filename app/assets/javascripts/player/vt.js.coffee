@@ -272,6 +272,7 @@ class AsciiIo.VT
 
   switchToAlternateBuffer: ->
     @alternateBuffer.setBrush(@normalBuffer.getBrush())
+    @alternateBuffer.setCharset(@normalBuffer.getCharset())
     @buffer = @alternateBuffer
     @updateScreen()
 
@@ -354,6 +355,16 @@ class AsciiIo.VT
     @buffer.restoreCursor()
 
   reportRowAndColumn: ->
+
+  setUkCharset: ->
+    @buffer.setCharset('uk')
+
+  setUsCharset: ->
+    @buffer.setCharset('us')
+
+  setSpecialCharset: ->
+    @buffer.setCharset('special')
+
 
 # http://www.shaels.net/index.php/propterm/documents
 # http://manpages.ubuntu.com/manpages/lucid/man7/urxvt.7.html
