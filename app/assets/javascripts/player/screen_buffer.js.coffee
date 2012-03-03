@@ -7,8 +7,8 @@ class AsciiIo.ScreenBuffer
     @cursorX = 0
     @cursorY = 0
 
-    @brush = AsciiIo.Brush.create({})
-    @setCharset('us')
+    @setBrush AsciiIo.Brush.create({})
+    @setCharset 'us'
 
   topMargin: ->
     @scrollRegion.getTop()
