@@ -82,31 +82,42 @@ class AsciiIo.VT
         @carriageReturn()
 
       when "\x84"
-        @index() # "D"
+        @index() # "ESC D"
       when "\x85"
-        @newLine() # "E"
+        @newLine() # "ESC E"
       when "\x88"
-        @setHorizontalTabStop() # "H"
+        @setHorizontalTabStop() # "ESC H"
       when "\x8d"
-        @reverseIndex() # "M"
+        @reverseIndex() # "ESC M"
 
   handlePrintableCharacters: (text) ->
     @buffer.print text
 
   handleStandardEscSeq: (data) ->
     last = data[data.length - 1]
+    intermediate = data[data.length - 2]
 
-    if last.match(/[\x40-\x5f]/)
-      # convert to C1
-      char = String.fromCharCode(last.charCodeAt(0) + 0x40)
-      @handleControlCharacter(char)
-    else
-      switch last
-        when "c"
-          @resetTerminal()
+    switch last
+      when "A"
+        if intermediate is '('
+          @setUkCharset()
+      when "B"
+        if intermediate is '('
+          @setUsCharset()
+      when "D"
+        @index()
+      when "E"
+        @newLine()
+      when "H"
+        @setHorizontalTabStop()
+      when "M"
+        @reverseIndex()
+      when "c"
+        @resetTerminal()
 
   handlePrivateEscSeq: (data) ->
     last = data[data.length - 1]
+    intermediate = data[data.length - 2]
 
     switch last
       when "0"
