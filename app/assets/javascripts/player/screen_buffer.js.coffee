@@ -127,11 +127,11 @@ class AsciiIo.ScreenBuffer
       @updateLine()
 
   priorRowFirstColumn: (n = 1) ->
-    @carriageReturn()
+    @goToFirstColumn()
     @priorRow n
 
   nextRowFirstColumn: (n = 1) ->
-    @carriageReturn()
+    @goToFirstColumn()
     @nextRow n
 
   goToColumn: (col = 1) ->
@@ -243,7 +243,7 @@ class AsciiIo.ScreenBuffer
       @nextRow()
 
   goToNextRowFirstColumn: ->
-    @carriageReturn()
+    @goToFirstColumn()
     @goToNextRow()
 
   setLineWrap: (linewrap) ->
