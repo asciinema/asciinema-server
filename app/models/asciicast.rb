@@ -8,7 +8,7 @@ class Asciicast < ActiveRecord::Base
   validates :terminal_columns, :terminal_lines, :duration, :presence => true
 
   belongs_to :user
-  has_many :comments, :order => :created_at
+  has_many :comments, :order => :created_at, :dependent => :destroy
 
   before_create :assign_user, :unless => :user
 
