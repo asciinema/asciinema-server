@@ -7,11 +7,16 @@ class Asciicast < ActiveRecord::Base
   validates :stdout, :stdout_timing, :presence => true
   validates :terminal_columns, :terminal_lines, :duration, :presence => true
 
+  belongs_to :user
+
+  before_create :assign_user, :unless => :user
+
   attr_reader :description
 
   def meta=(file)
     data = JSON.parse(file.tempfile.read)
 
+    self.user_token       = data['user_token']
     self.duration         = data['duration']
     self.recorded_at      = data['recorded_at']
     self.title            = data['title']
@@ -43,6 +48,15 @@ class Asciicast < ActiveRecord::Base
       end
     else
       nil
+    end
+  end
+
+  def assign_user
+    if user_token.present?
+      if ut = UserToken.find_by_token(user_token)
+        self.user = ut.user
+        self.user_token = nil
+      end
     end
   end
 end

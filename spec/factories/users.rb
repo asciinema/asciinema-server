@@ -3,7 +3,7 @@
 FactoryGirl.define do
   factory :user do
     provider "twitter"
-    uid "1234"
+    sequence(:uid) { |n| "uid-#{n}" }
     nickname "mrFoo"
     email nil
     name nil

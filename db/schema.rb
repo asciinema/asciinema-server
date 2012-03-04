@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120226184448) do
+ActiveRecord::Schema.define(:version => 20120304162005) do
 
   create_table "asciicasts", :force => true do |t|
     t.integer  "user_id"
@@ -24,17 +24,29 @@ ActiveRecord::Schema.define(:version => 20120226184448) do
     t.string   "command"
     t.string   "shell"
     t.string   "uname"
-    t.datetime "created_at",       :null => false
-    t.datetime "updated_at",       :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.string   "stdin"
     t.string   "stdin_timing"
     t.string   "stdout"
     t.string   "stdout_timing"
+    t.string   "user_token"
   end
 
   add_index "asciicasts", ["created_at"], :name => "index_asciicasts_on_created_at"
   add_index "asciicasts", ["recorded_at"], :name => "index_asciicasts_on_recorded_at"
   add_index "asciicasts", ["user_id"], :name => "index_asciicasts_on_user_id"
+  add_index "asciicasts", ["user_token"], :name => "index_asciicasts_on_user_token"
+
+  create_table "user_tokens", :force => true do |t|
+    t.integer  "user_id",    :null => false
+    t.string   "token",      :null => false
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  add_index "user_tokens", ["token"], :name => "index_user_tokens_on_token"
+  add_index "user_tokens", ["user_id"], :name => "index_user_tokens_on_user_id"
 
   create_table "users", :force => true do |t|
     t.string   "provider",   :null => false
