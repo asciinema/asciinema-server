@@ -26,7 +26,7 @@
     var comments = new AsciiIo.Collections.Comments();
     var asciicast_id = <%= @asciicast.id %>
 
-    comments.url = ['/api/asciicasts/', asciicast_id, '/comments.json'].join('');
+    comments.url = ['/api/asciicasts/', asciicast_id, '/comments'].join('');
     comments.fetch();
 
     view = new AsciiIo.Views.CommentsIndex({ collection: comments });

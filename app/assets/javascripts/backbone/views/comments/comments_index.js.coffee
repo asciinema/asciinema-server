@@ -1,4 +1,4 @@
-class AsciiIo.Views.CommentsIndex extends Backbone.View
+class AsciiIo.Views.CommentsIndex extends AsciiIo.Views.Base
 
   el: '#comments'
   template: JST['backbone/templates/comments/index']
@@ -10,14 +10,12 @@ class AsciiIo.Views.CommentsIndex extends Backbone.View
     @collection.on('reset', @render, this)
     @collection.on('add', @render, this)
 
-    @current_user = AsciiIo.current_user
-
   render: ->
     $(@el).html @template( show_form: @current_user )
 
     $comments = this.$('.comments')
 
-    @collection.each (comment) ->
+    @collection.each (comment) =>
       view = new AsciiIo.Views.CommentEntry({ model: comment, collection: @collection})
       $comments.append view.render().el
 

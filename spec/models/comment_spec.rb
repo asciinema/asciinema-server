@@ -14,16 +14,12 @@ describe Comment do
       comment.user = user
     end
 
-    it "should include user.gravatar_url" do
-      hash = comment.as_json
-      hash.should include(:user)
-      hash[:user].should include("avatar_url")
-    end
-
-    it "should include user.nickname" do
+    it "should include user comment creator properties user" do
       hash = comment.as_json
       hash.should include(:user)
       hash[:user].should include("nickname")
+      hash[:user].should include("avatar_url")
+      hash[:user].should include("id")
     end
 
     it "should include comment.created" do

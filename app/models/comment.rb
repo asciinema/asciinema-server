@@ -17,7 +17,7 @@ class Comment < ActiveRecord::Base
     super({
       :include => {
         :user => {
-          :only => [ :nickname, :avatar_url ]
+          :only => [ :id, :nickname, :avatar_url ]
          }
        },
        :methods => [:created]
