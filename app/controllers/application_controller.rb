@@ -7,7 +7,7 @@ class ApplicationController < ActionController::Base
   class Unauthorized < Exception; end
   class Forbiden < Exception; end
 
-  rescue_from Unauthorized, :with => :unathorized
+  rescue_from Unauthorized, :with => :unauthorized
   rescue_from Forbiden, :with => :forbiden
 
   helper_method :current_user
@@ -40,7 +40,7 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def unathorized
+  def unauthorized
     if request.xhr?
       render :json => "Unauthorized", :status => 401
     else
