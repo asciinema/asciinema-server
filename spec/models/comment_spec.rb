@@ -14,7 +14,7 @@ describe Comment do
       comment.user = user
     end
 
-    it "should include user comment creator properties user" do
+    it "includes user comment creator properties user" do
       hash = comment.as_json
       hash.should include(:user)
       hash[:user].should include("nickname")
