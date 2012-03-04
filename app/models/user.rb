@@ -16,4 +16,7 @@ class User < ActiveRecord::Base
     end
   end
 
+  def add_user_token(token)
+    user_tokens.find_or_create_by_token(token)
+  end
 end
