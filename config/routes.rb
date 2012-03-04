@@ -4,10 +4,10 @@ AsciiIo::Application.routes.draw do
   match ':id' => 'asciicasts#show', :constraints => { :id => /\d+/ }
 
   namespace :api do
+    resources :comments
+
     resources :asciicasts do
-
       resources :comments
-
     end
   end
 

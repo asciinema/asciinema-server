@@ -38,6 +38,17 @@ ActiveRecord::Schema.define(:version => 20120304162005) do
   add_index "asciicasts", ["user_id"], :name => "index_asciicasts_on_user_id"
   add_index "asciicasts", ["user_token"], :name => "index_asciicasts_on_user_token"
 
+  create_table "comments", :force => true do |t|
+    t.text     "body",         :null => false
+    t.integer  "user_id",      :null => false
+    t.integer  "asciicast_id", :null => false
+    t.datetime "created_at",   :null => false
+    t.datetime "updated_at",   :null => false
+  end
+
+  add_index "comments", ["asciicast_id"], :name => "index_comments_on_asciicast_id"
+  add_index "comments", ["user_id"], :name => "index_comments_on_user_id"
+
   create_table "user_tokens", :force => true do |t|
     t.integer  "user_id",    :null => false
     t.string   "token",      :null => false
@@ -47,17 +58,6 @@ ActiveRecord::Schema.define(:version => 20120304162005) do
 
   add_index "user_tokens", ["token"], :name => "index_user_tokens_on_token"
   add_index "user_tokens", ["user_id"], :name => "index_user_tokens_on_user_id"
-
-  create_table "comments", :force => true do |t|
-    t.text     "body"
-    t.integer  "user_id"
-    t.integer  "asciicast_id"
-    t.datetime "created_at",   :null => false
-    t.datetime "updated_at",   :null => false
-  end
-
-  add_index "comments", ["asciicast_id"], :name => "index_comments_on_asciicast_id"
-  add_index "comments", ["user_id"], :name => "index_comments_on_user_id"
 
   create_table "users", :force => true do |t|
     t.string   "provider",   :null => false

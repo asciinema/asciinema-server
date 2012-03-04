@@ -15,7 +15,7 @@ class Api::CommentsController < ApplicationController
 
     @comment.save
 
-    respond_with @comment
+    respond_with @comment, :location => api_comment_url(@comment)
   end
 
   #TODO Add Authorization
