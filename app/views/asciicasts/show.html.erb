@@ -17,16 +17,31 @@
 
 <h2>Comments</h2>
 
-<div id="comments"></div>
+<div class="comments-container">
+  <ul id="comments">
+  </ul>
+
+  <% if current_user %>
+    <form id="new-comment">
+      <p>
+      <textarea type="text" name="body" id="comment-body"></textarea>
+      </p>
+
+      <input type="submit" value="Post">
+    </form>
+  <% else %>
+    <div><%= link_to "Login in", login_path %> to create a comment.</div>
+  <% end %>
+</div>
 
 <script type="text/javascript">
-  jQuery(document).ready( function(){
-    var comments = new AsciiIo.Collections.Comments();
-    var asciicast_id = <%= @asciicast.id %>
+  jQuery( function(){
+      var comments = new AsciiIo.Collections.Comments();
+      var asciicast_id = <%= @asciicast.id %>
 
-    comments.url = ['/api/asciicasts/', asciicast_id, '/comments'].join('');
-    comments.fetch();
+      comments.url = ['/api/asciicasts/', asciicast_id, '/comments'].join('');
+      comments.fetch();
 
-    view = new AsciiIo.Views.CommentsIndex({ collection: comments });
-  })
-</script>
+      new AsciiIo.Views.CommentsIndex({ collection: comments });
+      })
+    </script>

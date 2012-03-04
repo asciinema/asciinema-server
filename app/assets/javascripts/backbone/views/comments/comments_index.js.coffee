@@ -1,28 +1,29 @@
 class AsciiIo.Views.CommentsIndex extends AsciiIo.Views.Base
 
   el: '#comments'
-  template: JST['backbone/templates/comments/index']
-
-  events:
-    'submit #new-comment': 'createComment'
 
   initialize: ->
-    @collection.on('reset', @render, this)
-    @collection.on('add', @render, this)
+    @collection.on('reset', @addAll, this)
+    @collection.on('add', @addOne, this)
 
-  render: ->
-    $(@el).html @template( show_form: @current_user )
+    $('#new-comment').submit (event)=>
+      @createComment(event)
 
-    $comments = this.$('.comments')
-
+  addAll: ->
     @collection.each (comment) =>
-      view = new AsciiIo.Views.CommentEntry({ model: comment, collection: @collection})
-      $comments.append view.render().el
+      @addOne(comment)
+
+    this
+
+  addOne:(comment) ->
+    view = new AsciiIo.Views.CommentEntry({ model: comment, collection: @collection})
+    $(this.el).append view.render().el
 
     this
 
   createComment: (event) ->
     event.preventDefault()
+
     attrs = body: $('#comment-body').val()
     @collection.create attrs,
       wait: true
