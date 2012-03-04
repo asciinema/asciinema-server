@@ -20,7 +20,12 @@ class CommentsController < ApplicationController
 
   #TODO Add Authorization
   def destroy
-    respond_with Comment.destroy(params[:id])
+    comment = Comment.find(params[:id])
+    if comment.user == current_user
+      respond_with comment.delete
+    else
+      raise Unauthorized
+    end
   end
 
   private
