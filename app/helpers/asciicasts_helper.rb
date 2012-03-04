@@ -10,6 +10,16 @@ module AsciicastsHelper
     end
   end
 
+  def asciicast_author(asciicast)
+    if asciicast.user
+      link_to avatar_img(asciicast.user) + " #{asciicast.user.nickname}", '#'
+    end
+  end
+
+  def asciicast_time(asciicast)
+    time_ago_in_words(asciicast.created_at) + " ago"
+  end
+
   def player_script(asciicast)
     return <<EOS.html_safe
 <script>

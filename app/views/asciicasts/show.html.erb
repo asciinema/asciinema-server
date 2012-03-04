@@ -1,6 +1,10 @@
-<h2><%= asciicast_title(@asciicast) %></h2>
-
 <div class="asciicast">
+  <h2><%= asciicast_title(@asciicast) %></h2>
+  <p class="meta">
+    <%= asciicast_author(@asciicast) %>
+    <%= asciicast_time(@asciicast) %>
+  </p>
+
   <div class="wrapper">
     <div class="player"></div>
     <div class="clear"></div>

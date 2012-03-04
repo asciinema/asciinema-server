@@ -659,6 +659,15 @@ $color5: #EDC951;
   .bg254 { background-color: #e4e4e4 }
   .bg255 { background-color: #eeeeee }
 
+  .meta {
+    .avatar {
+      width: 24px;
+      padding: 1px;
+      background-color: white;
+      border: 1px solid #ccc;
+    }
+  }
+
   .description {
     color: #3e3e3e;
     font-family: arial, helvetica;
