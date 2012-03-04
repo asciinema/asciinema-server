@@ -7,9 +7,6 @@ class AsciiIo.Views.CommentEntry extends AsciiIo.Views.Base
   events:
     'click .remove': 'removeComment'
 
-  initialize:(options) ->
-    @collection = options.collection
-
   render: ->
     extra =
       show_remove_link: @showRemoveLink()
