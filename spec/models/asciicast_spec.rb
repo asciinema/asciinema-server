@@ -5,6 +5,23 @@ describe Asciicast do
     Factory.build(:asciicast).should be_valid
   end
 
+  describe '.assign_user' do
+    let(:user) { Factory(:user) }
+    let(:token) { 'token' }
+    let!(:asciicast) { Factory(:asciicast, :user => nil, :user_token => token) }
+
+    subject { Asciicast.assign_user(token, user) }
+
+    it 'returns number of updated records' do
+      subject.should == 1
+    end
+
+    it 'assigns user to matching asciicasts' do
+      subject
+      asciicast.reload.user.should == user
+    end
+  end
+
   describe '#save' do
     let(:asciicast) { Factory.build(:asciicast, :user => user) }
 

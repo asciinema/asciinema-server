@@ -13,6 +13,11 @@ class Asciicast < ActiveRecord::Base
 
   attr_reader :description
 
+  def self.assign_user(user_token, user)
+    where(:user_id => nil, :user_token => user_token).
+    update_all(:user_id => user.id, :user_token => nil)
+  end
+
   def meta=(file)
     data = JSON.parse(file.tempfile.read)
 
