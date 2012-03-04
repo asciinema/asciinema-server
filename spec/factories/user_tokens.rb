@@ -3,6 +3,6 @@
 FactoryGirl.define do
   factory :user_token do
     association :user
-    token "some-token"
+    sequence(:token) { |n| "2b4b4e02-6613-11e1-9be5-#{Kernel.format('%012i', n)}" }
   end
 end

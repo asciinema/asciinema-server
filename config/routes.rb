@@ -12,5 +12,7 @@ AsciiIo::Application.routes.draw do
   match "/login" => "sessions#new"
   match "/logout" => "sessions#destroy"
 
+  match "/connect/:user_token" => "user_tokens#create"
+
   root :to => 'asciicasts#index'
 end
