@@ -3,17 +3,16 @@ include ActionDispatch::TestProcess
 
 FactoryGirl.define do
   factory :asciicast do
-    user_id 1
+    association :user
+    title "bashing"
+    duration 100
+    recorded_at "2011-11-23 22:06:07"
+    terminal_type "xterm"
+    terminal_columns 80
+    terminal_lines 25
+    shell "/bin/bash"
+    uname "uname"
     stdout { fixture_file_upload("spec/fixtures/stdout", "application/octet-stream") }
     stdout_timing { fixture_file_upload("spec/fixtures/stdout", "application/octet-stream") }
-    title "MyString"
-    duration 1
-    recorded_at "2011-11-23 22:06:07"
-    terminal_type "MyString"
-    terminal_columns 1
-    terminal_lines 1
-    command "MyString"
-    shell "MyString"
-    uname "MyString"
   end
 end

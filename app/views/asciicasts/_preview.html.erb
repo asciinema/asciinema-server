@@ -1,0 +1,6 @@
+<li class="asciicast-preview">
+  <h3><%= link_to asciicast_title(asciicast), asciicast %></h3>
+  <% if asciicast.description.present? %>
+    <p class="description"><%= asciicast.description %></p>
+  <% end %>
+</li>

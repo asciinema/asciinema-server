@@ -4,86 +4,109 @@
   visibility: hidden;
 }
 
+// color pallette: http://www.colourlovers.com/palette/580974/Adrift_in_Dreams
+
+$color1: #00A0B0;
+$color2: #6A4A3C;
+$color3: #CC333F;
+$color4: #EB6841;
+$color5: #EDC951;
+
 body {
-  background-color: #E7E7DE;
+  background-color: #f0f0f0;
   margin: 0;
   padding: 0;
 }
 
 body, div, p {
   font-family: arial, helvetica;
-  font-size: 12px;
+  font-size: 14px;
 }
 
-/* 325A66 */
-/* DEA140 */
-/* A32B26 */
-/* 590D0B */
+header {
+  background-color: $color5;
+  height: 40px;
 
-h1 {
-  color: #3e3e3e;
-  font-family: 'Trebuchet MS';
-  font-size: 42px;
-  padding: 15px 0;
+  nav {
+    height: 100%;
+
+    h1 {
+      height: 100%;
+      float: left;
+      background-color: black;
+      font-family: 'Trebuchet MS';
+      font-size: 26px;
+      padding-right: 10px;
+
+      a {
+        color: white;
+        vertical-align: middle;
+        margin: 6px 0 0 0;
+        display: block;
+      }
+    }
+
+    ul {
+      list-style: none;
+      height: 100%;
+      float: right;
+      background-color: $color1;
+
+      li {
+        color: #eee;
+        display: inline-block;
+        margin-right: 20px;
+        height: 100%;
+      }
+
+      .avatar {
+        height: 100%;
+      }
+    }
+  }
+}
+
+a {
+  text-decoration: none;
+  color: $color2;
+}
+
+p {
+  margin-bottom: 20px;
+}
+
+// a.logout {
+//   background-image: url(image-path("logout.png"));
+//   background-repeat: no-repeat;
+// }
+
+.flash {
+  vertical-align: middle;
+  padding: 10px 0 10px 10px;
+  font-weight: bold;
+}
+
+.flash#notice {
+  color: black;
+  background-color: white;
+}
+
+.flash#alert {
+  color: red;
+  background-color: white;
 }
 
 h2 {
-  color: #3e3e3e;
-  font-family: 'Trebuchet MS';
-  font-size: 26px;
-  padding: 15px 15px 40px 15px;
+  // color: #3e3e3e;
+  color: $color3;
+  font-family: monospace;
+  font-size: 20px;
+  padding: 15px 0px 30px 0px;
 }
 
-#top {
-  position: relative;
-  height: 80px;
-}
-
-#logo {
-  display: block;
-  width: 300px;
-  position: absolute;
-  top: 0;
-  left: 0;
-}
-
-#topnav {
-  display: block;
-  width: 300px;
-  position: absolute;
-  top: 0;
-  right: 0;
-  font-size: 11px;
-  font-family: Verdana;
-}
-
-#session-info {
-  background-color: #172322;
-  list-style: none;
-  padding: 10px;
-  border-bottom-left-radius: 10px;
-
-  li {
-    color: #eee;
-    display: inline-block;
-    margin-right: 20px;
-  }
-
-  .avatar {
-    width: 24px;
-    height: 24px;
-  }
-}
-
-#all {
-  margin: 0 auto;
-  width: 980px;
+#content {
+  width: 960px;
   text-align: left;
-}
-
-#main {
-  background-color: white;
-  width: 980px;
-  font-size: 11px;
-  border-top-left-radius: 10px;
+  font-size: 12px;
+  padding: 20px;
 }

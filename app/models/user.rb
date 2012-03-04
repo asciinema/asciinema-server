@@ -4,6 +4,8 @@ class User < ActiveRecord::Base
   validate :uid, :presence => true
   validate :nickname, :presence => true
 
+  has_many :user_tokens
+
   def self.create_with_omniauth(auth)
     create! do |user|
       user.provider   = auth["provider"]
@@ -14,4 +16,7 @@ class User < ActiveRecord::Base
     end
   end
 
+  def add_user_token(token)
+    user_tokens.find_or_create_by_token(token)
+  end
 end

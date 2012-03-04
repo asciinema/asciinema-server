@@ -2,9 +2,31 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
+$color1: #00A0B0;
+$color2: #6A4A3C;
+$color3: #CC333F;
+$color4: #EB6841;
+$color5: #EDC951;
+
+.asciicasts {
+  list-style: none;
+
+  .asciicast-preview {
+    h3 {
+      font-size: 16px;
+
+      a {
+        color: $color1;
+      }
+    }
+
+    margin-bottom: 30px;
+  }
+}
+
 .asciicast {
-  width: 100%;
-  background-color: #222;
+  // width: 100%;
+  // background-color: #222;
 
   .player {
     /* border: 1px solid #777;*/
@@ -12,7 +34,7 @@
     float: left;
     display: block;
     padding: 0px;
-    margin: 0px 0px 30px 20px;
+    // margin: 0px 0px 30px 20px;
     position: relative;
 
     .terminal {
@@ -22,7 +44,7 @@
       font-family: 'Droid Sans Mono', Monospace;
       white-space: pre;
       background-color: black;
-      line-height: 1.2em;
+      // line-height: 1.2em;
       color: #ccc;
       overflow: auto;
       overflow-x: hidden;
@@ -53,37 +75,39 @@
       bottom: 0px;
       height: 30px;
       color: white;
+      font-weight: bold;
+      font-family: monospace;
 
       -webkit-transition: opacity 0.3s ease-in-out;
 
       .toggle {
-        background-color: blue;
+        background-color: $color1;
         width: 30px;
         height: 100%;
         float: left;
         cursor: pointer;
 
         &.paused {
-          background-color: orange;
+          background-color: $color4;
         }
       }
 
       .progress {
-        background-color: black;
+        background-color: $color2;
         width: 60%;
         height: 100%;
         float: left;
-        cursor: pointer;
+        // cursor: pointer;
 
         .gutter {
-          background-color: #333;
+          background-color: $color5;
           width: 0px;
           height: 100%;
         }
       }
 
       .time {
-        background-color: green;
+        background-color: $color3;
         width: 30%;
         height: 100%;
         float: left;
@@ -635,14 +659,19 @@
   .bg254 { background-color: #e4e4e4 }
   .bg255 { background-color: #eeeeee }
 
-  .description {
-    color: #666;
-    font-family: arial, helvetica;
-    font-size: 16px;
-    margin: 20px;
+  .meta {
+    .avatar {
+      width: 24px;
+      padding: 1px;
+      background-color: white;
+      border: 1px solid #ccc;
+    }
   }
 
-  .description p {
-    margin-bottom: 20px;
+  .description {
+    color: #3e3e3e;
+    font-family: arial, helvetica;
+    font-size: 18px;
+    margin: 20px 0;
   }
 }
