@@ -1,7 +1,6 @@
 AsciiIo::Application.routes.draw do
 
-  resources :asciicasts
-  match ':id' => 'asciicasts#show', :constraints => { :id => /\d+/ }
+  resources :asciicasts, :path => 'a'
 
   namespace :api do
     resources :comments
@@ -11,6 +10,8 @@ AsciiIo::Application.routes.draw do
     end
   end
 
+  match "/installation" => "static_pages#show", :page => 'installation'
+
   match "/auth/:provider/callback" => "sessions#create"
   match "/auth/failure" => "sessions#failure"
 
@@ -19,5 +20,5 @@ AsciiIo::Application.routes.draw do
 
   match "/connect/:user_token" => "user_tokens#create"
 
-  root :to => 'asciicasts#index'
+  root :to => 'home#show'
 end

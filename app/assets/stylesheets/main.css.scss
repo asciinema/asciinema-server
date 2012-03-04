@@ -47,21 +47,38 @@ header {
     }
 
     ul {
+      li {
+        display: inline-block;
+        height: 100%;
+        font-weight: bold;
+
+        a {
+          color: white;
+        }
+      }
+    }
+
+    ul#session-info {
       list-style: none;
       height: 100%;
       float: right;
       background-color: $color1;
 
       li {
-        color: #eee;
-        display: inline-block;
+        // color: #eee;
         margin-right: 20px;
-        height: 100%;
       }
 
       .avatar {
         height: 100%;
       }
+    }
+
+    ul#navigation {
+      list-style: none;
+      height: 100%;
+      float: right;
+      background-color: $color3;
     }
   }
 }
