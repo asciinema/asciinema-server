@@ -9,27 +9,26 @@
 </head>
 <body>
 
-  <div id="all">
-    <div id="top">
-      <div id="logo">
-        <h1>ascii.io</h1>
-      </div>
-      <div id="topnav">
-        <%= render :partial => 'layouts/session_info' %>
-      </div>
-    </div>
-    <div id="main">
-      <% if notice %>
-        <p id="notice" ><%= notice %></p>
-        <% elsif alert %>
-        <p id="alert" ><%= alert %></p>
-      <% end %>
+  <header>
+    <nav>
+      <h1>
+        <%= link_to "ascii.io", "/", :class => "home" %>
+      </h1>
+      <%= render :partial => 'layouts/session_info' %>
+    </nav>
+  </header>
 
-      <%= yield %>
+  <div id="content">
+    <% if notice %>
+      <p id="notice" class="flash"><%= notice %></p>
+      <% elsif alert %>
+      <p id="alert" class="flash"><%= alert %></p>
+    <% end %>
 
-      <div class="clear"></div>
-    </div>
+    <%= yield %>
   </div>
 
+  <footer>
+  </footer>
 </body>
 </html>

@@ -1,9 +1,7 @@
-<h2>Some title</h2>
+<h2>Recent asciicasts</h2>
 
 <ul class="asciicasts">
-  <% @asciicasts.each do |asciicast| %>
-    <li class="asciicast">
-      <a href="/<%= asciicast.id %>"><%= asciicast.id %></a>
-    </li>
-  <% end %>
+  <%= render :partial => "asciicasts/preview", :collection => @asciicasts, :as => :asciicast %>
 </ul>
+
+<%= paginate @asciicasts %>

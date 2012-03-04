@@ -94,6 +94,10 @@ GEM
       thor (~> 0.14)
     json (1.6.5)
     json_pure (1.6.5)
+    kaminari (0.13.0)
+      actionpack (>= 3.0.0)
+      activesupport (>= 3.0.0)
+      railties (>= 3.0.0)
     libnotify (0.7.2)
     linecache19 (0.5.12)
       ruby_core_source (>= 0.1.4)
@@ -216,6 +220,7 @@ DEPENDENCIES
   jasmine
   jasminerice
   jquery-rails
+  kaminari
   libnotify
   mysql2
   omniauth

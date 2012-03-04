@@ -7,6 +7,8 @@ class Asciicast < ActiveRecord::Base
   validates :stdout, :stdout_timing, :presence => true
   validates :terminal_columns, :terminal_lines, :duration, :presence => true
 
+  attr_reader :description
+
   def meta=(file)
     data = JSON.parse(file.tempfile.read)
 
