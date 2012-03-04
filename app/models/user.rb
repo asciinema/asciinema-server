@@ -4,7 +4,8 @@ class User < ActiveRecord::Base
   validate :uid, :presence => true
   validate :nickname, :presence => true
 
-  has_many :user_tokens
+  has_many :user_tokens, :dependent => :destroy
+  has_many :asciicasts, :dependent => :destroy
 
   def self.create_with_omniauth(auth)
     create! do |user|
@@ -14,6 +15,10 @@ class User < ActiveRecord::Base
       user.name       = auth["info"]["name"]
       user.avatar_url = OauthHelper.get_avatar_url(auth)
     end
+  end
+
+  def to_param
+    nickname
   end
 
   def add_user_token(token)

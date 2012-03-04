@@ -1,10 +1,10 @@
 <div class="left">
-  <a href="#"><img src="{{user.avatar_url}}" alt="{{user.nickanme}}" class="avatar" /></a>
+  <a href="{{profile_path}}"><img src="{{user.avatar_url}}" alt="{{user.nickanme}}" class="avatar" /></a>
 </div>
 
 <div class="right">
   <div>
-    <span class="user-name">{{user.nickname}}</span>
+    <a href="{{profile_path}}"><span class="user-name">{{user.nickname}}</span></a>
     <span class="when">{{created}}</span>
   </div>
   <div class="body">{{body}}</div>

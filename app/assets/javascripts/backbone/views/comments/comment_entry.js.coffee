@@ -11,9 +11,12 @@ class AsciiIo.Views.CommentEntry extends AsciiIo.Views.Base
     @collection = options.collection
 
   render: ->
-    context = _.extend( @model.toJSON(), { 
-      show_remove_link: @showRemoveLink(),
-      created: @timeAgo() } )
+    extra =
+      show_remove_link: @showRemoveLink()
+      created: @timeAgo()
+      profile_path: "/~#{@model.get('user').nickname}"
+
+    context = _.extend(@model.toJSON(), extra)
 
     $(@el).html @template(context)
     this

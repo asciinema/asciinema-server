@@ -12,7 +12,8 @@ module AsciicastsHelper
 
   def asciicast_author(asciicast)
     if asciicast.user
-      link_to avatar_img(asciicast.user) + " #{asciicast.user.nickname}", '#'
+      link_to avatar_img(asciicast.user) + " #{asciicast.user.nickname}",
+              profile_path(asciicast.user)
     end
   end
 

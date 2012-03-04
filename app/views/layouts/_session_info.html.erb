@@ -1,7 +1,7 @@
 <ul id="session-info">
   <% if current_user %>
     <li>
-      <%= avatar_img current_user %>
+      <%= link_to avatar_img(current_user), profile_path(current_user) %>
       <%= link_to "Log out", logout_path, :class => "logout" %>
     </li>
   <% else %>

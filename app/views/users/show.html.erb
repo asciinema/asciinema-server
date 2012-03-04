@@ -1,0 +1,14 @@
+<div class="user-info">
+  <p>
+    <%= avatar_img(@user) %> <%= @user.nickname %>
+  </p>
+  <p>
+    <%= @user.asciicasts.count %> asciicasts
+  </p>
+</div>
+
+<ul class="asciicasts">
+  <%= render :partial => "asciicasts/preview", :collection => @asciicasts, :as => :asciicast %>
+</ul>
+
+<%= paginate @asciicasts %>

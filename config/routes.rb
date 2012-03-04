@@ -2,13 +2,7 @@ AsciiIo::Application.routes.draw do
 
   resources :asciicasts, :path => 'a'
 
-  namespace :api do
-    resources :comments
-
-    resources :asciicasts do
-      resources :comments
-    end
-  end
+  match '/~:nickname' => "users#show", :as => :profile
 
   match "/installation" => "static_pages#show", :page => 'installation'
 
@@ -19,6 +13,14 @@ AsciiIo::Application.routes.draw do
   match "/logout" => "sessions#destroy"
 
   match "/connect/:user_token" => "user_tokens#create"
+
+  namespace :api do
+    resources :comments
+
+    resources :asciicasts do
+      resources :comments
+    end
+  end
 
   root :to => 'home#show'
 end
