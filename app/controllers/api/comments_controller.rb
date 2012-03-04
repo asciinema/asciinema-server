@@ -1,7 +1,7 @@
-class CommentsController < ApplicationController
+class Api::CommentsController < ApplicationController
   respond_to :json
 
-  before_filter :ensure_authenticated!, :only => [:create, :update, :destroy]
+  before_filter :ensure_authenticated!, :only => [:create, :destroy]
   before_filter :load_asciicast, :only => [:index, :create]
 
   def index

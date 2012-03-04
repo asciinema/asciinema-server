@@ -1,5 +1,4 @@
 AsciiIo::Application.routes.draw do
-  resources :comments
 
   resources :asciicasts
   match ':id' => 'asciicasts#show', :constraints => { :id => /\d+/ }

@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe CommentsController do
+describe Api::CommentsController do
 
   let(:user)      { Factory(:user) }
   let(:asciicast) { mock_model(Asciicast) }
