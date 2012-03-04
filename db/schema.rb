@@ -24,8 +24,8 @@ ActiveRecord::Schema.define(:version => 20120304162005) do
     t.string   "command"
     t.string   "shell"
     t.string   "uname"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",       :null => false
+    t.datetime "updated_at",       :null => false
     t.string   "stdin"
     t.string   "stdin_timing"
     t.string   "stdout"
