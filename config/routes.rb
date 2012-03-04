@@ -2,7 +2,9 @@ AsciiIo::Application.routes.draw do
 
   resources :asciicasts, :path => 'a'
 
-  match '/~:nickname' => "users#show", :as => :profile
+  match "/~:nickname" => "users#show", :as => :profile
+
+  match "/browse" => "asciicasts#index", :as => :browse
 
   match "/installation" => "static_pages#show", :page => 'installation'
 
