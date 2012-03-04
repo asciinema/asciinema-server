@@ -14,3 +14,19 @@
 </div>
 
 <%= player_script(@asciicast) %>
+
+<h2>Comments</h2>
+
+<div id="comments"></div>
+
+<script type="text/javascript">
+  jQuery(document).ready( function(){
+    var comments = new AsciiIo.Collections.Comments();
+    var asciicast_id = <%= @asciicast.id %>
+
+    comments.url = ['/api/asciicasts/', asciicast_id, '/comments'].join('');
+    comments.fetch();
+
+    view = new AsciiIo.Views.CommentsIndex({ collection: comments });
+  })
+</script>

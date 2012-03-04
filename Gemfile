@@ -17,6 +17,7 @@ group :assets do
   gem 'sass-rails'
   gem 'coffee-rails'
   gem 'uglifier', '>= 1.0.3'
+  gem 'handlebars_assets'
 end
 
 group :test, :development do

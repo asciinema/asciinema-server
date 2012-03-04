@@ -1,9 +1,15 @@
 AsciiIo::Application.routes.draw do
+  resources :comments
+
   resources :asciicasts
   match ':id' => 'asciicasts#show', :constraints => { :id => /\d+/ }
 
   namespace :api do
-    resources :asciicasts
+    resources :asciicasts do
+
+      resources :comments
+
+    end
   end
 
   match "/auth/:provider/callback" => "sessions#create"

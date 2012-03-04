@@ -1,1 +1,3 @@
-window.AsciiIo = {};
+if (!window.AsciiIo){
+  window.AsciiIo = {};
+}

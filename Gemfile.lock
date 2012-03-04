@@ -77,6 +77,10 @@ GEM
       multi_json
       thor
     haml (3.1.4)
+    handlebars_assets (0.4.1)
+      execjs (>= 1.2.9)
+      sprockets (>= 2.0.3)
+      tilt
     hashie (1.2.0)
     hike (1.2.1)
     i18n (0.6.0)
@@ -213,6 +217,7 @@ DEPENDENCIES
   factory_girl_rails
   guard
   guard-jasmine
+  handlebars_assets
   jasmine
   jasminerice
   jquery-rails
