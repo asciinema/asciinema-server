@@ -82,7 +82,7 @@ describe CommentsController do
 
       it "calls delete on comment" do
         comment.should_receive(:delete)
-        delete :destroy, :id => 1
+        delete :destroy, :id => 1, :format => :json
       end
 
     end
@@ -94,10 +94,14 @@ describe CommentsController do
         comment.stub(:user).and_return(other_user)
       end
 
-      it "raise Unauthorized exception" do
-        expect {
-          delete :destroy, :id => 1
-        }.to raise_error
+      it "doesn't call delete on comment" do
+        comment.should_not_receive(:delete)
+        delete :destroy, :id => 1, :format => :json
+      end
+
+      it "responses with 403 when xhr" do
+        xhr :delete, :destroy, :id => 1, :format => :json
+        response.status.should == 403
       end
 
     end

@@ -5,6 +5,10 @@ class ApplicationController < ActionController::Base
   rescue_from(ActiveRecord::RecordNotFound) { render 'exceptions/not_found' }
 
   class Unauthorized < Exception; end
+  class Forbiden < Exception; end
+
+  rescue_from Unauthorized, :with => :unathorized
+  rescue_from Forbiden, :with => :forbiden
 
   helper_method :current_user
 
@@ -28,4 +32,19 @@ class ApplicationController < ActionController::Base
     raise Unauthorized unless current_user
   end
 
+  def forbiden
+    if request.xhr?
+      render :json => "Forbiden", :status => 403
+    else
+      redirect_to root_path, :alert => "This action is forbiden"
+    end
+  end
+
+  def unathorized
+    if request.xhr?
+      render :json => "Unauthorized", :status => 401
+    else
+      redirect_to login_path, :notice => "Please login"
+    end
+  end
 end

@@ -24,7 +24,7 @@ class CommentsController < ApplicationController
     if comment.user == current_user
       respond_with comment.delete
     else
-      raise Unauthorized
+      raise Forbiden
     end
   end
 
