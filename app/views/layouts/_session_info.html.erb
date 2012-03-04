@@ -2,10 +2,9 @@
   <% if current_user %>
     <li>
       <%= avatar_img current_user %>
-      <%= link_to "Sign out", logout_path %>
+      <%= link_to "Log out", logout_path %>
     </li>
   <% else %>
-    <li><%= link_to "Twitter Sign in", twitter_auth_path %></li>
-    <li><%= link_to "Github Sign in", github_auth_path %></li>
+    <li><%= link_to "Log in", login_path %></li>
   <% end %>
 </ul>

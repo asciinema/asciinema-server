@@ -1,6 +1,8 @@
 class SessionsController < ApplicationController
   before_filter :load_omniauth_auth, :only => :create
 
+  def new; end
+
   def create
     user = User.find_by_provider_and_uid(@auth["provider"], @auth["uid"]) ||
       User.create_with_omniauth(@auth)

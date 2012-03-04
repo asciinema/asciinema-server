@@ -19,7 +19,14 @@
       </div>
     </div>
     <div id="main">
+      <% if notice %>
+        <p id="notice" ><%= notice %></p>
+        <% elsif alert %>
+        <p id="alert" ><%= alert %></p>
+      <% end %>
+
       <%= yield %>
+
       <div class="clear"></div>
     </div>
   </div>
