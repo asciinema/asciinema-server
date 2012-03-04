@@ -11,12 +11,18 @@ class AsciiIo.Views.CommentEntry extends AsciiIo.Views.Base
     @collection = options.collection
 
   render: ->
-    context = _.extend(@model.toJSON(), { show_remove_link: @showRemoveLink() })
+    context = _.extend( @model.toJSON(), { 
+      show_remove_link: @showRemoveLink(),
+      created: @timeAgo() } )
+
     $(@el).html @template(context)
     this
 
   showRemoveLink: ->
     @current_user() && ( @current_user().id == @model.user().id )
+
+  timeAgo: ->
+    $.timeago( @model.get('created') )
 
   removeComment: (event) ->
     event.preventDefault()

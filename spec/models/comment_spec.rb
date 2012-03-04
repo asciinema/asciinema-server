@@ -27,4 +27,22 @@ describe Comment do
     end
   end
 
+  describe "#created" do
+    let(:time) { Time.new(2012, 01, 03) }
+    let(:expected) { time.strftime("%Y-%m-%dT%H:%M:%S") }
+    let(:comment) { Factory.build(:comment) }
+
+    context "when created_at present" do
+      before { comment.stub(:created_at).and_return(time) }
+
+      it "returns js parsable format" do
+        comment.created.should == expected
+      end
+    end
+
+    context "no created_at" do
+      it { comment.created_at.should be_nil }
+    end
+
+  end
 end

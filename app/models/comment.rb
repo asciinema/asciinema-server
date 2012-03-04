@@ -10,7 +10,7 @@ class Comment < ActiveRecord::Base
   attr_accessible :body
 
   def created
-    created_at.to_s
+    created_at && created_at.strftime("%Y-%m-%dT%H:%M:%S")
   end
 
   def as_json(options = {})
