@@ -12,6 +12,7 @@ gem 'omniauth-github'
 gem 'bzip2-ruby'
 gem 'kaminari'
 gem 'airbrake'
+gem 'simple_form'
 
 # Gems used only for assets and not required
 # in production environments by default.

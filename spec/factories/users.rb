@@ -2,11 +2,12 @@
 
 FactoryGirl.define do
   sequence(:uid) { |n| n }
+  sequence(:nickname) { |n| "mrFoo#{n}" }
 
   factory :user do
     provider "twitter"
     uid
-    nickname "mrFoo"
+    nickname
     email nil
     name nil
     avatar_url nil

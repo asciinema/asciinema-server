@@ -1,20 +1,23 @@
 class User < ActiveRecord::Base
 
-  validate :provider, :presence => true
-  validate :uid, :presence => true
-  validate :nickname, :presence => true
+  validates :provider, :presence => true
+  validates :uid, :presence => true
+  validates :nickname, :presence => true
+
+  validates_uniqueness_of :nickname, :message => "Sorry, but your nickname is already taken"
 
   has_many :user_tokens, :dependent => :destroy
   has_many :asciicasts, :dependent => :destroy
 
   def self.create_with_omniauth(auth)
-    create! do |user|
-      user.provider   = auth["provider"]
-      user.uid        = auth["uid"]
-      user.nickname   = auth["info"]["nickname"]
-      user.name       = auth["info"]["name"]
-      user.avatar_url = OauthHelper.get_avatar_url(auth)
-    end
+    user = new
+    user.provider   = auth["provider"]
+    user.uid        = auth["uid"]
+    user.nickname   = auth["info"]["nickname"]
+    user.name       = auth["info"]["name"]
+    user.avatar_url = OauthHelper.get_avatar_url(auth)
+    user.save
+    user
   end
 
   def to_param
