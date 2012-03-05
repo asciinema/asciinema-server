@@ -50,6 +50,18 @@ $color5: #EDC951;
       overflow-x: hidden;
       cursor: pointer;
 
+      .loading {
+        background-image: url(image-path('loader.gif'));
+        background-repeat: no-repeat;
+        background-position: center;
+        z-index: 10;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+      }
+
       .line {
         font-size: 12px;
         /* background-color: black;*/

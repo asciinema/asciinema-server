@@ -45,6 +45,12 @@ class AsciiIo.TerminalView extends Backbone.View
     height = @$el.height()
     @$el.css(width: width + 'px', height: height + 'px')
 
+  showLoadingIndicator: ->
+    @$el.append('<div class="loading">')
+
+  hideLoadingIndicator: ->
+    @$('.loading').remove()
+
   renderLine: (n, data, cursorX) ->
     html = []
     prevBrush = undefined

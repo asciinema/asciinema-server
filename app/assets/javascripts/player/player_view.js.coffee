@@ -17,6 +17,7 @@ class AsciiIo.PlayerView extends Backbone.View
   createChildViews: ->
     @$el.append(@terminalView.$el)
     @terminalView.afterInsertedToDom()
+    @terminalView.showLoadingIndicator()
 
     @hudView = new AsciiIo.HudView()
     @$el.append(@hudView.$el)
@@ -32,6 +33,7 @@ class AsciiIo.PlayerView extends Backbone.View
       @movie.seek(percent)
 
     @movie.on 'movie-loaded', (asciicast) =>
+      @terminalView.hideLoadingIndicator()
       @hudView.setDuration(asciicast.get('duration'))
 
     @movie.on 'movie-playback-paused', =>
