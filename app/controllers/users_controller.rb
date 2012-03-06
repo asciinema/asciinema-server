@@ -11,7 +11,7 @@ class UsersController < ApplicationController
     @user = User.new(params[:user])
     if @user.save
       self.current_user = @user
-      redirect_to root_url, :notice => "Signed in!"
+      redirect_back_or_to root_url, :notice => "Signed in!"
     else
       render 'users/new', :status => 422
     end
