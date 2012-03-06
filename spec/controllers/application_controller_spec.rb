@@ -85,5 +85,25 @@ describe FakeController do
       assigns[:location_again].should == 'NOWAI!'
     end
   end
+
+  describe '#redirect_back_or_to' do
+    context 'when there is no stored location' do
+      it 'redirects to given location' do
+        path = double
+        @controller.should_receive(:redirect_to).with(path)
+        @controller.send(:redirect_back_or_to, path)
+      end
+    end
+
+    context 'when there is stored location' do
+      it 'redirects to stored location' do
+        stored_path = double
+        path = double
+        @controller.stub!(:get_stored_location => stored_path)
+        @controller.should_receive(:redirect_to).with(stored_path)
+        @controller.send(:redirect_back_or_to, path)
+      end
+    end
+  end
 end
 

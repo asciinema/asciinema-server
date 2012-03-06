@@ -40,9 +40,14 @@ class ApplicationController < ActionController::Base
     session.delete(:return_to)
   end
 
-  def redirect_back_or_to(default, options = {})
+  def redirect_back_or_to(default, options = nil)
     path = get_stored_location || default
-    redirect_to path, options
+
+    if options
+      redirect_to path, options
+    else
+      redirect_to path
+    end
   end
 
   def forbidden
