@@ -52,6 +52,7 @@ class ApplicationController < ActionController::Base
     if request.xhr?
       render :json => "Unauthorized", :status => 401
     else
+      store_location
       redirect_to login_path, :notice => "Please login"
     end
   end

@@ -43,6 +43,8 @@ describe FakeController do
     context "when typical request" do
 
       it "redirects to login_path" do
+        @controller.should_receive(:store_location)
+
         get :foo
 
         flash[:notice].should == "Please login"
