@@ -40,6 +40,11 @@ class ApplicationController < ActionController::Base
     session.delete(:return_to)
   end
 
+  def redirect_back_or_to(default, options = {})
+    path = get_stored_location || default
+    redirect_to path, options
+  end
+
   def forbidden
     if request.xhr?
       render :json => "Forbidden", :status => 403

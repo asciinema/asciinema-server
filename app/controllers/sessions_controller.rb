@@ -8,7 +8,7 @@ class SessionsController < ApplicationController
       User.create_with_omniauth(@auth)
 
     self.current_user = user
-    redirect_to root_url, :notice => "Signed in!"
+    redirect_back_or_to root_url, :notice => "Signed in!"
   end
 
   def destroy
