@@ -22,8 +22,11 @@ group :assets do
   gem 'handlebars_assets'
 end
 
-group :test, :development do
+group :development do
   gem 'ruby-debug19', :require => false
+end
+
+group :test, :development do
   gem "rspec-rails"
   gem 'factory_girl_rails'
   gem 'awesome_print', :require => 'ap'
@@ -37,5 +40,6 @@ group :test, :development do
 end
 
 group :test do
+  gem "rake"
   gem "capybara"
 end

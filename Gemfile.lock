@@ -236,6 +236,7 @@ DEPENDENCIES
   omniauth-github
   omniauth-twitter
   rails
+  rake
   rspec-rails
   ruby-debug19
   sass-rails
