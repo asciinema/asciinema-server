@@ -24,7 +24,7 @@ class Api::CommentsController < ApplicationController
     if comment.user == current_user
       respond_with comment.delete
     else
-      raise Forbiden
+      raise Forbidden
     end
   end
 

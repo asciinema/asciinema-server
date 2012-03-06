@@ -7,7 +7,7 @@ class FakeController < ApplicationController
   end
 
   def bar
-    raise Forbiden
+    raise Forbidden
   end
 
 end
@@ -42,7 +42,7 @@ describe FakeController do
     end
   end
 
-  context "when action raise forbiden" do
+  context "when action raise forbidden" do
     context "when xhr" do
       before{ request.stub(:xhr?).and_return(true) }
 
@@ -58,7 +58,7 @@ describe FakeController do
       it "redirects to root_path" do
         get :bar
 
-        flash[:alert].should == "This action is forbiden"
+        flash[:alert].should == "This action is forbidden"
         should redirect_to(root_path)
       end
 
