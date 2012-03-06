@@ -1,5 +1,5 @@
 class UserTokensController < ApplicationController
-  # before_filter :ensure_authenticated!
+  before_filter :ensure_authenticated!
 
   def create
     ut = current_user.add_user_token(params[:user_token])

@@ -6,8 +6,9 @@ describe UserTokensController do
     let(:user_token) { FactoryGirl.build(:user_token, :user => nil) }
 
     before do
-      @controller.stub!(:current_user => user)
+      login_as user
       user.stub!(:add_user_token => user_token)
+      @controller.should_receive(:ensure_authenticated!)
     end
 
     context 'when given token is valid' do
