@@ -3,7 +3,7 @@ require 'spec_helper'
 describe UserTokensController do
   describe '#create' do
     let(:user) { Factory(:user) }
-    let(:user_token) { Factory.build(:user_token, :user => nil) }
+    let(:user_token) { FactoryGirl.build(:user_token, :user => nil) }
 
     before do
       @controller.stub!(:current_user => user)

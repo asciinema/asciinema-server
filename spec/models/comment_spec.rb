@@ -3,12 +3,12 @@ require 'spec_helper'
 describe Comment do
 
   it "factory should be valid" do
-    Factory.build(:comment).should be_valid
+    FactoryGirl.build(:comment).should be_valid
   end
 
   describe "#as_json" do
     let(:user) { Factory(:user) }
-    let(:comment) { Factory.build(:comment) }
+    let(:comment) { FactoryGirl.build(:comment) }
 
     before do
       comment.user = user
@@ -30,7 +30,7 @@ describe Comment do
   describe "#created" do
     let(:time) { Time.new(2012, 01, 03) }
     let(:expected) { time.strftime("%Y-%m-%dT%H:%M:%S") }
-    let(:comment) { Factory.build(:comment) }
+    let(:comment) { FactoryGirl.build(:comment) }
 
     context "when created_at present" do
       before { comment.stub(:created_at).and_return(time) }

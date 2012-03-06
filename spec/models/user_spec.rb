@@ -2,10 +2,10 @@ require 'spec_helper'
 
 describe User do
 
-  let(:user) { Factory.build(:user) }
+  let(:user) { FactoryGirl.build(:user) }
 
   it "has valid factory" do
-    Factory.build(:user).should be_valid
+    FactoryGirl.build(:user).should be_valid
   end
 
   describe ".create_with_omniauth" do
@@ -52,7 +52,7 @@ describe User do
     before { user.save }
 
     context "when user doesn't have given token" do
-      let(:token) { Factory.attributes_for(:user_token)[:token] }
+      let(:token) { FactoryGirl.attributes_for(:user_token)[:token] }
 
       it 'returns created UserToken' do
         ut = user.add_user_token(token)
