@@ -32,6 +32,14 @@ class ApplicationController < ActionController::Base
     raise Unauthorized unless current_user
   end
 
+  def store_location
+    session[:return_to] = request.path
+  end
+
+  def get_stored_location
+    session.delete(:return_to)
+  end
+
   def forbidden
     if request.xhr?
       render :json => "Forbidden", :status => 403

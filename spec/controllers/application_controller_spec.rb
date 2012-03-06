@@ -10,6 +10,16 @@ class FakeController < ApplicationController
     raise Forbidden
   end
 
+  def store
+    store_location
+    render :nothing => true
+  end
+
+  def retrieve
+    @location = get_stored_location
+    @location_again = get_stored_location || 'NOWAI!'
+    render :nothing => true
+  end
 end
 
 describe FakeController do
@@ -65,5 +75,13 @@ describe FakeController do
     end
   end
 
+  describe '#store_location / #get_stored_location' do
+    it 'stores current request path to be later retrieved' do
+      get :store # request.path is '/assets' (???)
+      get :retrieve
+      assigns[:location].should == '/assets'
+      assigns[:location_again].should == 'NOWAI!'
+    end
+  end
 end
 
