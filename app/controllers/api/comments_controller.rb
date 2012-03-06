@@ -18,7 +18,6 @@ class Api::CommentsController < ApplicationController
     respond_with @comment, :location => api_comment_url(@comment)
   end
 
-  #TODO Add Authorization
   def destroy
     comment = Comment.find(params[:id])
     if comment.user == current_user
