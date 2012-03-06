@@ -1,5 +1,7 @@
 language: ruby
 bundler_args: --without development
+before_script:
+  - "cp config/database.travis.yml config/database.yml"
 script: ./script/cibuild.sh
 rvm:
   - 1.9.2
