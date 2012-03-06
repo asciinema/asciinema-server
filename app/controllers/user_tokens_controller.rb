@@ -13,7 +13,7 @@ class UserTokensController < ApplicationController
         notice = "Authenticated successfully, yippie!"
       end
 
-      redirect_to root_path, :notice => notice
+      redirect_to profile_path(current_user), :notice => notice
     else
       render :error
     end

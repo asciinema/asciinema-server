@@ -21,10 +21,10 @@ describe UserTokensController do
         post :create, :user_token => user_token.token
       end
 
-      it 'redirects to root_path' do
+      it 'redirects to ~nickname' do
         post :create, :user_token => user_token.token
 
-        response.should redirect_to(root_path)
+        response.should redirect_to(profile_path(user))
       end
     end
 
