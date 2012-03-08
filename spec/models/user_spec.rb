@@ -34,7 +34,7 @@ describe User do
     end
 
     context "when avatar available" do
-      let(:avatar_url) { "http://foo.bar/avatar.jpg"}
+      let(:avatar_url) { "http://foo.bar/avatar.jpg" }
 
       before do
         OauthHelper.stub(:get_avatar_url).and_return(avatar_url)

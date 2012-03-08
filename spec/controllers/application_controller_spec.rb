@@ -30,7 +30,7 @@ describe FakeController do
   describe "action raise unauthorized" do
 
     context "when xhr" do
-      before{ request.stub(:xhr?).and_return(true) }
+      before { request.stub(:xhr?).and_return(true) }
 
       it "response with 401" do
         get :foo
@@ -56,7 +56,7 @@ describe FakeController do
 
   context "when action raise forbidden" do
     context "when xhr" do
-      before{ request.stub(:xhr?).and_return(true) }
+      before { request.stub(:xhr?).and_return(true) }
 
       it "response with 401" do
         get :bar

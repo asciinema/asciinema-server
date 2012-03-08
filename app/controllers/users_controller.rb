@@ -3,7 +3,9 @@ class UsersController < ApplicationController
 
   def show
     @user = User.find_by_nickname(params[:nickname])
-    @asciicasts =
-      @user.asciicasts.order("created_at DESC").page(params[:page]).per(PER_PAGE)
+    @asciicasts = @user.asciicasts.
+      order("created_at DESC").
+      page(params[:page]).
+      per(PER_PAGE)
   end
 end

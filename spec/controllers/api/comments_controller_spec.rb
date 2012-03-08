@@ -18,7 +18,7 @@ describe Api::CommentsController do
       def dispatch
         post :create,
           :asciicast_id => asciicast.id,
-          :comment => {"body" => "Foo"},
+          :comment => { "body" => "Foo" },
           :format => :json
       end
 

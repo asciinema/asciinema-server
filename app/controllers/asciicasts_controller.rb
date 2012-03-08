@@ -4,7 +4,10 @@ class AsciicastsController < ApplicationController
   respond_to :html, :json
 
   def index
-    @asciicasts = Asciicast.order("created_at DESC").page(params[:page]).per(PER_PAGE)
+    @asciicasts = Asciicast.
+      order("created_at DESC").
+      page(params[:page]).
+      per(PER_PAGE)
   end
 
   def show

@@ -17,7 +17,9 @@ describe UserTokensController do
       end
 
       it 'calls Asciicast.assign_user' do
-        Asciicast.should_receive(:assign_user).with(user_token.token, user).and_return(1)
+        Asciicast.should_receive(:assign_user).
+                  with(user_token.token, user).
+                  and_return(1)
 
         post :create, :user_token => user_token.token
       end

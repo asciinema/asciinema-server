@@ -8,7 +8,9 @@ describe Asciicast do
   describe '.assign_user' do
     let(:user) { Factory(:user) }
     let(:token) { 'token' }
-    let!(:asciicast) { Factory(:asciicast, :user => nil, :user_token => token) }
+    let!(:asciicast) do
+      Factory(:asciicast, :user => nil, :user_token => token)
+    end
 
     subject { Asciicast.assign_user(token, user) }
 
@@ -46,7 +48,9 @@ describe Asciicast do
 
   describe '#assign_user' do
     let(:user) { Factory(:user) }
-    let(:asciicast) { Factory(:asciicast, :user => nil, :user_token => user_token) }
+    let(:asciicast) do
+      Factory(:asciicast, :user => nil, :user_token => user_token)
+    end
 
     context 'when user exists with given token' do
       let(:user_token) { Factory(:user_token, :user => user).token }
