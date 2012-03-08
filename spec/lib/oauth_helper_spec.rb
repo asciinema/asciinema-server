@@ -16,7 +16,7 @@ describe OauthHelper do
         }
       end
 
-      it { OauthHelper.get_avatar_url(auth).should == avatar_url}
+      it { OauthHelper.get_avatar_url(auth).should == avatar_url }
 
     end
 
@@ -30,7 +30,7 @@ describe OauthHelper do
         }
       end
 
-      it { OauthHelper.get_avatar_url(auth).should == avatar_url}
+      it { OauthHelper.get_avatar_url(auth).should == avatar_url }
     end
 
     context "when other provider" do
