@@ -10,8 +10,6 @@ describe "users/new" do
   it "renders form with attr" do
     render
     rendered.should =~ /user\[nickname\]/
-    rendered.should =~ /user\[provider\]/
-    rendered.should =~ /user\[uid\]/
     rendered.should =~ /user\[name\]/
     rendered.should =~ /user\[avatar_url\]/
   end

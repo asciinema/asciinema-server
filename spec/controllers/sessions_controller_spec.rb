@@ -58,11 +58,23 @@ describe SessionsController do
 
       context "when nicknamne is taken" do
         let(:not_saved_user) {
-          stub_model(User, :persisted? => false, :valid? => false)
+          stub_model( User,
+            :persisted? => false,
+            :valid?     => false,
+            :uid        => uid,
+            :provider   => provider
+          )
         }
 
         before do
           User.stub(:create_with_omniauth).and_return(not_saved_user)
+        end
+
+        it "puts uid and provider in session " do
+          post :create
+
+          session[:uid].should == uid
+          session[:provider].should == provider
         end
 
         it "renders user/new" do

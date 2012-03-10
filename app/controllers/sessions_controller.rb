@@ -9,6 +9,7 @@ class SessionsController < ApplicationController
       User.create_with_omniauth(@auth)
 
     unless @user.persisted?
+      store_sensitive_user_data_in_session
       render 'users/new', :status => 422
     else
       self.current_user = @user
@@ -29,6 +30,11 @@ class SessionsController < ApplicationController
 
   def load_omniauth_auth
     @auth = request.env["omniauth.auth"]
+  end
+
+  def store_sensitive_user_data_in_session
+    session[:provider] = @user.provider
+    session[:uid] = @user.uid
   end
 
 end

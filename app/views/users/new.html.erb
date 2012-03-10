@@ -1,8 +1,6 @@
 <%= simple_form_for @user do |f| %>
   <%= f.input :nickname, :input_html => { :class => 'special' } %>
 
-  <%= f.input :provider, :as => :hidden %>
-  <%= f.input :uid, :as => :hidden %>
   <%= f.input :name, :as => :hidden %>
   <%= f.input :avatar_url, :as => :hidden %>
 
