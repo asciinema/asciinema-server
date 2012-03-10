@@ -41,4 +41,7 @@ module AsciicastsHelper
 EOS
   end
 
+  def random_description
+    ("<p>" + Faker::Lorem.sentences(6).join + "</p>").html_safe
+  end
 end
