@@ -4,9 +4,11 @@
     <div class="clear"></div>
   </div>
 
-  <div class="description">
-    <%= random_description %>
-  </div>
+  <% unless (defined? skip_description) && skip_description %>
+    <div class="description">
+      <%= random_description %>
+    </div>
+  <% end %>
 </div>
 
 <%= player_script(asciicast) %>

@@ -1,9 +1,16 @@
 <div class="hero-unit">
   <h1>ascii.io</h1>
   <p>No bullshit asciicasting for developers</p>
+
+  <%= render :partial => 'asciicasts/asciicast',
+             :object => @asciicast,
+             :locals => { :skip_description => true } %>
+
   <p>
-    <%= link_to 'Try it', installation_path, :class => "btn btn-primary btn-large" %>
+    <%= link_to 'Use it!', installation_path, :class => "btn btn-primary btn-large" %>
+    <%= link_to 'Browse', browse_path, :class => "btn btn-large" %>
   </p>
+
 </div>
 
 <h2>Recent asciicasts</h2>
