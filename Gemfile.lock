@@ -235,6 +235,9 @@ GEM
       ffi (~> 1.0.9)
       json_pure
       rubyzip
+    simple_form (1.5.2)
+      actionpack (~> 3.0)
+      activemodel (~> 3.0)
     sprockets (2.1.2)
       hike (~> 1.2)
       rack (~> 1.0)
@@ -293,6 +296,7 @@ DEPENDENCIES
   rspec-rails
   ruby-debug19
   sass-rails
+  simple_form
   tailor
   twitter-bootstrap-rails
   tzinfo

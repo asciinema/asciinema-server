@@ -5,11 +5,13 @@ describe SessionsController do
   describe "#create" do
     let(:provider) { "twitter" }
     let(:uid)      { 1234 }
+    let(:nickname) { "mrFoo" }
 
     before do
       OmniAuth.config.mock_auth[:twitter] = {
         "provider" => provider,
-        "uid" => uid
+        "uid" => uid,
+        "info" => { "nickname" => nickname}
       }
 
       request.env["omniauth.auth"] = OmniAuth.config.mock_auth[:twitter]
@@ -34,23 +36,53 @@ describe SessionsController do
 
     context "user doesn't exist" do
       let(:auth) { request.env["omniauth.auth"] }
-      let(:user) { stub("user", :id => 1) }
+      let(:user) { stub("user", :id => 1, :persisted? => true) }
 
-      it "should call create_with_omniauth" do
-        User.should_receive(:create_with_omniauth).
-          with(auth).
-          and_return(user)
+      context "when nicknamne is not taken" do
+        it "should call create_with_omniauth" do
+          User.should_receive(:create_with_omniauth).
+            with(auth).
+            and_return(user)
 
-        post :create
+          post :create
+        end
+
+        it "should login user" do
+          User.stub(:create_with_omniauth).and_return(user)
+
+          post :create
+
+          session[:user_id].should_not be_nil
+        end
       end
 
-      it "should login user" do
-        User.stub(:create_with_omniauth).and_return(user)
+      context "when nicknamne is taken" do
+        let(:not_saved_user) {
+          stub_model( User,
+            :persisted? => false,
+            :valid?     => false,
+            :uid        => uid,
+            :provider   => provider
+          )
+        }
 
-        post :create
+        before do
+          User.stub(:create_with_omniauth).and_return(not_saved_user)
+        end
 
-        session[:user_id].should_not be_nil
+        it "puts uid and provider in session " do
+          post :create
+
+          session[:uid].should == uid
+          session[:provider].should == provider
+        end
+
+        it "renders user/new" do
+          post :create
+          should render_template('users/new')
+        end
       end
+
     end
   end
 

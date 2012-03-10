@@ -16,6 +16,8 @@ AsciiIo::Application.routes.draw do
 
   match "/connect/:user_token" => "user_tokens#create"
 
+  resource :users, :only => [:create]
+
   namespace :api do
     resources :comments
 

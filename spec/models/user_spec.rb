@@ -8,6 +8,18 @@ describe User do
     FactoryGirl.build(:user).should be_valid
   end
 
+  describe "validation" do
+    let(:user) { Factory(:user) }
+
+    it "validates nickname uniqueness" do
+      new_user = Factory.build(:user)
+      new_user.nickname = user.nickname
+
+      new_user.should_not be_valid
+      new_user.should have(1).error_on(:nickname)
+    end
+  end
+
   describe ".create_with_omniauth" do
     let(:uid)      { "123" }
     let(:provider) { "twitter" }
@@ -24,13 +36,19 @@ describe User do
       }
     end
 
-    it "creates user with valid attributes" do
-      user = User.create_with_omniauth(auth)
-      user.provider.should == provider
-      user.uid.should == uid
-      user.nickname.should == nickname
-      user.name.should == name
-      user.avatar_url.should be_nil
+    context "valid data" do
+      let(:user) { User.create_with_omniauth(auth) }
+
+      it "creates user with valid attributes" do
+        user.persisted?.should be_true
+
+        user.provider.should == provider
+        user.uid.should == uid
+        user.nickname.should == nickname
+        user.name.should == name
+        user.avatar_url.should be_nil
+      end
+
     end
 
     context "when avatar available" do
@@ -43,6 +61,17 @@ describe User do
       it "assigns avatar_url" do
         user = User.create_with_omniauth(auth)
         user.avatar_url.should == avatar_url
+      end
+    end
+
+    context "when nickname is taken" do
+      let!(:user) { Factory(:user)}
+      let(:nickname) { user.nickname }
+
+      it "doesn't create user" do
+        user = User.create_with_omniauth(auth)
+        user.persisted?.should be_false
+        user.valid?.should be_false
       end
 
     end

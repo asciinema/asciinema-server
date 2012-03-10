@@ -4,11 +4,17 @@ class SessionsController < ApplicationController
   def new; end
 
   def create
-    user = User.find_by_provider_and_uid(@auth["provider"], @auth["uid"]) ||
+    @user =
+      User.find_by_provider_and_uid(@auth["provider"], @auth["uid"]) ||
       User.create_with_omniauth(@auth)
 
-    self.current_user = user
-    redirect_back_or_to root_url, :notice => "Signed in!"
+    unless @user.persisted?
+      store_sensitive_user_data_in_session
+      render 'users/new', :status => 422
+    else
+      self.current_user = @user
+      redirect_back_or_to root_url, :notice => "Signed in!"
+    end
   end
 
   def destroy
@@ -24,6 +30,11 @@ class SessionsController < ApplicationController
 
   def load_omniauth_auth
     @auth = request.env["omniauth.auth"]
+  end
+
+  def store_sensitive_user_data_in_session
+    session[:provider] = @user.provider
+    session[:uid] = @user.uid
   end
 
 end
