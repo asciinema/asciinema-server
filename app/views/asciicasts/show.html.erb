@@ -10,18 +10,7 @@
   </h1>
 </div>
 
-<div class="asciicast">
-  <div class="wrapper">
-    <div class="player"></div>
-    <div class="clear"></div>
-  </div>
-
-  <div class="description">
-    <%= random_description %>
-  </div>
-</div>
-
-<%= player_script(@asciicast) %>
+<%= render :partial => 'asciicasts/asciicast', :object => @asciicast %>
 
 <div class="comments-container">
   <h2>Comments</h2>
