@@ -15,6 +15,10 @@ development:
   <<: *defaults
   carrierwave_storage: :file
 
+production:
+  <<: *defaults
+  carrierwave_storage: :fog
+
 test:
   <<: *defaults
   carrierwave_storage: :file
