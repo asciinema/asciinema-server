@@ -34,6 +34,7 @@ $color5: #EDC951;
   position: relative;
 
   .terminal {
+    overflow: hidden;
     padding: 2px;
     margin: 0px;
     display: block;
@@ -43,8 +44,6 @@ $color5: #EDC951;
     // line-height: 1.2em;
     line-height: inherit;
     color: #ccc;
-    overflow: auto;
-    overflow-x: hidden;
     cursor: pointer;
 
     .loading {
