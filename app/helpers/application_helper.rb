@@ -12,7 +12,8 @@ module ApplicationHelper
   end
 
   def avatar_img(user)
+    nickname =  "~#{user.nickname}"
     image_tag user.avatar_url || default_avatar_url,
-      :title => user.nickname, :alt => user.nickname, :class => "avatar"
+      :title => nickname, :alt => nickname, :class => "avatar"
   end
 end

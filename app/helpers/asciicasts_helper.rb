@@ -10,10 +10,15 @@ module AsciicastsHelper
     end
   end
 
-  def asciicast_author(asciicast)
+  def profile_link(asciicast, options = {})
     if asciicast.user
-      link_to avatar_img(asciicast.user) + " #{asciicast.user.nickname}",
-              profile_path(asciicast.user)
+      if options[:avatar]
+        img = avatar_img(asciicast.user) + " "
+      else
+        img = ""
+      end
+
+      link_to img + "~#{asciicast.user.nickname}", profile_path(asciicast.user)
     end
   end
 
