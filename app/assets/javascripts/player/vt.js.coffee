@@ -244,7 +244,7 @@ class AsciiIo.VT
     numbers
 
   handleSGR: (numbers) ->
-    @buffer.setBrush @sgrInterpreter.buildBrush(@buffer.brush, numbers)
+    @buffer.setBrush @sgrInterpreter.buildBrush(@buffer.getBrush(), numbers)
 
   bell: ->
     @view.visualBell()
