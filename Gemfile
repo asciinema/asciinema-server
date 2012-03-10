@@ -14,6 +14,7 @@ gem 'kaminari'
 gem 'airbrake'
 gem 'twitter-bootstrap-rails'
 gem 'faker'
+gem 'fog'
 
 # Gems used only for assets and not required
 # in production environments by default.
@@ -26,6 +27,7 @@ end
 
 group :development do
   gem 'ruby-debug19', :require => false
+  gem 'capistrano'
 end
 
 group :test, :development do
