@@ -1,39 +1,44 @@
-<div class="asciicast">
-  <h2><%= asciicast_title(@asciicast) %></h2>
-  <p class="meta">
-    <%= asciicast_author(@asciicast) %>
-    <%= asciicast_time(@asciicast) %>
-  </p>
+<div class="page-header asciicast-heading">
+  <h1>
+    <%= asciicast_title(@asciicast) %>
 
+    <span class="meta">
+      Recorded by
+      <%= profile_link(@asciicast, :avatar => false) %>
+      <%= asciicast_time(@asciicast) %>
+    </span>
+  </h1>
+</div>
+
+<div class="asciicast">
   <div class="wrapper">
     <div class="player"></div>
     <div class="clear"></div>
   </div>
 
   <div class="description">
-    <p>I’ve been doing some reflecting this week on how I can work smarter (instead of harder), and one of the things I came up with was adding a few more tools to my Vim repertoire. I spend more than half of my engineering time in Vim (the other half usually being in a web browser), so I figured that a few minutes here and there would eventually add up in a big way.</p>
-    <p>But like anything else with Vim, there are always multiple ways of accomplishing the very same thing, so I make no guarantees that there aren’t simpler ways of getting this done — but I can say that this way gets the job done, and is pretty easy to get working on your own system.</p>
+    <%= random_description %>
   </div>
 </div>
 
 <%= player_script(@asciicast) %>
 
-<h2>Comments</h2>
-
 <div class="comments-container">
+  <h2>Comments</h2>
+
   <ul id="comments">
   </ul>
 
   <% if current_user %>
     <form id="new-comment">
+      <label>Your comment</label>
       <p>
-      <textarea type="text" name="body" id="comment-body"></textarea>
+        <textarea type="text" name="body" id="comment-body"></textarea>
       </p>
-
-      <input type="submit" value="Post">
+      <button type="submit" class="btn">Post</button>
     </form>
   <% else %>
-    <div><%= link_to "Login in", login_path %> to create a comment.</div>
+    <div><%= link_to "Login in", login_path %> to comment.</div>
   <% end %>
 </div>
 

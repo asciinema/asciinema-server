@@ -1,9 +1,9 @@
-<ul id="session-info">
+<ul class="nav pull-right">
+  <li class="divider-vertical"></li>
+
   <% if current_user %>
-    <li>
-      <%= link_to avatar_img(current_user), profile_path(current_user) %>
-      <%= link_to "Log out", logout_path, :class => "logout" %>
-    </li>
+    <li class="avatar"><%= link_to avatar_img(current_user), profile_path(current_user) %></li>
+    <li><%= link_to "Log out", logout_path, :class => "logout" %></li>
   <% else %>
     <li><%= link_to "Log in", login_path %></li>
   <% end %>

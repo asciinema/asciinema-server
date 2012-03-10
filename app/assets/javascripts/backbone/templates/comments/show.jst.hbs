@@ -4,14 +4,13 @@
 
 <div class="right">
   <div>
-    <a href="{{profile_path}}"><span class="user-name">{{user.nickname}}</span></a>
+    <a href="{{profile_path}}"><span class="user-name">~{{user.nickname}}</span></a>
     <span class="when">{{created}}</span>
+    {{#if show_remove_link}}
+    | <a href="#" class="remove">remove</a>
+    {{/if}}
   </div>
   <div class="body">{{body}}</div>
 </div>
-
-{{#if show_remove_link}}
-<a href="#" class="remove">remove</a>
-{{/if}}
 
 <div class="clear"></div>

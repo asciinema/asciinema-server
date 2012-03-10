@@ -11,7 +11,7 @@ class AsciiIo.HudView extends Backbone.View
 
   createChildViews: ->
     toggle   = '<div class="toggle">'
-    progress = '<div class="progress"><div class="gutter">'
+    progress = '<div class="progress progress-info progress-striped active"><div class="bar gutter">'
     time     = '<div class="time">'
 
     @$el.append(toggle)
