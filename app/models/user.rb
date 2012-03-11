@@ -4,7 +4,9 @@ class User < ActiveRecord::Base
   validates :uid, :presence => true
   validates :nickname, :presence => true
 
-  validates_uniqueness_of :nickname, :message => "Sorry, but your nickname is already taken"
+  validates_uniqueness_of \
+    :nickname,
+    :message => "Sorry, but your nickname is already taken"
 
   has_many :user_tokens, :dependent => :destroy
   has_many :asciicasts, :dependent => :destroy
