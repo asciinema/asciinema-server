@@ -1,5 +1,16 @@
 <li class="asciicast-preview">
-  <h3><%= link_to asciicast_title(asciicast), asciicast %></h3>
+  <h3>
+    <%= link_to asciicast_title(asciicast), asciicast %>
+
+    <span class="meta">
+      <% if asciicast.user %>
+          by <%= profile_link(asciicast) %>
+      <% end %>
+
+      <%= asciicast_time(asciicast) %>
+    </span>
+  </h3>
+
   <% if asciicast.description.present? %>
     <p class="description"><%= asciicast.description %></p>
   <% end %>
