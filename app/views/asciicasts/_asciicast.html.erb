@@ -6,7 +6,8 @@
 
   <% unless (defined? skip_description) && skip_description %>
     <div class="description">
-      <%= random_description %>
+      <% markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML) %>
+      <%= markdown.render(asciicast.description || random_description).html_safe %>
     </div>
   <% end %>
 </div>
