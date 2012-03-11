@@ -12,7 +12,6 @@ class Asciicast < ActiveRecord::Base
 
   before_create :assign_user, :unless => :user
 
-  attr_reader :description
   attr_accessible :meta, :stdout, :stdout_timing, :stdin, :stdin_timing
 
   def self.assign_user(user_token, user)
