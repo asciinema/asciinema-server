@@ -85,7 +85,7 @@ class AsciiIo.Movie
     @playing
 
   isPaused: ->
-    !@isPlaying() and !@isFinished()
+    !@isPlaying() and !@isFinished() and @frameNo > 0
 
   isFinished: ->
     !@isPlaying() and @isLoaded() and @frameNo >= @timing().length
