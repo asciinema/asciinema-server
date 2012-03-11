@@ -78,18 +78,21 @@ class AsciiIo.ScreenBuffer
   print: (text) ->
     text = Utf8.decode(text)
 
+    startLine = @cursorY
+
     i = 0
     while i < text.length
       if @cursorX >= @cols
         @cursorY += 1
         @cursorX = 0
-        # TODO: updateLine?
 
       @fill @cursorY, @cursorX, 1, @charsetModifier(text[i])
       @cursorX += 1
       i++
 
-    @updateLine()
+    endLine = @cursorY
+
+    @updateLines(startLine, endLine)
 
   clearLineData: (n) ->
     @fill n, 0, @cols, " "
