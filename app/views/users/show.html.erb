@@ -1,8 +1,10 @@
-<div class="user-info">
-  <p>
-    <%= avatar_img(@user) %> <%= @user.nickname %>
-  </p>
-  <p>
+<div class="page-header">
+  <h1>
+    ~<%= @user.nickname %>
+    <%= avatar_img(@user) %> 
+  </h1>
+
+  <p class="meta">
     <%= @user.asciicasts.count %> asciicasts
   </p>
 </div>
