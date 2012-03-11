@@ -10,6 +10,8 @@ class Asciicast < ActiveRecord::Base
   belongs_to :user
   has_many :comments, :order => :created_at, :dependent => :destroy
 
+  scope :featured, where(:featured => true)
+
   before_create :assign_user, :unless => :user
 
   attr_accessible :meta, :stdout, :stdout_timing, :stdin, :stdin_timing

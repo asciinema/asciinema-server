@@ -11,30 +11,32 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120311134312) do
+ActiveRecord::Schema.define(:version => 20120311142204) do
 
   create_table "asciicasts", :force => true do |t|
     t.integer  "user_id"
     t.string   "title"
-    t.float    "duration",         :null => false
+    t.float    "duration",                            :null => false
     t.datetime "recorded_at"
     t.string   "terminal_type"
-    t.integer  "terminal_columns", :null => false
-    t.integer  "terminal_lines",   :null => false
+    t.integer  "terminal_columns",                    :null => false
+    t.integer  "terminal_lines",                      :null => false
     t.string   "command"
     t.string   "shell"
     t.string   "uname"
-    t.datetime "created_at",       :null => false
-    t.datetime "updated_at",       :null => false
+    t.datetime "created_at",                          :null => false
+    t.datetime "updated_at",                          :null => false
     t.string   "stdin"
     t.string   "stdin_timing"
     t.string   "stdout"
     t.string   "stdout_timing"
     t.string   "user_token"
     t.text     "description"
+    t.boolean  "featured",         :default => false
   end
 
   add_index "asciicasts", ["created_at"], :name => "index_asciicasts_on_created_at"
+  add_index "asciicasts", ["featured"], :name => "index_asciicasts_on_featured"
   add_index "asciicasts", ["recorded_at"], :name => "index_asciicasts_on_recorded_at"
   add_index "asciicasts", ["user_id"], :name => "index_asciicasts_on_user_id"
   add_index "asciicasts", ["user_token"], :name => "index_asciicasts_on_user_token"
