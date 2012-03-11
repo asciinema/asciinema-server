@@ -83,8 +83,7 @@ class AsciiIo.ScreenBuffer
     i = 0
     while i < text.length
       if @cursorX >= @cols
-        @cursorY += 1
-        @cursorX = 0
+        @goToNextRowFirstColumn()
 
       @fill @cursorY, @cursorX, 1, @charsetModifier(text[i])
       @cursorX += 1
