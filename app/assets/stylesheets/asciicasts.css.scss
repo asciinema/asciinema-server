@@ -26,9 +26,15 @@
   .player {
     margin-bottom: 40px;
   }
+
+  .description {
+    font-style: italic;
+  }
 }
 
 .asciicast-preview {
+  margin-bottom: 15px;
+
   .meta {
     font-size: 14px;
     font-weight: normal;
