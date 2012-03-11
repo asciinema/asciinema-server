@@ -2,8 +2,12 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
-.hero-unit {
+.hero-unit.home-page {
   .asciicast {
-    margin-top: 40px;
+    margin-top: 10px;
+  }
+
+  h2 {
+    margin: 50px 0 10px 0;
   }
 }

@@ -1,6 +1,8 @@
-<div class="hero-unit">
+<div class="hero-unit home-page">
   <h1>ascii.io</h1>
   <p>No bullshit asciicasting for developers</p>
+
+  <h2>Featured: <%= asciicast_title(@asciicast) %></h2>
 
   <%= render :partial => 'asciicasts/asciicast',
              :object => @asciicast,
