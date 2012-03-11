@@ -1,5 +1,21 @@
-How to install
+<div class="page-header">
+  <h1>No bullshit installation</h1>
+</div>
 
-curl
+<% markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML) %>
+<%= markdown.render(<<EOS).html_safe
+To install or upgrade ascii.io recorder, open a terminal and run this command:
 
-gem install
+    $ curl -sL get.ascii.io | bash
+
+(when using zsh you may need to run `rehash` after above command)
+
+That's it! Now you can start recording your terminal sessions with:
+
+    $ asciiio
+
+See available commands and options with:
+
+    $ asciiio -h
+EOS
+%>

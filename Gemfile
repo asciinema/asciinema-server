@@ -16,6 +16,7 @@ gem 'twitter-bootstrap-rails'
 gem 'faker'
 gem 'fog'
 gem 'simple_form'
+gem 'redcarpet'
 
 # Gems used only for assets and not required
 # in production environments by default.
