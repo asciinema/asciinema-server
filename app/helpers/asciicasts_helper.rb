@@ -26,7 +26,9 @@ module AsciicastsHelper
     time_ago_in_words(asciicast.created_at) + " ago"
   end
 
-  def player_script(asciicast)
+  def player_script(asciicast, options = {})
+    auto_play = options.key?(:auto_play) ? !!options[:auto_play] : false
+
     return <<EOS.html_safe
 <script>
   $(function() {
@@ -34,7 +36,8 @@ module AsciicastsHelper
       el: $('.player'),
       cols: #{asciicast.terminal_columns},
       lines: #{asciicast.terminal_lines},
-      model: new AsciiIo.Asciicast({ id: #{asciicast.id} })
+      model: new AsciiIo.Asciicast({ id: #{asciicast.id} }),
+      autoPlay: #{auto_play}
     });
   });
 </script>

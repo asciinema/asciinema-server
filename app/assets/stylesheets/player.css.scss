@@ -58,6 +58,18 @@ $color5: #EDC951;
       bottom: 0;
     }
 
+    .start-prompt {
+      background-image: url(image-path('play-button-1.png'));
+      background-repeat: no-repeat;
+      background-position: center;
+      z-index: 20;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+
     .line {
       font-size: 12px;
       /* background-color: black;*/

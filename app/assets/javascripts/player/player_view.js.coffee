@@ -1,7 +1,7 @@
 class AsciiIo.PlayerView extends Backbone.View
 
   initialize: (options) ->
-    @movie = new AsciiIo.Movie(@model)
+    @movie = new AsciiIo.Movie(@model, options.autoPlay)
     @movie.load()
 
     @terminalView = new AsciiIo.TerminalView(
@@ -35,6 +35,8 @@ class AsciiIo.PlayerView extends Backbone.View
     @movie.on 'movie-loaded', (asciicast) =>
       @terminalView.hideLoadingIndicator()
       @hudView.setDuration(asciicast.get('duration'))
+      unless @options.autoPlay
+        @terminalView.showToggleOverlay()
 
     @movie.on 'movie-playback-paused', =>
       @hudView.onPause()

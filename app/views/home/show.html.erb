@@ -4,7 +4,7 @@
 
   <%= render :partial => 'asciicasts/asciicast',
              :object => @asciicast,
-             :locals => { :skip_description => true } %>
+             :locals => { :skip_description => true, :auto_play => false } %>
 
   <p>
     <%= link_to 'Use it!', installation_path, :class => "btn btn-primary btn-large" %>

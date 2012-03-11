@@ -27,6 +27,7 @@ class AsciiIo.TerminalView extends Backbone.View
 
   onClick: ->
     @trigger('terminal-click')
+    @hideToggleOverlay()
 
   clearScreen: ->
     # this.lineData.length = 0;
@@ -50,6 +51,12 @@ class AsciiIo.TerminalView extends Backbone.View
 
   hideLoadingIndicator: ->
     @$('.loading').remove()
+
+  showToggleOverlay: ->
+    @$el.append('<div class="start-prompt">')
+
+  hideToggleOverlay: ->
+    @$('.start-prompt').remove()
 
   renderLine: (n, data, cursorX) ->
     html = []
