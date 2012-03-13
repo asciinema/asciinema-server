@@ -208,7 +208,7 @@ class AsciiIo.VT
       when "n"
         @reportRowAndColumn()
       when "r" # Set top and bottom margins (scroll region on VT100)
-        @setScrollRegion n or 0, m or @lines - 1
+        @setScrollRegion n or 1, m or @lines
 
   handlePrivateControlSequence: (data, params) ->
     action = data[data.length - 1]
