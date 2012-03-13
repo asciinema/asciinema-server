@@ -6,6 +6,7 @@
 //
 //= require jquery
 //= require jquery_ujs
+//= require vendor/vendor
 //= require twitter/bootstrap
 //= require vendor/underscore-min
 //= require vendor/backbone-min
