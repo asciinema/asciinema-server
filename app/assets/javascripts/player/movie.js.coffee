@@ -2,7 +2,7 @@ class AsciiIo.Movie
   MIN_DELAY: 0.01
   SPEED: 1.0
 
-  constructor: (@model, @autoPlay) ->
+  constructor: (@model) ->
     @reset()
     @startTimeReporter()
     _.extend(this, Backbone.Events)
@@ -22,8 +22,6 @@ class AsciiIo.Movie
     @model.fetch
       success: =>
         @trigger('movie-loaded', @model)
-        if @autoPlay
-          @play()
 
   timing: ->
     @model.get('stdout_timing_data')

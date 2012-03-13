@@ -1,7 +1,8 @@
 class AsciiIo.PlayerView extends Backbone.View
 
   initialize: (options) ->
-    @movie = new AsciiIo.Movie(@model, options.autoPlay)
+    @movie = new AsciiIo.Movie(@model)
+    @movie.on 'movie-loaded', @onMovieLoaded, this
     @movie.load()
 
     @terminalView = new AsciiIo.TerminalView(
@@ -12,7 +13,6 @@ class AsciiIo.PlayerView extends Backbone.View
     @vt = new AsciiIo.VT(options.cols, options.lines, @terminalView)
 
     @createChildViews()
-    @bindEvents()
 
   createChildViews: ->
     @$el.append(@terminalView.$el)
@@ -21,6 +21,17 @@ class AsciiIo.PlayerView extends Backbone.View
 
     @hudView = new AsciiIo.HudView()
     @$el.append(@hudView.$el)
+
+  onMovieLoaded: (asciicast) ->
+    @terminalView.hideLoadingIndicator()
+    @hudView.setDuration(asciicast.get('duration'))
+
+    @bindEvents()
+
+    if @options.autoPlay
+      @movie.play()
+    else
+      @terminalView.showToggleOverlay()
 
   bindEvents: ->
     @terminalView.on 'terminal-click', =>
@@ -31,12 +42,6 @@ class AsciiIo.PlayerView extends Backbone.View
 
     @hudView.on 'hud-seek-click', (percent) =>
       @movie.seek(percent)
-
-    @movie.on 'movie-loaded', (asciicast) =>
-      @terminalView.hideLoadingIndicator()
-      @hudView.setDuration(asciicast.get('duration'))
-      unless @options.autoPlay
-        @terminalView.showToggleOverlay()
 
     @movie.on 'movie-playback-paused', =>
       @hudView.onPause()
