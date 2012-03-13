@@ -11,7 +11,7 @@ describe SessionsController do
       OmniAuth.config.mock_auth[:twitter] = {
         "provider" => provider,
         "uid" => uid,
-        "info" => { "nickname" => nickname}
+        "info" => { "nickname" => nickname }
       }
 
       request.env["omniauth.auth"] = OmniAuth.config.mock_auth[:twitter]
@@ -58,7 +58,7 @@ describe SessionsController do
 
       context "when nicknamne is taken" do
         let(:not_saved_user) {
-          stub_model( User,
+          stub_model(User,
             :persisted? => false,
             :valid?     => false,
             :uid        => uid,

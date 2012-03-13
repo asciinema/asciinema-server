@@ -65,7 +65,7 @@ describe User do
     end
 
     context "when nickname is taken" do
-      let!(:user) { Factory(:user)}
+      let!(:user) { Factory(:user) }
       let(:nickname) { user.nickname }
 
       it "doesn't create user" do
