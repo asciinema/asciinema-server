@@ -28,17 +28,12 @@ class AsciiIo.Renderer.Canvas extends AsciiIo.Renderer.Base
     @font = "#{size} #{family}"
     @ctx.font = @font
     @prevFont = @font
+    @ctx.textBaseline = 'bottom'
 
   renderLine: (n, data, cursorX) ->
     left = 0
     width = @cols * @cellWidth
     top = n * @cellHeight
-    # bottom = (n + 1) * @cellHeight
-
-    # @ctx.clearRect(left, top + 1, width, @cellHeight)
-
-    # ctx.fillStyle = "#FFA500";
-    # @ctx.font = "12px monospace"
 
     for i in [0...@cols]
       d = data[i]
@@ -46,14 +41,12 @@ class AsciiIo.Renderer.Canvas extends AsciiIo.Renderer.Base
       if d
         [char, brush] = d
 
-        char = char.replace('&', '&amp;').replace('<', '&lt;')
-
         @setBackgroundAttributes(brush)
-        @ctx.fillRect left + i * @cellWidth, top + 1, @cellWidth, @cellHeight
+        @ctx.fillRect left + i * @cellWidth, top, @cellWidth, @cellHeight
 
         if char != ' '
           @setTextAttributes(brush)
-          @ctx.fillText char, i * @cellWidth, top + @cellHeight - 2
+          @ctx.fillText char, i * @cellWidth, top + @cellHeight
 
   setBackgroundAttributes: (brush) ->
     if brush.bg isnt undefined
