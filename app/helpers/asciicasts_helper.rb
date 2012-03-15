@@ -29,6 +29,12 @@ module AsciicastsHelper
   def player_script(asciicast, options = {})
     auto_play = options.key?(:auto_play) ? !!options[:auto_play] : false
 
+    if custom_renderer = params[:renderer]
+      renderer_class = "AsciiIo.Renderer.#{custom_renderer.capitalize}"
+    else
+      renderer_class = "AsciiIo.Renderer.Pre"
+    end
+
     return <<EOS.html_safe
 <script>
   $(function() {
@@ -37,6 +43,7 @@ module AsciicastsHelper
       cols: #{asciicast.terminal_columns},
       lines: #{asciicast.terminal_lines},
       model: new AsciiIo.Asciicast({ id: #{asciicast.id} }),
+      rendererClass: #{renderer_class},
       autoPlay: #{auto_play}
     });
   });

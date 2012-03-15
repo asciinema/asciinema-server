@@ -4,7 +4,6 @@ class AsciiIo.VT
     @sgrInterpreter = new AsciiIo.SgrInterpreter()
     @data = ''
     @resetTerminal()
-    @render()
 
   handleData: (data) ->
     if data.match(/^\x1b[\x00-\x1f]/)

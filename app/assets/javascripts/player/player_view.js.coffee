@@ -5,25 +5,25 @@ class AsciiIo.PlayerView extends Backbone.View
     @movie.on 'movie-loaded', @onMovieLoaded, this
     @movie.load()
 
-    @terminalView = new AsciiIo.TerminalView(
+    @rendererView = new options.rendererClass(
       cols:  this.options.cols
       lines: this.options.lines
     )
 
-    @vt = new AsciiIo.VT(options.cols, options.lines, @terminalView)
+    @vt = new AsciiIo.VT(options.cols, options.lines, @rendererView)
 
     @createChildViews()
 
   createChildViews: ->
-    @$el.append(@terminalView.$el)
-    @terminalView.afterInsertedToDom()
-    @terminalView.showLoadingIndicator()
+    @$el.append(@rendererView.$el)
+    @rendererView.afterInsertedToDom()
+    @rendererView.showLoadingIndicator()
 
     @hudView = new AsciiIo.HudView()
     @$el.append(@hudView.$el)
 
   onMovieLoaded: (asciicast) ->
-    @terminalView.hideLoadingIndicator()
+    @rendererView.hideLoadingIndicator()
     @hudView.setDuration(asciicast.get('duration'))
 
     @bindEvents()
@@ -31,10 +31,10 @@ class AsciiIo.PlayerView extends Backbone.View
     if @options.autoPlay
       @movie.play()
     else
-      @terminalView.showToggleOverlay()
+      @rendererView.showToggleOverlay()
 
   bindEvents: ->
-    @terminalView.on 'terminal-click', =>
+    @rendererView.on 'terminal-click', =>
       @movie.togglePlay()
 
     @hudView.on 'hud-play-click', =>
@@ -56,8 +56,8 @@ class AsciiIo.PlayerView extends Backbone.View
       @vt.feed(frame)
 
     @movie.on 'movie-awake', (frame) =>
-      @terminalView.restartCursorBlink()
+      @rendererView.restartCursorBlink()
 
     @movie.on 'movie-finished', =>
-      @terminalView.stopCursorBlink()
+      @rendererView.stopCursorBlink()
       @hudView.setProgress(100)

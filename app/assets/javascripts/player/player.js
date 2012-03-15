@@ -1,6 +1,7 @@
 //= require ./namespace
 //= require ./utf8
-//= require ./terminal_view
+//= require ./renderers/base
+//= require_tree ./renderers
 //= require ./screen_buffer
 //= require ./vt
 //= require ./hud_view

@@ -1,20 +1,12 @@
-class AsciiIo.TerminalView extends Backbone.View
+class AsciiIo.Renderer.Pre extends AsciiIo.Renderer.Base
   tagName: 'pre'
   className: 'terminal'
 
-  events:
-    'click': 'onClick'
-
   initialize: (options) ->
-    @cols = options.cols
-    @lines = options.lines
-    @cachedSpans = {}
+    super(options)
 
+    @cachedSpans = {}
     @createChildElements()
-    @showCursor true
-    @startCursorBlink()
-    # this.updateScreen();
-    # this.render();
 
   createChildElements: ->
     i = 0
@@ -25,38 +17,29 @@ class AsciiIo.TerminalView extends Backbone.View
       @$el.append "\n"
       i++
 
-  onClick: ->
-    @trigger('terminal-click')
-    @hideToggleOverlay()
-
-  clearScreen: ->
-    # this.lineData.length = 0;
-    # @cursorY = @cursorX = 0
-    @$el.find(".line").empty()
-
-  render: (changes, cursorX, cursorY) ->
-    @$el.find('.cursor').removeClass('cursor')
-
-    for n, data of changes
-      c = if parseInt(n) is cursorY then cursorX else undefined
-      @renderLine n, data || [], c
-
   afterInsertedToDom: ->
+    super()
+    @initialRender()
+    @fixSize()
+
+  initialRender: ->
+    changes = {}
+
+    i = 0
+    while i < @lines
+      changes[i] = undefined
+      i += 1
+
+    @render(changes, 0, 0)
+
+  fixSize: ->
     width = @$el.width()
     height = @$el.height()
     @$el.css(width: width + 'px', height: height + 'px')
 
-  showLoadingIndicator: ->
-    @$el.append('<div class="loading">')
-
-  hideLoadingIndicator: ->
-    @$('.loading').remove()
-
-  showToggleOverlay: ->
-    @$el.append('<div class="start-prompt">')
-
-  hideToggleOverlay: ->
-    @$('.start-prompt').remove()
+  render: (changes, cursorX, cursorY) ->
+    @$el.find('.cursor').removeClass('cursor')
+    super(changes, cursorX, cursorY)
 
   renderLine: (n, data, cursorX) ->
     html = []
@@ -139,17 +122,8 @@ class AsciiIo.TerminalView extends Backbone.View
     cursor = @$el.find(".cursor")
     cursor.addClass "visible"
 
-  startCursorBlink: ->
-    @cursorTimerId = setInterval(@blinkCursor.bind(this), 500)
-
-  stopCursorBlink: ->
-    if @cursorTimerId
-      clearInterval @cursorTimerId
-      @cursorTimerId = null
-
-  restartCursorBlink: ->
-    @stopCursorBlink()
-    @resetCursorState()
-    @startCursorBlink()
-
-  visualBell: ->
+  # TODO: check if it's used
+  clearScreen: ->
+    # this.lineData.length = 0;
+    # @cursorY = @cursorX = 0
+    @$el.find(".line").empty()
