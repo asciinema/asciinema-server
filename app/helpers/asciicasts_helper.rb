@@ -27,6 +27,8 @@ module AsciicastsHelper
   end
 
   def player_script(asciicast, options = {})
+    speed = (params[:speed] || 1).to_f
+    benchmark = !!params[:bm]
     auto_play = options.key?(:auto_play) ? !!options[:auto_play] : false
 
     if custom_renderer = params[:renderer]
@@ -42,6 +44,8 @@ module AsciicastsHelper
       el: $('.player'),
       cols: #{asciicast.terminal_columns},
       lines: #{asciicast.terminal_lines},
+      speed: #{speed},
+      benchmark: #{benchmark},
       model: new AsciiIo.Asciicast({ id: #{asciicast.id} }),
       rendererClass: #{renderer_class},
       autoPlay: #{auto_play}

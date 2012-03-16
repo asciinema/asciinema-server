@@ -1,7 +1,11 @@
 class AsciiIo.PlayerView extends Backbone.View
 
   initialize: (options) ->
-    @movie = new AsciiIo.Movie(@model)
+    @movie = new AsciiIo.Movie(
+      @model,
+      speed: options.speed,
+      benchmark: options.benchmark
+    )
     @movie.on 'movie-loaded', @onMovieLoaded, this
     @movie.load()
 
