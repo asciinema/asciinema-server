@@ -50,7 +50,7 @@ class AsciiIo.Renderer.Pre extends AsciiIo.Renderer.Base
     for fragment in fragments
       [text, brush] = fragment
 
-      if cursorX isnt undefined and rendered < cursorX < rendered + text.length
+      if cursorX isnt undefined and rendered <= cursorX < rendered + text.length
         left = text.slice(0, cursorX - rendered)
         cursor =
           '<span class="cursor visible">' + text[cursorX - rendered] + '</span>'
