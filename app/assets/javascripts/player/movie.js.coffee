@@ -1,8 +1,7 @@
 class AsciiIo.Movie
   MIN_DELAY: 0.01
-  SPEED: 1.0
 
-  constructor: (@model) ->
+  constructor: (@model, @options) ->
     @reset()
     @startTimeReporter()
     _.extend(this, Backbone.Events)
@@ -46,6 +45,9 @@ class AsciiIo.Movie
       @start()
 
   start: ->
+    if @options.benchmark
+      @startTime = (new Date).getTime()
+
     @playing = true
     @lastFrameTime = (new Date()).getTime()
     @nextFrame()
@@ -124,7 +126,7 @@ class AsciiIo.Movie
       if delay <= @MIN_DELAY
         @processFrame()
       else
-        realDelay = delay * 1000 * (1.0 / @SPEED)
+        realDelay = delay * 1000 * (1.0 / @options.speed)
         @processFrameWithDelay(realDelay)
 
       true
@@ -132,6 +134,11 @@ class AsciiIo.Movie
       @playing = false
       @stopTimeReporter()
       @trigger('movie-finished')
+
+      if @options.benchmark
+        now = (new Date).getTime()
+        console.log "finished in #{(now - @startTime) / 1000.0}s"
+
       false
 
   processFrameWithDelay: (delay) ->
