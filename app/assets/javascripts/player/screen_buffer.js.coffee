@@ -7,7 +7,7 @@ class AsciiIo.ScreenBuffer
     @cursorX = 0
     @cursorY = 0
 
-    @setBrush AsciiIo.Brush.create({})
+    @setBrush AsciiIo.Brush.normal()
     @setCharset 'us'
 
   topMargin: ->
@@ -17,7 +17,7 @@ class AsciiIo.ScreenBuffer
     @scrollRegion.getBottom()
 
   updateLine: (n = @cursorY) ->
-    @dirtyLines[n] = @lineData[n]
+    @dirtyLines[n] = true
 
   updateLines: (a, b) ->
     n = a
@@ -29,7 +29,34 @@ class AsciiIo.ScreenBuffer
     @updateLine n for n in [0...@lines]
 
   changes: ->
-    @dirtyLines
+    changes = {}
+
+    for n, _ of @dirtyLines
+      data = @lineData[n] || []
+
+      fragments = []
+      currentBrush = AsciiIo.Brush.normal()
+      currentText = ''
+
+      for i in [0...@cols]
+        d = data[i]
+
+        if d
+          [char, brush] = d
+        else
+          [char, brush] = [' ', currentBrush]
+
+        if brush == currentBrush
+          currentText += char
+        else
+          fragments.push([currentText, currentBrush]) if currentText.length > 0
+          currentText = char
+          currentBrush = brush
+
+      fragments.push([currentText, currentBrush]) if currentText.length > 0
+      changes[n] = fragments
+
+    changes
 
   clearChanges: ->
     @dirtyLines = {}

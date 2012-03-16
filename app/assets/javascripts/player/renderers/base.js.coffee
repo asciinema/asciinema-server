@@ -13,9 +13,9 @@ class AsciiIo.Renderer.Base extends Backbone.View
     @hideToggleOverlay()
 
   render: (changes, cursorX, cursorY) ->
-    for n, data of changes
+    for n, fragments of changes
       c = if parseInt(n) is cursorY then cursorX else undefined
-      @renderLine n, data || [], c
+      @renderLine n, fragments || [], c
 
   renderLine: (n, data, cursorX) ->
     throw '#renderLine not implemented'

@@ -17,54 +17,39 @@ class AsciiIo.Renderer.Canvas extends AsciiIo.Renderer.Base
     @$el.attr('width', width)
     @$el.attr('height', height)
     @setFont()
-    # @$el.css(width: width + 'px', height: height + 'px')
-    # @ctx.scale(1, 1)
 
   setFont: ->
     size = @$el.css('font-size')
-    console.log size
+    # console.log size
     family = @$el.css('font-family')
-    console.log family
+    # console.log family
     @font = "#{size} #{family}"
     @ctx.font = @font
     @prevFont = @font
     @ctx.textBaseline = 'bottom'
 
-  renderLine: (n, data, cursorX) ->
+  renderLine: (n, fragments, cursorX) ->
     left = 0
     width = @cols * @cellWidth
     top = n * @cellHeight
 
-    for i in [0...@cols]
-      d = data[i]
+    for fragment in fragments
+      [text, brush] = fragment
 
-      if d
-        [char, brush] = d
+      @setBackgroundAttributes(brush)
+      @ctx.fillRect left, top, text.length * @cellWidth, @cellHeight
 
-        @setBackgroundAttributes(brush)
-        @ctx.fillRect left + i * @cellWidth, top, @cellWidth, @cellHeight
+      # if char != ' '
+      @setTextAttributes(brush)
+      @ctx.fillText text, left, top + @cellHeight
 
-        if char != ' '
-          @setTextAttributes(brush)
-          @ctx.fillText char, i * @cellWidth, top + @cellHeight
+      left += text.length * @cellWidth
 
   setBackgroundAttributes: (brush) ->
-    if brush.bg isnt undefined
-      bg = brush.bg
-      bg += 8 if bg < 8 and brush.blink
-    else
-      bg = 0
-
-    @ctx.fillStyle = AsciiIo.colors[bg]
+    @ctx.fillStyle = AsciiIo.colors[brush.bgColor()]
 
   setTextAttributes: (brush) ->
-    if brush.fg isnt undefined
-      fg = brush.fg
-      fg += 8 if fg < 8 and brush.bright
-    else
-      fg = 7
-
-    @ctx.fillStyle = AsciiIo.colors[fg]
+    @ctx.fillStyle = AsciiIo.colors[brush.fgColor()]
 
     font = @font
 

@@ -23,11 +23,12 @@ class AsciiIo.Renderer.Pre extends AsciiIo.Renderer.Base
     @fixSize()
 
   initialRender: ->
+    brush = AsciiIo.Brush.normal()
     changes = {}
 
     i = 0
     while i < @lines
-      changes[i] = undefined
+      changes[i] = [[' '.times(@cols), brush]]
       i += 1
 
     @render(changes, 0, 0)
@@ -41,53 +42,50 @@ class AsciiIo.Renderer.Pre extends AsciiIo.Renderer.Base
     @$el.find('.cursor').removeClass('cursor')
     super(changes, cursorX, cursorY)
 
-  renderLine: (n, data, cursorX) ->
+  renderLine: (n, fragments, cursorX) ->
     html = []
-    prevBrush = undefined
 
-    for i in [0...@cols]
-      d = data[i]
+    rendered = 0
 
-      if d
-        [char, brush] = d
+    for fragment in fragments
+      [text, brush] = fragment
 
-        char = char.replace('&', '&amp;').replace('<', '&lt;')
+      if cursorX isnt undefined and rendered < cursorX < rendered + text.length
+        left = text.slice(0, cursorX - rendered)
+        cursor =
+          '<span class="cursor visible">' + text[cursorX - rendered] + '</span>'
+        right = text.slice(cursorX - rendered + 1)
 
-        if brush != prevBrush or i is cursorX or i is (cursorX + 1)
-          if prevBrush
-            html.push '</span>'
-
-          html.push @spanFromBrush(brush, i is cursorX)
-
-          prevBrush = brush
-
-        html.push char
+        t = @escape(left) + cursor + @escape(right)
       else
-        html.push ' '
+        t = @escape(text)
 
-    html.push '</span>' if prevBrush
+      html.push @spanFromBrush(brush)
+      html.push t
+      html.push '</span>'
+
+      rendered += text.length
 
     @$el.find(".line:eq(" + n + ")")[0].innerHTML = '<span>' + html.join('') + '</span>'
 
-  spanFromBrush: (brush, hasCursor) ->
-    key = "#{brush.hash()}_#{hasCursor}"
+  escape: (text) ->
+    text.replace('&', '&amp;').replace('<', '&lt;')
+
+  spanFromBrush: (brush) ->
+    key = brush.hash()
     span = @cachedSpans[key]
 
     if not span
       span = ""
 
-      if hasCursor or brush != AsciiIo.Brush.normal()
+      if brush != AsciiIo.Brush.normal()
         span = "<span class=\""
 
         if brush.fg isnt undefined
-          fg = brush.fg
-          fg += 8 if fg < 8 and brush.bright
-          span += " fg" + fg
+          span += " fg" + brush.fgColor()
 
         if brush.bg isnt undefined
-          bg = brush.bg
-          bg += 8 if bg < 8 and brush.blink
-          span += " bg" + bg
+          span += " bg" + brush.bgColor()
 
         if brush.bright
           span += " bright"
@@ -98,7 +96,6 @@ class AsciiIo.Renderer.Pre extends AsciiIo.Renderer.Base
         if brush.italic
           span += " italic"
 
-        span += " cursor visible" if hasCursor
         span += "\">"
 
       @cachedSpans[key] = span
