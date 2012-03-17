@@ -8,21 +8,22 @@ class AsciiIo.Renderer.Canvas extends AsciiIo.Renderer.Base
   initialize: (options) ->
     super(options)
     @ctx = @el.getContext('2d')
-    @cellWidth = 7
-    @cellHeight = 14
 
   afterInsertedToDom: ->
-    width = @cols * @cellWidth
-    height = @lines * @cellHeight
-    @$el.attr('width', width)
-    @$el.attr('height', height)
+    sample = $('<span class="font-sample">M</span>')
+    @$el.parent().append(sample)
+    @cellWidth = sample.width()
+    @cellHeight = sample.height()
+    sample.remove()
+
+    @$el.attr('width', @cols * @cellWidth)
+    @$el.attr('height', @lines * @cellHeight)
+
     @setFont()
 
   setFont: ->
     size = @$el.css('font-size')
-    # console.log size
     family = @$el.css('font-family')
-    # console.log family
     @font = "#{size} #{family}"
     @ctx.font = @font
     @prevFont = @font
@@ -32,18 +33,32 @@ class AsciiIo.Renderer.Canvas extends AsciiIo.Renderer.Base
     left = 0
     width = @cols * @cellWidth
     top = n * @cellHeight
+    cursorText = undefined
+    rendered = 0
 
     for fragment in fragments
       [text, brush] = fragment
 
+      if cursorX isnt undefined and rendered <= cursorX < rendered + text.length
+        cursorText = text[cursorX - rendered]
+
       @setBackgroundAttributes(brush)
       @ctx.fillRect left, top, text.length * @cellWidth, @cellHeight
 
-      # if char != ' '
-      @setTextAttributes(brush)
-      @ctx.fillText text, left, top + @cellHeight
+      unless text.match(/^\s*$/)
+        @setTextAttributes(brush)
+        @ctx.fillText text, left, top + @cellHeight
 
       left += text.length * @cellWidth
+      rendered += text.length
+
+    if cursorX
+      x = cursorX * @cellWidth
+      @ctx.fillStyle = AsciiIo.colors[7]
+      @ctx.fillRect x, top, @cellWidth, @cellHeight
+      if cursorText
+        @ctx.fillStyle = AsciiIo.colors[0]
+        @ctx.fillText cursorText, x, top + @cellHeight
 
   setBackgroundAttributes: (brush) ->
     @ctx.fillStyle = AsciiIo.colors[brush.bgColor()]

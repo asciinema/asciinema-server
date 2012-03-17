@@ -33,19 +33,19 @@ $color5: #EDC951;
   // margin: 0px 0px 30px 20px;
   position: relative;
 
+  .terminal, .font-sample {
+    font-family: 'Bitstream Vera Sans Mono', 'Courier New', monospace;
+    font-size: 12px;
+    line-height: inherit;
+  }
+
   .terminal {
     overflow: hidden;
     padding: 2px;
     margin: 0px;
     display: block;
-    font-size: 12px;
-    // font-family: Monaco,"Courier New","DejaVu Sans Mono","Bitstream Vera Sans Mono",monospace;
-    font-family: monospace;
-    // font-family: 'Droid Sans Mono', Monospace;
     white-space: pre;
     background-color: black;
-    // line-height: 1.2em;
-    line-height: inherit;
     color: #ccc;
     cursor: pointer;
 
@@ -74,7 +74,6 @@ $color5: #EDC951;
     }
 
     .line {
-      font-size: 12px;
       /* background-color: black;*/
       /* padding: 0;*/
       /* margin: 0;*/

@@ -44,7 +44,6 @@ class AsciiIo.Renderer.Pre extends AsciiIo.Renderer.Base
 
   renderLine: (n, fragments, cursorX) ->
     html = []
-
     rendered = 0
 
     for fragment in fragments
