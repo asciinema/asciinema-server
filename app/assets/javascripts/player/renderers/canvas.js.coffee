@@ -8,6 +8,8 @@ class AsciiIo.Renderer.Canvas extends AsciiIo.Renderer.Base
   initialize: (options) ->
     super(options)
     @ctx = @el.getContext('2d')
+    @cursorOn = true
+    @cursorVisible = true
 
   afterInsertedToDom: ->
     sample = $('<span class="font-sample">M</span>')
@@ -40,7 +42,10 @@ class AsciiIo.Renderer.Canvas extends AsciiIo.Renderer.Base
       [text, brush] = fragment
 
       if cursorX isnt undefined and rendered <= cursorX < rendered + text.length
-        cursorText = text[cursorX - rendered]
+        @cursorBrush = brush
+        @cursorText = text[cursorX - rendered]
+        @cursorX = cursorX
+        @cursorY = n
 
       @setBackgroundAttributes(brush)
       @ctx.fillRect left, top, text.length * @cellWidth, @cellHeight
@@ -53,12 +58,7 @@ class AsciiIo.Renderer.Canvas extends AsciiIo.Renderer.Base
       rendered += text.length
 
     if cursorX
-      x = cursorX * @cellWidth
-      @ctx.fillStyle = AsciiIo.colors[7]
-      @ctx.fillRect x, top, @cellWidth, @cellHeight
-      if cursorText
-        @ctx.fillStyle = AsciiIo.colors[0]
-        @ctx.fillText cursorText, x, top + @cellHeight
+      @renderCursor()
 
   setBackgroundAttributes: (brush) ->
     @ctx.fillStyle = AsciiIo.colors[brush.bgColor()]
@@ -79,19 +79,34 @@ class AsciiIo.Renderer.Canvas extends AsciiIo.Renderer.Base
       @ctx.font = font
       @prevFont = font
 
+  renderCursor: ->
+    return unless @cursorOn and @cursorText
+
+    x = @cursorX * @cellWidth
+    y = @cursorY * @cellHeight
+
+    if @cursorVisible
+      @ctx.fillStyle = AsciiIo.colors[7]
+      @ctx.fillRect x, y, @cellWidth, @cellHeight
+      @ctx.fillStyle = AsciiIo.colors[0]
+      @ctx.fillText @cursorText, x, y + @cellHeight
+    else
+      @ctx.fillStyle = AsciiIo.colors[@cursorBrush.bgColor()]
+      @ctx.fillRect x, y, @cellWidth, @cellHeight
+      @ctx.fillStyle = AsciiIo.colors[@cursorBrush.fgColor()]
+      @ctx.fillText @cursorText, x, y + @cellHeight
+
+    console.log @cursorY
+    console.log @cursorVisible
+    console.log @cursorOn
+
   showCursor: (show) ->
-    # if show
-    #   @$el.addClass "cursor-on"
-    # else
-    #   @$el.removeClass "cursor-on"
+    @cursorOn = show
 
   blinkCursor: ->
-    # cursor = @$el.find(".cursor")
-    # if cursor.hasClass("visible")
-    #   cursor.removeClass "visible"
-    # else
-    #   cursor.addClass "visible"
+    @cursorVisible = !@cursorVisible
+    @renderCursor()
 
   resetCursorState: ->
-    # cursor = @$el.find(".cursor")
-    # cursor.addClass "visible"
+    @cursorVisible = true
+    @renderCursor()
