@@ -96,10 +96,6 @@ class AsciiIo.Renderer.Canvas extends AsciiIo.Renderer.Base
       @ctx.fillStyle = AsciiIo.colors[@cursorBrush.fgColor()]
       @ctx.fillText @cursorText, x, y + @cellHeight
 
-    console.log @cursorY
-    console.log @cursorVisible
-    console.log @cursorOn
-
   showCursor: (show) ->
     @cursorOn = show
 
