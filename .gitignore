@@ -18,3 +18,4 @@ pickle-email-*.html
 .jhw-cache/
 config/local.yml
 public/uploads/*
+/bin/*
