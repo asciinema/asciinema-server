@@ -12,7 +12,7 @@ describe User do
     let(:user) { Factory(:user) }
 
     it "validates nickname uniqueness" do
-      new_user = Factory.build(:user)
+      new_user = FactoryGirl.build(:user)
       new_user.nickname = user.nickname
 
       new_user.should_not be_valid
