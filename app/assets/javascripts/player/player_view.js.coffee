@@ -1,4 +1,6 @@
 class AsciiIo.PlayerView extends Backbone.View
+  events:
+    'click .start-prompt': 'onStartPromptClick'
 
   initialize: (options) ->
     @movie = new AsciiIo.Movie(
@@ -21,13 +23,17 @@ class AsciiIo.PlayerView extends Backbone.View
   createChildViews: ->
     @$el.append(@rendererView.$el)
     @rendererView.afterInsertedToDom()
-    @rendererView.showLoadingIndicator()
+    @showLoadingIndicator()
 
     @hudView = new AsciiIo.HudView()
     @$el.append(@hudView.$el)
 
+  onStartPromptClick: ->
+    @hideToggleOverlay()
+    $(@rendererView.el).click()
+
   onMovieLoaded: (asciicast) ->
-    @rendererView.hideLoadingIndicator()
+    @hideLoadingIndicator()
     @hudView.setDuration(asciicast.get('duration'))
 
     @bindEvents()
@@ -35,7 +41,7 @@ class AsciiIo.PlayerView extends Backbone.View
     if @options.autoPlay
       @movie.play()
     else
-      @rendererView.showToggleOverlay()
+      @showToggleOverlay()
 
   bindEvents: ->
     @rendererView.on 'terminal-click', =>
@@ -65,3 +71,15 @@ class AsciiIo.PlayerView extends Backbone.View
     @movie.on 'movie-finished', =>
       @rendererView.stopCursorBlink()
       @hudView.setProgress(100)
+
+  showLoadingIndicator: ->
+    @$el.append('<div class="loading">')
+
+  hideLoadingIndicator: ->
+    @$('.loading').remove()
+
+  showToggleOverlay: ->
+    @$el.append('<div class="start-prompt">')
+
+  hideToggleOverlay: ->
+    @$('.start-prompt').remove()

@@ -10,7 +10,6 @@ class AsciiIo.Renderer.Base extends Backbone.View
 
   onClick: ->
     @trigger('terminal-click')
-    @hideToggleOverlay()
 
   render: (changes, cursorX, cursorY) ->
     for n, fragments of changes
@@ -21,18 +20,6 @@ class AsciiIo.Renderer.Base extends Backbone.View
     throw '#renderLine not implemented'
 
   afterInsertedToDom: ->
-
-  showLoadingIndicator: ->
-    @$el.append('<div class="loading">')
-
-  hideLoadingIndicator: ->
-    @$('.loading').remove()
-
-  showToggleOverlay: ->
-    @$el.append('<div class="start-prompt">')
-
-  hideToggleOverlay: ->
-    @$('.start-prompt').remove()
 
   showCursor: (show) ->
     throw '#showCursor not implemented'
