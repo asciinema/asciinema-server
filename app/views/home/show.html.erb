@@ -10,10 +10,6 @@
     <strong>ascii.io</strong> lets you record your terminal sessions and share
     them with other geeks simply by running <code>asciiio</code> command in your term.
   </p>
-
-  <%# <p> %>
-  <%#   <em>asciicast</em> is a recording of your terminal interaction that is repl %>
-  <%# </p> %>
 </div>
 
 <div class="hero-unit">
@@ -27,15 +23,17 @@
     <strong>ascii.io</strong> is.
   </p>
 
-  <h3><%= asciicast_title(@asciicast) %></h3>
+  <div class="featured-asciicast">
+    <h3><%= asciicast_title(@asciicast) %></h3>
 
-  <%= render :partial => 'asciicasts/asciicast',
-             :object => @asciicast,
-             :locals => { :skip_description => true, :auto_play => false } %>
+    <%= render :partial => 'asciicasts/asciicast',
+              :object => @asciicast,
+              :locals => { :skip_description => true, :auto_play => false } %>
 
-  <p>
-  </p>
+    <div class="clear"></div>
+  </div>
 
+  <div class="clear"></div>
 </div>
 
 <div class="hero-unit">
