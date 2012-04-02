@@ -54,8 +54,4 @@ module AsciicastsHelper
 </script>
 EOS
   end
-
-  def random_description
-    Faker::Lorem.sentences(6).join("\n\n")
-  end
 end
