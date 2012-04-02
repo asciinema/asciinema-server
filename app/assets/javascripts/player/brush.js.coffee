@@ -32,7 +32,7 @@ class AsciiIo.Brush
     AsciiIo.Brush.hash(this)
 
   fgColor: ->
-    color = @fg || 7
+    color = @fg || 0
     color += 8 if color < 8 and @bright
     color
 
