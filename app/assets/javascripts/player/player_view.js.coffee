@@ -30,7 +30,7 @@ class AsciiIo.PlayerView extends Backbone.View
 
   onStartPromptClick: ->
     @hideToggleOverlay()
-    $(@rendererView.el).click()
+    @movie.togglePlay()
 
   onMovieLoaded: (asciicast) ->
     @hideLoadingIndicator()
@@ -44,9 +44,6 @@ class AsciiIo.PlayerView extends Backbone.View
       @showToggleOverlay()
 
   bindEvents: ->
-    @rendererView.on 'terminal-click', =>
-      @movie.togglePlay()
-
     @hudView.on 'hud-play-click', =>
       @movie.togglePlay()
 
