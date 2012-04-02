@@ -21,15 +21,17 @@ class AsciiIo.PlayerView extends Backbone.View
     @createChildViews()
 
   createChildViews: ->
+    @$el.addClass('not-started')
     @$el.append(@rendererView.$el)
     @rendererView.afterInsertedToDom()
     @showLoadingIndicator()
 
-    @hudView = new AsciiIo.HudView()
+    @hudView = new AsciiIo.HudView(cols:  this.options.cols)
     @$el.append(@hudView.$el)
 
   onStartPromptClick: ->
     @hideToggleOverlay()
+    @$el.removeClass('not-started')
     @movie.togglePlay()
 
   onMovieLoaded: (asciicast) ->

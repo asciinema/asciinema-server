@@ -33,7 +33,19 @@ $color5: #EDC951;
   // margin: 0px 0px 30px 20px;
   position: relative;
 
-  .terminal, .font-sample {
+  &.not-started .hud .toggle {
+    background-color: $color4;
+
+    .play {
+      display: inline;
+    }
+
+    .pause {
+      display: none;
+    }
+  }
+
+  .terminal, .font-sample, .hud {
     font-family: 'Bitstream Vera Sans Mono', 'Courier New', monospace;
     font-size: 12px;
     line-height: inherit;
@@ -89,51 +101,53 @@ $color5: #EDC951;
   }
 
   .hud {
-    background-color: #333;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    background-color: #eee;
     opacity: 0;
     position: absolute;
-    left: 0px;
-    right: 0px;
-    bottom: 0px;
-    height: 30px;
-    color: white;
-    font-weight: bold;
-    font-family: monospace;
+    left: 2px;
+    right: 2px;
+    bottom: 2px;
+    color: black;
 
     -webkit-transition: opacity 0.3s ease-in-out;
 
     .toggle {
-      background-color: $color1;
-      width: 30px;
-      height: 100%;
-      float: left;
+      background-color: black;
+      color: white;
       cursor: pointer;
+
+      .play {
+        display: none;
+      }
+
+      .pause {
+        display: inline;
+      }
 
       &.paused {
         background-color: $color4;
+
+        .play {
+          display: inline;
+        }
+
+        .pause {
+          display: none;
+        }
       }
+
     }
 
     .progress {
-      background-color: $color2;
-      width: 60%;
-      // height: 100%;
-      float: left;
-      // cursor: pointer;
-
-      // .gutter {
-      //   background-color: $color5;
-      //   width: 0px;
-      //   height: 100%;
-      // }
+      color: black;
     }
 
     .time {
-      background-color: $color3;
-      width: 30%;
-      height: 100%;
-      float: left;
-      text-align: center;
+      background-color: black;
+      color: white;
     }
   }
 

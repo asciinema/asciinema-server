@@ -1,5 +1,5 @@
 class AsciiIo.HudView extends Backbone.View
-  tagName: 'div'
+  tagName: 'pre'
   className: 'hud'
 
   events:
@@ -7,12 +7,20 @@ class AsciiIo.HudView extends Backbone.View
 
   initialize: (options) ->
     @duration = undefined
+    @cols = options.cols
+    @lastArrowWidth = undefined
+    @calculateElementWidths()
     @createChildViews()
 
+  calculateElementWidths: ->
+    @toggleWidth = 4
+    @timeWidth = 7
+    @progressWidth = @cols - @toggleWidth - @timeWidth
+
   createChildViews: ->
-    toggle   = '<div class="toggle">'
-    progress = '<div class="progress progress-info progress-striped active"><div class="bar gutter">'
-    time     = '<div class="time">'
+    toggle   = '<span class="toggle"> <span class="play">=></span><span class="pause">||</span> '
+    progress = '<span class="progress">'
+    time     = '<span class="time">'
 
     @$el.append(toggle)
     @$el.append(progress)
@@ -37,13 +45,20 @@ class AsciiIo.HudView extends Backbone.View
       @setProgress progress
 
   setProgress: (percent) ->
-    @$('.gutter').width("#{percent}%")
+    arrowWidth = Math.floor((percent / 100.0) * (@progressWidth - 3))
+    arrowWidth = 1 if arrowWidth < 1
+
+    if arrowWidth != @lastArrowWidth
+      arrow = '='.times(arrowWidth) + '>'
+      filler = ' '.times(@progressWidth - 3 - arrowWidth)
+      @$('.progress').text('[' + arrow + filler + ']')
+      @lastArrowWidth = arrowWidth
 
   formattedTime: (time) ->
     secondsTotal = time / 1000
     minutes = (secondsTotal / 60).toFixed(0)
     seconds = (secondsTotal % 60).toFixed(0)
-    "#{@pad2(minutes)}:#{@pad2(seconds)}"
+    " #{@pad2(minutes)}:#{@pad2(seconds)} "
 
   pad2: (number) ->
     if number < 10
