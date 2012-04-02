@@ -1,22 +1,77 @@
 <div class="hero-unit home-page">
   <h1>ascii.io</h1>
-  <p>No bullshit asciicasting for developers</p>
+  <p>No nonsense asciicasting for serious hackers</p>
+</div>
 
-  <h2>Featured: <%= asciicast_title(@asciicast) %></h2>
+<div class="hero-unit">
+  <h2>What?</h2>
+
+  <p>
+    <strong>ascii.io</strong> lets you record your terminal sessions and share
+    them with other geeks simply by running <code>asciiio</code> command in your term.
+  </p>
+
+  <%# <p> %>
+  <%#   <em>asciicast</em> is a recording of your terminal interaction that is repl %>
+  <%# </p> %>
+</div>
+
+<div class="hero-unit">
+  <h2>See</h2>
+
+  <p>
+    "A picture is worth a thousand words" Fred R. Barnard once said.
+  </p>
+  <p>
+    Just watch one of the featured asciicasts and see how cool
+    <strong>ascii.io</strong> is.
+  </p>
+
+  <h3><%= asciicast_title(@asciicast) %></h3>
 
   <%= render :partial => 'asciicasts/asciicast',
              :object => @asciicast,
              :locals => { :skip_description => true, :auto_play => false } %>
 
   <p>
-    <%= link_to 'Use it!', installation_path, :class => "btn btn-primary btn-large" %>
-    <%= link_to 'Browse', browse_path, :class => "btn btn-large" %>
   </p>
 
 </div>
 
-<h2>Recent asciicasts</h2>
+<div class="hero-unit">
+  <h2>Use it</h2>
 
-<ul class="asciicasts">
-  <%= render :partial => "asciicasts/preview", :collection => @asciicasts, :as => :asciicast %>
-</ul>
+  <% markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML) %>
+  <%= markdown.render(<<EOS).html_safe
+  To install or upgrade **ascii.io** recorder, open a terminal and run following command:
+
+      $ curl -sL get.ascii.io | bash
+
+  (when using zsh you may need to run `rehash` after above command)
+
+  That's it! Now you can start recording your terminal sessions with:
+
+      $ asciiio
+
+  If you want your recordings to be assigned to your ascii.io profile run this
+  and follow instructions:
+
+      $ asciiio auth
+
+  See available commands and options with:
+
+      $ asciiio -h
+EOS
+  %>
+
+  <%# <%= link_to 'See help', manual_path, :class => "btn btn-large" %1> %>
+</div>
+
+<div class="hero-unit">
+  <h2>Explore</h2>
+
+  <p>
+    <%= link_to 'Browse', browse_path %> through
+    all recorded asciicasts.
+  </p>
+</div>

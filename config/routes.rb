@@ -6,7 +6,7 @@ AsciiIo::Application.routes.draw do
 
   match "/browse" => "asciicasts#index", :as => :browse
 
-  match "/installation" => "static_pages#show", :page => 'installation'
+  match "/manual" => "static_pages#show", :page => 'manual'
 
   match "/auth/:provider/callback" => "sessions#create"
   match "/auth/failure" => "sessions#failure"
