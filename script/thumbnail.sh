@@ -4,6 +4,8 @@
 #   ASCIICAST_ID=666 COLS=80 LINES=20 COMMAND="df; df; df; sleep 10"
 #   DELAY=1 THUMB_LINES=5 THUMB_COLS=10 ./tmux-save.sh
 
+set -e
+
 SESSION_NAME=asciiio-thumb-$ASCIICAST_ID
 
 tmux new -s $SESSION_NAME -d -x $COLS -y $LINES "$COMMAND"
