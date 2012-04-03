@@ -32,11 +32,13 @@ class AsciiIo.Brush
     AsciiIo.Brush.hash(this)
 
   fgColor: ->
-    color = @fg || 0
+    color = @fg
+    color = 7 if color is undefined
     color += 8 if color < 8 and @bright
     color
 
   bgColor: ->
-    color = @bg || 0
+    color = @bg
+    color = 0 if color is undefined
     color += 8 if color < 8 and @blink
     color
