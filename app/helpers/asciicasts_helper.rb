@@ -19,6 +19,12 @@ module AsciicastsHelper
       end
 
       link_to img + "~#{asciicast.user.nickname}", profile_path(asciicast.user)
+    else
+      if asciicast.username.present?
+        "~#{asciicast.username}"
+      else
+        "anonymous"
+      end
     end
   end
 

@@ -24,6 +24,7 @@ class Asciicast < ActiveRecord::Base
   def meta=(file)
     data = JSON.parse(file.tempfile.read)
 
+    self.username         = data['username']
     self.user_token       = data['user_token']
     self.duration         = data['duration']
     self.recorded_at      = data['recorded_at']
