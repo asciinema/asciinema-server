@@ -3,8 +3,8 @@
     <%= link_to asciicast_title(asciicast), asciicast %>
 
     <span class="meta">
-      <% if asciicast.user %>
-          by <%= profile_link(asciicast) %>
+      <% if asciicast.user || asciicast.username %>
+        by <%= profile_link(asciicast) %>
       <% end %>
 
       <%= asciicast_time(asciicast) %>
