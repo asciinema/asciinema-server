@@ -1,0 +1,28 @@
+<%= form_for @asciicast, :html => { :class => 'form-horizontal' } do |f| %>
+  <fieldset>
+    <legend><%= controller.action_name.capitalize %> asciicast</legend>
+
+    <div class="control-group">
+      <%= f.label :title, :class => 'control-label' %>
+      <div class="controls">
+        <%= f.text_field :title, :class => 'text_field span6' %>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <%= f.label :description, :class => 'control-label' %>
+      <div class="controls">
+        <%= f.text_area :description, :class => 'text_area span6' %>
+      </div>
+      <div class="controls">
+        Parsed with <a href="http://github.github.com/github-flavored-markdown/"
+                       target="_blank">GitHub Flavored Markdown</a>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <%= f.submit 'Update asciicast', :class => 'btn btn-primary' %>
+      <%= link_to 'Cancel', asciicast_path, :class => 'btn' %>
+    </div>
+  </fieldset>
+<% end %>
