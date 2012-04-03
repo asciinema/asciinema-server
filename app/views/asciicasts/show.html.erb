@@ -32,13 +32,13 @@
 </div>
 
 <script type="text/javascript">
-  jQuery( function(){
-      var comments = new AsciiIo.Collections.Comments();
-      var asciicast_id = <%= @asciicast.id %>
+  $(function() {
+    var comments = new AsciiIo.Collections.Comments();
+    var asciicast_id = <%= @asciicast.id %>
 
-      comments.url = ['/api/asciicasts/', asciicast_id, '/comments'].join('');
-      comments.fetch();
+    comments.url = ['/api/asciicasts/', asciicast_id, '/comments'].join('');
+    comments.fetch();
 
-      new AsciiIo.Views.CommentsIndex({ collection: comments });
-      })
-    </script>
+    new AsciiIo.Views.CommentsIndex({ collection: comments });
+  })
+</script>
