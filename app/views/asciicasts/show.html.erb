@@ -14,7 +14,8 @@
 
 <% if @asciicast.user == current_user %>
   <%= link_to 'Delete this asciicast', asciicast_path(@asciicast),
-      :method => :delete, :confirm => 'U SHURE?', :class => 'delete-link' %>
+              :method => :delete, :confirm => 'U SHURE?',
+              :class => 'delete-link' %>
 <% end %>
 
 <div class="comments-container">
