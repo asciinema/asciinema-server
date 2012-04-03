@@ -26,3 +26,16 @@
     </div>
   </fieldset>
 <% end %>
+
+
+<script>
+  $(function() {
+    if (window.location.toString().match(/focus-title/)) {
+      $('#asciicast_title').focus();
+    }
+
+    if (window.location.toString().match(/focus-desc/)) {
+      $('#asciicast_description').focus();
+    }
+  });
+</script>

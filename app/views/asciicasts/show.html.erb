@@ -4,10 +4,10 @@
 
     <% if @asciicast.user == current_user %>
       <% if @asciicast.title.blank? %>
-        <%= link_to 'Add a title', edit_asciicast_path(@asciicast),
+        <%= link_to 'Add a title', edit_asciicast_path(@asciicast, :anchor => 'focus-title'),
                     :class => 'edit-title' %>
       <% else %>
-        <%= link_to 'Edit title', edit_asciicast_path(@asciicast),
+        <%= link_to 'Edit title', edit_asciicast_path(@asciicast, :anchor => 'focus-title'),
                     :class => 'edit-title' %>
       <% end %>
     <% end %>
@@ -24,10 +24,10 @@
 
 <% if @asciicast.user == current_user %>
   <% if @asciicast.description.blank? %>
-    <%= link_to 'Add a description', edit_asciicast_path(@asciicast),
+    <%= link_to 'Add a description', edit_asciicast_path(@asciicast, :anchor => 'focus-desc'),
                 :class => 'edit-description' %>
   <% else %>
-    <%= link_to 'Edit description', edit_asciicast_path(@asciicast),
+    <%= link_to 'Edit description', edit_asciicast_path(@asciicast, :anchor => 'focus-desc'),
                 :class => 'edit-description' %>
   <% end %>
 
