@@ -1,11 +1,15 @@
+@mixin normal-text {
+  font-size: 14px;
+  font-weight: normal;
+}
+
 .asciicast-heading {
   // width: 100%;
   // background-color: #222;
 
   .meta {
+    @include normal-text;
     float: right;
-    font-size: 14px;
-    font-weight: normal;
   //   .avatar {
   //     width: 24px;
   //     padding: 1px;
@@ -14,12 +18,20 @@
   //   }
   }
 
+  .edit-title {
+    @include normal-text;
+  }
+
   // .description {
   //   color: #3e3e3e;
   //   font-family: arial, helvetica;
   //   font-size: 18px;
   //   margin: 20px 0;
   // }
+}
+
+.asciicast-delete-link {
+  color: #d00;
 }
 
 .asciicast {

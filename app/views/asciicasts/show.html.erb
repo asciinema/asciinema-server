@@ -2,6 +2,16 @@
   <h1>
     <%= asciicast_title(@asciicast) %>
 
+    <% if @asciicast.user == current_user %>
+      <% if @asciicast.title.blank? %>
+        <%= link_to 'Add a title', edit_asciicast_path(@asciicast),
+                    :class => 'edit-title' %>
+      <% else %>
+        <%= link_to 'Edit title', edit_asciicast_path(@asciicast),
+                    :class => 'edit-title' %>
+      <% end %>
+    <% end %>
+
     <span class="meta">
       Recorded by
       <%= profile_link(@asciicast, :avatar => false) %>
@@ -13,9 +23,19 @@
 <%= render :partial => 'asciicasts/asciicast', :object => @asciicast %>
 
 <% if @asciicast.user == current_user %>
+  <% if @asciicast.description.blank? %>
+    <%= link_to 'Add a description', edit_asciicast_path(@asciicast),
+                :class => 'edit-description' %>
+  <% else %>
+    <%= link_to 'Edit description', edit_asciicast_path(@asciicast),
+                :class => 'edit-description' %>
+  <% end %>
+
+  |
+
   <%= link_to 'Delete this asciicast', asciicast_path(@asciicast),
               :method => :delete, :confirm => 'U SHURE?',
-              :class => 'delete-link' %>
+              :class => 'asciicast-delete-link' %>
 <% end %>
 
 <div class="comments-container">
