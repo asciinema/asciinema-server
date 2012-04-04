@@ -18,6 +18,12 @@
       <%= asciicast_time(@asciicast) %>
     </span>
   </h1>
+
+  <p class="env-info">
+    <span class="os">OS=<span class="value"><%= @asciicast.os %></span></span>
+    <span class="shell">SHELL=<span class="value"><%= @asciicast.shell_name %></span></span>
+    <span class="term-type">TERM=<span class="value"><%= @asciicast.terminal_type || '?' %></span></span>
+  </p>
 </div>
 
 <%= render :partial => 'asciicasts/asciicast', :object => @asciicast %>

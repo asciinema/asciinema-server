@@ -28,6 +28,15 @@
   //   font-size: 18px;
   //   margin: 20px 0;
   // }
+
+  .env-info {
+    margin: 15px 0 0 0;
+    font-size: 12px;
+
+    .value {
+      font-weight: bold;
+    }
+  }
 }
 
 .asciicast-delete-link {

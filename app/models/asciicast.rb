@@ -38,6 +38,20 @@ class Asciicast < ActiveRecord::Base
     self.terminal_type    = data['term']['type']
   end
 
+  def os
+    if uname =~ /Linux/
+      'Linux'
+    elsif uname =~ /Darwin/
+      'OSX'
+    else
+      uname.split(' ', 2)[0]
+    end
+  end
+
+  def shell_name
+    File.basename(shell.to_s)
+  end
+
   def as_json(opts = {})
     super :methods => [:escaped_stdout_data, :stdout_timing_data]
   end
