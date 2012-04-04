@@ -1,8 +1,8 @@
 <div class="page-header asciicast-heading">
   <h1>
-    <%= asciicast_title(@asciicast) %>
+    <span class="title"><%= asciicast_title(@asciicast) %></span>
 
-    <% if @asciicast.user == current_user %>
+    <% if current_user && @asciicast.user == current_user %>
       <% if @asciicast.title.blank? %>
         <%= link_to 'Add a title', edit_asciicast_path(@asciicast, :anchor => 'focus-title'),
                     :class => 'edit-title' %>
@@ -22,7 +22,7 @@
 
 <%= render :partial => 'asciicasts/asciicast', :object => @asciicast %>
 
-<% if @asciicast.user == current_user %>
+<% if current_user && @asciicast.user == current_user %>
   <% if @asciicast.description.blank? %>
     <%= link_to 'Add a description', edit_asciicast_path(@asciicast, :anchor => 'focus-desc'),
                 :class => 'edit-description' %>
@@ -66,5 +66,9 @@
     comments.fetch();
 
     new AsciiIo.Views.CommentsIndex({ collection: comments });
+  });
+
+  $(function() {
+    $('.asciicast .description, .asciicast-heading .title').linkify();
   });
 </script>
