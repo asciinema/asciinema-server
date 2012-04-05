@@ -51,28 +51,26 @@
 <div class="hero-unit">
   <h2>Use it</h2>
 
-  <% markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML) %>
-  <%= markdown.render(<<EOS).html_safe
-  To install or upgrade **ascii.io** recorder, open a terminal and run following command:
+  <%= markdown do %>
+To install or upgrade **ascii.io** recorder, open a terminal and run following command:
 
-      $ curl -sL get.ascii.io | bash
+    $ curl -sL get.ascii.io | bash
 
-  (when using zsh you may need to run `rehash` after above command)
+(when using zsh you may need to run `rehash` after above command)
 
-  That's it! Now you can start recording your terminal sessions with:
+That's it! Now you can start recording your terminal sessions with:
 
-      $ asciiio
+    $ asciiio
 
-  If you want your recordings to be assigned to your ascii.io profile (btw, see mine: [~sickill](/~sickill)) run this
-  and follow instructions:
+If you want your recordings to be assigned to your ascii.io profile (btw, see mine: [~sickill](/~sickill)) run this
+and follow instructions:
 
-      $ asciiio auth
+    $ asciiio auth
 
-  See available commands and options with:
+See available commands and options with:
 
-      $ asciiio -h
-EOS
-  %>
+    $ asciiio -h
+  <% end %>
 
   <%# <%= link_to 'See help', manual_path, :class => "btn btn-large" %1> %>
 </div>

@@ -16,4 +16,9 @@ module ApplicationHelper
     image_tag user.avatar_url || default_avatar_url,
       :title => nickname, :alt => nickname, :class => "avatar"
   end
+
+  def markdown(&block)
+    markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
+    markdown.render(capture(&block)).html_safe
+  end
 end
