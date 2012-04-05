@@ -15,6 +15,7 @@ class AsciicastsController < ApplicationController
   end
 
   def show
+    @title = @asciicast.smart_title
     respond_with @asciicast
   end
 

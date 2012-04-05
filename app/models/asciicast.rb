@@ -83,4 +83,14 @@ class Asciicast < ActiveRecord::Base
       end
     end
   end
+
+  def smart_title
+    if title.present?
+      title
+    elsif command.present?
+      "$ #{command}"
+    else
+      "##{id}"
+    end
+  end
 end

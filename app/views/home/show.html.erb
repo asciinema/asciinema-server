@@ -36,7 +36,7 @@
   </p>
 
   <div class="featured-asciicast">
-    <h3><%= asciicast_title(@asciicast) %></h3>
+    <h3><%= @asciicast.smart_title %></h3>
 
     <%= render :partial => 'asciicasts/asciicast',
               :object => @asciicast,

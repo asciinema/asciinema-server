@@ -1,6 +1,6 @@
 <div class="page-header asciicast-heading">
   <h1>
-    <span class="title"><%= asciicast_title(@asciicast) %></span>
+    <span class="title"><%= @asciicast.smart_title %></span>
 
     <% if current_user && @asciicast.user == current_user %>
       <% if @asciicast.title.blank? %>

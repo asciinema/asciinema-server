@@ -1,15 +1,5 @@
 module AsciicastsHelper
 
-  def asciicast_title(asciicast)
-    if asciicast.title.present?
-      asciicast.title
-    elsif asciicast.command.present?
-      "$ #{asciicast.command}"
-    else
-      "##{asciicast.id}"
-    end
-  end
-
   def profile_link(asciicast, options = {})
     if asciicast.user
       if options[:avatar]
