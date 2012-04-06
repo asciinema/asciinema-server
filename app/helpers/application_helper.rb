@@ -18,7 +18,6 @@ module ApplicationHelper
   end
 
   def markdown(&block)
-    markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
-    markdown.render(capture(&block)).html_safe
+    MKD_RENDERER.render(capture(&block)).html_safe
   end
 end
