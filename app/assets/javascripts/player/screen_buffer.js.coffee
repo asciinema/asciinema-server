@@ -125,6 +125,19 @@ class AsciiIo.ScreenBuffer
 
   # ----- Cursor control
 
+  correctCursorPos: ->
+    if @cursorX < 0
+      @cursorX = 0
+
+    if @cursorX >= @cols
+      @cursorX = @cols - 1
+
+    if @cursorY < 0
+      @cursorY = 0
+
+    if @cursorY >= @lines
+      @cursorY = @lines - 1
+
   priorRow: (n = 1) ->
     for i in [0...n]
       if @cursorY > 0
@@ -165,12 +178,17 @@ class AsciiIo.ScreenBuffer
 
   goToColumn: (col = 1) ->
     @cursorX = col - 1
+    @correctCursorPos()
     @updateLine()
 
   goToRow: (line = 1) ->
     oldLine = @cursorY
     @cursorY = line - 1
-    @updateLine oldLine
+    @correctCursorPos()
+
+    if oldLine != @cursorY
+      @updateLine oldLine
+
     @updateLine()
 
   goToRowAndColumn: (line = 1, col = 1) ->
