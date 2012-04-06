@@ -207,7 +207,11 @@ class AsciiIo.VT
       when "n"
         @reportRowAndColumn()
       when "r" # Set top and bottom margins (scroll region on VT100)
-        @setScrollRegion n or 1, m or @lines
+        if n is undefined
+          n = 1
+        if m is undefined
+          m = @lines
+        @setScrollRegion n, m
 
   handlePrivateControlSequence: (data, params) ->
     action = data[data.length - 1]
@@ -334,8 +338,15 @@ class AsciiIo.VT
   # ----- Scroll control
 
   setScrollRegion: (top, bottom) ->
-    @scrollRegion.setTop(top - 1)
-    @scrollRegion.setBottom(bottom - 1)
+    if top < 1
+      top = 1
+
+    if bottom > @lines
+      bottom = @lines
+
+    if bottom > top
+      @scrollRegion.setTop(top - 1)
+      @scrollRegion.setBottom(bottom - 1)
 
   setHorizontalTabStop: ->
     @tabStops.add(@cursorX)
