@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120403165915) do
+ActiveRecord::Schema.define(:version => 20120406115845) do
 
   create_table "asciicasts", :force => true do |t|
     t.integer  "user_id"
@@ -34,10 +34,12 @@ ActiveRecord::Schema.define(:version => 20120403165915) do
     t.text     "description"
     t.boolean  "featured",         :default => false
     t.string   "username"
+    t.integer  "likes_count"
   end
 
   add_index "asciicasts", ["created_at"], :name => "index_asciicasts_on_created_at"
   add_index "asciicasts", ["featured"], :name => "index_asciicasts_on_featured"
+  add_index "asciicasts", ["likes_count"], :name => "index_asciicasts_on_likes_count"
   add_index "asciicasts", ["recorded_at"], :name => "index_asciicasts_on_recorded_at"
   add_index "asciicasts", ["user_id"], :name => "index_asciicasts_on_user_id"
   add_index "asciicasts", ["user_token"], :name => "index_asciicasts_on_user_token"
@@ -52,6 +54,17 @@ ActiveRecord::Schema.define(:version => 20120403165915) do
 
   add_index "comments", ["asciicast_id"], :name => "index_comments_on_asciicast_id"
   add_index "comments", ["user_id"], :name => "index_comments_on_user_id"
+
+  create_table "likes", :force => true do |t|
+    t.integer  "asciicast_id", :null => false
+    t.integer  "user_id",      :null => false
+    t.datetime "created_at",   :null => false
+    t.datetime "updated_at",   :null => false
+  end
+
+  add_index "likes", ["asciicast_id"], :name => "index_likes_on_asciicast_id"
+  add_index "likes", ["user_id", "asciicast_id"], :name => "index_likes_on_user_id_and_asciicast_id"
+  add_index "likes", ["user_id"], :name => "index_likes_on_user_id"
 
   create_table "user_tokens", :force => true do |t|
     t.integer  "user_id",    :null => false

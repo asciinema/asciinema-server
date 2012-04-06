@@ -1,5 +1,9 @@
 class User < ActiveRecord::Base
 
+  has_many :user_tokens, :dependent => :destroy
+  has_many :asciicasts, :dependent => :destroy
+  has_many :likes, :dependent => :destroy
+
   validates :provider, :presence => true
   validates :uid, :presence => true
   validates :nickname, :presence => true
@@ -7,9 +11,6 @@ class User < ActiveRecord::Base
   validates_uniqueness_of \
     :nickname,
     :message => "Sorry, but your nickname is already taken"
-
-  has_many :user_tokens, :dependent => :destroy
-  has_many :asciicasts, :dependent => :destroy
 
   def self.create_with_omniauth(auth)
     user = new

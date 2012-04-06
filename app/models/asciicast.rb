@@ -9,6 +9,7 @@ class Asciicast < ActiveRecord::Base
 
   belongs_to :user
   has_many :comments, :order => :created_at, :dependent => :destroy
+  has_many :likes, :dependent => :destroy
 
   scope :featured, where(:featured => true)
 
