@@ -1,7 +1,7 @@
 class AsciicastsController < ApplicationController
   PER_PAGE = 20
 
-  before_filter :load_resource, :only => [:show, :edit, :update, :destroy]
+  before_filter :load_resource, :only => [:edit, :update, :destroy]
   before_filter :ensure_authenticated!, :only => [:edit, :update, :destroy]
   before_filter :ensure_owner!, :only => [:edit, :update, :destroy]
 
@@ -15,6 +15,7 @@ class AsciicastsController < ApplicationController
   end
 
   def show
+    @asciicast = AsciicastDecorator.find(params[:id])
     @title = @asciicast.smart_title
     respond_with @asciicast
   end

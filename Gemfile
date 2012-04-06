@@ -18,6 +18,7 @@ gem 'fog'
 gem 'simple_form'
 gem 'redcarpet'
 gem 'sidekiq'
+gem 'draper'
 
 # Gems used only for assets and not required
 # in production environments by default.
