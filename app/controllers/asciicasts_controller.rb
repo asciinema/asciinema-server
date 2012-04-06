@@ -17,7 +17,7 @@ class AsciicastsController < ApplicationController
   def show
     @asciicast = AsciicastDecorator.find(params[:id])
     @title = @asciicast.smart_title
-    respond_with @asciicast
+    respond_with @asciicast.model
   end
 
   def edit
