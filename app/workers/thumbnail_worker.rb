@@ -1,7 +1,9 @@
 require 'tempfile'
 
 class ThumbnailWorker
-  def self.perform(asciicast_id)
+  include Sidekiq::Worker
+
+  def perform(asciicast_id)
     asciicast = Asciicast.find(asciicast_id)
 
     in_data_file = Tempfile.new('asciiio-data', :encoding => 'ascii-8bit')

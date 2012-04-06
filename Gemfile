@@ -17,6 +17,7 @@ gem 'faker'
 gem 'fog'
 gem 'simple_form'
 gem 'redcarpet'
+gem 'sidekiq'
 
 # Gems used only for assets and not required
 # in production environments by default.
