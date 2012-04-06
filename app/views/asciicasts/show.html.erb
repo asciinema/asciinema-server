@@ -53,9 +53,16 @@
   <% if current_user %>
     <form id="new-comment">
       <label>Your comment</label>
-      <p>
+
+      <p class="body">
         <textarea type="text" name="body" id="comment-body"></textarea>
       </p>
+
+      <p class="github-flavor">
+        Parsed with <a href="http://github.github.com/github-flavored-markdown/"
+                       target="_blank">GitHub Flavored Markdown</a>
+      </p>
+
       <button type="submit" class="btn">Post</button>
     </form>
   <% else %>

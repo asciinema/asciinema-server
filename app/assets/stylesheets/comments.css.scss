@@ -3,9 +3,23 @@
 }
 
 #new-comment {
+  width: 800px;
+
   textarea {
-    width: 960px;
+    width: 100%;
     height: 80px;
+  }
+
+  .github-flavor {
+    text-align: right;
+  }
+
+  .body {
+    margin-bottom: 0;
+
+    textarea {
+      margin-bottom: 0;
+    }
   }
 }
 
