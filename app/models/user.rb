@@ -10,6 +10,7 @@ class User < ActiveRecord::Base
 
   has_many :user_tokens, :dependent => :destroy
   has_many :asciicasts, :dependent => :destroy
+  has_many :comments, :dependent => :destroy
 
   def self.create_with_omniauth(auth)
     user = new
