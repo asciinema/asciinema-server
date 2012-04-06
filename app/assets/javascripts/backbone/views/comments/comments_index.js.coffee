@@ -6,20 +6,16 @@ class AsciiIo.Views.CommentsIndex extends AsciiIo.Views.Base
     @collection.on('reset', @addAll, this)
     @collection.on('add', @addOne, this)
 
-    $('#new-comment').submit (event)=>
+    $('#new-comment').submit (event) =>
       @createComment(event)
 
   addAll: ->
     @collection.each (comment) =>
       @addOne(comment)
 
-    this
-
   addOne:(comment) ->
     view = new AsciiIo.Views.CommentEntry({ model: comment, collection: @collection})
     $(this.el).append view.render().el
-
-    this
 
   createComment: (event) ->
     event.preventDefault()
