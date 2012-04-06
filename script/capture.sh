@@ -12,3 +12,4 @@ tmux new -s $SESSION_NAME -d -x $COLS -y $LINES "$COMMAND"
 sleep $DELAY
 tmux capture-pane -t $SESSION_NAME
 tmux save-buffer -
+tmux kill-session -t $SESSION_NAME &>/dev/null
