@@ -9,9 +9,9 @@ class AsciicastsController < ApplicationController
 
   def index
     collection = Asciicast.
-                   order("created_at DESC").
-                   page(params[:page]).
-                   per(PER_PAGE)
+      order("created_at DESC").
+      page(params[:page]).
+      per(PER_PAGE)
 
     @asciicasts = AsciicastDecorator.decorate(collection)
   end
