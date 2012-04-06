@@ -28,15 +28,15 @@ class AsciicastDecorator < ApplicationDecorator
     end
   end
 
-  def thumbnail
+  def thumbnail(width = THUMBNAIL_WIDTH, height = THUMBNAIL_HEIGHT)
     if @thumbnail.nil?
       lines = model.snapshot.to_s.split("\n")
 
-      top_lines = lines[0...THUMBNAIL_HEIGHT]
-      top_text = prepare_lines(top_lines).join("\n")
+      top_lines = lines[0...height]
+      top_text = prepare_lines(top_lines, width, height).join("\n")
 
-      bottom_lines = lines.reverse[0...THUMBNAIL_HEIGHT].reverse
-      bottom_text = prepare_lines(bottom_lines).join("\n")
+      bottom_lines = lines.reverse[0...height].reverse
+      bottom_text = prepare_lines(bottom_lines, width, height).join("\n")
 
       if top_text.gsub(/\s+/, '').size > bottom_text.gsub(/\s+/, '').size
         @thumbnail = top_text
@@ -50,12 +50,12 @@ class AsciicastDecorator < ApplicationDecorator
 
   private
 
-  def prepare_lines(lines)
-    (THUMBNAIL_HEIGHT - lines.size).times { lines << '' }
+  def prepare_lines(lines, width, height)
+    (height - lines.size).times { lines << '' }
 
     lines.map do |line|
-      line = line[0...THUMBNAIL_WIDTH]
-      line << ' ' * (THUMBNAIL_WIDTH - line.size)
+      line = line[0...width]
+      line << ' ' * (width - line.size)
       line
     end
   end
