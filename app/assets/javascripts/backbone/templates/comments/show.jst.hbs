@@ -1,5 +1,5 @@
 <div class="left">
-  <a href="{{profile_path}}"><img src="{{user.avatar_url}}" alt="{{user.nickanme}}" class="avatar" /></a>
+  <a href="{{profile_path}}"><img src="{{user.avatar_url}}" alt="{{user.nickname}}" class="avatar" /></a>
 </div>
 
 <div class="right">
@@ -10,7 +10,7 @@
     | <a href="#" class="remove">remove</a>
     {{/if}}
   </div>
-  <div class="body">{{body}}</div>
+  <div class="body">{{{processed_body}}}</div>
 </div>
 
 <div class="clear"></div>

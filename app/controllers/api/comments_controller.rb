@@ -5,7 +5,7 @@ class Api::CommentsController < ApplicationController
   before_filter :load_asciicast, :only => [:index, :create]
 
   def index
-    respond_with @asciicast.comments
+    respond_with CommentDecorator.decorate(@asciicast.comments)
   end
 
   def create
@@ -15,7 +15,8 @@ class Api::CommentsController < ApplicationController
 
     @comment.save
 
-    respond_with @comment, :location => api_comment_url(@comment)
+    comment = CommentDecorator.new(@comment)
+    respond_with comment, :location => api_comment_url(@comment)
   end
 
   def destroy
