@@ -30,7 +30,7 @@ class AsciicastDecorator < ApplicationDecorator
 
   def thumbnail
     if @thumbnail.nil?
-      lines = model.snapshot.split("\n")
+      lines = model.snapshot.to_s.split("\n")
 
       top_lines = lines[0...THUMBNAIL_HEIGHT]
       top_text = prepare_lines(top_lines).join("\n")
