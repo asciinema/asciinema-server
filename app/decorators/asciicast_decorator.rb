@@ -4,6 +4,30 @@ class AsciicastDecorator < ApplicationDecorator
   THUMBNAIL_WIDTH = 20
   THUMBNAIL_HEIGHT = 10
 
+  def os
+    if uname =~ /Linux/
+      'Linux'
+    elsif uname =~ /Darwin/
+      'OSX'
+    else
+      uname.split(' ', 2)[0]
+    end
+  end
+
+  def shell_name
+    File.basename(shell.to_s)
+  end
+
+  def smart_title
+    if title.present?
+      title
+    elsif command.present?
+      "$ #{command}"
+    else
+      "##{id}"
+    end
+  end
+
   def thumbnail
     if @thumbnail.nil?
       lines = model.snapshot.split("\n")
