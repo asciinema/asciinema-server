@@ -2,6 +2,7 @@ class User < ActiveRecord::Base
 
   has_many :user_tokens, :dependent => :destroy
   has_many :asciicasts, :dependent => :destroy
+  has_many :comments, :dependent => :destroy
   has_many :likes, :dependent => :destroy
 
   validates :provider, :presence => true
