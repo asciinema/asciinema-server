@@ -1,12 +1,11 @@
-<%= form_for @user, :url => '/user', :html => { :class => 'form-horizontal' } do |f| %>
+<%= form_for @user, :html => { :class => 'form-horizontal' } do |f| %>
   <fieldset>
-    <legend>Your new account</legend>
+    <legend>Account settings</legend>
 
-    <div class="control-group <%= 'error' if @user.errors[:nickname].present? %>">
+    <div class="control-group">
       <%= f.label :nickname, :class => 'control-label' %>
       <div class="controls">
         <%= f.text_field :nickname, :class => 'text_field' %>
-        <span class="help-inline"><%= @user.errors[:nickname].first %></span>
       </div>
     </div>
 
@@ -25,7 +24,8 @@
     </div>
 
     <div class="form-actions">
-      <%= f.submit 'Create', :class => 'btn btn-primary' %>
+      <%= f.submit 'Save', :class => 'btn btn-primary' %>
+      <%= link_to 'Cancel', profile_path(@user), :class => 'btn' %>
     </div>
   </fieldset>
 <% end %>

@@ -1,6 +1,8 @@
 class UsersController < ApplicationController
   PER_PAGE = 20
 
+  before_filter :ensure_authenticated!, :only => [:edit, :update]
+
   def show
     @user = User.find_by_nickname(params[:nickname])
     collection = @user.asciicasts.
@@ -23,15 +25,25 @@ class UsersController < ApplicationController
     end
   end
 
+  def edit
+    @user = current_user
+  end
+
+  def update
+    current_user.update_attributes(params[:user])
+    redirect_to profile_path(current_user),
+                :notice => 'Account settings saved.'
+  end
+
   private
 
   def load_sensitive_user_data_from_session
-    @user.provider = session[:provider]
-    @user.uid = session[:uid]
+    @user.provider   = session[:new_user][:provider]
+    @user.uid        = session[:new_user][:uid]
+    @user.avatar_url = session[:new_user][:avatar_url]
   end
 
   def clear_sensitive_session_user_data
-    session[:provider] = nil
-    session[:uid] = nil
+    session.delete(:new_user)
   end
 end

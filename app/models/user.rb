@@ -12,6 +12,8 @@ class User < ActiveRecord::Base
   has_many :asciicasts, :dependent => :destroy
   has_many :comments, :dependent => :destroy
 
+  attr_accessible :nickname, :email, :name
+
   def self.create_with_omniauth(auth)
     user = new
     user.provider   = auth["provider"]

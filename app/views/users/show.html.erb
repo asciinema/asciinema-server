@@ -7,6 +7,10 @@
   <p class="meta">
     <%= @user.asciicasts.count %> asciicasts
   </p>
+
+  <% if current_user %>
+    <p><%= link_to 'Settings', edit_user_path %></p>
+  <% end %>
 </div>
 
 <ul class="asciicasts">

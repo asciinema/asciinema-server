@@ -33,8 +33,11 @@ class SessionsController < ApplicationController
   end
 
   def store_sensitive_user_data_in_session
-    session[:provider] = @user.provider
-    session[:uid] = @user.uid
+    session[:new_user] = {
+      :provider   => @user.provider,
+      :uid        => @user.uid,
+      :avatar_url => @user.avatar_url
+    }
   end
 
 end
