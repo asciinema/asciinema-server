@@ -35,7 +35,6 @@ For thumbnail generation you need also:
 
 * copy *config/database.yml.example* to *config/database.yml* and set adapter
   to what you prefer,
-* create *ascii_io_development* database,
 * run ``bundle exec db:setup``
 
 ### Start
