@@ -2,11 +2,11 @@ class NotFound < StandardError; end
 
 class ApplicationController < ActionController::Base
   protect_from_forgery
-  rescue_from(ActiveRecord::RecordNotFound) { render 'exceptions/not_found' }
 
   class Unauthorized < Exception; end
   class Forbidden < Exception; end
 
+  rescue_from ActiveRecord::RecordNotFound, :with => :not_found
   rescue_from Unauthorized, :with => :unauthorized
   rescue_from Forbidden, :with => :forbidden
 
@@ -64,6 +64,18 @@ class ApplicationController < ActionController::Base
     else
       store_location
       redirect_to login_path, :notice => "Please login"
+    end
+  end
+
+  def not_found
+    respond_to do |format|
+      format.any do
+        render :text => 'Requested resource not found', :status => 404
+      end
+
+      format.html do
+        render 'application/not_found', :status => 404
+      end
     end
   end
 end
