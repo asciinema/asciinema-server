@@ -80,8 +80,8 @@ describe Api::CommentsController do
         comment.stub(:user).and_return(user)
       end
 
-      it "calls delete on comment" do
-        comment.should_receive(:delete)
+      it "calls destroy on comment" do
+        comment.should_receive(:destroy)
         delete :destroy, :id => 1, :format => :json
       end
 
@@ -94,8 +94,8 @@ describe Api::CommentsController do
         comment.stub(:user).and_return(other_user)
       end
 
-      it "doesn't call delete on comment" do
-        comment.should_not_receive(:delete)
+      it "doesn't call destroy on comment" do
+        comment.should_not_receive(:destroy)
         delete :destroy, :id => 1, :format => :json
       end
 
