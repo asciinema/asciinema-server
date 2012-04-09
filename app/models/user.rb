@@ -1,5 +1,9 @@
 class User < ActiveRecord::Base
 
+  has_many :user_tokens, :dependent => :destroy
+  has_many :asciicasts, :dependent => :destroy
+  has_many :likes, :dependent => :destroy
+
   validates :provider, :presence => true
   validates :uid, :presence => true
   validates :nickname, :presence => true
