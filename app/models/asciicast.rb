@@ -39,29 +39,6 @@ class Asciicast < ActiveRecord::Base
     self.terminal_type    = data['term']['type']
   end
 
-  def as_json(opts = {})
-    super :methods => [:escaped_stdout_data, :stdout_timing_data]
-  end
-
-  def escaped_stdout_data
-    if data = stdout.read
-      data.bytes.map { |b| '\x' + format('%02x', b) }.join
-    else
-      nil
-    end
-  end
-
-  def stdout_timing_data
-    if data = stdout_timing.read
-      Bzip2.uncompress(data).lines.map do |line|
-        delay, n = line.split
-        [delay.to_f, n.to_i]
-      end
-    else
-      nil
-    end
-  end
-
   def assign_user
     if user_token.present?
       if ut = UserToken.find_by_token(user_token)

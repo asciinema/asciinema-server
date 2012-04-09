@@ -4,6 +4,33 @@ class AsciicastDecorator < ApplicationDecorator
   THUMBNAIL_WIDTH = 20
   THUMBNAIL_HEIGHT = 10
 
+  def as_json(*args)
+    data = model.as_json(*args)
+    data['escaped_stdout_data'] = escaped_stdout_data
+    data['stdout_timing_data'] = stdout_timing_data
+
+    data
+  end
+
+  def escaped_stdout_data
+    if data = stdout.read
+      data.bytes.map { |b| '\x' + format('%02x', b) }.join
+    else
+      nil
+    end
+  end
+
+  def stdout_timing_data
+    if data = stdout_timing.read
+      Bzip2.uncompress(data).lines.map do |line|
+        delay, n = line.split
+        [delay.to_f, n.to_i]
+      end
+    else
+      nil
+    end
+  end
+
   def os
     if uname =~ /Linux/
       'Linux'

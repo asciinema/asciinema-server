@@ -17,16 +17,9 @@ class AsciicastsController < ApplicationController
   end
 
   def show
-    respond_to do |format|
-      format.html do
-        @asciicast = AsciicastDecorator.new(@asciicast)
-        @title = @asciicast.smart_title
-      end
-
-      format.json do
-        respond_with @asciicast
-      end
-    end
+    @asciicast = AsciicastDecorator.new(@asciicast)
+    @title = @asciicast.smart_title
+    respond_with @asciicast
   end
 
   def edit
