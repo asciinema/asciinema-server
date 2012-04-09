@@ -9,7 +9,7 @@ development:
   adapter: mysql2
   encoding: utf8
   database: ascii_io_development
-  pool: 5
+  pool: 25
   username: root
   password:
   socket: /tmp/mysql.sock
