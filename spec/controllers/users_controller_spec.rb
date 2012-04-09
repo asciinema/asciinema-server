@@ -61,4 +61,16 @@ describe UsersController do
       end
     end
   end
+
+  describe '#show' do
+    it 'should have specs'
+  end
+
+  describe '#edit' do
+    it 'should have specs'
+  end
+
+  describe '#update' do
+    it 'should have specs'
+  end
 end
