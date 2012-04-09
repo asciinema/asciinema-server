@@ -21,8 +21,9 @@ class Api::CommentsController < ApplicationController
 
   def destroy
     comment = Comment.find(params[:id])
+
     if comment.user == current_user
-      respond_with comment.delete
+      respond_with comment.destroy
     else
       raise Forbidden
     end
