@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe UsersController do
 
-  describe "POST create" do
+  describe "#create" do
     let(:user) { mock_model(User).as_null_object }
 
     before do
