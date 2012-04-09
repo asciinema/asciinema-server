@@ -19,3 +19,4 @@ pickle-email-*.html
 config/local.yml
 public/uploads/*
 /bin/*
+/coverage

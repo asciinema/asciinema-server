@@ -51,4 +51,5 @@ end
 group :test do
   gem "rake"
   gem "capybara"
+  gem 'simplecov', :require => false
 end
