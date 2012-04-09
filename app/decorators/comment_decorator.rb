@@ -2,7 +2,7 @@ class CommentDecorator < ApplicationDecorator
   decorates :comment
 
   def created
-    h.time_ago_in_words(created_at) + " ago"
+    created_at && (h.time_ago_in_words(created_at) + " ago")
   end
 
   def as_json(opts = nil)
