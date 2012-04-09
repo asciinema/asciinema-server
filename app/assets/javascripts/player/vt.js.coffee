@@ -14,7 +14,7 @@ class AsciiIo.VT
       # OSC seq
       return match[0].length
 
-    else if match = data.match(/^(\x1b[PX_^]|[\x90\x98\x9e\x9f]).*?(\x1b\\\\|\x9c)/)
+    else if match = data.match(/^(\x1b[PX_^]|[\x90\x98\x9e\x9f]).*?(\x1b\\|\x9c)/)
       # DCS/SOS/PM/APC seq
       return match[0].length
 
