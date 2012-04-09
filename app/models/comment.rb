@@ -9,19 +9,4 @@ class Comment < ActiveRecord::Base
 
   attr_accessible :body
 
-  def created
-    created_at && created_at.strftime("%Y-%m-%dT%H:%M:%S")
-  end
-
-  def as_json(options = {})
-    super({
-      :include => {
-        :user => {
-          :only => [:id, :nickname, :avatar_url]
-         }
-       },
-       :methods => [:created]
-    }.merge(options))
-  end
-
 end
