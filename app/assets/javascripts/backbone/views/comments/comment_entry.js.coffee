@@ -10,7 +10,6 @@ class AsciiIo.Views.CommentEntry extends AsciiIo.Views.Base
   render: ->
     extra =
       show_remove_link: @showRemoveLink()
-      created: @timeAgo()
       profile_path: "/~#{@model.get('user').nickname}"
 
     context = _.extend(@model.toJSON(), extra)
@@ -20,9 +19,6 @@ class AsciiIo.Views.CommentEntry extends AsciiIo.Views.Base
 
   showRemoveLink: ->
     @current_user() && ( @current_user().id == @model.user().id )
-
-  timeAgo: ->
-    $.timeago( @model.get('created') )
 
   removeComment: (event) ->
     event.preventDefault()
