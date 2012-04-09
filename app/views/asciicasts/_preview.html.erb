@@ -19,4 +19,8 @@
   <% if asciicast.description.present? %>
     <p class="description"><%= asciicast.description %></p>
   <% end %>
+
+  <% if asciicast.comments_count > 0 %>
+    <p><%= link_to "#{asciicast.comments_count} comments", asciicast_path(asciicast, :anchor => 'comments') %></p>
+  <% end %>
 </li>
