@@ -73,8 +73,8 @@ describe SessionsController do
         it "puts uid and provider in session " do
           post :create
 
-          session[:uid].should == uid
-          session[:provider].should == provider
+          session[:new_user][:uid].should == uid
+          session[:new_user][:provider].should == provider
         end
 
         it "renders user/new" do

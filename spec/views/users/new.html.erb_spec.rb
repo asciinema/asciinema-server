@@ -11,6 +11,6 @@ describe "users/new" do
     render
     rendered.should =~ /user\[nickname\]/
     rendered.should =~ /user\[name\]/
-    rendered.should =~ /user\[avatar_url\]/
+    rendered.should =~ /user\[email\]/
   end
 end

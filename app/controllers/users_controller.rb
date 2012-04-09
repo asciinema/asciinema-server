@@ -38,9 +38,11 @@ class UsersController < ApplicationController
   private
 
   def load_sensitive_user_data_from_session
-    @user.provider   = session[:new_user][:provider]
-    @user.uid        = session[:new_user][:uid]
-    @user.avatar_url = session[:new_user][:avatar_url]
+    if session[:new_user]
+      @user.provider   = session[:new_user][:provider]
+      @user.uid        = session[:new_user][:uid]
+      @user.avatar_url = session[:new_user][:avatar_url]
+    end
   end
 
   def clear_sensitive_session_user_data
