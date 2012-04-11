@@ -13,6 +13,7 @@ class AsciiIo.Movie
     @playing = false
     @lastFrameTime = undefined
     @timeElapsedBeforePause = undefined
+    @framesProcessed = 0
 
   isLoaded: ->
     @model.get('escaped_stdout_data') != undefined
@@ -133,9 +134,11 @@ class AsciiIo.Movie
     if frame = @timing()[@frameNo]
       [delay, count] = frame
 
-      if delay <= @MIN_DELAY
+      if delay <= @MIN_DELAY and @framesProcessed < 100
+        @framesProcessed += 1
         @processFrame()
       else
+        @framesProcessed = 0
         realDelay = delay * 1000 * (1.0 / @options.speed)
         @processFrameWithDelay(realDelay)
 
