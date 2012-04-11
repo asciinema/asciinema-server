@@ -3,4 +3,5 @@ Airbrake.configure do |config|
   config.host        = CFG.airbrake_host
   config.port        = 80
   config.secure      = config.port == 443
+  config.development_environments = ['development', 'bugfix']
 end
