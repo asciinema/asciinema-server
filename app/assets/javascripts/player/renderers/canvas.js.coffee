@@ -12,14 +12,17 @@ class AsciiIo.Renderer.Canvas extends AsciiIo.Renderer.Base
     @cursorVisible = true
 
   afterInsertedToDom: ->
-    sample = $('<span class="font-sample">M</span>')
-    @$el.parent().append(sample)
-    @cellWidth = sample.width()
-    @cellHeight = sample.height()
-    sample.remove()
+    super()
+    @fixSize()
 
-    @$el.attr('width', @cols * @cellWidth)
-    @$el.attr('height', @lines * @cellHeight)
+  fixSize: ->
+    width = @cols * @cellWidth
+    height = @lines * @cellHeight
+
+    @$el.attr('width', width)
+    @$el.attr('height', height)
+
+    @$el.parent('.player').css(width: width + 'px')
 
     @setFont()
 

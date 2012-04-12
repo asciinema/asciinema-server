@@ -19,23 +19,13 @@ class AsciiIo.Renderer.Pre extends AsciiIo.Renderer.Base
 
   afterInsertedToDom: ->
     super()
-    @initialRender()
     @fixSize()
 
-  initialRender: ->
-    brush = AsciiIo.Brush.normal()
-    changes = {}
-
-    i = 0
-    while i < @lines
-      changes[i] = [[' '.times(@cols), brush]]
-      i += 1
-
-    @render(changes, 0, 0)
-
   fixSize: ->
-    width = @$el.width()
-    height = @$el.height()
+    width = @cols * @cellWidth
+    height = @lines * @cellHeight
+
+    @$el.parent('.player').css(width: width + 'px')
     @$el.css(width: width + 'px', height: height + 'px')
 
   render: (changes, cursorX, cursorY) ->

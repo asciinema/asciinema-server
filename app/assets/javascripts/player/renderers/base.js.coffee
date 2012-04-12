@@ -20,6 +20,11 @@ class AsciiIo.Renderer.Base extends Backbone.View
     throw '#renderLine not implemented'
 
   afterInsertedToDom: ->
+    sample = $('<span class="font-sample">M</span>')
+    @$el.parent().append(sample)
+    @cellWidth = sample.width()
+    @cellHeight = sample.height()
+    sample.remove()
 
   showCursor: (show) ->
     throw '#showCursor not implemented'
