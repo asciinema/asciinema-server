@@ -26,17 +26,7 @@ describe Api::CommentsController do
         Comment.any_instance.should_receive(:save).and_return(true)
       end
 
-      it "assigns current_user" do
-        dispatch
-        assigns(:comment).user.should_not be_blank
-      end
-
-      it "assigns asciicast" do
-        dispatch
-        assigns(:comment).asciicast.should_not be_blank
-      end
-
-      it "assigns asciicast" do
+      it "response status should be 201" do
         dispatch
         response.status.should == 201
       end

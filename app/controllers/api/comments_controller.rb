@@ -9,14 +9,14 @@ class Api::CommentsController < ApplicationController
   end
 
   def create
-    @comment = Comment.new(params[:comment])
-    @comment.asciicast = @asciicast
-    @comment.user = current_user
+    comment = Comment.new(params[:comment])
+    comment.asciicast = @asciicast
+    comment.user = current_user
 
-    @comment.save
+    comment.save
 
-    comment = CommentDecorator.new(@comment)
-    respond_with comment, :location => api_comment_url(@comment)
+    decorated_comment = CommentDecorator.new(comment)
+    respond_with decorated_comment, :location => api_comment_url(comment)
   end
 
   def destroy
