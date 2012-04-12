@@ -13,7 +13,9 @@ class Api::CommentsController < ApplicationController
     comment.asciicast = @asciicast
     comment.user = current_user
 
-    comment.save
+    if comment.save
+      notify_via_email(@asciicast.user, comment)
+    end
 
     decorated_comment = CommentDecorator.new(comment)
     respond_with decorated_comment, :location => api_comment_url(comment)
@@ -33,5 +35,11 @@ class Api::CommentsController < ApplicationController
 
   def load_asciicast
     @asciicast = Asciicast.find(params[:asciicast_id])
+  end
+
+  def notify_via_email(user, comment)
+    if user.email.present? && user != comment.user
+      UserMailer.new_comment_email(user, comment).deliver
+    end
   end
 end

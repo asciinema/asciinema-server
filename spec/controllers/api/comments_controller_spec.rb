@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Api::CommentsController do
 
   let(:user)      { Factory(:user) }
-  let(:asciicast) { mock_model(Asciicast) }
+  let(:asciicast) { Factory(:asciicast) }
 
   before do
     login_as(user)
@@ -29,6 +29,11 @@ describe Api::CommentsController do
       it "response status should be 201" do
         dispatch
         response.status.should == 201
+      end
+
+      it "notifies asciicast author via email" do
+        @controller.should_receive(:notify_via_email)
+        dispatch
       end
     end
 
@@ -94,6 +99,47 @@ describe Api::CommentsController do
         response.status.should == 403
       end
 
+    end
+  end
+
+  describe '#notify_via_email' do
+    let(:user) { stub_model(User) }
+    let(:comment) { stub_model(Comment) }
+
+    context 'when asciicast author has email' do
+      before do
+        user.email = "jolka@pamietasz.pl"
+      end
+
+      context 'and he is not comment author' do
+        before do
+          comment.user = stub_model(User)
+        end
+
+        it "sends email" do
+          mail = double('mail', :deliver => true)
+          UserMailer.should_receive(:new_comment_email).and_return(mail)
+          @controller.send(:notify_via_email, user, comment)
+        end
+      end
+
+      context 'and he is comment author' do
+        before do
+          comment.user = user
+        end
+
+        it "doesn't send email" do
+          UserMailer.should_not_receive(:new_comment_email)
+          @controller.send(:notify_via_email, user, comment)
+        end
+      end
+    end
+
+    context 'when asciicast author has no email' do
+      it "doesn't send email" do
+        UserMailer.should_not_receive(:new_comment_email)
+        @controller.send(:notify_via_email, user, comment)
+      end
     end
   end
 end
