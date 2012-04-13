@@ -21,26 +21,15 @@ class AsciiIo.Movie
   load: ->
     @model.fetch
       success: =>
-        if typeof window.Worker == 'function'
-          worker = new Worker('/uncompress.js')
-
-          worker.onmessage = (event) =>
-            @_data = event.data
-            @trigger('movie-loaded', @model)
-
-          worker.postMessage(@model.get('escaped_stdout_data'))
-        else
-          @trigger('movie-loaded', @model)
+        @trigger('movie-loaded', @model)
 
   timing: ->
     @model.get('stdout_timing_data')
 
   data: ->
     unless @_data
-      # fallback for webworker
       d = @model.get('escaped_stdout_data')
       d = eval "'" + d + "'"
-      d = ArchUtils.bz2.decode(d)
       @_data = d
 
     @_data
