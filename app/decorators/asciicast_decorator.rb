@@ -14,9 +14,7 @@ class AsciicastDecorator < ApplicationDecorator
 
   def escaped_stdout_data
     if data = stdout.read
-      Bzip2.uncompress(data).bytes.map do |b|
-        '\x' + format('%02x', b)
-      end.join
+      data.bytes.map { |b| '\x' + format('%02x', b) }.join
     else
       nil
     end
