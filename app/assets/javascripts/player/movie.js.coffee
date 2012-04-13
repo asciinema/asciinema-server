@@ -28,7 +28,9 @@ class AsciiIo.Movie
             @_data = event.data
             @trigger('movie-loaded', @model)
 
-          worker.postMessage(@model.get('escaped_stdout_data'))
+          data = @model.get('escaped_stdout_data')
+          data = atob(data)
+          worker.postMessage(data)
         else
           @trigger('movie-loaded', @model)
 
@@ -39,7 +41,7 @@ class AsciiIo.Movie
     unless @_data
       # fallback for webworker
       d = @model.get('escaped_stdout_data')
-      d = eval "'" + d + "'"
+      d = atob(d)
       d = ArchUtils.bz2.decode(d)
       @_data = d
 

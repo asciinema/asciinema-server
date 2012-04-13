@@ -1,3 +1,5 @@
+require 'base64'
+
 class AsciicastDecorator < ApplicationDecorator
   decorates :asciicast
 
@@ -14,7 +16,7 @@ class AsciicastDecorator < ApplicationDecorator
 
   def escaped_stdout_data
     if data = stdout.read
-      data.bytes.map { |b| '\x' + format('%02x', b) }.join
+      Base64.strict_encode64(data)
     else
       nil
     end

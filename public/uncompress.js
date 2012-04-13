@@ -444,7 +444,6 @@ this.tell = function() {
 this.onmessage = function(e) {
   var data = e.data;
 
-  data = eval("'" + data + "'");
   data = ArchUtils.bz2.decode(data);
 
   postMessage(data);
