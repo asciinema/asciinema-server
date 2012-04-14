@@ -24,6 +24,9 @@
     <%= render :partial => 'layouts/current_user_js' %>
     <%= render :partial => 'layouts/ga' %>
 
+    <script>
+      window.worker_unpack_path = '<%= javascript_path "worker-unpack" %>';
+    </script>
   </head>
   <body>
 

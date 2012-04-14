@@ -25,7 +25,7 @@ class AsciiIo.Movie
     @model.fetch
       success: =>
         if typeof window.Worker == 'function'
-          worker = new Worker('/uncompress.js')
+          worker = new Worker(window.worker_unpack_path)
 
           worker.onmessage = (event) =>
             @_data = event.data
