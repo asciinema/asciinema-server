@@ -56,8 +56,8 @@ class AsciiIo.HudView extends Backbone.View
 
   formattedTime: (time) ->
     secondsTotal = time / 1000
-    minutes = (secondsTotal / 60).toFixed(0)
-    seconds = (secondsTotal % 60).toFixed(0)
+    minutes = Math.floor(secondsTotal / 60)
+    seconds = Math.floor(secondsTotal % 60)
     " #{@pad2(minutes)}:#{@pad2(seconds)} "
 
   pad2: (number) ->
