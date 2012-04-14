@@ -9,11 +9,14 @@ class AsciiIo.Movie
   reset: ->
     @frameNo = 0
     @dataIndex = 0
-    @playedTimeSum = 0
+    @completedFramesTime = 0
     @playing = false
-    @lastFrameTime = undefined
-    @timeElapsedBeforePause = undefined
+    @lastFrameAt = undefined
     @framesProcessed = 0
+    @clearPauseState()
+
+  now: ->
+    (new Date()).getTime()
 
   isLoaded: ->
     @model.get('escaped_stdout_data') != undefined
@@ -59,16 +62,20 @@ class AsciiIo.Movie
 
   start: ->
     if @options.benchmark
-      @startTime = (new Date).getTime()
+      @startedAt = @now()
 
     @playing = true
-    @lastFrameTime = (new Date()).getTime()
+    @lastFrameAt = @now()
     @nextFrame()
 
   stop: ->
-    @playing = false
     clearInterval @nextFrameTimeoutId
-    @timeElapsedBeforePause = (new Date()).getTime() - @lastFrameTime
+    @playing = false
+    now = @now()
+    resumedAt = @resumedAt or @lastFrameAt
+    currentWaitTime = now - resumedAt
+    @totalFrameWaitTime += currentWaitTime
+    @pausedAt = now
 
   restart: ->
     @reset()
@@ -85,10 +92,12 @@ class AsciiIo.Movie
     return if @isPlaying()
 
     @playing = true
+    @resumedAt = @now()
     frame = @timing()[@frameNo]
     [delay, count] = frame
-    delay -= @timeElapsedBeforePause
-    @processFrameWithDelay(delay)
+    delayMs = delay * 1000
+    delayLeft = delayMs - @totalFrameWaitTime
+    @processFrameWithDelay(delayLeft)
     @trigger('movie-playback-resumed')
 
   togglePlay: ->
@@ -121,16 +130,41 @@ class AsciiIo.Movie
     clearInterval @timeReportId
 
   currentTime: ->
+    @completedFramesTime + @currentFrameTime()
+
+  currentFrameTime: ->
     if @isPlaying()
-      now = (new Date()).getTime()
-      delta = now - @lastFrameTime
-      @playedTimeSum + delta
+      @playingFrameTime()
     else if @isPaused()
-      @playedTimeSum + @timeElapsedBeforePause
-    else if @isFinished()
-      @playedTimeSum
+      @pausedFrameTime()
     else
-      0 # not started
+      0
+
+  playingFrameTime: ->
+    if @frameWasPaused()
+      @currentFrameWithPauseTime()
+    else
+      @currentFrameWithNoPauseTime()
+
+  frameWasPaused: ->
+    !!@pausedAt
+
+  currentFrameWithPauseTime: ->
+    @totalFrameWaitTime + @sinceResumeTime()
+
+  currentFrameWithNoPauseTime: ->
+    @now() - @lastFrameAt
+
+  sinceResumeTime: ->
+    @now() - @resumedAt
+
+  pausedFrameTime: ->
+    @totalFrameWaitTime
+
+  clearPauseState: ->
+    @pausedAt = undefined
+    @resumedAt = undefined
+    @totalFrameWaitTime = 0
 
   nextFrame: ->
     if frame = @timing()[@frameNo]
@@ -151,8 +185,7 @@ class AsciiIo.Movie
       @trigger('movie-finished')
 
       if @options.benchmark
-        now = (new Date).getTime()
-        console.log "finished in #{(now - @startTime) / 1000.0}s"
+        console.log "finished in #{(@now() - @startedAt) / 1000.0}s"
 
       false
 
@@ -173,7 +206,8 @@ class AsciiIo.Movie
 
     @frameNo += 1
     @dataIndex += count
-    @playedTimeSum += delay * 1000
-    @lastFrameTime = (new Date()).getTime()
+    @completedFramesTime += delay * 1000
+    @lastFrameAt = @now()
 
+    @clearPauseState()
     @nextFrame()
