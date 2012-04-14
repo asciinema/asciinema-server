@@ -4,6 +4,7 @@ class AsciiIo.HudView extends Backbone.View
 
   events:
     'click .toggle': 'togglePlay'
+    'click .progress span': 'seek'
 
   initialize: (options) ->
     @duration = undefined
@@ -31,6 +32,11 @@ class AsciiIo.HudView extends Backbone.View
   togglePlay: ->
     @trigger('hud-play-click')
 
+  seek: (e) ->
+    index = $(e.target).index()
+    percent = 100 * index / (@progressWidth - 2)
+    @trigger('hud-seek-click', percent)
+
   onPause: ->
     @$('.toggle').addClass('paused')
 
@@ -51,7 +57,10 @@ class AsciiIo.HudView extends Backbone.View
     if arrowWidth != @lastArrowWidth
       arrow = '='.times(arrowWidth) + '>'
       filler = ' '.times(@progressWidth - 3 - arrowWidth)
-      @$('.progress').text('[' + arrow + filler + ']')
+      bar = arrow + filler
+      chars = _(bar.split('')).map (c) -> "<span>#{c}</span>"
+      html = chars.join('')
+      @$('.progress').html('[' + html + ']')
       @lastArrowWidth = arrowWidth
 
   formattedTime: (time) ->

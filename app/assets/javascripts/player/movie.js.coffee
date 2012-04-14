@@ -113,12 +113,31 @@ class AsciiIo.Movie
     !@isPlaying() and @isLoaded() and @frameNo >= @timing().length
 
   seek: (percent) ->
-    @pause()
+    @stop()
     @rewindTo(percent)
-    @play()
+    @start()
 
-  rewindTo: (percent) ->
-    # TODO
+  rewindTo: (requestedPercent) ->
+    percent = 0
+    frameNo = 0
+    time = 0
+    totalCount = 0
+    duration = @model.get('duration')
+
+    while percent < requestedPercent
+      [delay, count] = @timing()[frameNo]
+      time += delay
+      totalCount += count
+      frameNo += 1
+      percent = 100 * time / duration
+
+    @frameNo = frameNo
+    @completedFramesTime = time * 1000
+    @dataIndex = totalCount
+    @clearPauseState()
+
+    data = @data().slice(0, totalCount)
+    @trigger('movie-frame', data)
 
   startTimeReporter: ->
     @timeReportId = setInterval(

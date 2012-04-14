@@ -143,6 +143,11 @@ $color5: #EDC951;
 
     .progress {
       color: black;
+      cursor: pointer;
+
+      span:hover {
+        background-color: #777;
+      }
     }
 
     .time {
