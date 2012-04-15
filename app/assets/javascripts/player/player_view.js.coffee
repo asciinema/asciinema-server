@@ -8,6 +8,8 @@ class AsciiIo.PlayerView extends Backbone.View
       lines: this.options.lines
     )
 
+    @hudView = new AsciiIo.HudView(cols:  this.options.cols)
+
     vt = new AsciiIo.VT(options.cols, options.lines, @rendererView)
 
     @movie = new AsciiIo.Movie(
@@ -26,8 +28,6 @@ class AsciiIo.PlayerView extends Backbone.View
     @$el.append(@rendererView.$el)
     @rendererView.afterInsertedToDom()
     @showLoadingIndicator()
-
-    @hudView = new AsciiIo.HudView(cols:  this.options.cols)
     @$el.append(@hudView.$el)
 
   onStartPromptClick: ->
