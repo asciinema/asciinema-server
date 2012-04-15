@@ -46,7 +46,7 @@ class AsciiIo.Movie
 
   data: ->
     unless @_data
-      # fallback for webworker
+      # Web Worker fallback
       d = @model.get('escaped_stdout_data')
       d = atob(d)
       d = ArchUtils.bz2.decode(d)
