@@ -86,7 +86,6 @@ class AsciiIo.Movie
   restart: ->
     @reset()
     @start()
-    @startTimeReporter()
 
   pause: ->
     return if @isPaused()
