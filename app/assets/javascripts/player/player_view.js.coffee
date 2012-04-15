@@ -32,7 +32,6 @@ class AsciiIo.PlayerView extends Backbone.View
 
   onStartPromptClick: ->
     @hideToggleOverlay()
-    @$el.removeClass('not-started')
     @movie.togglePlay()
 
   onMovieLoaded: (asciicast) ->
@@ -64,6 +63,9 @@ class AsciiIo.PlayerView extends Backbone.View
 
     @movie.on 'movie-awake', (frame) =>
       @rendererView.restartCursorBlink()
+
+    @movie.on 'movie-started', =>
+      @$el.removeClass('not-started')
 
     @movie.on 'movie-finished', =>
       @rendererView.stopCursorBlink()
