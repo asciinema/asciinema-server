@@ -8,11 +8,11 @@ class AsciiIo.PlayerView extends Backbone.View
       lines: this.options.lines
     )
 
-    @vt = new AsciiIo.VT(options.cols, options.lines, @rendererView)
+    vt = new AsciiIo.VT(options.cols, options.lines, @rendererView)
 
     @movie = new AsciiIo.Movie(
       @model,
-      @vt,
+      vt,
       speed: options.speed,
       benchmark: options.benchmark
     )
