@@ -5,32 +5,35 @@ class AsciiIo.PlayerView extends Backbone.View
   initialize: (options) ->
     @$el.addClass('not-started')
 
-    @rendererView = new options.rendererClass(
+    @createRendererView()
+    @createHudView()
+    @createMovie()
+    @showLoadingIndicator()
+
+  createRendererView: ->
+    @rendererView = new this.options.rendererClass(
       cols:  this.options.cols
       lines: this.options.lines
     )
 
-    @hudView = new AsciiIo.HudView(cols:  this.options.cols)
+    @$el.append(@rendererView.$el)
+    @rendererView.afterInsertedToDom()
 
-    vt = new AsciiIo.VT(options.cols, options.lines, @rendererView)
+  createHudView: ->
+    @hudView = new AsciiIo.HudView(cols:  this.options.cols)
+    @$el.append(@hudView.$el)
+
+  createMovie: ->
+    vt = new AsciiIo.VT(this.options.cols, this.options.lines, @rendererView)
 
     @movie = new AsciiIo.Movie(
       @model,
       vt,
-      speed: options.speed,
-      benchmark: options.benchmark
+      speed: this.options.speed,
+      benchmark: this.options.benchmark
     )
     @movie.on 'movie-loaded', @onMovieLoaded, this
     @movie.load()
-
-    @appendChildViews()
-    @showLoadingIndicator()
-
-  appendChildViews: ->
-    @$el.append(@rendererView.$el)
-    @rendererView.afterInsertedToDom()
-
-    @$el.append(@hudView.$el)
 
   onStartPromptClick: ->
     @hideToggleOverlay()
