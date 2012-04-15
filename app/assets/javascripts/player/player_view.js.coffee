@@ -21,9 +21,9 @@ class AsciiIo.PlayerView extends Backbone.View
     @movie.on 'movie-loaded', @onMovieLoaded, this
     @movie.load()
 
-    @createChildViews()
+    @appendChildViews()
 
-  createChildViews: ->
+  appendChildViews: ->
     @$el.addClass('not-started')
     @$el.append(@rendererView.$el)
     @rendererView.afterInsertedToDom()
