@@ -29,6 +29,7 @@ class AsciiIo.PlayerView extends Backbone.View
   appendChildViews: ->
     @$el.append(@rendererView.$el)
     @rendererView.afterInsertedToDom()
+
     @$el.append(@hudView.$el)
 
   onStartPromptClick: ->
