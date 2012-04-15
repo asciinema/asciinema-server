@@ -210,7 +210,6 @@ class AsciiIo.Movie
       true
     else
       @playing = false
-      @stopTimeReporter()
       @trigger('movie-finished')
 
       if @options.benchmark

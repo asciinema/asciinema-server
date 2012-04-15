@@ -47,7 +47,7 @@ class AsciiIo.HudView extends Backbone.View
     @$('.time').html(@formattedTime(time))
 
     if @duration
-      progress = 100 * time / 1000 / @duration
+      progress = Math.round(100 * time / 1000 / @duration)
       @setProgress progress
 
   setProgress: (percent) ->
