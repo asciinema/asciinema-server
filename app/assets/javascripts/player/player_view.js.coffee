@@ -72,7 +72,6 @@ class AsciiIo.PlayerView extends Backbone.View
 
     @movie.on 'movie-finished', =>
       @rendererView.stopCursorBlink()
-      @hudView.setProgress(100)
 
   showLoadingIndicator: ->
     @$el.append('<div class="loading">')
