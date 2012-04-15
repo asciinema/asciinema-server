@@ -3,6 +3,8 @@ class AsciiIo.PlayerView extends Backbone.View
     'click .start-prompt': 'onStartPromptClick'
 
   initialize: (options) ->
+    @$el.addClass('not-started')
+
     @rendererView = new options.rendererClass(
       cols:  this.options.cols
       lines: this.options.lines
@@ -25,7 +27,6 @@ class AsciiIo.PlayerView extends Backbone.View
     @showLoadingIndicator()
 
   appendChildViews: ->
-    @$el.addClass('not-started')
     @$el.append(@rendererView.$el)
     @rendererView.afterInsertedToDom()
     @$el.append(@hudView.$el)
