@@ -1,7 +1,7 @@
 class AsciiIo.Movie
   MIN_DELAY: 0.01
 
-  constructor: (@model, @options) ->
+  constructor: (@model, @vt, @options) ->
     @reset()
     @startTimeReporter()
     _.extend(this, Backbone.Events)
@@ -142,8 +142,8 @@ class AsciiIo.Movie
     @dataIndex = totalCount
 
     data = @data().slice(0, totalCount)
-    @trigger('movie-reset')
-    @trigger('movie-frame', data)
+    @vt.reset()
+    @vt.feed(data)
 
     @lastFrameAt = @now()
     wait = requestedTime - time
@@ -230,7 +230,7 @@ class AsciiIo.Movie
     [delay, count] = frame
 
     frameData = @data().slice(@dataIndex, @dataIndex + count)
-    @trigger('movie-frame', frameData)
+    @vt.feed(frameData)
 
     @frameNo += 1
     @dataIndex += count

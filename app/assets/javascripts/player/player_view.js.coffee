@@ -3,20 +3,21 @@ class AsciiIo.PlayerView extends Backbone.View
     'click .start-prompt': 'onStartPromptClick'
 
   initialize: (options) ->
-    @movie = new AsciiIo.Movie(
-      @model,
-      speed: options.speed,
-      benchmark: options.benchmark
-    )
-    @movie.on 'movie-loaded', @onMovieLoaded, this
-    @movie.load()
-
     @rendererView = new options.rendererClass(
       cols:  this.options.cols
       lines: this.options.lines
     )
 
     @vt = new AsciiIo.VT(options.cols, options.lines, @rendererView)
+
+    @movie = new AsciiIo.Movie(
+      @model,
+      @vt,
+      speed: options.speed,
+      benchmark: options.benchmark
+    )
+    @movie.on 'movie-loaded', @onMovieLoaded, this
+    @movie.load()
 
     @createChildViews()
 
@@ -60,12 +61,6 @@ class AsciiIo.PlayerView extends Backbone.View
 
     @movie.on 'movie-time', (time) =>
       @hudView.updateTime(time)
-
-    @movie.on 'movie-reset', =>
-      @vt.reset()
-
-    @movie.on 'movie-frame', (frame) =>
-      @vt.feed(frame)
 
     @movie.on 'movie-awake', (frame) =>
       @rendererView.restartCursorBlink()
