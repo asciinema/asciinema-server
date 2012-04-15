@@ -22,20 +22,24 @@ class AsciiIo.Movie
     @model.get('escaped_stdout_data') != undefined
 
   load: ->
-    @model.fetch
-      success: =>
-        if typeof window.Worker == 'function'
-          worker = new Worker(window.worker_unpack_path)
+    @model.fetch success: => @onLoaded()
 
-          worker.onmessage = (event) =>
-            @_data = event.data
-            @trigger('movie-loaded', @model)
+  onLoaded: ->
+    if typeof window.Worker == 'function'
+      @unpackViaWorker()
+    else
+      @trigger('movie-loaded', @model)
 
-          data = @model.get('escaped_stdout_data')
-          data = atob(data)
-          worker.postMessage(data)
-        else
-          @trigger('movie-loaded', @model)
+  unpackViaWorker: ->
+    worker = new Worker(window.worker_unpack_path)
+
+    worker.onmessage = (event) =>
+      @_data = event.data
+      @trigger('movie-loaded', @model)
+
+    data = @model.get('escaped_stdout_data')
+    data = atob(data)
+    worker.postMessage(data)
 
   timing: ->
     @model.get('stdout_timing_data')
