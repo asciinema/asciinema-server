@@ -22,12 +22,12 @@ class AsciiIo.PlayerView extends Backbone.View
     @movie.load()
 
     @appendChildViews()
+    @showLoadingIndicator()
 
   appendChildViews: ->
     @$el.addClass('not-started')
     @$el.append(@rendererView.$el)
     @rendererView.afterInsertedToDom()
-    @showLoadingIndicator()
     @$el.append(@hudView.$el)
 
   onStartPromptClick: ->
