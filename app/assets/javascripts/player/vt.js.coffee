@@ -2,6 +2,9 @@ class AsciiIo.VT
 
   constructor: (@cols, @lines, @view) ->
     @sgrInterpreter = new AsciiIo.SgrInterpreter()
+    @reset()
+
+  reset: ->
     @data = ''
     @resetTerminal()
 

@@ -61,6 +61,9 @@ class AsciiIo.PlayerView extends Backbone.View
     @movie.on 'movie-time', (time) =>
       @hudView.updateTime(time)
 
+    @movie.on 'movie-reset', =>
+      @vt.reset()
+
     @movie.on 'movie-frame', (frame) =>
       @vt.feed(frame)
 
