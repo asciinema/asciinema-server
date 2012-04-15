@@ -75,13 +75,19 @@ class AsciiIo.Movie
     @nextFrame()
 
   stop: ->
-    clearInterval @nextFrameTimeoutId
     @playing = false
+    @cancelNextFrameProcessing()
     now = @now()
+    @adjustFrameWaitTime(now)
+    @pausedAt = now
+
+  cancelNextFrameProcessing: ->
+    clearInterval @nextFrameTimeoutId
+
+  adjustFrameWaitTime: (now) ->
     resumedAt = @resumedAt or @lastFrameAt
     currentWaitTime = now - resumedAt
     @totalFrameWaitTime += currentWaitTime
-    @pausedAt = now
 
   restart: ->
     @reset()
