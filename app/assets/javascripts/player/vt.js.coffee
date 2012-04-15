@@ -256,6 +256,12 @@ class AsciiIo.VT
     @view.visualBell()
     # @trigger('bell')
 
+  restartCursorBlink: ->
+    @view.restartCursorBlink()
+
+  stopCursorBlink: ->
+    @view.stopCursorBlink()
+
   feed: (data) ->
     @data += data
 

@@ -65,6 +65,7 @@ class AsciiIo.Movie
       @startedAt = @now()
 
     @playing = true
+    @trigger('movie-started')
     @lastFrameAt = @now()
     @nextFrame()
 
@@ -211,6 +212,7 @@ class AsciiIo.Movie
     else
       @playing = false
       @trigger('movie-finished')
+      @vt.stopCursorBlink()
 
       if @options.benchmark
         console.log "finished in #{(@now() - @startedAt) / 1000.0}s"
@@ -220,7 +222,7 @@ class AsciiIo.Movie
   processFrameWithDelay: (delay) ->
     @nextFrameTimeoutId = setTimeout(
       =>
-        @trigger('movie-awake')
+        @vt.restartCursorBlink()
         @processFrame()
       delay
     )

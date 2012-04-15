@@ -63,14 +63,8 @@ class AsciiIo.PlayerView extends Backbone.View
     @movie.on 'movie-time', (time) =>
       @hudView.updateTime(time)
 
-    @movie.on 'movie-awake', (frame) =>
-      @rendererView.restartCursorBlink()
-
     @movie.on 'movie-started', =>
       @$el.removeClass('not-started')
-
-    @movie.on 'movie-finished', =>
-      @rendererView.stopCursorBlink()
 
   showLoadingIndicator: ->
     @$el.append('<div class="loading">')
