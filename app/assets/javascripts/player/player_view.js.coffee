@@ -3,12 +3,14 @@ class AsciiIo.PlayerView extends Backbone.View
     'click .start-prompt': 'onStartPromptClick'
 
   initialize: (options) ->
-    @$el.addClass('not-started')
-
+    @prepareSelfView()
     @createRendererView()
     @createHudView()
     @createMovie()
     @showLoadingIndicator()
+
+  prepareSelfView: ->
+    @$el.addClass('not-started')
 
   createRendererView: ->
     @rendererView = new this.options.rendererClass(
