@@ -14,6 +14,7 @@ class AsciiIo.Movie
     @lastFrameAt = undefined
     @framesProcessed = 0
     @clearPauseState()
+    @vt.reset()
 
   now: ->
     (new Date()).getTime()
