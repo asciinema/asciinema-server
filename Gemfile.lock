@@ -231,6 +231,8 @@ GEM
     ruby_core_source (0.1.4)
       archive-tar-minitar (>= 0.5.2)
     rubyzip (0.9.5)
+    rvm-capistrano (1.1.0)
+      capistrano (>= 2.0.0)
     sass (3.1.15)
     sass-rails (3.2.4)
       railties (~> 3.2.0)
@@ -312,6 +314,7 @@ DEPENDENCIES
   redcarpet
   rspec-rails
   ruby-debug19
+  rvm-capistrano
   sass-rails
   sidekiq
   simple_form

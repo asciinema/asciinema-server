@@ -1,4 +1,3 @@
-$:.unshift(File.expand_path('./lib', ENV['rvm_path']))
 require "rvm/capistrano"
 require 'bundler/capistrano'
 require 'capistrano_colors'
@@ -23,6 +22,8 @@ set :user, "asciiio"
 set :use_sudo, false
 set :deploy_to, "~/app"
 set :keep_releases, 3
+
+set :rvm_type, :system
 
 namespace :deploy do
   task :start do ; end
