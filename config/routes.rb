@@ -27,4 +27,6 @@ AsciiIo::Application.routes.draw do
   end
 
   root :to => 'home#show'
+
+  match '*a', :to => 'application#not_found'
 end

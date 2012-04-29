@@ -4,7 +4,8 @@ class UsersController < ApplicationController
   before_filter :ensure_authenticated!, :only => [:edit, :update]
 
   def show
-    @user = User.find_by_nickname(params[:nickname])
+    @user = User.find_by_nickname!(params[:nickname])
+
     collection = @user.asciicasts.
       order("created_at DESC").
       page(params[:page]).
