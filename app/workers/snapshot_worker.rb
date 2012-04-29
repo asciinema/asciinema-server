@@ -80,6 +80,6 @@ class SnapshotWorker
       @in_timing_path,
       @out_data_path,
       @out_timing_path
-    ])
+    ].compact)
   end
 end
