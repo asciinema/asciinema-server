@@ -20,6 +20,22 @@
       </div>
     </div>
 
+    <div class="control-group">
+      <%= f.label :time_compression, :class => 'control-label' %>
+      <div class="controls">
+        <label class="radio" for="asciicast_time_compression_true">
+          <%= f.radio_button :time_compression, true %>
+          Enabled - terminal inactivity won't last longer
+          than <%= AsciicastDecorator::MAX_DELAY.to_i %> sec (recommended)
+        </label>
+
+        <label class="radio" for="asciicast_time_compression_false">
+          <%= f.radio_button :time_compression, false %>
+          Disabled - no change to timeline
+        </label>
+      </div>
+    </div>
+
     <div class="form-actions">
       <%= f.submit 'Update asciicast', :class => 'btn btn-primary' %>
       <%= link_to 'Cancel', asciicast_path, :class => 'btn' %>

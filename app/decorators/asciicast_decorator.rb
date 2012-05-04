@@ -5,11 +5,13 @@ class AsciicastDecorator < ApplicationDecorator
 
   THUMBNAIL_WIDTH = 20
   THUMBNAIL_HEIGHT = 10
+  MAX_DELAY = 5.0
 
   def as_json(*args)
     data = model.as_json(*args)
     data['escaped_stdout_data'] = escaped_stdout_data
-    data['stdout_timing_data'] = stdout_timing_data
+    data['stdout_timing_data'], saved_time = stdout_timing_data
+    data['duration'] = data['duration'] - saved_time
 
     data
   end
@@ -23,14 +25,25 @@ class AsciicastDecorator < ApplicationDecorator
   end
 
   def stdout_timing_data
+    saved_time = 0
+
     if data = stdout_timing.read
-      Bzip2.uncompress(data).lines.map do |line|
+      data = Bzip2.uncompress(data).lines.map do |line|
         delay, n = line.split
-        [delay.to_f, n.to_i]
+        delay = delay.to_f
+
+        if time_compression && delay > MAX_DELAY
+          saved_time += (delay - MAX_DELAY)
+          delay = MAX_DELAY
+        end
+
+        [delay, n.to_i]
       end
     else
-      nil
+      data = nil
     end
+
+    [data, saved_time]
   end
 
   def os
