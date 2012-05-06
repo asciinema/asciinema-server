@@ -6,12 +6,14 @@ recorder go here: https://github.com/sickill/ascii.io-cli
 Below are setup instructions in case you want to contribute and/or play with it
 on your local machine.
 
-## Requirements
+## Installation
+
+### Requirements
 
 ascii.io site is a Ruby on Rails application. You should have following
 installed:
 
-* ruby 1.9.2+ (``rvm install 1.9.2``)
+* ruby 1.9.2+
 * bundler (``gem install bundler``)
 
 For thumbnail generation you need also:
@@ -20,24 +22,23 @@ For thumbnail generation you need also:
 * scriptreplay (Linux only via ``script`` package. OSX users: sorry, your script
   command is crippled anyway)
 
-## Setup
-
-### Clone
+### Get the source code
 
     $ git clone git://github.com/sickill/ascii.io.git
     $ cd ascii.io
 
-### Install gem dependencies
+### Prepare DB config
 
-    $ bundle install
+Copy *config/database.yml.example* to *config/database.yml* and set adapter to
+what you prefer.
 
-### Setup DB
+### Setup the app
 
-* copy *config/database.yml.example* to *config/database.yml* and set adapter
-  to what you prefer,
-* run ``bundle exec db:setup``
+    $ ./script/setup
 
-### Start
+This will install gem dependencies and setup database.
+
+## Run
 
 * start webserver with ``script/rails s``
 * (optional) start background job worker for thumbnail generation with
