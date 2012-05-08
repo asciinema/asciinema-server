@@ -54,6 +54,10 @@ class AsciiIo.SgrInterpreter
         i += 2
       else if n is 49
         @attrs.bg = undefined
+      else if n >= 90 and n <= 97
+        @attrs.fg = n - 90
+      else if n >= 100 and n <= 107
+        @attrs.bg = n - 100
 
       i++
 
