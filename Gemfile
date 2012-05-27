@@ -54,3 +54,7 @@ group :test do
   gem "capybara"
   gem 'simplecov', :require => false
 end
+
+group :bugfix do
+  gem 'handlebars_assets'
+end
