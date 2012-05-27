@@ -58,7 +58,7 @@ class AsciiIo.Renderer.Pre extends AsciiIo.Renderer.Base
     @$el.find(".line:eq(" + n + ")")[0].innerHTML = '<span>' + html.join('') + '</span>'
 
   escape: (text) ->
-    text.replace('&', '&amp;').replace('<', '&lt;')
+    text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 
   spanFromBrush: (brush) ->
     key = brush.hash()
