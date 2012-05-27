@@ -17,16 +17,11 @@ class AsciiIo.Renderer.Pre extends AsciiIo.Renderer.Base
       @$el.append "\n"
       i++
 
-  afterInsertedToDom: ->
-    super()
-    @fixSize()
-
-  fixSize: ->
+  fixTerminalElementSize: ->
     width = @cols * @cellWidth
     height = @lines * @cellHeight
 
     @$el.css(width: width + 'px', height: height + 'px')
-    @$el.parent('.player').css(width: @$el.outerWidth() + 'px')
 
   render: (changes, cursorX, cursorY) ->
     @$el.find('.cursor').removeClass('cursor')

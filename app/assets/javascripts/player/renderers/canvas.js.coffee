@@ -11,18 +11,12 @@ class AsciiIo.Renderer.Canvas extends AsciiIo.Renderer.Base
     @cursorOn = true
     @cursorVisible = true
 
-  afterInsertedToDom: ->
-    super()
-    @fixSize()
-
-  fixSize: ->
+  fixTerminalElementSize: ->
     width = @cols * @cellWidth
     height = @lines * @cellHeight
 
     @$el.attr('width', width)
     @$el.attr('height', height)
-
-    @$el.parent('.player').css(width: width + 'px')
 
     @setFont()
 

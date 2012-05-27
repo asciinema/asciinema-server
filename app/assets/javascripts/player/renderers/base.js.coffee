@@ -25,6 +25,13 @@ class AsciiIo.Renderer.Base extends Backbone.View
     @cellWidth = sample.width()
     @cellHeight = sample.height()
     sample.remove()
+    @fixTerminalElementSize()
+    @fixPlayerContainerSize()
+
+  fixTerminalElementSize: ->
+
+  fixPlayerContainerSize: ->
+    @$el.parent('.player').css(width: @$el.outerWidth() + 'px')
 
   showCursor: (show) ->
     throw '#showCursor not implemented'

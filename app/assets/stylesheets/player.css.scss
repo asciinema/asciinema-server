@@ -53,12 +53,13 @@ $color5: #EDC951;
 
   .terminal {
     overflow: hidden;
-    padding: 2px;
+    padding: 3px;
     margin: 0px;
     display: block;
     white-space: pre;
     background-color: black;
     color: #ccc;
+    border: 0;
 
     .line {
       /* background-color: black;*/
