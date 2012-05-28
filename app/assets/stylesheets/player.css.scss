@@ -49,6 +49,14 @@ $color5: #EDC951;
     font-family: 'Bitstream Vera Sans Mono', 'Courier New', monospace;
     font-size: 12px;
     line-height: inherit;
+
+    .line {
+      line-height: 1.4em;
+
+      span {
+        padding: 1px 0;
+      }
+    }
   }
 
   .terminal {

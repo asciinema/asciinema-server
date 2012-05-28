@@ -20,10 +20,10 @@ class AsciiIo.Renderer.Base extends Backbone.View
     throw '#renderLine not implemented'
 
   afterInsertedToDom: ->
-    sample = $('<span class="font-sample">M</span>')
+    sample = $('<span class="font-sample"><span class="line"><span>M</span></span></span>')
     @$el.parent().append(sample)
     @cellWidth = sample.width()
-    @cellHeight = sample.height()
+    @cellHeight = sample.find('span span').outerHeight()
     sample.remove()
     @fixTerminalElementSize()
     @fixPlayerContainerSize()
