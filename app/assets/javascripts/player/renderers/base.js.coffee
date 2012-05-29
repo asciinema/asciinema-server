@@ -29,6 +29,13 @@ class AsciiIo.Renderer.Base extends Backbone.View
     @fixTerminalElementSize()
     @fixPlayerContainerSize()
 
+  renderSnapshot: (text) ->
+    i = 0
+    for line in text.split("\n")
+      fragments = [[line, AsciiIo.Brush.normal()]]
+      @renderLine i, fragments, undefined
+      i++
+
   fixTerminalElementSize: ->
 
   fixPlayerContainerSize: ->

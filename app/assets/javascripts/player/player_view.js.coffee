@@ -20,6 +20,7 @@ class AsciiIo.PlayerView extends Backbone.View
 
     @$el.append(@rendererView.$el)
     @rendererView.afterInsertedToDom()
+    @rendererView.renderSnapshot @options.snapshot
 
   createHudView: ->
     @hudView = new AsciiIo.HudView(cols:  this.options.cols)

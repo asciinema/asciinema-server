@@ -44,7 +44,8 @@ module AsciicastsHelper
       benchmark: #{benchmark},
       model: new AsciiIo.Asciicast({ id: #{asciicast.id} }),
       rendererClass: #{renderer_class},
-      autoPlay: #{auto_play}
+      autoPlay: #{auto_play},
+      snapshot: "#{j asciicast.snapshot.to_s}"
     });
   });
 </script>
