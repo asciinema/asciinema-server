@@ -1,9 +1,6 @@
 require 'tempfile'
 
 class SnapshotWorker
-  include Sidekiq::Worker
-  sidekiq_options :retry => false
-
   def perform(asciicast_id)
     begin
       @asciicast = Asciicast.find(asciicast_id)

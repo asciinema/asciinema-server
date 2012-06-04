@@ -54,6 +54,8 @@ module AsciiIo
     config.assets.version = '1.0'
 
     config.action_mailer.default_url_options = { :host => CFG.email_host }
+
+    config.threadsafe! # enable threadsafe for girl_friday
   end
 end
 

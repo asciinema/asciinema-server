@@ -5,7 +5,7 @@ class Api::AsciicastsController < ApplicationController
     ac = Asciicast.new(params[:asciicast])
 
     if ac.save
-      SnapshotWorker.perform_async(ac.id)
+      SNAPSHOT_QUEUE << ac.id
       render :text => asciicast_url(ac), :status => :created, :location => ac
     else
       render :text => ac.errors.full_messages, :status => 422
