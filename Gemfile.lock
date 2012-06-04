@@ -36,7 +36,6 @@ GEM
     arel (3.0.0)
     awesome_print (0.4.0)
     builder (3.0.0)
-    bzip2-ruby (0.2.7)
     cane (1.0.0)
       tailor
     capistrano (2.11.2)
@@ -287,7 +286,6 @@ PLATFORMS
 DEPENDENCIES
   airbrake
   awesome_print
-  bzip2-ruby
   cane
   capistrano
   capybara

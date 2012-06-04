@@ -27,8 +27,14 @@ class AsciicastDecorator < ApplicationDecorator
   def stdout_timing_data
     saved_time = 0
 
-    if data = stdout_timing.read
-      data = Bzip2.uncompress(data).lines.map do |line|
+    if file = stdout_timing.file
+      f = IO.popen "bzip2 -d", "r+"
+      f.write file.read
+      f.close_write
+      lines = f.readlines
+      f.close
+
+      data = lines.map do |line|
         delay, n = line.split
         delay = delay.to_f
 
