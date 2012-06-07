@@ -41,7 +41,7 @@ class AsciiIo.VT
       @handleControlCharacter(data[0])
       return 1
 
-    else if match = data.match(/^([\x20-\x7e]|[\xe2-\xe8]..|[\xa1-\xfe])+/)
+    else if match = data.match(/^([\x20-\x7e]|[\xe2-\xe8]..|[\xc3-\xc5].|[\xa1-\xfe])+/)
       @handlePrintableCharacters(match[0])
       return match[0].length
 
