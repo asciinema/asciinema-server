@@ -20,3 +20,4 @@ config/local.yml
 public/uploads/*
 /bin/*
 /coverage
+.rbx
