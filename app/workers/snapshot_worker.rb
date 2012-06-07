@@ -24,12 +24,20 @@ class SnapshotWorker
   end
 
   def prepare_files
-    in_data_file = Tempfile.new('asciiio-data', :encoding => 'ascii-8bit')
+    if RUBY_VERSION < '1.9'
+      in_data_file = Tempfile.new('asciiio-data')
+    else
+      in_data_file = Tempfile.new('asciiio-data', :encoding => 'ascii-8bit')
+    end
     in_data_file.write(@asciicast.stdout.read)
     in_data_file.close
     @in_data_path = in_data_file.path
 
-    in_timing_file = Tempfile.new('asciiio-timing', :encoding => 'ascii-8bit')
+    if RUBY_VERSION < '1.9'
+      in_timing_file = Tempfile.new('asciiio-timing')
+    else
+      in_timing_file = Tempfile.new('asciiio-timing', :encoding => 'ascii-8bit')
+    end
     in_timing_file.write(@asciicast.stdout_timing.read)
     in_timing_file.close
     @in_timing_path = in_timing_file.path
@@ -56,15 +64,14 @@ class SnapshotWorker
               "DELAY=#{delay} ./script/capture.sh'"
 
     lines = []
-    status = nil
+    pid, stdin, stdout, stderr = open4(command)
 
-    Open3.popen3(command) do |stdin, stdout, stderr, wait_thr|
-      while !stdout.eof?
-        lines << stdout.readline
-      end
-
-      status = wait_thr.value.exitstatus
+    while !stdout.eof?
+      lines << stdout.readline
     end
+
+    Process.waitpid pid
+    status = $?.exitstatus
 
     raise "Can't capture output of asciicast ##{@asciicast.id}" if status != 0
 
