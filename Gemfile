@@ -18,6 +18,7 @@ gem 'redcarpet'
 gem 'girl_friday'
 gem 'draper'
 gem 'open4'
+gem 'puma'
 
 # Gems used only for assets and not required
 # in production environments by default.
