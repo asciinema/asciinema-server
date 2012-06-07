@@ -16,7 +16,7 @@ gem 'fog'
 gem 'simple_form'
 gem 'redcarpet'
 gem 'girl_friday'
-gem 'draper'
+gem 'draper', :git => 'git://github.com/sickill/draper.git'
 
 # Gems used only for assets and not required
 # in production environments by default.
