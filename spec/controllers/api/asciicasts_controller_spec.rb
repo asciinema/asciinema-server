@@ -17,7 +17,7 @@ describe Api::AsciicastsController do
       end
 
       it 'enqueues snapshot capture' do
-        SnapshotWorker.should_receive(:perform_async).with(asciicast.id)
+        SNAPSHOT_QUEUE.should_receive(:<<).with(asciicast.id)
 
         post :create
       end
