@@ -11,6 +11,7 @@ gem 'omniauth-github'
 gem 'kaminari'
 gem 'airbrake'
 gem 'twitter-bootstrap-rails', :git => "git://github.com/seyhunak/twitter-bootstrap-rails.git", :branch => "static"
+gem 'draper', :git => 'git://github.com/sickill/draper.git'
 gem 'fog'
 gem 'simple_form'
 gem 'girl_friday'
@@ -20,20 +21,17 @@ gem 'open4'
 platforms :mri do
   gem 'mysql2'
   gem 'redcarpet'
-  gem 'draper'
 end
 
 platforms :rbx do
   gem 'mysql2'
   gem 'redcarpet'
-  gem 'draper'
 end
 
 platforms :jruby do
   gem 'jruby-openssl'
   gem 'activerecord-jdbcmysql-adapter'
   gem 'kramdown'
-  gem 'draper'
   gem 'trinidad'
 end
 
