@@ -2,7 +2,6 @@ source 'http://rubygems.org'
 
 gem 'rails'
 gem 'jquery-rails'
-gem 'mysql2'
 gem 'tzinfo'
 gem 'carrierwave'
 gem 'confstruct'
@@ -11,12 +10,30 @@ gem 'omniauth-twitter'
 gem 'omniauth-github'
 gem 'kaminari'
 gem 'airbrake'
-gem 'twitter-bootstrap-rails'
+gem 'twitter-bootstrap-rails', :git => "git://github.com/seyhunak/twitter-bootstrap-rails.git", :branch => "static"
 gem 'fog'
 gem 'simple_form'
-gem 'redcarpet'
 gem 'girl_friday'
-gem 'draper'
+gem 'puma'
+
+platforms :mri do
+  gem 'mysql2'
+  gem 'redcarpet'
+  gem 'draper'
+end
+
+platforms :rbx do
+  gem 'mysql2'
+  gem 'redcarpet'
+end
+
+platforms :jruby do
+  gem 'jruby-openssl'
+  gem 'activerecord-jdbcmysql-adapter'
+  gem 'kramdown'
+  gem 'draper'
+  gem 'trinidad'
+end
 
 # Gems used only for assets and not required
 # in production environments by default.
@@ -28,7 +45,6 @@ group :assets do
 end
 
 group :development do
-  gem 'ruby-debug19', :require => false
   gem 'capistrano'
   gem 'rvm-capistrano'
 end
@@ -42,7 +58,6 @@ group :test, :development do
   gem 'guard'
   gem 'guard-jasmine'
   gem 'libnotify'
-  gem 'cane'
   gem 'tailor'
   # gem 'jasmine-headless-webkit'
   # gem 'guard-jasmine-headless-webkit'

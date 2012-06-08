@@ -1,3 +1,12 @@
+GIT
+  remote: git://github.com/seyhunak/twitter-bootstrap-rails.git
+  revision: db0b1a64be4f81ec2d2b322d965dfe21614015c4
+  branch: static
+  specs:
+    twitter-bootstrap-rails (2.0.7)
+      actionpack (>= 3.1)
+      railties (>= 3.1)
+
 GEM
   remote: http://rubygems.org/
   specs:
@@ -22,6 +31,10 @@ GEM
       activesupport (= 3.2.1)
       arel (~> 3.0.0)
       tzinfo (~> 0.3.29)
+    activerecord-jdbc-adapter (1.2.2)
+    activerecord-jdbcmysql-adapter (1.2.2)
+      activerecord-jdbc-adapter (~> 1.2.2)
+      jdbc-mysql (~> 5.1.0)
     activeresource (3.2.1)
       activemodel (= 3.2.1)
       activesupport (= 3.2.1)
@@ -32,12 +45,10 @@ GEM
     airbrake (3.0.9)
       activesupport
       builder
-    archive-tar-minitar (0.5.2)
     arel (3.0.0)
     awesome_print (0.4.0)
+    bouncy-castle-java (1.5.0146.1)
     builder (3.0.0)
-    cane (1.0.0)
-      tailor
     capistrano (2.11.2)
       highline
       net-scp (>= 1.0.0)
@@ -62,9 +73,6 @@ GEM
       coffee-script-source
       execjs
     coffee-script-source (1.2.0)
-    columnize (0.3.2)
-    commonjs (0.2.0)
-      therubyracer (~> 0.9.9)
     confstruct (0.2.1)
     connection_pool (0.1.0)
     diff-lcs (1.1.3)
@@ -84,6 +92,7 @@ GEM
       multipart-post (~> 1.1)
       rack (~> 1.1)
     ffi (1.0.11)
+    ffi (1.0.11-java)
     fog (1.1.2)
       builder
       excon (~> 0.9.0)
@@ -122,26 +131,23 @@ GEM
     jasmine-core (1.1.0)
     jasminerice (0.0.8)
       haml
+    jdbc-mysql (5.1.13)
     journey (1.0.1)
     jquery-rails (1.0.18)
       railties (~> 3.0)
       thor (~> 0.14)
+    jruby-openssl (0.7.7)
+      bouncy-castle-java (>= 1.5.0146.1)
+    jruby-rack (1.1.6)
     json (1.6.5)
+    json (1.6.5-java)
     json_pure (1.6.5)
     kaminari (0.13.0)
       actionpack (>= 3.0.0)
       activesupport (>= 3.0.0)
       railties (>= 3.0.0)
-    less (2.0.9)
-      commonjs (~> 0.2.0)
-      therubyracer (~> 0.9.9)
-    less-rails (2.1.7)
-      actionpack (>= 3.1)
-      less (~> 2.0.7)
+    kramdown (0.13.7)
     libnotify (0.7.2)
-    libv8 (3.3.10.4)
-    linecache19 (0.5.12)
-      ruby_core_source (>= 0.1.4)
     mail (2.4.1)
       i18n (>= 0.4.0)
       mime-types (~> 1.16)
@@ -158,6 +164,7 @@ GEM
     net-ssh-gateway (1.1.0)
       net-ssh (>= 1.99.1)
     nokogiri (1.5.0)
+    nokogiri (1.5.0-java)
     oauth (0.4.5)
     oauth2 (0.5.2)
       faraday (~> 0.7)
@@ -177,6 +184,10 @@ GEM
     omniauth-twitter (0.0.8)
       omniauth-oauth (~> 1.0)
     polyglot (0.3.3)
+    puma (1.4.0)
+      rack (~> 1.2)
+    puma (1.4.0-java)
+      rack (~> 1.2)
     rack (1.4.1)
     rack-cache (1.1)
       rack (>= 0.4)
@@ -216,17 +227,7 @@ GEM
       activesupport (>= 3.0)
       railties (>= 3.0)
       rspec (~> 2.8.0)
-    ruby-debug-base19 (0.11.25)
-      columnize (>= 0.3.1)
-      linecache19 (>= 0.5.11)
-      ruby_core_source (>= 0.1.4)
-    ruby-debug19 (0.11.6)
-      columnize (>= 0.3.1)
-      linecache19 (>= 0.5.11)
-      ruby-debug-base19 (>= 0.11.19)
     ruby-hmac (0.4.0)
-    ruby_core_source (0.1.4)
-      archive-tar-minitar (>= 0.5.2)
     rubyzip (0.9.5)
     rvm-capistrano (1.1.0)
       capistrano (>= 2.0.0)
@@ -254,17 +255,15 @@ GEM
     tailor (0.1.5)
       term-ansicolor (>= 1.0.5)
     term-ansicolor (1.0.7)
-    therubyracer (0.9.10)
-      libv8 (~> 3.3.10)
     thor (0.14.6)
     tilt (1.3.3)
     treetop (1.4.10)
       polyglot
       polyglot (>= 0.3.1)
-    twitter-bootstrap-rails (2.0.3)
-      actionpack (>= 3.1)
-      less-rails (~> 2.1.6)
-      railties (>= 3.1)
+    trinidad (1.3.5)
+      jruby-rack (>= 1.1.5)
+      trinidad_jars (>= 1.0.2)
+    trinidad_jars (1.0.3)
     tzinfo (0.3.31)
     uglifier (1.1.0)
       execjs (>= 0.3.0)
@@ -273,12 +272,13 @@ GEM
       nokogiri (~> 1.3)
 
 PLATFORMS
+  java
   ruby
 
 DEPENDENCIES
+  activerecord-jdbcmysql-adapter
   airbrake
   awesome_print
-  cane
   capistrano
   capybara
   carrierwave
@@ -294,22 +294,25 @@ DEPENDENCIES
   jasmine
   jasminerice
   jquery-rails
+  jruby-openssl
   kaminari
+  kramdown
   libnotify
   mysql2
   omniauth
   omniauth-github
   omniauth-twitter
+  puma
   rails
   rake
   redcarpet
   rspec-rails
-  ruby-debug19
   rvm-capistrano
   sass-rails
   simple_form
   simplecov
   tailor
-  twitter-bootstrap-rails
+  trinidad
+  twitter-bootstrap-rails!
   tzinfo
   uglifier (>= 1.0.3)
