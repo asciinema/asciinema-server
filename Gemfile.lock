@@ -141,6 +141,7 @@ GEM
     jruby-rack (1.1.6)
     json (1.6.5)
     json (1.6.5-java)
+    json (1.7.3)
     json_pure (1.6.5)
     kaminari (0.13.0)
       actionpack (>= 3.0.0)
@@ -155,7 +156,7 @@ GEM
     mime-types (1.17.2)
     multi_json (1.0.4)
     multipart-post (1.1.5)
-    mysql2 (0.3.10)
+    mysql2 (0.3.11)
     net-scp (1.0.4)
       net-ssh (>= 1.99.1)
     net-sftp (2.0.5)
@@ -183,6 +184,7 @@ GEM
       omniauth (~> 1.0)
     omniauth-twitter (0.0.8)
       omniauth-oauth (~> 1.0)
+    open4 (1.3.0)
     polyglot (0.3.3)
     puma (1.4.0)
       rack (~> 1.2)
@@ -302,6 +304,7 @@ DEPENDENCIES
   omniauth
   omniauth-github
   omniauth-twitter
+  open4
   puma
   rails
   rake

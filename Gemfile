@@ -15,6 +15,7 @@ gem 'fog'
 gem 'simple_form'
 gem 'girl_friday'
 gem 'puma'
+gem 'open4'
 
 platforms :mri do
   gem 'mysql2'
@@ -25,6 +26,7 @@ end
 platforms :rbx do
   gem 'mysql2'
   gem 'redcarpet'
+  gem 'draper'
 end
 
 platforms :jruby do
