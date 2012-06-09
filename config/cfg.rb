@@ -6,4 +6,4 @@ local_hash = YAML.load_file(local_cfg_file)[Rails.env] rescue {}
 
 cfg_hash.merge!(local_hash)
 
-CFG = Confstruct::Configuration.new(cfg_hash)
+CFG = cfg_hash.merge(ENV)

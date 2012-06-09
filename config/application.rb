@@ -15,7 +15,7 @@ if defined?(Bundler)
   # Bundler.require(:default, :assets, Rails.env)
 end
 
-require File.expand_path('../confstruct', __FILE__)
+require File.expand_path('../cfg', __FILE__)
 
 module AsciiIo
   class Application < Rails::Application
