@@ -1,8 +1,8 @@
-<% if CFG.google_analytics_id %>
+<% if CFG['GOOGLE_ANALYTICS_ID'] %>
 <script type="text/javascript">
 
   var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', '<%= CFG.google_analytics_id %>']);
+  _gaq.push(['_setAccount', '<%= CFG['GOOGLE_ANALYTICS_ID'] %>']);
   _gaq.push(['_trackPageview']);
 
   (function() {

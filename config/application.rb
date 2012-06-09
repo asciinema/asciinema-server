@@ -53,7 +53,7 @@ module AsciiIo
     # Version of your assets, change this if you want to expire all your assets
     config.assets.version = '1.0'
 
-    config.action_mailer.default_url_options = { :host => CFG.email_host }
+    config.action_mailer.default_url_options = { :host => CFG['EMAIL_HOST'] }
   end
 end
 

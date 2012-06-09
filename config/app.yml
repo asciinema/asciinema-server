@@ -1,36 +1,32 @@
 defaults: &defaults
-  carrierwave_storage: :fog
-  oauth:
-    twitter:
-      consumer_key: "qAFaJs7lyIm3xjtdtFaQ"
-      consumer_secret: "Ytqj4IfXmQ7gn0yWf2GgFUpFDAWfqYpVkX3P1ng0TU"
-    github:
-      consumer_key: "455d7cde838004d7d46a"
-      consumer_secret: "5e076dbe06e79f6a7e329a4c7b306c0a0c6055c1"
-  google_analytics_id: 
-  airbrake_api_key: 
-  airbrake_host: 
+  CARRIERWAVE_STORAGE: :fog
+  GOOGLE_ANALYTICS_ID: 
+  AIRBRAKE_API_KEY: 
+  AIRBRAKE_HOST: 
+  AWS_ACCESS_KEY_ID: 
+  AWS_SECRET_ACCESS_KEY: 
+  AWS_REGION: 
+  AWS_BUCKET: 
 
 development:
   <<: *defaults
-  email_host: "localhost:3000"
-  carrierwave_storage: :file
+  EMAIL_HOST: "localhost:3000"
+  CARRIERWAVE_STORAGE: :file
+  TWITTER_CONSUMER_KEY: "qAFaJs7lyIm3xjtdtFaQ"
+  TWITTER_CONSUMER_SECRET: "Ytqj4IfXmQ7gn0yWf2GgFUpFDAWfqYpVkX3P1ng0TU"
+  GITHUB_CONSUMER_KEY: "455d7cde838004d7d46a"
+  GITHUB_CONSUMER_SECRET: "5e076dbe06e79f6a7e329a4c7b306c0a0c6055c1"
 
 bugfix:
   <<: *defaults
-  carrierwave_storage: :fog
+  CARRIERWAVE_STORAGE: :fog
 
 production:
   <<: *defaults
-  email_host: "ascii.io"
-  carrierwave_storage: :fog
-  carrierwave_fog:
-    aws_access_key_id: 
-    aws_secret_access_key: 
-    aws_region: 
-    bucket: 
+  EMAIL_HOST: "ascii.io"
+  CARRIERWAVE_STORAGE: :fog
 
 test:
   <<: *defaults
-  email_host: "example.org"
-  carrierwave_storage: :file
+  EMAIL_HOST: "example.org"
+  CARRIERWAVE_STORAGE: :file
