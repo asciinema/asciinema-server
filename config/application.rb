@@ -54,6 +54,8 @@ module AsciiIo
     config.assets.version = '1.0'
 
     config.action_mailer.default_url_options = { :host => CFG['EMAIL_HOST'] }
+
+    config.assets.initialize_on_precompile = false
   end
 end
 
