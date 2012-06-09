@@ -1,7 +1,6 @@
 # Taken from https://github.com/mperham/girl_friday/issues/47
 
 class LazyWorkQueue < GirlFriday::WorkQueue
-
   include Singleton
 
   def self.define *options, &block
@@ -21,5 +20,4 @@ class LazyWorkQueue < GirlFriday::WorkQueue
   def self.status
     instance.status
   end
-
 end
