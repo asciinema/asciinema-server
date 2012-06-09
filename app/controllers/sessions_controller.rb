@@ -5,7 +5,7 @@ class SessionsController < ApplicationController
 
   def create
     @user =
-      User.find_by_provider_and_uid(@auth["provider"], @auth["uid"]) ||
+      User.find_by_provider_and_uid(@auth["provider"], @auth["uid"].to_s) ||
       User.create_with_omniauth(@auth)
 
     unless @user.persisted?
