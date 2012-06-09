@@ -10,30 +10,14 @@ gem 'omniauth-twitter'
 gem 'omniauth-github'
 gem 'kaminari'
 gem 'airbrake'
-gem 'twitter-bootstrap-rails', :git => "git://github.com/seyhunak/twitter-bootstrap-rails.git", :branch => "static"
-gem 'draper', :git => 'git://github.com/sickill/draper.git'
+gem 'twitter-bootstrap-rails'
+gem 'draper'
 gem 'fog'
 gem 'simple_form'
 gem 'girl_friday'
-gem 'puma'
+gem 'unicorn'
 gem 'open4'
-
-platforms :mri do
-  gem 'mysql2'
-  gem 'redcarpet'
-end
-
-platforms :rbx do
-  gem 'mysql2'
-  gem 'redcarpet'
-end
-
-platforms :jruby do
-  gem 'jruby-openssl'
-  gem 'activerecord-jdbcmysql-adapter'
-  gem 'kramdown'
-  gem 'trinidad'
-end
+gem 'redcarpet'
 
 # Gems used only for assets and not required
 # in production environments by default.
@@ -50,7 +34,8 @@ group :development do
 end
 
 group :test, :development do
-  gem "rspec-rails"
+  gem 'mysql2'
+  gem 'rspec-rails'
   gem 'factory_girl_rails'
   gem 'awesome_print', :require => 'ap'
   gem 'jasmine'
@@ -58,6 +43,7 @@ group :test, :development do
   gem 'guard'
   gem 'guard-jasmine'
   gem 'libnotify'
+  gem 'cane'
   gem 'tailor'
   # gem 'jasmine-headless-webkit'
   # gem 'guard-jasmine-headless-webkit'
@@ -71,4 +57,8 @@ end
 
 group :bugfix do
   gem 'handlebars_assets'
+end
+
+group :production do
+  gem 'pg'
 end

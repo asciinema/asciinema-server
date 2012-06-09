@@ -21,3 +21,4 @@ public/uploads/*
 /bin/*
 /coverage
 .rbx
+.env

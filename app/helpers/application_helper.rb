@@ -19,13 +19,6 @@ module ApplicationHelper
 
   def markdown(&block)
     text = capture(&block)
-
-    if defined? RedCarpet
-      MKD_RENDERER.render(capture(&block)).html_safe
-    elsif defined? Kramdown
-      Kramdown::Document.new(text).to_html.html_safe
-    else
-      text
-    end
+    MKD_RENDERER.render(capture(&block)).html_safe
   end
 end
