@@ -1,5 +1,6 @@
 class UserMailer < ActionMailer::Base
   default :from => "ascii.io <hello@ascii.io>"
+  helper :application
 
   def new_comment_email(user, comment)
     @comment = comment

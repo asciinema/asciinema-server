@@ -21,4 +21,8 @@ module ApplicationHelper
     text = capture(&block)
     MKD_RENDERER.render(capture(&block)).html_safe
   end
+
+  def indented(string, width)
+    string.lines.map { |l| "#{' ' * width}#{l}" }.join('')
+  end
 end
