@@ -24,6 +24,11 @@ $color5: #EDC951;
 //   }
 // }
 
+@mixin player-overlay {
+  background-color: black;
+  opacity: 0.5;
+}
+
 .player {
   /* border: 1px solid #777;*/
   /* background-color: #333;*/
@@ -86,6 +91,7 @@ $color5: #EDC951;
   }
 
   .loading {
+    @include player-overlay;
     background-image: url(image-path('loader.gif'));
     background-repeat: no-repeat;
     background-position: center;
@@ -98,6 +104,7 @@ $color5: #EDC951;
   }
 
   .start-prompt {
+    @include player-overlay;
     background-image: url(image-path('play-button-1.png'));
     background-repeat: no-repeat;
     background-position: center;
