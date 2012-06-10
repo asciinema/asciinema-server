@@ -38,7 +38,7 @@ class Api::CommentsController < ApplicationController
   end
 
   def notify_via_email(user, comment)
-    if user.email.present? && user != comment.user
+    if user && user.email.present? && user != comment.user
       UserMailer.new_comment_email(user, comment).deliver
     end
   end

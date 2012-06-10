@@ -141,5 +141,14 @@ describe Api::CommentsController do
         @controller.send(:notify_via_email, user, comment)
       end
     end
+
+    context 'when asciicast author is unknown (nil)' do
+      let(:user) { nil }
+
+      it "doesn't send email" do
+        UserMailer.should_not_receive(:new_comment_email)
+        @controller.send(:notify_via_email, user, comment)
+      end
+    end
   end
 end
