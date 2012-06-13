@@ -26,11 +26,6 @@ group :assets do
   gem 'handlebars_assets'
 end
 
-group :development do
-  gem 'capistrano'
-  gem 'rvm-capistrano'
-end
-
 group :test, :development do
   gem 'mysql2'
   gem 'rspec-rails'
