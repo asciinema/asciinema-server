@@ -30,7 +30,9 @@ class AsciiIo.VT
       @handlePrivateEscSeq(match[0])
       return match[0].length
 
-    else if match = data.match(/^\x1b[\x20-\x2f]*?[\x40-\x5a\x5c-\x7e]/) # excluding \x5b "["
+    else if match = data.match(/^\x1b[\x20-\x2f]*?[\x40-\x5a\x5c\x5e-\x7e]/)
+                                              # excluding \x5b ([) and \x5d (])
+                                              # they're both handled above
       @handleStandardEscSeq(match[0])
       return match[0].length
 
