@@ -1,6 +1,7 @@
 class AsciiIo.VT
 
-  constructor: (@cols, @lines, @view) ->
+  constructor: (@cols, @lines) ->
+    _.extend(this, Backbone.Events)
     @sgrInterpreter = new AsciiIo.SgrInterpreter()
     @reset()
 
@@ -255,14 +256,13 @@ class AsciiIo.VT
     @buffer.setBrush @sgrInterpreter.buildBrush(@buffer.getBrush(), numbers)
 
   bell: ->
-    @view.visualBell()
-    # @trigger('bell')
+    @trigger 'bell'
 
   restartCursorBlink: ->
-    @view.restartCursorBlink()
+    @trigger 'cursor:blink:restart'
 
   stopCursorBlink: ->
-    @view.stopCursorBlink()
+    @trigger 'cursor:blink:stop'
 
   feed: (data) ->
     @data += data
@@ -276,8 +276,6 @@ class AsciiIo.VT
 
       @data = @data.slice(processed)
 
-    @render()
-
     @data.length is 0
 
   formattedData: (data) ->
@@ -285,8 +283,12 @@ class AsciiIo.VT
     hex = ("0x#{c.charCodeAt(0).toString(16)}" for c in head)
     Utf8.decode(head) + " (" + hex.join() + ")"
 
-  render: ->
-    @view.render(@buffer.changes(), @buffer.cursorX, @buffer.cursorY)
+  state: ->
+    changes: @buffer.changes()
+    cursorX: @buffer.cursorX
+    cursorY: @buffer.cursorY
+
+  clearChanges: ->
     @buffer.clearChanges()
 
   # ==== Screen buffer operations
@@ -318,10 +320,10 @@ class AsciiIo.VT
   # ------ Cursor control
 
   showCursor: ->
-    @view.showCursor true
+    @trigger 'cursor:show'
 
   hideCursor: ->
-    @view.showCursor false
+    @trigger 'cursor:hide'
 
   # ----- Scroll control
 

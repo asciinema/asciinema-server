@@ -11,9 +11,9 @@ class AsciiIo.Renderer.Base extends Backbone.View
   onClick: ->
     @trigger('terminal-click')
 
-  render: (changes, cursorX, cursorY) ->
-    for n, fragments of changes
-      c = if parseInt(n) is cursorY then cursorX else undefined
+  render: (state) ->
+    for n, fragments of state.changes
+      c = if parseInt(n) is state.cursorY then state.cursorX else undefined
       @renderLine n, fragments || [], c
 
   renderLine: (n, data, cursorX) ->

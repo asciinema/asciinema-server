@@ -1,10 +1,10 @@
 class AsciiIo.Movie
   MIN_DELAY: 0.01
 
-  constructor: (@model, @vt, @options) ->
+  constructor: (@model, @options) ->
+    _.extend(this, Backbone.Events)
     @reset()
     @startTimeReporter()
-    _.extend(this, Backbone.Events)
 
   reset: ->
     @frameNo = 0
@@ -14,7 +14,7 @@ class AsciiIo.Movie
     @lastFrameAt = undefined
     @framesProcessed = 0
     @clearPauseState()
-    @vt.reset()
+    @trigger 'reset'
 
   now: ->
     (new Date()).getTime()
@@ -70,7 +70,7 @@ class AsciiIo.Movie
       @startedAt = @now()
 
     @playing = true
-    @trigger('movie-started')
+    @trigger('started')
     @lastFrameAt = @now()
     @nextFrame()
 
@@ -97,7 +97,7 @@ class AsciiIo.Movie
     return if @isPaused()
 
     @stop()
-    @trigger('movie-playback-paused')
+    @trigger('playback-paused')
 
   resume: ->
     return if @isPlaying()
@@ -109,7 +109,7 @@ class AsciiIo.Movie
     delayMs = delay * 1000
     delayLeft = delayMs - @totalFrameWaitTime
     @processFrameWithDelay(delayLeft)
-    @trigger('movie-playback-resumed')
+    @trigger('playback-resumed')
 
   togglePlay: ->
     if @isPlaying() then @pause() else @play()
@@ -153,8 +153,8 @@ class AsciiIo.Movie
     @dataIndex = totalCount
 
     data = @data().slice(0, totalCount)
-    @vt.reset()
-    @vt.feed(data)
+    @trigger 'reset'
+    @trigger 'data', [data]
 
     @lastFrameAt = @now()
     wait = requestedTime - time
@@ -162,7 +162,7 @@ class AsciiIo.Movie
 
   startTimeReporter: ->
     @timeReportId = setInterval(
-      => @trigger('movie-time', @currentTime())
+      => @trigger('time', @currentTime())
       100
     )
 
@@ -221,8 +221,7 @@ class AsciiIo.Movie
       true
     else
       @playing = false
-      @trigger('movie-finished')
-      @vt.stopCursorBlink()
+      @trigger 'finished'
 
       if @options.benchmark
         console.log "finished in #{(@now() - @startedAt) / 1000.0}s"
@@ -232,7 +231,7 @@ class AsciiIo.Movie
   processFrameWithDelay: (delay) ->
     @nextFrameTimeoutId = setTimeout(
       =>
-        @vt.restartCursorBlink()
+        @trigger 'wakeup'
         @processFrame()
       delay
     )
@@ -242,7 +241,7 @@ class AsciiIo.Movie
     [delay, count] = frame
 
     frameData = @data().slice(@dataIndex, @dataIndex + count)
-    @vt.feed(frameData)
+    @trigger 'data', [frameData]
 
     @frameNo += 1
     @dataIndex += count

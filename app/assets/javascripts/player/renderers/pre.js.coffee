@@ -23,9 +23,9 @@ class AsciiIo.Renderer.Pre extends AsciiIo.Renderer.Base
 
     @$el.css(width: width + 'px', height: height + 'px')
 
-  render: (changes, cursorX, cursorY) ->
+  render: (state) ->
     @$el.find('.cursor').removeClass('cursor')
-    super(changes, cursorX, cursorY)
+    super state
 
   renderLine: (n, fragments, cursorX) ->
     html = []
