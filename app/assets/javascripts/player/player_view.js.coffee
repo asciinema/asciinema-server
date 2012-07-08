@@ -73,8 +73,8 @@ class AsciiIo.PlayerView extends Backbone.View
     @vt.on 'cursor:show', => @rendererView.showCursor true
     @vt.on 'cursor:hide', => @rendererView.showCursor false
 
-    @hudView.on 'hud-play-click', => @movie.togglePlay()
-    @hudView.on 'hud-seek-click', (percent) => @movie.seek(percent)
+    @hudView.on 'play-click', => @movie.togglePlay()
+    @hudView.on 'seek-click', (percent) => @movie.seek(percent)
 
   showLoadingIndicator: ->
     @$el.append('<div class="loading">')

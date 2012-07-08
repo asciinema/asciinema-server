@@ -30,12 +30,12 @@ class AsciiIo.HudView extends Backbone.View
   setDuration: (@duration) ->
 
   togglePlay: ->
-    @trigger('hud-play-click')
+    @trigger('play-click')
 
   seek: (e) ->
     index = $(e.target).index()
     percent = 100 * index / (@progressWidth - 2)
-    @trigger('hud-seek-click', percent)
+    @trigger('seek-click', percent)
 
   onPause: ->
     @$('.toggle').addClass('paused')
