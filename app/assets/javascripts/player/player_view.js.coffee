@@ -6,7 +6,7 @@ class AsciiIo.PlayerView extends Backbone.View
     @prepareSelfView()
     @createRendererView()
     @createHudView()
-    @createMovie()
+    @fetchModel()
     @showLoadingIndicator()
 
   prepareSelfView: ->
@@ -26,33 +26,54 @@ class AsciiIo.PlayerView extends Backbone.View
     @hudView = new AsciiIo.HudView(cols: @options.cols)
     @$el.append(@hudView.$el)
 
-  createMovie: ->
-    @vt = new AsciiIo.VT(@options.cols, @options.lines)
+  fetchModel: ->
+    @model.fetch success: => @onModelFetched()
 
-    @movie = new AsciiIo.Movie(
-      @model,
-      speed: @options.speed,
-      benchmark: @options.benchmark
-      cols: @options.cols
-      lines: @options.lines
-    )
-    @movie.on 'loaded', @onMovieLoaded, this
-    @movie.load()
+  onModelFetched: ->
+    data = @model.get 'escaped_stdout_data'
+    data = atob data
 
-  onStartPromptClick: ->
-    @hideToggleOverlay()
-    @movie.togglePlay()
+    if typeof window.Worker == 'function'
+      @unpackModelDataViaWorker data
+    else
+      @unpackModelDataHere data
 
-  onMovieLoaded: (asciicast) ->
+  unpackModelDataViaWorker: (data) ->
+    worker = new Worker(window.worker_unpack_path)
+
+    worker.onmessage = (event) =>
+      @model.set stdout_data: event.data
+      @onModelReady()
+
+    worker.postMessage data
+
+  unpackModelDataHere: (data) ->
+    @model.set stdout_data: ArchUtils.bz2.decode(data)
+    @onModelReady()
+
+  onModelReady: ->
     @hideLoadingIndicator()
-    @hudView.setDuration(asciicast.get('duration'))
-
+    @hudView.setDuration @model.get('duration')
+    @createMovie()
     @bindEvents()
 
     if @options.autoPlay
       @movie.play()
     else
       @showToggleOverlay()
+
+  createMovie: ->
+    @vt = new AsciiIo.VT(@options.cols, @options.lines)
+
+    @movie = new AsciiIo.Movie(
+      timing: @model.get 'stdout_timing_data'
+      stdout_data: @model.get 'stdout_data'
+      duration: @model.get 'duration'
+      speed: @options.speed,
+      benchmark: @options.benchmark
+      cols: @options.cols
+      lines: @options.lines
+    )
 
   bindEvents: ->
     @movie.on 'reset', => @vt.reset()
@@ -75,6 +96,10 @@ class AsciiIo.PlayerView extends Backbone.View
 
     @hudView.on 'play-click', => @movie.togglePlay()
     @hudView.on 'seek-click', (percent) => @movie.seek(percent)
+
+  onStartPromptClick: ->
+    @hideToggleOverlay()
+    @movie.togglePlay()
 
   showLoadingIndicator: ->
     @$el.append('<div class="loading">')

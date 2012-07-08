@@ -1,7 +1,7 @@
 class AsciiIo.Movie
   MIN_DELAY: 0.01
 
-  constructor: (@model, @options) ->
+  constructor: (@options) ->
     _.extend(this, Backbone.Events)
     @reset()
     @startTimeReporter()
@@ -19,41 +19,11 @@ class AsciiIo.Movie
   now: ->
     (new Date()).getTime()
 
-  isLoaded: ->
-    @model.get('escaped_stdout_data') != undefined
-
-  load: ->
-    @model.fetch success: => @onLoaded()
-
-  onLoaded: ->
-    if typeof window.Worker == 'function'
-      @unpackViaWorker()
-    else
-      @trigger 'loaded', @model
-
-  unpackViaWorker: ->
-    worker = new Worker(window.worker_unpack_path)
-
-    worker.onmessage = (event) =>
-      @_data = event.data
-      @trigger 'loaded', @model
-
-    data = @model.get('escaped_stdout_data')
-    data = atob(data)
-    worker.postMessage(data)
-
   timing: ->
-    @model.get('stdout_timing_data')
+    @options.timing
 
   data: ->
-    unless @_data
-      # Web Worker fallback
-      d = @model.get('escaped_stdout_data')
-      d = atob(d)
-      d = ArchUtils.bz2.decode(d)
-      @_data = d
-
-    @_data
+    @options.stdout_data
 
   play: ->
     return if @isPlaying()
@@ -121,7 +91,7 @@ class AsciiIo.Movie
     !@isPlaying() and !@isFinished() and @frameNo > 0
 
   isFinished: ->
-    !@isPlaying() and @isLoaded() and @frameNo >= @timing().length
+    !@isPlaying() and @frameNo >= @timing().length
 
   seek: (percent) ->
     @stop()
@@ -129,7 +99,7 @@ class AsciiIo.Movie
     @resume()
 
   rewindTo: (percent) ->
-    duration = @model.get('duration')
+    duration = @options.duration
     requestedTime = duration * percent / 100
 
     frameNo = 0
