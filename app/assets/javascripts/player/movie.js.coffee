@@ -70,7 +70,7 @@ class AsciiIo.Movie
       @startedAt = @now()
 
     @playing = true
-    @trigger('started')
+    @trigger 'started'
     @lastFrameAt = @now()
     @nextFrame()
 
