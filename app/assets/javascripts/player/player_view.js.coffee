@@ -36,7 +36,7 @@ class AsciiIo.PlayerView extends Backbone.View
       cols: @options.cols
       lines: @options.lines
     )
-    @movie.on 'movie-loaded', @onMovieLoaded, this
+    @movie.on 'loaded', @onMovieLoaded, this
     @movie.load()
 
   onStartPromptClick: ->
@@ -58,8 +58,8 @@ class AsciiIo.PlayerView extends Backbone.View
     @movie.on 'reset', => @vt.reset()
     @movie.on 'finished', => @vt.stopCursorBlink()
     @movie.on 'wakeup', => @vt.restartCursorBlink()
-    @movie.on 'playback-paused', => @hudView.onPause()
-    @movie.on 'playback-resumed', => @hudView.onResume()
+    @movie.on 'paused', => @hudView.onPause()
+    @movie.on 'resumed', => @hudView.onResume()
     @movie.on 'time', (time) => @hudView.updateTime(time)
     @movie.on 'started', => @$el.removeClass('not-started')
 

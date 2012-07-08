@@ -29,14 +29,14 @@ class AsciiIo.Movie
     if typeof window.Worker == 'function'
       @unpackViaWorker()
     else
-      @trigger('movie-loaded', @model)
+      @trigger 'loaded', @model
 
   unpackViaWorker: ->
     worker = new Worker(window.worker_unpack_path)
 
     worker.onmessage = (event) =>
       @_data = event.data
-      @trigger('movie-loaded', @model)
+      @trigger 'loaded', @model
 
     data = @model.get('escaped_stdout_data')
     data = atob(data)
@@ -97,7 +97,7 @@ class AsciiIo.Movie
     return if @isPaused()
 
     @stop()
-    @trigger('playback-paused')
+    @trigger 'paused'
 
   resume: ->
     return if @isPlaying()
@@ -109,7 +109,7 @@ class AsciiIo.Movie
     delayMs = delay * 1000
     delayLeft = delayMs - @totalFrameWaitTime
     @processFrameWithDelay(delayLeft)
-    @trigger('playback-resumed')
+    @trigger 'resumed'
 
   togglePlay: ->
     if @isPlaying() then @pause() else @play()
