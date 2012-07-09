@@ -133,7 +133,7 @@ class AsciiIo.Movie
   startTimeReporter: ->
     @timeReportId = setInterval(
       => @trigger('time', @currentTime())
-      100
+      500
     )
 
   stopTimeReporter: ->
