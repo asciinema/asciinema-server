@@ -2,6 +2,7 @@
 //= include console-shim
 //= include vendor/underscore-min
 //= include vendor/backbone-min
+//= include player/helpers
 //= include player/sgr_interpreter
 //= include player/brush
 //= include player/special_charset
