@@ -97,6 +97,14 @@ class AsciiIo.PlayerView extends Backbone.View
     @hudView.on 'play-click', => @movie.togglePlay()
     @hudView.on 'seek-click', (percent) => @movie.seek(percent)
 
+    if @options.benchmark
+      @movie.on 'started', =>
+        @startedAt = (new Date).getTime()
+
+      @movie.on 'finished', =>
+        now = (new Date).getTime()
+        console.log "finished in #{(now - @startedAt) / 1000.0}s"
+
   onStartPromptClick: ->
     @hideToggleOverlay()
     @movie.togglePlay()

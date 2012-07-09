@@ -36,9 +36,6 @@ class AsciiIo.Movie
       @start()
 
   start: ->
-    if @options.benchmark
-      @startedAt = @now()
-
     @playing = true
     @trigger 'started'
     @lastFrameAt = @now()
@@ -192,9 +189,6 @@ class AsciiIo.Movie
     else
       @playing = false
       @trigger 'finished'
-
-      if @options.benchmark
-        console.log "finished in #{(@now() - @startedAt) / 1000.0}s"
 
       false
 
