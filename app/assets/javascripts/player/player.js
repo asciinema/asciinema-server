@@ -6,4 +6,5 @@
 //= require ./vt
 //= require ./hud_view
 //= require ./player_view
+//= require ./worker_proxy
 //= require_tree .

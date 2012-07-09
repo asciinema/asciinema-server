@@ -30,15 +30,7 @@ class AsciiIo.PlayerView extends Backbone.View
     @model.fetch success: => @onModelFetched()
 
   onModelFetched: ->
-    data = @model.get 'escaped_stdout_data'
-    data = atob data
-
-    if typeof window.Worker == 'function'
-      @unpackModelDataViaWorker data
-    else
-      @unpackModelDataHere data
-
-  unpackModelDataViaWorker: (data) ->
+    data = atob @model.get('escaped_stdout_data')
     worker = new Worker(window.worker_unpack_path)
 
     worker.onmessage = (event) =>
@@ -47,14 +39,41 @@ class AsciiIo.PlayerView extends Backbone.View
 
     worker.postMessage data
 
-  unpackModelDataHere: (data) ->
-    @model.set stdout_data: ArchUtils.bz2.decode(data)
-    @onModelReady()
+    # worker = new Worker(window.worker_path)
+
+    # worker.onmessage = (event) =>
+    #   @model.set stdout_data: event.data
+    #   @onModelReady()
+    #   # console.log event.data
+
+    # worker.postMessage
+    #   cmd: 'fetch'
+    #   data: data
+
+    # data = atob data
+
+    # if typeof window.Worker == 'function'
+    #   @unpackModelDataViaWorker data
+    # else
+    #   @unpackModelDataHere data
+
+  # unpackModelDataViaWorker: (data) ->
+  #   worker = new Worker(window.worker_unpack_path)
+
+  #   worker.onmessage = (event) =>
+  #     @model.set stdout_data: event.data
+  #     @onModelReady()
+
+  #   worker.postMessage data
+
+  # unpackModelDataHere: (data) ->
+  #   @model.set stdout_data: ArchUtils.bz2.decode(data)
+  #   @onModelReady()
 
   onModelReady: ->
     @hideLoadingIndicator()
     @hudView.setDuration @model.get('duration') if @options.hud
-    @createMovie()
+    @createMainWorker()
     @bindEvents()
 
     if @options.autoPlay
@@ -62,35 +81,30 @@ class AsciiIo.PlayerView extends Backbone.View
     else
       @showToggleOverlay()
 
-  createMovie: ->
-    @vt = new AsciiIo.VT(@options.cols, @options.lines)
+  createMainWorker: ->
+    @worker = new Worker(window.worker_path)
 
-    @movie = new AsciiIo.Movie(
+    @worker.postMessage
+      cmd: 'init'
       timing: @model.get 'stdout_timing_data'
       stdout_data: @model.get 'stdout_data'
       duration: @model.get 'duration'
-      speed: @options.speed,
+      speed: @options.speed
       benchmark: @options.benchmark
       cols: @options.cols
       lines: @options.lines
-    )
+
+    @vt = new AsciiIo.VTWorkerProxy @worker, 'vt'
+    @movie = new AsciiIo.MovieWorkerProxy @worker, 'movie'
 
   bindEvents: ->
-    @movie.on 'reset', => @vt.reset()
-    @movie.on 'finished', => @vt.stopCursorBlink()
-    @movie.on 'wakeup', => @vt.restartCursorBlink()
-
     if @options.hud
       @movie.on 'paused', => @hudView.onPause()
       @movie.on 'resumed', => @hudView.onResume()
       @movie.on 'time', (time) => @hudView.updateTime(time)
 
     @movie.on 'started', => @$el.removeClass('not-started')
-
-    @movie.on 'data', (data) =>
-      @vt.feed data
-      @rendererView.render @vt.state()
-      @vt.clearChanges()
+    @movie.on 'render', (state) => @rendererView.render state
 
     @vt.on 'cursor:blink:restart', => @rendererView.restartCursorBlink()
     @vt.on 'cursor:blink:stop', => @rendererView.stopCursorBlink()
