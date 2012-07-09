@@ -37,11 +37,18 @@ initialize = (options) ->
   movie.on 'finished', => vt.stopCursorBlink()
   movie.on 'wakeup', => vt.restartCursorBlink()
 
+  lastRenderTime = (new Date()).getTime()
+
   movie.on 'data', (data) =>
     vt.feed data
-    state = vt.state()
-    # console.log state
-    vt.clearChanges()
-    movie.trigger 'render', state
+
+    now = (new Date()).getTime()
+
+    if now - lastRenderTime > 40
+      state = vt.state()
+      vt.clearChanges()
+      movie.trigger 'render', state
+
+      lastRenderTime = now
 
   console.log 'inited!'
