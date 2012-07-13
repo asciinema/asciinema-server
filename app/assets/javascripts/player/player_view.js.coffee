@@ -3,11 +3,12 @@ class AsciiIo.PlayerView extends Backbone.View
     'click .start-prompt': 'onStartPromptClick'
 
   initialize: (options) ->
+    @createMainWorker()
     @prepareSelfView()
     @createRendererView()
+    @showLoadingIndicator()
     @createHudView() if options.hud
     @fetchModel()
-    @showLoadingIndicator()
 
   prepareSelfView: ->
     @$el.addClass('not-started')
@@ -73,7 +74,7 @@ class AsciiIo.PlayerView extends Backbone.View
   onModelReady: ->
     @hideLoadingIndicator()
     @hudView.setDuration @model.get('duration') if @options.hud
-    @createMainWorker()
+    @setupMainWorker()
     @bindEvents()
 
     if @options.autoPlay
@@ -84,6 +85,7 @@ class AsciiIo.PlayerView extends Backbone.View
   createMainWorker: ->
     @worker = new Worker(window.worker_path)
 
+  setupMainWorker: ->
     @worker.postMessage
       cmd: 'init'
       timing: @model.get 'stdout_timing_data'
