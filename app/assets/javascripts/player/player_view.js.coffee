@@ -40,37 +40,6 @@ class AsciiIo.PlayerView extends Backbone.View
 
     worker.postMessage data
 
-    # worker = new Worker(window.worker_path)
-
-    # worker.onmessage = (event) =>
-    #   @model.set stdout_data: event.data
-    #   @onModelReady()
-    #   # console.log event.data
-
-    # worker.postMessage
-    #   cmd: 'fetch'
-    #   data: data
-
-    # data = atob data
-
-    # if typeof window.Worker == 'function'
-    #   @unpackModelDataViaWorker data
-    # else
-    #   @unpackModelDataHere data
-
-  # unpackModelDataViaWorker: (data) ->
-  #   worker = new Worker(window.worker_unpack_path)
-
-  #   worker.onmessage = (event) =>
-  #     @model.set stdout_data: event.data
-  #     @onModelReady()
-
-  #   worker.postMessage data
-
-  # unpackModelDataHere: (data) ->
-  #   @model.set stdout_data: ArchUtils.bz2.decode(data)
-  #   @onModelReady()
-
   onModelReady: ->
     @hideLoadingIndicator()
     @hudView.setDuration @model.get('duration') if @options.hud
