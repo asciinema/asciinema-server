@@ -48,11 +48,10 @@ class AsciiIo.PlayerView extends Backbone.View
       @showToggleOverlay()
 
   createMainWorker: ->
-    @worker = new Worker(window.mainWorkerPath)
+    @worker = new AsciiIo.Worker(window.mainWorkerPath)
 
   setupMainWorker: ->
-    @worker.postMessage
-      cmd: 'init'
+    @worker.init
       timing: @model.get 'stdout_timing_data'
       stdout_data: @model.get 'stdout_data'
       duration: @model.get 'duration'
@@ -61,8 +60,8 @@ class AsciiIo.PlayerView extends Backbone.View
       cols: @options.cols
       lines: @options.lines
 
-    @vt = new AsciiIo.VTWorkerProxy @worker, 'vt'
-    @movie = new AsciiIo.MovieWorkerProxy @worker, 'movie'
+    @movie = @worker.getProxy 'movie'
+    @vt = @worker.getProxy 'vt'
 
   bindEvents: ->
     @movie.on 'started', => @$el.addClass 'playing'
@@ -89,7 +88,7 @@ class AsciiIo.PlayerView extends Backbone.View
     @vt.on 'cursor:hide', => @rendererView.showCursor false
 
     if @options.hud
-      @hudView.on 'play-click', => @movie.togglePlay()
+      @hudView.on 'play-click', => @movie.call 'togglePlay'
       @hudView.on 'seek-click', (percent) => @movie.seek(percent)
 
     if @options.benchmark
@@ -102,7 +101,7 @@ class AsciiIo.PlayerView extends Backbone.View
 
   onStartPromptClick: ->
     @hideToggleOverlay()
-    @movie.togglePlay()
+    @movie.call 'togglePlay'
 
   showLoadingIndicator: ->
     @$el.append('<div class="loading">')

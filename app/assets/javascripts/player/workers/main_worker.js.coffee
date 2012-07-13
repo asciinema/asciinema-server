@@ -7,19 +7,20 @@ movie = undefined
   if d.objectName
     switch d.objectName
       when 'vt'
-        vt[d.message](d.args[0], d.args[1], d.args[2])
+        vt[d.method](d.args...)
 
       when 'movie'
-        movie[d.message](d.args[0], d.args[1], d.args[2])
+        movie[d.method](d.args...)
 
   else if d.cmd
     switch d.cmd
       when 'init'
-        initialize d
+        initialize d.options
 
 initialize = (options) ->
   vt = new AsciiIo.VT options.cols, options.lines
-  vt.on 'all', (event) -> postMessage evt: event, src: 'vt'
+  vt.on 'all', (event, args...) ->
+    postMessage evt: event, src: 'vt', args: args
 
   movie = new AsciiIo.Movie(
     timing: options.timing
@@ -31,7 +32,8 @@ initialize = (options) ->
     lines: options.lines
   )
 
-  movie.on 'all', (event, arg1) -> postMessage evt: event, src: 'movie', arg1: arg1
+  movie.on 'all', (event, args...) ->
+    postMessage evt: event, src: 'movie', args: args
 
   movie.on 'reset', => vt.reset()
   movie.on 'finished', => vt.stopCursorBlink()
