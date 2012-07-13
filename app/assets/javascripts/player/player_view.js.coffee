@@ -4,14 +4,10 @@ class AsciiIo.PlayerView extends Backbone.View
 
   initialize: (options) ->
     @createMainWorker()
-    @prepareSelfView()
     @createRendererView()
     @showLoadingIndicator()
     @createHudView() if options.hud
     @fetchModel()
-
-  prepareSelfView: ->
-    @$el.addClass('not-started')
 
   createRendererView: ->
     @rendererView = new @options.rendererClass(
@@ -69,12 +65,22 @@ class AsciiIo.PlayerView extends Backbone.View
     @movie = new AsciiIo.MovieWorkerProxy @worker, 'movie'
 
   bindEvents: ->
+    @movie.on 'started', => @$el.addClass 'playing'
+    @movie.on 'finished', => @$el.removeClass 'playing'
+
+    @movie.on 'paused', =>
+      @$el.addClass 'paused'
+      @$el.removeClass 'playing'
+      @hudView.onPause() if @options.hud
+
+    @movie.on 'resumed', =>
+      @$el.addClass 'playing'
+      @$el.removeClass 'paused'
+      @hudView.onResume() if @options.hud
+
     if @options.hud
-      @movie.on 'paused', => @hudView.onPause()
-      @movie.on 'resumed', => @hudView.onResume()
       @movie.on 'time', (time) => @hudView.updateTime(time)
 
-    @movie.on 'started', => @$el.removeClass('not-started')
     @movie.on 'render', (state) => @rendererView.render state
 
     @vt.on 'cursor:blink:restart', => @rendererView.restartCursorBlink()

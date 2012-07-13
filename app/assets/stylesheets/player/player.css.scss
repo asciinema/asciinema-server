@@ -28,18 +28,6 @@ $color5: #EDC951;
   margin: 0 auto;
   position: relative;
 
-  &.not-started .hud .toggle {
-    background-color: $color4;
-
-    .play {
-      display: inline;
-    }
-
-    .pause {
-      display: none;
-    }
-  }
-
   .terminal, .font-sample, .hud {
     @include terminal-font;
 
@@ -128,23 +116,11 @@ $color5: #EDC951;
       cursor: pointer;
 
       .play {
-        display: none;
-      }
-
-      .pause {
         display: inline;
       }
 
-      &.paused {
-        background-color: $color4;
-
-        .play {
-          display: inline;
-        }
-
-        .pause {
-          display: none;
-        }
+      .pause {
+        display: none;
       }
 
     }
@@ -164,6 +140,20 @@ $color5: #EDC951;
     }
   }
 
+  &.playing {
+    .hud .toggle {
+      background-color: $color4;
+
+      .play {
+        display: none;
+      }
+
+      .pause {
+        display: inline;
+      }
+    }
+  }
+
   &:hover .hud {
     opacity: 1.0;
   }
@@ -180,5 +170,4 @@ $color5: #EDC951;
   .fg13 { font-weight: bold }
   .fg14 { font-weight: bold }
   .fg15 { font-weight: bold }
-
 }
