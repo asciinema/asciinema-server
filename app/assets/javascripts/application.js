@@ -11,4 +11,4 @@
 //= require vendor/backbone-min
 //= require handlebars.runtime
 //= require backbone/ascii_io
-//= require player/player
+//= require player

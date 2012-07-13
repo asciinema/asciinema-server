@@ -28,7 +28,7 @@ class AsciiIo.PlayerView extends Backbone.View
 
   onModelFetched: ->
     data = atob @model.get('escaped_stdout_data')
-    worker = new Worker(window.worker_unpack_path)
+    worker = new Worker(window.unpackWorkerPath)
 
     worker.onmessage = (event) =>
       @model.set stdout_data: event.data
@@ -48,7 +48,7 @@ class AsciiIo.PlayerView extends Backbone.View
       @showToggleOverlay()
 
   createMainWorker: ->
-    @worker = new Worker(window.worker_path)
+    @worker = new Worker(window.mainWorkerPath)
 
   setupMainWorker: ->
     @worker.postMessage

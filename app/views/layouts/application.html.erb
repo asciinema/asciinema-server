@@ -20,8 +20,8 @@
     <%= render :partial => 'layouts/ga' %>
 
     <script>
-      window.worker_unpack_path = '<%= javascript_path "worker-unpack" %>';
-      window.worker_path = '<%= javascript_path "worker" %>';
+      window.unpackWorkerPath = '<%= javascript_path "unpack_worker" %>';
+      window.mainWorkerPath = '<%= javascript_path "main_worker" %>';
     </script>
   </head>
   <body>
