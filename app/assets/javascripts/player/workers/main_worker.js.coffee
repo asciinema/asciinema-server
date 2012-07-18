@@ -1,24 +1,25 @@
 vt = undefined
 movie = undefined
 
-@onmessage = (e) =>
+addEventListener 'message', (e) =>
   d = e.data
 
-  if d.objectName
-    switch d.objectName
-      when 'vt'
-        vt[d.method](d.args...)
+  switch d.message
+    when 'init'
+      @initialize d.options
 
-      when 'movie'
-        movie[d.method](d.args...)
+    when 'call'
+      switch d.objectName
+        when 'vt'
+          vt[d.method](d.args...)
 
-  else if d.cmd
-    switch d.cmd
-      when 'init'
-        initialize d.options
+        when 'movie'
+          movie[d.method](d.args...)
 
-initialize = (options) ->
+
+@initialize = (options) ->
   vt = new AsciiIo.VT options.cols, options.lines
+
   vt.on 'all', (event, args...) ->
     postMessage evt: event, src: 'vt', args: args
 

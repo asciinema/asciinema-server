@@ -4,6 +4,7 @@
 //= require_tree ./player/views/renderers
 //= require player/views/hud_view
 //= require player/views/player_view
-//= require player/workers/worker
+//= require player/workers/worker_object_proxy
+//= require player/workers/worker_proxy
 //= require player/brush
 //= require_tree ./models

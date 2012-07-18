@@ -43,15 +43,15 @@ class AsciiIo.PlayerView extends Backbone.View
     @bindEvents()
 
     if @options.autoPlay
-      @movie.play()
+      @movie.call 'play'
     else
       @showToggleOverlay()
 
   createMainWorker: ->
-    @worker = new AsciiIo.Worker(window.mainWorkerPath)
+    @workerProxy = new AsciiIo.WorkerProxy(window.mainWorkerPath)
 
   setupMainWorker: ->
-    @worker.init
+    @workerProxy.init
       timing: @model.get 'stdout_timing_data'
       stdout_data: @model.get 'stdout_data'
       duration: @model.get 'duration'
@@ -60,8 +60,8 @@ class AsciiIo.PlayerView extends Backbone.View
       cols: @options.cols
       lines: @options.lines
 
-    @movie = @worker.getProxy 'movie'
-    @vt = @worker.getProxy 'vt'
+    @movie = @workerProxy.getObjectProxy 'movie'
+    @vt = @workerProxy.getObjectProxy 'vt'
 
   bindEvents: ->
     @movie.on 'started', => @$el.addClass 'playing'
@@ -87,9 +87,10 @@ class AsciiIo.PlayerView extends Backbone.View
     @vt.on 'cursor:show', => @rendererView.showCursor true
     @vt.on 'cursor:hide', => @rendererView.showCursor false
 
+<<<<<<< HEAD
     if @options.hud
       @hudView.on 'play-click', => @movie.call 'togglePlay'
-      @hudView.on 'seek-click', (percent) => @movie.seek(percent)
+      @hudView.on 'seek-click', (percent) => @movie.call 'seek', percent
 
     if @options.benchmark
       @movie.on 'started', =>
