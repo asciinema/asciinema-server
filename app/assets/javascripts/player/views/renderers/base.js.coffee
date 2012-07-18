@@ -7,14 +7,33 @@ class AsciiIo.Renderer.Base extends Backbone.View
     @lines = options.lines
     @showCursor true
     @startCursorBlink()
+    @clearState()
+    webkitRequestAnimationFrame @render
+
+  clearState: ->
+    @state =
+      changes: {}
+      cursorX: undefined
+      cursorY: undefined
+      dirty: false
 
   onClick: ->
     @trigger('terminal-click')
 
-  render: (state) ->
-    for n, fragments of state.changes
-      c = if parseInt(n) is state.cursorY then state.cursorX else undefined
+  push: (state) ->
+    _(@state.changes).extend state.changes
+    @state.cursorX = state.cursorX
+    @state.cursorY = state.cursorY
+    @state.dirty = true
+
+  render: =>
+    webkitRequestAnimationFrame @render
+
+    for n, fragments of @state.changes
+      c = if parseInt(n) is @state.cursorY then @state.cursorX else undefined
       @renderLine n, fragments || [], c
+
+    @clearState()
 
   renderLine: (n, data, cursorX) ->
     throw '#renderLine not implemented'

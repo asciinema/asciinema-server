@@ -47,7 +47,7 @@ addEventListener 'message', (e) =>
 
     now = (new Date()).getTime()
 
-    if now - lastRenderTime > 40
+    if true #or now - lastRenderTime > 40
       state = vt.state()
       vt.clearChanges()
       movie.trigger 'render', state

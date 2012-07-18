@@ -80,14 +80,13 @@ class AsciiIo.PlayerView extends Backbone.View
     if @options.hud
       @movie.on 'time', (time) => @hudView.updateTime(time)
 
-    @movie.on 'render', (state) => @rendererView.render state
+    @movie.on 'render', (state) => @rendererView.push state
 
     @vt.on 'cursor:blink:restart', => @rendererView.restartCursorBlink()
     @vt.on 'cursor:blink:stop', => @rendererView.stopCursorBlink()
     @vt.on 'cursor:show', => @rendererView.showCursor true
     @vt.on 'cursor:hide', => @rendererView.showCursor false
 
-<<<<<<< HEAD
     if @options.hud
       @hudView.on 'play-click', => @movie.call 'togglePlay'
       @hudView.on 'seek-click', (percent) => @movie.call 'seek', percent
