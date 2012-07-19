@@ -6,9 +6,9 @@
 //
 //= require jquery
 //= require jquery_ujs
-//= require vendor/vendor
+//= require vendor/es5-shim.min
+//= require vendor/console-shim-min
 //= require vendor/underscore-min
 //= require vendor/backbone-min
 //= require handlebars.runtime
 //= require backbone/ascii_io
-//= require player

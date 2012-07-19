@@ -1,4 +1,5 @@
 //= require vendor/raf-shim
+//= require vendor/base64.min
 //= require extensions
 //= require namespace
 //= require player/views/renderers/base
