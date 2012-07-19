@@ -8,7 +8,7 @@ class AsciiIo.Renderer.Base extends Backbone.View
     @showCursor true
     @startCursorBlink()
     @clearState()
-    webkitRequestAnimationFrame @render
+    requestAnimFrame @render
 
   clearState: ->
     @state =
@@ -27,13 +27,14 @@ class AsciiIo.Renderer.Base extends Backbone.View
     @state.dirty = true
 
   render: =>
-    webkitRequestAnimationFrame @render
+    requestAnimFrame @render
 
-    for n, fragments of @state.changes
-      c = if parseInt(n) is @state.cursorY then @state.cursorX else undefined
-      @renderLine n, fragments || [], c
+    if @state.dirty
+      for n, fragments of @state.changes
+        c = if parseInt(n) is @state.cursorY then @state.cursorX else undefined
+        @renderLine n, fragments || [], c
 
-    @clearState()
+      @clearState()
 
   renderLine: (n, data, cursorX) ->
     throw '#renderLine not implemented'

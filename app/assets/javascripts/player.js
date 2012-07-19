@@ -1,3 +1,4 @@
+//= require vendor/raf-shim
 //= require extensions
 //= require namespace
 //= require player/views/renderers/base
