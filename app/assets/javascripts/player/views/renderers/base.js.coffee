@@ -8,7 +8,7 @@ class AsciiIo.Renderer.Base extends Backbone.View
     @showCursor true
     @startCursorBlink()
     @clearState()
-    requestAnimFrame @render
+    requestAnimationFrame @render
 
   clearState: ->
     @state =
@@ -27,7 +27,7 @@ class AsciiIo.Renderer.Base extends Backbone.View
     @state.dirty = true
 
   render: =>
-    requestAnimFrame @render
+    requestAnimationFrame @render
 
     if @state.dirty
       for n, fragments of @state.changes

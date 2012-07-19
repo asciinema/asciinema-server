@@ -1,4 +1,4 @@
-//= require vendor/raf-shim
+//= require vendor/rAF
 //= require vendor/base64.min
 //= require extensions
 //= require namespace
