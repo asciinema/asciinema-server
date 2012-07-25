@@ -7,6 +7,8 @@ defaults: &defaults
   AWS_SECRET_ACCESS_KEY: 
   AWS_REGION: 
   AWS_BUCKET: 
+  HOME_CAST_ID: 
+  COLOR_CHECK_CAST_ID: 
 
 development:
   <<: *defaults
@@ -16,6 +18,7 @@ development:
   TWITTER_CONSUMER_SECRET: "Ytqj4IfXmQ7gn0yWf2GgFUpFDAWfqYpVkX3P1ng0TU"
   GITHUB_CONSUMER_KEY: "455d7cde838004d7d46a"
   GITHUB_CONSUMER_SECRET: "5e076dbe06e79f6a7e329a4c7b306c0a0c6055c1"
+  COLOR_CHECK_CAST_ID: 1
 
 bugfix:
   <<: *defaults

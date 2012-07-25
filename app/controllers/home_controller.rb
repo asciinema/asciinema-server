@@ -1,10 +1,17 @@
 class HomeController < ApplicationController
   def show
-    offset = (Asciicast.featured.count * rand).to_i
-    asciicast = Asciicast.featured.offset(offset).first ||
-                Asciicast.order("created_at DESC").first
-    @asciicast = AsciicastDecorator.new(asciicast)
+    if home_asciicast_id = CFG['HOME_CAST_ID']
+      asciicast = Asciicast.find(home_asciicast_id)
+    else
+      asciicast = Asciicast.order("created_at DESC").first
+    end
 
-    @asciicasts = AsciicastDecorator.decorate(Asciicast.order("created_at DESC").limit(9))
+    if asciicast
+      @asciicast = AsciicastDecorator.new(asciicast)
+    end
+
+    @asciicasts = AsciicastDecorator.decorate(
+      Asciicast.order("created_at DESC").limit(9)
+    )
   end
 end

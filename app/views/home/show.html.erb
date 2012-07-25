@@ -17,8 +17,10 @@
     </div>
 
     <div class="secondary_info">
-      <%= render :partial => 'asciicasts/player',
-                 :locals => { :asciicast => @asciicast } %>
+      <% if @asciicast -%>
+        <%= render :partial => 'asciicasts/player',
+                  :locals => { :asciicast => @asciicast } %>
+      <% end -%>
     </div>
   </div>
 </section>
