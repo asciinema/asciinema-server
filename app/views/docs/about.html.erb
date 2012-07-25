@@ -1,24 +1,47 @@
-<h1>
-  About
-</h1>
+<%= markdown do %>
 
-<p>No nonsense asciicasting for serious hackers</p>
+# About
 
-<p>
-  <a href="https://twitter.com/asciiio">Follow on Twitter</a> |
-  <a href="https://github.com/sickill/ascii.io">Contribute on Github</a> |
-  <a href="https://twitter.com/sickill">Meet the authors</a>
-</p>
+ASCII.IO is the simplest way to record your terminal and share the recordings
+with your fellow geeks.
 
-<h2>What?</h2>
+It's a free service built with open-source technologies (check the
+[source](https://github.com/sickill/ascii.io)
+[code](https://github.com/sickill/ascii.io-cli)) aiming to be a "go to" place
+for everyone who want to share his terminal Voodoo.
 
-<p>
-  <strong>ascii.io</strong> lets you record your terminal sessions and share
-  them with other geeks simply by running <code>asciiio</code> command in your term.
-</p>
+## Parts
 
-<p>
-  It is fully open-source platform with aim of being a "go to" place for terminal users
-  wanting to share their hackery. Web based player is an implementation of VT100/VT102
-  ANSI terminal, supporting most ANSI sequences, all text attributes and 256 colors.
-</p>
+The service consists of two parts:
+
+* Terminal recording utility
+* This site with web based player
+
+Terminal recorder is a [Python
+script](https://github.com/sickill/ascii.io-cli/blob/master/bin/asciiio.py)
+that acts as a middleman
+([pseudo-terminal](http://en.wikipedia.org/wiki/Pseudo_terminal) specifically)
+between your shell and your terminal, recording all terminal activity and
+uploading it to [ascii.io](http://ascii.io) site.
+
+Web based player is a JavaScript implementation of
+[VT102 ANSI terminal](http://en.wikipedia.org/wiki/VT102), supporting most ANSI
+control codes and sequences, all text attributes and
+[256 colors](<%= asciicast_path(CFG['COLOR_CHECK_CAST_ID']) %>).
+
+## Authors
+
+ASCII.IO was created by [Marcin Kulik](/~sickill) with the help of
+[Michał Wróbel](https://github.com/sparrovv).
+
+## Getting in touch
+
+[twitter.com/asciiio](https://twitter.com/asciiio) |
+[twitter.com/sickill](https://twitter.com/asciiio)
+
+## Contributing
+
+[Source code](https://github.com/sickill/ascii.io) |
+[Issues](https://github.com/sickill/ascii.io/issues)
+
+<% end -%>

@@ -1,7 +1,21 @@
-<h1>
-  Options
-</h1>
+<%= markdown do %>
 
-<p>
-  TODO
-</p>
+# Recorder options
+
+    $ asciiio -h
+    usage: asciiio.py [-h] [-i] [-c <command>] [-t <title>] [action]
+
+    Asciicast recorder+uploader.
+
+    Actions:
+    rec           record asciicast (this is the default when no action given)
+    upload        upload recorded (but not uploaded) asciicasts
+    auth          authenticate and/or claim recorded asciicasts
+
+    Optional arguments:
+    -c command    run specified command instead of shell ($SHELL)
+    -t title      specify title of recorded asciicast
+    -h, --help    show this help message and exit
+    --version     show version information
+
+<% end -%>

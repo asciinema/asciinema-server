@@ -96,6 +96,13 @@ a img {
     color: #333;
   }
 
+  .main h2 {
+    @include font;
+    margin-top: 40px;
+    font-size: 20px;
+    line-height: 24px;
+  }
+
   .extras h2 {
     @include font;
     font-weight: 300;
@@ -215,4 +222,11 @@ ul.delimited {
 
 .extras ul li .active {
   font-weight: bold;
+}
+
+.main {
+  ul, ol {
+    list-style: initial;
+    padding-left: 30px;
+  }
 }
