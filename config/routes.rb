@@ -1,12 +1,14 @@
 AsciiIo::Application.routes.draw do
 
+  match "/browse" => "asciicasts#index", :as => :browse
+  match "/browse/popular" => "asciicasts#popular", :as => :popular
+
   resources :asciicasts, :path => 'a'
 
   match "/~:nickname" => "users#show", :as => :profile
 
-  match "/browse" => "asciicasts#index", :as => :browse
-
-  match "/manual" => "static_pages#show", :page => 'manual'
+  match "/docs" => "docs#show", :page => 'record'
+  match "/docs/:page" => "docs#show", :as => :docs
 
   match "/auth/:provider/callback" => "sessions#create"
   match "/auth/failure" => "sessions#failure"

@@ -10,10 +10,14 @@ class ApplicationController < ActionController::Base
   rescue_from Unauthorized, :with => :unauthorized
   rescue_from Forbidden, :with => :forbidden
 
-  helper_method :current_user
+  helper_method :current_user, :current_user_decorated
 
   def current_user
     @current_user ||= User.find_by_id(session[:user_id]) if session[:user_id]
+  end
+
+  def current_user_decorated
+    @current_user_decorated ||= UserDecorator.new(current_user)
   end
 
   def current_user=(user)
@@ -74,7 +78,7 @@ class ApplicationController < ActionController::Base
       end
 
       format.html do
-        render 'application/not_found', :status => 404
+        render 'application/not_found', :status => 404, :layout => 'application'
       end
     end
   end

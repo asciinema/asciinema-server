@@ -1,4 +1,16 @@
-<ul id="login">
-  <li><%= link_to "Github Sign in", github_auth_path %></li>
-  <li><%= link_to "Twitter Sign in", twitter_auth_path %></li>
-</ul>
+<section class="supplimental">
+  <div class="wrapper">
+    <h1>Log In</h1>
+
+    <p>
+      Log in with your GitHub or Twitter account:
+    </p>
+
+    <ul id="login">
+      <li><%= link_to "Log in via Github", github_auth_path, :class => 'github-login' %></li>
+      <li><%= link_to "Log in via Twitter", twitter_auth_path, :class => 'twitter-login' %></li>
+    </ul>
+  </div>
+
+  <div class="vertical-expander"></div>
+</section>

@@ -1,20 +1,30 @@
-<div class="page-header">
-  <h1>
-    ~<%= @user.nickname %>
-    <%= avatar_img(@user) %> 
-  </h1>
+<section class="supplimental">
+  <div class="wrapper">
+    <div class="main">
+      <h1>Asciicasts by ~<%= @user.nickname %></h1>
 
-  <p class="meta">
-    <%= @user.asciicasts.count %> asciicasts
-  </p>
+      <%= render :partial => 'asciicasts/previews' %>
+      <%= paginate @asciicasts %>
 
-  <% if current_user %>
-    <p><%= link_to 'Settings', edit_user_path %></p>
-  <% end %>
-</div>
+      <% if @asciicasts.size == 0 %>
+        <% if current_user && current_user.id == @user.id -%>
+          You haven't recorded anything yet. <%= link_to 'Record now', record_path %>
+        <% else -%>
+          <%= @user.nickname %> hasn't recorded anything yet.
+        <% end -%>
+      <% end -%>
+    </div>
 
-<ul class="asciicasts">
-  <%= render :partial => "asciicasts/preview", :collection => @asciicasts, :as => :asciicast %>
-</ul>
+    <div class="extras">
+      <h1><%= @user.nickname %></h1>
+      <p><%= @user.avatar_img %></p>
+      <h3><%= @user.asciicasts_count %> asciicasts</h3>
 
-<%= paginate @asciicasts %>
+      <% if current_user %>
+        <p><%= link_to 'Settings', edit_user_path %></p>
+      <% end %>
+    </div>
+  </div>
+</section>
+
+

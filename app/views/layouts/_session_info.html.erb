@@ -1,9 +1,19 @@
-<ul class="nav pull-right">
-  <li class="divider-vertical"></li>
-
+<ul class="session-info">
   <% if current_user %>
-    <li class="avatar"><%= link_to avatar_img(current_user), profile_path(current_user) %></li>
-    <li><%= link_to "Log out", logout_path, :class => "logout" %></li>
+    <li class="username">
+      <%= current_user_decorated.avatar_profile_link(:title => '') %>
+      <%= link_to "~#{current_user.nickname}", profile_path(current_user) %>
+
+      <ul class="menu">
+        <li>
+          <%= link_to "Settings", edit_user_path, :class => "settings" %>
+        </li>
+        <li>
+          <%= link_to "Log out", logout_path, :class => "logout" %>
+        </li>
+      </ul>
+    </li>
+
   <% else %>
     <li><%= link_to "Log in", login_path %></li>
   <% end %>

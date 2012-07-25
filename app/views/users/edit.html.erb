@@ -1,31 +1,37 @@
-<%= form_for @user, :html => { :class => 'form-horizontal' } do |f| %>
-  <fieldset>
-    <legend>Account settings</legend>
+<section class="supplimental">
+  <div class="wrapper">
+    <%= form_for @user, :html => { :class => 'form-horizontal' } do |f| %>
+      <fieldset>
+        <legend>Account settings</legend>
 
-    <div class="control-group">
-      <%= f.label :nickname, :class => 'control-label' %>
-      <div class="controls">
-        <%= f.text_field :nickname, :class => 'text_field' %>
-      </div>
-    </div>
+        <div class="control-group">
+          <%= f.label :nickname, 'Username', :class => 'control-label' %>
+          <div class="controls">
+            <%= f.text_field :nickname, :class => 'text_field' %>
+          </div>
+        </div>
 
-    <div class="control-group">
-      <%= f.label :name, 'Real name', :class => 'control-label' %>
-      <div class="controls">
-        <%= f.text_field :name, :class => 'text_field' %>
-      </div>
-    </div>
+        <div class="control-group">
+          <%= f.label :name, 'Real name', :class => 'control-label' %>
+          <div class="controls">
+            <%= f.text_field :name, :class => 'text_field' %>
+          </div>
+        </div>
 
-    <div class="control-group">
-      <%= f.label :email, :class => 'control-label' %>
-      <div class="controls">
-        <%= f.text_field :email, :class => 'text_field' %>
-      </div>
-    </div>
+        <div class="control-group">
+          <%= f.label :email, :class => 'control-label' %>
+          <div class="controls">
+            <%= f.text_field :email, :class => 'text_field' %>
+          </div>
+        </div>
 
-    <div class="form-actions">
-      <%= f.submit 'Save', :class => 'btn btn-primary' %>
-      <%= link_to 'Cancel', profile_path(@user), :class => 'btn' %>
-    </div>
-  </fieldset>
-<% end %>
+        <div class="form-actions">
+          <%= f.submit 'Save', :class => 'btn btn-primary' %>
+          <%= link_to 'Cancel', profile_path(@user), :class => 'btn' %>
+        </div>
+      </fieldset>
+    <% end %>
+
+    <div class="vertical-expander"></div>
+  </div>
+</section>

@@ -1,0 +1,33 @@
+#login {
+  margin: 0;
+  padding: 0;
+
+  a {
+    // display: inline-block;
+    padding: 15px;
+    font-weight: bold;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  a:hover {
+  }
+
+  li {
+    margin: 0;
+    padding: 0;
+    display: inline;
+    margin-right: 20px;
+  }
+}
+
+.github-login {
+  background-color: black;
+  color: white;
+}
+
+.twitter-login {
+  background-color: blue;
+  color: black;
+}
+

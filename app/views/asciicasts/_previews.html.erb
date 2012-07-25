@@ -1,0 +1,20 @@
+<div class="presentations">
+  <% @asciicasts.each do |asciicast| -%>
+    <div class="presentation">
+      <%= link_to asciicast, :class => 'preview-link' do %>
+        <div class="play-button"><div class="arrow">►</div></div>
+        <pre class="preview"><%= asciicast.thumbnail(28, 9) %></pre>
+      <% end -%>
+
+      <div class="info">
+        <h3>
+          <%= link_to asciicast.smart_title, asciicast %>
+        </h3>
+
+        <p class="date">
+          <%= asciicast.created_at %> ago by <%= asciicast.author_profile_link %>
+        </p>
+      </div>
+    </div>
+  <% end -%>
+</div>

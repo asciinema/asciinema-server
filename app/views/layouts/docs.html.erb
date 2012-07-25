@@ -1,0 +1,15 @@
+<% content_for :content do %>
+  <section class="supplimental">
+    <div class="wrapper">
+      <div class="main">
+        <%= yield %>
+      </div>
+
+      <div class="extras">
+        <%= render :partial => 'docs_topics' %>
+      </div>
+    </div>
+  </section>
+<% end -%>
+
+<%= render :template => 'layouts/application' %>

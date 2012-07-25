@@ -1,27 +1,5 @@
 module AsciicastsHelper
 
-  def profile_link(asciicast, options = {})
-    if asciicast.user
-      if options[:avatar]
-        img = avatar_img(asciicast.user) + " "
-      else
-        img = ""
-      end
-
-      link_to img + "~#{asciicast.user.nickname}", profile_path(asciicast.user)
-    else
-      if asciicast.username.present?
-        "~#{asciicast.username}"
-      else
-        "anonymous"
-      end
-    end
-  end
-
-  def asciicast_time(asciicast)
-    time_ago_in_words(asciicast.created_at) + " ago"
-  end
-
   def player_script(asciicast, options = {})
     speed = (params[:speed] || 1).to_f
     benchmark = !!params[:bm]

@@ -1,0 +1,20 @@
+a.preview-link {
+  .play-button {
+    display: none;
+
+    .arrow {
+      color: black;
+      font-size: 80px;
+      margin-left: -37px;
+      margin-top: -79px;
+    }
+  }
+
+  &:hover {
+    text-decoration: none;
+
+    .play-button {
+      display: block;
+    }
+  }
+}

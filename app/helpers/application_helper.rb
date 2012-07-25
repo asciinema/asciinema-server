@@ -1,20 +1,20 @@
 module ApplicationHelper
+  def page_title
+    title = "ascii.io"
+
+    if @title
+      title = "#{@title} - #{title}"
+    end
+
+    title
+  end
+
   def twitter_auth_path
     "/auth/twitter"
   end
 
   def github_auth_path
     "/auth/github"
-  end
-
-  def default_avatar_url
-    image_path "default_avatar.png"
-  end
-
-  def avatar_img(user)
-    nickname =  "~#{user.nickname}"
-    image_tag user.avatar_url || default_avatar_url,
-      :title => nickname, :alt => nickname, :class => "avatar"
   end
 
   def markdown(&block)
@@ -24,5 +24,15 @@ module ApplicationHelper
 
   def indented(string, width)
     string.lines.map { |l| "#{' ' * width}#{l}" }.join('')
+  end
+
+  def category_link(text, url, name)
+    opts = {}
+
+    if name == @current_category
+      opts[:class] = 'active'
+    end
+
+    link_to text, url, opts
   end
 end

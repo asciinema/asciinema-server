@@ -1,85 +1,37 @@
-<div class="hero-unit home-page">
-  <h1>ascii.io</h1>
-  <p>No nonsense asciicasting for serious hackers</p>
+<section id="about" class="feature">
+  <div class="wrapper">
+    <div class="primary_info">
+      <h1>
+        <em>Record Your Terminal</em>
+        Share it with no fuss
+      </h1>
 
-  <p>
-    <a href="https://twitter.com/asciiio">Follow on Twitter</a> |
-    <a href="https://github.com/sickill/ascii.io">Contribute on Github</a> |
-    <a href="https://twitter.com/sickill">Meet the authors</a>
-  </p>
-</div>
+      <p> ASCII.IO is the simplest way to record your terminal and share
+        recordings with your fellow geeks.  Simply record and upload your
+        terminal session with <%= link_to 'single command', docs_path(:record) %>, and
+        ASCII.IO will play it back in your browser.  </p>
 
-<div class="hero-unit">
-  <h2>What?</h2>
+      <p>
+        <%= link_to '&raquo; Start Recording'.html_safe, docs_path(:record) %>
+      </p>
+    </div>
 
-  <p>
-    <strong>ascii.io</strong> lets you record your terminal sessions and share
-    them with other geeks simply by running <code>asciiio</code> command in your term.
-  </p>
-
-  <p>
-    It is fully open-source platform with aim of being a "go to" place for terminal users
-    wanting to share their hackery. Web based player is an implementation of VT100/VT102
-    ANSI terminal, supporting most ANSI sequences, all text attributes and 256 colors.
-  </p>
-</div>
-
-<div class="hero-unit">
-  <h2>See</h2>
-
-  <p>
-    "A picture is worth a thousand words" Fred R. Barnard once said.
-  </p>
-  <p>
-    Just watch one of the featured asciicasts and see how cool
-    <strong>ascii.io</strong> is.
-  </p>
-
-  <div class="featured-asciicast">
-    <h3><%= @asciicast.smart_title %></h3>
-
-    <%= render :partial => 'asciicasts/asciicast',
-              :object => @asciicast,
-              :locals => { :skip_description => true, :auto_play => false } %>
-
-    <div class="clear"></div>
+    <div class="secondary_info">
+      <%= render :partial => 'asciicasts/player',
+                 :locals => { :asciicast => @asciicast } %>
+    </div>
   </div>
+</section>
 
-  <div class="clear"></div>
-</div>
+<section class="supplimental">
+  <div class="wrapper">
+    <div class="main">
+      <h1>Recent Asciicasts</h1>
+      <%= render :partial => 'asciicasts/previews' %>
+    </div>
 
-<div class="hero-unit">
-  <h2>Use it</h2>
-
-  <%= markdown do %>
-To install or upgrade **ascii.io** recorder, open a terminal and run following command:
-
-    $ curl -sL get.ascii.io | bash
-
-(when using zsh you may need to run `rehash` after above command)
-
-That's it! Now you can start recording your terminal sessions with:
-
-    $ asciiio
-
-If you want your recordings to be assigned to your ascii.io profile (btw, see mine: [~sickill](/~sickill)) run this
-and follow instructions:
-
-    $ asciiio auth
-
-See available commands and options with:
-
-    $ asciiio -h
-  <% end %>
-
-  <%# <%= link_to 'See help', manual_path, :class => "btn btn-large" %1> %>
-</div>
-
-<div class="hero-unit">
-  <h2>Explore</h2>
-
-  <p>
-    <%= link_to 'Browse', browse_path %> through
-    all recorded asciicasts.
-  </p>
-</div>
+    <div class="extras">
+      <%= render :partial => 'shared/browse_categories' %>
+    </div>
+  </div>
+</section>

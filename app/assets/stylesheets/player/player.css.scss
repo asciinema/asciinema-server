@@ -2,40 +2,30 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
+@import '../terminal-font';
+@import '../shared';
+
 $color1: #00A0B0;
 $color2: #6A4A3C;
 $color3: #CC333F;
 $color4: #EB6841;
 $color5: #EDC951;
 
-// .asciicasts {
-//   list-style: none;
-
-//   .asciicast-preview {
-//     h3 {
-//       font-size: 16px;
-
-//       a {
-//         color: $color1;
-//       }
-//     }
-
-//     margin-bottom: 30px;
-//   }
-// }
-
 @mixin player-overlay {
-  background-color: black;
-  opacity: 0.5;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 10;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 
 .player {
-  /* border: 1px solid #777;*/
-  /* background-color: #333;*/
-  float: left;
+  // float: left;
   display: block;
   padding: 0px;
-  // margin: 0px 0px 30px 20px;
+  margin: 0 auto;
   position: relative;
 
   &.not-started .hud .toggle {
@@ -51,9 +41,7 @@ $color5: #EDC951;
   }
 
   .terminal, .font-sample, .hud {
-    font-family: 'Bitstream Vera Sans Mono', 'Courier New', monospace;
-    font-size: 12px;
-    line-height: inherit;
+    @include terminal-font;
 
     .line {
       line-height: 15px;
@@ -95,26 +83,29 @@ $color5: #EDC951;
     background-image: url(image-path('loader.gif'));
     background-repeat: no-repeat;
     background-position: center;
-    z-index: 10;
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
   }
 
   .start-prompt {
     @include player-overlay;
-    background-image: url(image-path('play-button-1.png'));
-    background-repeat: no-repeat;
-    background-position: center;
-    z-index: 20;
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
     cursor: pointer;
+
+    .play-button {
+      .arrow {
+        color: white;
+        font-size: 140px;
+        width: 150px;
+        margin-left: -75px;
+        margin-top: -100px;
+        -webkit-font-smoothing: none;
+
+        &:hover {
+          text-shadow: 2px 2px 5px $main-color;
+
+          // -moz-transform: rotate(-5deg);
+          // -webkit-transform: rotate(-5deg);
+        }
+      }
+    }
   }
 
   .hud {

@@ -1,10 +1,10 @@
 class UsersController < ApplicationController
-  PER_PAGE = 20
+  PER_PAGE = 15
 
   before_filter :ensure_authenticated!, :only => [:edit, :update]
 
   def show
-    @user = User.find_by_nickname!(params[:nickname])
+    @user = UserDecorator.find_by_nickname!(params[:nickname])
 
     collection = @user.asciicasts.
       order("created_at DESC").
@@ -17,6 +17,7 @@ class UsersController < ApplicationController
   def create
     @user = User.new(params[:user])
     load_sensitive_user_data_from_session
+
     if @user.save
       clear_sensitive_session_user_data
       self.current_user = @user

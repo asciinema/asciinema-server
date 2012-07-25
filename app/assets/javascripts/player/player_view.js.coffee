@@ -116,7 +116,7 @@ class AsciiIo.PlayerView extends Backbone.View
     @$('.loading').remove()
 
   showToggleOverlay: ->
-    @$el.append('<div class="start-prompt">')
+    @$el.append('<div class="start-prompt"><div class="play-button"><div class="arrow">►</div></div></div>')
 
   hideToggleOverlay: ->
     @$('.start-prompt').remove()

@@ -1,19 +1,106 @@
-// Place all the styles related to the home controller here.
-// They will automatically be included in application.css.
-// You can use Sass (SCSS) here: http://sass-lang.com/
+@import 'terminal-font';
+@import 'shared';
 
-.hero-unit.home-page {
-  .asciicast {
-    margin-top: 10px;
+#about {
+  padding: 25px 10px 45px 10px;
+
+  h1 {
+    @include font;
+    font-weight: 300;
+    color: $main-color;
+    font-size: 50px;
+    line-height: 0.9;
+    margin: 0 0 30px;
+    letter-spacing: -0.05em;
+
+    em {
+      color: white;
+      font-weight: 300;
+      font-style: normal;
+    }
   }
 
-  h2 {
-    margin: 50px 0 10px 0;
+  p {
+    @include font;
+    font-weight: 300;
+    color: $main-color-light;
+    font-size: 20px;
+    line-height: 1.5;
+    margin: 0 0 30px;
+    letter-spacing: 0;
+    -webkit-font-smoothing: antialiased;
   }
 }
 
-.featured-asciicast {
-  background-color: white;
-  padding: 20px;
+div.primary_info {
+  float: right;
+  width: 460px;
+  margin-top: 20px;
+}
+
+div.secondary_info {
   float: left;
+  width: 460px;
+  margin-top: 20px;
+  overflow: hidden;
+
+  .player .start-prompt .play-button {
+    left: 230px;
+  }
+}
+
+.supplimental {
+  div.presentation {
+    float: left;
+    margin: 0 38px 20px 0;
+    width: 210px;
+    font-size: 15px;
+    position: relative;
+
+    .preview {
+      @include terminal-font;
+
+      background-color: white;
+      color: #333;
+      overflow: hidden;
+      word-wrap: normal;
+      white-space: pre;
+      border: 10px solid white;
+      border-radius: 4px;
+      margin: 1em 0 0.6em 0;
+    }
+
+    .info {
+      h3 {
+        @include font;
+        letter-spacing: 0;
+        font-weight: 300;
+        font-size: 18px;
+        line-height: 1.2;
+        margin: 0 0 10px;
+        word-wrap: break-word;
+
+        a {
+          color: #333;
+        }
+      }
+
+      p.date {
+        color: #777;
+        margin: -8px 0 10px;
+      }
+    }
+  }
+
+  div.presentation:nth-child(3n+1) {
+    clear: left;
+  }
+
+  div.presentation:nth-child(3n) {
+    margin-right: 0;
+  }
+}
+
+.presentations {
+  clear: both;
 }

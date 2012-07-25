@@ -6,6 +6,8 @@
 
 set -e
 
+unset TMUX
+
 SESSION_NAME=asciiio-thumb-$ASCIICAST_ID-`date +'%s'`
 
 tmux new -s $SESSION_NAME -d -x $COLS -y $LINES "$COMMAND"

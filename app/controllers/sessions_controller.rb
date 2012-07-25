@@ -13,13 +13,13 @@ class SessionsController < ApplicationController
       render 'users/new', :status => 422
     else
       self.current_user = @user
-      redirect_back_or_to root_url, :notice => "Signed in!"
+      redirect_back_or_to root_url, :notice => "Logged in!"
     end
   end
 
   def destroy
     self.current_user = nil
-    redirect_to root_url, :notice => "Signed out!"
+    redirect_to root_url, :notice => "Logged out!"
   end
 
   def failure

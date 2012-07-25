@@ -16,6 +16,10 @@ class AsciicastDecorator < ApplicationDecorator
     data
   end
 
+  def created_at
+    h.distance_of_time_in_words_to_now(model.created_at).sub('about ', '')
+  end
+
   def escaped_stdout_data
     if data = stdout.read
       Base64.strict_encode64(data)
@@ -94,6 +98,29 @@ class AsciicastDecorator < ApplicationDecorator
     end
 
     @thumbnail
+  end
+
+  def formatted_description
+    text = model.description.to_s
+    MKD_RENDERER.render(text).html_safe
+  end
+
+  def author_profile_link(options = {})
+    if asciicast.user
+      if options[:avatar]
+        img = avatar_img(asciicast.user) + " "
+      else
+        img = ""
+      end
+
+      h.link_to img + "~#{asciicast.user.nickname}", h.profile_path(asciicast.user)
+    else
+      if asciicast.username.present?
+        "~#{asciicast.username}"
+      else
+        "anonymous"
+      end
+    end
   end
 
   private

@@ -1,70 +1,57 @@
-@mixin normal-text {
-  font-size: 14px;
-  font-weight: normal;
-}
+.extras {
+  .author {
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 30px;
 
-.asciicast-heading {
-  // width: 100%;
-  // background-color: #222;
+    h2 {
+      position: absolute;
+      top: 0;
+      left: 60px;
+      width: 150px;
 
-  .meta {
-    @include normal-text;
-    float: right;
-  //   .avatar {
-  //     width: 24px;
-  //     padding: 1px;
-  //     background-color: white;
-  //     border: 1px solid #ccc;
-  //   }
-  }
+      a {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 22px;
+        width: 150px;
+        white-space: nowrap;
+      }
 
-  .edit-title {
-    @include normal-text;
-  }
-
-  // .description {
-  //   color: #3e3e3e;
-  //   font-family: arial, helvetica;
-  //   font-size: 18px;
-  //   margin: 20px 0;
-  // }
-
-  .env-info {
-    margin: 15px 0 0 0;
-    font-size: 12px;
-
-    .value {
-      font-weight: bold;
     }
-  }
-}
 
-.asciicast-delete-link {
-  color: #d00;
-}
+    p {
+      position: absolute;
+      top: 23px;
+      left: 60px;
+    }
 
-.asciicast {
-  .player {
-    margin-bottom: 40px;
-  }
-}
-
-.asciicast-preview {
-  margin-bottom: 15px;
-
-  .meta {
-    font-size: 14px;
-    font-weight: normal;
-  }
-
-  .description {
-    font-style: italic;
-  }
-
-  .thumb {
-    pre {
+    img {
+      -webkit-border-radius: 4px;
+      -moz-border-radius: 4px;
+      -ms-border-radius: 4px;
+      -o-border-radius: 4px;
+      border-radius: 4px;
       float: left;
-      line-height: 1.2em;
+      width: 48px;
     }
+  }
+
+  a {
+    font-size: 14px;
+    line-height: 25px;
+  }
+}
+
+.asciicast-wrapper {
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+.description {
+  ul, ol {
+    list-style: initial;
   }
 }

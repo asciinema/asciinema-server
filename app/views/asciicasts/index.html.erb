@@ -1,9 +1,13 @@
-<div class="page-header">
-  <h1>All asciicasts</h1>
-</div>
+<section class="supplimental">
+  <div class="wrapper">
+    <div class="main">
+      <h1><%= @category_name %></h1>
+      <%= render :partial => 'asciicasts/previews' %>
+      <%= paginate @asciicasts %>
+    </div>
 
-<ul class="asciicasts">
-  <%= render :partial => "asciicasts/preview", :collection => @asciicasts, :as => :asciicast %>
-</ul>
-
-<%= paginate @asciicasts %>
+    <div class="extras">
+      <%= render :partial => 'shared/browse_categories' %>
+    </div>
+  </div>
+</section>

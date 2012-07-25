@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120504191706) do
+ActiveRecord::Schema.define(:version => 20120724203244) do
 
   create_table "asciicasts", :force => true do |t|
     t.integer  "user_id"
@@ -38,6 +38,7 @@ ActiveRecord::Schema.define(:version => 20120504191706) do
     t.integer  "comments_count",   :default => 0,     :null => false
     t.integer  "likes_count",      :default => 0,     :null => false
     t.boolean  "time_compression", :default => true,  :null => false
+    t.integer  "views_count",      :default => 0,     :null => false
   end
 
   add_index "asciicasts", ["created_at"], :name => "index_asciicasts_on_created_at"
@@ -46,6 +47,7 @@ ActiveRecord::Schema.define(:version => 20120504191706) do
   add_index "asciicasts", ["recorded_at"], :name => "index_asciicasts_on_recorded_at"
   add_index "asciicasts", ["user_id"], :name => "index_asciicasts_on_user_id"
   add_index "asciicasts", ["user_token"], :name => "index_asciicasts_on_user_token"
+  add_index "asciicasts", ["views_count"], :name => "index_asciicasts_on_views_count"
 
   create_table "comments", :force => true do |t|
     t.text     "body",         :null => false
@@ -55,6 +57,7 @@ ActiveRecord::Schema.define(:version => 20120504191706) do
     t.datetime "updated_at",   :null => false
   end
 
+  add_index "comments", ["asciicast_id", "created_at"], :name => "index_comments_on_asciicast_id_and_created_at"
   add_index "comments", ["asciicast_id"], :name => "index_comments_on_asciicast_id"
   add_index "comments", ["user_id"], :name => "index_comments_on_user_id"
 

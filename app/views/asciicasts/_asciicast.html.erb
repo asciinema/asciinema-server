@@ -1,6 +1,6 @@
 <div class="asciicast">
   <div class="wrapper">
-    <div class="player"></div>
+    <%= render :partial => 'player', :locals => { :asciicast => asciicast } %>
     <div class="clear"></div>
   </div>
 
@@ -10,5 +10,3 @@
     </div>
   <% end %>
 </div>
-
-<%= player_script(asciicast, :auto_play => local_assigns[:auto_play]) %>
