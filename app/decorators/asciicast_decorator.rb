@@ -102,7 +102,7 @@ class AsciicastDecorator < ApplicationDecorator
 
   def formatted_description
     text = model.description.to_s
-    MKD_RENDERER.render(text).html_safe
+    MKD_SAFE_RENDERER.render(text).html_safe
   end
 
   def author_profile_link(options = {})

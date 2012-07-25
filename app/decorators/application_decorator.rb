@@ -26,10 +26,6 @@ class ApplicationDecorator < Draper::Base
   #     formatted_timestamp(model.updated_at)
   #   end
 
-  def markdown(text)
-    MKD_RENDERER.render(text)
-  end
-
   def as_json(*args)
     model.as_json(*args)
   end
