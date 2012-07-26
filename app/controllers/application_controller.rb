@@ -67,7 +67,7 @@ class ApplicationController < ActionController::Base
       render :json => "Unauthorized", :status => 401
     else
       store_location
-      redirect_to login_path, :notice => "Please login"
+      redirect_to login_path, :notice => "Please login first"
     end
   end
 
