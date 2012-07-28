@@ -1,7 +1,7 @@
 module AsciicastsHelper
 
   def player_script(asciicast, options = {})
-    speed = (params[:speed] || 1).to_f
+    speed = (options[:speed] || 1).to_f
     benchmark = !!params[:bm]
     auto_play = options.key?(:auto_play) ? !!options[:auto_play] : false
 
