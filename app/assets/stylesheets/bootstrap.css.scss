@@ -146,3 +146,9 @@ textarea {
 .controls > .radio:first-child, .controls > .checkbox:first-child {
   padding-top: 5px;
 }
+
+.error {
+  .help-inline {
+    color: #c00;
+  }
+}

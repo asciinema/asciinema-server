@@ -11,7 +11,7 @@ class User < ActiveRecord::Base
 
   validates_uniqueness_of \
     :nickname,
-    :message => "Sorry, but your nickname is already taken"
+    :message => "Sorry, but your nickname is already taken, choose different one"
 
   has_many :user_tokens, :dependent => :destroy
   has_many :asciicasts, :dependent => :destroy
