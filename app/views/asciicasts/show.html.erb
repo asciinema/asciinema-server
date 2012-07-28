@@ -2,7 +2,8 @@
   <div class="asciicast-wrapper">
     <%= render :partial => 'asciicasts/player', :locals => {
       :asciicast => @asciicast,
-      :speed => params[:speed]
+      :speed => params[:speed],
+      :hud => true
     } %>
 
   </div>

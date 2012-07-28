@@ -5,7 +5,7 @@ class AsciiIo.PlayerView extends Backbone.View
   initialize: (options) ->
     @prepareSelfView()
     @createRendererView()
-    @createHudView()
+    @createHudView() if options.hud
     @fetchModel()
     @showLoadingIndicator()
 
@@ -24,7 +24,7 @@ class AsciiIo.PlayerView extends Backbone.View
 
   createHudView: ->
     @hudView = new AsciiIo.HudView(cols: @options.cols)
-    @$el.append(@hudView.$el)
+    @$el.append @hudView.$el
 
   fetchModel: ->
     @model.fetch success: => @onModelFetched()
@@ -53,7 +53,7 @@ class AsciiIo.PlayerView extends Backbone.View
 
   onModelReady: ->
     @hideLoadingIndicator()
-    @hudView.setDuration @model.get('duration')
+    @hudView.setDuration @model.get('duration') if @options.hud
     @createMovie()
     @bindEvents()
 
@@ -79,9 +79,12 @@ class AsciiIo.PlayerView extends Backbone.View
     @movie.on 'reset', => @vt.reset()
     @movie.on 'finished', => @vt.stopCursorBlink()
     @movie.on 'wakeup', => @vt.restartCursorBlink()
-    @movie.on 'paused', => @hudView.onPause()
-    @movie.on 'resumed', => @hudView.onResume()
-    @movie.on 'time', (time) => @hudView.updateTime(time)
+
+    if @options.hud
+      @movie.on 'paused', => @hudView.onPause()
+      @movie.on 'resumed', => @hudView.onResume()
+      @movie.on 'time', (time) => @hudView.updateTime(time)
+
     @movie.on 'started', => @$el.removeClass('not-started')
 
     @movie.on 'data', (data) =>
@@ -94,8 +97,9 @@ class AsciiIo.PlayerView extends Backbone.View
     @vt.on 'cursor:show', => @rendererView.showCursor true
     @vt.on 'cursor:hide', => @rendererView.showCursor false
 
-    @hudView.on 'play-click', => @movie.togglePlay()
-    @hudView.on 'seek-click', (percent) => @movie.seek(percent)
+    if @options.hud
+      @hudView.on 'play-click', => @movie.togglePlay()
+      @hudView.on 'seek-click', (percent) => @movie.seek(percent)
 
     if @options.benchmark
       @movie.on 'started', =>

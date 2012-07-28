@@ -1,2 +1,5 @@
 <div class="player"></div>
-<%= player_script(asciicast, :speed => local_assigns[:speed]) %>
+<%= player_script(asciicast,
+  :speed => local_assigns[:speed],
+  :hud => local_assigns[:hud]
+) %>

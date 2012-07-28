@@ -20,7 +20,8 @@
       <% if @asciicast -%>
         <%= render :partial => 'asciicasts/player', :locals => {
           :asciicast => @asciicast,
-          :speed => 2.0
+          :speed => 2.0,
+          :hud => false
         } %>
       <% end -%>
     </div>
