@@ -8,7 +8,8 @@
 
       <% if @asciicasts.size == 0 %>
         <% if current_user && current_user.id == @user.id -%>
-          You haven't recorded anything yet. <%= link_to 'Record now', record_path %>
+          You haven't recorded anything yet.
+          <%= link_to 'Record now', docs_path(:record) %>
         <% else -%>
           <%= @user.nickname %> hasn't recorded anything yet.
         <% end -%>
@@ -26,5 +27,3 @@
     </div>
   </div>
 </section>
-
-
