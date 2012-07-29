@@ -248,7 +248,8 @@ class AsciiIo.VT
     if params.length is 0
       numbers = []
     else
-      numbers = _(params.replace(/[^0-9;]/, '').split(';')).map (n) -> if n is '' then undefined else parseInt(n)
+      numbers = _(params.replace(/[^0-9;]/, '').split(';')).map (n) ->
+        if n is '' then undefined else parseInt(n, 10)
 
     numbers
 
