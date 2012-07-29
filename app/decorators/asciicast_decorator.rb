@@ -102,7 +102,7 @@ class AsciicastDecorator < ApplicationDecorator
 
   def formatted_description
     text = model.description.to_s
-    MKD_SAFE_RENDERER.render(text).html_safe
+    markdown(text)
   end
 
   def author_profile_link(options = {})
@@ -113,7 +113,10 @@ class AsciicastDecorator < ApplicationDecorator
         img = ""
       end
 
-      h.link_to img + "~#{asciicast.user.nickname}", h.profile_path(asciicast.user)
+      text = img + "~#{asciicast.user.nickname}"
+      path = h.profile_path(asciicast.user)
+
+      h.link_to text, path
     else
       if asciicast.username.present?
         "~#{asciicast.username}"

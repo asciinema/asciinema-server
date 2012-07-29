@@ -55,7 +55,8 @@ class AsciicastsController < ApplicationController
                   :notice => 'Asciicast was deleted.'
     else
       redirect_to asciicast_path(@asciicast),
-                  :alert => "Oops, we couldn't remove this asciicast. Try again later."
+                  :alert => "Oops, we couldn't remove this asciicast. " \
+                            "Try again later."
     end
   end
 

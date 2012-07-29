@@ -29,7 +29,7 @@ describe SessionsController do
       end
 
       it "should redirects user to root url" do
-        flash[:notice].should == "Signed in!"
+        flash[:notice].should == "Logged in!"
         should redirect_to(root_url)
       end
     end
@@ -98,7 +98,7 @@ describe SessionsController do
     end
 
     it "should redirects to root_url" do
-      flash[:notice].should == "Signed out!"
+      flash[:notice].should == "Logged out!"
       should redirect_to(root_url)
     end
   end

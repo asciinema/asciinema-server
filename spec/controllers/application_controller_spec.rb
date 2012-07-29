@@ -47,7 +47,7 @@ describe FakeController do
 
         get :foo
 
-        flash[:notice].should == "Please login"
+        flash[:notice].should == "Please login first"
         should redirect_to(login_path)
       end
 
