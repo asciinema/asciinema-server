@@ -40,9 +40,7 @@ This will install gem dependencies and setup database.
 
 ## Run
 
-* start webserver with ``script/rails s``
-* (optional) start background job worker for thumbnail generation with
-  ``bundle exec sidekiq``
+    $ ./script/rails s
 
 ## Authors
 
