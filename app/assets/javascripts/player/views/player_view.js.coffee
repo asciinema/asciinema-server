@@ -65,7 +65,10 @@ class AsciiIo.PlayerView extends Backbone.View
 
   bindEvents: ->
     @movie.on 'started', => @$el.addClass 'playing'
-    @movie.on 'finished', => @$el.removeClass 'playing'
+
+    @movie.on 'finished', =>
+      @$el.removeClass 'playing'
+      @rendererView.stopCursorBlink()
 
     @movie.on 'paused', =>
       @$el.addClass 'paused'
@@ -77,13 +80,13 @@ class AsciiIo.PlayerView extends Backbone.View
       @$el.removeClass 'paused'
       @hudView.onResume() if @options.hud
 
+    @movie.on 'wakeup', => @rendererView.restartCursorBlink()
+
     if @options.hud
       @movie.on 'time', (time) => @hudView.updateTime(time)
 
     @movie.on 'render', (state) => @rendererView.push state
 
-    @vt.on 'cursor:blink:restart', => @rendererView.restartCursorBlink()
-    @vt.on 'cursor:blink:stop', => @rendererView.stopCursorBlink()
     @vt.on 'cursor:show', => @rendererView.showCursor true
     @vt.on 'cursor:hide', => @rendererView.showCursor false
 

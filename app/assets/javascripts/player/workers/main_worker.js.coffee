@@ -37,21 +37,11 @@ addEventListener 'message', (e) =>
     postMessage evt: event, src: 'movie', args: args
 
   movie.on 'reset', => vt.reset()
-  movie.on 'finished', => vt.stopCursorBlink()
-  movie.on 'wakeup', => vt.restartCursorBlink()
-
-  lastRenderTime = (new Date()).getTime()
 
   movie.on 'data', (data) =>
     vt.feed data
-
-    now = (new Date()).getTime()
-
-    if true #or now - lastRenderTime > 40
-      state = vt.state()
-      vt.clearChanges()
-      movie.trigger 'render', state
-
-      lastRenderTime = now
+    state = vt.state()
+    vt.clearChanges()
+    movie.trigger 'render', state
 
   console.log 'inited!'

@@ -259,12 +259,6 @@ class AsciiIo.VT
   bell: ->
     @trigger 'bell'
 
-  restartCursorBlink: ->
-    @trigger 'cursor:blink:restart'
-
-  stopCursorBlink: ->
-    @trigger 'cursor:blink:stop'
-
   feed: (data) ->
     @data += data
 
