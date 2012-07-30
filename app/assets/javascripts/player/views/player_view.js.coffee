@@ -27,14 +27,13 @@ class AsciiIo.PlayerView extends Backbone.View
     @model.fetch success: => @onModelFetched()
 
   onModelFetched: ->
-    data = atob @model.get('escaped_stdout_data')
-    worker = new Worker(window.unpackWorkerPath)
+    data = @model.get('escaped_stdout_data')
+    unpacker = new AsciiIo.DataUnpacker
+    unpacker.unpack data, @onDataUnpacked
 
-    worker.onmessage = (event) =>
-      @model.set stdout_data: event.data
-      @onModelReady()
-
-    worker.postMessage data
+  onDataUnpacked: (data) =>
+    @model.set stdout_data: data
+    @onModelReady()
 
   onModelReady: ->
     @hideLoadingIndicator()
