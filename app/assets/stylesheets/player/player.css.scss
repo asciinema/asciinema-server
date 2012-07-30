@@ -75,7 +75,6 @@ $color5: #EDC951;
 
   .start-prompt {
     @include player-overlay;
-    background-image: url(image-path('play-button-1.png'));
     z-index: 20;
     cursor: pointer;
 
