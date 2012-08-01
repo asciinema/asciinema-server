@@ -9,7 +9,7 @@ module AsciicastsHelper
     if params[:fallback]
       player_class = "AsciiIo.FallbackPlayer"
     else
-      player_class = "AsciiIo.Player"
+      player_class = "$.browser.webkit ? AsciiIo.Player : AsciiIo.FallbackPlayer"
     end
 
     if custom_renderer = params[:renderer]
@@ -21,7 +21,8 @@ module AsciicastsHelper
     return <<EOS.html_safe
 <script>
   $(function() {
-    window.player = new #{player_class}({
+    var playerClass = #{player_class};
+    window.player = new playerClass({
       el: $('.player'),
       cols: #{asciicast.terminal_columns},
       lines: #{asciicast.terminal_lines},
