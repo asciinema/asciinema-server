@@ -17,4 +17,5 @@
 //= require player/workers/worker_object_proxy
 //= require player/workers/worker_proxy
 //= require player/brush
+//= require player/colors
 //= require_tree ./models
