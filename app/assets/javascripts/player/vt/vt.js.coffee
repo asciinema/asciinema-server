@@ -315,10 +315,10 @@ class AsciiIo.VT
   # ------ Cursor control
 
   showCursor: ->
-    @trigger 'cursor:show'
+    @trigger 'cursor-visibility', true
 
   hideCursor: ->
-    @trigger 'cursor:hide'
+    @trigger 'cursor-visibility', false
 
   # ----- Scroll control
 

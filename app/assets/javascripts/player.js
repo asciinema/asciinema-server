@@ -7,6 +7,7 @@
 //= require_tree ./player/views/renderers
 //= require player/views/hud_view
 //= require player/data_unpacker
+//= require player/player
 //= require player/views/player_view
 //= require player/workers/worker_object_proxy
 //= require player/workers/worker_proxy

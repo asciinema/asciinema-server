@@ -3,11 +3,9 @@ class AsciiIo.PlayerView extends Backbone.View
     'click .start-prompt': 'onStartPromptClick'
 
   initialize: (options) ->
-    @createMainWorker()
     @createRendererView()
-    @showLoadingIndicator()
     @createHudView() if options.hud
-    @fetchModel()
+    @showLoadingOverlay()
 
   createRendererView: ->
     @rendererView = new @options.rendererClass(
@@ -15,104 +13,70 @@ class AsciiIo.PlayerView extends Backbone.View
       lines: @options.lines
     )
 
-    @$el.append(@rendererView.$el)
+    @$el.append @rendererView.$el
     @rendererView.afterInsertedToDom()
     @rendererView.renderSnapshot @options.snapshot
 
   createHudView: ->
     @hudView = new AsciiIo.HudView(cols: @options.cols)
+
+    @hudView.on 'play-click', => @onPlayClicked()
+    @hudView.on 'seek-click', (percent) => @onSeekClicked()
+
     @$el.append @hudView.$el
 
-  fetchModel: ->
-    @model.fetch success: => @onModelFetched()
-
-  onModelFetched: ->
-    data = @model.get('escaped_stdout_data')
-    unpacker = new AsciiIo.DataUnpacker
-    unpacker.unpack data, @onDataUnpacked
-
-  onDataUnpacked: (data) =>
-    @model.set stdout_data: data
-    @onModelReady()
-
   onModelReady: ->
-    @hideLoadingIndicator()
-    @hudView.setDuration @model.get('duration') if @options.hud
-    @setupMainWorker()
-    @bindEvents()
-
-    if @options.autoPlay
-      @movie.call 'play'
-    else
-      @showToggleOverlay()
-
-  createMainWorker: ->
-    @workerProxy = new AsciiIo.WorkerProxy(window.mainWorkerPath)
-
-  setupMainWorker: ->
-    @workerProxy.init
-      timing: @model.get 'stdout_timing_data'
-      stdout_data: @model.get 'stdout_data'
-      duration: @model.get 'duration'
-      speed: @options.speed
-      benchmark: @options.benchmark
-      cols: @options.cols
-      lines: @options.lines
-
-    @movie = @workerProxy.getObjectProxy 'movie'
-    @vt = @workerProxy.getObjectProxy 'vt'
-
-  bindEvents: ->
-    @movie.on 'started', => @$el.addClass 'playing'
-
-    @movie.on 'finished', =>
-      @$el.removeClass 'playing'
-      @rendererView.stopCursorBlink()
-
-    @movie.on 'paused', =>
-      @$el.addClass 'paused'
-      @$el.removeClass 'playing'
-      @hudView.onPause() if @options.hud
-
-    @movie.on 'resumed', =>
-      @$el.addClass 'playing'
-      @$el.removeClass 'paused'
-      @hudView.onResume() if @options.hud
-
-    @movie.on 'wakeup', => @rendererView.restartCursorBlink()
-
-    if @options.hud
-      @movie.on 'time', (time) => @hudView.updateTime(time)
-
-    @movie.on 'render', (state) => @rendererView.push state
-
-    @vt.on 'cursor:show', => @rendererView.showCursor true
-    @vt.on 'cursor:hide', => @rendererView.showCursor false
-
-    if @options.hud
-      @hudView.on 'play-click', => @movie.call 'togglePlay'
-      @hudView.on 'seek-click', (percent) => @movie.call 'seek', percent
-
-    if @options.benchmark
-      @movie.on 'started', =>
-        @startedAt = (new Date).getTime()
-
-      @movie.on 'finished', =>
-        now = (new Date).getTime()
-        console.log "finished in #{(now - @startedAt) / 1000.0}s"
+    @hideLoadingOverlay()
+    @hudView.setDuration @model.get('duration') if @hudView
 
   onStartPromptClick: ->
-    @hideToggleOverlay()
-    @movie.call 'togglePlay'
+    @hidePlayOverlay()
+    @onPlayClicked()
 
-  showLoadingIndicator: ->
+  onPlayClicked: ->
+    @trigger 'play-clicked'
+
+  onSeekClicked: (percent) ->
+    @trigger 'seek-clicked', percent
+
+  showLoadingOverlay: ->
     @$el.append('<div class="loading">')
 
-  hideLoadingIndicator: ->
+  hideLoadingOverlay: ->
     @$('.loading').remove()
 
-  showToggleOverlay: ->
+  showPlayOverlay: ->
     @$el.append('<div class="start-prompt"><div class="play-button"><div class="arrow">►</div></div></div>')
 
-  hideToggleOverlay: ->
+  hidePlayOverlay: ->
     @$('.start-prompt').remove()
+
+  onStateChanged: (state) ->
+    @$el.removeClass('playing paused')
+
+    switch state
+      when 'playing'
+        @$el.addClass 'playing'
+
+      when 'finished'
+        @rendererView.stopCursorBlink()
+
+      when 'paused'
+        @$el.addClass 'paused'
+        @hudView.onPause() if @hudView
+
+      when 'resumed'
+        @$el.addClass 'playing'
+        @hudView.onResume() if @hudView
+
+  renderState: (state) ->
+    @rendererView.push state
+
+  updateTime: (time) ->
+    @hudView.updateTime time if @hudView
+
+  restartCursorBlink: ->
+    @rendererView.restartCursorBlink()
+
+  showCursor: (show) ->
+    @rendererView.showCursor show

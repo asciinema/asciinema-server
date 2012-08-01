@@ -15,7 +15,7 @@ module AsciicastsHelper
     return <<EOS.html_safe
 <script>
   $(function() {
-    window.player = new AsciiIo.PlayerView({
+    window.player = new AsciiIo.Player({
       el: $('.player'),
       cols: #{asciicast.terminal_columns},
       lines: #{asciicast.terminal_lines},
