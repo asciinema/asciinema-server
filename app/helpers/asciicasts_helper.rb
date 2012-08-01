@@ -6,6 +6,12 @@ module AsciicastsHelper
     auto_play = options.key?(:auto_play) ? !!options[:auto_play] : false
     hud = options.key?(:hud) ? !!options[:hud] : true
 
+    if params[:fallback]
+      player_class = "AsciiIo.FallbackPlayer"
+    else
+      player_class = "AsciiIo.Player"
+    end
+
     if custom_renderer = params[:renderer]
       renderer_class = "AsciiIo.Renderer.#{custom_renderer.capitalize}"
     else
@@ -15,7 +21,7 @@ module AsciicastsHelper
     return <<EOS.html_safe
 <script>
   $(function() {
-    window.player = new AsciiIo.Player({
+    window.player = new #{player_class}({
       el: $('.player'),
       cols: #{asciicast.terminal_columns},
       lines: #{asciicast.terminal_lines},

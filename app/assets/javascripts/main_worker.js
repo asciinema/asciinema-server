@@ -5,12 +5,7 @@
 //= require vendor/utf8
 //= require extensions
 //= require player/brush
-//= require player/vt/sgr_interpreter
-//= require player/vt/special_charset
-//= require player/vt/scroll_region
-//= require player/vt/tab_stops
-//= require player/vt/screen_buffer
-//= require player/vt/vt
+//= require_tree ./player/vt
 //= require player/movie
 //= require player/workers/main_worker
 

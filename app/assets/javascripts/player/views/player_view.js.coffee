@@ -21,7 +21,7 @@ class AsciiIo.PlayerView extends Backbone.View
     @hudView = new AsciiIo.HudView(cols: @options.cols)
 
     @hudView.on 'play-click', => @onPlayClicked()
-    @hudView.on 'seek-click', (percent) => @onSeekClicked()
+    @hudView.on 'seek-click', (percent) => @onSeekClicked percent
 
     @$el.append @hudView.$el
 

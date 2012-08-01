@@ -16,6 +16,9 @@ class AsciiIo.Movie
     @clearPauseState()
     @trigger 'reset'
 
+  call: (method, args...) ->
+    @[method].apply this, args
+
   now: ->
     (new Date()).getTime()
 
