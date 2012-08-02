@@ -41,10 +41,16 @@ class AsciiIo.Renderer.Base extends Backbone.View
 
   afterInsertedToDom: ->
     sample = $('<span class="font-sample"><span class="line"><span>M</span></span></span>')
-    @$el.parent().append(sample)
-    @cellWidth = sample.width()
     span = sample.find('span span')
-    @cellHeight = span.height() + span.css('padding-top') + span.css('padding-bottom')
+
+    @$el.parent().append sample
+
+    @cellWidth = sample.width()
+
+    @cellHeight = span.height() +
+                  parseInt(span.css('padding-top')) +
+                  parseInt(span.css('padding-bottom'))
+
     sample.remove()
     @fixTerminalElementSize()
     @fixPlayerContainerSize()
