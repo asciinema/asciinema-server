@@ -1,5 +1,7 @@
 class HomeController < ApplicationController
   def show
+    @title = "Share Your Terminal With No Fuss"
+
     if home_asciicast_id = CFG['HOME_CAST_ID']
       asciicast = Asciicast.find(home_asciicast_id)
     else
