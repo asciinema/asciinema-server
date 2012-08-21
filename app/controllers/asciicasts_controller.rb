@@ -10,6 +10,7 @@ class AsciicastsController < ApplicationController
 
   def index
     collection = Asciicast.
+      includes(:user).
       order("created_at DESC").
       page(params[:page]).
       per(PER_PAGE)

@@ -7,6 +7,7 @@ class UsersController < ApplicationController
     @user = UserDecorator.find_by_nickname!(params[:nickname])
 
     collection = @user.asciicasts.
+      includes(:user).
       order("created_at DESC").
       page(params[:page]).
       per(PER_PAGE)
