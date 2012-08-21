@@ -1,0 +1,16 @@
+<div class="presentation">
+  <%= link_to preview, :class => 'preview-link' do %>
+    <div class="play-button"><div class="arrow">►</div></div>
+    <pre class="preview"><%= preview.thumbnail(28, 9) %></pre>
+  <% end -%>
+
+  <div class="info">
+    <h3>
+      <%= link_to preview.smart_title, preview %>
+    </h3>
+
+    <p class="date">
+      <%= preview.created_at %> ago by <%= preview.author_profile_link %>
+    </p>
+  </div>
+</div>
