@@ -10,8 +10,8 @@ class AsciicastsController < ApplicationController
 
   def index
     collection = Asciicast.
+      newest.
       includes(:user).
-      order("created_at DESC").
       page(params[:page]).
       per(PER_PAGE)
 
@@ -22,8 +22,8 @@ class AsciicastsController < ApplicationController
 
   def popular
     collection = Asciicast.
-      order("views_count DESC").
-      where("views_count > 0").
+      popular.
+      includes(:user).
       page(params[:page]).
       per(PER_PAGE)
 

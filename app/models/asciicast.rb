@@ -12,6 +12,8 @@ class Asciicast < ActiveRecord::Base
   has_many :likes, :dependent => :destroy
 
   scope :featured, where(:featured => true)
+  scope :popular, where("views_count > 0").order("views_count DESC")
+  scope :newest, order("created_at DESC")
 
   before_create :assign_user, :unless => :user
 
