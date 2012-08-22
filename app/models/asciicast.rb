@@ -23,10 +23,6 @@ class Asciicast < ActiveRecord::Base
     update_all(:user_id => user.id, :user_token => nil)
   end
 
-  def self.cache_key
-    Digest::MD5.hexdigest "#{scoped.maximum(:updated_at).try(:to_i)}-#{scoped.count}"
-  end
-
   def meta=(file)
     data = JSON.parse(file.tempfile.read)
 
