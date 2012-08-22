@@ -2,7 +2,9 @@
   <section class="supplimental">
     <div class="wrapper">
       <div class="main">
-        <%= yield %>
+        <% cache do -%>
+          <%= yield %>
+        <% end -%>
       </div>
 
       <div class="extras">
