@@ -36,9 +36,21 @@ class AsciicastsController < ApplicationController
 
   def show
     @asciicast = AsciicastDecorator.new(@asciicast)
-    @asciicast_author = UserDecorator.new(@asciicast.user)
-    @title = @asciicast.smart_title
-    respond_with @asciicast
+
+    respond_to do |format|
+      format.html do
+        @asciicast_author = UserDecorator.new(@asciicast.user)
+        @title = @asciicast.smart_title
+        respond_with @asciicast
+      end
+
+      format.json do
+        if stale? @asciicast
+          respond_with @asciicast
+        end
+      end
+    end
+
   end
 
   def edit
