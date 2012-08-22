@@ -1,3 +1,5 @@
 <div class="presentations">
-  <%= render :partial => 'asciicasts/preview', :collection => @asciicasts %>
+  <% cache @asciicasts do -%>
+    <%= render :partial => 'asciicasts/preview', :collection => @asciicasts %>
+  <% end -%>
 </div>
