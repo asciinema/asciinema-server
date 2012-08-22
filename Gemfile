@@ -38,6 +38,7 @@ group :test, :development do
   gem 'libnotify'
   gem 'cane'
   gem 'tailor'
+  gem 'quiet_assets'
   # gem 'jasmine-headless-webkit'
   # gem 'guard-jasmine-headless-webkit'
 end
