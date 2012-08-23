@@ -39,6 +39,7 @@ group :test, :development do
   gem 'cane'
   gem 'tailor'
   gem 'quiet_assets'
+  gem 'pry-rails'
   # gem 'jasmine-headless-webkit'
   # gem 'guard-jasmine-headless-webkit'
 end
