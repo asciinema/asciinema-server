@@ -32,11 +32,17 @@ class AsciicastDecorator < ApplicationDecorator
     saved_time = 0
 
     if file = stdout_timing.file
-      f = IO.popen "bzip2 -d", "r+"
-      f.write file.read
-      f.close_write
-      lines = f.readlines
-      f.close
+      data = file.read
+
+      if data[0] == 'B' and data[1] == 'Z'
+        f = IO.popen "bzip2 -d", "r+"
+        f.write data
+        f.close_write
+        lines = f.readlines
+        f.close
+      else
+        lines = data.split("\n")
+      end
 
       data = lines.map do |line|
         delay, n = line.split
