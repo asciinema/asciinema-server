@@ -31,9 +31,6 @@ class AsciiIo.VT
 
   # ==== Screen buffer operations
 
-  clearScreen: ->
-    @buffer.clear()
-
   switchToNormalBuffer: ->
     @buffer = @normalBuffer
     @updateScreen()

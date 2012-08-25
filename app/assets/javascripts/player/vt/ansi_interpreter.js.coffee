@@ -249,10 +249,10 @@ class AsciiIo.AnsiInterpreter
         if action is "h"
           # Save cursor position, switch to alternate screen buffer, and clear screen.
           @cb 'switchToAlternateBuffer'
-          @cb 'clearScreen'
+          @cb 'eraseScreen'
         else if action is "l"
           # Clear screen, switch to normal screen buffer, and restore cursor position.
-          @cb 'clearScreen'
+          @cb 'eraseScreen'
           @cb 'switchToNormalBuffer'
 
   parseParams: (params) ->

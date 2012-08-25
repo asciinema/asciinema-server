@@ -61,9 +61,6 @@ class AsciiIo.ScreenBuffer
   clearChanges: ->
     @dirtyLines = {}
 
-  clear: ->
-    @lineData.length = 0
-
   getLine: (n = @cursorY) ->
     throw "cant getLine " + n  if n >= @lines
 
