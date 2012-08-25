@@ -38,7 +38,7 @@ class AsciiIo.Renderer.Canvas extends AsciiIo.Renderer.Base
     for fragment in fragments
       [text, brush] = fragment
 
-      brush = AsciiIo.Brush.create brush if brush
+      brush = new AsciiIo.Brush(brush) if brush
 
       if cursorX isnt undefined and rendered <= cursorX < rendered + text.length
         @cursorBrush = brush
