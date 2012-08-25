@@ -16,12 +16,6 @@ class AsciicastDecorator < ApplicationDecorator
     data
   end
 
-  # def created_at
-  #   # h.distance_of_time_in_words_to_now(model.created_at).sub('about ', '')
-  #   model.created_at.getutc.iso8601
-  #   # h.content_tag(:abbr, t.to_s, options.merge(:title => t.getutc.iso8601))
-  # end
-
   def escaped_stdout_data
     if data = stdout.read
       Base64.strict_encode64(data)
