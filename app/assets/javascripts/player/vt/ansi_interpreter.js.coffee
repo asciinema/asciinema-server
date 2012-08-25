@@ -153,7 +153,7 @@ class AsciiIo.AnsiInterpreter
   handleStandardControlSequence: (data, params) ->
     term = data[data.length - 1]
 
-    numbers = @parseParams(params)
+    numbers = @parseParams params
     n = numbers[0]
     m = numbers[1]
 
@@ -232,7 +232,7 @@ class AsciiIo.AnsiInterpreter
 
   handlePrivateControlSequence: (data, params) ->
     action = data[data.length - 1]
-    modes = @parseParams(params)
+    modes = @parseParams params
 
     for mode in modes
       if mode is 25
