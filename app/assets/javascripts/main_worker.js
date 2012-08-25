@@ -5,6 +5,7 @@
 //= require utf8
 //= require extensions
 //= require player/brush
+//= require player/vt/ansi_interpreter
 //= require_tree ./player/vt
 //= require player/movie
 //= require player/workers/main_worker

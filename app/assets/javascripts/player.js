@@ -9,6 +9,7 @@
 //= require player/views/hud_view
 //= require player/data_unpacker
 //= require player/abstract_player
+//= require player/vt/ansi_interpreter
 //= require_tree ./player/vt
 //= require player/movie
 //= require player/player
