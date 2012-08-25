@@ -58,7 +58,7 @@ class AsciiIo.Renderer.Pre extends AsciiIo.Renderer.Base
     text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 
   spanFromBrush: (brush) ->
-    brush = AsciiIo.Brush.create brush
+    brush = new AsciiIo.Brush brush
 
     key = brush.hash()
     span = @cachedSpans[key]
@@ -66,7 +66,7 @@ class AsciiIo.Renderer.Pre extends AsciiIo.Renderer.Base
     if not span
       span = ""
 
-      if brush != AsciiIo.Brush.normal()
+      if brush != AsciiIo.Brush.default()
         span = "<span class=\""
 
         if brush.fg isnt undefined

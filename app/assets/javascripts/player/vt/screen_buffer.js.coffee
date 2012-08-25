@@ -7,7 +7,7 @@ class AsciiIo.ScreenBuffer
     @cursorX = 0
     @cursorY = 0
 
-    @setBrush AsciiIo.Brush.normal()
+    @setBrush AsciiIo.Brush.default()
     @setCharset 'us'
 
   topMargin: ->
@@ -35,7 +35,7 @@ class AsciiIo.ScreenBuffer
       data = @lineData[n] || []
 
       fragments = []
-      currentBrush = AsciiIo.Brush.normal()
+      currentBrush = AsciiIo.Brush.default()
       currentText = ''
 
       for i in [0...@cols]
@@ -243,6 +243,10 @@ class AsciiIo.ScreenBuffer
     @brush = @savedBrush
 
   repeatLastCharacter: (n = 1) ->
+
+  updateBrush: (changes) ->
+    attrs = _.extend({}, @brush.attributes(), changes)
+    @brush = new AsciiIo.Brush attrs
 
   # ----- Scroll control
 

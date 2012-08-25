@@ -226,6 +226,9 @@ class AsciiIo.VT
   clearAllHorizontalTabStops: ->
     @buffer.clearAllHorizontalTabStops()
 
+  updateBrush: (attrs) ->
+    @buffer.updateBrush attrs
+
 # References:
 # http://en.wikipedia.org/wiki/ANSI_escape_code
 # http://ttssh2.sourceforge.jp/manual/en/about/ctrlseq.html

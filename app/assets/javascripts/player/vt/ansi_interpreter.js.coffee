@@ -265,7 +265,9 @@ class AsciiIo.AnsiInterpreter
     numbers
 
   handleSGR: (numbers) ->
-    # @buffer.setBrush @sgrInterpreter.buildBrush(@buffer.getBrush(), numbers)
+    numbers = [0] if numbers.length is 0
+    changes = @sgrInterpreter.parse numbers
+    @cb 'updateBrush', changes
 
   formattedData: (data) ->
     head = data.slice(0, 100)

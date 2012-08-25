@@ -1,35 +1,31 @@
 class AsciiIo.Brush
-  @cache: {}
+  @defaultAttrs =
+    fg       : undefined
+    bg       : undefined
+    blink    : false
+    bright   : false
+    italic   : false
+    underline: false
 
-  @clearCache: ->
-    @cache = {}
+  @default: ->
+    @_default ||= new AsciiIo.Brush()
 
   @hash: (brush) ->
     "#{brush.fg}_#{brush.bg}_#{brush.bright}_#{brush.underline}_#{brush.italic}_#{brush.blink}"
 
-  @create: (options = {}) ->
-    key = @hash(options)
-    brush = @cache[key]
-
-    if not brush
-      brush = new AsciiIo.Brush(options)
-      @cache[key] = brush
-
-    brush
-
-  @normal: ->
-    @_normal ||= @create()
-
-  constructor: (options) ->
-    @fg        = options.fg
-    @bg        = options.bg
-    @blink     = options.blink
-    @bright    = options.bright
-    @italic    = options.italic
-    @underline = options.underline
+  constructor: (options = {}) ->
+    _(this).extend AsciiIo.Brush.defaultAttrs, options
 
   hash: ->
-    AsciiIo.Brush.hash(this)
+    AsciiIo.Brush.hash this
+
+  attributes: ->
+    fg       : @fg
+    bg       : @bg
+    blink    : @blink
+    bright   : @bright
+    italic   : @italic
+    underline: @underline
 
   fgColor: ->
     color = @fg

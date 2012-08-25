@@ -58,7 +58,7 @@ class AsciiIo.Renderer.Base extends Backbone.View
   renderSnapshot: (text) ->
     i = 0
     for line in text.split("\n")
-      fragments = [[line, AsciiIo.Brush.normal()]]
+      fragments = [[line, AsciiIo.Brush.default()]]
       @renderLine i, fragments, undefined
       i++
 
