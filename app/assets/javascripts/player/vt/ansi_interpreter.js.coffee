@@ -139,14 +139,16 @@ class AsciiIo.AnsiInterpreter
     last = data[data.length - 1]
     intermediate = data[data.length - 2]
 
-    switch last
+    action = switch last
       when "0"
         if intermediate is '('
-          @cb 'setSpecialCharset'
+          'setSpecialCharset'
       when "7"
-        @cb 'saveTerminalState'
+        'saveTerminalState'
       when "8"
-        @cb 'restoreTerminalState'
+        'restoreTerminalState'
+
+    @cb action if action
 
   handleControlSequence: (data, params, match) ->
     if params and params.match(/^[\x3c-\x3f]/)
