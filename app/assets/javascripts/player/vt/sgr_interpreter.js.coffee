@@ -8,7 +8,12 @@ class AsciiIo.SgrInterpreter
       n = numbers[i]
 
       if n is 0
-        _(changes).extend AsciiIo.Brush.defaultAttrs
+        changes.fg        = undefined
+        changes.bg        = undefined
+        changes.blink     = false
+        changes.bright    = false
+        changes.italic    = false
+        changes.underline = false
       else if n is 1
         changes.bright = true
       else if n is 3
