@@ -13,213 +13,122 @@
 var ArchUtils = (function(){
 	'use strict';
 
-	// python functions
-	function ord(c) { return String(c).charCodeAt(); }
-	function chr(n) { return String.fromCharCode(n); }
-	function sum(l) { return l.reduce(function(a,b){return a+b}, 0); }
-	// NOTE: for in loop works another way in js and iterates over keys
-	// therefore you can't use for (x in range(...)) the same way as in python
-	function range(start, stop, step) {
-		switch(arguments.length) {
-			case 0: return [];
-			case 1: stop = start; start = 0; step = 1; break;
-			case 2: step = 1;
-		}
-		if ((stop - start) * step < 0) return [];
-		var a = [];
-		if (start < stop) {
-			for (var i = start; i < stop; i += step) { a.push(i); }
-		} else {
-			for (var i = start; i > stop; i += step) { a.push(i); }
-		}
-		return a;
-	}
+	// python functions eliminated, Gonzalo
 
 	/**
 	 * bwt_reverse code from wikipedia (slightly modified)
 	 * @url http://en.wikipedia.org/wiki/Burrows%E2%80%93Wheeler_transform
 	 * @license: CC-SA 3.0
 	 */
+
 	function bwt_reverse(src, primary) {
 		var len = src.length;
 		if (primary >= len) throw RangeError("Out of bound");
 		if (primary < 0) throw RangeError("Out of bound");
-		
-		if (typeof src == 'string') {
-			var A = src.split('');
-		} else {
-			var A = src;
-			src = src.join('');
-		}
+
+		//only used on arrays, optimized, Gonzalo
+		var A = src;
+		src = src.join('');
 		A.sort();
-		
+
 		var start = {};
 		for (var i = len-1; i >= 0; i--) start[A[i]] = i;
-		
+
 		var links = [];
 		for (i = 0; i < len; i++) links.push(start[src[i]]++);
-		
+
 		var i, first = A[i = primary], ret = [];
-		//while (i != primary) {
+		
 		for (var j = 1; j < len; j++) {
 			ret.push(A[i = links[i]]);
 		}
 		return first + ret.reverse().join('');
 	}
 	
-	function move_to_front(a, c) {
+	//move_to_front is always used to store reslt in array, optimized, Gonzalo
+	function move_to_front_and_store(a, c, buff) {
 		var v = a[c];
 		for (var i = c; i > 0; a[i] = a[--i]);
-		a[0] = v;
-	}
-	
-	/**
-	 * @class BitfieldBase
-	 * base class for bit-precision reading from stream
-	 */
-	var BitfieldBase = function() {
-		// init
-		this.init = function(x) {
-			this._masks = [];
-			for (var i = 0; i < 31; i++) this._masks[i] = (1 << i) - 1;
-			this._masks[31] = -0x80000000;
-			if (x instanceof BitfieldBase) {
-				this.f = x.f;
-				this.bits = x.bits;
-				this.bitfield = x.bitfield;
-				this.count = x.count;
-			} else {
-				this.f = x;
-				this.bits = 0;
-				this.bitfield = 0x0;
-				this.count = 0;
-			}
-		}
-		// FIXME: this will throw an Exception when one tries to read zero-length string
-		this._read = function(n) {
-			var s = this.f.substr(this.count, n);
-			if (!s) throw RangeError("Length Error");
-			this.count += s.length;
-			return s;
-		}
-		this._readByte = function _readByte() {
-			return this.f.charCodeAt(this.count++);
-		}
-		this.needbits = function(n) {
-			do { this._more() } while (this.bits < n);
-		}
-		this.toskip = function() {
-			return this.bits & 0x7;
-		}
-		this.align = function() {
-			this.readbits(this.toskip());
-		}
-		this.dropbits = function(n) {
-			if (typeof n == 'undefined') n = 8;
-			while (n >= this.bits && n > 7) {
-				n -= this.bits;
-				this.bits = 0;
-				n -= (this.f._read(n >> 3)).length << 3;
-			}
-			if (n) this.readbits(n);
-		}
-		this.dropbytes = function(n) {
-			if (typeof n == 'undefined') n = 1;
-			this.dropbits(n << 3);
-		}
-		// some function for debugging
-		this.tell = function() {
-			return [this.count - ((this.bits+7) >> 3), 7 - ((this.bits-1) & 0x7)];
-		}
+		buff.push(a[0] = v);
 	}
 
-//	not used after all
-/*	ìar Bitfield = function() {
-		this._more = function() {
-			this.bitfield += this._readByte() << this.bits;
-			this.bits += 8;
-		}
-		this.readbits = function(n) {
-			if (typeof n == 'undefined') n = 8;
-			if (n >= 32) {
-				var n2 = n >> 1;
-				return this.readbits(n2) * (1 << n2) + this.readbits(n - n2);
-			}
-			if (n > this.bits) 
-				this.needbits(n);
-			var r = this.bitfield & this._masks[n];
-			this.bits -= n;
-			this.bitfield >>= n;
-			return r;
-		}
-	}
-	Bitfield.prototype = new BitfieldBase();*/
-
+	// BitfieldBase never used directly, optimized, Gonzalo
 	/**
-	 * @class BitfieldBase
+	 * @class RBitfield
 	 * right-sided bitfield for reading bits in byte from right to left
 	 */
 	var RBitfield = function() {
-		this._more = function() {
-			this.bitfield = (this.bitfield << 8) + this._readByte();
-			this.bits += 8;
+		this.init = function(x) {
+			this.masks = [];
+			for (var i = 0; i < 31; i++) this.masks[i] = (1 << i) - 1;
+			this.masks[31] = -0x80000000;
+			//eliminated support for RBitfield.init( RBitfield ), never used, Gonzalo
+			this.f = x;
+			this.bits = 0;
+			this.bitfield = 0x0;
+			this.count = 0;
 		}
+		//_read not used, optimized, Gonzalo
+		//readByte inlined, Gonzalo
+		//needbits inlined, Gonzalo
+		//align inlined, Gonzalo
+		//toskip inlined, Gonzalo
+		// this.dropbytes not used, eliminated, Gonzalo
+		// this.tell not used, eliminated, Gonzalo
 		// since js truncate args to int32 with bit operators
 		// we need to specific processing for n >= 32 bits reading
 		// separate function is created for optimization purposes
+		//readbits2 always called ith constants >=32, check removed, Gonzalo
 		this.readbits2 = function readbits2(n) {
-			if (n >= 32) {
-				var n2 = n >> 1;
-				return this.readbits(n2) * (1 << n2) + this.readbits(n - n2);
-			} else {
-				return this.readbits(n);
-			}
+			//only for n>=32!!!, check removed
+			var n2 = n >> 1;
+			return this.readbits(n2) * (1 << n2) + this.readbits(n - n2);
 		}
 		this.readbits = function readbits(n) {
 			//if (n > this.bits) this.needbits(n);
-			// INLINED: needbits
+			// INLINED: needbits, readByte
 			while (this.bits < n) {
-				this.bitfield = (this.bitfield << 8) + this._readByte();
+				this.bitfield = (this.bitfield << 8) + this.f.charCodeAt(this.count++);
 				this.bits += 8;
 			}
-			var m = this._masks[n];
+			var m = this.masks[n];
 			var r = (this.bitfield >> (this.bits - n)) & m;
 			this.bits -= n;
 			this.bitfield &= ~(m << this.bits);
 			return r;
 		}
 	}
-	RBitfield.prototype = new BitfieldBase();
 
 	/**
 	 * @class HuffmanLength
 	 * utility class, used for comparison of huffman codes
 	 */
 	var HuffmanLength = function(code, bits) {
-		if (typeof bits == "undefined") bits = 0;
 		this.code = code;
 		this.bits = bits;
 		this.symbol = undefined;
-		
-		this.toString = function() {
-			return [this.code, this.bits, this.symbol/*, this.reverse_symbol*/];
-		}
-		this.valueOf = function() {
-			return this.bits * 1000 + this.code;
-		}
-	}
+	} //cropped unused functions and needless checks, Gonzalo
+
+	//class HuffmanTable never used directly..., optimized, Gonzalo
 
 	/**
-	 * @class HuffmanLength
+	 * @class OrderedHuffmanTable
 	 * utility class for working with huffman table
 	 */
-	var HuffmanTable = function() {
-		this.init = function initHuffmanTable(bootstrap) {
+	var OrderedHuffmanTable = function() {
+		this.process = function(lengths) {
+			var len = lengths.length;
+			var z = [];
+			for (var i = 0; i < len; i++) {
+				z.push([i, lengths[i]]);
+			}
+			z.push([len, -1]);
+			
 			var l = [];
-			var b = bootstrap[0];
+			var b = z[0];
 			var start = b[0], bits = b[1];
-			for (var p = 1; p < bootstrap.length; p++) {
-				var finish = bootstrap[p][0], endbits = bootstrap[p][1];
+			for (var p = 1; p < z.length; p++) {
+				var finish = z[p][0], endbits = z[p][1];
 				if (bits)
 					for (var code = start; code < finish; code++)
 						l.push(new HuffmanLength(code, bits));
@@ -227,14 +136,13 @@ var ArchUtils = (function(){
 				bits = endbits;
 				if (endbits == -1) break;
 			}
-			l.sort(function cmpHuffmanTable(a, b){
+			l.sort(function (a, b) { //function cmpHuffmanTable(a, b), can be anonymous, optimized, Gonzalo
 				return (a.bits - b.bits) || (a.code - b.code);
 			});
 			this.table = l;
-		}
-
-		this.populate_huffman_symbols = function() {
-			var bits = 0;
+			
+			//inlined populate_huffman_symbols, Gonzalo
+			var temp_bits = 0;
 			var symbol = -1;
 			// faht = Fast Access Huffman Table
 			this.faht = [];
@@ -242,15 +150,15 @@ var ArchUtils = (function(){
 			for (var i = 0; i < this.table.length; i++) {
 				var x = this.table[i];
 				symbol += 1;
-				if (x.bits != bits) {
-					symbol <<= x.bits - bits;
-					cb = this.faht[bits = x.bits] = {};
+				if (x.bits != temp_bits ) {
+					symbol <<= x.bits - temp_bits ;
+					cb = this.faht[temp_bits = x.bits] = {};
 				}
 				cb[x.symbol = symbol] = x;
 			}
-		}
-
-		this.min_max_bits = function() {
+			
+			//inlined min_max_bits
+			
 			this.min_bits = 16;
 			this.max_bits = -1;
 			this.table.forEach(function(x){
@@ -258,39 +166,22 @@ var ArchUtils = (function(){
 				if (x.bits > this.max_bits) this.max_bits = x.bits;
 			}, this);
 		}
-
 	}
 
-	var OrderedHuffmanTable = function() {
-		this.init = function(lengths) {
-			var l = lengths.length;
-			var z = [];
-			for (var i = 0; i < l; i++) {
-				z.push([i, lengths[i]]);
-			}
-			z.push([l, -1]);
-			OrderedHuffmanTable.prototype.init.call(this, z);
-		}
-	}
-	OrderedHuffmanTable.prototype = new HuffmanTable();
-	
-	// unpackedSize is ignored here but added for uniformity
-	// this param simplifies Java (applet) implementation of bzip decoder
-	return ({ bz2: { decode: function(input, unpackedSize) {
+	return ({ bz2: { decode: function(input) { //eliminated unused unpackSize, Gonzalo
 		var b = new RBitfield();
 		b.init(input);
 		b.readbits(16);
 		var method = b.readbits(8);
-		if (method != ord('h')) {
+		if (method != 104) { //char 'h'
 			throw "Unknown (not type 'h'uffman Bzip2) compression method";
 		}
 
 		var blocksize = b.readbits(8);
-		if (ord('1') <= blocksize
-		&& blocksize <= ord('9')) {
-			blocksize -= ord('0');
+		if ( 49 <= blocksize && blocksize <= 57) { //char '1' && char '9'
+			blocksize -= 48; //char 0
 		} else {
-			throw "Unknown (not size '0'-'9') Bzip2 blocksize";
+			throw "Unknown (not size '1'-'9') Bzip2 blocksize";
 		}
 		
 		function getUsedCharTable(b) {
@@ -310,8 +201,7 @@ var ArchUtils = (function(){
 		}
 
 		var out = [];
-		// TODO: I hope exection may me splitted into chunks
-		// and run with them in background
+
 		function main_loop() { while (true) {
 			var blocktype = b.readbits2(48);
 			var crc = b.readbits2(32);
@@ -319,11 +209,11 @@ var ArchUtils = (function(){
 				if (b.readbits(1)) throw "Bzip2 randomised support not implemented";
 				var pointer = b.readbits(24);
 				var used = getUsedCharTable(b);
-				
+
 				var huffman_groups = b.readbits(3);
 				if (2 > huffman_groups || huffman_groups > 6) 
 					throw RangeError("Bzip2: Number of Huffman groups not in range 2..6");
-				var mtf = range(huffman_groups);
+				var mtf = [0,1,2,3,4,5,6].slice(0,huffman_groups); //eliminate use of range, Gonzalo
 				var selectors_list = [];
 				for (var i = 0, selectors_used = b.readbits(15); i < selectors_used; i++) {
 					// zero-terminated bit runs (0..62) of MTF'ed huffman table 
@@ -332,11 +222,13 @@ var ArchUtils = (function(){
 						if (c++ >= huffman_groups)
 							throw RangeError("More than max ("+huffman_groups+") groups");
 					}
-					move_to_front(mtf, c);
-					selectors_list.push(mtf[0]);
+					move_to_front_and_store(mtf, c, selectors_list); //optimized to single function, Gonzalo
 				}
 				var groups_lengths = [];
-				var symbols_in_use = sum(used) + 2  // remember RUN[AB] RLE symbols
+
+				// INLINE: sum used only once, Gonzalo
+				var symbols_in_use = used.reduce( function(a, b) {return a + b}, 0 ) + 2; //sum(used) + 2 // remember RUN[AB] RLE symbols
+				
 				for (var j = 0; j < huffman_groups; j++) {
 					var length = b.readbits(5);
 					var lengths = [];
@@ -351,32 +243,30 @@ var ArchUtils = (function(){
 				var tables = [];
 				for (var g = 0; g < groups_lengths.length; g++) {
 					var codes = new OrderedHuffmanTable();
-					codes.init(groups_lengths[g]);
-					codes.populate_huffman_symbols();
-					codes.min_max_bits();
+					codes.process(groups_lengths[g]); //consolidated function calls
 					tables.push(codes);
 				}
 				var favourites = [];
 				for (var c = used.length - 1; c >= 0; c--) {
-					if (used[c]) favourites.push(chr(c));
+					if (used[c]) favourites.push(String.fromCharCode(c)); //inlined chr, used once, Gonzalo
 				}
 				favourites.reverse();
 				var selector_pointer = 0;
 				var decoded = 0;
 				var t;
-				
+
 				// Main Huffman loop
 				var repeat = 0;
 				var repeat_power = 0;
 				var buffer = [], r;
-				
+
 				while (true) {
 					if (--decoded <= 0) {
 						decoded = 50;
 						if (selector_pointer <= selectors_list.length)
 							t = tables[selectors_list[selector_pointer++]];
 					}
-					
+
 					// INLINED: find_next_symbol
 					for (var bb in t.faht) {
 						if (b.bits < bb) {
@@ -384,12 +274,12 @@ var ArchUtils = (function(){
 							b.bits += 8;
 						}
 						if (r = t.faht[bb][ b.bitfield >> (b.bits - bb) ]) {
-							b.bitfield &= b._masks[b.bits -= bb];
+							b.bitfield &= b.masks[b.bits -= bb];
 							r = r.code;
 							break;
 						}
 					}
-					
+
 					if (0 <= r && r <= 1) {
 						if (repeat == 0)  repeat_power = 1;
 						repeat += repeat_power << r;
@@ -402,12 +292,9 @@ var ArchUtils = (function(){
 					if (r == symbols_in_use - 1) { // eof symbol
 						break;
 					} else {
-						// INLINED: move_to_front
-						var v = favourites[r-1];
-						for (var i = r-1; i > 0; favourites[i] = favourites[--i]);
-						buffer.push(favourites[0] = v);
+						move_to_front_and_store(favourites,r-1,buffer); //Uninlined, size efficiency, Gonzalo
 					}
-				}				
+				}
 				var nt = bwt_reverse(buffer, pointer);
 				var done = [];
 				var i = 0;
@@ -429,7 +316,7 @@ var ArchUtils = (function(){
 				}
 				out.push(done.join(''));
 			} else if (blocktype == 0x177245385090) { // sqrt(pi)
-				b.align();
+				b.readbits(b.bits & 0x7);  //align
 				break;
 			} else {
 				throw "Illegal Bzip2 blocktype = 0x" + blocktype.toString(16);
