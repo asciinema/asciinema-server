@@ -140,8 +140,6 @@ class AsciiIo.VT
   setSpecialCharset: ->
     @buffer.setCharset('special')
 
-# ---- new
-
   print: (text) ->
     @buffer.print text
 
