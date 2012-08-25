@@ -9,11 +9,13 @@ class AsciiIo.VT
     @[action](args...)
 
   feed: (data) ->
-    rest = @interpreter.parse data
-    rest.length is 0
+    @data += data
+    @data = @interpreter.parse @data
+
+    @data.length is 0
 
   reset: ->
-    @interpreter.reset()
+    @data = ''
     @resetTerminal()
 
   bell: ->

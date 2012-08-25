@@ -3,24 +3,18 @@ class AsciiIo.AnsiInterpreter
   constructor: (@callback) ->
     @cb = @callback
     @sgrInterpreter = new AsciiIo.SgrInterpreter()
-    @reset()
-
-  reset: ->
-    @data = ''
 
   parse: (data) ->
-    @data += data
-
-    while @data.length > 0
-      processed = @handleData @data
+    while data.length > 0
+      processed = @handleData data
 
       if processed is 0
         # console.log "no kurwa: #{@formattedData(@data)}"
         break
 
-      @data = @data.slice processed
+      data = data.slice processed
 
-    @data
+    data
 
   handleData: (data) ->
     if data.match(/^\x1b[\x00-\x1f]/)
