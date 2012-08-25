@@ -246,7 +246,7 @@ class AsciiIo.ScreenBuffer
 
   updateBrush: (changes) ->
     attrs = _.extend({}, @brush.attributes(), changes)
-    @brush = new AsciiIo.Brush attrs
+    @brush = AsciiIo.Brush.create attrs
 
   # ----- Scroll control
 
