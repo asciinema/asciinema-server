@@ -258,12 +258,12 @@ class AsciiIo.ScreenBuffer
     @cursorY >= @topMargin() and @cursorY <= @bottomMargin()
 
   scrollUp: (n = 1) ->
-    @insertLine n, @topMargin()
+    @insertLines n, @topMargin()
 
   scrollDown: (n = 1) ->
-    @deleteLine n, @topMargin()
+    @deleteLines n, @topMargin()
 
-  insertLine: (n, l = @cursorY) ->
+  insertLines: (n, l = @cursorY) ->
     return unless @inScrollRegion()
 
     i = 0
@@ -274,7 +274,7 @@ class AsciiIo.ScreenBuffer
 
     @updateLines(l, @bottomMargin())
 
-  deleteLine: (n, l = @cursorY) ->
+  deleteLines: (n, l = @cursorY) ->
     return unless @inScrollRegion()
 
     i = 0

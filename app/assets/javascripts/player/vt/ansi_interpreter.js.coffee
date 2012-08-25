@@ -193,9 +193,9 @@ class AsciiIo.AnsiInterpreter
         else
           @cb 'eraseToRowEnd'
       when "L"
-        @cb 'insertLine', n or 1
+        @cb 'insertLines', n or 1
       when "M"
-        @cb 'deleteLine', n or 1
+        @cb 'deleteLines', n or 1
       when "P" # DCH - Delete Character, from current position to end of field
         @cb 'deleteCharacters', n or 1
       when "S"
