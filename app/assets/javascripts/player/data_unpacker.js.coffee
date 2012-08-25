@@ -11,4 +11,4 @@ class AsciiIo.DataUnpacker
         data = ArchUtils.bz2.decode data
         callback data
     else
-      callback data
+      data
