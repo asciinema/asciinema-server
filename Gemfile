@@ -34,14 +34,12 @@ group :test, :development do
   gem 'rspec-rails'
   gem 'factory_girl_rails'
   gem 'awesome_print', :require => 'ap'
-  gem 'jasmine'
-  gem 'jasminerice'
   gem 'guard'
-  gem 'guard-jasmine'
-  gem 'libnotify'
   gem 'cane'
   gem 'tailor'
   gem 'pry-rails'
+  gem 'jasmine-rails'
+  gem 'guard-jasmine-headless-webkit'
 end
 
 group :test do

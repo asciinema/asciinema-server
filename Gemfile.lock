@@ -96,23 +96,28 @@ GEM
     guard (1.0.0)
       ffi (>= 0.5.0)
       thor (~> 0.14.6)
-    guard-jasmine (0.9.8)
-      childprocess
-      guard (>= 0.8.3)
-      multi_json
-      thor
-    haml (3.1.4)
+    guard-jasmine-headless-webkit (0.3.2)
+      guard (>= 0.4.0)
+      jasmine-headless-webkit (>= 0.7.0)
     hashie (1.2.0)
     hike (1.2.1)
     i18n (0.6.0)
-    jasmine (1.1.2)
-      jasmine-core (>= 1.1.0)
-      rack (>= 1.1)
+    jasmine (1.2.1)
+      jasmine-core (>= 1.2.0)
+      rack (~> 1.0)
       rspec (>= 1.3.1)
       selenium-webdriver (>= 0.1.3)
-    jasmine-core (1.1.0)
-    jasminerice (0.0.8)
-      haml
+    jasmine-core (1.2.0)
+    jasmine-headless-webkit (0.8.4)
+      coffee-script
+      jasmine-core (~> 1.1)
+      multi_json
+      rainbow
+      sprockets (~> 2)
+    jasmine-rails (0.2.2)
+      jasmine
+      jasmine-headless-webkit
+      rails (>= 3.1.0)
     journey (1.0.1)
     jquery-rails (1.0.18)
       railties (~> 3.0)
@@ -124,7 +129,6 @@ GEM
       activesupport (>= 3.0.0)
       railties (>= 3.0.0)
     kgio (2.7.4)
-    libnotify (0.7.2)
     libwebsocket (0.1.6)
       websocket
     mail (2.4.1)
@@ -196,6 +200,7 @@ GEM
       rake (>= 0.8.7)
       rdoc (~> 3.4)
       thor (~> 0.14.6)
+    rainbow (1.1.4)
     raindrops (0.9.0)
     rake (0.9.2.2)
     rdoc (3.12)
@@ -281,12 +286,10 @@ DEPENDENCIES
   fog
   girl_friday
   guard
-  guard-jasmine
-  jasmine
-  jasminerice
+  guard-jasmine-headless-webkit
+  jasmine-rails
   jquery-rails
   kaminari
-  libnotify
   omniauth
   omniauth-github
   omniauth-twitter
