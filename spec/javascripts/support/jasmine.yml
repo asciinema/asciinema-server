@@ -1,0 +1,18 @@
+src_files:
+ - "application.{js,coffee}"
+ - "player.{js,coffee}"
+
+stylesheets:
+
+helpers:
+  - "helpers/**/*.{js,coffee}"
+
+spec_files:
+  - "**/*[Ss]pec.{js,coffee,js.coffee}"
+
+src_dir: "app/assets/javascripts"
+
+spec_dir: "spec/javascripts"
+
+asset_paths:
+ - "vendor/assets/javascripts"
