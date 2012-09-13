@@ -51,7 +51,7 @@ class AsciiIo.AnsiInterpreter
       @handleControlCharacter(data[0])
       return 1
 
-    else if match = data.match(/^([\x20-\x7e]|[\xe2-\xe8]..|[\xc3-\xc5].|[\xa1-\xfe])+/)
+    else if match = data.match(/^([\x20-\x7e]|[\xe2-\xe8]..|[\xc2-\xc5].|[\xa1-\xfe])+/)
       @handlePrintableCharacters(match[0])
       return match[0].length
 
@@ -159,22 +159,29 @@ class AsciiIo.AnsiInterpreter
 
     switch term
       when "@"
-        @cb 'insertCharacters', n
+        @cb 'reserveCharacters', n
       when "A"
+        n = 1 if n is undefined
         @cb 'priorRow', n
       when "B"
+        n = 1 if n is undefined
         @cb 'nextRow', n
       when "C"
+        n = 1 if n is undefined
         @cb 'nextColumn', n
       when "D"
+        n = 1 if n is undefined
         @cb 'priorColumn', n
       when "E"
         @cb 'nextRowFirstColumn', n
       when "F"
         @cb 'priorRowFirstColumn', n
       when "G"
+        n = 1 if n is undefined
         @cb 'goToColumn', n
       when "H"
+        n = 1 if n is undefined
+        m = 1 if m is undefined
         @cb 'goToRowAndColumn', n, m
       when "I"
         @cb 'goToNextHorizontalTabStop', n
