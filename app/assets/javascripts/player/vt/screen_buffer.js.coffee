@@ -79,7 +79,7 @@ class AsciiIo.ScreenBuffer
   _removeLine: (l) ->
     @lineData.splice l, 1
 
-  insertCharacters: (n) ->
+  reserveCharacters: (n) ->
     line = @getLine()
     @lineData[@cursorY] = line.slice(0, @cursorX).concat(" ".times(n).split(""), line.slice(@cursorX, @cols - n))
     @updateLine()

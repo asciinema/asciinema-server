@@ -140,8 +140,8 @@ class AsciiIo.VT
   print: (text) ->
     @buffer.print text
 
-  insertCharacters: (n) ->
-    @buffer.insertCharacters n
+  reserveCharacters: (n) ->
+    @buffer.reserveCharacters n
 
   priorRow: (n) ->
     @buffer.priorRow n
