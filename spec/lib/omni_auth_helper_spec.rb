@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe OauthHelper do
+describe OmniAuthHelper do
   describe ".avatar_url" do
     let(:avatar_url) { "http://foo.bar/foo.png" }
 
@@ -16,7 +16,7 @@ describe OauthHelper do
         }
       end
 
-      it { OauthHelper.get_avatar_url(auth).should == avatar_url }
+      it { OmniAuthHelper.get_avatar_url(auth).should == avatar_url }
 
     end
 
@@ -30,7 +30,7 @@ describe OauthHelper do
         }
       end
 
-      it { OauthHelper.get_avatar_url(auth).should == avatar_url }
+      it { OmniAuthHelper.get_avatar_url(auth).should == avatar_url }
     end
 
     context "when other provider" do
@@ -38,7 +38,7 @@ describe OauthHelper do
         { "provider" => "other" }
       end
 
-      it { OauthHelper.get_avatar_url(auth).should be_nil }
+      it { OmniAuthHelper.get_avatar_url(auth).should be_nil }
     end
   end
 end

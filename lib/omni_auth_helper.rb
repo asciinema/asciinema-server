@@ -1,4 +1,4 @@
-class OauthHelper
+class OmniAuthHelper
 
   def self.get_avatar_url(auth)
     if auth["provider"] == "twitter"

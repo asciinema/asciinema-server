@@ -28,7 +28,7 @@ class OmniAuthUserLoader
     user.uid        = omniauth['uid']
     user.nickname   = omniauth['info']['nickname']
     user.name       = omniauth['info']['name']
-    user.avatar_url = OauthHelper.get_avatar_url(omniauth)
+    user.avatar_url = OmniAuthHelper.get_avatar_url(omniauth)
 
     user
   end
