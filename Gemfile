@@ -3,6 +3,7 @@ source 'http://rubygems.org'
 gem 'rails'
 gem 'jquery-rails'
 gem 'tzinfo'
+gem 'pg'
 gem 'carrierwave'
 gem 'omniauth'
 gem 'omniauth-twitter'
@@ -27,7 +28,6 @@ group :assets do
 end
 
 group :test, :development do
-  gem 'mysql2'
   gem 'rspec-rails'
   gem 'factory_girl_rails'
   gem 'awesome_print', :require => 'ap'
@@ -55,6 +55,5 @@ group :bugfix do
 end
 
 group :production do
-  gem 'pg'
   gem 'dalli'
 end
