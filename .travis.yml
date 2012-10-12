@@ -1,6 +1,7 @@
 language: ruby
 bundler_args: --without development
 before_script:
+  - psql -c 'create database myapp_test;' -U postgres
   - "cp config/database.travis.yml config/database.yml"
 script: ./script/cibuild.sh
 rvm:
