@@ -51,10 +51,6 @@ group :test do
   gem 'simplecov', :require => false
 end
 
-group :bugfix do
-  gem 'handlebars_assets'
-end
-
 group :production do
   gem 'dalli'
 end
