@@ -20,18 +20,18 @@ dependencies installed:
 
 * Ruby 1.9.2+ (Ruby 1.9.3 is recommended)
 
-* bundler gem
+* bundler gem  
   `gem install bundler`
 
-* PostgreSQL 8+ with libpq development headers
+* PostgreSQL 8+ with libpq development headers  
   `sudo apt-get install postgresql libpq-dev` on Debian/Ubuntu
 
 Also, for thumbnail generation you need following binaries:
 
-* tmux
+* tmux  
   `sudo apt-get install tmux` on Debian/Ubuntu
 
-* scriptreplay
+* scriptreplay  
   `sudo apt-get install bsdutils` on Debian/Ubuntu
 
 ### 2. Get the source code
