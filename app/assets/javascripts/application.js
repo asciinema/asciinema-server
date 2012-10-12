@@ -11,7 +11,6 @@
 //= require vendor/underscore-min
 //= require vendor/backbone-min
 //= require vendor/jquery.timeago
-//= require handlebars.runtime
 //= require backbone/ascii_io
 
 $(function() {
