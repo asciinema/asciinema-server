@@ -14,7 +14,6 @@ gem 'draper'
 gem 'fog'
 gem 'simple_form'
 gem 'girl_friday'
-gem 'unicorn'
 gem 'thin'
 gem 'open4'
 gem 'redcarpet'
@@ -52,5 +51,6 @@ group :test do
 end
 
 group :production do
+  gem 'unicorn'
   gem 'dalli'
 end
