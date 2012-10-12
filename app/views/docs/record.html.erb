@@ -2,16 +2,42 @@
 
 # Getting started
 
-## Install recorder script
+## 1. Install recorder
 
-To install or upgrade ascii.io recorder, open a terminal and run following
+### Linux
+
+To install/update ascii.io recorder, open a terminal and run following
 command:
 
     $ curl -sL get.ascii.io | bash
 
-That's it! Now you can start recording your terminal sessions.
+### OSX (via Homebrew)
 
-## Create profile (optional)
+Install with:
+
+    $ brew install https://raw.github.com/gist/3875486/asciiio.rb --HEAD
+
+Later update with:
+
+    $ brew update asciiio
+
+### OSX (no Homebrew)
+
+If you don't use Homebrew then install/update with:
+
+    $ curl -sL get.ascii.io | bash
+
+## 2. Record
+
+Open your terminal and run following command:
+
+    $ asciiio
+
+New shell instance will be opened and everything you'll do in it will be
+recorded. When you're ready to upload simply exit the shell with `exit`
+command or just hit `<C-d>`.
+
+## 3. Create profile (optional)
 
 If you want your recordings to be assigned to your ascii.io profile run this
 and follow instructions:
@@ -19,27 +45,14 @@ and follow instructions:
     $ asciiio auth
 
 If you skip this step now, you can always run above command later and all
-already recorded asciicasts will get automatically assigned to your new
+previously recorded asciicasts will get automatically assigned to your new
 profile.
 
 Btw, see [my profile](/~sickill).
 
-## Record
-
-Open your terminal and run following command:
-
-    $ asciiio
-
-New shell instance will be opened and everything you'll do in it will be
-recorded.  When you're ready to upload simply exit the shell with `exit`
-command or just hit `<C-d>`.
-
 ## Advanced options
 
 The recorder supports several command-line options. See
-[here](<%= docs_path(:options) %>) for a list. You can always check what's
-available with following command:
-
-    $ asciiio -h
+[here](<%= docs_path(:options) %>) for details.
 
 <% end %>

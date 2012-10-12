@@ -27,7 +27,7 @@ h2 {
 
 h3 {
   font-size: 16px;
-  margin: 0;
+  margin: 20px 0;
 }
 
 ol, ul {
@@ -233,4 +233,16 @@ ul.delimited {
 
 abbr.timeago {
   border-bottom: 0;
+}
+
+code {
+}
+
+pre {
+  padding: 10px;
+  background-color: white;
+  color: black;
+}
+
+pre code {
 }
