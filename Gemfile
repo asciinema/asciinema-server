@@ -27,6 +27,10 @@ group :assets do
   gem 'handlebars_assets'
 end
 
+group :development do
+  gem 'quiet_assets'
+end
+
 group :test, :development do
   gem 'rspec-rails'
   gem 'factory_girl_rails'
@@ -38,7 +42,6 @@ group :test, :development do
   gem 'libnotify'
   gem 'cane'
   gem 'tailor'
-  gem 'quiet_assets'
   gem 'pry-rails'
   # gem 'jasmine-headless-webkit'
   # gem 'guard-jasmine-headless-webkit'
