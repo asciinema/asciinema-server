@@ -12,6 +12,7 @@ development:
   pool: 5
   username: asciiio
   password:
+  min_messages: WARNING
 
 
 # Warning: The database defined as "test" will be erased and
@@ -24,6 +25,7 @@ test:
   pool: 5
   username: asciiio
   password:
+  min_messages: WARNING
 
 production:
   adapter: postgresql
