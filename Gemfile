@@ -15,6 +15,7 @@ gem 'fog'
 gem 'simple_form'
 gem 'girl_friday'
 gem 'unicorn'
+gem 'thin'
 gem 'open4'
 gem 'redcarpet'
 
