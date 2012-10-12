@@ -34,9 +34,9 @@ ActiveRecord::Schema.define(:version => 20120724203244) do
     t.text     "description"
     t.boolean  "featured",         :default => false
     t.string   "username"
+    t.integer  "likes_count",      :default => 0,     :null => false
     t.text     "snapshot"
     t.integer  "comments_count",   :default => 0,     :null => false
-    t.integer  "likes_count",      :default => 0,     :null => false
     t.boolean  "time_compression", :default => true,  :null => false
     t.integer  "views_count",      :default => 0,     :null => false
   end
