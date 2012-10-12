@@ -13,7 +13,7 @@ ascii.io terminal recorder go here:
 Below you'll find setup instructions in case you want to contribute, play with
 it on your local machine or setup your own instance for your organization.
 
-### Requirements
+### 1. Install dependencies
 
 ascii.io site is a Ruby on Rails application. You need to have installed
 following dependencies:
@@ -32,12 +32,14 @@ Also, for thumbnail generation you need following binaries:
 * scriptreplay
   `sudo apt-get install bsdutils` on Debian/Ubuntu
 
-### Get the source code
+### 2. Get the source code
+
+Clone git repository:
 
     $ git clone git://github.com/sickill/ascii.io.git
     $ cd ascii.io
 
-### Prepare DB config
+### 3. Prepare database config file
 
 Copy *config/database.yml.example* to *config/database.yml*. Then set
 database/user/password to whatever you prefer.
@@ -46,13 +48,13 @@ If database specified in database.yml doesn't exist then the following setup
 task will create it (make sure database user is allowed to create new
 databases).
 
-### Setup the app
+### 4. Setup the app
+
+Following script will install gem dependencies and setup database:
 
     $ ./script/setup
 
-This will install gem dependencies and setup database.
-
-## Run
+### 5. Run Rails server
 
     $ ./script/rails s
 
