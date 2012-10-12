@@ -4,8 +4,8 @@ ASCII.IO is the simplest way to record your terminal and share the recordings
 with your fellow geeks. Simply record and upload your terminal session with
 single command, and ASCII.IO will play it back in your browser.
 
-This is the source code of ascii.io website and JS player. If you look for
-ascii.io terminal recorder go here:
+This is the source code of ascii.io website and JS player. If you're looking
+for ascii.io terminal recorder go here:
 [sickill/ascii.io-cli](https://github.com/sickill/ascii.io-cli)
 
 ## Setup instructions
@@ -15,12 +15,14 @@ it on your local machine or setup your own instance for your organization.
 
 ### 1. Install dependencies
 
-ascii.io site is a Ruby on Rails application. You need to have installed
-following dependencies:
+ascii.io site is a Ruby on Rails application. You need to have following
+dependencies installed:
 
 * Ruby 1.9.2+ (Ruby 1.9.3 is recommended)
+
 * bundler gem
   `gem install bundler`
+
 * PostgreSQL 8+ with libpq development headers
   `sudo apt-get install postgresql libpq-dev` on Debian/Ubuntu
 
