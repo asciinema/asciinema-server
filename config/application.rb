@@ -56,6 +56,13 @@ module AsciiIo
     config.action_mailer.default_url_options = { :host => CFG['EMAIL_HOST'] }
 
     config.assets.initialize_on_precompile = false
+
+    # Disable generation of helpers, javascripts, css, and view specs
+    config.generators do |generate|
+      generate.helper false
+      generate.assets false
+      generate.view_specs false
+    end
   end
 end
 
