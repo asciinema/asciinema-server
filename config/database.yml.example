@@ -1,10 +1,15 @@
+# Enable passwordless Postgres access with following commands:
+#
+# echo "local all $USER trust" | sudo tee -a /etc/postgresql/9.1/main/pg_hba.conf
+# sudo su - postgres -c "createuser -s -r -d $USER"
+
 development:
   adapter: postgresql
   encoding: unicode
   database: ascii_io_development
   pool: 5
-  username: asciiio
-  password:
+  # username: asciiio
+  # password:
   min_messages: WARNING
 
 
@@ -16,8 +21,8 @@ test:
   encoding: unicode
   database: ascii_io_test
   pool: 5
-  username: asciiio
-  password:
+  # username: asciiio
+  # password:
   min_messages: WARNING
 
 production:
