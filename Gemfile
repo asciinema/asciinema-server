@@ -46,8 +46,9 @@ end
 
 group :test do
   gem "rake"
-  gem "capybara"
   gem 'simplecov', :require => false
+  gem 'capybara', :require => false
+  gem 'database_cleaner'
 end
 
 group :production do
