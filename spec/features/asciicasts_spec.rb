@@ -11,9 +11,18 @@ end
 def load_asciicast(id)
   FactoryGirl.create(
     :asciicast,
-    :meta => uploaded_file("spec/fixtures/asciicasts/#{id}/meta.json", 'application/json'),
-    :stdout => fixture_file_upload("spec/fixtures/asciicasts/#{id}/stdout", "application/octet-stream"),
-    :stdout_timing => fixture_file_upload("spec/fixtures/asciicasts/#{id}/stdout.time", "application/octet-stream"),
+    :meta => uploaded_file(
+      "spec/fixtures/asciicasts/#{id}/meta.json",
+      'application/json'
+    ),
+    :stdout => fixture_file_upload(
+      "spec/fixtures/asciicasts/#{id}/stdout",
+      "application/octet-stream"
+    ),
+    :stdout_timing => fixture_file_upload(
+      "spec/fixtures/asciicasts/#{id}/stdout.time",
+      "application/octet-stream"
+    )
   )
 end
 
