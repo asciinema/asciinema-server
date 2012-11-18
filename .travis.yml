@@ -1,5 +1,8 @@
 language: ruby
 bundler_args: --without development
+before_install:
+  - "export DISPLAY=:99.0"
+  - "sh -e /etc/init.d/xvfb start"
 before_script:
   - psql -c 'create database myapp_test;' -U postgres
   - "cp config/database.travis.yml config/database.yml"
