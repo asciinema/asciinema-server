@@ -53,6 +53,8 @@ class AsciicastDecorator < ApplicationDecorator
   end
 
   def os
+    return 'unknown' if uname.blank?
+
     if uname =~ /Linux/
       'Linux'
     elsif uname =~ /Darwin/
