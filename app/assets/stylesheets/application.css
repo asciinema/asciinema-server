@@ -1,6 +1,6 @@
 /*
- *= require vendor/normalize
- *= require vendor/auth-buttons
+ *= require normalize
+ *= require auth-buttons
  *= require overpass
  *= require base
  *= require header
