@@ -1,7 +1,7 @@
-//= require vendor/rAF
-//= require vendor/base64.min
-//= require vendor/bzip2
-//= require vendor/utf8
+//= require rAF
+//= require base64.min
+//= require bzip2
+//= require utf8
 //= require extensions
 //= require namespace
 //= require player/views/renderers/base
