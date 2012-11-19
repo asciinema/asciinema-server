@@ -64,6 +64,10 @@ class AsciicastDecorator < ApplicationDecorator
     end
   end
 
+  def terminal_type
+    asciicast.terminal_type || '?'
+  end
+
   def shell
     File.basename(asciicast.shell.to_s)
   end
