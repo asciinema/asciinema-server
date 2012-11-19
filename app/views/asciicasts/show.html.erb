@@ -1,11 +1,6 @@
 <section id="presentation" class="feature">
   <div class="asciicast-wrapper">
-    <%= render :partial => 'asciicasts/player', :locals => {
-      :asciicast => @asciicast,
-      :speed => params[:speed],
-      :hud => true
-    } %>
-
+    <%= player @asciicast %>
   </div>
 </section>
 

@@ -1,15 +1,10 @@
 module AsciicastsHelper
 
-  def player_script_tag(asciicast, options = {})
-    speed = (options[:speed] || 1).to_f
-    benchmark = !!params[:bm]
-    auto_play = options.key?(:auto_play) ? !!options[:auto_play] : false
-    hud = options.key?(:hud) ? !!options[:hud] : true
-
+  def player(asciicast, options = {})
     if params[:fallback]
-      klass = "AsciiIo.FallbackPlayer"
+      player_class = "AsciiIo.FallbackPlayer"
     else
-      klass = "window.Worker && $.browser.webkit ? " \
+      player_class = "window.Worker && $.browser.webkit ? " \
               "AsciiIo.Player : AsciiIo.FallbackPlayer"
     end
 
@@ -19,24 +14,17 @@ module AsciicastsHelper
       renderer_class = "AsciiIo.Renderer.Pre"
     end
 
-    return <<EOS.html_safe
-<script>
-  $(function() {
-    var playerClass = #{klass};
-    window.player = new playerClass({
-      el: $('.player'),
-      cols: #{asciicast.terminal_columns},
-      lines: #{asciicast.terminal_lines},
-      speed: #{speed},
-      benchmark: #{benchmark},
-      model: new AsciiIo.Asciicast({ id: #{asciicast.id} }),
-      rendererClass: #{renderer_class},
-      autoPlay: #{auto_play},
-      hud: #{hud},
-      snapshot: "#{j asciicast.snapshot.to_s}"
-    });
-  });
-</script>
-EOS
+    render :partial => 'asciicasts/player', :locals => {
+      player_class: player_class,
+      cols: asciicast.terminal_columns,
+      lines: asciicast.terminal_lines,
+      speed: (options[:speed] || params[:speed] || 1).to_f,
+      benchmark: !!params[:bm],
+      asciicast_id: asciicast.id,
+      renderer_class: renderer_class,
+      auto_play: options.key?(:auto_play) ? !!options[:auto_play] : false,
+      hud: options.key?(:hud) ? !!options[:hud] : true,
+      snapshot: asciicast.snapshot
+    }
   end
 end

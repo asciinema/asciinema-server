@@ -1,5 +1,18 @@
 <div class="player"></div>
-<%= player_script_tag(asciicast,
-  :speed => local_assigns[:speed],
-  :hud => local_assigns[:hud]
-) %>
+<script>
+  $(function() {
+    var playerClass = <%= player_class.html_safe %>;
+    window.player = new playerClass({
+      el: $('.player'),
+      cols: <%= cols %>,
+      lines: <%= lines %>,
+      speed: <%= speed %>,
+      benchmark: <%= benchmark %>,
+      model: new AsciiIo.Asciicast({ id: <%= asciicast_id %> }),
+      rendererClass: <%= renderer_class.html_safe %>,
+      autoPlay: <%= auto_play %>,
+      hud: <%= hud %>,
+      snapshot: "<%= j snapshot %>"
+    });
+  });
+</script>
