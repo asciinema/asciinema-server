@@ -30,8 +30,7 @@
           </li>
 
           <li>
-            <%= link_to 'Delete', asciicast_path(@asciicast),
-                :method => :delete, :confirm => 'Really delete this asciicast?' %>
+            <%= link_to_delete_asciicast 'Delete', @asciicast %>
           </li>
         </ul>
       <% end %>
