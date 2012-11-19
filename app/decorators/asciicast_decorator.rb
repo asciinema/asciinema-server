@@ -7,6 +7,10 @@ class AsciicastDecorator < ApplicationDecorator
   THUMBNAIL_HEIGHT = 10
   MAX_DELAY = 5.0
 
+  def user
+    @user ||= UserDecorator.new(asciicast.user)
+  end
+
   def as_json(*args)
     data = model.as_json(*args)
     data['escaped_stdout_data'] = escaped_stdout_data

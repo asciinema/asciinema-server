@@ -39,7 +39,6 @@ class AsciicastsController < ApplicationController
 
     respond_to do |format|
       format.html do
-        @asciicast_author = UserDecorator.new(@asciicast.user)
         @title = @asciicast.title
         respond_with @asciicast
       end
@@ -54,7 +53,6 @@ class AsciicastsController < ApplicationController
 
   def raw
     @asciicast = AsciicastDecorator.new(@asciicast)
-    @asciicast_author = UserDecorator.new(@asciicast.user)
     render :layout => 'raw'
   end
 
