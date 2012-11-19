@@ -28,7 +28,7 @@ end
 
 def visit_asciicast(id)
   asciicast = load_asciicast(id)
-  visit "/a/#{asciicast.id}"
+  visit "/a/#{asciicast.id}/raw"
 end
 
 describe 'Asciicast', :type => :feature, :js => true do
