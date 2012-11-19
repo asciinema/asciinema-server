@@ -2,7 +2,7 @@ class SnapshotQueue < GirlFriday::WorkQueue
   include Singleton
 
   def initialize
-    super(:comment_queue, :size => 3) do |asciicast_id|
+    super(:snapshot_queue, :size => 3) do |asciicast_id|
       SnapshotWorker.new.perform(asciicast_id)
     end
   end
