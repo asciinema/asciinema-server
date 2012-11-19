@@ -40,7 +40,7 @@
 
       <ul class="delimited">
         <li>
-          Recorded: <%= timeago @asciicast.created_at %>
+          Recorded: <%= time_ago_tag @asciicast.created_at %>
         </li>
         <li>
           Viewed: <%= @asciicast.views_count %> times
