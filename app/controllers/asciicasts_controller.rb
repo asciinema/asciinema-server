@@ -1,7 +1,7 @@
 class AsciicastsController < ApplicationController
   PER_PAGE = 15
 
-  before_filter :load_resource, :only => [:show, :edit, :update, :destroy]
+  before_filter :load_resource, :only => [:show, :raw, :edit, :update, :destroy]
   before_filter :count_view, :only => [:show]
   before_filter :ensure_authenticated!, :only => [:edit, :update, :destroy]
   before_filter :ensure_owner!, :only => [:edit, :update, :destroy]
@@ -50,7 +50,12 @@ class AsciicastsController < ApplicationController
         end
       end
     end
+  end
 
+  def raw
+    @asciicast = AsciicastDecorator.new(@asciicast)
+    @asciicast_author = UserDecorator.new(@asciicast.user)
+    render :layout => 'raw'
   end
 
   def edit

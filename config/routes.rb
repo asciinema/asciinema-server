@@ -3,7 +3,11 @@ AsciiIo::Application.routes.draw do
   match "/browse" => "asciicasts#index", :as => :browse
   match "/browse/popular" => "asciicasts#popular", :as => :popular
 
-  resources :asciicasts, :path => 'a'
+  resources :asciicasts, :path => 'a' do
+    member do
+      get :raw
+    end
+  end
 
   match "/~:nickname" => "users#show", :as => :profile
 
