@@ -17,9 +17,7 @@
     </div>
 
     <div class="secondary_info">
-      <% if @asciicast -%>
-        <%= player @asciicast, :speed => 2.0, :hud => false %>
-      <% end -%>
+      <%= player @asciicast, :speed => 2.0, :hud => false if @asciicast %>
     </div>
   </div>
 </section>
