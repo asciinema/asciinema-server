@@ -40,7 +40,7 @@ class AsciicastsController < ApplicationController
     respond_to do |format|
       format.html do
         @asciicast_author = UserDecorator.new(@asciicast.user)
-        @title = @asciicast.smart_title
+        @title = @asciicast.title
         respond_with @asciicast
       end
 

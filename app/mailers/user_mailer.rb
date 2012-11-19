@@ -8,7 +8,7 @@ class UserMailer < ActionMailer::Base
     @asciicast = AsciicastDecorator.new(@comment.asciicast)
 
     to = "~#{user.nickname} <#{user.email}>"
-    subject = %(New comment for #{@asciicast.smart_title})
+    subject = %(New comment for #{@asciicast.title})
     mail :to => to, :subject => subject
   end
 end

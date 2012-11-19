@@ -64,13 +64,13 @@ class AsciicastDecorator < ApplicationDecorator
     end
   end
 
-  def shell_name
-    File.basename(shell.to_s)
+  def shell
+    File.basename(asciicast.shell.to_s)
   end
 
-  def smart_title
-    if title.present?
-      title
+  def title
+    if asciicast.title.present?
+      asciicast.title
     elsif command.present?
       "$ #{command}"
     else
@@ -98,8 +98,8 @@ class AsciicastDecorator < ApplicationDecorator
     @thumbnail
   end
 
-  def formatted_description
-    text = model.description.to_s
+  def description
+    text = asciicast.description.to_s
     markdown(text)
   end
 

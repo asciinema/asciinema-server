@@ -7,10 +7,10 @@
 <section class="supplimental">
   <div class="wrapper">
     <div class="main">
-      <h1><%= @asciicast.smart_title %></h1>
+      <h1><%= @asciicast.title %></h1>
       <div class="description">
         <% if @asciicast.description.present? -%>
-          <%= @asciicast.formatted_description %>
+          <%= @asciicast.description %>
         <% else -%>
           <em>No description.</em>
         <% end -%>
@@ -49,7 +49,7 @@
           OS: <%= @asciicast.os %>
         </li>
         <li>
-          SHELL: <%= @asciicast.shell_name %>
+          SHELL: <%= @asciicast.shell %>
         </li>
         <li>
           TERM: <%= @asciicast.terminal_type || '?' %>
