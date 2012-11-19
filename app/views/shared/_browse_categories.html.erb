@@ -2,11 +2,11 @@
 
 <ul class="delimited">
   <li>
-    <%= category_link 'All', browse_path, :all %>
+    <%= link_to_category 'All', browse_path, :all %>
   </li>
 
   <li>
-    <%= category_link 'Popular', popular_path, :popular %>
+    <%= link_to_category 'Popular', popular_path, :popular %>
   </li>
 
   <% if current_user -%>

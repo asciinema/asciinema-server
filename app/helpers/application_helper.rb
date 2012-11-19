@@ -26,7 +26,7 @@ module ApplicationHelper
     string.lines.map { |l| "#{' ' * width}#{l}" }.join('')
   end
 
-  def category_link(text, url, name)
+  def link_to_category(text, url, name)
     opts = {}
 
     if name == @current_category
