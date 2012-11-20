@@ -28,7 +28,15 @@ end
 
 def visit_asciicast(id)
   asciicast = load_asciicast(id)
-  visit "/a/#{asciicast.id}/raw"
+  visit "/a/#{asciicast.id}/raw?speed=2"
+end
+
+def inject_on_finished_callback
+  page.execute_script(<<EOS)
+    window.player.movie.on('finished', function() {
+      $('body').append('<span class=\"finished\"></span>');
+    })
+EOS
 end
 
 describe 'Asciicast', :type => :feature, :js => true do
@@ -40,6 +48,8 @@ describe 'Asciicast', :type => :feature, :js => true do
       it "successfully plays to the end" do
         visit_asciicast(id)
         find(".play-button").find(".arrow").click
+        inject_on_finished_callback
+        page.should have_selector('body .finished')
       end
     end
   end
