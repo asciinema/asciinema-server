@@ -8,38 +8,38 @@ def uploaded_file(path, type)
   )
 end
 
-def load_asciicast(id)
-  FactoryGirl.create(
-    :asciicast,
-    :meta => uploaded_file(
-      "spec/fixtures/asciicasts/#{id}/meta.json",
-      'application/json'
-    ),
-    :stdout => fixture_file_upload(
-      "spec/fixtures/asciicasts/#{id}/stdout",
-      "application/octet-stream"
-    ),
-    :stdout_timing => fixture_file_upload(
-      "spec/fixtures/asciicasts/#{id}/stdout.time",
-      "application/octet-stream"
-    )
-  )
-end
-
-def visit_asciicast(id)
-  asciicast = load_asciicast(id)
-  visit "/a/#{asciicast.id}/raw?speed=2"
-end
-
-def inject_on_finished_callback
-  page.execute_script(<<EOS)
-    window.player.movie.on('finished', function() {
-      $('body').append('<span class=\"finished\"></span>');
-    })
-EOS
-end
-
 describe 'Asciicast', :type => :feature, :js => true do
+
+  def load_asciicast(id)
+    FactoryGirl.create(
+      :asciicast,
+      :meta => uploaded_file(
+        "spec/fixtures/asciicasts/#{id}/meta.json",
+        'application/json'
+      ),
+      :stdout => fixture_file_upload(
+        "spec/fixtures/asciicasts/#{id}/stdout",
+        "application/octet-stream"
+      ),
+      :stdout_timing => fixture_file_upload(
+        "spec/fixtures/asciicasts/#{id}/stdout.time",
+        "application/octet-stream"
+      )
+    )
+  end
+
+  def visit_asciicast(id)
+    asciicast = load_asciicast(id)
+    visit "/a/#{asciicast.id}/raw?speed=2"
+  end
+
+  def inject_on_finished_callback
+    page.execute_script(<<EOS)
+      window.player.movie.on('finished', function() {
+        $('body').append('<span class=\"finished\"></span>');
+      })
+EOS
+  end
 
   Dir['spec/fixtures/asciicasts/*'].each do |dir|
     id = dir[/\d+/]
