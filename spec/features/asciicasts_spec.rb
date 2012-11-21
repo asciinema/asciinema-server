@@ -8,7 +8,7 @@ def uploaded_file(path, type)
   )
 end
 
-describe 'Asciicast', :type => :feature, :js => true do
+describe 'Asciicast playback', :type => :feature, :js => true do
 
   def load_asciicast(id)
     FactoryGirl.create(
@@ -45,7 +45,16 @@ EOS
     id = dir[/\d+/]
 
     describe "from fixture #{id}" do
-      it "successfully plays to the end" do
+      before do
+        @old_wait_time = Capybara.default_wait_time
+        Capybara.default_wait_time = 120
+      end
+
+      after do
+        Capybara.default_wait_time = @old_wait_time
+      end
+
+      it "is successful" do
         visit_asciicast(id)
         find(".play-button").find(".arrow").click
         inject_on_finished_callback
