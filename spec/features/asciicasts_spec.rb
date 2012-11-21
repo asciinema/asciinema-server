@@ -30,7 +30,7 @@ describe 'Asciicast playback', :type => :feature, :js => true do
 
   def visit_asciicast(id)
     asciicast = load_asciicast(id)
-    visit "/a/#{asciicast.id}/raw?speed=2"
+    visit "/a/#{asciicast.id}/raw?speed=5"
   end
 
   def inject_on_finished_callback
