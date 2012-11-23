@@ -53,6 +53,10 @@ describe 'AsciiIo.Brush', ->
       brush = new AsciiIo.Brush fg: 3, bright: true
       expect(brush.fgColor()).toEqual 11
 
+    it 'returns bg if reverse is on', ->
+      brush = new AsciiIo.Brush fg: 1, bg: 2, reverse: true
+      expect(brush.fgColor()).toEqual 2
+
   describe '#bgColor', ->
 
     it 'returns 0 if bg is undefined', ->
@@ -67,6 +71,10 @@ describe 'AsciiIo.Brush', ->
       brush = new AsciiIo.Brush bg: 4, blink: true
       expect(brush.bgColor()).toEqual 12
 
+    it 'returns fg if reverse is on', ->
+      brush = new AsciiIo.Brush fg: 1, bg: 2, reverse: true
+      expect(brush.bgColor()).toEqual 1
+
   describe '#attributes', ->
 
     it 'includes fg, bg, blink, bright, italic, underline', ->
@@ -78,3 +86,17 @@ describe 'AsciiIo.Brush', ->
 
       for attr in expectedAttrs
         expect(_(attrs).has(attr)).toBeTruthy()
+
+  describe '#applyChanges', ->
+
+    it 'returns new brush', ->
+      brush = new AsciiIo.Brush
+      newBrush = brush.applyChanges fg: 5
+
+      expect(newBrush).toNotEqual brush
+
+    it 'applies changes to attributes', ->
+      brush = new AsciiIo.Brush fg: 1
+      newBrush = brush.applyChanges fg: 2
+
+      expect(newBrush.fg).toEqual 2

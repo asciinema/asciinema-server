@@ -14,6 +14,7 @@ class AsciiIo.SgrInterpreter
         changes.bright    = false
         changes.italic    = false
         changes.underline = false
+        changes.reverse   = false
       else if n is 1
         changes.bright = true
       else if n is 3
@@ -22,12 +23,16 @@ class AsciiIo.SgrInterpreter
         changes.underline = true
       else if n is 5
         changes.blink = true
+      else if n is 7
+        changes.reverse = true
       else if n is 23
         changes.italic = false
       else if n is 24
         changes.underline = false
       else if n is 25
         changes.blink = false
+      else if n is 27
+        changes.reverse = false
       else if n >= 30 and n <= 37
         changes.fg = n - 30
       else if n is 38

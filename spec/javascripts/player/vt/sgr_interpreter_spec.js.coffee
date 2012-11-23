@@ -22,6 +22,9 @@ describe 'AsciiIo.SgrInterpreter', ->
     it 'sets blink attr for 5', ->
       expectChange [5], blink: true
 
+    it 'sets reverse attr for 7', ->
+      expectChange [7], reverse: true
+
     it 'unsets italic for 23', ->
       expectChange [23], italic: false
 
@@ -30,6 +33,9 @@ describe 'AsciiIo.SgrInterpreter', ->
 
     it 'unsets blink attr for 25', ->
       expectChange [25], blink: false
+
+    it 'unsets reverse attr for 27', ->
+      expectChange [27], reverse: false
 
     it 'sets foreground for 30-37', ->
       expectChange [30], fg: 0

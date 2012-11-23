@@ -242,12 +242,7 @@ class AsciiIo.ScreenBuffer
   repeatLastCharacter: (n = 1) ->
 
   updateBrush: (changes) ->
-    attrs = @brush.attributes()
-
-    for attr, val of changes
-      attrs[attr] = val
-
-    @brush = AsciiIo.Brush.create attrs
+    @brush = @brush.applyChanges changes
 
   # ----- Scroll control
 

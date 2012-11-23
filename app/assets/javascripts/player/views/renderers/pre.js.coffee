@@ -69,10 +69,10 @@ class AsciiIo.Renderer.Pre extends AsciiIo.Renderer.Base
       if brush != AsciiIo.Brush.default()
         span = "<span class=\""
 
-        if brush.fg isnt undefined
+        unless brush.hasDefaultFg()
           span += " fg" + brush.fgColor()
 
-        if brush.bg isnt undefined
+        unless brush.hasDefaultBg()
           span += " bg" + brush.bgColor()
 
         if brush.bright
