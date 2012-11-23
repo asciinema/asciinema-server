@@ -189,10 +189,10 @@ class AsciiIo.VT
     @buffer.eraseToRowEnd()
 
   insertLines: (n) ->
-    @buffer.insertLine n
+    @buffer.insertLines n
 
   deleteLines: (n) ->
-    @buffer.deleteLine n
+    @buffer.deleteLines n
 
   deleteCharacters: (n) ->
     @buffer.deleteCharacters n
