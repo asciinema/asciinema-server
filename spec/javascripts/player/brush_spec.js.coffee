@@ -45,6 +45,10 @@ describe 'AsciiIo.Brush', ->
       brush = new AsciiIo.Brush fg: undefined
       expect(brush.fgColor()).toEqual 7
 
+    it 'returns fg if bright is off', ->
+      brush = new AsciiIo.Brush fg: 3, bright: false
+      expect(brush.fgColor()).toEqual 3
+
     it 'returns fg+8 if bright is on', ->
       brush = new AsciiIo.Brush fg: 3, bright: true
       expect(brush.fgColor()).toEqual 11
@@ -54,6 +58,10 @@ describe 'AsciiIo.Brush', ->
     it 'returns 0 if bg is undefined', ->
       brush = new AsciiIo.Brush bg: undefined
       expect(brush.bgColor()).toEqual 0
+
+    it 'returns bg if blink is off', ->
+      brush = new AsciiIo.Brush bg: 4, blink: false
+      expect(brush.bgColor()).toEqual 4
 
     it 'returns bg+8 if blink is on', ->
       brush = new AsciiIo.Brush bg: 4, blink: true
