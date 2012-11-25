@@ -11,15 +11,15 @@ describe 'AsciiIo.AnsiInterpreter', ->
   expectCall = (args...) ->
     n = checkNumber
     checkNumber += 1
-    console.log calls[n]
+    # console.log calls[n]
     expect(calls[n]).toEqual args
 
   expectNoCall = ->
-    console.log calls[0]
+    # console.log calls[0]
     expect(calls.length).toEqual 0
 
-  isSwallowed = ->
-    parse data, ''
+  isSwallowed = (d = data) ->
+    parse d, ''
     expectNoCall()
 
   beforeEach ->
@@ -29,7 +29,7 @@ describe 'AsciiIo.AnsiInterpreter', ->
 
   describe '#parse', ->
 
-    it 'returns not parsed data', ->
+    it 'returns not parsed data back', ->
       parse '\x1b', '\x1b'
       expectNoCall()
 
@@ -98,8 +98,7 @@ describe 'AsciiIo.AnsiInterpreter', ->
       describe 'other', ->
         it "is swallowed", ->
           for c in ['\x00', '\x0e', '\x0f', '\x82', '\x94']
-            parse c, ''
-            expectNoCall()
+            isSwallowed c
 
     describe 'printable character', ->
 
@@ -148,6 +147,15 @@ describe 'AsciiIo.AnsiInterpreter', ->
 
           beforeEach ->
             data += '('
+
+          describe '0', ->
+
+            beforeEach ->
+              data += '0'
+
+            it 'calls setSpecialCharset', ->
+              parse data
+              expectCall 'setSpecialCharset'
 
           describe 'A', ->
 
@@ -321,6 +329,18 @@ describe 'AsciiIo.AnsiInterpreter', ->
             parse data
             expectCall 'priorColumn', 3
 
+        describe 'E', ->
+          it 'calls nextRowFirstColumn(n)', ->
+            data += '3E'
+            parse data
+            expectCall 'nextRowFirstColumn', 3
+
+        describe 'F', ->
+          it 'calls priorRowFirstColumn(n)', ->
+            data += '3F'
+            parse data
+            expectCall 'priorRowFirstColumn', 3
+
         describe 'G', ->
           it 'calls goToColumn(n)', ->
             data += '3G'
@@ -352,6 +372,12 @@ describe 'AsciiIo.AnsiInterpreter', ->
             data += 'H'
             parse data
             expectCall 'goToRowAndColumn', 1, 1
+
+        describe 'I', ->
+          it 'calls goToNextHorizontalTabStop', ->
+            data += '2I'
+            parse data
+            expectCall 'goToNextHorizontalTabStop', 2
 
         describe 'J', ->
           it 'calls eraseToScreenEnd when no n given', ->
@@ -417,11 +443,64 @@ describe 'AsciiIo.AnsiInterpreter', ->
             parse data
             expectCall 'deleteLines', 3
 
+        describe 'P', ->
+          it 'calls deleteCharacters(1) when no n given', ->
+            data += 'P'
+            parse data
+            expectCall 'deleteCharacters', 1
+
+          it 'calls deleteCharacters(n) when n given', ->
+            data += '3P'
+            parse data
+            expectCall 'deleteCharacters', 3
+
+        describe 'S', ->
+          it 'calls scrollUp(n)', ->
+            data += '4S'
+            parse data
+            expectCall 'scrollUp', 4
+
+        describe 'T', ->
+          it 'calls scrollDown(n)', ->
+            data += '4T'
+            parse data
+            expectCall 'scrollDown', 4
+
+        describe 'X', ->
+          it 'calls eraseCharacters(n)', ->
+            data += '4X'
+            parse data
+            expectCall 'eraseCharacters', 4
+
+        describe 'Z', ->
+          it 'calls goToPriorHorizontalTabStop(n)', ->
+            data += '5Z'
+            parse data
+            expectCall 'goToPriorHorizontalTabStop', 5
+
+        describe 'b', ->
+          # TODO
+
+        describe 'c', ->
+          beforeEach ->
+            data += '>c'
+
+          it 'is swallowed', isSwallowed
+
         describe 'd', ->
           it 'calls goToRow(n)', ->
             data += '3d'
             parse data
             expectCall 'goToRow', 3
+
+        describe 'f', ->
+          # TODO
+
+        describe 'g', ->
+          # TODO
+
+        describe 'l', ->
+          # TODO
 
         describe 'm', ->
           it 'calls handleSGR([n, m, ...]) when n and m given', ->
@@ -436,22 +515,11 @@ describe 'AsciiIo.AnsiInterpreter', ->
             parse data
             expect(interpreter.handleSGR).toHaveBeenCalledWith([])
 
-        describe 'P', ->
-          it 'calls deleteCharacters(1) when no n given', ->
-            data += 'P'
-            parse data
-            expectCall 'deleteCharacters', 1
+        describe 'n', ->
+          # TODO
 
-          it 'calls deleteCharacters(n) when n given', ->
-            data += '3P'
-            parse data
-            expectCall 'deleteCharacters', 3
-
-        describe 'c', ->
-          beforeEach ->
-            data += '>c'
-
-          it 'is swallowed', isSwallowed
+        describe 'r', ->
+          # TODO
 
         describe 'from private standards', ->
           # first character after CSI is one of: " < = > (074-077 octal, 3C-3F )
