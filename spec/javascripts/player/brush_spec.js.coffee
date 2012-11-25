@@ -18,9 +18,10 @@ describe 'AsciiIo.Brush', ->
         bright   : true
         italic   : false
         underline: true
+        reverse  : true
 
       hash = AsciiIo.Brush.hash attrs
-      expect(hash).toEqual '1_2_false_true_false_true'
+      expect(hash).toEqual '1_2_false_true_false_true_true'
 
   describe '.create', ->
 
@@ -77,10 +78,11 @@ describe 'AsciiIo.Brush', ->
 
   describe '#attributes', ->
 
-    it 'includes fg, bg, blink, bright, italic, underline', ->
+    it 'includes fg, bg, blink, bright, italic, underline, reverse', ->
       brush = new AsciiIo.Brush
       attrs = brush.attributes()
-      expectedAttrs = ['fg', 'bg', 'blink', 'bright', 'italic', 'underline']
+      expectedAttrs =
+        ['fg', 'bg', 'blink', 'bright', 'italic', 'underline', 'reverse']
 
       expect(_(attrs).keys().length).toEqual _(expectedAttrs).keys().length
 
