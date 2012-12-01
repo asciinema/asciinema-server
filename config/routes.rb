@@ -25,10 +25,10 @@ AsciiIo::Application.routes.draw do
   resource :user, :only => [:create, :edit, :update]
 
   namespace :api do
-    resources :comments
+    resources :comments, :only => :destroy
 
     resources :asciicasts do
-      resources :comments
+      resources :comments, :only => [:index, :create]
     end
   end
 
