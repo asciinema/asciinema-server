@@ -18,7 +18,8 @@ class Api::CommentsController < ApplicationController
     end
 
     decorated_comment = CommentDecorator.new(comment)
-    respond_with decorated_comment, :location => api_comment_url(comment)
+    location = comment.persisted? ? api_comment_url(comment) : nil
+    respond_with decorated_comment, :location => location
   end
 
   def destroy
