@@ -20,7 +20,7 @@ describe SessionsController do
     context "user exists" do
       before do
         FactoryGirl.create(:user, :provider => provider, :uid => uid)
-        post :create, :provider => provider
+        get :create, :provider => provider
       end
 
       it "should create session" do
@@ -38,19 +38,19 @@ describe SessionsController do
       let(:auth) { request.env["omniauth.auth"] }
       let(:user) { stub("user", :id => 1, :persisted? => true) }
 
-      context "when nicknamne is not taken" do
+      context "when nickname is not taken" do
         it "should call create_with_omniauth" do
           User.should_receive(:create_with_omniauth).
             with(auth).
             and_return(user)
 
-          post :create, :provider => provider
+          get :create, :provider => provider
         end
 
         it "should login user" do
           User.stub(:create_with_omniauth).and_return(user)
 
-          post :create, :provider => provider
+          get :create, :provider => provider
 
           session[:user_id].should_not be_nil
         end
@@ -71,14 +71,14 @@ describe SessionsController do
         end
 
         it "puts uid and provider in session " do
-          post :create, :provider => provider
+          get :create, :provider => provider
 
           session[:new_user][:uid].should == uid
           session[:new_user][:provider].should == provider
         end
 
         it "renders user/new" do
-          post :create, :provider => provider
+          get :create, :provider => provider
           should render_template('users/new')
         end
       end
