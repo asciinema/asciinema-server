@@ -1,8 +1,6 @@
 require 'spec_helper'
 
 describe CommentDecorator do
-  before { ApplicationController.new.set_current_view_context }
-
   let(:decorated_comment) { CommentDecorator.new(comment) }
 
   describe "#as_json" do
@@ -41,5 +39,4 @@ describe CommentDecorator do
     end
 
   end
-
 end
