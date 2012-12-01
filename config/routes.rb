@@ -1,7 +1,7 @@
 AsciiIo::Application.routes.draw do
 
-  match "/browse" => "asciicasts#index", :as => :browse
-  match "/browse/popular" => "asciicasts#popular", :as => :popular
+  get "/browse" => "asciicasts#index", :as => :browse
+  get "/browse/popular" => "asciicasts#popular", :as => :popular
 
   resources :asciicasts, :path => 'a' do
     member do
@@ -9,18 +9,18 @@ AsciiIo::Application.routes.draw do
     end
   end
 
-  match "/~:nickname" => "users#show", :as => :profile
+  get "/~:nickname" => "users#show", :as => :profile
 
-  match "/docs" => "docs#show", :page => 'record'
-  match "/docs/:page" => "docs#show", :as => :docs
+  get "/docs" => "docs#show", :page => 'record'
+  get "/docs/:page" => "docs#show", :as => :docs
 
-  match "/auth/:provider/callback" => "sessions#create"
-  match "/auth/failure" => "sessions#failure"
+  get "/auth/:provider/callback" => "sessions#create"
+  get "/auth/failure" => "sessions#failure"
 
-  match "/login" => "sessions#new"
-  match "/logout" => "sessions#destroy"
+  get "/login" => "sessions#new"
+  get "/logout" => "sessions#destroy"
 
-  match "/connect/:user_token" => "user_tokens#create"
+  get "/connect/:user_token" => "user_tokens#create"
 
   resource :user, :only => [:create, :edit, :update]
 
