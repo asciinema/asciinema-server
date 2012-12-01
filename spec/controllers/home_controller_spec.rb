@@ -5,7 +5,7 @@ describe HomeController do
   describe "GET 'show'" do
     describe 'when there is at least one featured cast' do
       before do
-        Factory(:asciicast, :featured => true)
+        FactoryGirl.create(:asciicast, :featured => true)
       end
 
       it "returns http success" do
@@ -16,7 +16,7 @@ describe HomeController do
 
     describe 'when there is no featured cast but any cast exists' do
       before do
-        Factory(:asciicast, :featured => false)
+        FactoryGirl.create(:asciicast, :featured => false)
       end
 
       it "returns http success" do

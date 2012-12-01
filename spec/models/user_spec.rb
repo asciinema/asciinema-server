@@ -9,7 +9,7 @@ describe User do
   end
 
   describe "validation" do
-    let(:user) { Factory(:user) }
+    let(:user) { FactoryGirl.create(:user) }
 
     it "validates nickname uniqueness" do
       new_user = FactoryGirl.build(:user)
@@ -65,7 +65,7 @@ describe User do
     end
 
     context "when nickname is taken" do
-      let!(:user) { Factory(:user) }
+      let!(:user) { FactoryGirl.create(:user) }
       let(:nickname) { user.nickname }
 
       it "doesn't create user" do
@@ -91,7 +91,7 @@ describe User do
     end
 
     context "when user doesn't have given token" do
-      let(:existing_token) { Factory(:user_token, :user => user) }
+      let(:existing_token) { FactoryGirl.create(:user_token, :user => user) }
       let(:token) { existing_token.token }
 
       it 'returns existing UserToken' do

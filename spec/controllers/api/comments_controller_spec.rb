@@ -2,8 +2,8 @@ require 'spec_helper'
 
 describe Api::CommentsController do
 
-  let(:user)      { Factory(:user) }
-  let(:asciicast) { Factory(:asciicast) }
+  let(:user)      { FactoryGirl.create(:user) }
+  let(:asciicast) { FactoryGirl.create(:asciicast) }
 
   before do
     login_as(user)
@@ -83,7 +83,7 @@ describe Api::CommentsController do
     end
 
     context "when user is not creator of comment" do
-      let(:other_user) { Factory(:user) }
+      let(:other_user) { FactoryGirl.create(:user) }
 
       before do
         comment.stub(:user).and_return(other_user)

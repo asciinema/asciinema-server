@@ -19,7 +19,7 @@ describe SessionsController do
 
     context "user exists" do
       before do
-        Factory(:user, :provider => provider, :uid => uid)
+        FactoryGirl.create(:user, :provider => provider, :uid => uid)
         post :create
       end
 

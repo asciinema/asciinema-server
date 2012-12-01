@@ -6,10 +6,10 @@ describe Asciicast do
   end
 
   describe '.assign_user' do
-    let(:user) { Factory(:user) }
+    let(:user) { FactoryGirl.create(:user) }
     let(:token) { 'token' }
     let!(:asciicast) do
-      Factory(:asciicast, :user => nil, :user_token => token)
+      FactoryGirl.create(:asciicast, :user => nil, :user_token => token)
     end
 
     subject { Asciicast.assign_user(token, user) }
@@ -47,13 +47,13 @@ describe Asciicast do
   end
 
   describe '#assign_user' do
-    let(:user) { Factory(:user) }
+    let(:user) { FactoryGirl.create(:user) }
     let(:asciicast) do
-      Factory(:asciicast, :user => nil, :user_token => user_token)
+      FactoryGirl.create(:asciicast, :user => nil, :user_token => user_token)
     end
 
     context 'when user exists with given token' do
-      let(:user_token) { Factory(:user_token, :user => user).token }
+      let(:user_token) { FactoryGirl.create(:user_token, :user => user).token }
 
       it 'assigns user and resets user_token' do
         asciicast.assign_user
