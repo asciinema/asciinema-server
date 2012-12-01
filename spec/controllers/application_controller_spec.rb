@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-class FakeController < ApplicationController
+class FakesController < ApplicationController
 
   def foo
     raise Unauthorized
@@ -22,7 +22,22 @@ class FakeController < ApplicationController
   end
 end
 
-describe FakeController do
+describe FakesController do
+  before do
+    @orig_routes, @routes = @routes, ActionDispatch::Routing::RouteSet.new
+    @routes.draw do
+      resource :fake do
+        get :foo
+        get :bar
+        get :store
+        get :retrieve
+      end
+    end
+  end
+
+  after do
+    @routes, @orig_routes = @orig_routes, nil
+  end
 
   describe "#ensure_authenticated!" do
   end
@@ -79,9 +94,9 @@ describe FakeController do
 
   describe '#store_location / #get_stored_location' do
     it 'stores current request path to be later retrieved' do
-      get :store # request.path is '/assets' (???)
+      get :store
       get :retrieve
-      assigns[:location].should == '/assets'
+      assigns[:location].should == '/fake/store'
       assigns[:location_again].should == 'NOWAI!'
     end
   end
@@ -106,4 +121,3 @@ describe FakeController do
     end
   end
 end
-
