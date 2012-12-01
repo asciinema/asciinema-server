@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe AsciicastsController do
-  let(:user) { stub_model(User) }
+  let(:user) { stub_model(User, :nickname => 'nick') }
   let(:asciicast) { stub_model(Asciicast, :id => 666) }
 
   subject { response }
@@ -58,7 +58,7 @@ describe AsciicastsController do
         delete :destroy, :id => asciicast.id
       end
 
-      it { should redirect_to(profile_path(nil)) }
+      it { should redirect_to(profile_path(user)) }
     end
 
     context 'when destroy fails' do
