@@ -1,10 +1,12 @@
 describe 'AsciiIo.AnsiInterpreter', ->
   data = interpreter = calls = checkNumber = undefined
 
-  callback = (action, args...) -> calls.push arguments
-
   parse = (data, expectedRest) ->
-    rest = interpreter.parse data
+    [commands, rest] = interpreter.parse data
+
+    calls = commands
+    checkNumber = 0
+
     if arguments.length is 2
       expect(rest).toEqual expectedRest
 
@@ -24,8 +26,7 @@ describe 'AsciiIo.AnsiInterpreter', ->
 
   beforeEach ->
     calls = []
-    checkNumber = 0
-    interpreter = new AsciiIo.AnsiInterpreter callback
+    interpreter = new AsciiIo.AnsiInterpreter
 
   describe '#parse', ->
 
