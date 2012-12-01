@@ -1,10 +1,11 @@
 class AsciiIo.AnsiInterpreter
 
-  constructor: (@callback) ->
-    @cb = @callback
+  constructor: ->
     @sgrInterpreter = new AsciiIo.SgrInterpreter()
 
   parse: (data) ->
+    @commands = []
+
     while data.length > 0
       processed = @handleData data
 
@@ -14,7 +15,10 @@ class AsciiIo.AnsiInterpreter
 
       data = data.slice processed
 
-    data
+    [@commands, data]
+
+  cb: ->
+    @commands.push arguments
 
   handleData: (data) ->
     if data.match(/^\x1b[\x00-\x1f]/)

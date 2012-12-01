@@ -2,15 +2,16 @@ class AsciiIo.VT
 
   constructor: (@cols, @lines) ->
     _.extend(this, Backbone.Events)
-    @interpreter = new AsciiIo.AnsiInterpreter @onChange
+    @interpreter = new AsciiIo.AnsiInterpreter
     @reset()
-
-  onChange: (action, args...) =>
-    @[action](args...)
 
   feed: (data) ->
     @data += data
-    @data = @interpreter.parse @data
+    [commands, @data] = @interpreter.parse @data
+
+    for command in commands
+      [name, args...] = command
+      @[name].apply this, args
 
     @data.length is 0
 
