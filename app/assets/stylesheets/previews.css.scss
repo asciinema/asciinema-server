@@ -1,6 +1,12 @@
 a.preview-link {
+  display: block;
+
   .play-button {
     display: none;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 0;
 
     .arrow {
       color: black;
