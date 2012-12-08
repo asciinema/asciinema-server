@@ -18,50 +18,10 @@
     </div>
 
     <div class="extras">
-      <div class="author">
-        <%= render :partial => 'author' %>
-      </div>
-
-      <% if @asciicast.user == current_user %>
-        <ul class="delimited">
-          <li>
-            <%= link_to 'Edit title & description',
-                edit_asciicast_path(@asciicast) %>
-          </li>
-
-          <li>
-            <%= link_to_delete_asciicast 'Delete', @asciicast %>
-          </li>
-        </ul>
-      <% end %>
-
-      <h1>Info</h1>
-
-      <ul class="delimited">
-        <li>
-          Recorded: <%= time_ago_tag @asciicast.created_at %>
-        </li>
-        <li>
-          Viewed: <%= @asciicast.views_count %> times
-        </li>
-        <li>
-          OS: <%= @asciicast.os %>
-        </li>
-        <li>
-          SHELL: <%= @asciicast.shell %>
-        </li>
-        <li>
-          TERM: <%= @asciicast.terminal_type %>
-        </li>
-      </ul>
-
-      <%# <h1>Share</h1> %>
-
-      <%# <ul class="delimited"> %>
-      <%#   <li> %>
-      <%#     Twitter %>
-      <%#   </li> %>
-      <%# </ul> %>
+      <%= render :partial => 'author' %>
+      <%= render :partial => 'actions' %>
+      <%= render :partial => 'info' %>
+      <%# <%= render :partial => 'share' %1> %>
     </div>
   </div>
 </section>
