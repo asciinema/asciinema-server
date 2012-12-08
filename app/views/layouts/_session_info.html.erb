@@ -1,7 +1,7 @@
 <ul class="session-info">
   <% if current_user %>
     <li class="username">
-      <%= current_user_decorated.avatar_profile_link(:title => '') %>
+      <%= current_user.avatar_profile_link(:title => '') %>
       <%= link_to "~#{current_user.nickname}", profile_path(current_user) %>
 
       <ul class="menu">

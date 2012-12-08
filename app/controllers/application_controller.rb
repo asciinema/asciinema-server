@@ -10,14 +10,12 @@ class ApplicationController < ActionController::Base
   rescue_from Unauthorized, :with => :unauthorized
   rescue_from Forbidden, :with => :forbidden
 
-  helper_method :current_user, :current_user_decorated
+  helper_method :current_user
 
   def current_user
-    @current_user ||= User.find_by_id(session[:user_id]) if session[:user_id]
-  end
-
-  def current_user_decorated
-    @current_user_decorated ||= UserDecorator.new(current_user)
+    if session[:user_id]
+      @current_user ||= UserDecorator.find_by_id(session[:user_id])
+    end
   end
 
   def current_user=(user)
