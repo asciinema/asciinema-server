@@ -120,16 +120,12 @@ class AsciicastDecorator < ApplicationDecorator
         img = ""
       end
 
-      text = img + "~#{asciicast.user.nickname}"
+      text = img + author
       path = h.profile_path(asciicast.user)
 
       h.link_to text, path
     else
-      if asciicast.username.present?
-        "~#{asciicast.username}"
-      else
-        "anonymous"
-      end
+      author
     end
   end
 
