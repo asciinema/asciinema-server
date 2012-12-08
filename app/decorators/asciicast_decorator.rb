@@ -136,6 +136,29 @@ class AsciicastDecorator < ApplicationDecorator
     end
   end
 
+  def other_by_user
+    if asciicast.user
+      AsciicastDecorator.decorate(
+        asciicast.user.asciicasts.where('id <> ?', asciicast.id).limit(3)
+      )
+    else
+      []
+    end
+  end
+
+  def author
+    name =
+      if asciicast.user
+        asciicast.user.nickname
+      elsif asciicast.username
+        asciicast.username
+      else
+        'anonymous'
+      end
+
+    "~#{name}"
+  end
+
   private
 
   def prepare_lines(lines, width, height)
