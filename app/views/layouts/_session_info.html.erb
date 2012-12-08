@@ -1,8 +1,8 @@
 <ul class="session-info">
   <% if current_user %>
     <li class="username">
-      <%= current_user.avatar_profile_link(:title => '') %>
-      <%= link_to current_user.nickname, profile_path(current_user) %>
+      <%= current_user.img_link(:title => '') %>
+      <%= current_user.link(:title => '') %>
 
       <ul class="menu">
         <li>

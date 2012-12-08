@@ -20,7 +20,7 @@
 
     <div class="extras">
       <h1><%= @user.nickname %></h1>
-      <p><%= @user.avatar_img %></p>
+      <p><%= avatar_image_tag @user %></p>
       <h3><%= @user.asciicasts_count %> asciicasts</h3>
 
       <% if current_user %>

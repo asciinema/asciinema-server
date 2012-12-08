@@ -1,11 +1,11 @@
 <div class="author">
-  <%= @asciicast.user.avatar_profile_link %>
+  <%= @asciicast.author_img_link %>
 
   <h2>
-    <%= @asciicast.author_profile_link %>
+    <%= @asciicast.author_link %>
   </h2>
 
-  <% if @asciicast.user.asciicasts_count -%>
+  <% if @asciicast.user -%>
     <p><%= @asciicast.user.asciicasts_count %> asciicasts</p>
   <% end -%>
 </div>

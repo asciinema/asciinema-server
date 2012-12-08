@@ -112,27 +112,26 @@ class AsciicastDecorator < ApplicationDecorator
     end
   end
 
-  def author_profile_link(options = {})
-    if asciicast.user
-      if options[:avatar]
-        img = avatar_img(asciicast.user) + " "
-      else
-        img = ""
-      end
-
-      text = img + author
-      path = h.profile_path(asciicast.user)
-
-      h.link_to text, path
+  def author_link
+    if user
+      user.link
     else
       author
     end
   end
 
+  def author_img_link
+    if user
+      user.img_link
+    else
+      h.avatar_image_tag nil
+    end
+  end
+
   def other_by_user
-    if asciicast.user
+    if user
       AsciicastDecorator.decorate(
-        asciicast.user.asciicasts.where('id <> ?', asciicast.id).limit(3)
+        user.asciicasts.where('id <> ?', asciicast.id).limit(3)
       )
     else
       []
