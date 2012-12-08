@@ -1,17 +1,17 @@
-<% cache ['thumbnail', preview] do %>
+<% cache ['thumbnail', asciicast] do %>
   <div class="presentation">
-    <%= link_to preview, :class => 'preview-link' do %>
+    <%= link_to asciicast, :class => 'preview-link' do %>
       <div class="play-button"><div class="arrow">►</div></div>
-      <pre class="preview"><%= preview.thumbnail(28, 9) %></pre>
+      <pre class="preview"><%= asciicast.thumbnail(28, 9) %></pre>
     <% end -%>
 
     <div class="info">
       <h3>
-        <%= link_to preview.title, preview %>
+        <%= link_to asciicast.title, asciicast %>
       </h3>
 
       <p class="date">
-        <%= time_ago_tag preview.created_at %> by <%= preview.author_profile_link %>
+        <%= time_ago_tag asciicast.created_at %> by <%= asciicast.author_profile_link %>
       </p>
     </div>
   </div>
