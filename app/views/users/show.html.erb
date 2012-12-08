@@ -3,7 +3,9 @@
     <div class="main">
       <h1>Asciicasts by ~<%= @user.nickname %></h1>
 
-      <%= render :partial => 'asciicasts/previews' %>
+      <%= render :partial => 'asciicasts/previews',
+                 :locals => { :asciicasts => @asciicasts } %>
+
       <%= paginate @asciicasts %>
 
       <% if @asciicasts.size == 0 %>
