@@ -1,13 +1,17 @@
 class UserDecorator < ApplicationDecorator
   decorates :user
 
+  def nickname
+    "~#{user.nickname}"
+  end
+
   def asciicasts_count
     model && model.asciicasts.count
   end
 
   def avatar_img(options = {})
     klass = options[:class] || "avatar"
-    title = options[:title] || user && "~#{user.nickname}"
+    title = options[:title] || user && nickname
 
     h.image_tag user && user.avatar_url || default_avatar_url,
       :title => title, :alt => title, :class => klass

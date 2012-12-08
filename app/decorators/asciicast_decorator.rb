@@ -144,16 +144,13 @@ class AsciicastDecorator < ApplicationDecorator
   end
 
   def author
-    name =
-      if asciicast.user
-        asciicast.user.nickname
-      elsif asciicast.username
-        asciicast.username
-      else
-        'anonymous'
-      end
-
-    "~#{name}"
+    if user
+      user.nickname
+    elsif asciicast.username
+      "~#{asciicast.username}"
+    else
+      'anonymous'
+    end
   end
 
   private

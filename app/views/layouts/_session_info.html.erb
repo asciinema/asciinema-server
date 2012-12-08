@@ -2,7 +2,7 @@
   <% if current_user %>
     <li class="username">
       <%= current_user.avatar_profile_link(:title => '') %>
-      <%= link_to "~#{current_user.nickname}", profile_path(current_user) %>
+      <%= link_to current_user.nickname, profile_path(current_user) %>
 
       <ul class="menu">
         <li>
