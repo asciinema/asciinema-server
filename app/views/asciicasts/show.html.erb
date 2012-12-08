@@ -9,11 +9,7 @@
     <div class="main">
       <h1><%= @asciicast.title %></h1>
       <div class="description">
-        <% if @asciicast.description.present? -%>
-          <%= @asciicast.description %>
-        <% else -%>
-          <em>No description.</em>
-        <% end -%>
+        <%= @asciicast.description %>
       </div>
     </div>
 

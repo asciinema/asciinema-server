@@ -107,8 +107,12 @@ class AsciicastDecorator < ApplicationDecorator
   end
 
   def description
-    text = asciicast.description.to_s
-    markdown(text)
+    if asciicast.description.present?
+      text = asciicast.description.to_s
+      markdown(text)
+    else
+      h.content_tag :em, 'No description.'
+    end
   end
 
   def author_profile_link(options = {})
