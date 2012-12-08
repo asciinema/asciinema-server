@@ -2,14 +2,11 @@ require 'base64'
 
 class AsciicastDecorator < ApplicationDecorator
   decorates :asciicast
+  decorates_association :user
 
   THUMBNAIL_WIDTH = 20
   THUMBNAIL_HEIGHT = 10
   MAX_DELAY = 5.0
-
-  def user
-    @user ||= UserDecorator.new(asciicast.user)
-  end
 
   def as_json(*args)
     data = model.as_json(*args)
