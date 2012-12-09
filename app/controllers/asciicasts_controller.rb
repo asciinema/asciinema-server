@@ -9,27 +9,21 @@ class AsciicastsController < ApplicationController
   respond_to :html, :json
 
   def index
-    collection = Asciicast.
-      newest.
-      includes(:user).
-      page(params[:page]).
-      per(PER_PAGE)
+    @asciicasts = AsciicastDecorator.decorate(
+      Asciicast.newest_paginated(params[:page], PER_PAGE)
+    )
 
     @category_name = "All Asciicasts"
     @current_category = :all
-    @asciicasts = AsciicastDecorator.decorate(collection)
   end
 
   def popular
-    collection = Asciicast.
-      popular.
-      includes(:user).
-      page(params[:page]).
-      per(PER_PAGE)
+    @asciicasts = AsciicastDecorator.decorate(
+      Asciicast.popular_paginated(params[:page], PER_PAGE)
+    )
 
     @category_name = "Popular Asciicasts"
     @current_category = :popular
-    @asciicasts = AsciicastDecorator.decorate(collection)
 
     render :index
   end

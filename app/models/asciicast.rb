@@ -15,6 +15,14 @@ class Asciicast < ActiveRecord::Base
   scope :popular, where("views_count > 0").order("views_count DESC")
   scope :newest, order("created_at DESC")
 
+  scope(:newest_paginated, lambda do |page, per_page|
+    newest.includes(:user).page(page).per(per_page)
+  end)
+
+  scope(:popular_paginated, lambda do |page, per_page|
+    popular.includes(:user).page(page).per(per_page)
+  end)
+
   before_create :assign_user, :unless => :user
 
   attr_accessible :meta, :stdout, :stdout_timing, :stdin, :stdin_timing,
