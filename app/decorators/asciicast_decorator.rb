@@ -66,7 +66,7 @@ class AsciicastDecorator < ApplicationDecorator
   end
 
   def terminal_type
-    asciicast.terminal_type || '?'
+    asciicast.terminal_type.presence || '?'
   end
 
   def shell
