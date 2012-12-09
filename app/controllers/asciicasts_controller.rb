@@ -29,17 +29,16 @@ class AsciicastsController < ApplicationController
   end
 
   def show
-    @asciicast = AsciicastDecorator.new(@asciicast)
-
     respond_to do |format|
       format.html do
+        @asciicast = AsciicastDecorator.new(@asciicast)
         @title = @asciicast.title
         respond_with @asciicast
       end
 
       format.json do
         if stale? @asciicast
-          respond_with @asciicast
+          respond_with AsciicastJSONDecorator.new(@asciicast)
         end
       end
     end
