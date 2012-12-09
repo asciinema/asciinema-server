@@ -22,6 +22,14 @@ RSpec.configure do |config|
   config.infer_base_class_for_anonymous_controllers = false
 
   config.before(:each) do
+    DatabaseCleaner.strategy = :transaction
+  end
+
+  config.before(:each, :js => true) do
+    DatabaseCleaner.strategy = :truncation
+  end
+
+  config.before(:each) do
     DatabaseCleaner.start
   end
 
@@ -31,4 +39,3 @@ RSpec.configure do |config|
 end
 
 GirlFriday::Queue.immediate!
-DatabaseCleaner.strategy = :truncation
