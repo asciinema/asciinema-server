@@ -18,7 +18,7 @@ Dir[Rails.root.join("spec/support/**/*.rb")].each { |f| require f }
 RSpec.configure do |config|
   config.mock_with :rspec
   config.use_transactional_fixtures = false
-  config.include ControllerMacros, :type => :controller
+  config.include AsciiIo::ControllerMacros, :type => :controller
   config.infer_base_class_for_anonymous_controllers = false
 
   config.before(:each) do
