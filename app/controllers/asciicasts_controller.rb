@@ -53,9 +53,12 @@ class AsciicastsController < ApplicationController
   end
 
   def update
-    @asciicast.update_attributes(params[:asciicast])
-    redirect_to asciicast_path(@asciicast),
-                :notice => 'Asciicast was updated.'
+    if @asciicast.update_attributes(params[:asciicast])
+      redirect_to asciicast_path(@asciicast),
+                  :notice => 'Asciicast was updated.'
+    else
+      render :edit
+    end
   end
 
   def destroy
