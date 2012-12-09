@@ -31,15 +31,16 @@ group :development do
 end
 
 group :test, :development do
+  gem 'pry-rails'
+  gem 'awesome_print', :require => 'ap'
   gem 'rspec-rails'
   gem 'factory_girl_rails'
-  gem 'awesome_print', :require => 'ap'
   gem 'guard'
+  gem 'guard-rspec'
+  gem 'guard-jasmine-headless-webkit'
+  gem 'jasmine-rails'
   gem 'cane'
   gem 'tailor'
-  gem 'pry-rails'
-  gem 'jasmine-rails'
-  gem 'guard-jasmine-headless-webkit'
 end
 
 group :test do

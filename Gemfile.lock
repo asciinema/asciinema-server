@@ -102,6 +102,9 @@ GEM
     guard-jasmine-headless-webkit (0.3.2)
       guard (>= 0.4.0)
       jasmine-headless-webkit (>= 0.7.0)
+    guard-rspec (2.1.1)
+      guard (>= 1.1)
+      rspec (~> 2.11)
     hashie (1.2.0)
     hike (1.2.1)
     httpauth (0.2.0)
@@ -311,6 +314,7 @@ DEPENDENCIES
   girl_friday
   guard
   guard-jasmine-headless-webkit
+  guard-rspec
   jasmine-rails
   jquery-rails
   kaminari
