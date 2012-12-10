@@ -19,7 +19,7 @@ describe AsciicastDecorator do
 
     context 'for Darwin-like uname' do
       before do
-        asciicast.uname = "Darwin some.local 10.3.0 Darwin Kernel Version 10.3.0"
+        asciicast.uname = "Darwin local 10.3.0 Darwin Kernel Version 10.3.0"
       end
 
       it { should == 'OSX' }
