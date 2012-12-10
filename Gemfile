@@ -40,7 +40,6 @@ group :test, :development do
   gem 'guard-jasmine-headless-webkit'
   gem 'jasmine-rails'
   gem 'cane'
-  gem 'tailor'
 end
 
 group :test do
