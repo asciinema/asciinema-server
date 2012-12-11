@@ -85,7 +85,7 @@ class AsciicastsController < ApplicationController
   end
 
   def ensure_owner!
-    if @asciicast.user != current_user
+    if current_user != @asciicast.user
       redirect_to asciicast_path(@asciicast), :alert => "You can't do that."
     end
   end
