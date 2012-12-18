@@ -29,7 +29,7 @@
             <label class="radio" for="asciicast_time_compression_true">
               <%= f.radio_button :time_compression, true %>
               Enabled - terminal inactivity won't last longer
-              than <%= AsciicastDecorator::MAX_DELAY.to_i %> sec (recommended)
+              than <%= Asciicast::MAX_DELAY.to_i %> sec (recommended)
             </label>
 
             <label class="radio" for="asciicast_time_compression_false">

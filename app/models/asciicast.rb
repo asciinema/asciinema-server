@@ -1,4 +1,6 @@
 class Asciicast < ActiveRecord::Base
+  MAX_DELAY = 5.0
+
   mount_uploader :stdin, BasicUploader
   mount_uploader :stdin_timing, BasicUploader
   mount_uploader :stdout, BasicUploader

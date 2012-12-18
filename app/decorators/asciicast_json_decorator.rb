@@ -3,8 +3,6 @@ require 'base64'
 class AsciicastJSONDecorator < ApplicationDecorator
   decorates :asciicast
 
-  MAX_DELAY = 5.0
-
   def as_json(*args)
     data = model.as_json(*args)
     data['escaped_stdout_data'] = escaped_stdout_data
@@ -36,9 +34,9 @@ class AsciicastJSONDecorator < ApplicationDecorator
         delay, n = line.split
         delay = delay.to_f
 
-        if time_compression && delay > MAX_DELAY
-          saved_time += (delay - MAX_DELAY)
-          delay = MAX_DELAY
+        if time_compression && delay > Asciicast::MAX_DELAY
+          saved_time += (delay - Asciicast::MAX_DELAY)
+          delay = Asciicast::MAX_DELAY
         end
 
         [delay, n.to_i]
