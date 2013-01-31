@@ -1,5 +1,4 @@
 class CommentDecorator < ApplicationDecorator
-  decorates :comment
 
   def created
     created_at && (h.time_ago_in_words(created_at) + " ago")

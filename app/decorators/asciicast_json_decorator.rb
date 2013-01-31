@@ -1,7 +1,6 @@
 require 'base64'
 
 class AsciicastJSONDecorator < ApplicationDecorator
-  decorates :asciicast
 
   def as_json(*args)
     data = model.as_json(*args)
@@ -47,4 +46,5 @@ class AsciicastJSONDecorator < ApplicationDecorator
 
     [data, saved_time]
   end
+
 end

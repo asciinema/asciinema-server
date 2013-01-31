@@ -1,5 +1,4 @@
 class UserDecorator < ApplicationDecorator
-  decorates :user
 
   def nickname
     "~#{user.nickname}"
@@ -19,4 +18,5 @@ class UserDecorator < ApplicationDecorator
       h.avatar_image_tag(user)
     end
   end
+
 end

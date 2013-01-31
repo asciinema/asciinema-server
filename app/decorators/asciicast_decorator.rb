@@ -1,5 +1,4 @@
 class AsciicastDecorator < ApplicationDecorator
-  decorates :asciicast
   decorates_association :user
 
   THUMBNAIL_WIDTH = 20
@@ -18,16 +17,16 @@ class AsciicastDecorator < ApplicationDecorator
   end
 
   def terminal_type
-    asciicast.terminal_type.presence || '?'
+    model.terminal_type.presence || '?'
   end
 
   def shell
-    File.basename(asciicast.shell.to_s)
+    File.basename(model.shell.to_s)
   end
 
   def title
-    if asciicast.title.present?
-      asciicast.title
+    if model.title.present?
+      model.title
     elsif command.present?
       "$ #{command}"
     else
@@ -56,8 +55,8 @@ class AsciicastDecorator < ApplicationDecorator
   end
 
   def description
-    if asciicast.description.present?
-      text = asciicast.description.to_s
+    if model.description.present?
+      text = model.description.to_s
       markdown(text)
     else
       h.content_tag :em, 'No description.'
@@ -83,7 +82,7 @@ class AsciicastDecorator < ApplicationDecorator
   def other_by_user
     if user
       AsciicastDecorator.decorate(
-        user.asciicasts.where('id <> ?', asciicast.id).limit(3)
+        user.asciicasts.where('id <> ?', model.id).limit(3)
       )
     else
       []
@@ -93,8 +92,8 @@ class AsciicastDecorator < ApplicationDecorator
   def author
     if user
       user.nickname
-    elsif asciicast.username
-      "~#{asciicast.username}"
+    elsif model.username
+      "~#{model.username}"
     else
       'anonymous'
     end
@@ -111,4 +110,5 @@ class AsciicastDecorator < ApplicationDecorator
       line
     end
   end
+
 end
