@@ -58,7 +58,7 @@ Following script will install gem dependencies and setup database:
 
 ### 5. Run Rails server
 
-    $ ./script/rails s
+    $ rails s
 
 ## Authors
 
