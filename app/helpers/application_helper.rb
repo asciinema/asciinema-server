@@ -52,4 +52,10 @@ module ApplicationHelper
   def default_avatar_filename
     image_path "default_avatar.png"
   end
+
+  def color_check_asciicast_path
+    if id = CFG['COLOR_CHECK_CAST_ID']
+      asciicast_path(id)
+    end
+  end
 end

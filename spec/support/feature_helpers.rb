@@ -39,5 +39,11 @@ module AsciiIo
       expect(page).to have_link('Popular')
     end
 
+    def expect_doc_links
+      expect(page).to have_link('About')
+      expect(page).to have_link('Getting started')
+      expect(page).to have_link('Recorder options')
+    end
+
   end
 end
