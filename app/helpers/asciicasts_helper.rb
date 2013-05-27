@@ -4,8 +4,7 @@ module AsciicastsHelper
     if params[:fallback]
       player_class = "AsciiIo.FallbackPlayer"
     else
-      player_class = "window.Worker && $.browser.webkit ? " \
-              "AsciiIo.Player : AsciiIo.FallbackPlayer"
+      player_class = "window.Worker ? AsciiIo.Player : AsciiIo.FallbackPlayer"
     end
 
     if custom_renderer = params[:renderer]
