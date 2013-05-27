@@ -21,6 +21,8 @@ Capybara.javascript_driver = :poltergeist
 
 GirlFriday::Queue.immediate!
 
+OmniAuth.config.test_mode = true
+
 RSpec.configure do |config|
   config.mock_with :rspec
   config.use_transactional_fixtures = false

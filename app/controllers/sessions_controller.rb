@@ -23,7 +23,7 @@ class SessionsController < ApplicationController
   end
 
   def failure
-    redirect_to root_url, :alert => params[:message]
+    redirect_to root_url, :alert => "Authentication failed. Maybe try again?"
   end
 
   private

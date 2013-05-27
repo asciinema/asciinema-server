@@ -104,14 +104,12 @@ describe SessionsController do
   end
 
   describe "#failure" do
-    let(:message) { "something went wrong" }
-
     before do
-      get :failure, :message => message
+      get :failure
     end
 
-    it "should redirects to root_url and set error message" do
-      flash[:alert].should == message
+    it "should redirect to root_url and set error message" do
+      flash[:alert].should =~ /Authentication failed/
       should redirect_to(root_url)
     end
   end

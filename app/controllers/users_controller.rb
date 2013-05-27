@@ -22,7 +22,7 @@ class UsersController < ApplicationController
     if @user.save
       clear_sensitive_session_user_data
       self.current_user = @user
-      redirect_back_or_to root_url, :notice => "Signed in!"
+      redirect_back_or_to root_url, :notice => "Logged in!"
     else
       render 'users/new', :status => 422
     end
