@@ -2,7 +2,9 @@ require 'spec_helper'
 
 feature "Asciicast page", :js => true do
 
-  let(:asciicast) { load_asciicast(1) }
+  let!(:user) { create(:user) }
+  let!(:asciicast) { create(:asciicast, :user => user) }
+  let!(:other_asciicast) { create(:asciicast, :user => user) }
 
   scenario 'Visiting as guest' do
     visit asciicast_path(asciicast)
