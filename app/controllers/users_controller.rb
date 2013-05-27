@@ -4,7 +4,7 @@ class UsersController < ApplicationController
   before_filter :ensure_authenticated!, :only => [:edit, :update]
 
   def show
-    @user = UserDecorator.find_by_nickname!(params[:nickname])
+    @user = User.find_by_nickname!(params[:nickname]).decorate
 
     collection = @user.asciicasts.
       includes(:user).
@@ -12,7 +12,7 @@ class UsersController < ApplicationController
       page(params[:page]).
       per(PER_PAGE)
 
-    @asciicasts = AsciicastDecorator.decorate(collection)
+    @asciicasts = PaginatingDecorator.new(collection)
   end
 
   def create
