@@ -1,6 +1,8 @@
-require 'simplecov'
-SimpleCov.start 'rails' do
-  add_group "Decorators", "app/decorators"
+if ENV['COVERAGE']
+  require 'simplecov'
+  SimpleCov.start 'rails' do
+    add_group "Decorators", "app/decorators"
+  end
 end
 
 ENV["RAILS_ENV"] ||= 'test'
