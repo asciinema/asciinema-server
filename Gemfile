@@ -30,25 +30,26 @@ group :development do
 end
 
 group :test, :development do
-  gem 'pry-rails',                     '~> 0.2.2'
-  gem 'awesome_print',                 '~> 1.1.0', :require => 'ap'
-  gem 'rspec-rails',                   '~> 2.12.2'
-  gem 'factory_girl_rails',            '~> 4.2.0'
-  gem 'guard',                         '~> 1.6.2'
-  gem 'guard-rspec',                   '~> 2.4.0'
-  gem 'guard-jasmine-headless-webkit', '~> 0.3.2'
-  gem 'jasmine-rails',                 '~> 0.3.2'
-  gem 'cane',                          '~> 2.5.2'
+  gem 'pry-rails',     '~> 0.2.2'
+  gem 'rspec-rails',   '~> 2.12.2'
+  gem 'cane',          '~> 2.5.2'
+  gem 'jasmine-rails', '~> 0.3.2'
 end
 
 group :test do
-  gem "rake",             '~> 10.0.4'
-  gem 'simplecov',        '~> 0.7.1', :require => false
-  gem 'capybara',         '~> 2.0.2', :require => false
-  gem 'database_cleaner', '~> 0.9.1'
+  gem "rake",                          '~> 10.0.4'
+  gem 'factory_girl_rails',            '~> 4.2.0'
+  gem 'capybara',                      '~> 2.0.2'
+  gem 'poltergeist',                   '~> 1.1.2'
+  gem 'database_cleaner',              '~> 0.9.1'
+  gem 'guard',                         '~> 1.6.2'
+  gem 'guard-rspec',                   '~> 2.4.0'
+  gem 'guard-jasmine-headless-webkit', '~> 0.3.2'
+  gem 'rb-inotify',                    '~> 0.8.8'
+  gem 'simplecov',                     '~> 0.7.1', :require => false
 end
 
 group :production do
   gem 'unicorn', '~> 4.5.0'
-  gem 'dalli', '~> 2.6.2'
+  gem 'dalli',   '~> 2.6.2'
 end
