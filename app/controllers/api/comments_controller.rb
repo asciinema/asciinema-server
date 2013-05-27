@@ -5,7 +5,7 @@ class Api::CommentsController < ApplicationController
   before_filter :load_asciicast, :only => [:index, :create]
 
   def index
-    respond_with CommentDecorator.decorate(@asciicast.comments)
+    respond_with CommentDecorator.decorate_collection(@asciicast.comments)
   end
 
   def create
