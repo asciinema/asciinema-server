@@ -12,9 +12,14 @@ require File.expand_path("../../config/environment", __FILE__)
 require 'rspec/rails'
 require 'rspec/autorun'
 require 'capybara/rspec'
+require 'capybara/poltergeist'
 
 Dir[Rails.root.join("spec/support/**/*.rb")].each { |f| require f }
 Dir[Rails.root.join("spec/shared/**/*.rb")].each  { |f| require f }
+
+Capybara.javascript_driver = :poltergeist
+
+GirlFriday::Queue.immediate!
 
 RSpec.configure do |config|
   config.mock_with :rspec
@@ -43,5 +48,3 @@ RSpec.configure do |config|
     DatabaseCleaner.clean
   end
 end
-
-GirlFriday::Queue.immediate!
