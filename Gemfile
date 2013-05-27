@@ -16,6 +16,7 @@ gem 'girl_friday',      '~> 0.11.2'
 gem 'thin',             '~> 1.5.0'
 gem 'open4',            '~> 1.3.0'
 gem 'redcarpet',        '~> 2.2.2'
+gem 'slim'
 
 # Gems used only for assets and not required
 # in production environments by default.
