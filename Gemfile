@@ -41,11 +41,11 @@ group :test do
   gem 'factory_girl_rails',            '~> 4.2.0'
   gem 'capybara',                      '~> 2.1.0'
   gem 'poltergeist',                   '~> 1.3.0'
-  gem 'database_cleaner',              '~> 0.9.1'
-  gem 'guard',                         '~> 1.7.0'
-  gem 'guard-rspec',                   '~> 2.5.4'
+  gem 'database_cleaner',              '~> 1.0.1'
+  gem 'guard',                         '~> 1.8.0'
+  gem 'guard-rspec',                   '~> 3.0.0'
   gem 'guard-jasmine-headless-webkit', '~> 0.3.2'
-  gem 'rb-inotify',                    '~> 0.8.8'
+  gem 'rb-inotify',                    '~> 0.9.0'
   gem 'simplecov',                     '~> 0.7.1', :require => false
 end
 
