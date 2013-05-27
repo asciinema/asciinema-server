@@ -34,7 +34,7 @@ module AsciiIo
       end
     end
 
-    def expect_browse_section
+    def expect_browse_links
       expect(page).to have_link('All')
       expect(page).to have_link('Popular')
     end

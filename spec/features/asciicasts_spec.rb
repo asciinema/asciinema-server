@@ -8,7 +8,7 @@ feature "Asciicast lists" do
     visit browse_path
 
     expect(page).to have_content(/All Asciicasts/i)
-    expect_browse_section
+    expect_browse_links
     expect(page).to have_link("##{asciicast.id}")
     expect(page).to have_selector('.supplimental .play-button')
   end
@@ -17,7 +17,7 @@ feature "Asciicast lists" do
     visit popular_path
 
     expect(page).to have_content(/Popular Asciicasts/i)
-    expect_browse_section
+    expect_browse_links
     expect(page).to have_link("##{asciicast.id}")
     expect(page).to have_selector('.supplimental .play-button')
   end
