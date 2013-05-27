@@ -9,7 +9,7 @@ gem 'omniauth-twitter', '~> 0.0.14'
 gem 'omniauth-github',  '~> 1.0.3'
 gem 'kaminari',         '~> 0.14.1'
 gem 'airbrake',         '~> 3.1.7', :require => false
-gem 'draper',           '~> 1.1.0'
+gem 'draper',           '~> 1.2.1'
 gem 'fog',              '~> 1.9.0'
 gem 'simple_form',      '~> 2.0.4'
 gem 'girl_friday',      '~> 0.11.2'

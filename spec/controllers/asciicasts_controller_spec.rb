@@ -24,7 +24,7 @@ describe AsciicastsController do
       Asciicast.should_receive(:newest_paginated).
         with(page, an_instance_of(Fixnum)).and_return(asciicasts)
 
-      AsciicastDecorator.should_receive(:decorate).with(asciicasts).
+      PaginatingDecorator.should_receive(:new).with(asciicasts).
         and_return(asciicasts)
 
       get :index, :page => page
@@ -44,7 +44,7 @@ describe AsciicastsController do
       Asciicast.should_receive(:popular_paginated).
         with(page, an_instance_of(Fixnum)).and_return(asciicasts)
 
-      AsciicastDecorator.should_receive(:decorate).with(asciicasts).
+      PaginatingDecorator.should_receive(:new).with(asciicasts).
         and_return(asciicasts)
 
       get :popular, :page => page

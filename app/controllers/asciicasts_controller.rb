@@ -9,7 +9,7 @@ class AsciicastsController < ApplicationController
   respond_to :html, :json
 
   def index
-    @asciicasts = AsciicastDecorator.decorate(
+    @asciicasts = PaginatingDecorator.new(
       Asciicast.newest_paginated(params[:page], PER_PAGE)
     )
 
@@ -18,7 +18,7 @@ class AsciicastsController < ApplicationController
   end
 
   def popular
-    @asciicasts = AsciicastDecorator.decorate(
+    @asciicasts = PaginatingDecorator.new(
       Asciicast.popular_paginated(params[:page], PER_PAGE)
     )
 

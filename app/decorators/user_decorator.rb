@@ -1,7 +1,7 @@
 class UserDecorator < ApplicationDecorator
 
   def nickname
-    "~#{user.nickname}"
+    "~#{model.nickname}"
   end
 
   def asciicasts_count
@@ -10,12 +10,12 @@ class UserDecorator < ApplicationDecorator
 
   def link(options = {})
     text = block_given? ? yield : nickname
-    h.link_to text, h.profile_path(user), :title => options[:title] || nickname
+    h.link_to text, h.profile_path(model), :title => options[:title] || nickname
   end
 
   def img_link(options = {})
     link(options) do
-      h.avatar_image_tag(user)
+      h.avatar_image_tag(model)
     end
   end
 

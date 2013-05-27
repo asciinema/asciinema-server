@@ -12,7 +12,7 @@ class HomeController < ApplicationController
       @asciicast = AsciicastDecorator.new(asciicast)
     end
 
-    @asciicasts = AsciicastDecorator.decorate(
+    @asciicasts = AsciicastDecorator.decorate_collection(
       Asciicast.order("created_at DESC").limit(9).includes(:user)
     )
   end
