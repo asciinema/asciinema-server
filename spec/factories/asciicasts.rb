@@ -12,6 +12,7 @@ FactoryGirl.define do
     terminal_lines 25
     shell "/bin/bash"
     uname "uname"
+    views_count 1
     stdout do
       fixture_file_upload("spec/fixtures/stdout", "application/octet-stream")
     end

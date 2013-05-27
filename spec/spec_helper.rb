@@ -27,6 +27,7 @@ RSpec.configure do |config|
   config.infer_base_class_for_anonymous_controllers = false
 
   config.include FactoryGirl::Syntax::Methods
+  config.include AsciiIo::FeatureHelpers
   config.include AsciiIo::ControllerMacros, :type => :controller
 
   config.before(:suite) do
