@@ -293,39 +293,38 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  airbrake
-  awesome_print
-  cane
-  capybara
-  carrierwave
-  coffee-rails
-  dalli
-  database_cleaner
-  draper
-  factory_girl_rails
-  fog
-  girl_friday
-  guard
-  guard-jasmine-headless-webkit
-  guard-rspec
-  jasmine-rails
-  jquery-rails
-  kaminari
-  omniauth
-  omniauth-github
-  omniauth-twitter
-  open4
-  pg
-  pry-rails
-  quiet_assets
+  airbrake (~> 3.1.7)
+  awesome_print (~> 1.1.0)
+  cane (~> 2.5.2)
+  capybara (~> 2.0.2)
+  carrierwave (~> 0.8.0)
+  coffee-rails (~> 3.2.2)
+  dalli (~> 2.6.2)
+  database_cleaner (~> 0.9.1)
+  draper (~> 1.1.0)
+  factory_girl_rails (~> 4.2.0)
+  fog (~> 1.9.0)
+  girl_friday (~> 0.11.2)
+  guard (~> 1.6.2)
+  guard-jasmine-headless-webkit (~> 0.3.2)
+  guard-rspec (~> 2.4.0)
+  jasmine-rails (~> 0.3.2)
+  jquery-rails (~> 2.2.0)
+  kaminari (~> 0.14.1)
+  omniauth (~> 1.1.1)
+  omniauth-github (~> 1.0.3)
+  omniauth-twitter (~> 0.0.14)
+  open4 (~> 1.3.0)
+  pg (~> 0.14.1)
+  pry-rails (~> 0.2.2)
+  quiet_assets (~> 1.0.1)
   rails (= 3.2.13)
-  rake
-  redcarpet
-  rspec-rails
-  sass-rails
-  simple_form
-  simplecov
-  thin
-  tzinfo
+  rake (~> 10.0.4)
+  redcarpet (~> 2.2.2)
+  rspec-rails (~> 2.12.2)
+  sass-rails (~> 3.2.6)
+  simple_form (~> 2.0.4)
+  simplecov (~> 0.7.1)
+  thin (~> 1.5.0)
   uglifier (>= 1.0.3)
-  unicorn
+  unicorn (~> 4.5.0)
