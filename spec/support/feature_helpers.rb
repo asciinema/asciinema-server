@@ -55,7 +55,8 @@ module AsciiIo
           :info => { :nickname => opts[:nickname] },
           :extra => {
             :raw_info => {
-              :avatar_url => 'http://gravatar.com/avatar/9cecfc695240b56e5d3c1a5dc3830967'
+              :avatar_url =>
+                'http://gravatar.com/avatar/9cecfc695240b56e5d3c1a5dc3830967'
             }
           }
         })
