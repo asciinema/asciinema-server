@@ -1,0 +1,131 @@
+@import shared
+
+header
+  padding: 5px 0 0
+  background: rgba(0, 0, 0, 0.2)
+  display: block
+  position: relative
+  text-align: right
+  vertical-align: middle
+  border-bottom: 1px solid #444
+  text-transform: uppercase
+  background-color: black
+
+  .wrapper
+    height: 40px
+    position: relative
+    overflow: visible
+
+  .navigation
+    float: right
+
+  h1
+    +font
+    font-weight: 300
+    letter-spacing: 0
+    float: left
+    height: 34px
+    margin: 0
+    padding: 0
+    font-size: 24px
+    position: relative
+    text-align: left
+    z-index: 3
+    letter-spacing: -0.05em
+
+    a
+      display: block
+      height: 34px
+      line-height: 34px
+      font-size: 18px
+      overflow: hidden
+      position: relative
+      z-index: 2
+      color: white
+      letter-spacing: 0
+      background-position-y: 45%
+
+      &:hover
+        text-decoration: none
+
+  ul
+    +font
+    font-weight: 300
+    color: #EFEFEF
+    font-size: 15px
+    padding: 0
+    margin: 0
+    z-index: 2
+    float: left
+
+    li
+      float: left
+      list-style: none
+      margin: 0 0 0 15px
+      padding: 0
+
+    a
+      color: #E1E1E1
+      display: block
+      height: 34px
+      line-height: 34px
+
+      &:hover
+        color: white
+
+  ul a, .links a
+    padding: 0 5px
+
+.session-info
+  margin-left: 20px
+
+  .username
+    position: relative
+    padding: 0 10px
+    border-top: 1px solid black
+    border-left: 1px solid black
+    border-right: 1px solid black
+
+    &:hover
+      border-top: 1px solid #222
+      border-left: 1px solid #222
+      border-right: 1px solid #222
+
+    a
+      display: inline
+      padding: 0
+      color: $main-color
+
+    img
+      width: 24px
+      height: 24px
+      vertical-align: middle
+      margin: 0 5px 4px 0
+
+    .menu
+      z-index: 1000
+      display: none
+      position: absolute
+      top: 33px
+      left: -1px
+      right: -1px
+      background-color: black
+      padding-top: 5px
+      padding-bottom: 5px
+      border-bottom: 1px solid #222
+      border-left: 1px solid #222
+      border-right: 1px solid #222
+
+      li
+        padding: 0 10px
+        margin: 0
+
+      a
+        color: white
+        padding: 0
+        margin: 0
+        height: 1.6em
+        line-height: 1.6em
+
+    &:hover .menu
+      display: block

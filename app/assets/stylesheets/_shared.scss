@@ -1,7 +1,0 @@
-$main-color: #37A;
-$main-color: #D95525;
-$main-color-light: lighten($main-color, 25);
-
-@mixin font {
-  font-family: Overpass, "Lucida Grande", Tahoma, Verdana, sans-serif;
-}
