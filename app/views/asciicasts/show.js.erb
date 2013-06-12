@@ -19,16 +19,18 @@
     referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
   }
 
-  window.addEventListener("message", receiveSize, false);
-
   var scriptTag = document.getElementById("asciicast-<%= @asciicast.id %>");
+
   if (scriptTag) {
+    window.addEventListener("message", receiveSize, false);
     var container = document.createElement('div');
     container.className = 'asciicast';
     container.style.display = 'block';
     container.style.float = 'none';
     container.style.overflow = 'hidden';
-    container.innerHTML = '<iframe src="http://<%= request.host_with_port %>/a/<%= @asciicast.id %>/raw" name="asciicast-iframe-<%= @asciicast.id %>" id="asciicast-iframe-<%= @asciicast.id %>" width="600" height="300" scrolling="no" marginheight="0" marginwidth="0" frameborder="0" style="display: block; float: none; visibility: hidden;" onload="this.style.visibility=\'visible\';"></iframe>';
+    container.style.padding = '0';
     insertAfter(scriptTag, container);
+    var containerWidth = container.offsetWidth;
+    container.innerHTML = '<iframe src="http://<%= request.host_with_port %>/a/<%= @asciicast.id %>/raw?container_width=' + containerWidth + '" name="asciicast-iframe-<%= @asciicast.id %>" id="asciicast-iframe-<%= @asciicast.id %>" width="600" height="300" scrolling="no" marginheight="0" marginwidth="0" frameborder="0" style="display: block; float: none; visibility: hidden;" onload="this.style.visibility=\'visible\';"></iframe>';
   }
 })();
