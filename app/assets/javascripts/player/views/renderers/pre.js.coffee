@@ -18,10 +18,7 @@ class AsciiIo.Renderer.Pre extends AsciiIo.Renderer.Base
       i++
 
   fixTerminalElementSize: ->
-    width = @cols * @cellWidth
-    height = @lines * @cellHeight
-
-    @$el.css(width: width + 'px', height: height + 'px')
+    @$el.css(width: @width() + 'px', height: @height() + 'px')
 
   render: ->
     if @state.dirty

@@ -20,7 +20,7 @@ class AsciiIo.PlayerView extends Backbone.View
 
   setupClipping: ->
     if @options.containerWidth
-      rendererWidth = @rendererView.$el.outerWidth()
+      rendererWidth = @rendererView.elementWidth()
       min = Math.min(@options.containerWidth, rendererWidth)
       @rightClipWidth = rendererWidth - min
     else
