@@ -1,4 +1,4 @@
-// ascii.io - embeddable widget
+// ascii.io - embeddable player
 
 (function() {
   function receiveSize(e) {
@@ -6,7 +6,7 @@
       var event = e.data[0];
       var data  = e.data[1];
       if (event == 'asciicast:size' && data.id == <%= @asciicast.id %>) {
-        var player = document.getElementById("asciicast-player-<%= @asciicast.id %>");
+        var player = document.getElementById("asciicast-iframe-<%= @asciicast.id %>");
         if (player) {
           player.style.width  = data.width;
           player.style.height = data.height;
@@ -15,7 +15,20 @@
     }
   }
 
+  function insertAfter(referenceNode, newNode) {
+    referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
+  }
+
   window.addEventListener("message", receiveSize, false);
 
-  document.writeln('<div class="asciicast" style="display: block; float: none; overflow: hidden"><iframe src="http://<%= request.host_with_port %>/a/<%= @asciicast.id %>/raw" name="asciicast-player-<%= @asciicast.id %>" id="asciicast-player-<%= @asciicast.id %>" width="600" height="300" scrolling="no" marginheight="0" marginwidth="0" frameborder="0" style="display: block; float: none; visibility: hidden;" onload="this.style.visibility=\'visible\';"></iframe></div>');
+  var scriptTag = document.getElementById("asciicast-<%= @asciicast.id %>");
+  if (scriptTag) {
+    var container = document.createElement('div');
+    container.className = 'asciicast';
+    container.style.display = 'block';
+    container.style.float = 'none';
+    container.style.overflow = 'hidden';
+    container.innerHTML = '<iframe src="http://<%= request.host_with_port %>/a/<%= @asciicast.id %>/raw" name="asciicast-iframe-<%= @asciicast.id %>" id="asciicast-iframe-<%= @asciicast.id %>" width="600" height="300" scrolling="no" marginheight="0" marginwidth="0" frameborder="0" style="display: block; float: none; visibility: hidden;" onload="this.style.visibility=\'visible\';"></iframe>';
+    insertAfter(scriptTag, container);
+  }
 })();
