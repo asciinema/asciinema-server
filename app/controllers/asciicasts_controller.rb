@@ -6,7 +6,7 @@ class AsciicastsController < ApplicationController
   before_filter :ensure_authenticated!, :only => [:edit, :update, :destroy]
   before_filter :ensure_owner!, :only => [:edit, :update, :destroy]
 
-  respond_to :html, :json
+  respond_to :html, :json, :js
 
   def index
     @asciicasts = PaginatingDecorator.new(
@@ -40,6 +40,10 @@ class AsciicastsController < ApplicationController
         if stale? @asciicast
           respond_with AsciicastJSONDecorator.new(@asciicast)
         end
+      end
+
+      format.js do
+        respond_with @asciicast
       end
     end
   end

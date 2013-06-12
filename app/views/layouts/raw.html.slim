@@ -1,0 +1,13 @@
+doctype html
+html[lang="en"]
+  head
+    meta[charset="utf-8"]
+    title = page_title
+    = stylesheet_link_tag "player", :media => "all"
+    = javascript_include_tag "application"
+    = javascript_include_tag "player"
+    script
+      | window.unpackWorkerPath = '#{javascript_path "unpack_worker"}';
+        window.mainWorkerPath = '#{javascript_path "main_worker"}';
+  body.iframe
+    = yield
