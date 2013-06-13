@@ -99,6 +99,10 @@ class AsciicastDecorator < ApplicationDecorator
     end
   end
 
+  def embed_script
+    %(<script type="text/javascript" src="#{h.asciicast_url(model, :format => :js)}" id="asciicast-#{id}" async></script>)
+  end
+
   private
 
   def prepare_lines(lines, width, height)
