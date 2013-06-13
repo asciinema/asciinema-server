@@ -64,9 +64,14 @@ describe AsciicastsController do
     end
 
     context 'for html request' do
+      let(:view_counter) { mock('view_counter') }
+
       before do
         AsciicastDecorator.should_receive(:new).with(asciicast).
           and_return(asciicast)
+        ViewCounter.should_receive(:new).with(asciicast, cookies).
+          and_return(view_counter)
+        view_counter.should_receive(:increment)
 
         get :show, :id => asciicast.id, :format => :html
       end
@@ -82,6 +87,7 @@ describe AsciicastsController do
       before do
         AsciicastJSONDecorator.should_receive(:new).with(asciicast).
           and_return(asciicast)
+        ViewCounter.should_not_receive(:new)
 
         get :show, :id => asciicast.id, :format => :json
       end
