@@ -247,7 +247,7 @@ describe AsciicastDecorator do
     end
 
     it 'should be an async script tag including asciicast id' do
-      expect(decorated.embed_script).to match(/^<script[^>]+\b123\b[^>]+><\/script>/)
+      expect(decorated.embed_script).to match(/^<script[^>]+src="[^"]+\b123\b[^"]*\.js"[^>]+id="asciicast-123"[^>]*><\/script>/)
     end
   end
 end
