@@ -2,7 +2,6 @@ class AsciicastsController < ApplicationController
   PER_PAGE = 15
 
   before_filter :load_resource, :only => [:show, :raw, :edit, :update, :destroy]
-  before_filter :count_view, :only => [:show]
   before_filter :ensure_authenticated!, :only => [:edit, :update, :destroy]
   before_filter :ensure_owner!, :only => [:edit, :update, :destroy]
 
@@ -33,6 +32,7 @@ class AsciicastsController < ApplicationController
       format.html do
         @asciicast = AsciicastDecorator.new(@asciicast)
         @title = @asciicast.title
+        ViewCounter.new(@asciicast, cookies).increment
         respond_with @asciicast
       end
 
@@ -76,12 +76,6 @@ class AsciicastsController < ApplicationController
 
   def load_resource
     @asciicast = Asciicast.find(params[:id])
-  end
-
-  def count_view
-    unless request.xhr?
-      Asciicast.increment_counter :views_count, @asciicast.id
-    end
   end
 
   def ensure_owner!
