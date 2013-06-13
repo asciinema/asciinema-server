@@ -15,4 +15,8 @@
 
 $(function() {
   $('abbr.timeago').timeago();
+
+  $("input[data-behavior=auto-select]").click(function() {
+    this.select();
+  });
 });

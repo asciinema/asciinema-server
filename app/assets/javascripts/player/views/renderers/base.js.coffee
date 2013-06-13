@@ -10,6 +10,15 @@ class AsciiIo.Renderer.Base extends Backbone.View
     @clearState()
     requestAnimationFrame @render
 
+  width: ->
+    @cols * @cellWidth
+
+  height: ->
+    @lines * @cellHeight
+
+  elementWidth: ->
+    @$el.outerWidth()
+
   clearState: ->
     @state =
       changes: {}
