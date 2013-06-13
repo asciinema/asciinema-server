@@ -94,6 +94,18 @@ describe AsciicastsController do
 
       it { should be_success }
     end
+
+    context 'for js request' do
+      let(:asciicast) { FactoryGirl.build(:asciicast, :id => 666) }
+
+      before do
+        ViewCounter.should_not_receive(:new)
+
+        get :show, :id => asciicast.id, :format => :js
+      end
+
+      it { should be_success }
+    end
   end
 
   describe '#edit' do
