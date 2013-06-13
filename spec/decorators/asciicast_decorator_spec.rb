@@ -240,4 +240,14 @@ describe AsciicastDecorator do
   describe '#other_by_user' do
     pending
   end
+
+  describe '#embed_script' do
+    before do
+      asciicast.stub!(:id => 123)
+    end
+
+    it 'should be an async script tag including asciicast id' do
+      expect(decorated.embed_script).to match(/^<script[^>]+\b123\b[^>]+><\/script>/)
+    end
+  end
 end
