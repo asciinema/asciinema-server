@@ -24,6 +24,8 @@ class SnapshotWorker
   end
 
   def prepare_files
+    log "preparing files..."
+
     if RUBY_VERSION < '1.9'
       in_data_file = Tempfile.new('asciiio-data')
     else
@@ -47,6 +49,8 @@ class SnapshotWorker
   end
 
   def convert_to_typescript
+    log "converting to typescript..."
+
     system "bash -c './script/convert-to-typescript.sh " +
            "#{@in_data_path} #{@in_timing_path} " +
            "#{@out_data_path} #{@out_timing_path}'"
@@ -54,6 +58,8 @@ class SnapshotWorker
   end
 
   def capture_terminal(delay)
+    log "capturing terminal output..."
+
     capture_command =
       "scriptreplay #{@out_timing_path} #{@out_data_path}; sleep 10"
 
@@ -73,17 +79,28 @@ class SnapshotWorker
     Process.waitpid pid
     status = $?.exitstatus
 
-    raise "Can't capture output of asciicast ##{@asciicast.id}" if status != 0
+    if status != 0
+      log "Error capturing output: #{lines.join.inspect}", :error
+      raise "Can't capture output of asciicast ##{@asciicast.id}"
+    end
 
     lines.join('')
   end
 
   def cleanup
+    log "cleaning up..."
+
     FileUtils.rm_f([
       @in_data_path,
       @in_timing_path,
       @out_data_path,
       @out_timing_path
     ].compact)
+  end
+
+  private
+
+  def log(text, level = :info)
+    Rails.logger.send(level, "SnapshotWorker: #{text}")
   end
 end
