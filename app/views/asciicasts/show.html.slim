@@ -1,0 +1,15 @@
+section#presentation.feature
+  .asciicast-wrapper
+    = player @asciicast
+
+section.supplimental
+  .wrapper
+    .main
+      h1 = @asciicast.title
+      .description = @asciicast.description
+      = render :partial => 'other_by_user'
+    .extras
+      = render :partial => 'author'
+      = render :partial => 'actions'
+      = render :partial => 'info'
+      = render :partial => 'share'

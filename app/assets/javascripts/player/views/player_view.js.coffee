@@ -4,6 +4,7 @@ class AsciiIo.PlayerView extends Backbone.View
 
   initialize: (options) ->
     @createRendererView()
+    @setupClipping()
     @createHudView() if options.hud
     @showLoadingOverlay()
 
@@ -16,6 +17,14 @@ class AsciiIo.PlayerView extends Backbone.View
     @$el.append @rendererView.$el
     @rendererView.afterInsertedToDom()
     @rendererView.renderSnapshot @options.snapshot
+
+  setupClipping: ->
+    if @options.containerWidth
+      rendererWidth = @rendererView.elementWidth()
+      min = Math.min(@options.containerWidth, rendererWidth)
+      @rightClipWidth = rendererWidth - min
+    else
+      @rightClipWidth = 0
 
   createHudView: ->
     @hudView = new AsciiIo.HudView(cols: @options.cols)
@@ -39,14 +48,19 @@ class AsciiIo.PlayerView extends Backbone.View
   onSeekClicked: (percent) ->
     @trigger 'seek-clicked', percent
 
+  showOverlay: (html) ->
+    element = $(html)
+    element.css('margin-right': "#{@rightClipWidth}px") if @rightClipWidth
+    @$el.append(element)
+
   showLoadingOverlay: ->
-    @$el.append('<div class="loading">')
+    @showOverlay('<div class="loading">')
 
   hideLoadingOverlay: ->
     @$('.loading').remove()
 
   showPlayOverlay: ->
-    @$el.append('<div class="start-prompt"><div class="play-button"><div class="arrow">►</div></div></div>')
+    @showOverlay('<div class="start-prompt"><div class="play-button"><div class="arrow">►</div></div></div>')
 
   hidePlayOverlay: ->
     @$('.start-prompt').remove()

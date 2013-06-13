@@ -12,11 +12,8 @@ class AsciiIo.Renderer.Canvas extends AsciiIo.Renderer.Base
     @cursorVisible = true
 
   fixTerminalElementSize: ->
-    width = @cols * @cellWidth
-    height = @lines * @cellHeight
-
-    @$el.attr('width', width)
-    @$el.attr('height', height)
+    @$el.attr('width', @width())
+    @$el.attr('height', @height())
 
     @setFont()
 

@@ -20,6 +20,7 @@ module AsciicastsHelper
       speed: (options[:speed] || params[:speed] || 1).to_f,
       benchmark: !!params[:bm],
       asciicast_id: asciicast.id,
+      container_width: params[:container_width],
       renderer_class: renderer_class,
       auto_play: options.key?(:auto_play) ? !!options[:auto_play] : false,
       hud: options.key?(:hud) ? !!options[:hud] : true,

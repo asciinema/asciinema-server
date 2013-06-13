@@ -14,6 +14,7 @@ class AsciiIo.AbstractPlayer
       hud: @options.hud
       rendererClass: @options.rendererClass
       snapshot: @options.snapshot
+      containerWidth: @options.containerWidth
 
   createVT: ->
     throw 'not implemented'
