@@ -1,6 +1,10 @@
 <% if @asciicast.user == current_user %>
   <ul class="delimited">
     <li>
+      <a href="javascript:void(0)" class="js-embed">Copy embed HTML</a>
+    </li>
+
+    <li>
       <%= link_to 'Edit title & description',
           edit_asciicast_path(@asciicast) %>
     </li>
