@@ -1,104 +1,70 @@
-require 'tempfile'
-
 class SnapshotWorker
+  attr_reader :asciicast
+
   def perform(asciicast_id)
-    begin
-      @asciicast = Asciicast.find(asciicast_id)
+    @asciicast = Asciicast.find(asciicast_id)
 
-      prepare_files
-      convert_to_typescript
+    delay = (asciicast.duration / 2).to_i
+    delay = 30 if delay > 30
 
-      delay = (@asciicast.duration / 2).to_i
-      delay = 30 if delay > 30
-      snapshot = capture_terminal(delay)
+    asciicast.snapshot = create_snapshot(delay)
+    asciicast.save!
 
-      @asciicast.snapshot = snapshot
-      @asciicast.save!
+  rescue ActiveRecord::RecordNotFound
+    # oh well...
+  end
 
-    rescue ActiveRecord::RecordNotFound
-      # oh well...
+  def create_snapshot(delay)
+    data = get_data_to_feed(delay)
+    screen = TSM::Screen.new(asciicast.terminal_columns,
+                             asciicast.terminal_lines)
+    vte = TSM::Vte.new(screen)
+    vte.input(data)
+    screen.snapshot.to_s
+  end
 
-    ensure
-      cleanup
+  def get_data_to_feed(delay)
+    timing = get_timing
+    stdout = get_stdout
+
+    i = 0
+    time = 0
+    bytes_to_feed = 0
+    while time < delay
+      time += timing[i][0]
+      bytes_to_feed += timing[i][1]
+      i += 1
+    end
+
+    stdout.bytes.take(bytes_to_feed)
+  end
+
+  def get_timing
+    lines = unbzip(asciicast.stdout_timing.file.read).lines
+
+    timing = lines.map do |line|
+      delay, n = line.split
+      delay = delay.to_f
+      n = n.to_i
+      [delay, n]
     end
   end
 
-  def prepare_files
-    log "preparing files..."
-
-    if RUBY_VERSION < '1.9'
-      in_data_file = Tempfile.new('asciiio-data')
-    else
-      in_data_file = Tempfile.new('asciiio-data', :encoding => 'ascii-8bit')
-    end
-    in_data_file.write(@asciicast.stdout.read)
-    in_data_file.close
-    @in_data_path = in_data_file.path
-
-    if RUBY_VERSION < '1.9'
-      in_timing_file = Tempfile.new('asciiio-timing')
-    else
-      in_timing_file = Tempfile.new('asciiio-timing', :encoding => 'ascii-8bit')
-    end
-    in_timing_file.write(@asciicast.stdout_timing.read)
-    in_timing_file.close
-    @in_timing_path = in_timing_file.path
-
-    @out_data_path = @in_data_path + '.ts'
-    @out_timing_path = @in_timing_path + '.ts'
-  end
-
-  def convert_to_typescript
-    log "converting to typescript..."
-
-    system "bash -c './script/convert-to-typescript.sh " +
-           "#{@in_data_path} #{@in_timing_path} " +
-           "#{@out_data_path} #{@out_timing_path}'"
-    raise "Can't convert asciicast ##{@asciicast.id} to typescript" if $? != 0
-  end
-
-  def capture_terminal(delay)
-    log "capturing terminal output..."
-
-    capture_command =
-      "scriptreplay #{@out_timing_path} #{@out_data_path}; sleep 10"
-
-    command = "bash -c 'ASCIICAST_ID=#{@asciicast.id} " +
-              "COLS=#{@asciicast.terminal_columns} " +
-              "LINES=#{@asciicast.terminal_lines} " +
-              "COMMAND=\"#{capture_command}\" " +
-              "DELAY=#{delay} ./script/capture.sh'"
-
-    lines = []
-    pid, stdin, stdout, stderr = open4(command)
-
-    while !stdout.eof?
-      lines << stdout.readline
-    end
-
-    Process.waitpid pid
-    status = $?.exitstatus
-
-    if status != 0
-      log "Error capturing output: #{lines.join.inspect}", :error
-      raise "Can't capture output of asciicast ##{@asciicast.id}"
-    end
-
-    lines.join('')
-  end
-
-  def cleanup
-    log "cleaning up..."
-
-    FileUtils.rm_f([
-      @in_data_path,
-      @in_timing_path,
-      @out_data_path,
-      @out_timing_path
-    ].compact)
+  def get_stdout
+    unbzip(asciicast.stdout.file.read)
   end
 
   private
+
+  def unbzip(compressed_data)
+    f = IO.popen "bzip2 -d", "r+"
+    f.write(compressed_data)
+    f.close_write
+    uncompressed_data = f.read
+    f.close
+
+    uncompressed_data
+  end
 
   def log(text, level = :info)
     Rails.logger.send(level, "SnapshotWorker: #{text}")
