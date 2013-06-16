@@ -67,6 +67,9 @@ GEM
     dalli (2.6.4)
     database_cleaner (1.0.1)
     diff-lcs (1.2.4)
+    dotenv (0.8.0)
+    dotenv-rails (0.8.0)
+      dotenv (= 0.8.0)
     draper (1.2.1)
       actionpack (>= 3.0)
       activesupport (>= 3.0)
@@ -327,6 +330,7 @@ DEPENDENCIES
   coffee-rails (~> 3.2.2)
   dalli (~> 2.6.2)
   database_cleaner (~> 1.0.1)
+  dotenv-rails
   draper (~> 1.2.1)
   factory_girl_rails (~> 4.2.0)
   fog (~> 1.9.0)

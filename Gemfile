@@ -18,6 +18,7 @@ gem 'open4',            '~> 1.3.0'
 gem 'redcarpet',        '~> 2.2.2'
 gem 'slim'
 gem 'tsm', :git => 'git://github.com/sickill/tsm.git'
+gem 'dotenv-rails',     '~> 0.8'
 
 # Gems used only for assets and not required
 # in production environments by default.
