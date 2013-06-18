@@ -40,7 +40,9 @@ class SnapshotWorker
   end
 
   def get_timing
-    lines = unbzip(asciicast.stdout_timing.file.read).lines
+    file = asciicast.stdout_timing
+    file.cache_stored_file! unless file.cached?
+    lines = unbzip(file.file.path).lines
 
     timing = lines.map do |line|
       delay, n = line.split
@@ -51,19 +53,19 @@ class SnapshotWorker
   end
 
   def get_stdout
-    unbzip(asciicast.stdout.file.read)
+    file = asciicast.stdout
+    file.cache_stored_file! unless file.cached?
+    unbzip(file.file.path)
   end
 
   private
 
-  def unbzip(compressed_data)
-    f = IO.popen "bzip2 -d", "r+"
-    f.write(compressed_data)
-    f.close_write
-    uncompressed_data = f.read
+  def unbzip(path)
+    f = IO.popen "bzip2 -d -c #{path}", "r"
+    data = f.read
     f.close
 
-    uncompressed_data
+    data
   end
 
   def log(text, level = :info)
