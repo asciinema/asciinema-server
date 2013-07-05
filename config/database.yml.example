@@ -7,7 +7,7 @@ development:
   adapter: postgresql
   encoding: unicode
   database: ascii_io_development
-  pool: 5
+  pool: 25
   # username: asciiio
   # password:
   min_messages: WARNING
@@ -29,6 +29,6 @@ production:
   adapter: postgresql
   encoding: unicode
   database: ascii_io_production
-  pool: 5
+  pool: 25
   username: asciiio
   password:
