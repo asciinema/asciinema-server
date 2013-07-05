@@ -13,13 +13,12 @@ require 'rspec/rails'
 require 'rspec/autorun'
 require 'capybara/rspec'
 require 'capybara/poltergeist'
+require 'sidekiq/testing'
 
 Dir[Rails.root.join("spec/support/**/*.rb")].each { |f| require f }
 Dir[Rails.root.join("spec/shared/**/*.rb")].each  { |f| require f }
 
 Capybara.javascript_driver = :poltergeist
-
-GirlFriday::Queue.immediate!
 
 OmniAuth.config.test_mode = true
 

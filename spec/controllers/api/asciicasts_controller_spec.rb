@@ -17,9 +17,7 @@ describe Api::AsciicastsController do
       end
 
       it 'enqueues snapshot capture' do
-        SnapshotQueue.should_receive(:push).with(asciicast.id)
-
-        post :create
+        expect { post :create }.to change(SnapshotWorker.jobs, :size).by(1)
       end
 
       it 'returns status 201' do
