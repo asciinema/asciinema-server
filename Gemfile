@@ -32,6 +32,7 @@ group :development do
   gem 'quiet_assets',   '~> 1.0.1'
   gem 'capistrano',     '~> 2.15'
   gem 'capistrano-ext', '~> 1.2'
+  gem 'foreman',        '~> 0.63.0'
 end
 
 group :test, :development do
