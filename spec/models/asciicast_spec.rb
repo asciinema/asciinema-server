@@ -1,10 +1,6 @@
 require 'spec_helper'
 
 describe Asciicast do
-  it "has valid factory" do
-    FactoryGirl.build(:asciicast).should be_valid
-  end
-
   describe '.assign_user' do
     let(:user) { FactoryGirl.create(:user) }
     let(:token) { 'token' }
