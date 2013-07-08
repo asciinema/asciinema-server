@@ -117,4 +117,27 @@ describe Asciicast do
       asciicast.terminal_type.should    == terminal_type
     end
   end
+
+  describe '#snapshot' do
+    let(:asciicast) { Asciicast.new }
+
+    it 'is an empty hash initially' do
+      expect(asciicast.snapshot).to eq({})
+    end
+
+    it 'is a hash before persisting' do
+      asciicast.snapshot = { :foo => 1 }
+
+      expect(asciicast.snapshot).to eq({ :foo => 1})
+    end
+
+    it 'is a hash after persisting and loading' do
+      asciicast = build(:asciicast)
+      asciicast.snapshot = { :foo => 1 }
+      asciicast.save!
+
+      expect(asciicast.snapshot).to eq({ :foo => 1 })
+      expect(Asciicast.find(asciicast.id).snapshot).to eq({ :foo => 1 })
+    end
+  end
 end
