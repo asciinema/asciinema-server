@@ -121,23 +121,23 @@ describe Asciicast do
   describe '#snapshot' do
     let(:asciicast) { Asciicast.new }
 
-    it 'is an empty hash initially' do
-      expect(asciicast.snapshot).to eq({})
+    it 'is empty Snapshot instance initially' do
+      expect(asciicast.snapshot).to eq(Snapshot.new)
     end
 
-    it 'is a hash before persisting' do
-      asciicast.snapshot = { :foo => 1 }
+    it 'is a Snapshot instance before persisting' do
+      asciicast.snapshot = Snapshot.new({ :foo => 1 })
 
-      expect(asciicast.snapshot).to eq({ :foo => 1})
+      expect(asciicast.snapshot).to eq(Snapshot.new({ :foo => 1 }))
     end
 
-    it 'is a hash after persisting and loading' do
+    it 'is a Snapshot instance after persisting and loading' do
       asciicast = build(:asciicast)
-      asciicast.snapshot = { :foo => 1 }
+      asciicast.snapshot = Snapshot.new({ :foo => 1 })
       asciicast.save!
 
-      expect(asciicast.snapshot).to eq({ :foo => 1 })
-      expect(Asciicast.find(asciicast.id).snapshot).to eq({ :foo => 1 })
+      expect(asciicast.snapshot).to eq(Snapshot.new({ :foo => 1 }))
+      expect(Asciicast.find(asciicast.id).snapshot).to eq(Snapshot.new({ :foo => 1 }))
     end
   end
 end
