@@ -33,6 +33,7 @@ group :development do
   gem 'capistrano',     '~> 2.15'
   gem 'capistrano-ext', '~> 1.2'
   gem 'foreman',        '~> 0.63.0'
+  gem 'zeus', '0.13.4.pre2'
 end
 
 group :test, :development do
