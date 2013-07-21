@@ -38,7 +38,7 @@ end
 
 group :test, :development do
   gem 'pry-rails',     '~> 0.3.0'
-  gem 'rspec-rails',   '~> 2.13.2'
+  gem 'rspec-rails',   '~> 2.14'
   gem 'cane',          '~> 2.5.2'
   gem 'jasmine-rails', '~> 0.3.2'
 end
