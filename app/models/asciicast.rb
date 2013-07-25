@@ -6,7 +6,7 @@ class Asciicast < ActiveRecord::Base
   mount_uploader :stdout, BasicUploader
   mount_uploader :stdout_timing, BasicUploader
 
-  serialize :snapshot, Snapshot::Serializer.new
+  serialize :snapshot, Snapshot
 
   validates :stdout, :stdout_timing, :presence => true
   validates :terminal_columns, :terminal_lines, :duration, :presence => true

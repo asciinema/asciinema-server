@@ -120,24 +120,31 @@ describe Asciicast do
 
   describe '#snapshot' do
     let(:asciicast) { Asciicast.new }
+    let(:snapshot) {
+      Snapshot.new([
+        SnapshotLine.new([
+          SnapshotFragment.new('foo', { :fg => 1 })
+        ])
+      ])
+    }
 
     it 'is empty Snapshot instance initially' do
       expect(asciicast.snapshot).to eq(Snapshot.new)
     end
 
     it 'is a Snapshot instance before persisting' do
-      asciicast.snapshot = Snapshot.new({ :foo => 1 })
+      asciicast.snapshot = snapshot
 
-      expect(asciicast.snapshot).to eq(Snapshot.new({ :foo => 1 }))
+      expect(asciicast.snapshot).to eq(snapshot)
     end
 
     it 'is a Snapshot instance after persisting and loading' do
       asciicast = build(:asciicast)
-      asciicast.snapshot = Snapshot.new({ :foo => 1 })
+      asciicast.snapshot = snapshot
       asciicast.save!
 
-      expect(asciicast.snapshot).to eq(Snapshot.new({ :foo => 1 }))
-      expect(Asciicast.find(asciicast.id).snapshot).to eq(Snapshot.new({ :foo => 1 }))
+      expect(asciicast.snapshot).to eq(snapshot)
+      expect(Asciicast.find(asciicast.id).snapshot).to eq(snapshot)
     end
   end
 end

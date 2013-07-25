@@ -1,4 +1,5 @@
 class Snapshot
+
   attr_reader :lines
 
   def initialize(lines = [])
@@ -9,13 +10,9 @@ class Snapshot
     other.lines == lines
   end
 
-  class Serializer
-    def dump(snapshot)
-      YAML.dump(snapshot.lines)
-    end
-
-    def load(value)
-      value.present? ? Snapshot.new(YAML.load(value)) : Snapshot.new
-    end
+  def crop(width, height)
+    new_lines = lines.drop(lines.size - height).map { |line| line.crop(width) }
+    self.class.new(new_lines)
   end
+
 end

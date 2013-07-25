@@ -1,5 +1,4 @@
 class Brush
-  attr_reader :attributes
 
   def initialize(attributes = {})
     @attributes = attributes
@@ -24,4 +23,9 @@ class Brush
   def inverse?
     !!attributes[:inverse]
   end
+
+  private
+
+  attr_reader :attributes
+
 end

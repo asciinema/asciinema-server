@@ -134,7 +134,24 @@ describe AsciicastDecorator do
   end
 
   describe '#thumbnail' do
-    pending
+    let(:snapshot) { double('snapshot', :crop => thumbnail) }
+    let(:thumbnail) { double('thumbnail') }
+    let(:presenter) { double('presenter') }
+
+    before do
+      allow(asciicast).to receive(:snapshot) { snapshot }
+      allow(SnapshotPresenter).to receive(:new).with(thumbnail) { presenter }
+      allow(presenter).to receive(:to_html) { '<pre></pre>' }
+    end
+
+    it 'crops the snapshot' do
+      decorated.thumbnail(21, 13)
+      expect(snapshot).to have_received(:crop).with(21, 13)
+    end
+
+    it 'returns html snapshot rendered by SnapshotPresenter#to_html' do
+      expect(decorated.thumbnail).to eq('<pre></pre>')
+    end
   end
 
   describe '#author' do
@@ -230,7 +247,7 @@ describe AsciicastDecorator do
       end
 
       it 'returns avatar_image_tag' do
-        decorated.stub!(:h => h)
+        decorated.stub(:h => h)
         h.should_receive(:avatar_image_tag).with(nil).and_return(avatar_image)
         subject.should == avatar_image
       end
@@ -243,7 +260,7 @@ describe AsciicastDecorator do
 
   describe '#embed_script' do
     before do
-      asciicast.stub!(:id => 123)
+      asciicast.stub(:id => 123)
     end
 
     it 'should be an async script tag including asciicast id' do
