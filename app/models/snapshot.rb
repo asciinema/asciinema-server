@@ -11,6 +11,7 @@ class Snapshot
   end
 
   def crop(width, height)
+    height = [height, lines.size].min
     new_lines = lines.drop(lines.size - height).map { |line| line.crop(width) }
     self.class.new(new_lines)
   end
