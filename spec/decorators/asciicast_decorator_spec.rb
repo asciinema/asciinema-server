@@ -136,12 +136,11 @@ describe AsciicastDecorator do
   describe '#thumbnail' do
     let(:snapshot) { double('snapshot', :crop => thumbnail) }
     let(:thumbnail) { double('thumbnail') }
-    let(:presenter) { double('presenter') }
+    let(:presenter) { double('presenter', :to_html => '<pre></pre>') }
 
     before do
       allow(asciicast).to receive(:snapshot) { snapshot }
       allow(SnapshotPresenter).to receive(:new).with(thumbnail) { presenter }
-      allow(presenter).to receive(:to_html) { '<pre></pre>' }
     end
 
     it 'crops the snapshot' do
