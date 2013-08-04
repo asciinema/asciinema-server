@@ -13,7 +13,7 @@
       rendererClass: <%= renderer_class.html_safe %>,
       autoPlay: <%= auto_play %>,
       hud: <%= hud %>,
-      snapshot: "<%= (j(snapshot)).html_safe %>"
+      snapshot: <%= snapshot.html_safe %>
     });
   });
 </script>

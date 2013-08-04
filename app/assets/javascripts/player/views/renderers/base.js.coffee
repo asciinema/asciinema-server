@@ -64,10 +64,14 @@ class AsciiIo.Renderer.Base extends Backbone.View
     @fixTerminalElementSize()
     @fixPlayerContainerSize()
 
-  renderSnapshot: (text) ->
+  renderSnapshot: (snapshot) ->
+    return unless snapshot
+
     i = 0
-    for line in text.split("\n")
-      fragments = [[line, AsciiIo.Brush.default()]]
+    for line in snapshot
+      fragments = _(line).map (fragment) ->
+        fragment[1].bright = fragment[1].bold
+        [fragment[0], new AsciiIo.Brush(fragment[1])]
       @renderLine i, fragments, undefined
       i++
 
