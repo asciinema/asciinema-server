@@ -12,6 +12,7 @@
  *= require home
  *= require login
  *= require asciicasts
+ *= require terminal
  *= require player/colors
  *= require player/player
 */
