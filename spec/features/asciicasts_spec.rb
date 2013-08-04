@@ -14,6 +14,7 @@ feature "Asciicast lists" do
   end
 
   scenario 'Visiting popular' do
+    visit asciicast_path(asciicast)
     visit popular_path
 
     expect(page).to have_content(/Popular Asciicasts/i)
