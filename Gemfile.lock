@@ -295,6 +295,8 @@ GEM
       multi_json (~> 1.0)
       rubyzip
       websocket (~> 1.0.4)
+    shoulda-matchers (1.4.1)
+      activesupport (>= 3.0.0)
     sidekiq (2.12.4)
       celluloid (>= 0.14.1)
       connection_pool (>= 1.0.0)
@@ -383,6 +385,7 @@ DEPENDENCIES
   redcarpet (~> 2.2.2)
   rspec-rails (~> 2.14)
   sass-rails (~> 3.2.6)
+  shoulda-matchers (~> 1.4.1)
   sidekiq (~> 2.12.4)
   simple_form (~> 2.0.4)
   simplecov (~> 0.7.1)

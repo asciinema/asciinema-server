@@ -54,6 +54,7 @@ group :test do
   gem 'guard-jasmine-headless-webkit', '~> 0.3.2'
   gem 'rb-inotify',                    '~> 0.9.0'
   gem 'simplecov',                     '~> 0.7.1', :require => false
+  gem 'shoulda-matchers',              '~> 1.4.1'
 end
 
 group :production do
