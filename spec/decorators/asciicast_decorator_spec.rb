@@ -134,17 +134,20 @@ describe AsciicastDecorator do
   end
 
   describe '#thumbnail' do
+    let(:json) { [:qux] }
     let(:snapshot) { double('snapshot', :crop => thumbnail) }
     let(:thumbnail) { double('thumbnail') }
-    let(:presenter) { double('presenter', :to_html => '<pre></pre>') }
+    let(:snapshot_presenter) { double('snapshot_presenter', :to_html => '<pre></pre>') }
 
     before do
-      allow(asciicast).to receive(:snapshot) { snapshot }
-      allow(SnapshotPresenter).to receive(:new).with(thumbnail) { presenter }
+      allow(asciicast).to receive(:snapshot) { json }
+      allow(Snapshot).to receive(:build).with(json) { snapshot }
+      allow(SnapshotPresenter).to receive(:new).with(thumbnail) { snapshot_presenter }
     end
 
     it 'crops the snapshot' do
       decorated.thumbnail(21, 13)
+
       expect(snapshot).to have_received(:crop).with(21, 13)
     end
 

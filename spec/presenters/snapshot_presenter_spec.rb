@@ -19,6 +19,6 @@ describe SnapshotPresenter do
     end
 
     it { should be_kind_of(ActiveSupport::SafeBuffer) }
-    it { should eq('<pre class="thumbnail"><line_1><line_2></pre>') }
+    it { should eq(%(<pre class="terminal"><line_1>\n<line_2>\n</pre>)) }
   end
 end

@@ -35,7 +35,8 @@ class AsciicastDecorator < ApplicationDecorator
   end
 
   def thumbnail(width = THUMBNAIL_WIDTH, height = THUMBNAIL_HEIGHT)
-    thumbnail = model.snapshot.crop(width, height)
+    snapshot = Snapshot.build(model.snapshot || [])
+    thumbnail = snapshot.crop(width, height)
     SnapshotPresenter.new(thumbnail).to_html
   end
 

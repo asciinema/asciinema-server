@@ -19,7 +19,7 @@ class BrushPresenter < SimpleDelegator
   end
 
   def bold_class
-    'bold' if bold?
+    'bright' if bold?
   end
 
   def underline_class

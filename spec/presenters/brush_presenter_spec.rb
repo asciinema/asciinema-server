@@ -68,7 +68,7 @@ describe BrushPresenter do
           allow(brush).to receive(:bold?) { true }
         end
 
-        it { should match(/\bbold\b/) }
+        it { should match(/\bbright\b/) }
       end
 
       context "when it's underline" do

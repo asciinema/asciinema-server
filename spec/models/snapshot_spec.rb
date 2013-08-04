@@ -2,6 +2,43 @@ require 'spec_helper'
 
 describe Snapshot do
 
+  describe '.build' do
+    let(:snapshot) { Snapshot.build(input) }
+    let(:input) { [input_line_1, input_line_2] }
+    let(:input_line_1) { double('input_line_1') }
+    let(:input_line_2) { double('input_line_2') }
+    let(:line_1) { double('line_1') }
+    let(:line_2) { double('line_2') }
+
+    before do
+      allow(SnapshotLine).to receive(:build).with(input_line_1) { line_1 }
+      allow(SnapshotLine).to receive(:build).with(input_line_2) { line_2 }
+    end
+
+    it 'returns an instance of Snapshot' do
+      expect(snapshot).to be_kind_of(Snapshot)
+    end
+
+    it 'includes lines built by SnapshotLine.build' do
+      expect(snapshot.to_a[0]).to be(line_1)
+      expect(snapshot.to_a[1]).to be(line_2)
+    end
+  end
+
+  describe '#each' do
+    let(:snapshot) { Snapshot.new([:line_1, :line_2]) }
+
+    it 'yields to the given block for each line' do
+      lines = []
+
+      snapshot.each do |line|
+        lines << line
+      end
+
+      expect(lines).to eq([:line_1, :line_2])
+    end
+  end
+
   describe '#==' do
     let(:snapshot) { Snapshot.new([:foo]) }
 

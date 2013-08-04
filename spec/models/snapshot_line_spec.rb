@@ -1,6 +1,42 @@
 require 'spec_helper'
 
 describe SnapshotLine do
+
+  describe '.build' do
+    let(:line) { SnapshotLine.build(input) }
+    let(:input) { [input_fragment_1, input_fragment_2] }
+    let(:input_fragment_1) { ['foo', { :fg => 1, :bold => true }] }
+    let(:input_fragment_2) { ['bar', { :bg => 2 }] }
+
+    it 'returns an instance of SnapshotLine' do
+      expect(line).to be_kind_of(SnapshotLine)
+    end
+
+    it 'returns properly joined fragments' do
+      fragment_1 = line.to_a[0]
+      fragment_2 = line.to_a[1]
+
+      expect(fragment_1.text).to eq('foo')
+      expect(fragment_1.brush).to eq(Brush.new(:fg => 1, :bold => true))
+      expect(fragment_2.text).to eq('bar')
+      expect(fragment_2.brush).to eq(Brush.new(:bg => 2))
+    end
+  end
+
+  describe '#each' do
+    let(:snapshot_line) { SnapshotLine.new([:fragment_1, :fragment_2]) }
+
+    it 'yields to the given block for each fragment' do
+      fragments = []
+
+      snapshot_line.each do |fragment|
+        fragments << fragment
+      end
+
+      expect(fragments).to eq([:fragment_1, :fragment_2])
+    end
+  end
+
   describe '#==' do
     let(:snapshot_line) { SnapshotLine.new([:foo]) }
 
@@ -57,4 +93,5 @@ describe SnapshotLine do
       end
     end
   end
+
 end

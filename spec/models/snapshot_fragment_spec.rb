@@ -1,6 +1,7 @@
 require 'spec_helper'
 
 describe SnapshotFragment do
+
   describe '#==' do
     let(:snapshot_fragment) { SnapshotFragment.new('foo', brush_1) }
     let(:brush_1) { double('brush_1') }
@@ -54,4 +55,13 @@ describe SnapshotFragment do
       end
     end
   end
+
+  describe '#size' do
+    let(:snapshot_fragment) { SnapshotFragment.new('f' * 100, Brush.new) }
+
+    subject { snapshot_fragment.size }
+
+    it { should eq(100) }
+  end
+
 end

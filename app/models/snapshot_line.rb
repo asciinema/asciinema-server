@@ -1,6 +1,15 @@
 class SnapshotLine
+  include Enumerable
 
-  attr_reader :fragments
+  delegate :each, :to => :fragments
+
+  def self.build(blocks)
+    fragments = blocks.map { |block|
+      SnapshotFragment.new(block[0], Brush.new(block[1]))
+    }
+
+    new(fragments)
+  end
 
   def initialize(fragments)
     @fragments = fragments
@@ -27,5 +36,9 @@ class SnapshotLine
 
     self.class.new(new_fragments)
   end
+
+  protected
+
+  attr_reader :fragments
 
 end

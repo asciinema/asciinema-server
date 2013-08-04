@@ -1,11 +1,27 @@
 class Brush
 
   def initialize(attributes = {})
-    @attributes = attributes
+    @attributes = attributes.symbolize_keys
+  end
+
+  def ==(other)
+    fg == other.fg &&
+      bg == other.bg &&
+      bold? == other.bold? &&
+      underline? == other.underline? &&
+      inverse? == other.inverse?
   end
 
   def fg
-    attributes[:fg]
+    code = attributes[:fg]
+
+    if code
+      if code < 8 && bold?
+        code += 8
+      end
+    end
+
+    code
   end
 
   def bg
@@ -24,7 +40,11 @@ class Brush
     !!attributes[:inverse]
   end
 
-  private
+  def default?
+    fg.nil? && bg.nil? && !bold? && !underline? && !inverse?
+  end
+
+  protected
 
   attr_reader :attributes
 
