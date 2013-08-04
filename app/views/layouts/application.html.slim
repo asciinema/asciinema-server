@@ -11,8 +11,7 @@ html[lang="en"]
     = render :partial => 'layouts/current_user_js'
     = render :partial => 'layouts/ga'
     script
-      | window.unpackWorkerPath = '#{javascript_path "unpack_worker"}';
-        window.mainWorkerPath = '#{javascript_path "main_worker"}';
+      | window.mainWorkerPath = '#{javascript_path "main_worker"}';
   body
     header
       .wrapper

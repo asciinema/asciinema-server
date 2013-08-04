@@ -6,7 +6,6 @@ html[lang="en"]
     = stylesheet_link_tag 'embed', :media => 'all'
     = javascript_include_tag 'embed'
     script
-      | window.unpackWorkerPath = '#{javascript_path "unpack_worker"}';
-        window.mainWorkerPath = '#{javascript_path "main_worker"}';
+      | window.mainWorkerPath = '#{javascript_path "main_worker"}';
   body.iframe
     = yield

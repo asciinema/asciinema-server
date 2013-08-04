@@ -1,6 +1,9 @@
 require 'spec_helper'
 
 describe Asciicast do
+
+  let(:asciicast) { Asciicast.new }
+
   describe '.assign_user' do
     let(:user) { FactoryGirl.create(:user) }
     let(:token) { 'token' }
@@ -132,19 +135,22 @@ describe Asciicast do
       expect(asciicast.snapshot).to eq(Snapshot.new)
     end
 
-    it 'is a Snapshot instance before persisting' do
-      asciicast.snapshot = snapshot
+  describe '#stdout' do
+    let(:stdout) { double('stdout') }
 
-      expect(asciicast.snapshot).to eq(snapshot)
+    before do
+      allow(asciicast.stdout_data).to receive(:decompressed) { 'foo' }
+      allow(asciicast.stdout_timing).to receive(:decompressed) { '123.0 45' }
+      allow(Stdout).to receive(:new) { stdout }
     end
 
-    it 'is a Snapshot instance after persisting and loading' do
-      asciicast = build(:asciicast)
-      asciicast.snapshot = snapshot
-      asciicast.save!
+    it 'creates a new Stdout instance' do
+      asciicast.stdout
+      expect(Stdout).to have_received(:new).with('foo', [[123.0, 45]])
+    end
 
-      expect(asciicast.snapshot).to eq(snapshot)
-      expect(Asciicast.find(asciicast.id).snapshot).to eq(snapshot)
+    it 'returns created Stdout instance' do
+      expect(asciicast.stdout).to be(stdout)
     end
   end
 end

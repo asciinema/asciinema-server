@@ -12,7 +12,7 @@ class AsciicastJSONDecorator < ApplicationDecorator
   end
 
   def escaped_stdout_data
-    if data = stdout.read
+    if data = stdout.data
       Base64.strict_encode64(data)
     else
       nil
@@ -22,29 +22,18 @@ class AsciicastJSONDecorator < ApplicationDecorator
   def stdout_timing_data
     saved_time = 0
 
-    if file = stdout_timing.file
-      f = IO.popen "bzip2 -d", "r+"
-      f.write file.read
-      f.close_write
-      lines = f.readlines
-      f.close
+    timing = stdout.timing.map do |line|
+      delay, size = line
 
-      data = lines.map do |line|
-        delay, n = line.split
-        delay = delay.to_f
-
-        if time_compression && delay > Asciicast::MAX_DELAY
-          saved_time += (delay - Asciicast::MAX_DELAY)
-          delay = Asciicast::MAX_DELAY
-        end
-
-        [delay, n.to_i]
+      if time_compression && delay > Asciicast::MAX_DELAY
+        saved_time += (delay - Asciicast::MAX_DELAY)
+        delay = Asciicast::MAX_DELAY
       end
-    else
-      data = nil
+
+      [delay, size]
     end
 
-    [data, saved_time]
+    [timing, saved_time]
   end
 
 end
