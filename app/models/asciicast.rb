@@ -6,7 +6,7 @@ class Asciicast < ActiveRecord::Base
   mount_uploader :stdout_data,   StdoutDataUploader
   mount_uploader :stdout_timing, StdoutTimingUploader
 
-  serialize :snapshot, Snapshot
+  serialize :snapshot, JSON
 
   validates :stdout_data, :stdout_timing, :presence => true
   validates :terminal_columns, :terminal_lines, :duration, :presence => true
