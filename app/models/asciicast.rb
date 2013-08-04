@@ -1,14 +1,14 @@
 class Asciicast < ActiveRecord::Base
   MAX_DELAY = 5.0
 
-  mount_uploader :stdin, BasicUploader
-  mount_uploader :stdin_timing, BasicUploader
-  mount_uploader :stdout, BasicUploader
-  mount_uploader :stdout_timing, BasicUploader
+  mount_uploader :stdin_data,    StdinDataUploader
+  mount_uploader :stdin_timing,  StdinTimingUploader
+  mount_uploader :stdout_data,   StdoutDataUploader
+  mount_uploader :stdout_timing, StdoutTimingUploader
 
   serialize :snapshot, Snapshot
 
-  validates :stdout, :stdout_timing, :presence => true
+  validates :stdout_data, :stdout_timing, :presence => true
   validates :terminal_columns, :terminal_lines, :duration, :presence => true
 
   belongs_to :user
