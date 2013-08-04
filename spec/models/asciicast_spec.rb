@@ -23,6 +23,7 @@ describe Asciicast do
     end
   end
 
+  # TODO: create a service for this
   describe '#save' do
     let(:asciicast) { FactoryGirl.build(:asciicast, :user => user) }
 

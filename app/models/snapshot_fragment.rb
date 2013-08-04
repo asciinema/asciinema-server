@@ -1,4 +1,4 @@
-class SnapshotFragment
+class SnapshotFragment # TODO: rename to Cell or SnapshotCell
 
   attr_reader :text, :brush
 
