@@ -50,6 +50,11 @@ class Asciicast < ActiveRecord::Base
     end
   end
 
+  def update_snapshot(snapshot)
+    self.snapshot = snapshot
+    save!
+  end
+
   def stdout
     @stdout ||= Stdout.new(read_stdout_data, read_stdout_timing)
   end

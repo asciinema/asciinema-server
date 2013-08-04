@@ -71,6 +71,17 @@ describe Asciicast do
     end
   end
 
+  describe '#update_snapshot' do
+    let(:asciicast) { create(:asciicast) }
+    let(:snapshot) { [[[{ :foo => 'bar' }]]] }
+
+    it 'persists the snapshot' do
+      asciicast.update_snapshot(snapshot)
+
+      expect(Asciicast.find(asciicast.id).snapshot).to eq([[[{ 'foo' => 'bar' }]]])
+    end
+  end
+
   describe '#stdout' do
     let(:stdout) { double('stdout') }
 

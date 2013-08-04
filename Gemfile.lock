@@ -1,8 +1,8 @@
 GIT
   remote: git://github.com/sickill/tsm.git
-  revision: 193fc4382e2b295e5be74a8ccfc0b862346b7d4b
+  revision: 14911b1292bca86a5bde225b2226aa69683ca7ce
   specs:
-    tsm (0.0.1)
+    tsm (0.1.0)
       ffi (~> 1.8)
 
 GEM
