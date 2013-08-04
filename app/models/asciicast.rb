@@ -29,8 +29,7 @@ class Asciicast < ActiveRecord::Base
 
   before_create :assign_user, :unless => :user
 
-  attr_accessible :meta, :stdout, :stdout_timing, :stdin, :stdin_timing,
-                  :title, :description, :time_compression
+  attr_accessible :title, :description, :time_compression
 
   def self.assign_user(user_token, user)
     where(:user_id => nil, :user_token => user_token).
@@ -40,22 +39,6 @@ class Asciicast < ActiveRecord::Base
   def self.cache_key
     timestamps = scoped.select(:updated_at).map { |o| o.updated_at.to_i }
     Digest::MD5.hexdigest timestamps.join('/')
-  end
-
-  def meta=(file)
-    data = JSON.parse(file.tempfile.read)
-
-    self.username         = data['username']
-    self.user_token       = data['user_token']
-    self.duration         = data['duration']
-    self.recorded_at      = data['recorded_at']
-    self.title            = data['title']
-    self.command          = data['command']
-    self.shell            = data['shell']
-    self.uname            = data['uname']
-    self.terminal_lines   = data['term']['lines']
-    self.terminal_columns = data['term']['columns']
-    self.terminal_type    = data['term']['type']
   end
 
   def assign_user

@@ -3,57 +3,49 @@ require 'spec_helper'
 describe Api::AsciicastsController do
 
   describe '#create' do
-
-    let(:asciicast) { stub_model(Asciicast, :id => 666) }
+    let(:creator) { double('creator') }
+    let(:attributes) { { 'foo' => 'bar' } }
 
     before do
-      new = asciicast
-      Asciicast.should_receive(:new).and_return(new)
+      allow(AsciicastCreator).to receive(:new).with(no_args()) { creator }
     end
 
-    context 'when save succeeds' do
+    context 'when the creator returns an asciicast' do
+      let(:asciicast) { stub_model(Asciicast, :id => 666) }
+
       before do
-        asciicast.stub(:save => true)
+        allow(creator).to receive(:create).with(attributes) { asciicast }
+        post :create, :asciicast => attributes
       end
 
-      it 'enqueues snapshot capture' do
-        post :create
-        SnapshotWorker.should have_queued_job(asciicast.id)
+      it 'returns the status 201' do
+        expect(response.status).to eq(201)
       end
 
-      it 'returns status 201' do
-        post :create
-
-        response.status.should == 201
-      end
-
-      it 'returns URL of created asciicast as content body' do
-        post :create
-
-        response.body.should == asciicast_url(asciicast)
+      it 'returns the URL of created asciicast as the content body' do
+        expect(response.body).to eq(asciicast_url(asciicast))
       end
     end
 
-    context 'when save fails' do
+    context 'when the creator raises ActiveRecord::RecordInvalid' do
+      let(:asciicast) { double('asciicast', :errors => errors) }
+      let(:errors) { double('errors', :full_messages => full_messages) }
+      let(:full_messages) { ['This is invalid'] }
+
       before do
-        asciicast.stub(:save => false)
+        allow(creator).to receive(:create).with(attributes).
+          and_raise(ActiveRecord::RecordInvalid.new(asciicast))
+        post :create, :asciicast => attributes
       end
 
-      it 'returns status 422' do
-        post :create
-
-        response.status.should == 422
+      it 'returns the status 422' do
+        expect(response.status).to eq(422)
       end
 
-      it 'returns full error messages as content body' do
-        full_messages = double.to_s
-        errors = double('errors', :full_messages => full_messages)
-        asciicast.should_receive(:errors).and_return(errors)
-        post :create
-
-        response.body.should == full_messages
+      it 'returns the full error messages as the content body' do
+        expect(response.body).to be_blank
       end
     end
-
   end
+
 end

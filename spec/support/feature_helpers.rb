@@ -10,8 +10,7 @@ module AsciiIo
     end
 
     def load_asciicast(id)
-      FactoryGirl.create(
-        :asciicast,
+      AsciicastCreator.new.create(
         :meta => uploaded_file(
           "spec/fixtures/asciicasts/#{id}/meta.json",
         'application/json'

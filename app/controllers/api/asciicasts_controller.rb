@@ -1,15 +1,13 @@
 class Api::AsciicastsController < ApplicationController
+
   skip_before_filter :verify_authenticity_token
 
   def create
-    ac = Asciicast.new(params[:asciicast])
-
-    if ac.save
-      SnapshotWorker.perform_async(ac.id)
-      render :text => asciicast_url(ac), :status => :created, :location => ac
-    else
-      render :text => ac.errors.full_messages, :status => 422
-    end
+    asciicast = AsciicastCreator.new.create(params[:asciicast])
+    render :text => asciicast_url(asciicast), :status => :created,
+                                              :location => asciicast
+  rescue ActiveRecord::RecordInvalid => e
+    render :nothing => true, :status => 422
   end
 
 end
