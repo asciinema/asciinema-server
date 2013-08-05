@@ -98,9 +98,9 @@ describe Snapshot do
     context "when height is greater than lines count" do
       let(:height) { 4 }
 
-      it 'returns a new Snapshot with all lines cropped' do
+      it 'returns a new Snapshot with all lines cropped and missing lines added' do
         expect(subject).to eq(Snapshot.new([cropped_line_1, cropped_line_2,
-                                            cropped_line_3]))
+                                            cropped_line_3, []]))
       end
     end
   end
