@@ -12,7 +12,7 @@ gem 'airbrake',         '~> 3.1.7', :require => false
 gem 'draper',           '~> 1.2.1'
 gem 'fog',              '~> 1.9.0'
 gem 'simple_form',      '~> 2.0.4'
-gem 'sidekiq',          '~> 2.12.4'
+gem 'sidekiq',          '~> 2.13'
 gem 'thin',             '~> 1.5.0'
 gem 'open4',            '~> 1.3.0'
 gem 'redcarpet',        '~> 2.2.2'
