@@ -6,7 +6,7 @@ describe SnapshotCreator do
 
   describe '#create' do
     let(:stdout) { double('stdout', :bytes_until => []) }
-    let(:terminal) { double('terminal', :feed => snapshot) }
+    let(:terminal) { double('terminal', :feed => snapshot, :release => nil) }
     let(:snapshot) { double('snapshot') }
 
     subject { snapshot_creator.create(80, 24, stdout, 31.4) }

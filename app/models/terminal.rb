@@ -33,6 +33,11 @@ class Terminal
     lines
   end
 
+  def release
+    screen.release
+    vte.release
+  end
+
   private
 
   attr_reader :screen, :vte

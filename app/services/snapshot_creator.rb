@@ -4,8 +4,10 @@ class SnapshotCreator
     terminal = Terminal.new(width, height)
     seconds = (duration / 2).to_i
     bytes = stdout.bytes_until(seconds)
+    snapshot = terminal.feed(bytes)
+    terminal.release
 
-    terminal.feed(bytes)
+    snapshot
   end
 
 end
