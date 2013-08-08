@@ -11,7 +11,7 @@ AsciiIo::Application.routes.draw do
 
   get "/~:nickname" => "users#show", :as => :profile
 
-  get "/docs" => "docs#show", :page => 'record'
+  get "/docs" => "docs#show", :page => 'record', :as => :docs_index
   get "/docs/:page" => "docs#show", :as => :docs
 
   get "/auth/:provider/callback" => "sessions#create"
@@ -32,9 +32,9 @@ AsciiIo::Application.routes.draw do
     end
   end
 
-  root :to => 'home#show'
+  root 'home#show'
 
   mount JasmineRails::Engine => "/specs" unless Rails.env.production?
 
-  match '*a', :to => 'application#not_found'
+  match '*a', :via => [:get, :post], :to => 'application#not_found'
 end
