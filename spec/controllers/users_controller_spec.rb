@@ -21,7 +21,7 @@ describe UsersController do
           :avatar_url => avatar_url
         }
 
-        user.stub!(:save => true)
+        user.stub(:save => true)
       end
 
       it "assigns provider and uid" do
@@ -52,7 +52,7 @@ describe UsersController do
 
     context "when not valid data" do
       before do
-        user.stub!(:save => false)
+        user.stub(:save => false)
       end
 
       it "renders user/new" do

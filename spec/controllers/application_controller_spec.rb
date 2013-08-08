@@ -114,7 +114,7 @@ describe FakesController do
       it 'redirects to stored location' do
         stored_path = double
         path = double
-        @controller.stub!(:get_stored_location => stored_path)
+        @controller.stub(:get_stored_location => stored_path)
         @controller.should_receive(:redirect_to).with(stored_path)
         @controller.send(:redirect_back_or_to, path)
       end

@@ -36,7 +36,7 @@ describe SessionsController do
 
     context "user doesn't exist" do
       let(:auth) { request.env["omniauth.auth"] }
-      let(:user) { stub("user", :id => 1, :persisted? => true) }
+      let(:user) { double("user", :id => 1, :persisted? => true) }
 
       context "when nickname is not taken" do
         it "should call create_with_omniauth" do

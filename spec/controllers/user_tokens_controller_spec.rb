@@ -18,7 +18,7 @@ describe UserTokensController do
 
       before do
         login_as user
-        user.stub!(:add_user_token => user_token)
+        user.stub(:add_user_token => user_token)
         @controller.should_receive(:ensure_authenticated!)
       end
 
@@ -26,7 +26,7 @@ describe UserTokensController do
         let(:claimed) { 5 }
 
         before do
-          user_token.stub!(:valid? => true)
+          user_token.stub(:valid? => true)
 
           Asciicast.should_receive(:assign_user).
                     with(user_token.token, user).
@@ -52,7 +52,7 @@ describe UserTokensController do
 
       context 'when given token is invalid' do
         before do
-          user_token.stub!(:valid? => false)
+          user_token.stub(:valid? => false)
         end
 
         it "doesn't call Asciicast.assign_user" do

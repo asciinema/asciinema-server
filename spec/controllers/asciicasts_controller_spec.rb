@@ -64,7 +64,7 @@ describe AsciicastsController do
     end
 
     context 'for html request' do
-      let(:view_counter) { mock('view_counter') }
+      let(:view_counter) { double('view_counter') }
 
       before do
         AsciicastDecorator.should_receive(:new).with(asciicast).
