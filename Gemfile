@@ -1,6 +1,6 @@
 source 'http://rubygems.org'
 
-gem 'rails',            '3.2.13'
+gem 'rails',            '3.2.14'
 gem 'jquery-rails',     '~> 2.2.0'
 gem 'pg',               '~> 0.14.1'
 gem 'carrierwave',      '~> 0.8.0'
@@ -16,7 +16,7 @@ gem 'sidekiq',          '~> 2.13'
 gem 'thin',             '~> 1.5.0'
 gem 'open4',            '~> 1.3.0'
 gem 'redcarpet',        '~> 2.2.2'
-gem 'slim'
+gem 'slim',             '~> 2.0.0'
 gem 'tsm', :git => 'git://github.com/sickill/tsm.git'
 gem 'dotenv-rails',     '~> 0.8'
 
