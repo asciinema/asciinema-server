@@ -12,12 +12,12 @@ class Asciicast < ActiveRecord::Base
   validates :terminal_columns, :terminal_lines, :duration, :presence => true
 
   belongs_to :user
-  has_many :comments, :order => :created_at, :dependent => :destroy
+  has_many :comments, -> { order(:created_at) }, :dependent => :destroy
   has_many :likes, :dependent => :destroy
 
-  scope :featured, where(:featured => true)
-  scope :popular, where("views_count > 0").order("views_count DESC")
-  scope :newest, order("created_at DESC")
+  scope :featured, -> { where(:featured => true) }
+  scope :popular, -> { where("views_count > 0").order("views_count DESC") }
+  scope :newest, -> { order("created_at DESC") }
 
   scope(:newest_paginated, lambda do |page, per_page|
     newest.includes(:user).page(page).per(per_page)

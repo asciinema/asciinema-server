@@ -30,7 +30,7 @@ module AsciicastsHelper
 
   def link_to_delete_asciicast(name, asciicast)
     link_to name, asciicast_path(asciicast),
-      :method => :delete, :confirm => 'Really delete this asciicast?'
+      :method => :delete, :data => { :confirm => 'Really delete this asciicast?' }
   end
 
 end
