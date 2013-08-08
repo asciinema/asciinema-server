@@ -28,7 +28,7 @@ describe Api::AsciicastsController do
     end
 
     context 'when the creator raises ActiveRecord::RecordInvalid' do
-      let(:asciicast) { double('asciicast', :errors => errors) }
+      let(:asciicast) { stub_model(Asciicast, :errors => errors) }
       let(:errors) { double('errors', :full_messages => full_messages) }
       let(:full_messages) { ['This is invalid'] }
 
