@@ -3,31 +3,24 @@
 require 'spec_helper'
 
 describe Stdout do
-  let(:stdout) { Stdout.new(data, timing) }
-  let(:data) { 'foobarbazquxżółć' }
-  let(:timing) { [[0.5, 6], [1.0, 7], [2.0, 7]] }
-
-  describe '#bytes_until' do
-    subject { stdout.bytes_until(1.7) }
-
-    it { should eq([102, 111, 111, 98, 97, 114, 98, 97, 122, 113, 117, 120, 197]) }
-  end
+  let(:stdout) { Stdout.new(data_file, timing_file) }
+  let(:data_file) { double('data_file', :decompressed_path => 'spec/fixtures/stdout.decompressed') }
+  let(:timing_file) { double('timing_file', :decompressed_path => 'spec/fixtures/stdout.time.decompressed') }
 
   describe '#each' do
-    it 'yields for each frame with delay and frame bytes' do
-      frames = []
-      stdout.each do |delay, bytes|
-        frames << [delay, bytes]
-      end
-
-      expect(frames[0][0]).to eq(0.5)
-      expect(frames[0][1]).to eq([102, 111, 111, 98, 97, 114])
-
-      expect(frames[1][0]).to eq(1.0)
-      expect(frames[1][1]).to eq([98, 97, 122, 113, 117, 120, 197])
-
-      expect(frames[2][0]).to eq(2.0)
-      expect(frames[2][1]).to eq([188, 195, 179, 197, 130, 196, 135])
+    it 'yields for each frame with delay and data' do
+      expect { |b| stdout.each(&b) }.
+        to yield_successive_args([0.5, 'foobar'],
+                                 [1.0, "bazqux\xC5"],
+                                 [2.0, "\xBCółć"])
     end
   end
+
+  describe '#each_until' do
+    it 'yields for each frame with delay and data until given time (in seconds)' do
+      expect { |b| stdout.each_until(1.7, &b) }.
+        to yield_successive_args([0.5, 'foobar'], [1.0, "bazqux\xC5"])
+    end
+  end
+
 end

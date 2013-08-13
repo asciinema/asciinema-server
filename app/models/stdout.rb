@@ -1,40 +1,30 @@
 class Stdout
   include Enumerable
 
-  attr_reader :data, :timing
+  attr_reader :data_file, :timing_file
 
-  def initialize(data, timing)
-    @data = data
-    @timing = timing
+  def initialize(data_file, timing_file)
+    @data_file = data_file
+    @timing_file = timing_file
   end
 
   def each
-    offset = 0
-
-    timing.each do |line|
-      delay, size = line
-      yield(delay, bytes[offset...offset+size])
-      offset += size
+    File.open(data_file.decompressed_path, 'rb') do |file|
+      File.foreach(timing_file.decompressed_path) do |line|
+        delay, size = TimingParser.parse_line(line)
+        yield(delay, file.read(size).force_encoding('utf-8'))
+      end
     end
   end
 
-  def bytes_until(seconds)
-    bytes = []
+  def each_until(seconds)
     time = 0
 
-    each do |delay, frame_bytes|
+    each do |delay, frame_data|
       time += delay
       break if time > seconds
-      bytes.concat(frame_bytes)
+      yield(delay, frame_data)
     end
-
-    bytes
-  end
-
-  private
-
-  def bytes
-    @bytes ||= data.bytes
   end
 
 end

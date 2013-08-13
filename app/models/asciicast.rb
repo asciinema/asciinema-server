@@ -56,17 +56,7 @@ class Asciicast < ActiveRecord::Base
   end
 
   def stdout
-    @stdout ||= Stdout.new(read_stdout_data, read_stdout_timing)
-  end
-
-  private
-
-  def read_stdout_data
-    stdout_data.decompressed
-  end
-
-  def read_stdout_timing
-    TimingParser.parse(stdout_timing.decompressed)
+    @stdout ||= Stdout.new(stdout_data, stdout_timing)
   end
 
 end
