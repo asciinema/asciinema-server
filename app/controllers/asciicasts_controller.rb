@@ -30,16 +30,15 @@ class AsciicastsController < ApplicationController
   def show
     respond_to do |format|
       format.html do
+        ViewCounter.new(@asciicast, cookies).increment
         @asciicast = AsciicastDecorator.new(@asciicast)
         @title = @asciicast.title
-        ViewCounter.new(@asciicast, cookies).increment
         respond_with @asciicast
       end
 
       format.json do
-        if stale? @asciicast
-          respond_with AsciicastJSONDecorator.new(@asciicast)
-        end
+        response.headers['Cache-Control'] = 'no-cache' # prevent Rack from buffering
+        self.response_body = AsciicastStreamer.new(@asciicast)
       end
 
       format.js do

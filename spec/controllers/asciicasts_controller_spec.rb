@@ -57,54 +57,69 @@ describe AsciicastsController do
   end
 
   describe '#show' do
+    let(:view_counter) { double('view_counter', :increment => nil) }
+
     before do
       Asciicast.should_receive(:find).and_return(asciicast)
 
       asciicast.title = 'some tit'
+
+      allow(ViewCounter).to receive(:new).with(asciicast, cookies).
+        and_return(view_counter)
     end
 
     context 'for html request' do
-      let(:view_counter) { double('view_counter') }
+      let(:decorated_asciicast) { double('decorated_asciicast', :title => 'The Title') }
 
       before do
-        AsciicastDecorator.should_receive(:new).with(asciicast).
-          and_return(asciicast)
-        ViewCounter.should_receive(:new).with(asciicast, cookies).
-          and_return(view_counter)
-        view_counter.should_receive(:increment)
+        allow(AsciicastDecorator).to receive(:new).with(asciicast).
+          and_return(decorated_asciicast)
 
         get :show, :id => asciicast.id, :format => :html
       end
 
       it { should be_success }
-      specify { assigns(:asciicast).should == asciicast }
-      specify { assigns(:title).should == asciicast.title }
+
+      it 'should be counted as a visit' do
+        expect(view_counter).to have_received(:increment)
+      end
+
+      specify { assigns(:asciicast).should == decorated_asciicast }
+      specify { assigns(:title).should == 'The Title' }
     end
 
     context 'for json request' do
-      let(:asciicast) { FactoryGirl.build(:asciicast, :id => 666) }
+      let(:streamer) { double('streamer') }
 
       before do
-        AsciicastJSONDecorator.should_receive(:new).with(asciicast).
-          and_return(asciicast)
-        ViewCounter.should_not_receive(:new)
+        allow(AsciicastStreamer).to receive(:new).with(asciicast).
+          and_return(streamer)
+        allow(controller).to receive(:response_body=).and_call_original
 
         get :show, :id => asciicast.id, :format => :json
       end
 
       it { should be_success }
+
+      it 'should not be counted as a visit' do
+        expect(ViewCounter).to_not have_received(:new)
+      end
+
+      it 'should assign the streamer to the response_body' do
+        expect(controller).to have_received(:response_body=).with(streamer)
+      end
     end
 
     context 'for js request' do
-      let(:asciicast) { FactoryGirl.build(:asciicast, :id => 666) }
-
       before do
-        ViewCounter.should_not_receive(:new)
-
         get :show, :id => asciicast.id, :format => :js
       end
 
       it { should be_success }
+
+      it 'should not be counted as a visit' do
+        expect(ViewCounter).to_not have_received(:new)
+      end
     end
   end
 
