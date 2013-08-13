@@ -1,17 +1,15 @@
 class Bzip2Uploader < BaseUploader
 
-  def decompressed
+  def decompressed_path
     return unless file
+    out_path = "#{path}.decompressed"
 
-    unless @decompressed
+    unless File.exist?(out_path)
       cache_stored_file! unless cached?
-
-      file = IO.popen("bzip2 -d -c #{path}", "r")
-      @decompressed = file.read
-      file.close
+      system("bzip2 -d -k -c #{path} >#{out_path}")
     end
 
-    @decompressed
+    out_path
   end
 
 end

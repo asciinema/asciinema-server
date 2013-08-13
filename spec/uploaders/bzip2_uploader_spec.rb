@@ -4,20 +4,24 @@ describe Bzip2Uploader do
   let(:uploader) { Bzip2Uploader.new(user, :photo) }
   let(:user) { User.new }
 
-  describe '#decompressed' do
+  describe '#decompressed_path' do
+    subject { uploader.decompressed_path }
+
     context "when file wasn't stored" do
       it 'returns nil' do
-        expect(uploader.decompressed).to be(nil)
+        expect(subject).to be(nil)
       end
     end
 
     context "when file was stored" do
+      let(:decompressed_data) { File.read(subject) }
+
       before do
         uploader.store!(File.open('spec/fixtures/munch.bz2'))
       end
 
-      it 'returns decompressed data as a string' do
-        expect(uploader.decompressed).to eq(<<EOS)
+      it 'returns a path to the decompressed data' do
+        expect(decompressed_data).to eq(<<EOS)
 Edvard Munch - The Scream
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXP
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXY?"""  .
