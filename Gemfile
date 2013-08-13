@@ -47,7 +47,6 @@ group :test do
   gem 'database_cleaner',              '~> 1.0.1'
   gem 'guard',                         '~> 1.8.0'
   gem 'guard-rspec',                   '~> 3.0.0'
-  gem 'guard-jasmine-headless-webkit', '~> 0.3.2'
   gem 'rb-inotify',                    '~> 0.9.0'
   gem 'simplecov',                     '~> 0.7.1', :require => false
   gem 'shoulda-matchers',              '~> 1.4.1'

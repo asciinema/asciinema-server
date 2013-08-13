@@ -20,14 +20,3 @@ guard 'rspec', :cli => '--fail-fast --tag ~js --tag ~slow', :zeus => true do
   watch(%r{^spec/acceptance/(.+)\.feature$})
   watch(%r{^spec/acceptance/steps/(.+)_steps\.rb$})   { |m| Dir[File.join("**/#{m[1]}.feature")][0] || 'spec/acceptance' }
 end
-
-group 'javascript' do
-  js_spec_location = "spec/javascripts/%s_spec"
-
-  guard 'jasmine-headless-webkit' do
-    watch(%r{^app/views/.*\.jst$})
-    watch(%r{^public/javascripts/(.*)\.js$}) { |m| newest_js_file(js_spec_location % m[1]) }
-    watch(%r{^app/assets/javascripts/(.*)\.(js|coffee)$}) { |m| newest_js_file(js_spec_location % m[1]) }
-    watch(%r{^spec/javascripts/(.*)_spec\..*}) { |m| newest_js_file(js_spec_location % m[1]) }
-  end
-end
