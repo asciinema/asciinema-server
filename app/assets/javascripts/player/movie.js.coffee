@@ -8,7 +8,6 @@ class AsciiIo.Movie
 
   reset: ->
     @frameNo = 0
-    @dataIndex = 0
     @completedFramesTime = 0
     @playing = false
     @lastFrameAt = undefined
@@ -22,11 +21,8 @@ class AsciiIo.Movie
   now: ->
     (new Date()).getTime()
 
-  timing: ->
-    @options.timing
-
-  data: ->
-    @options.stdout_data
+  stdout: ->
+    @options.stdout
 
   play: ->
     return if @isPlaying()
@@ -74,8 +70,8 @@ class AsciiIo.Movie
 
     @playing = true
     @resumedAt = @now()
-    frame = @timing()[@frameNo]
-    [delay, count] = frame
+    frame = @stdout()[@frameNo]
+    [delay, data] = frame
     delayMs = delay * 1000
     delayLeft = delayMs - @totalFrameWaitTime
     @processFrameWithDelay(delayLeft)
@@ -91,7 +87,7 @@ class AsciiIo.Movie
     !@isPlaying() and !@isFinished() and @frameNo > 0
 
   isFinished: ->
-    !@isPlaying() and @frameNo >= @timing().length
+    !@isPlaying() and @frameNo >= (@stdout().length - 1)
 
   seek: (percent) ->
     @stop()
@@ -105,26 +101,23 @@ class AsciiIo.Movie
     frameNo = 0
     time = 0
     totalCount = 0
-    delay = undefined
-    count = undefined
+    delay = data = undefined
+
+    @trigger 'reset'
 
     while time < requestedTime
-      [delay, count] = @timing()[frameNo]
+      [delay, data] = @stdout()[frameNo]
 
       if time + delay >= requestedTime
         break
 
+      frameData = String.fromCharCode.apply(String, data)
+      @trigger 'data', [frameData]
       time += delay
-      totalCount += count
       frameNo += 1
 
     @frameNo = frameNo
     @completedFramesTime = time * 1000
-    @dataIndex = totalCount
-
-    data = @data().slice(0, totalCount)
-    @trigger 'reset'
-    @trigger 'data', [data]
 
     @lastFrameAt = @now()
     wait = requestedTime - time
@@ -177,23 +170,25 @@ class AsciiIo.Movie
     @totalFrameWaitTime = 0
 
   nextFrame: ->
-    if frame = @timing()[@frameNo]
-      [delay, count] = frame
+    frame = @stdout()[@frameNo]
 
-      if delay <= @MIN_DELAY and @framesProcessed < 100
-        @framesProcessed += 1
-        @processFrame()
-      else
-        @framesProcessed = 0
-        realDelay = delay * 1000 * (1.0 / @options.speed)
-        @processFrameWithDelay(realDelay)
-
-      true
-    else
+    if not frame or frame.length is 0
       @playing = false
       @trigger 'finished'
 
-      false
+      return false
+
+    [delay, data] = frame
+
+    if delay <= @MIN_DELAY and @framesProcessed < 100
+      @framesProcessed += 1
+      @processFrame()
+    else
+      @framesProcessed = 0
+      realDelay = delay * 1000 * (1.0 / @options.speed)
+      @processFrameWithDelay(realDelay)
+
+    true
 
   processFrameWithDelay: (delay) ->
     @nextFrameTimeoutId = setTimeout(
@@ -204,14 +199,13 @@ class AsciiIo.Movie
     )
 
   processFrame: ->
-    frame = @timing()[@frameNo]
-    [delay, count] = frame
+    frame = @stdout()[@frameNo]
+    [delay, data] = frame
 
-    frameData = @data().slice(@dataIndex, @dataIndex + count)
+    frameData = String.fromCharCode.apply(String, data)
     @trigger 'data', [frameData]
 
     @frameNo += 1
-    @dataIndex += count
     @completedFramesTime += delay * 1000
     @lastFrameAt = @now()
 
