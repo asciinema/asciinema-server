@@ -7,7 +7,9 @@ class Terminal
 
   def feed(data)
     vte.input(data)
+  end
 
+  def snapshot
     lines = []
     last_y = nil
     line = nil

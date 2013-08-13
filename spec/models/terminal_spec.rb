@@ -21,6 +21,10 @@ describe Terminal do
 
       expect(tsm_vte).to have_received(:input).with('foo')
     end
+  end
+
+  describe '#snapshot' do
+    subject { terminal.snapshot }
 
     it "groups the characters by line and attributes" do
       expect(tsm_screen).to receive(:draw).
