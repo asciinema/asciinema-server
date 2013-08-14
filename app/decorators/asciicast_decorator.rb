@@ -91,16 +91,4 @@ class AsciicastDecorator < ApplicationDecorator
     %(<script type="text/javascript" src="#{src}" id="#{id}" async></script>)
   end
 
-  private
-
-  def prepare_lines(lines, width, height)
-    (height - lines.size).times { lines << '' }
-
-    lines.map do |line|
-      line = line[0...width]
-      line << ' ' * (width - line.size)
-      line
-    end
-  end
-
 end
