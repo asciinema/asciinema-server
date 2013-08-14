@@ -135,20 +135,34 @@ describe AsciicastDecorator do
 
   describe '#thumbnail' do
     let(:json) { [:qux] }
-    let(:snapshot) { double('snapshot', :crop => thumbnail) }
-    let(:thumbnail) { double('thumbnail') }
+    let(:snapshot) { double('snapshot') }
     let(:snapshot_presenter) { double('snapshot_presenter', :to_html => '<pre></pre>') }
 
     before do
       allow(asciicast).to receive(:snapshot) { json }
       allow(Snapshot).to receive(:build).with(json) { snapshot }
-      allow(SnapshotPresenter).to receive(:new).with(thumbnail) { snapshot_presenter }
+      allow(snapshot).to receive(:rstrip) { snapshot }
+      allow(snapshot).to receive(:crop) { snapshot }
+      allow(snapshot).to receive(:expand) { snapshot }
+      allow(SnapshotPresenter).to receive(:new).with(snapshot) { snapshot_presenter }
+    end
+
+    it 'removes empty trailing lines from the snapshot' do
+      decorated.thumbnail(21, 13)
+
+      expect(snapshot).to have_received(:rstrip)
     end
 
     it 'crops the snapshot' do
       decorated.thumbnail(21, 13)
 
       expect(snapshot).to have_received(:crop).with(21, 13)
+    end
+
+    it 'adds the missing lines to the end of the snapshot' do
+      decorated.thumbnail(21, 13)
+
+      expect(snapshot).to have_received(:expand).with(13)
     end
 
     it 'returns html snapshot rendered by SnapshotPresenter#to_html' do

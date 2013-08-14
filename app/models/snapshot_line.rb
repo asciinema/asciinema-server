@@ -37,6 +37,10 @@ class SnapshotLine
     self.class.new(new_fragments)
   end
 
+  def empty?
+    fragments.all?(&:empty?)
+  end
+
   protected
 
   attr_reader :fragments

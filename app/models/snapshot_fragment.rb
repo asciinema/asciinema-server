@@ -21,4 +21,8 @@ class SnapshotFragment # TODO: rename to Cell or SnapshotCell
     end
   end
 
+  def empty?
+    text.blank? && brush.default?
+  end
+
 end
