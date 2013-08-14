@@ -12,7 +12,7 @@ class AsciicastsController < ApplicationController
       Asciicast.newest_paginated(params[:page], PER_PAGE)
     )
 
-    @category_name = "All Asciicasts"
+    @category_name = "All asciicasts"
     @current_category = :all
   end
 
@@ -21,7 +21,7 @@ class AsciicastsController < ApplicationController
       Asciicast.popular_paginated(params[:page], PER_PAGE)
     )
 
-    @category_name = "Popular Asciicasts"
+    @category_name = "Popular asciicasts"
     @current_category = :popular
 
     render :index
