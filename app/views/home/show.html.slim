@@ -1,0 +1,29 @@
+section#about.feature
+  .wrapper
+    .primary_info
+      h1
+        em Record Your Terminal
+        |  Share it with no fuss
+      p
+        ' ASCII.IO is the simplest way to record your terminal and share the
+          recordings with your fellow geeks. Simply record and upload your
+          terminal session with
+          #{link_to 'a single command', docs_path(:record)}, and ASCII.IO will
+          play it back in your browser.
+      p
+        = link_to '&raquo; Start Recording'.html_safe, docs_path(:record)
+
+    .secondary_info
+      = player @asciicast, :speed => 2.0, :hud => false if @asciicast
+
+section.supplimental
+  .wrapper
+    .main
+      h1 Recent asciicasts
+      .presentations
+        = render :partial => 'asciicasts/previews', :locals => { :asciicasts => @asciicasts }
+      p
+        = link_to 'See more &raquo;'.html_safe, browse_path
+
+    .extras
+      = render :partial => 'shared/browse_categories'
