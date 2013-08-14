@@ -1,6 +1,7 @@
 require 'spec_helper'
 
 describe AsciicastDecorator do
+
   let(:asciicast) { Asciicast.new }
   let(:decorated) { AsciicastDecorator.new(asciicast) }
 
@@ -283,4 +284,25 @@ describe AsciicastDecorator do
       expect(decorated.embed_script).to match(/^<script[^>]+src="[^"]+\b123\b[^"]*\.js"[^>]+id="asciicast-123"[^>]*><\/script>/)
     end
   end
+
+  describe '#duration' do
+    subject { decorated.duration }
+
+    context "when it's below 1 minute" do
+      before do
+        asciicast.duration = 7.49
+      end
+
+      it { should eq("00:07") }
+    end
+
+    context "when it's over 1 minute" do
+      before do
+        asciicast.duration = 77.49
+      end
+
+      it { should eq("01:17") }
+    end
+  end
+
 end

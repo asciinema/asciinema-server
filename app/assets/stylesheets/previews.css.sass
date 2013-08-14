@@ -1,9 +1,13 @@
+@import terminal-font
+
 a.preview-link
   display: block
+  position: relative
 
   .play-button
     display: none
     position: absolute
+    z-index: 1
     left: 50%
     top: 50%
     width: 0
@@ -12,8 +16,25 @@ a.preview-link
       color: white
       font-size: 80px
       margin-left: -37px
-      margin-top: -79px
+      margin-top: -60px
       text-shadow: 2px 2px 5px black
+
+  .thumbnail
+    position: relative
+
+    .duration
+      +terminal-font
+
+      position: absolute
+      color: white
+      background-color: black
+      right: 3px
+      bottom: 3px
+      border:
+        top: 6px solid black
+        left: 6px solid black
+        right: 3px solid black
+        bottom: 3px solid black
 
   &:hover
     text-decoration: none

@@ -4,7 +4,9 @@
       .play-button
         .arrow
           | ►
-      .thumbnail = asciicast.thumbnail(30, 10)
+      .thumbnail
+        = asciicast.thumbnail(30, 10)
+        .duration = asciicast.duration
 
     .info
       h3 = link_to asciicast.title, asciicast
