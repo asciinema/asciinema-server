@@ -1,0 +1,9 @@
+section.supplimental
+  .wrapper
+    .main
+      h1 = @category_name
+      = render :partial => 'asciicasts/previews', :locals => { :asciicasts => @asciicasts }
+      = paginate @asciicasts
+
+    .extras
+      = render :partial => 'shared/browse_categories'
