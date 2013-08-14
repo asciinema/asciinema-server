@@ -1,0 +1,6 @@
+.author
+  = @asciicast.author_img_link
+  h2 = @asciicast.author_link
+
+  - if @asciicast.user
+    p = pluralize @asciicast.user.asciicasts_count, 'asciicast'
