@@ -1,0 +1,4 @@
+- if @asciicast.user == current_user
+  ul.delimited
+    li = link_to 'Edit title & description', edit_asciicast_path(@asciicast), :rel => 'nofollow'
+    li = link_to_delete_asciicast 'Delete', @asciicast
