@@ -179,7 +179,7 @@ describe AsciicastDecorator do
         asciicast.username = 'foo'
       end
 
-      it { should == '~foo' }
+      it { should == 'foo' }
     end
 
     context 'when no user nor username present' do

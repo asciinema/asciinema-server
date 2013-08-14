@@ -79,7 +79,7 @@ class AsciicastDecorator < ApplicationDecorator
     if user
       user.nickname
     elsif model.username
-      "~#{model.username}"
+      model.username
     else
       'anonymous'
     end

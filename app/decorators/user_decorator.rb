@@ -1,9 +1,5 @@
 class UserDecorator < ApplicationDecorator
 
-  def nickname
-    "~#{model.nickname}"
-  end
-
   def asciicasts_count
     model.asciicasts.count
   end

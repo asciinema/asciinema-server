@@ -15,7 +15,7 @@ feature "User session" do
 
     expect(page).to have_content('Logged in!')
     within('header') do
-      expect(page).to have_link('~foobar')
+      expect(page).to have_link('foobar')
     end
   end
 
@@ -29,7 +29,7 @@ feature "User session" do
 
     expect(page).to have_content('Logged in!')
     within('header') do
-      expect(page).to have_link('~hasiok')
+      expect(page).to have_link('hasiok')
     end
   end
 
