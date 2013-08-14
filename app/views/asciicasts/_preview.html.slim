@@ -1,0 +1,12 @@
+- cache ['thumbnail', asciicast] do
+  .presentation
+    = link_to asciicast, :class => 'preview-link' do
+      .play-button
+        .arrow
+          | ►
+      .thumbnail = asciicast.thumbnail(30, 10)
+
+    .info
+      h3 = link_to asciicast.title, asciicast
+      p.date
+        | #{time_ago_tag asciicast.created_at} by #{asciicast.author_link}
