@@ -6,9 +6,12 @@
           | ►
       .thumbnail
         = asciicast.thumbnail(30, 10)
-        .duration = asciicast.duration
 
     .info
       h3 = link_to asciicast.title, asciicast
       p.date
-        | #{time_ago_tag asciicast.created_at} by #{asciicast.author_link}
+        span> = asciicast.duration
+        ' |
+        span> = asciicast.author_link
+        ' |
+        span = time_ago_tag asciicast.created_at
