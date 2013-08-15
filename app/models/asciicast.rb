@@ -56,7 +56,8 @@ class Asciicast < ActiveRecord::Base
   end
 
   def stdout
-    @stdout ||= Stdout.new(stdout_data, stdout_timing)
+    @stdout ||= Stdout.new(stdout_data.decompressed_path,
+                           stdout_timing.decompressed_path)
   end
 
 end

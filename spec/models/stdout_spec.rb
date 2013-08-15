@@ -3,9 +3,8 @@
 require 'spec_helper'
 
 describe Stdout do
-  let(:stdout) { Stdout.new(data_file, timing_file) }
-  let(:data_file) { double('data_file', :decompressed_path => 'spec/fixtures/stdout.decompressed') }
-  let(:timing_file) { double('timing_file', :decompressed_path => 'spec/fixtures/stdout.time.decompressed') }
+  let(:stdout) { Stdout.new('spec/fixtures/stdout.decompressed',
+                            'spec/fixtures/stdout.time.decompressed') }
 
   describe '#each' do
     it 'yields for each frame with delay and data' do

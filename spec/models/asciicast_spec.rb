@@ -85,8 +85,8 @@ describe Asciicast do
 
   describe '#stdout' do
     let(:asciicast) { stub_model(Asciicast) }
-    let(:data_file) { double('data_file') }
-    let(:timing_file) { double('timing_file') }
+    let(:data_file) { double('data_file', :decompressed_path => '/foo') }
+    let(:timing_file) { double('timing_file', :decompressed_path => '/bar') }
     let(:stdout) { double('stdout') }
 
     before do
@@ -98,7 +98,7 @@ describe Asciicast do
     it 'creates a new Stdout instance' do
       asciicast.stdout
 
-      expect(Stdout).to have_received(:new).with(data_file, timing_file)
+      expect(Stdout).to have_received(:new).with('/foo', '/bar')
     end
 
     it 'returns created Stdout instance' do
