@@ -9,7 +9,8 @@ class Brush
       bg == other.bg &&
       bold? == other.bold? &&
       underline? == other.underline? &&
-      inverse? == other.inverse?
+      inverse? == other.inverse? &&
+      blink? == other.blink?
   end
 
   def fg
@@ -25,7 +26,15 @@ class Brush
   end
 
   def bg
-    attributes[:bg]
+    code = attributes[:bg]
+
+    if code
+      if code < 8 && blink?
+        code += 8
+      end
+    end
+
+    code
   end
 
   def bold?
@@ -40,8 +49,12 @@ class Brush
     !!attributes[:inverse]
   end
 
+  def blink?
+    !!attributes[:blink]
+  end
+
   def default?
-    fg.nil? && bg.nil? && !bold? && !underline? && !inverse?
+    fg.nil? && bg.nil? && !bold? && !underline? && !inverse? && !blink?
   end
 
   protected

@@ -10,6 +10,7 @@ describe Brush do
       :bold      => true,
       :underline => false,
       :inverse   => true,
+      :blink     => false,
       :foo       => true,
     } }
 
@@ -22,6 +23,7 @@ describe Brush do
         :bold      => true,
         :underline => false,
         :inverse   => true,
+        :blink     => false,
         :foo       => false # should be ignored
       ) }
 
@@ -35,6 +37,7 @@ describe Brush do
         :bold      => false,
         :underline => false,
         :inverse   => true,
+        :blink     => false,
         :foo       => true # should be ignored
       ) }
 
@@ -99,6 +102,34 @@ describe Brush do
       let(:attributes) { {} }
 
       it { should be(nil) }
+    end
+
+    context "when blink is set" do
+      let(:attributes) { { :blink => true } }
+
+      context "and input bg is < 8" do
+        before do
+          attributes[:bg] = 7
+        end
+
+        it { should eq(15) }
+      end
+
+      context "and input bg is == 8" do
+        before do
+          attributes[:bg] = 8
+        end
+
+        it { should eq(8) }
+      end
+
+      context "and input bg is > 8" do
+        before do
+          attributes[:bg] = 9
+        end
+
+        it { should eq(9) }
+      end
     end
   end
 
@@ -168,6 +199,28 @@ describe Brush do
     end
   end
 
+  describe '#blink?' do
+    subject { brush.blink? }
+
+    context "when blink was set to true" do
+      let(:attributes) { { :blink => true } }
+
+      it { should be(true) }
+    end
+
+    context "when blink was set to false" do
+      let(:attributes) { { :blink => false } }
+
+      it { should be(false) }
+    end
+
+    context "when blink was not set" do
+      let(:attributes) { {} }
+
+      it { should be(false) }
+    end
+  end
+
   describe '#default?' do
     subject { brush.default? }
 
@@ -203,6 +256,12 @@ describe Brush do
 
     context "when inverse is set" do
       let(:attributes) { { :inverse => true } }
+
+      it { should be(false) }
+    end
+
+    context "when blink is set" do
+      let(:attributes) { { :blink => true } }
 
       it { should be(false) }
     end
