@@ -4,16 +4,14 @@ class SessionsController < ApplicationController
   def new; end
 
   def create
-    @user =
-      User.find_by_provider_and_uid(@auth["provider"], @auth["uid"].to_s) ||
-      User.create_with_omniauth(@auth)
+    @user = request.env['asciiio.user']
 
-    unless @user.persisted?
-      store_sensitive_user_data_in_session
-      render 'users/new', :status => 422
-    else
+    if @user.persisted? || @user.save
       self.current_user = @user
       redirect_back_or_to root_url, :notice => "Logged in!"
+    else
+      store_sensitive_user_data_in_session
+      render 'users/new', :status => 422
     end
   end
 

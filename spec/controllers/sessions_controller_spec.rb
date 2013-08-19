@@ -3,86 +3,71 @@ require 'spec_helper'
 describe SessionsController do
 
   describe "#create" do
-    let(:provider) { "twitter" }
-    let(:uid)      { 1234 }
-    let(:nickname) { "mrFoo" }
+    subject { get :create, :provider => 'twitter' }
+
+    shared_examples_for 'successful path' do
+      it "creates the session" do
+        subject
+
+        expect(controller).to have_received(:current_user=).with(user)
+      end
+
+      it "sets the flash message" do
+        subject
+
+        expect(flash[:notice]).to eq('Logged in!')
+      end
+
+      it "redirects to the root url" do
+        expect(subject).to redirect_to(root_url)
+      end
+    end
 
     before do
-      OmniAuth.config.mock_auth[:twitter] = {
-        "provider" => provider,
-        "uid" => uid,
-        "info" => { "nickname" => nickname }
-      }
-
-      request.env["omniauth.auth"] = OmniAuth.config.mock_auth[:twitter]
+      request.env['asciiio.user'] = user
+      allow(controller).to receive(:current_user=)
     end
 
-    context "user exists" do
-      before do
-        FactoryGirl.create(:user, :provider => provider, :uid => uid)
-        get :create, :provider => provider
-      end
+    context "when user was persisted" do
+      let(:user) { mock_model(User) }
 
-      it "should create session" do
-        session[:user_id].should_not be_nil
-        @controller.current_user.should_not be_nil
-      end
-
-      it "should redirects user to root url" do
-        flash[:notice].should == "Logged in!"
-        should redirect_to(root_url)
-      end
+      it_behaves_like 'successful path'
     end
 
-    context "user doesn't exist" do
-      let(:auth) { request.env["omniauth.auth"] }
-      let(:user) { double("user", :id => 1, :persisted? => true) }
+    context "when user doesn't exist" do
+      let(:user_attributes) { {
+        :uid        => '1234',
+        :provider   => 'github',
+        :avatar_url => 'http://foo'
+      } }
 
-      context "when nickname is not taken" do
-        it "should call create_with_omniauth" do
-          User.should_receive(:create_with_omniauth).
-            with(auth).
-            and_return(user)
+      let(:user) { mock_model(User, user_attributes).as_new_record }
 
-          get :create, :provider => provider
-        end
-
-        it "should login user" do
-          User.stub(:create_with_omniauth).and_return(user)
-
-          get :create, :provider => provider
-
-          session[:user_id].should_not be_nil
-        end
-      end
-
-      context "when nicknamne is taken" do
-        let(:not_saved_user) {
-          stub_model(User,
-            :persisted? => false,
-            :valid?     => false,
-            :uid        => uid,
-            :provider   => provider
-          )
-        }
-
+      context "and creation succeeds" do
         before do
-          User.stub(:create_with_omniauth).and_return(not_saved_user)
+          allow(user).to receive(:save) { true }
         end
 
-        it "puts uid and provider in session " do
-          get :create, :provider => provider
-
-          session[:new_user][:uid].should == uid
-          session[:new_user][:provider].should == provider
-        end
-
-        it "renders user/new" do
-          get :create, :provider => provider
-          should render_template('users/new')
-        end
+        it_behaves_like 'successful path'
       end
 
+      context "and creation fails" do
+        before do
+          allow(user).to receive(:save) { false }
+        end
+
+        it "stores uid and provider in session " do
+          subject
+
+          expect(session[:new_user]).to eq({
+            :uid => '1234', :provider => 'github', :avatar_url => 'http://foo'
+          })
+        end
+
+        it "renders users/new" do
+          expect(subject).to render_template('users/new')
+        end
+      end
     end
   end
 

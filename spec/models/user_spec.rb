@@ -20,63 +20,6 @@ describe User do
     end
   end
 
-  describe ".create_with_omniauth" do
-    let(:uid)      { "123" }
-    let(:provider) { "twitter" }
-    let(:nickname) { "foo" }
-    let(:name)     { "Foo Bar" }
-
-    let(:auth) do
-      {
-        "provider" => provider,
-        "uid" => uid,
-        "info" => {
-          "name" => name,
-          "nickname" => nickname }
-      }
-    end
-
-    context "valid data" do
-      let(:user) { User.create_with_omniauth(auth) }
-
-      it "creates user with valid attributes" do
-        user.persisted?.should be_true
-
-        user.provider.should == provider
-        user.uid.should == uid
-        user.nickname.should == nickname
-        user.name.should == name
-        user.avatar_url.should be_nil
-      end
-
-    end
-
-    context "when avatar available" do
-      let(:avatar_url) { "http://foo.bar/avatar.jpg" }
-
-      before do
-        OauthHelper.stub(:get_avatar_url).and_return(avatar_url)
-      end
-
-      it "assigns avatar_url" do
-        user = User.create_with_omniauth(auth)
-        user.avatar_url.should == avatar_url
-      end
-    end
-
-    context "when nickname is taken" do
-      let!(:user) { FactoryGirl.create(:user) }
-      let(:nickname) { user.nickname }
-
-      it "doesn't create user" do
-        user = User.create_with_omniauth(auth)
-        user.persisted?.should be_false
-        user.valid?.should be_false
-      end
-
-    end
-  end
-
   describe '#add_user_token' do
     before { user.save }
 

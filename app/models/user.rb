@@ -20,17 +20,6 @@ class User < ActiveRecord::Base
 
   attr_accessible :nickname, :email, :name
 
-  def self.create_with_omniauth(auth)
-    user = new
-    user.provider   = auth["provider"]
-    user.uid        = auth["uid"]
-    user.nickname   = auth["info"]["nickname"]
-    user.name       = auth["info"]["name"]
-    user.avatar_url = OauthHelper.get_avatar_url(auth)
-    user.save
-    user
-  end
-
   def to_param
     nickname
   end
@@ -38,4 +27,5 @@ class User < ActiveRecord::Base
   def add_user_token(token)
     user_tokens.where(:token => token).first_or_create
   end
+
 end
