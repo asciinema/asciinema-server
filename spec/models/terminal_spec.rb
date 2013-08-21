@@ -26,16 +26,31 @@ describe Terminal do
   describe '#snapshot' do
     subject { terminal.snapshot }
 
-    it "groups the characters by line and attributes" do
+    def make_attr(attrs = {})
+      TSM::ScreenAttribute.new.tap do |screen_attribute|
+        attrs.each { |name, value| screen_attribute[name] = value }
+      end
+    end
+
+    it "returns each screen cell with its character attributes" do
       expect(tsm_screen).to receive(:draw).
-        and_yield(0, 0, 'f', { :fg => 1 }).
-        and_yield(1, 0, 'o', { :fg => 1 }).
-        and_yield(0, 1, 'o', { :fg => 1 }).
-        and_yield(1, 1, 'b', { :fg => 2 })
+        and_yield(0, 0, 'f', make_attr(fg: 1)).
+        and_yield(1, 0, 'o', make_attr(bg: 2)).
+        and_yield(0, 1, 'o', make_attr(bold?: true)).
+        and_yield(1, 1, 'b', make_attr(fg: 2, bg: 3,
+                                       bold?: true, underline?: true,
+                                       inverse?: true, blink?: true))
 
       expect(subject).to eq([
-        [['fo', { :fg => 1 }]],
-        [['o', { :fg => 1 }], ['b', { :fg => 2 }]]
+        [
+          ['f', fg: 1],
+          ['o', bg: 2]
+        ],
+        [
+          ['o', bold: true],
+          ['b', fg: 2, bg: 3, bold: true, underline: true, inverse: true,
+                                                           blink: true]
+        ]
       ])
     end
   end

@@ -11,25 +11,9 @@ class Terminal
 
   def snapshot
     lines = []
-    last_y = nil
-    line = nil
 
-    cur_text, cur_attr = nil
-
-    screen.draw do |x, y, char, attr|
-      line = lines[y]
-
-      unless line
-        lines[y] = line = []
-        cur_text = nil
-      end
-
-      if cur_text && attr == cur_attr
-        cur_text << char
-      else
-        cur_text, cur_attr = char, attr
-        line << [cur_text, cur_attr]
-      end
+    screen.draw do |x, y, char, screen_attribute|
+      assign_cell(lines, x, y, char, screen_attribute)
     end
 
     lines
@@ -43,5 +27,29 @@ class Terminal
   private
 
   attr_reader :screen, :vte
+
+  def assign_cell(lines, x, y, char, screen_attribute)
+    line = lines[y] ||= []
+    line[x] = [char, attributes_hash(screen_attribute)]
+  end
+
+  def attributes_hash(screen_attribute)
+    attrs = {}
+
+    [:fg, :bg, :bold?, :underline?, :inverse?, :blink?].each do |name|
+      assign_attr(attrs, screen_attribute, name)
+    end
+
+    attrs
+  end
+
+  def assign_attr(attrs, screen_attribute, name)
+    value = screen_attribute.public_send(name)
+
+    if value
+      key = name.to_s.sub('?', '').to_sym
+      attrs[key] = value
+    end
+  end
 
 end
