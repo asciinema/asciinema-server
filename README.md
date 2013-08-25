@@ -18,7 +18,7 @@ it on your local machine or setup your own instance for your organization.
 ascii.io site is a Ruby on Rails application. You need to have following
 dependencies installed:
 
-* Ruby 1.9.2+ (Ruby 1.9.3 is recommended)
+* Ruby 1.9.3+ (Ruby 2.0.0-p247 is recommended)
 
 * bundler gem  
   `gem install bundler`
@@ -26,13 +26,10 @@ dependencies installed:
 * PostgreSQL 8+ with libpq development headers  
   `sudo apt-get install postgresql libpq-dev` on Debian/Ubuntu
 
-Also, for thumbnail generation you need following binaries:
-
-* tmux  
-  `sudo apt-get install tmux` on Debian/Ubuntu
-
-* scriptreplay  
-  `sudo apt-get install bsdutils` on Debian/Ubuntu
+* libtsm  
+  See [here](https://github.com/dvdhrm/libtsm) for installation instructions.
+  If you don't install it now the setup script (point 4 below) will try to
+  install it for you anyway.
 
 ### 2. Get the source code
 
@@ -58,7 +55,13 @@ Following script will install gem dependencies and setup database:
 
 ### 5. Run Rails server
 
-    $ rails s
+    $ bundle exec rails server
+
+### 6. Run the background job processor
+
+The background job processor is needed for thumbnail generation.
+
+    $ bundle exec sidekiq
 
 ## Authors
 
