@@ -20,4 +20,5 @@ fi
 rm -f log/*
 bundle install
 bundle exec rake db:setup
+mkdir -p tmp
 touch tmp/restart.txt
