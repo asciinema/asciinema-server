@@ -17,9 +17,13 @@ class AsciicastStreamer
 
   def attributes_for_streaming(asciicast)
     attributes = AsciicastSerializer.new(asciicast).as_json
+    saved_time = prepare_stdout(attributes, asciicast)
+    prepare_duration(attributes, asciicast, saved_time)
 
-    duration = attributes.delete('duration')
+    attributes
+  end
 
+  def prepare_stdout(attributes, asciicast)
     saved_time = 0
 
     attributes['stdout'] = lambda do |&blk|
@@ -37,11 +41,13 @@ class AsciicastStreamer
       blk.call('[]]')
     end
 
-    attributes['duration'] = lambda do |&blk|
-      blk.call(duration - saved_time)
-    end
+    saved_time
+  end
 
-    attributes
+  def prepare_duration(attributes, asciicast, saved_time)
+    attributes['duration'] = lambda do |&blk|
+      blk.call(asciicast.duration - saved_time)
+    end
   end
 
 end
