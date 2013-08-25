@@ -137,7 +137,7 @@ describe AsciicastDecorator do
   describe '#thumbnail' do
     let(:json) { [:qux] }
     let(:snapshot) { double('snapshot') }
-    let(:snapshot_presenter) { double('snapshot_presenter', :to_html => '<pre></pre>') }
+    let(:presenter) { double('presenter', :to_html => '<pre></pre>') }
 
     before do
       allow(asciicast).to receive(:snapshot) { json }
@@ -145,7 +145,7 @@ describe AsciicastDecorator do
       allow(snapshot).to receive(:rstrip) { snapshot }
       allow(snapshot).to receive(:crop) { snapshot }
       allow(snapshot).to receive(:expand) { snapshot }
-      allow(SnapshotPresenter).to receive(:new).with(snapshot) { snapshot_presenter }
+      allow(SnapshotPresenter).to receive(:new).with(snapshot) { presenter }
     end
 
     it 'removes empty trailing lines from the snapshot' do
@@ -276,12 +276,22 @@ describe AsciicastDecorator do
   end
 
   describe '#embed_script' do
+    let(:src_regexp) {
+      /src="[^"]+\b123\b[^"]*\.js"/
+    }
+    let(:id_regexp) {
+      /id="asciicast-123"/
+    }
+    let(:script_regexp) {
+      /^<script[^>]+#{src_regexp}[^>]+#{id_regexp}[^>]*><\/script>/
+    }
+
     before do
       asciicast.stub(:id => 123)
     end
 
     it 'should be an async script tag including asciicast id' do
-      expect(decorated.embed_script).to match(/^<script[^>]+src="[^"]+\b123\b[^"]*\.js"[^>]+id="asciicast-123"[^>]*><\/script>/)
+      expect(decorated.embed_script).to match(script_regexp)
     end
   end
 

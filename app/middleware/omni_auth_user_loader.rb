@@ -17,7 +17,9 @@ class OmniAuthUserLoader
   private
 
   def find_user(omniauth)
-    User.where(:provider => omniauth['provider'], :uid => omniauth['uid'].to_s).first
+    query = { :provider => omniauth['provider'], :uid => omniauth['uid'].to_s }
+
+    User.where(query).first
   end
 
   def build_user(omniauth)

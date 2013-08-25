@@ -46,7 +46,7 @@ describe OmniAuthUserLoader do
 
       context "user doesn't exist" do
         before do
-          allow(OauthHelper).to receive(:get_avatar_url) { 'http://foo.bar/avatar.jpg' }
+          allow(OauthHelper).to receive(:get_avatar_url) { 'http://a.eu/1.jpg' }
           middleware.call(env)
         end
 
@@ -56,7 +56,7 @@ describe OmniAuthUserLoader do
         its(:uid)        { should eq(1234) }
         its(:nickname)   { should eq('quux') }
         its(:name)       { should eq('Quux') }
-        its(:avatar_url) { should eq('http://foo.bar/avatar.jpg') }
+        its(:avatar_url) { should eq('http://a.eu/1.jpg') }
       end
     end
   end

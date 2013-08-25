@@ -16,7 +16,7 @@ describe Stdout do
   end
 
   describe '#each_until' do
-    it 'yields for each frame with delay and data until given time (in seconds)' do
+    it 'yields for each frame with delay and data until <seconds>' do
       expect { |b| stdout.each_until(1.7, &b) }.
         to yield_successive_args([0.5, 'foobar'], [1.0, "bazqux\xC5"])
     end

@@ -3,11 +3,14 @@ require 'spec_helper'
 class TestWidgetController < ActionController::Base
 
   def show
+    src = "http://0.0.0.0:#{request.port}/a/#{params[:id]}.js"
+    id = "asciicast-#{params[:id]}"
+
     render :text => <<EOS
       <html>
         <head></head>
         <body>
-          <script type="text/javascript" src="http://0.0.0.0:#{request.port}/a/#{params[:id]}.js" id="asciicast-#{params[:id]}" async></script>
+          <script type="text/javascript" src="#{src}" id="#{id}" async></script>
         </body>
       </html>
 EOS

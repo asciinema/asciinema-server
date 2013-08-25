@@ -2,8 +2,9 @@ class AsciicastCreator
 
   def create(attributes)
     attributes = prepare_attributes(attributes)
+    options = { :without_protection => true }
 
-    Asciicast.create!(attributes, :without_protection => true).tap do |asciicast|
+    Asciicast.create!(attributes, options).tap do |asciicast|
       SnapshotWorker.perform_async(asciicast.id)
     end
   end

@@ -78,8 +78,9 @@ describe Asciicast do
 
     it 'persists the snapshot' do
       asciicast.update_snapshot(snapshot)
+      snapshot = Asciicast.find(asciicast.id).snapshot
 
-      expect(Asciicast.find(asciicast.id).snapshot).to eq([[[{ 'foo' => 'bar' }]]])
+      expect(snapshot).to eq([[[{ 'foo' => 'bar' }]]])
     end
   end
 

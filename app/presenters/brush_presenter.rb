@@ -4,7 +4,8 @@ class BrushPresenter < SimpleDelegator
     if default?
       nil
     else
-      [fg_class, bg_class, bold_class, underline_class, inverse_class].compact.join(' ')
+      classes = [fg_class, bg_class, bold_class, underline_class, inverse_class]
+      classes.compact.join(' ')
     end
   end
 

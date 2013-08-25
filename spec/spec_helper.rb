@@ -28,6 +28,7 @@ RSpec.configure do |config|
   config.order = "random"
 
   config.include FactoryGirl::Syntax::Methods
+  config.include AsciiIo::FixtureHelpers
   config.include AsciiIo::FeatureHelpers
   config.include AsciiIo::ControllerMacros, :type => :controller
 

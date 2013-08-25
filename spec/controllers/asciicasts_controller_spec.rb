@@ -69,11 +69,11 @@ describe AsciicastsController do
     end
 
     context 'for html request' do
-      let(:decorated_asciicast) { double('decorated_asciicast', :title => 'The Title') }
+      let(:asciicast_decorator) { double('decorator', :title => 'The Title') }
 
       before do
         allow(AsciicastDecorator).to receive(:new).with(asciicast).
-          and_return(decorated_asciicast)
+          and_return(asciicast_decorator)
 
         get :show, :id => asciicast.id, :format => :html
       end
@@ -84,7 +84,7 @@ describe AsciicastsController do
         expect(view_counter).to have_received(:increment)
       end
 
-      specify { assigns(:asciicast).should == decorated_asciicast }
+      specify { assigns(:asciicast).should == asciicast_decorator }
       specify { assigns(:title).should == 'The Title' }
     end
 

@@ -1,10 +1,10 @@
 require 'spec_helper'
 
 describe SnapshotFragmentPresenter do
-  let(:snapshot_fragment_presenter) { SnapshotFragmentPresenter.new(snapshot_fragment) }
+  let(:snapshot_fragment_presenter) { described_class.new(snapshot_fragment) }
   let(:snapshot_fragment) { SnapshotFragment.new('foo > bar', brush) }
   let(:brush) { double('brush') }
-  let(:brush_presenter) { double('brush_presenter', :to_css_class => css_class) }
+  let(:brush_presenter) { double('presenter', :to_css_class => css_class) }
   let(:css_class) { 'qux' }
 
   describe '#to_html' do

@@ -4,7 +4,9 @@ describe AsciicastCreator do
   let(:creator) { AsciicastCreator.new }
 
   describe '#create' do
-    let(:meta_file) { fixture_file_upload('spec/fixtures/meta.json', 'application/json') }
+    let(:meta_file) {
+      fixture_file_upload('spec/fixtures/meta.json', 'application/json')
+    }
     let(:stdout_data_file) { double('stdout_data_file') }
     let(:stdout_timing_file) { double('stdout_timing_file') }
     let(:asciicast) { stub_model(Asciicast, :id => 666) }
@@ -36,7 +38,8 @@ describe AsciicastCreator do
         :title            => 'bashing :)',
         :command          => '/bin/bash',
         :shell            => '/bin/zsh',
-        :uname            => 'Linux 3.9.9-302.fc19.x86_64 #1 SMP Sat Jul 6 13:41:07 UTC 2013 x86_64',
+        :uname            => 'Linux 3.9.9-302.fc19.x86_64 #1 SMP ' +
+                             'Sat Jul 6 13:41:07 UTC 2013 x86_64',
         :terminal_columns => 96,
         :terminal_lines   => 26,
         :terminal_type    => 'screen-256color'
