@@ -2,97 +2,101 @@ require 'spec_helper'
 
 describe Snapshot do
 
-  describe '.build' do
-    let(:snapshot) { Snapshot.build(input) }
-    let(:input) { [input_line_1, input_line_2] }
-    let(:input_line_1) { double('input_line_1') }
-    let(:input_line_2) { double('input_line_2') }
-    let(:line_1) { double('line_1') }
-    let(:line_2) { double('line_2') }
+  let(:snapshot) { described_class.new(data) }
 
-    before do
-      allow(SnapshotLine).to receive(:build).with(input_line_1) { line_1 }
-      allow(SnapshotLine).to receive(:build).with(input_line_2) { line_2 }
+  let(:data) { [
+    [['a', fg: 1], ['b', fg: 2], ['c', fg: 3]],
+    [['d', fg: 4], ['e', fg: 5], ['f', fg: 6]],
+    [['g', bg: 1], ['h', bg: 2], ['i', bg: 3]],
+    [[' ', {}   ], ['k', bg: 5], ['l', bg: 6]],
+    [[' ', {}   ], [' ', {}   ], [' ', {}   ]]
+  ] }
+
+  describe '#width' do
+    subject { snapshot.width }
+
+    it { should eq(3) }
+  end
+
+  describe '#height' do
+    subject { snapshot.height }
+
+    it { should eq(5) }
+  end
+
+  describe '#cell' do
+    subject { snapshot.cell(column, line) }
+
+    context "at 0,0" do
+      let(:column) { 0 }
+      let(:line)   { 0 }
+
+      it { should eq(Cell.new('a', Brush.new(fg: 1))) }
     end
 
-    it 'returns an instance of Snapshot' do
-      expect(snapshot).to be_kind_of(Snapshot)
+    context "at 1,2" do
+      let(:column) { 1 }
+      let(:line)   { 2 }
+
+      it { should eq(Cell.new('h', Brush.new(bg: 2))) }
     end
 
-    it 'includes lines built by SnapshotLine.build' do
-      expect(snapshot.to_a[0]).to be(line_1)
-      expect(snapshot.to_a[1]).to be(line_2)
+    context "at 2,3" do
+      let(:column) { 2 }
+      let(:line)   { 3 }
+
+      it { should eq(Cell.new('l', Brush.new(bg: 6))) }
     end
   end
 
-  describe '#each' do
-    let(:snapshot) { Snapshot.new([:line_1, :line_2]) }
+  describe '#thumbnail' do
 
-    it 'yields to the given block for each line' do
-      lines = []
-
-      snapshot.each do |line|
-        lines << line
-      end
-
-      expect(lines).to eq([:line_1, :line_2])
-    end
-  end
-
-  describe '#==' do
-    let(:snapshot) { Snapshot.new([:foo]) }
-
-    subject { snapshot == other }
-
-    context "when the other has the same lines" do
-      let(:other) { Snapshot.new([:foo]) }
-
-      it { should be(true) }
-    end
-
-    context "when the other has a different lines" do
-      let(:other) { Snapshot.new([:foo, :bar]) }
-
-      it { should be(false) }
-    end
-  end
-
-  describe '#crop' do
-    let(:snapshot) { Snapshot.new(lines) }
-    let(:lines) { [line_1, line_2, line_3] }
-    let(:line_1) { double('line_1', :crop => cropped_line_1) }
-    let(:line_2) { double('line_2', :crop => cropped_line_2) }
-    let(:line_3) { double('line_3', :crop => cropped_line_3) }
-    let(:cropped_line_1) { double('cropped_line_1') }
-    let(:cropped_line_2) { double('cropped_line_2') }
-    let(:cropped_line_3) { double('cropped_line_3') }
-    let(:width) { 3 }
-
-    subject { snapshot.crop(width, height) }
-
-    context "when height is lower than lines count" do
-      let(:height) { 2 }
-
-      it 'crops the last "height" lines' do
-        subject
-
-        expect(line_1).to_not have_received(:crop)
-        expect(line_2).to have_received(:crop).with(3)
-        expect(line_3).to have_received(:crop).with(3)
-      end
-
-      it 'returns a new Snapshot with last 2 lines cropped' do
-        expect(subject).to eq(Snapshot.new([cropped_line_2, cropped_line_3]))
+    def thumbnail_text(thumbnail)
+      ''.tap do |text|
+        0.upto(thumbnail.height - 1) do |line|
+          0.upto(thumbnail.width - 1) do |column|
+            text << thumbnail.cell(column, line).text
+          end
+          text << "\n"
+        end
       end
     end
 
-    context "when height is equal to lines count" do
+    let(:height) { 3 }
+    let(:thumbnail) { snapshot.thumbnail(2, height) }
+    let(:text) { thumbnail_text(thumbnail) }
+
+    it 'is a snapshot of requested width' do
+      expect(thumbnail.width).to eq(2)
+    end
+
+    it 'is a snapshot of requested height' do
+      expect(thumbnail.height).to eq(3)
+    end
+
+    context "when height is 3" do
       let(:height) { 3 }
 
-      it 'returns a new Snapshot with all lines cropped' do
-        expect(subject).to eq(Snapshot.new([cropped_line_1, cropped_line_2,
-                                            cropped_line_3]))
+      it 'returns thumbnail with 2nd, 3rd and 4th line cropped' do
+        expect(text).to eq("de\ngh\n k\n")
+      end
+    end
+
+    context "when height is 5" do
+      let(:height) { 5 }
+
+      it 'returns thumbnail with all the lines cropped' do
+        expect(text).to eq("ab\nde\ngh\n k\n  \n")
+      end
+    end
+
+    context "when height is 6" do
+      let(:height) { 6 }
+
+      it 'returns thumbnail with all the lines cropped + 1 empty line' do
+        expect(text).to eq("ab\nde\ngh\n k\n  \n  \n")
       end
     end
   end
+
 end

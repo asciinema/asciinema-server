@@ -35,9 +35,9 @@ class AsciicastDecorator < ApplicationDecorator
   end
 
   def thumbnail(width = THUMBNAIL_WIDTH, height = THUMBNAIL_HEIGHT)
-    snapshot = Snapshot.build(model.snapshot || [])
-    thumbnail = snapshot.rstrip.crop(width, height).expand(height)
-    SnapshotPresenter.new(thumbnail).to_html
+    snapshot = Snapshot.new(model.snapshot || [])
+    thumbnail = SnapshotDecorator.new(snapshot.thumbnail(width, height))
+    h.render 'asciicasts/thumbnail', :thumbnail => thumbnail
   end
 
   def description

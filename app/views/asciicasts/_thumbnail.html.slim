@@ -1,0 +1,6 @@
+pre.terminal
+  - for line in thumbnail.lines
+    span.line
+      - for cell in line
+        span class=cell.css_class = cell.text
+      = "\n"

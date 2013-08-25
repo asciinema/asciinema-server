@@ -1,11 +1,12 @@
 require 'spec_helper'
 
 describe AsciicastDecorator do
+  include Draper::ViewHelpers
 
   let(:asciicast) { Asciicast.new }
-  let(:decorated) { AsciicastDecorator.new(asciicast) }
+  let(:decorator) { described_class.new(asciicast) }
 
-  subject { decorated.send(method) }
+  subject { decorator.send(method) }
 
   describe '#os' do
     let(:method) { :os }
@@ -136,38 +137,18 @@ describe AsciicastDecorator do
 
   describe '#thumbnail' do
     let(:json) { [:qux] }
-    let(:snapshot) { double('snapshot') }
-    let(:presenter) { double('presenter', :to_html => '<pre></pre>') }
+    let(:snapshot) { double('snapshot', :thumbnail => thumbnail) }
+    let(:thumbnail) { double('thumbnail') }
 
     before do
       allow(asciicast).to receive(:snapshot) { json }
-      allow(Snapshot).to receive(:build).with(json) { snapshot }
-      allow(snapshot).to receive(:rstrip) { snapshot }
-      allow(snapshot).to receive(:crop) { snapshot }
-      allow(snapshot).to receive(:expand) { snapshot }
-      allow(SnapshotPresenter).to receive(:new).with(snapshot) { presenter }
+      allow(Snapshot).to receive(:new).with(json) { snapshot }
+      allow(helpers).to receive(:render).
+        with('asciicasts/thumbnail', :thumbnail => thumbnail) { '<pre></pre>' }
     end
 
-    it 'removes empty trailing lines from the snapshot' do
-      decorated.thumbnail(21, 13)
-
-      expect(snapshot).to have_received(:rstrip)
-    end
-
-    it 'crops the snapshot' do
-      decorated.thumbnail(21, 13)
-
-      expect(snapshot).to have_received(:crop).with(21, 13)
-    end
-
-    it 'adds the missing lines to the end of the snapshot' do
-      decorated.thumbnail(21, 13)
-
-      expect(snapshot).to have_received(:expand).with(13)
-    end
-
-    it 'returns html snapshot rendered by SnapshotPresenter#to_html' do
-      expect(decorated.thumbnail).to eq('<pre></pre>')
+    it "returns snapshot's thumbnail rendered by SnapshotPresenter" do
+      expect(decorator.thumbnail).to eq('<pre></pre>')
     end
   end
 
@@ -183,7 +164,7 @@ describe AsciicastDecorator do
       end
 
       it 'returns nickname from decorated user' do
-        decorated.should_receive(:user).twice.and_return(user)
+        decorator.should_receive(:user).twice.and_return(user)
         subject.should == nickname
       end
     end
@@ -219,7 +200,7 @@ describe AsciicastDecorator do
       end
 
       it 'returns link from decorated user' do
-        decorated.should_receive(:user).twice.and_return(user)
+        decorator.should_receive(:user).twice.and_return(user)
         subject.should == link
       end
     end
@@ -232,7 +213,7 @@ describe AsciicastDecorator do
       end
 
       it 'returns author from decorated user' do
-        decorated.should_receive(:author).and_return(author)
+        decorator.should_receive(:author).and_return(author)
         subject.should == author
       end
     end
@@ -250,22 +231,20 @@ describe AsciicastDecorator do
       end
 
       it 'returns img_link from decorated user' do
-        decorated.should_receive(:user).twice.and_return(user)
+        decorator.should_receive(:user).twice.and_return(user)
         subject.should == img_link
       end
     end
 
     context 'when no user present' do
       let(:avatar_image) { double('avatar_image') }
-      let(:h) { double('h') }
 
       before do
         asciicast.user = nil
+        allow(helpers).to receive(:avatar_image_tag).with(nil) { avatar_image }
       end
 
       it 'returns avatar_image_tag' do
-        decorated.stub(:h => h)
-        h.should_receive(:avatar_image_tag).with(nil).and_return(avatar_image)
         subject.should == avatar_image
       end
     end
@@ -291,12 +270,12 @@ describe AsciicastDecorator do
     end
 
     it 'should be an async script tag including asciicast id' do
-      expect(decorated.embed_script).to match(script_regexp)
+      expect(decorator.embed_script).to match(script_regexp)
     end
   end
 
   describe '#duration' do
-    subject { decorated.duration }
+    subject { decorator.duration }
 
     context "when it's below 1 minute" do
       before do
