@@ -9,7 +9,9 @@ class SnapshotDecorator < ApplicationDecorator
   private
 
   def line(line_no)
-    (0...width).map { |column_no| model.cell(column_no, line_no) }
+    line = (0...width).map { |column_no| model.cell(column_no, line_no) }
+
+    LineOptimizer.new(line).optimize
   end
 
 end
