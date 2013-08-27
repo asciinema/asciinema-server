@@ -1,65 +1,34 @@
 class Snapshot
 
-  attr_reader :width, :height
+  delegate :width, :height, :cell, :to => :grid
 
-  def initialize(data, raw = true)
-    @lines = raw ? cellify(data) : data
-    @width = lines.first && lines.first.size || 0
-    @height = lines.size
-  end
-
-  def cell(column, line)
-    lines[line][column]
-  end
-
-  def thumbnail(width, height)
-    new_lines = strip_trailing_blank_lines(lines)
-    new_lines = crop_at_bottom_left(new_lines, width, height)
-    new_lines = expand(new_lines, width, height)
-
-    self.class.new(new_lines, false)
-  end
-
-  protected
-
-  def strip_trailing_blank_lines(lines)
-    i = lines.size - 1
-
-    while i >= 0 && empty_line?(lines[i])
-      i -= 1
-    end
-
-    i > -1 ? lines[0..i] : []
-  end
-
-  def crop_at_bottom_left(lines, width, height)
-    min_height = [height, lines.size].min
-
-    lines.drop(lines.size - min_height).map { |line| line.take(width) }
-  end
-
-  def expand(lines, width, height)
-    while lines.size < height
-      lines << [Cell.new(' ', Brush.new)] * width
-    end
-
-    lines
-  end
-
-  private
-
-  attr_reader :lines
-
-  def cellify(lines)
-    lines.map { |cells|
+  def self.build(data)
+    data = data.map { |cells|
       cells.map { |cell|
         Cell.new(cell[0], Brush.new(cell[1]))
       }
     }
+
+    grid = Grid.new(data)
+
+    new(grid)
   end
 
-  def empty_line?(cells)
-    cells.all?(&:empty?)
+  def initialize(grid)
+    @grid = grid
   end
+
+  def thumbnail(w, h)
+    x = 0
+    y = height - h - grid.trailing_empty_lines
+    y = 0 if y < 0
+    cropped_grid = grid.crop(x, y, w, h)
+
+    self.class.new(cropped_grid)
+  end
+
+  private
+
+  attr_reader :grid
 
 end
