@@ -142,7 +142,7 @@ describe AsciicastDecorator do
 
     before do
       allow(asciicast).to receive(:snapshot) { json }
-      allow(Snapshot).to receive(:new).with(json) { snapshot }
+      allow(Snapshot).to receive(:build).with(json) { snapshot }
       allow(helpers).to receive(:render).
         with('asciicasts/thumbnail', :thumbnail => thumbnail) { '<pre></pre>' }
     end
