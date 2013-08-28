@@ -93,13 +93,13 @@ describe Asciicast do
     before do
       allow(asciicast).to receive(:stdout_data) { data_file }
       allow(asciicast).to receive(:stdout_timing) { timing_file }
-      allow(Stdout).to receive(:new) { stdout }
+      allow(BufferedStdout).to receive(:new) { stdout }
     end
 
-    it 'creates a new Stdout instance' do
+    it 'creates a new BufferedStdout instance' do
       asciicast.stdout
 
-      expect(Stdout).to have_received(:new).with('/foo', '/bar')
+      expect(BufferedStdout).to have_received(:new).with('/foo', '/bar')
     end
 
     it 'returns created Stdout instance' do
