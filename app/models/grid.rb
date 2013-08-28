@@ -32,11 +32,8 @@ class Grid
     n = 0
 
     (height - 1).downto(0) do |y|
-      if line_empty?(y)
-        n += 1
-      else
-        break
-      end
+      break unless line_empty?(y)
+      n += 1
     end
 
     n
