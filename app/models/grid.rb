@@ -17,7 +17,8 @@ class Grid
   end
 
   def crop(x, y, width, height)
-    self.class.new(lines[y...y+height].map { |line| line[x...x+width] })
+    cropped_lines = lines[y...y+height].map { |line| line[x...x+width] }
+    self.class.new(cropped_lines)
   end
 
   def diff(other)
