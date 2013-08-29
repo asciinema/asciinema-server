@@ -11,20 +11,26 @@ class Stdout
   def each
     File.open(data_path, 'rb') do |file|
       File.foreach(timing_path) do |line|
-        delay, size = TimingParser.parse_line(line)
-        yield(delay, file.read(size).force_encoding('utf-8'))
+        yield(*delay_and_data_for_line(file, line))
       end
     end
   end
 
   def each_until(seconds)
-    time = 0
-
     each do |delay, frame_data|
-      time += delay
-      break if time > seconds
+      seconds -= delay
+      break if seconds <= 0
       yield(delay, frame_data)
     end
+  end
+
+  private
+
+  def delay_and_data_for_line(file, line)
+    delay, size = TimingParser.parse_line(line)
+    data = file.read(size).force_encoding('utf-8')
+
+    [delay, data]
   end
 
 end
