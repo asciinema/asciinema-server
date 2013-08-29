@@ -30,7 +30,15 @@ class Terminal
 
   def assign_cell(lines, x, y, char, screen_attribute)
     line = lines[y] ||= []
-    line[x] = [char, attributes_hash(screen_attribute)]
+    line[x] = [sanitize_char(char), attributes_hash(screen_attribute)]
+  end
+
+  def sanitize_char(char)
+    char.
+      encode('UTF-16', :invalid => :replace, :undef => :replace,
+                       :replace => "\001").
+      encode('UTF-8').gsub(/\001+/, '?').
+      first
   end
 
   def attributes_hash(screen_attribute)

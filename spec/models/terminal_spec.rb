@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
 describe Terminal do
@@ -32,15 +34,17 @@ describe Terminal do
       end
     end
 
-    it "returns each screen cell with its character attributes" do
-      expect(tsm_screen).to receive(:draw).
+    before do
+      allow(tsm_screen).to receive(:draw).
         and_yield(0, 0, 'f', make_attr(fg: 1)).
         and_yield(1, 0, 'o', make_attr(bg: 2)).
         and_yield(0, 1, 'o', make_attr(bold?: true)).
-        and_yield(1, 1, 'b', make_attr(fg: 2, bg: 3,
+        and_yield(1, 1, 'ś', make_attr(fg: 2, bg: 3,
                                        bold?: true, underline?: true,
                                        inverse?: true, blink?: true))
+    end
 
+    it "returns each screen cell with its character attributes" do
       expect(subject).to eq([
         [
           ['f', fg: 1],
@@ -48,10 +52,21 @@ describe Terminal do
         ],
         [
           ['o', bold: true],
-          ['b', fg: 2, bg: 3, bold: true, underline: true, inverse: true,
+          ['ś', fg: 2, bg: 3, bold: true, underline: true, inverse: true,
                                                            blink: true]
         ]
       ])
+    end
+
+    context "when invalid utf-8 character is yielded by tsm_screen" do
+      before do
+        allow(tsm_screen).to receive(:draw).
+          and_yield(0, 0, "\xc3\xff\xaa", make_attr(fg: 1))
+      end
+
+      it 'gets replaced with "?"' do
+        expect(subject).to eq([[['?', fg: 1]]])
+      end
     end
   end
 
