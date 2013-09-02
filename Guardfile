@@ -1,3 +1,5 @@
+notification :tmux, :color_location => 'status-right-bg'
+
 guard 'rspec', :cli => '--fail-fast --tag ~js --tag ~slow', :zeus => true do
   watch(%r{^spec/.+_spec\.rb$})
   watch(%r{^lib/(.+)\.rb$})     { |m| "spec/lib/#{m[1]}_spec.rb" }
