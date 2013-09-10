@@ -5,6 +5,7 @@ class Asciicast < ActiveRecord::Base
   mount_uploader :stdin_timing,  StdinTimingUploader
   mount_uploader :stdout_data,   StdoutDataUploader
   mount_uploader :stdout_timing, StdoutTimingUploader
+  mount_uploader :stdout_frames, BaseUploader
 
   serialize :snapshot, JSON
 
@@ -50,14 +51,16 @@ class Asciicast < ActiveRecord::Base
     end
   end
 
-  def update_snapshot(snapshot)
-    self.snapshot = snapshot
-    save!
-  end
-
   def stdout
     @stdout ||= BufferedStdout.new(stdout_data.decompressed_path,
-                                   stdout_timing.decompressed_path)
+                                   stdout_timing.decompressed_path).lazy
+  end
+
+  def with_terminal
+    terminal = Terminal.new(terminal_columns, terminal_lines)
+    yield(terminal)
+  ensure
+    terminal.release
   end
 
 end

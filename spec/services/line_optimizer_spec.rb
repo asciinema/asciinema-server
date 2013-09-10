@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe LineOptimizer do
 
-  let(:line_optimizer) { described_class.new(line) }
+  let(:line_optimizer) { described_class.new }
 
   def brush(attrs)
     Brush.new(attrs)
@@ -17,7 +17,7 @@ describe LineOptimizer do
       Cell.new('e', brush(fg: 3))
     ] }
 
-    subject { line_optimizer.optimize }
+    subject { line_optimizer.optimize(line) }
 
     it { should eq([
       Cell.new('ab', brush(fg: 1)),

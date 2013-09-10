@@ -1,5 +1,7 @@
 class Brush
 
+  ALLOWED_ATTRIBUTES = [:fg, :bg, :bold, :underline, :inverse, :blink]
+
   def initialize(attributes = {})
     @attributes = attributes.symbolize_keys
   end
@@ -55,6 +57,10 @@ class Brush
 
   def default?
     fg.nil? && bg.nil? && !bold? && !underline? && !inverse? && !blink?
+  end
+
+  def as_json(*)
+    attributes.slice(*ALLOWED_ATTRIBUTES)
   end
 
   protected

@@ -267,4 +267,12 @@ describe Brush do
     end
   end
 
+  describe '#as_json' do
+    let(:attributes) { { fg: 1, bold: true, trolololo: 'OX' } }
+
+    subject { brush.as_json }
+
+    it { should eq({ fg: 1, bold: true }) }
+  end
+
 end

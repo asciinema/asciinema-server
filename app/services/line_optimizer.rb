@@ -1,10 +1,6 @@
 class LineOptimizer
 
-  def initialize(line)
-    @line = line
-  end
-
-  def optimize
+  def optimize(line)
     return [] if line.empty?
 
     text = [line[0].text]
@@ -25,9 +21,5 @@ class LineOptimizer
 
     cells
   end
-
-  private
-
-  attr_reader :line
 
 end

@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'tempfile'
 
 describe Asciicast do
 
@@ -72,38 +73,30 @@ describe Asciicast do
     end
   end
 
-  describe '#update_snapshot' do
-    let(:asciicast) { create(:asciicast) }
-    let(:snapshot) { [[[{ :foo => 'bar' }]]] }
-
-    it 'persists the snapshot' do
-      asciicast.update_snapshot(snapshot)
-      snapshot = Asciicast.find(asciicast.id).snapshot
-
-      expect(snapshot).to eq([[[{ 'foo' => 'bar' }]]])
-    end
-  end
-
   describe '#stdout' do
-    let(:asciicast) { stub_model(Asciicast) }
-    let(:data_file) { double('data_file', :decompressed_path => '/foo') }
-    let(:timing_file) { double('timing_file', :decompressed_path => '/bar') }
-    let(:stdout) { double('stdout') }
+    let(:asciicast) { Asciicast.new }
+    let(:data_uploader) { double('data_uploader', :decompressed_path => '/foo') }
+    let(:timing_uploader) { double('timing_uploader', :decompressed_path => '/bar') }
+    let(:stdout) { double('stdout', :lazy => lazy_stdout) }
+    let(:lazy_stdout) { double('lazy_stdout') }
+
+    subject { asciicast.stdout }
 
     before do
-      allow(asciicast).to receive(:stdout_data) { data_file }
-      allow(asciicast).to receive(:stdout_timing) { timing_file }
       allow(BufferedStdout).to receive(:new) { stdout }
+      allow(StdoutDataUploader).to receive(:new) { data_uploader }
+      allow(StdoutTimingUploader).to receive(:new) { timing_uploader }
     end
 
     it 'creates a new BufferedStdout instance' do
-      asciicast.stdout
+      subject
 
       expect(BufferedStdout).to have_received(:new).with('/foo', '/bar')
     end
 
-    it 'returns created Stdout instance' do
-      expect(asciicast.stdout).to be(stdout)
+    it 'returns lazy instance of stdout' do
+      expect(subject).to be(lazy_stdout)
     end
   end
+
 end

@@ -11,7 +11,15 @@ class SnapshotDecorator < ApplicationDecorator
   def line(line_no)
     line = (0...width).map { |column_no| model.cell(column_no, line_no) }
 
-    LineOptimizer.new(line).optimize
+    decorate_cells(optimize_line(line))
+  end
+
+  def optimize_line(line)
+    LineOptimizer.new.optimize(line)
+  end
+
+  def decorate_cells(cells)
+    cells.map { |cell| CellDecorator.new(cell) }
   end
 
 end

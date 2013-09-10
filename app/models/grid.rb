@@ -23,31 +23,18 @@ class Grid
 
   def diff(other)
     (0...height).each_with_object({}) do |y, diff|
-      if other.lines[y] != lines[y]
-        diff[y] = other.lines[y]
+      if other.nil? || other.lines[y] != lines[y]
+        diff[y] = lines[y]
       end
     end
   end
 
-  def trailing_empty_lines
-    n = 0
-
-    (height - 1).downto(0) do |y|
-      break unless line_empty?(y)
-      n += 1
-    end
-
-    n
+  def as_json(*)
+    lines.as_json
   end
 
   protected
 
   attr_reader :lines
-
-  private
-
-  def line_empty?(y)
-    lines[y].empty? || lines[y].all? { |item| item.empty? }
-  end
 
 end

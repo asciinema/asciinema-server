@@ -49,7 +49,7 @@ describe AsciicastCreator do
     it 'enqueues snapshot capture job' do
       subject
 
-      expect(SnapshotWorker).to have_queued_job(asciicast.id)
+      expect(AsciicastWorker).to have_queued_job(asciicast.id)
     end
 
     it 'returns the created asciicast' do
