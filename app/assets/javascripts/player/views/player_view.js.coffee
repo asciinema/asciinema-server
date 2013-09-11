@@ -84,6 +84,7 @@ class AsciiIo.PlayerView extends Backbone.View
         @hudView.onResume() if @hudView
 
   renderState: (state) ->
+    console.log 'pushing'
     @rendererView.push state
 
   updateTime: (time) ->

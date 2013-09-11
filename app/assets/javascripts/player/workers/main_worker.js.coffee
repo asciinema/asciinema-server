@@ -10,21 +10,21 @@ addEventListener 'message', (e) =>
 
     when 'call'
       switch d.objectName
-        when 'vt'
-          vt[d.method](d.args...)
+        # when 'vt'
+        #   vt[d.method](d.args...)
 
         when 'movie'
           movie[d.method](d.args...)
 
 
 @initialize = (options) ->
-  vt = new AsciiIo.VT options.cols, options.lines
+  # vt = new AsciiIo.VT options.cols, options.lines
 
-  vt.on 'all', (event, args...) ->
-    postMessage evt: event, src: 'vt', args: args
+  # vt.on 'all', (event, args...) ->
+  #   postMessage evt: event, src: 'vt', args: args
 
   movie = new AsciiIo.Movie(
-    stdout: options.stdout
+    stdout_frames: options.stdout_frames
     duration: options.duration
     speed: options.speed
     benchmark: options.benchmark
@@ -35,12 +35,12 @@ addEventListener 'message', (e) =>
   movie.on 'all', (event, args...) ->
     postMessage evt: event, src: 'movie', args: args
 
-  movie.on 'reset', => vt.reset()
+  # movie.on 'reset', => vt.reset()
 
-  movie.on 'data', (data) =>
-    vt.feed data
-    state = vt.state()
-    vt.clearChanges()
-    movie.trigger 'render', state
+  # movie.on 'data', (data) =>
+    # vt.feed data
+    # state = vt.state()
+    # vt.clearChanges()
+    # movie.trigger 'render', state
 
   console.log 'inited!'

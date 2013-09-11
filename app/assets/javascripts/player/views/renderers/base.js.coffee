@@ -29,17 +29,23 @@ class AsciiIo.Renderer.Base extends Backbone.View
   onClick: ->
     @trigger('terminal-click')
 
-  push: (state) ->
-    _(@state.changes).extend state.changes
-    @state.cursorX = state.cursorX
-    @state.cursorY = state.cursorY
+  push: (changes) ->
+    console.log(changes)
+    _(@state.changes).extend changes.lines
+
+    if changes.cursor
+      @state.cursorX = changes.cursor.x if changes.cursor.x != undefined
+      @state.cursorY = changes.cursor.y if changes.cursor.y != undefined
+
     @state.dirty = true
 
   render: =>
     requestAnimationFrame @render
 
     if @state.dirty
+      console.log 'dirty'
       for n, fragments of @state.changes
+        console.log 'line ' + n
         c = if parseInt(n) is @state.cursorY then @state.cursorX else undefined
         @renderLine n, fragments || [], c
 

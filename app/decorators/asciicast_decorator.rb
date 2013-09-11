@@ -91,7 +91,7 @@ class AsciicastDecorator < ApplicationDecorator
     %(<script type="text/javascript" src="#{src}" id="#{id}" async></script>)
   end
 
-  def duration
+  def formatted_duration
     duration = model.duration.to_i
     minutes = duration / 60
     seconds = duration % 60
