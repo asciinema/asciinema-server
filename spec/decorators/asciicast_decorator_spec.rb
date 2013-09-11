@@ -274,8 +274,8 @@ describe AsciicastDecorator do
     end
   end
 
-  describe '#duration' do
-    subject { decorator.duration }
+  describe '#formatted_duration' do
+    subject { decorator.formatted_duration }
 
     context "when it's below 1 minute" do
       before do

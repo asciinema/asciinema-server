@@ -8,7 +8,7 @@
       lines: <%= lines %>,
       speed: <%= speed %>,
       benchmark: <%= benchmark %>,
-      model: new AsciiIo.Asciicast({ id: <%= asciicast_id %> }),
+      model: new AsciiIo.Asciicast({ id: <%= asciicast_id %>, stdout_frames_url: "<%= stdout_frames_url %>", duration: <%= duration %> }),
       containerWidth: <%= container_width || 'null' %>,
       rendererClass: <%= renderer_class.html_safe %>,
       autoPlay: <%= auto_play %>,

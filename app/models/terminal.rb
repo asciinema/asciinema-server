@@ -16,7 +16,11 @@ class Terminal
       assign_cell(lines, x, y, char, screen_attribute)
     end
 
-    lines
+    Snapshot.build(lines)
+  end
+
+  def cursor
+    Cursor.new(screen.cursor_x, screen.cursor_y, screen.cursor_visible?)
   end
 
   def release

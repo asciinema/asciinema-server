@@ -3,7 +3,7 @@ class AsciiIo.AbstractPlayer
   constructor: (@options) ->
     @model = @options.model
     @createView()
-    @fetchModel()
+    @fetchFrames()
 
   createView: ->
     @view = new AsciiIo.PlayerView
@@ -23,15 +23,19 @@ class AsciiIo.AbstractPlayer
     throw 'not implemented'
 
   movieOptions: ->
-    stdout: @model.get 'stdout'
+    stdout_frames: @model.get 'stdout_frames'
     duration: @model.get 'duration'
     speed: @options.speed
     benchmark: @options.benchmark
     cols: @options.cols
     lines: @options.lines
 
-  fetchModel: ->
-    @model.fetch success: @onModelReady
+  fetchFrames: ->
+    url = @model.get('stdout_frames_url')
+    $.getJSON url, (frames) =>
+      @model.set 'stdout_frames', frames
+      @onModelReady()
+    # @model.fetch success: @onModelReady
 
   onModelReady: =>
     @createVT()

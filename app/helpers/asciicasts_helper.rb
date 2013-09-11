@@ -24,7 +24,9 @@ module AsciicastsHelper
       renderer_class: renderer_class,
       auto_play: options.key?(:auto_play) ? !!options[:auto_play] : false,
       hud: options.key?(:hud) ? !!options[:hud] : true,
-      snapshot: asciicast.snapshot.to_json
+      snapshot: asciicast.snapshot.to_json,
+      stdout_frames_url: asciicast.stdout_frames.url,
+      duration: asciicast.duration
     }
   end
 

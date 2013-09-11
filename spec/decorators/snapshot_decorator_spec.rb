@@ -4,6 +4,7 @@ describe SnapshotDecorator do
 
   let(:decorator) { described_class.new(snapshot) }
   let(:snapshot) { double('snapshot', :width => 2, :height => 2) }
+  let(:optimizer) { double('optimizer') }
   let(:cells) { [
     [:a, :b],
     [:c, :d]
@@ -15,16 +16,16 @@ describe SnapshotDecorator do
     before do
       allow(snapshot).to receive(:cell) { |x, y| cells[y][x] }
 
-      allow(LineOptimizer).to receive(:new).with([:a, :b]) {
-        double('optimizer', :optimize => [:ab])
-      }
+      allow(LineOptimizer).to receive(:new) { optimizer }
+      allow(optimizer).to receive(:optimize).with([:a, :b]) { [:ab] }
+      allow(optimizer).to receive(:optimize).with([:c, :d]) { [:c, :d] }
 
-      allow(LineOptimizer).to receive(:new).with([:c, :d]) {
-        double('optimizer', :optimize => [:c, :d])
-      }
+      allow(CellDecorator).to receive(:new).with(:ab) { :AB }
+      allow(CellDecorator).to receive(:new).with(:c) { :C }
+      allow(CellDecorator).to receive(:new).with(:d) { :D }
     end
 
-    it { should eq([ [:ab], [:c, :d] ]) }
+    it { should eq([ [:AB], [:C, :D] ]) }
   end
 
 end

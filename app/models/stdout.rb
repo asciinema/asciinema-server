@@ -16,14 +16,6 @@ class Stdout
     end
   end
 
-  def each_until(seconds)
-    each do |delay, frame_data|
-      seconds -= delay
-      break if seconds <= 0
-      yield(delay, frame_data)
-    end
-  end
-
   private
 
   def delay_and_data_for_line(file, line)

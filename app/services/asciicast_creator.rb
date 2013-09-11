@@ -5,7 +5,7 @@ class AsciicastCreator
     options = { :without_protection => true }
 
     Asciicast.create!(attributes, options).tap do |asciicast|
-      SnapshotWorker.perform_async(asciicast.id)
+      AsciicastWorker.perform_async(asciicast.id)
     end
   end
 

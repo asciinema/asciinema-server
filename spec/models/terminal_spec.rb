@@ -7,12 +7,10 @@ describe Terminal do
   let(:terminal) { Terminal.new(20, 10) }
   let(:tsm_screen) { double('tsm_screen', :draw => nil) }
   let(:tsm_vte) { double('tsm_vte', :input => nil) }
-  let(:snapshot) { double('snapshot') }
 
   before do
     allow(TSM::Screen).to receive(:new).with(20, 10) { tsm_screen }
     allow(TSM::Vte).to receive(:new).with(tsm_screen) { tsm_vte }
-    allow(Snapshot).to receive(:build).with([:array]) { snapshot }
   end
 
   describe '#feed' do
@@ -44,8 +42,12 @@ describe Terminal do
                                        inverse?: true, blink?: true))
     end
 
+    it 'returns an instance of Snapshot' do
+      expect(subject).to be_kind_of(Snapshot)
+    end
+
     it "returns each screen cell with its character attributes" do
-      expect(subject).to eq([
+      expect(subject.as_json).to eq([
         [
           ['f', fg: 1],
           ['o', bg: 2]
@@ -65,8 +67,27 @@ describe Terminal do
       end
 
       it 'gets replaced with "?"' do
-        expect(subject).to eq([[['?', fg: 1]]])
+        expect(subject.as_json).to eq([[['?', fg: 1]]])
       end
+    end
+  end
+
+  describe '#cursor' do
+    let(:tsm_screen) { double('tsm_screen', :cursor_x => 3, :cursor_y => 5,
+                                            :cursor_visible? => false) }
+
+    subject { terminal.cursor }
+
+    it 'gets its x position from the screen' do
+      expect(subject.x).to eq(3)
+    end
+
+    it 'gets its y position from the screen' do
+      expect(subject.y).to eq(5)
+    end
+
+    it 'gets its visibility from the screen' do
+      expect(subject.visible).to eq(false)
     end
   end
 

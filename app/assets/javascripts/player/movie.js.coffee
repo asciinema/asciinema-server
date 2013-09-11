@@ -21,8 +21,8 @@ class AsciiIo.Movie
   now: ->
     (new Date()).getTime()
 
-  stdout: ->
-    @options.stdout
+  stdout_frames: ->
+    @options.stdout_frames
 
   play: ->
     return if @isPlaying()
@@ -70,8 +70,7 @@ class AsciiIo.Movie
 
     @playing = true
     @resumedAt = @now()
-    frame = @stdout()[@frameNo]
-    [delay, data] = frame
+    [delay, changes] = @stdout_frames()[@frameNo]
     delayMs = delay * 1000
     delayLeft = delayMs - @totalFrameWaitTime
     @processFrameWithDelay(delayLeft)
@@ -87,7 +86,7 @@ class AsciiIo.Movie
     !@isPlaying() and !@isFinished() and @frameNo > 0
 
   isFinished: ->
-    !@isPlaying() and @frameNo >= (@stdout().length - 1)
+    !@isPlaying() and @frameNo >= @stdout_frames().length
 
   seek: (percent) ->
     @stop()
@@ -106,13 +105,12 @@ class AsciiIo.Movie
     @trigger 'reset'
 
     while time < requestedTime
-      [delay, data] = @stdout()[frameNo]
+      [delay, changes] = @stdout_frames()[frameNo]
 
       if time + delay >= requestedTime
         break
 
-      frameData = String.fromCharCode.apply(String, data)
-      @trigger 'data', [frameData]
+      @trigger 'render', changes
       time += delay
       frameNo += 1
 
@@ -170,7 +168,7 @@ class AsciiIo.Movie
     @totalFrameWaitTime = 0
 
   nextFrame: ->
-    frame = @stdout()[@frameNo]
+    frame = @stdout_frames()[@frameNo]
 
     if not frame or frame.length is 0
       @playing = false
@@ -178,7 +176,7 @@ class AsciiIo.Movie
 
       return false
 
-    [delay, data] = frame
+    [delay, changes] = frame
 
     if delay <= @MIN_DELAY and @framesProcessed < 100
       @framesProcessed += 1
@@ -199,11 +197,11 @@ class AsciiIo.Movie
     )
 
   processFrame: ->
-    frame = @stdout()[@frameNo]
-    [delay, data] = frame
+    [delay, changes] = @stdout_frames()[@frameNo]
 
-    frameData = String.fromCharCode.apply(String, data)
-    @trigger 'data', [frameData]
+    console.log 'render dude'
+    console.log changes
+    @trigger 'render', changes
 
     @frameNo += 1
     @completedFramesTime += delay * 1000

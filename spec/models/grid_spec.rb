@@ -65,23 +65,30 @@ describe Grid do
 
     let(:grid) { described_class.new([line_a, line_b, line_c]) }
 
-    let(:line_aa) { [:A, :b, :c] }
-    let(:line_cc) { [:g, :H, :i] }
+    let(:line_d) { [:A, :b, :c] }
+    let(:line_e) { [:g, :H, :i] }
 
-    let(:other) { described_class.new([line_aa, line_b, line_cc]) }
+    let(:other) { described_class.new([line_d, line_b, line_e]) }
 
     subject { grid.diff(other) }
 
-    it { should eq({ 0 => [:A, :b, :c], 2 => [:g, :H, :i] }) }
+    it 'returns only the lines that have changed from the other grid' do
+      should eq({ 0 => line_a, 2 => line_c })
+    end
+
+    context "when other is nil" do
+      let(:other) { nil }
+
+      it 'returns all the lines' do
+        should eq({ 0 => line_a, 1 => line_b, 2 => line_c })
+      end
+    end
   end
 
-  describe '#trailing_empty_lines' do
-    let(:grid) { described_class.new(data) }
-    let(:data) { [ [:a], [''], [] ] }
+  describe '#as_json' do
+    subject { grid.as_json }
 
-    subject { grid.trailing_empty_lines }
-
-    it { should eq(2) }
+    it { should eq([%w[a b c], %w[d e f], %w[g h i], %w[j k l]]) }
   end
 
 end

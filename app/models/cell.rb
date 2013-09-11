@@ -15,8 +15,8 @@ class Cell
     text == other.text && brush == other.brush
   end
 
-  def css_class
-    BrushPresenter.new(brush).to_css_class
+  def as_json(*)
+    [text, brush.as_json]
   end
 
 end

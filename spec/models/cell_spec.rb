@@ -59,16 +59,14 @@ describe Cell do
     end
   end
 
-  describe '#css_class' do
-    let(:brush_presenter) { double('brush_presenter', :to_css_class => 'kls') }
-
-    subject { cell.css_class }
+  describe '#as_json' do
+    subject { cell.as_json }
 
     before do
-      allow(BrushPresenter).to receive(:new).with(brush) { brush_presenter }
+      allow(brush).to receive(:as_json) { { fg: 1, bold: true } }
     end
 
-    it { should eq('kls') }
+    it { should eq(['a', { fg: 1, bold: true }]) }
   end
 
 end
