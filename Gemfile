@@ -22,8 +22,8 @@ gem 'dotenv-rails',         '~> 0.8'
 gem 'sass-rails',           '~> 4.0.0'
 gem 'coffee-rails',         '~> 4.0.0'
 gem 'uglifier',             '>= 2.1.2'
-gem 'tsm', :git => 'git://github.com/sickill/tsm.git'
-gem 'sinatra', :require => false
+gem 'sinatra',              '~> 1.4.3', :require => false
+gem 'oj',                   '~> 2.1.4'
 
 group :development do
   gem 'quiet_assets',   '~> 1.0.1'

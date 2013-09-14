@@ -4,43 +4,23 @@ require 'spec_helper'
 
 describe Terminal do
 
-  let(:terminal) { Terminal.new(20, 10) }
-  let(:tsm_screen) { double('tsm_screen', :draw => nil) }
-  let(:tsm_vte) { double('tsm_vte', :input => nil) }
+  let(:terminal) { Terminal.new(4, 3) }
+  let(:first_line_text) { subject.as_json.first.map(&:first).join.strip }
 
   before do
-    allow(TSM::Screen).to receive(:new).with(20, 10) { tsm_screen }
-    allow(TSM::Vte).to receive(:new).with(tsm_screen) { tsm_vte }
+    data.each do |chunk|
+      terminal.feed(chunk)
+    end
   end
 
-  describe '#feed' do
-    subject { terminal.feed('foo') }
-
-    it 'feeds the vte with the data' do
-      subject
-
-      expect(tsm_vte).to have_received(:input).with('foo')
-    end
+  after do
+    terminal.release
   end
 
   describe '#snapshot' do
     subject { terminal.snapshot }
 
-    def make_attr(attrs = {})
-      TSM::ScreenAttribute.new.tap do |screen_attribute|
-        attrs.each { |name, value| screen_attribute[name] = value }
-      end
-    end
-
-    before do
-      allow(tsm_screen).to receive(:draw).
-        and_yield(0, 0, 'f', make_attr(fg: 1)).
-        and_yield(1, 0, 'o', make_attr(bg: 2)).
-        and_yield(0, 1, 'o', make_attr(bold?: true)).
-        and_yield(1, 1, 'ś', make_attr(fg: 2, bg: 3,
-                                       bold?: true, underline?: true,
-                                       inverse?: true, blink?: true))
-    end
+    let(:data) { ["f\e[31mo\e[42mo\n", "\rb\e[0ma\e[1;4;5;7ms"] }
 
     it 'returns an instance of Snapshot' do
       expect(subject).to be_kind_of(Snapshot)
@@ -49,45 +29,120 @@ describe Terminal do
     it "returns each screen cell with its character attributes" do
       expect(subject.as_json).to eq([
         [
-          ['f', fg: 1],
-          ['o', bg: 2]
+          ['f', {}], ['o', fg: 1], ['o', fg: 1, bg: 2], [' ', {}],
         ],
         [
-          ['o', bold: true],
-          ['ś', fg: 2, bg: 3, bold: true, underline: true, inverse: true,
-                                                           blink: true]
+          ['b', fg: 1, bg: 2], ['a', {}], ['s', bold: true, underline: true,
+                                                inverse: true, blink: true],
+          [' ', inverse: true] # <- cursor here
+        ],
+        [
+          [' ', {}], [' ', {}], [' ', {}], [' ', {}]
         ]
       ])
     end
 
-    context "when invalid utf-8 character is yielded by tsm_screen" do
-      before do
-        allow(tsm_screen).to receive(:draw).
-          and_yield(0, 0, "\xc3\xff\xaa", make_attr(fg: 1))
+    describe 'utf-8 characters handling' do
+      let(:terminal) { Terminal.new(20, 1) }
+
+      context "when polish national characters given" do
+        let(:data) { ['żółć'] }
+
+        it 'returns proper utf-8 string' do
+          expect(first_line_text).to eq('żółć')
+        end
       end
 
-      it 'gets replaced with "?"' do
-        expect(subject.as_json).to eq([[['?', fg: 1]]])
+      context "when chinese national characters given" do
+        let(:data) { ['雞機基積'] }
+
+        it 'returns proper utf-8 string' do
+          expect(first_line_text).to eq('雞機基積')
+        end
+      end
+    end
+
+    context "when invalid utf-8 character is yielded by tsm_screen" do
+      let(:terminal) { Terminal.new(3, 1) }
+      let(:data) { ["A\xc3\xff\xaaZ"] }
+
+      it 'gets replaced with "�"' do
+        expect(first_line_text).to eq('A�Z')
+      end
+    end
+
+    context "when double quote character ...." do
+      let(:terminal) { Terminal.new(6, 1) }
+      let(:data) { ['"a"b"'] }
+
+      it 'works' do
+        expect(first_line_text).to eq('"a"b"')
+      end
+    end
+
+    context "when backslash character..." do
+      let(:terminal) { Terminal.new(6, 1) }
+      let(:data) { ['a\\b'] }
+
+      it 'works' do
+        expect(first_line_text).to eq('a\\b')
+      end
+    end
+
+    describe 'with a 256-color mode foreground color' do
+      subject { terminal.snapshot.as_json.first.first.last[:fg] }
+
+      let(:data) { ["\x1b[38;5;#{color_code}mX"] }
+
+      (1..255).each do |n|
+        context "of value #{n}" do
+          let(:color_code) { n }
+
+          it { should eq(n) }
+        end
+      end
+    end
+
+    describe 'with a 256-color mode background color' do
+      subject { terminal.snapshot.as_json.first.first.last[:bg] }
+
+      let(:data) { ["\x1b[48;5;#{color_code}mX"] }
+
+      (1..255).each do |n|
+        context "of value #{n}" do
+          let(:color_code) { n }
+
+          it { should eq(n) }
+        end
       end
     end
   end
 
   describe '#cursor' do
-    let(:tsm_screen) { double('tsm_screen', :cursor_x => 3, :cursor_y => 5,
-                                            :cursor_visible? => false) }
-
     subject { terminal.cursor }
 
+    let(:data) { ["foo\n\rba"] }
+
     it 'gets its x position from the screen' do
-      expect(subject.x).to eq(3)
+      expect(subject.x).to eq(2)
     end
 
     it 'gets its y position from the screen' do
-      expect(subject.y).to eq(5)
+      expect(subject.y).to eq(1)
     end
 
     it 'gets its visibility from the screen' do
-      expect(subject.visible).to eq(false)
+      expect(subject.visible).to eq(true)
+    end
+
+    context "when cursor was hidden" do
+      before do
+        terminal.feed("\e[?25l")
+      end
+
+      it 'gets its visibility from the screen' do
+        expect(subject.visible).to eq(false)
+      end
     end
   end
 

@@ -1,67 +1,59 @@
+require 'open3'
+
 class Terminal
 
+  BINARY_PATH = "/home/kill/code/ascii.io-converter/terminal"
+
   def initialize(width, height)
-    @screen = TSM::Screen.new(width, height)
-    @vte = TSM::Vte.new(@screen)
+    @process = Process.new("#{BINARY_PATH} #{width} #{height}")
   end
 
   def feed(data)
-    vte.input(data)
+    process.write("d\n#{data.bytesize}\n#{data}")
   end
 
   def snapshot
-    lines = []
-
-    screen.draw do |x, y, char, screen_attribute|
-      assign_cell(lines, x, y, char, screen_attribute)
-    end
+    process.write("p\n")
+    lines = Oj.load(process.read_line)
 
     Snapshot.build(lines)
   end
 
   def cursor
-    Cursor.new(screen.cursor_x, screen.cursor_y, screen.cursor_visible?)
+    process.write("c\n")
+    c = Oj.load(process.read_line)
+
+    Cursor.new(c['x'], c['y'], c['visible'])
   end
 
   def release
-    screen.release
-    vte.release
+    process.stop
   end
 
   private
 
-  attr_reader :screen, :vte
+  attr_reader :process
 
-  def assign_cell(lines, x, y, char, screen_attribute)
-    line = lines[y] ||= []
-    line[x] = [sanitize_char(char), attributes_hash(screen_attribute)]
-  end
+  class Process
 
-  def sanitize_char(char)
-    char.
-      encode('UTF-16', :invalid => :replace, :undef => :replace,
-                       :replace => "\001").
-      encode('UTF-8').gsub(/\001+/, '?').
-      first
-  end
-
-  def attributes_hash(screen_attribute)
-    attrs = {}
-
-    [:fg, :bg, :bold?, :underline?, :inverse?, :blink?].each do |name|
-      assign_attr(attrs, screen_attribute, name)
+    def initialize(command)
+      @stdin, @stdout, @thread = Open3.popen2(command)
     end
 
-    attrs
-  end
-
-  def assign_attr(attrs, screen_attribute, name)
-    value = screen_attribute.public_send(name)
-
-    if value
-      key = name.to_s.sub('?', '').to_sym
-      attrs[key] = value
+    def write(data)
+      raise "terminal died" unless @thread.alive?
+      @stdin.write(data)
     end
+
+    def read_line
+      raise "terminal died" unless @thread.alive?
+      @stdout.readline.strip
+    end
+
+    def stop
+      @stdin.close
+    end
+
   end
 
 end
