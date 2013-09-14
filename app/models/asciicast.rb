@@ -60,7 +60,7 @@ class Asciicast < ActiveRecord::Base
     terminal = Terminal.new(terminal_columns, terminal_lines)
     yield(terminal)
   ensure
-    terminal.release
+    terminal.release if terminal
   end
 
 end
