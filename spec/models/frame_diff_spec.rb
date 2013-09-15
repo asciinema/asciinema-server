@@ -7,24 +7,12 @@ describe FrameDiff do
   let(:cursor_changes) { { x: 1 } }
   let(:line_0) { double('line_0') }
   let(:line_2) { double('line_2') }
-  let(:line_optimizer) { double('line_optimizer') }
-  let(:optimized_line_0) { double('optimized_line_0') }
-  let(:optimized_line_2) { double('optimized_line_2') }
 
   describe '#as_json' do
     subject { frame_diff.as_json }
 
-    before do
-      allow(LineOptimizer).to receive(:new) { line_optimizer }
-      allow(line_optimizer).to receive(:optimize).
-        with(line_0) { optimized_line_0 }
-      allow(line_optimizer).to receive(:optimize).
-        with(line_2) { optimized_line_2 }
-    end
-
     it 'includes line changes and cursor changes' do
-      expect(subject).to eq({ :lines => { 0 => optimized_line_0,
-                                          2 => optimized_line_2 },
+      expect(subject).to eq({ :lines => { 0 => line_0, 2 => line_2 },
                               :cursor => cursor_changes })
     end
 

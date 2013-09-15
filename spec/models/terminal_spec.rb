@@ -4,7 +4,7 @@ require 'spec_helper'
 
 describe Terminal do
 
-  let(:terminal) { Terminal.new(4, 3) }
+  let(:terminal) { Terminal.new(6, 3) }
   let(:first_line_text) { subject.as_json.first.map(&:first).join.strip }
 
   before do
@@ -20,24 +20,29 @@ describe Terminal do
   describe '#snapshot' do
     subject { terminal.snapshot }
 
-    let(:data) { ["f\e[31mo\e[42mo\n", "\rb\e[0ma\e[1;4;5;7ms"] }
+    let(:data) { ["fo\e[31mo\e[42mba\n", "\rr\e[0mb\e[1;4;5;7maz"] }
 
     it 'returns an instance of Snapshot' do
       expect(subject).to be_kind_of(Snapshot)
     end
 
-    it "returns each screen cell with its character attributes" do
+    it "returns screen cells groupped by the character attributes" do
       expect(subject.as_json).to eq([
         [
-          ['f', {}], ['o', fg: 1], ['o', fg: 1, bg: 2], [' ', {}],
+          ['fo', {}],
+          ['o', fg: 1],
+          ['ba', fg: 1, bg: 2],
+          [' ', {}],
         ],
         [
-          ['b', fg: 1, bg: 2], ['a', {}], ['s', bold: true, underline: true,
-                                                inverse: true, blink: true],
-          [' ', inverse: true] # <- cursor here
+          ['r', fg: 1, bg: 2],
+          ['b', {}],
+          ['az', bold: true, underline: true, inverse: true, blink: true],
+          [' ', inverse: true],  # <- cursor here
+          [' ', {}]
         ],
         [
-          [' ', {}], [' ', {}], [' ', {}], [' ', {}]
+          ['      ', {}]
         ]
       ])
     end
