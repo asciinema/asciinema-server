@@ -1,6 +1,8 @@
 class Brush
 
   ALLOWED_ATTRIBUTES = [:fg, :bg, :bold, :underline, :inverse, :blink]
+  DEFAULT_FG_CODE = 7
+  DEFAULT_BG_CODE = 0
 
   def initialize(attributes = {})
     @attributes = attributes.symbolize_keys
@@ -11,32 +13,15 @@ class Brush
       bg == other.bg &&
       bold? == other.bold? &&
       underline? == other.underline? &&
-      inverse? == other.inverse? &&
       blink? == other.blink?
   end
 
   def fg
-    code = attributes[:fg]
-
-    if code
-      if code < 8 && bold?
-        code += 8
-      end
-    end
-
-    code
+    inverse? ? bg_code || DEFAULT_BG_CODE : fg_code
   end
 
   def bg
-    code = attributes[:bg]
-
-    if code
-      if code < 8 && blink?
-        code += 8
-      end
-    end
-
-    code
+    inverse? ? fg_code || DEFAULT_FG_CODE : bg_code
   end
 
   def bold?
@@ -66,5 +51,27 @@ class Brush
   protected
 
   attr_reader :attributes
+
+  private
+
+  def fg_code
+    calculate_code(:fg, bold?)
+  end
+
+  def bg_code
+    calculate_code(:bg, blink?)
+  end
+
+  def calculate_code(attr_name, strong)
+    code = attributes[attr_name]
+
+    if code
+      if code < 8 && strong
+        code += 8
+      end
+    end
+
+    code
+  end
 
 end

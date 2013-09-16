@@ -4,7 +4,7 @@ class BrushPresenter < SimpleDelegator
     if default?
       nil
     else
-      classes = [fg_class, bg_class, bold_class, underline_class, inverse_class]
+      classes = [fg_class, bg_class, bold_class, underline_class]
       classes.compact.join(' ')
     end
   end
@@ -25,10 +25,6 @@ class BrushPresenter < SimpleDelegator
 
   def underline_class
     'underline' if underline?
-  end
-
-  def inverse_class
-    'inverse' if inverse?
   end
 
 end

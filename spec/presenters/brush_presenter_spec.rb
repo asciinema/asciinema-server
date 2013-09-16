@@ -1,9 +1,7 @@
-require 'spec_helper'
-
 describe BrushPresenter do
   let(:brush_presenter) { BrushPresenter.new(brush) }
   let(:brush) { double('brush', :fg => nil, :bg => nil, :bold? => false,
-                                :underline? => false, :inverse? => false) }
+                                :underline? => false) }
 
   describe '#to_css_class' do
     subject { brush_presenter.to_css_class }
@@ -77,14 +75,6 @@ describe BrushPresenter do
         end
 
         it { should match(/\bunderline\b/) }
-      end
-
-      context "when it's inverse" do
-        before do
-          allow(brush).to receive(:inverse?) { true }
-        end
-
-        it { should match(/\binverse\b/) }
       end
     end
   end

@@ -4,6 +4,8 @@ describe Brush do
   let(:brush) { Brush.new(attributes) }
 
   describe '#==' do
+    subject { brush == other }
+
     let(:attributes) { {
       :fg        => 1,
       :bg        => 2,
@@ -13,8 +15,6 @@ describe Brush do
       :blink     => false,
       :foo       => true,
     } }
-
-    subject { brush == other }
 
     context "when all fg, bg, bold?, underline? and inverse? are equal" do
       let(:other) { Brush.new(
@@ -46,90 +46,36 @@ describe Brush do
   end
 
   describe '#fg' do
-    subject { brush.fg }
-
-    context "when fg was set" do
-      let(:attributes) { { :fg => 1 } }
-
-      it { should eq(1) }
-    end
-
-    context "when fg was not set" do
-      let(:attributes) { {} }
-
-      it { should be(nil) }
-    end
-
-    context "when bold is set" do
-      let(:attributes) { { :bold => true } }
-
-      context "and input fg is < 8" do
-        before do
-          attributes[:fg] = 7
-        end
-
-        it { should eq(15) }
-      end
-
-      context "and input fg is == 8" do
-        before do
-          attributes[:fg] = 8
-        end
-
-        it { should eq(8) }
-      end
-
-      context "and input fg is > 8" do
-        before do
-          attributes[:fg] = 9
-        end
-
-        it { should eq(9) }
-      end
+    it 'behaves like in rxvt/gnome-terminal' do
+      expect(Brush.new.fg).to eq(nil)
+      expect(Brush.new(fg: 1).fg).to eq(1)
+      expect(Brush.new(fg: 1, bold: true).fg).to eq(9)
+      expect(Brush.new(fg: 8, bold: true).fg).to eq(8)
+      expect(Brush.new(fg: 9, bold: true).fg).to eq(9)
+      expect(Brush.new(fg: 1, inverse: true).fg).to eq(0)
+      expect(Brush.new(bg: 2, inverse: true).fg).to eq(2)
+      expect(Brush.new(fg: 1, inverse: true, blink: true).fg).to eq(0)
+      expect(Brush.new(bg: 1, inverse: true, blink: true).fg).to eq(9)
+      expect(Brush.new(bg: 0, inverse: true).fg).to eq(0)
+      expect(Brush.new(bg: 0, inverse: true, blink: true).fg).to eq(8)
+      expect(Brush.new(inverse: true, blink: true).fg).to eq(0)
     end
   end
 
   describe '#bg' do
-    subject { brush.bg }
-
-    context "when bg was set" do
-      let(:attributes) { { :bg => 2 } }
-
-      it { should eq(2) }
-    end
-
-    context "when bg was not set" do
-      let(:attributes) { {} }
-
-      it { should be(nil) }
-    end
-
-    context "when blink is set" do
-      let(:attributes) { { :blink => true } }
-
-      context "and input bg is < 8" do
-        before do
-          attributes[:bg] = 7
-        end
-
-        it { should eq(15) }
-      end
-
-      context "and input bg is == 8" do
-        before do
-          attributes[:bg] = 8
-        end
-
-        it { should eq(8) }
-      end
-
-      context "and input bg is > 8" do
-        before do
-          attributes[:bg] = 9
-        end
-
-        it { should eq(9) }
-      end
+    it 'behaves like in rxvt/gnome-terminal' do
+      expect(Brush.new.bg).to eq(nil)
+      expect(Brush.new(bg: 1).bg).to eq(1)
+      expect(Brush.new(bg: 1, blink: true).bg).to eq(9)
+      expect(Brush.new(bg: 8, blink: true).bg).to eq(8)
+      expect(Brush.new(bg: 9, blink: true).bg).to eq(9)
+      expect(Brush.new(bg: 1, inverse: true).bg).to eq(7)
+      expect(Brush.new(fg: 2, inverse: true).bg).to eq(2)
+      expect(Brush.new(bg: 1, inverse: true, bold: true).bg).to eq(7)
+      expect(Brush.new(fg: 1, inverse: true, bold: true).bg).to eq(9)
+      expect(Brush.new(fg: 0, inverse: true).bg).to eq(0)
+      expect(Brush.new(fg: 0, inverse: true, bold: true).bg).to eq(8)
+      expect(Brush.new(inverse: true, bold: true).bg).to eq(7)
     end
   end
 

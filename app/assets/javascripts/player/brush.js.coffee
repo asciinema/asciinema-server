@@ -48,27 +48,33 @@ class AsciiIo.Brush
     reverse  : @reverse
 
   fgColor: ->
-    if @reverse
-      @calculateBgColor()
+    if @inverse
+      color = @calculateBgColor()
+      if color != undefined
+        color
+      else
+        AsciiIo.Brush.default_bg
     else
       @calculateFgColor()
 
   bgColor: ->
-    if @reverse
-      @calculateFgColor()
+    if @inverse
+      color = @calculateFgColor()
+      if color != undefined
+        color
+      else
+        AsciiIo.Brush.default_fg
     else
       @calculateBgColor()
 
   calculateFgColor: ->
     color = @fg
-    color = AsciiIo.Brush.default_fg if color is undefined
-    color += 8 if color < 8 and @bright
+    color += 8 if color != undefined && color < 8 && @bold
     color
 
   calculateBgColor: ->
     color = @bg
-    color = AsciiIo.Brush.default_bg if color is undefined
-    color += 8 if color < 8 and @blink
+    color += 8 if color != undefined && color < 8 && @blink
     color
 
   applyChanges: (changes) ->
