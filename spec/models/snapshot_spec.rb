@@ -4,10 +4,10 @@ describe Snapshot do
 
   let(:snapshot) { described_class.build(data) }
   let(:data) { [
-    [['a', fg: 1], ['b', fg: 2]],
-    [['a', fg: 3], ['b', fg: 4]],
-    [['a', fg: 5], ['b', fg: 6]],
-    [[' ', {}]   , ['' , {}]]
+    [['a',  fg: 1], ['b', fg: 2]],
+    [['ab', fg: 3]              ],
+    [['a',  fg: 5], ['b', fg: 6]],
+    [[' ',  {}]   , ['' , {}]]
   ] }
 
   describe '#thumbnail' do

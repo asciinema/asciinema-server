@@ -5,37 +5,18 @@ describe Grid do
   let(:grid) { described_class.new(data) }
 
   let(:data) { [
-    [:a, :b, :c],
-    [:d, :e, :f],
-    [:g, :h, :i],
-    [:j, :k, :l]
+    %w[a b c ć],
+    %w[de ff],
+    %w[ghiî],
+    %w[j k l m]
   ] }
 
-  describe '#==' do
-    let(:grid) { described_class.new(grid_lines) }
-    let(:other) { described_class.new(other_lines) }
-
-    subject { grid == other }
-
-    context "when lines are equal" do
-      let(:grid_lines) { [:a] }
-      let(:other_lines) { [:a] }
-
-      it { should be(true) }
-    end
-
-    context "when lines are different" do
-      let(:grid_lines) { [:a] }
-      let(:other_lines) { [:b] }
-
-      it { should be(false) }
-    end
-  end
-
   describe '#width' do
+    let(:data) { [ %w[a bc def] ] }
+
     subject { grid.width }
 
-    it { should eq(3) }
+    it { should eq(6) }
   end
 
   describe '#height' do
@@ -44,18 +25,12 @@ describe Grid do
     it { should eq(4) }
   end
 
-  describe '#cell' do
-    it 'returns item at given x and y position' do
-      expect(grid.cell(0, 0)).to eq(:a)
-      expect(grid.cell(1, 2)).to eq(:h)
-      expect(grid.cell(2, 3)).to eq(:l)
-    end
-  end
-
   describe '#crop' do
-    subject { grid.crop(1, 0, 2, 3) }
+    let(:expected) { described_class.new([%w[e f], %w[hi], %w[k l]]).lines }
 
-    it { should eq(described_class.new([[:b, :c], [:e, :f], [:h, :i]])) }
+    it 'crops the lines properly' do
+      expect(grid.crop(1, 1, 2, 3).lines).to eq(expected)
+    end
   end
 
   describe '#diff' do
@@ -88,7 +63,7 @@ describe Grid do
   describe '#as_json' do
     subject { grid.as_json }
 
-    it { should eq([%w[a b c], %w[d e f], %w[g h i], %w[j k l]]) }
+    it { should eq([%w[a b c ć], %w[de ff], %w[ghiî], %w[j k l m]]) }
   end
 
 end

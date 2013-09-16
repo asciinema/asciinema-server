@@ -59,6 +59,16 @@ describe Cell do
     end
   end
 
+  describe '#[]' do
+    let(:cell) { described_class.new('abcdef', brush) }
+
+    subject { cell[2..4] }
+
+    it 'returns new cell with the cropped text and the same brush' do
+      expect(subject).to eq(Cell.new('cde', brush))
+    end
+  end
+
   describe '#as_json' do
     subject { cell.as_json }
 

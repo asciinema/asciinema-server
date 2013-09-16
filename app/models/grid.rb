@@ -1,23 +1,16 @@
 class Grid
 
-  attr_reader :width, :height
+  attr_reader :width, :height, :lines
 
   def initialize(lines)
     @lines = lines
-    @width = lines.first && lines.first.size || 0
+    @width = lines.first && lines.first.sum(&:size) || 0
     @height = lines.size
   end
 
-  def ==(other)
-    lines == other.lines
-  end
-
-  def cell(x, y)
-    lines[y][x]
-  end
-
   def crop(x, y, width, height)
-    cropped_lines = lines[y...y+height].map { |line| line[x...x+width] }
+    cropped_lines = lines[y...y+height].map { |line| crop_line(line, x, width) }
+
     self.class.new(cropped_lines)
   end
 
@@ -33,8 +26,25 @@ class Grid
     lines.as_json
   end
 
-  protected
+  private
 
-  attr_reader :lines
+  def crop_line(line, x, width)
+    n = 0
+    cells = []
+
+    line.each do |cell|
+      if n <= x && x < n + cell.size
+        cells << cell[x-n...x-n+width]
+      elsif x < n && x + width >= n + cell.size
+        cells << cell
+      elsif n < x + width && x + width < n + cell.size
+        cells << cell[0...x+width-n]
+      end
+
+      n += cell.size
+    end
+
+    cells
+  end
 
 end
