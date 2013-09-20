@@ -9,7 +9,8 @@ class Terminal
   end
 
   def feed(data)
-    process.write("d\n#{data.bytesize}\n#{data}")
+    process.write("d\n#{data.bytesize}\n")
+    process.write(data)
   end
 
   def snapshot
