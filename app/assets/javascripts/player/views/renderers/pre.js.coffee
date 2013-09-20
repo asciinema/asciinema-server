@@ -21,7 +21,7 @@ class AsciiIo.Renderer.Pre extends AsciiIo.Renderer.Base
     @$el.css(width: @width() + 'px', height: @height() + 'px')
 
   render: ->
-    if @state.dirty
+    if @dirty
       @$el.find('.cursor').removeClass('cursor')
 
     super
@@ -33,18 +33,8 @@ class AsciiIo.Renderer.Pre extends AsciiIo.Renderer.Base
     for fragment in fragments
       [text, brush] = fragment
 
-      if cursorX isnt undefined and rendered <= cursorX < rendered + text.length
-        left = text.slice(0, cursorX - rendered)
-        cursor =
-          '<span class="cursor visible">' + text[cursorX - rendered] + '</span>'
-        right = text.slice(cursorX - rendered + 1)
-
-        t = @escape(left) + cursor + @escape(right)
-      else
-        t = @escape(text)
-
       html.push @spanFromBrush(brush)
-      html.push t
+      html.push @escape(text)
       html.push '</span>'
 
       rendered += text.length
@@ -72,7 +62,7 @@ class AsciiIo.Renderer.Pre extends AsciiIo.Renderer.Base
         unless brush.hasDefaultBg()
           span += " bg" + brush.bgColor()
 
-        if brush.bright
+        if brush.bold
           span += " bright"
 
         if brush.underline
@@ -103,9 +93,3 @@ class AsciiIo.Renderer.Pre extends AsciiIo.Renderer.Base
   resetCursorState: ->
     cursor = @$el.find(".cursor")
     cursor.addClass "visible"
-
-  # TODO: check if it's used
-  clearScreen: ->
-    # this.lineData.length = 0;
-    # @cursorY = @cursorX = 0
-    @$el.find(".line").empty()

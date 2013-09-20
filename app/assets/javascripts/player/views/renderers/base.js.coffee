@@ -7,7 +7,8 @@ class AsciiIo.Renderer.Base extends Backbone.View
     @lines = options.lines
     @showCursor true
     @startCursorBlink()
-    @clearState()
+    @clearChanges()
+    @cursor = { x: undefined, y: undefined, visible: true }
     requestAnimationFrame @render
 
   width: ->
@@ -19,31 +20,30 @@ class AsciiIo.Renderer.Base extends Backbone.View
   elementWidth: ->
     @$el.outerWidth()
 
-  clearState: ->
-    @state =
-      changes: {}
-      cursorX: undefined
-      cursorY: undefined
-      dirty: false
+  clearChanges: ->
+    @changes = {}
+    @dirty = false
 
   onClick: ->
     @trigger('terminal-click')
 
-  push: (state) ->
-    _(@state.changes).extend state.changes
-    @state.cursorX = state.cursorX
-    @state.cursorY = state.cursorY
-    @state.dirty = true
+  push: (changes) ->
+    if changes.lines
+      _(@changes).extend changes.lines
+      @dirty = true
+
+    if changes.cursor
+      _(@cursor).extend changes.cursor
 
   render: =>
     requestAnimationFrame @render
 
-    if @state.dirty
-      for n, fragments of @state.changes
-        c = if parseInt(n) is @state.cursorY then @state.cursorX else undefined
+    if @dirty
+      for n, fragments of @changes
+        c = if parseInt(n) is @cursor.y then @cursor.x else undefined
         @renderLine n, fragments || [], c
 
-      @clearState()
+      @clearChanges()
 
   renderLine: (n, data, cursorX) ->
     throw '#renderLine not implemented'

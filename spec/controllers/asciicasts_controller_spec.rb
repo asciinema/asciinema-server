@@ -89,13 +89,7 @@ describe AsciicastsController do
     end
 
     context 'for json request' do
-      let(:streamer) { double('streamer') }
-
       before do
-        allow(AsciicastStreamer).to receive(:new).with(asciicast).
-          and_return(streamer)
-        allow(controller).to receive(:response_body=).and_call_original
-
         get :show, :id => asciicast.id, :format => :json
       end
 
@@ -103,10 +97,6 @@ describe AsciicastsController do
 
       it 'should not be counted as a visit' do
         expect(ViewCounter).to_not have_received(:new)
-      end
-
-      it 'should assign the streamer to the response_body' do
-        expect(controller).to have_received(:response_body=).with(streamer)
       end
     end
 

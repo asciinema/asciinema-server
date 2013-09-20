@@ -3,38 +3,47 @@ class AsciiIo.AbstractPlayer
   constructor: (@options) ->
     @model = @options.model
     @createView()
-    @fetchModel()
+    @loadFrames()
 
   createView: ->
     @view = new AsciiIo.PlayerView
       el: @options.el
       model: @model
-      cols: @options.cols
-      lines: @options.lines
+      cols: @model.get 'width'
+      lines: @model.get 'height'
       hud: @options.hud
       rendererClass: @options.rendererClass
-      snapshot: @options.snapshot
+      snapshot: @model.get 'snapshot'
       containerWidth: @options.containerWidth
-
-  createVT: ->
-    throw 'not implemented'
 
   createMovie: ->
     throw 'not implemented'
 
   movieOptions: ->
-    stdout: @model.get 'stdout'
+    stdout_frames: @model.get 'stdout_frames'
     duration: @model.get 'duration'
     speed: @options.speed
     benchmark: @options.benchmark
-    cols: @options.cols
-    lines: @options.lines
+    cols: @model.get 'width'
+    lines: @model.get 'height'
 
-  fetchModel: ->
-    @model.fetch success: @onModelReady
+  loadFrames: =>
+    if @model.get('stdout_frames_url')
+      @fetchFrames()
+    else
+      setTimeout(
+        => @model.fetch success: @loadFrames,
+        2000
+      )
+
+  fetchFrames: ->
+    url = @model.get('stdout_frames_url')
+
+    $.getJSON url, (frames) =>
+      @model.set 'stdout_frames', frames
+      @onModelReady()
 
   onModelReady: =>
-    @createVT()
     @createMovie()
     @bindEvents()
     @view.onModelReady()
@@ -47,8 +56,6 @@ class AsciiIo.AbstractPlayer
   bindEvents: ->
     @view.on 'play-clicked', => @movie.call 'togglePlay'
     @view.on 'seek-clicked', (percent) => @movie.call 'seek', percent
-
-    @vt.on 'cursor-visibility', (show) => @view.showCursor show
 
     @movie.on 'started', => @view.onStateChanged 'playing'
     @movie.on 'paused', => @view.onStateChanged 'paused'

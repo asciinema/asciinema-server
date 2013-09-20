@@ -11,7 +11,7 @@ class AsciiIo.Brush
     @_default ||= @create()
 
   @hash: (brush) ->
-    "#{brush.fg}_#{brush.bg}_#{brush.blink}_#{brush.bright}_#{brush.italic}_#{brush.underline}_#{brush.reverse}"
+    "#{brush.fg}_#{brush.bg}_#{brush.blink}_#{brush.bold}_#{brush.underline}_#{brush.inverse}"
 
   @create: (options = {}) ->
     key = @hash options
@@ -27,10 +27,9 @@ class AsciiIo.Brush
     @fg        = undefined
     @bg        = undefined
     @blink     = false
-    @bright    = false
-    @italic    = false
+    @bold      = false
     @underline = false
-    @reverse   = false
+    @inverse   = false
 
     for name, value of options
       this[name] = value
@@ -42,10 +41,9 @@ class AsciiIo.Brush
     fg       : @fg
     bg       : @bg
     blink    : @blink
-    bright   : @bright
-    italic   : @italic
+    bold     : @bold
     underline: @underline
-    reverse  : @reverse
+    inverse  : @inverse
 
   fgColor: ->
     if @inverse
@@ -76,14 +74,6 @@ class AsciiIo.Brush
     color = @bg
     color += 8 if color != undefined && color < 8 && @blink
     color
-
-  applyChanges: (changes) ->
-    attrs = @attributes()
-
-    for attr, val of changes
-      attrs[attr] = val
-
-    AsciiIo.Brush.create attrs
 
   hasDefaultFg: ->
     @fgColor() == AsciiIo.Brush.default_fg

@@ -5,7 +5,7 @@ class Asciicast < ActiveRecord::Base
   mount_uploader :stdin_timing,  StdinTimingUploader
   mount_uploader :stdout_data,   StdoutDataUploader
   mount_uploader :stdout_timing, StdoutTimingUploader
-  mount_uploader :stdout_frames, BaseUploader
+  mount_uploader :stdout_frames, StdoutFramesUploader
 
   serialize :snapshot, JSON
 

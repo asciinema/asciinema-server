@@ -24,6 +24,7 @@ gem 'coffee-rails',         '~> 4.0.0'
 gem 'uglifier',             '>= 2.1.2'
 gem 'sinatra',              '~> 1.4.3', :require => false
 gem 'oj',                   '~> 2.1.4'
+gem 'active_model_serializers', '~> 0.8.1'
 
 group :development do
   gem 'quiet_assets',   '~> 1.0.1'

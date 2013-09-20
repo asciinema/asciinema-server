@@ -1,15 +1,7 @@
-class AsciicastSerializer
+class AsciicastSerializer < ActiveModel::Serializer
+  self.root = false
 
-  def initialize(asciicast)
-    @asciicast = asciicast
-  end
-
-  def as_json(*)
-    asciicast.as_json
-  end
-
-  private
-
-  attr_reader :asciicast
-
+  attributes :id, :duration, :stdout_frames_url, :snapshot
+  attribute :terminal_columns, key: :width
+  attribute :terminal_lines, key: :height
 end

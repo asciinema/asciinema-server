@@ -7,9 +7,6 @@ class AsciiIo.Player extends AsciiIo.AbstractPlayer
   createWorkerProxy: ->
     @workerProxy = new AsciiIo.WorkerProxy(window.mainWorkerPath)
 
-  createVT: ->
-    @vt = @workerProxy.getObjectProxy 'vt'
-
   createMovie: ->
     @movie = @workerProxy.getObjectProxy 'movie'
 

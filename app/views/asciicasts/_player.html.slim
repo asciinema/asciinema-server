@@ -1,0 +1,16 @@
+.player
+
+javascript:
+  $(function() {
+    var playerClass = #{player_class.html_safe};
+    window.player = new playerClass({
+      el: $('.player'),
+      speed: #{speed},
+      benchmark: #{benchmark},
+      model: new AsciiIo.Asciicast(#{asciicast.html_safe}),
+      containerWidth: #{container_width || 'null'},
+      rendererClass: #{renderer_class.html_safe},
+      autoPlay: #{auto_play},
+      hud: #{hud}
+    });
+  });

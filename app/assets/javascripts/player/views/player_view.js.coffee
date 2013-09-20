@@ -16,7 +16,7 @@ class AsciiIo.PlayerView extends Backbone.View
 
     @$el.append @rendererView.$el
     @rendererView.afterInsertedToDom()
-    @rendererView.renderSnapshot @options.snapshot
+    @renderSnapshot()
 
   setupClipping: ->
     if @options.containerWidth
@@ -35,6 +35,7 @@ class AsciiIo.PlayerView extends Backbone.View
     @$el.append @hudView.$el
 
   onModelReady: ->
+    @renderSnapshot()
     @hideLoadingOverlay()
     @hudView.setDuration @model.get('duration') if @hudView
 
@@ -47,6 +48,9 @@ class AsciiIo.PlayerView extends Backbone.View
 
   onSeekClicked: (percent) ->
     @trigger 'seek-clicked', percent
+
+  renderSnapshot: ->
+    @rendererView.renderSnapshot @model.get('snapshot')
 
   showOverlay: (html) ->
     element = $(html)

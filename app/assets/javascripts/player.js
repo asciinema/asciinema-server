@@ -7,8 +7,6 @@
 //= require_tree ./player/views/renderers
 //= require player/views/hud_view
 //= require player/abstract_player
-//= require player/vt/ansi_interpreter
-//= require_tree ./player/vt
 //= require player/movie
 //= require player/player
 //= require player/fallback_player

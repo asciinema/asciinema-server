@@ -14,23 +14,26 @@ module AsciicastsHelper
     end
 
     render :partial => 'asciicasts/player', :locals => {
+      asciicast: serialized_asciicast(asciicast),
       player_class: player_class,
-      cols: asciicast.terminal_columns,
-      lines: asciicast.terminal_lines,
       speed: (options[:speed] || params[:speed] || 1).to_f,
       benchmark: !!params[:bm],
-      asciicast_id: asciicast.id,
       container_width: params[:container_width],
       renderer_class: renderer_class,
       auto_play: options.key?(:auto_play) ? !!options[:auto_play] : false,
-      hud: options.key?(:hud) ? !!options[:hud] : true,
-      snapshot: asciicast.snapshot.to_json
+      hud: options.key?(:hud) ? !!options[:hud] : true
     }
   end
 
   def link_to_delete_asciicast(name, asciicast)
     link_to name, asciicast_path(asciicast), :method => :delete,
       :data => { :confirm => 'Really delete this asciicast?' }
+  end
+
+  private
+
+  def serialized_asciicast(asciicast)
+    AsciicastSerializer.new(asciicast).to_json
   end
 
 end

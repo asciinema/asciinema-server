@@ -37,8 +37,7 @@ class AsciicastsController < ApplicationController
       end
 
       format.json do
-        response.headers['Cache-Control'] = 'no-cache' # prevent Rack buffering
-        self.response_body = AsciicastStreamer.new(@asciicast)
+        respond_with @asciicast
       end
 
       format.js do
