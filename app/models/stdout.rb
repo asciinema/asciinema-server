@@ -20,7 +20,7 @@ class Stdout
 
   def delay_and_data_for_line(file, line)
     delay, size = TimingParser.parse_line(line)
-    data = file.read(size).force_encoding('utf-8')
+    data = file.read(size).to_s.force_encoding('utf-8')
 
     [delay, data]
   end
