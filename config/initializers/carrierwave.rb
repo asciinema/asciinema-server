@@ -1,5 +1,5 @@
 CarrierWave.configure do |config|
-  if CFG['CARRIERWAVE_STORAGE'] == :fog
+  if CFG['CARRIERWAVE_STORAGE'].to_s == 'fog'
     config.storage = :fog
 
     config.fog_credentials = {
