@@ -1,5 +1,5 @@
 defaults: &defaults
-  CARRIERWAVE_STORAGE: :fog
+  CARRIERWAVE_STORAGE: :file
   GOOGLE_ANALYTICS_ID: 
   AIRBRAKE_API_KEY: 
   AIRBRAKE_HOST: 
@@ -22,12 +22,10 @@ development:
 
 bugfix:
   <<: *defaults
-  CARRIERWAVE_STORAGE: :fog
 
 production:
   <<: *defaults
   EMAIL_HOST: "ascii.io"
-  CARRIERWAVE_STORAGE: :fog
 
 test:
   <<: *defaults
