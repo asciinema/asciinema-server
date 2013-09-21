@@ -3,7 +3,7 @@ require 'spec_helper'
 describe SnapshotDecorator do
 
   let(:decorator) { described_class.new(snapshot) }
-  let(:snapshot) { double('snapshot', :width => 2, :height => 2, :lines => lines) }
+  let(:snapshot) { double('snapshot', width: 2, height: 2, lines: lines) }
   let(:lines) { [ [:ab], [:c, :d] ] }
 
   describe '#lines' do

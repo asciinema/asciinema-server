@@ -10,7 +10,8 @@ describe AsciicastWorker do
 
     before do
       allow(Asciicast).to receive(:find).with(123) { asciicast }
-      allow(AsciicastProcessor).to receive(:new).with(no_args) { asciicast_processor }
+      allow(AsciicastProcessor).to receive(:new).
+        with(no_args) { asciicast_processor }
     end
 
     it 'processes given asciicast with AsciicastProcessor' do

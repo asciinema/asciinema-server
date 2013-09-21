@@ -75,8 +75,10 @@ describe Asciicast do
 
   describe '#stdout' do
     let(:asciicast) { Asciicast.new }
-    let(:data_uploader) { double('data_uploader', :decompressed_path => '/foo') }
-    let(:timing_uploader) { double('timing_uploader', :decompressed_path => '/bar') }
+    let(:data_uploader) { double('data_uploader',
+                                 :decompressed_path => '/foo') }
+    let(:timing_uploader) { double('timing_uploader',
+                                   :decompressed_path => '/bar') }
     let(:stdout) { double('stdout', :lazy => lazy_stdout) }
     let(:lazy_stdout) { double('lazy_stdout') }
 
