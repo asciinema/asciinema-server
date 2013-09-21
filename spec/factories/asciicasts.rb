@@ -20,5 +20,7 @@ FactoryGirl.define do
     views_count 1
     stdout_data   { fixture_file['stdout', 'application/octet-stream'] }
     stdout_timing { fixture_file['stdout.time', 'application/octet-stream'] }
+    stdout_frames { fixture_file['stdout.json', 'application/json'] }
+    snapshot JSON.parse(File.read('spec/fixtures/snapshot.json'))
   end
 end
