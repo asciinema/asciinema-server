@@ -1,12 +1,12 @@
-# ascii.io [![Build Status](https://secure.travis-ci.org/sickill/ascii.io.png?branch=master)](http://travis-ci.org/sickill/ascii.io)
+# asciinema.org [![Build Status](https://secure.travis-ci.org/sickill/ascii.io.png?branch=master)](http://travis-ci.org/sickill/ascii.io)
 
-ASCII.IO is the simplest way to record your terminal and share the recordings
+Asciinema is the simplest way to record your terminal and share the recordings
 with your fellow geeks. Simply record and upload your terminal session with
-single command, and ASCII.IO will play it back in your browser.
+single command, and Asciinema will play it back in your browser.
 
-This is the source code of ascii.io website and JS player. If you're looking
-for ascii.io terminal recorder go here:
-[sickill/ascii.io-cli](https://github.com/sickill/ascii.io-cli)
+This is the source code of asciinema.org (formerly ascii.io) website and JS
+player. If you're looking for asciinema terminal recorder go here:
+[sickill/asciinema](https://github.com/sickill/asciinema)
 
 ## Setup instructions
 
@@ -15,7 +15,7 @@ it on your local machine or setup your own instance for your organization.
 
 ### 1. Install dependencies
 
-ascii.io site is a Ruby on Rails application. You need to have following
+asciinema.org site is a Ruby on Rails application. You need to have following
 dependencies installed:
 
 * Ruby 1.9.3+ (Ruby 2.0.0-p247 is recommended)
@@ -35,8 +35,8 @@ dependencies installed:
 
 Clone git repository:
 
-    $ git clone git://github.com/sickill/ascii.io.git
-    $ cd ascii.io
+    $ git clone git://github.com/sickill/asciinema.org.git
+    $ cd asciinema.org
 
 ### 3. Prepare database config file
 

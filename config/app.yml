@@ -25,7 +25,7 @@ bugfix:
 
 production:
   <<: *defaults
-  EMAIL_HOST: "ascii.io"
+  EMAIL_HOST: "asciinema.org"
 
 test:
   <<: *defaults

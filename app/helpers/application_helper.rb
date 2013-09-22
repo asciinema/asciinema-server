@@ -1,6 +1,6 @@
 module ApplicationHelper
   def page_title
-    title = "ascii.io"
+    title = "asciinema"
 
     if @title
       title = "#{@title} - #{title}"
