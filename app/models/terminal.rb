@@ -15,14 +15,14 @@ class Terminal
 
   def snapshot
     process.write("p\n")
-    lines = Oj.load(process.read_line)
+    lines = JSON.load(process.read_line)
 
     Snapshot.build(lines)
   end
 
   def cursor
     process.write("c\n")
-    c = Oj.load(process.read_line)
+    c = JSON.load(process.read_line)
 
     Cursor.new(c['x'], c['y'], c['visible'])
   end

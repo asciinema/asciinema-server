@@ -167,7 +167,6 @@ GEM
       jwt (~> 0.1.4)
       multi_json (~> 1.0)
       rack (~> 1.2)
-    oj (2.1.4)
     omniauth (1.1.4)
       hashie (>= 1.2, < 3)
       rack
@@ -335,7 +334,6 @@ DEPENDENCIES
   jasmine-rails (~> 0.4.5)
   jquery-rails (~> 2.2.0)
   kaminari (~> 0.14.1)
-  oj (~> 2.1.4)
   omniauth (~> 1.1.4)
   omniauth-github (~> 1.1.0)
   omniauth-twitter (~> 0.0.16)
