@@ -15,14 +15,14 @@ class Terminal
 
   def snapshot
     process.write("p\n")
-    lines = JSON.load(process.read_line)
+    lines = Yajl::Parser.new.parse(process.read_line)
 
     Snapshot.build(lines)
   end
 
   def cursor
     process.write("c\n")
-    c = JSON.load(process.read_line)
+    c = Yajl::Parser.new.parse(process.read_line)
 
     Cursor.new(c['x'], c['y'], c['visible'])
   end
