@@ -83,13 +83,13 @@ class AsciiIo.Renderer.Base extends Backbone.View
   showCursor: (show) ->
     throw '#showCursor not implemented'
 
-  blinkCursor: ->
-    throw '#blinkCursor not implemented'
+  flipCursor: ->
+    throw '#flipCursor not implemented'
 
   resetCursorState: ->
 
   startCursorBlink: ->
-    @cursorTimerId = setInterval(@blinkCursor.bind(this), 500)
+    @cursorTimerId = setInterval(@flipCursor.bind(this), 500)
 
   stopCursorBlink: ->
     if @cursorTimerId

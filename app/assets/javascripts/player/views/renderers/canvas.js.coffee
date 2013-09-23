@@ -95,7 +95,7 @@ class AsciiIo.Renderer.Canvas extends AsciiIo.Renderer.Base
   showCursor: (show) ->
     @cursorOn = show
 
-  blinkCursor: ->
+  flipCursor: ->
     @cursorVisible = !@cursorVisible
     @renderCursor()
 

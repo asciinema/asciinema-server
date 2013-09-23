@@ -22,7 +22,7 @@ class AsciiIo.Renderer.Pre extends AsciiIo.Renderer.Base
 
   render: ->
     if @dirty
-      @$el.find('.cursor').removeClass('cursor')
+      @$el.find('.cursor').removeClass('cursor').removeClass('flipped')
 
     super
 
@@ -33,9 +33,28 @@ class AsciiIo.Renderer.Pre extends AsciiIo.Renderer.Base
     for fragment in fragments
       [text, brush] = fragment
 
-      html.push @spanFromBrush(brush)
-      html.push @escape(text)
-      html.push '</span>'
+      if cursorX isnt undefined and rendered <= cursorX < rendered + text.length
+        left = text.slice(0, cursorX - rendered)
+        cursor = text[cursorX - rendered]
+        right = text.slice(cursorX - rendered + 1)
+
+        if left.length > 0
+          html.push @spanFromBrush(brush)
+          html.push @escape(left)
+          html.push '</span>'
+
+        html.push @spanFromBrush(brush, true)
+        html.push @escape(cursor)
+        html.push '</span>'
+
+        if right.length > 0
+          html.push @spanFromBrush(brush)
+          html.push @escape(right)
+          html.push '</span>'
+      else
+        html.push @spanFromBrush(brush)
+        html.push @escape(text)
+        html.push '</span>'
 
       rendered += text.length
 
@@ -44,17 +63,20 @@ class AsciiIo.Renderer.Pre extends AsciiIo.Renderer.Base
   escape: (text) ->
     text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 
-  spanFromBrush: (brush) ->
+  spanFromBrush: (brush, isCursor) ->
     brush = AsciiIo.Brush.create brush
 
-    key = brush.hash()
+    key = "#{brush.hash()}_#{isCursor}"
     span = @cachedSpans[key]
 
     if not span
       span = ""
 
-      if brush != AsciiIo.Brush.default()
-        span = "<span class=\""
+      if brush != AsciiIo.Brush.default() || isCursor
+        if isCursor
+          span = "<span data-fg=#{brush.fgColor()} data-bg=#{brush.bgColor()} class=\"cursor"
+        else
+          span = "<span class=\""
 
         unless brush.hasDefaultFg()
           span += " fg" + brush.fgColor()
@@ -68,9 +90,6 @@ class AsciiIo.Renderer.Pre extends AsciiIo.Renderer.Base
         if brush.underline
           span += " underline"
 
-        if brush.italic
-          span += " italic"
-
         span += "\">"
 
       @cachedSpans[key] = span
@@ -83,13 +102,28 @@ class AsciiIo.Renderer.Pre extends AsciiIo.Renderer.Base
     else
       @$el.removeClass "cursor-on"
 
-  blinkCursor: ->
-    cursor = @$el.find(".cursor")
-    if cursor.hasClass("visible")
-      cursor.removeClass "visible"
+  flipCursor: ->
+    cursor = @$el.find '.cursor'
+
+    if cursor.hasClass 'flipped'
+      @switchCursorColors cursor, false
     else
-      cursor.addClass "visible"
+      @switchCursorColors cursor, true
 
   resetCursorState: ->
-    cursor = @$el.find(".cursor")
-    cursor.addClass "visible"
+    @switchCursorColors @$el.find('.cursor'), false
+
+  switchCursorColors: (cursor, flipped) ->
+    if flipped
+      fg = cursor.data 'fg'
+      bg = cursor.data 'bg'
+      cursor.removeClass "fg#{fg}"
+      cursor.removeClass "bg#{bg}"
+      cursor.addClass "fg#{bg} bg#{fg} flipped"
+    else
+      fg = cursor.data 'fg'
+      bg = cursor.data 'bg'
+      cursor.removeClass "fg#{bg}"
+      cursor.removeClass "bg#{fg}"
+      cursor.removeClass 'flipped'
+      cursor.addClass "fg#{fg} bg#{bg}"

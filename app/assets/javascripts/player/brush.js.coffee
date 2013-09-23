@@ -76,7 +76,9 @@ class AsciiIo.Brush
     color
 
   hasDefaultFg: ->
-    @fgColor() == AsciiIo.Brush.default_fg
+    color = @fgColor()
+    color is undefined || color == AsciiIo.Brush.default_fg
 
   hasDefaultBg: ->
-    @bgColor() == AsciiIo.Brush.default_bg
+    color = @bgColor()
+    color is undefined || color == AsciiIo.Brush.default_bg
