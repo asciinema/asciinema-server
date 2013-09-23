@@ -40,7 +40,7 @@ class AsciiIo.Renderer.Base extends Backbone.View
 
     if @dirty
       for n, fragments of @changes
-        c = if parseInt(n) is @cursor.y then @cursor.x else undefined
+        c = if @cursor.visible && (parseInt(n) is @cursor.y) then @cursor.x else undefined
         @renderLine n, fragments || [], c
 
       @clearChanges()
