@@ -1,4 +1,4 @@
-class AsciiIo.AbstractPlayer
+class Asciinema.AbstractPlayer
 
   constructor: (@options) ->
     @model = @options.model
@@ -6,7 +6,7 @@ class AsciiIo.AbstractPlayer
     @loadFrames()
 
   createView: ->
-    @view = new AsciiIo.PlayerView
+    @view = new Asciinema.PlayerView
       el: @options.el
       model: @model
       cols: @model.get 'width'

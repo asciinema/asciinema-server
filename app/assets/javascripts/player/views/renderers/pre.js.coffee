@@ -1,4 +1,4 @@
-class AsciiIo.Renderer.Pre extends AsciiIo.Renderer.Base
+class Asciinema.Renderer.Pre extends Asciinema.Renderer.Base
   tagName: 'pre'
   className: 'terminal'
 
@@ -64,7 +64,7 @@ class AsciiIo.Renderer.Pre extends AsciiIo.Renderer.Base
     text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 
   spanFromBrush: (brush, isCursor) ->
-    brush = AsciiIo.Brush.create brush
+    brush = Asciinema.Brush.create brush
 
     key = "#{brush.hash()}_#{isCursor}"
     span = @cachedSpans[key]
@@ -72,7 +72,7 @@ class AsciiIo.Renderer.Pre extends AsciiIo.Renderer.Base
     if not span
       span = ""
 
-      if brush != AsciiIo.Brush.default() || isCursor
+      if brush != Asciinema.Brush.default() || isCursor
         if isCursor
           span = "<span data-fg=#{brush.fgColor()} data-bg=#{brush.bgColor()} class=\"cursor"
         else

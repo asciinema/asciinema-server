@@ -1,5 +1,5 @@
-if (!window.AsciiIo){
-  window.AsciiIo = {};
+if (!window.Asciinema){
+  window.Asciinema = {};
 }
 
-AsciiIo.Renderer = {};
+Asciinema.Renderer = {};

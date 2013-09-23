@@ -16,6 +16,6 @@ task :gen_color_palettes do
   File.open('app/assets/stylesheets/colors.css', 'w') { |f| f.write out }
 
   File.open('app/assets/javascripts/player/colors.js', 'w') do |f|
-    f.write "AsciiIo.colors = #{JSON.dump(colors)};"
+    f.write "Asciinema.colors = #{JSON.dump(colors)};"
   end
 end

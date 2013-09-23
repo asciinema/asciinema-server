@@ -1,4 +1,4 @@
-module AsciiIo
+module Asciinema
   module FeatureHelpers
 
     def uploaded_file(path, type)

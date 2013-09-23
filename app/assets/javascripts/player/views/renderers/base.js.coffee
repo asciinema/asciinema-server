@@ -1,4 +1,4 @@
-class AsciiIo.Renderer.Base extends Backbone.View
+class Asciinema.Renderer.Base extends Backbone.View
   events:
     'click': 'onClick'
 
@@ -71,7 +71,7 @@ class AsciiIo.Renderer.Base extends Backbone.View
     for line in snapshot
       fragments = _(line).map (fragment) ->
         fragment[1].bright = fragment[1].bold
-        [fragment[0], new AsciiIo.Brush(fragment[1])]
+        [fragment[0], new Asciinema.Brush(fragment[1])]
       @renderLine i, fragments, undefined
       i++
 

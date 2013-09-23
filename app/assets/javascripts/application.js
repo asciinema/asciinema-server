@@ -11,7 +11,7 @@
 //= require underscore-min
 //= require backbone-min
 //= require jquery.timeago
-//= require backbone/ascii_io
+//= require backbone/asciinema
 
 $(function() {
   $('abbr.timeago').timeago();

@@ -1,4 +1,4 @@
-class AsciiIo.WorkerObjectProxy
+class Asciinema.WorkerObjectProxy
   constructor: (@webWorker, @objectName) ->
     _.extend(this, Backbone.Events)
     @webWorker.addEventListener 'message', @onMessage

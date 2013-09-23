@@ -14,7 +14,7 @@ addEventListener 'message', (e) =>
 
 
 @initialize = (options) ->
-  movie = new AsciiIo.Movie(
+  movie = new Asciinema.Movie(
     stdout_frames: options.stdout_frames
     duration: options.duration
     speed: options.speed

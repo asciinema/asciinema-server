@@ -6,7 +6,7 @@
 development:
   adapter: postgresql
   encoding: unicode
-  database: ascii_io_development
+  database: asciinema_development
   pool: 25
   # username: asciiio
   # password:
@@ -19,7 +19,7 @@ development:
 test:
   adapter: postgresql
   encoding: unicode
-  database: ascii_io_test
+  database: asciinema_test
   pool: 5
   # username: asciiio
   # password:
@@ -28,7 +28,7 @@ test:
 production:
   adapter: postgresql
   encoding: unicode
-  database: ascii_io_production
+  database: asciinema_production
   pool: 25
   username: asciiio
   password:

@@ -8,4 +8,4 @@
 //= require player/movie
 //= require player/workers/main_worker
 
-AsciiIo = {};
+Asciinema = {};

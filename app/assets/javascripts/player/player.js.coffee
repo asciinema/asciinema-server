@@ -1,11 +1,11 @@
-class AsciiIo.Player extends AsciiIo.AbstractPlayer
+class Asciinema.Player extends Asciinema.AbstractPlayer
 
   constructor: (@options) ->
     @createWorkerProxy()
     super
 
   createWorkerProxy: ->
-    @workerProxy = new AsciiIo.WorkerProxy(window.mainWorkerPath)
+    @workerProxy = new Asciinema.WorkerProxy(window.mainWorkerPath)
 
   createMovie: ->
     @movie = @workerProxy.getObjectProxy 'movie'

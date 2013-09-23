@@ -2,15 +2,15 @@ module AsciicastsHelper
 
   def player(asciicast, options = {})
     if params[:fallback]
-      player_class = "AsciiIo.FallbackPlayer"
+      player_class = "Asciinema.FallbackPlayer"
     else
-      player_class = "window.Worker ? AsciiIo.Player : AsciiIo.FallbackPlayer"
+      player_class = "window.Worker ? Asciinema.Player : Asciinema.FallbackPlayer"
     end
 
     if custom_renderer = params[:renderer]
-      renderer_class = "AsciiIo.Renderer.#{custom_renderer.capitalize}"
+      renderer_class = "Asciinema.Renderer.#{custom_renderer.capitalize}"
     else
-      renderer_class = "AsciiIo.Renderer.Pre"
+      renderer_class = "Asciinema.Renderer.Pre"
     end
 
     render :partial => 'asciicasts/player', :locals => {

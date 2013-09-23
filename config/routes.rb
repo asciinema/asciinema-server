@@ -1,4 +1,4 @@
-AsciiIo::Application.routes.draw do
+Asciinema::Application.routes.draw do
 
   get "/browse" => "asciicasts#index", :as => :browse
   get "/browse/popular" => "asciicasts#popular", :as => :popular

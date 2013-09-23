@@ -1,4 +1,4 @@
-class AsciiIo.HudView extends Backbone.View
+class Asciinema.HudView extends Backbone.View
   tagName: 'pre'
   className: 'hud'
 

@@ -1,4 +1,4 @@
-module AsciiIo
+module Asciinema
   module FixtureHelpers
     extend self
 

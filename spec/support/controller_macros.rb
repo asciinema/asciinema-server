@@ -1,4 +1,4 @@
-module AsciiIo
+module Asciinema
   module ControllerMacros
     def login_as(user)
       controller.stub(:current_user => user)

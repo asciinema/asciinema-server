@@ -3,7 +3,7 @@ include ActionDispatch::TestProcess
 
 FactoryGirl.define do
   fixture_file = lambda { |name, mime_type|
-    AsciiIo::FixtureHelpers.fixture_file(name, mime_type)
+    Asciinema::FixtureHelpers.fixture_file(name, mime_type)
   }
 
   factory :asciicast do

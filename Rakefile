@@ -4,4 +4,4 @@
 
 require File.expand_path('../config/application', __FILE__)
 
-AsciiIo::Application.load_tasks
+Asciinema::Application.load_tasks

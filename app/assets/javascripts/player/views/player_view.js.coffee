@@ -1,4 +1,4 @@
-class AsciiIo.PlayerView extends Backbone.View
+class Asciinema.PlayerView extends Backbone.View
   events:
     'click .start-prompt': 'onStartPromptClick'
 
@@ -27,7 +27,7 @@ class AsciiIo.PlayerView extends Backbone.View
       @rightClipWidth = 0
 
   createHudView: ->
-    @hudView = new AsciiIo.HudView(cols: @options.cols)
+    @hudView = new Asciinema.HudView(cols: @options.cols)
 
     @hudView.on 'play-click', => @onPlayClicked()
     @hudView.on 'seek-click', (percent) => @onSeekClicked percent

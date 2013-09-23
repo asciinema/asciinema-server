@@ -28,9 +28,9 @@ RSpec.configure do |config|
   config.order = "random"
 
   config.include FactoryGirl::Syntax::Methods
-  config.include AsciiIo::FixtureHelpers
-  config.include AsciiIo::FeatureHelpers
-  config.include AsciiIo::ControllerMacros, :type => :controller
+  config.include Asciinema::FixtureHelpers
+  config.include Asciinema::FeatureHelpers
+  config.include Asciinema::ControllerMacros, :type => :controller
 
   config.before(:suite) do
     DatabaseCleaner.clean_with(:truncation)

@@ -4,7 +4,7 @@
 #= require_tree ./views
 #= require_tree ./routers
 
-window.AsciiIo =
+window.Asciinema =
   Models: {}
   Collections: {}
   Routers: {}

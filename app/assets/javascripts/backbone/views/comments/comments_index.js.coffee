@@ -1,4 +1,4 @@
-class AsciiIo.Views.CommentsIndex extends AsciiIo.Views.Base
+class Asciinema.Views.CommentsIndex extends Asciinema.Views.Base
 
   el: '#comments'
 
@@ -14,7 +14,7 @@ class AsciiIo.Views.CommentsIndex extends AsciiIo.Views.Base
       @addOne(comment)
 
   addOne:(comment) ->
-    view = new AsciiIo.Views.CommentEntry({ model: comment, collection: @collection})
+    view = new Asciinema.Views.CommentEntry({ model: comment, collection: @collection})
     $(this.el).append view.render().el
 
   createComment: (event) ->

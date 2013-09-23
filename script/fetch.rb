@@ -9,7 +9,7 @@ id = ARGV[0]
 
 id = id[/\d+/].to_i
 
-url = "http://ascii.io/a/#{id}.json"
+url = "http://asciinema.org/a/#{id}.json"
 
 json = open(url).read
 data = JSON.parse(json)

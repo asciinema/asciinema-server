@@ -1,4 +1,4 @@
-class AsciiIo.WorkerProxy
+class Asciinema.WorkerProxy
   constructor: (url) ->
     @webWorker = new window.Worker(url)
     @webWorker.addEventListener 'message', @onMessage
@@ -9,7 +9,7 @@ class AsciiIo.WorkerProxy
       options: options
 
   getObjectProxy: (objectName) ->
-    new AsciiIo.WorkerObjectProxy(@webWorker, objectName)
+    new Asciinema.WorkerObjectProxy(@webWorker, objectName)
 
   onMessage: (e) =>
     if e.data.message == 'log'

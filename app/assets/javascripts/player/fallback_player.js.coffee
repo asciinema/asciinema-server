@@ -1,4 +1,4 @@
-class AsciiIo.FallbackPlayer extends AsciiIo.AbstractPlayer
+class Asciinema.FallbackPlayer extends Asciinema.AbstractPlayer
 
   createMovie: ->
-    @movie = new AsciiIo.Movie @movieOptions()
+    @movie = new Asciinema.Movie @movieOptions()

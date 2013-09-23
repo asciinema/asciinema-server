@@ -1,4 +1,4 @@
-class AsciiIo.Brush
+class Asciinema.Brush
   @default_fg = 7
   @default_bg = 0
 
@@ -18,7 +18,7 @@ class AsciiIo.Brush
     brush = @cache[key]
 
     if not brush
-      brush = new AsciiIo.Brush(options)
+      brush = new Asciinema.Brush(options)
       @cache[key] = brush
 
     brush
@@ -35,7 +35,7 @@ class AsciiIo.Brush
       this[name] = value
 
   hash: ->
-    AsciiIo.Brush.hash this
+    Asciinema.Brush.hash this
 
   attributes: ->
     fg       : @fg
@@ -51,7 +51,7 @@ class AsciiIo.Brush
       if color != undefined
         color
       else
-        AsciiIo.Brush.default_bg
+        Asciinema.Brush.default_bg
     else
       @calculateFgColor()
 
@@ -61,7 +61,7 @@ class AsciiIo.Brush
       if color != undefined
         color
       else
-        AsciiIo.Brush.default_fg
+        Asciinema.Brush.default_fg
     else
       @calculateBgColor()
 
@@ -77,8 +77,8 @@ class AsciiIo.Brush
 
   hasDefaultFg: ->
     color = @fgColor()
-    color is undefined || color == AsciiIo.Brush.default_fg
+    color is undefined || color == Asciinema.Brush.default_fg
 
   hasDefaultBg: ->
     color = @bgColor()
-    color is undefined || color == AsciiIo.Brush.default_bg
+    color is undefined || color == Asciinema.Brush.default_bg

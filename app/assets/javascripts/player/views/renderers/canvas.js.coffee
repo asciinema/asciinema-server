@@ -1,4 +1,4 @@
-class AsciiIo.Renderer.Canvas extends AsciiIo.Renderer.Base
+class Asciinema.Renderer.Canvas extends Asciinema.Renderer.Base
   tagName: 'canvas'
   className: 'terminal'
 
@@ -35,7 +35,7 @@ class AsciiIo.Renderer.Canvas extends AsciiIo.Renderer.Base
     for fragment in fragments
       [text, brush] = fragment
 
-      brush = AsciiIo.Brush.create brush if brush
+      brush = Asciinema.Brush.create brush if brush
 
       if cursorX isnt undefined and rendered <= cursorX < rendered + text.length
         @cursorBrush = brush
@@ -57,10 +57,10 @@ class AsciiIo.Renderer.Canvas extends AsciiIo.Renderer.Base
       @renderCursor()
 
   setBackgroundAttributes: (brush) ->
-    @ctx.fillStyle = AsciiIo.colors[brush.bgColor()]
+    @ctx.fillStyle = Asciinema.colors[brush.bgColor()]
 
   setTextAttributes: (brush) ->
-    @ctx.fillStyle = AsciiIo.colors[brush.fgColor()]
+    @ctx.fillStyle = Asciinema.colors[brush.fgColor()]
 
     font = @font
 
@@ -82,14 +82,14 @@ class AsciiIo.Renderer.Canvas extends AsciiIo.Renderer.Base
     y = @cursorY * @cellHeight
 
     if @cursorVisible
-      @ctx.fillStyle = AsciiIo.colors[7]
+      @ctx.fillStyle = Asciinema.colors[7]
       @ctx.fillRect x, y, @cellWidth, @cellHeight
-      @ctx.fillStyle = AsciiIo.colors[0]
+      @ctx.fillStyle = Asciinema.colors[0]
       @ctx.fillText @cursorText, x, y + @cellHeight
     else
-      @ctx.fillStyle = AsciiIo.colors[@cursorBrush.bgColor()]
+      @ctx.fillStyle = Asciinema.colors[@cursorBrush.bgColor()]
       @ctx.fillRect x, y, @cellWidth, @cellHeight
-      @ctx.fillStyle = AsciiIo.colors[@cursorBrush.fgColor()]
+      @ctx.fillStyle = Asciinema.colors[@cursorBrush.fgColor()]
       @ctx.fillText @cursorText, x, y + @cellHeight
 
   showCursor: (show) ->

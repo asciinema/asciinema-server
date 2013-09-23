@@ -1,4 +1,4 @@
-class AsciiIo.Movie
+class Asciinema.Movie
   MIN_DELAY: 0.01
 
   constructor: (@options) ->
