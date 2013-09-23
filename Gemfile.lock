@@ -359,5 +359,5 @@ DEPENDENCIES
   thin (~> 1.5.0)
   uglifier (>= 2.1.2)
   unicorn (~> 4.6.2)
-  yajl-ruby
+  yajl-ruby (~> 1.1.0)
   zeus (= 0.13.4.pre2)
