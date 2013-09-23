@@ -1,6 +1,4 @@
 //= require rAF
-//= require base64.min
-//= require utf8
 //= require extensions
 //= require namespace
 //= require player/views/renderers/base
