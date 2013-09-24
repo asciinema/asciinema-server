@@ -1,9 +1,10 @@
 class CellDecorator < ApplicationDecorator
 
   delegate_all
+  delegate :css_class, to: :brush
 
-  def css_class
-    BrushPresenter.new(brush).to_css_class
+  def brush
+    BrushDecorator.new(model.brush)
   end
 
 end

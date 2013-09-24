@@ -1,7 +1,7 @@
-class BrushPresenter < SimpleDelegator
+class BrushDecorator < ApplicationDecorator
 
-  def to_css_class
-    if default?
+  def css_class
+    if model.default?
       nil
     else
       classes = [fg_class, bg_class, bold_class, underline_class]
@@ -12,19 +12,19 @@ class BrushPresenter < SimpleDelegator
   private
 
   def fg_class
-    "fg#{fg}" if fg
+    "fg#{model.fg}" if model.fg
   end
 
   def bg_class
-    "bg#{bg}" if bg
+    "bg#{model.bg}" if model.bg
   end
 
   def bold_class
-    'bright' if bold?
+    'bright' if model.bold?
   end
 
   def underline_class
-    'underline' if underline?
+    'underline' if model.underline?
   end
 
 end

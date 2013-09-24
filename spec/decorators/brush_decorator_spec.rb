@@ -1,10 +1,10 @@
-describe BrushPresenter do
-  let(:brush_presenter) { BrushPresenter.new(brush) }
+describe BrushDecorator do
+  let(:decorator) { described_class.new(brush) }
   let(:brush) { double('brush', :fg => nil, :bg => nil, :bold? => false,
                                 :underline? => false) }
 
-  describe '#to_css_class' do
-    subject { brush_presenter.to_css_class }
+  describe '#css_class' do
+    subject { decorator.css_class }
 
     context "when brush is a default one" do
       before do
