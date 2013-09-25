@@ -28,14 +28,9 @@ class Asciicast < ActiveRecord::Base
     popular.includes(:user).page(page).per(per_page)
   end)
 
-  before_create :assign_user, :unless => :user
+  before_create :assign_user, :unless => :user # TODO: move this AsciicastCreator
 
   attr_accessible :title, :description, :time_compression
-
-  def self.assign_user(user_token, user)
-    where(:user_id => nil, :user_token => user_token).
-    update_all(:user_id => user.id, :user_token => nil)
-  end
 
   def self.cache_key
     timestamps = scoped.select(:updated_at).map { |o| o.updated_at.to_i }
