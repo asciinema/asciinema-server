@@ -28,22 +28,11 @@ class Asciicast < ActiveRecord::Base
     popular.includes(:user).page(page).per(per_page)
   end)
 
-  before_create :assign_user, :unless => :user # TODO: move this AsciicastCreator
-
   attr_accessible :title, :description, :time_compression
 
   def self.cache_key
     timestamps = scoped.select(:updated_at).map { |o| o.updated_at.to_i }
     Digest::MD5.hexdigest timestamps.join('/')
-  end
-
-  def assign_user
-    if user_token.present?
-      if ut = UserToken.find_by_token(user_token)
-        self.user = ut.user
-        self.user_token = nil
-      end
-    end
   end
 
   def stdout

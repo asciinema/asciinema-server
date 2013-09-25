@@ -1,0 +1,14 @@
+{
+    "command": "/bin/bash", 
+    "duration": 11.146430015563965, 
+    "recorded_at": "Thu, 25 Jul 2013 20:08:57 +0000", 
+    "shell": "/bin/zsh", 
+    "term": {
+        "columns": 96, 
+        "lines": 26, 
+        "type": "screen-256color"
+    }, 
+    "title": "bashing :)", 
+    "uname": "Linux 3.9.9-302.fc19.x86_64 #1 SMP Sat Jul 6 13:41:07 UTC 2013 x86_64", 
+    "username": "kill"
+}
