@@ -60,12 +60,9 @@ describe AsciicastsController do
     let(:view_counter) { double('view_counter', :increment => nil) }
 
     before do
+      allow(controller).to receive(:view_counter) { view_counter }
       Asciicast.should_receive(:find).and_return(asciicast)
-
       asciicast.title = 'some tit'
-
-      allow(ViewCounter).to receive(:new).with(asciicast, cookies).
-        and_return(view_counter)
     end
 
     context 'for html request' do
@@ -81,7 +78,8 @@ describe AsciicastsController do
       it { should be_success }
 
       it 'should be counted as a visit' do
-        expect(view_counter).to have_received(:increment)
+        expect(view_counter).to have_received(:increment).
+          with(asciicast, cookies)
       end
 
       specify { assigns(:asciicast).should == asciicast_decorator }
@@ -96,7 +94,7 @@ describe AsciicastsController do
       it { should be_success }
 
       it 'should not be counted as a visit' do
-        expect(ViewCounter).to_not have_received(:new)
+        expect(view_counter).to_not have_received(:increment)
       end
     end
 
@@ -108,7 +106,7 @@ describe AsciicastsController do
       it { should be_success }
 
       it 'should not be counted as a visit' do
-        expect(ViewCounter).to_not have_received(:new)
+        expect(view_counter).to_not have_received(:increment)
       end
     end
   end

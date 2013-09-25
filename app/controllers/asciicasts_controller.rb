@@ -30,7 +30,7 @@ class AsciicastsController < ApplicationController
   def show
     respond_to do |format|
       format.html do
-        ViewCounter.new(@asciicast, cookies).increment
+        view_counter.increment(@asciicast, cookies)
         @asciicast = AsciicastDecorator.new(@asciicast)
         @title = @asciicast.title
         respond_with @asciicast
@@ -86,4 +86,9 @@ class AsciicastsController < ApplicationController
       redirect_to asciicast_path(@asciicast), :alert => "You can't do that."
     end
   end
+
+  def view_counter
+    @view_counter ||= ViewCounter.new
+  end
+
 end
