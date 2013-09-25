@@ -1,4 +1,4 @@
-# asciinema.org [![Build Status](https://secure.travis-ci.org/sickill/ascii.io.png?branch=master)](http://travis-ci.org/sickill/ascii.io)
+# asciinema.org [![Build Status](https://secure.travis-ci.org/sickill/asciinema.org.png?branch=master)](http://travis-ci.org/sickill/asciinema.org)
 
 Asciinema is the simplest way to record your terminal and share the recordings
 with your fellow geeks. Simply record and upload your terminal session with
