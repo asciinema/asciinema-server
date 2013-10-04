@@ -48,6 +48,7 @@ class Asciinema.HudView extends Backbone.View
 
     if @duration
       progress = Math.round(100 * time / 1000 / @duration)
+      progress = 100.0 if progress > 100.0
       @setProgress progress
 
   setProgress: (percent) ->
