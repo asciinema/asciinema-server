@@ -65,5 +65,9 @@ The background job processor is needed for thumbnail generation.
 
 ## Authors
 
-* Marcin Kulik (sickill)
-* Michał Wróbel (sparrovv)
+Developed with passion by [Marcin Kulik](http://ku1ik.com) and great open
+source [contributors](https://github.com/sickill/asciinema.org/contributors)
+
+## Copyright
+
+Copyright &copy; 2011-2013 Marcin Kulik. See LICENSE.txt for details.
