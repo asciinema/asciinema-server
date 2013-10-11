@@ -1,0 +1,37 @@
+markdown:
+
+  # Frequently Asked Questions
+
+  ## How can I delete the recorded asciicast?
+
+  In order to delete your asciicast you need to associate your local API token
+  (which was assigned to the recorded asciicast) with the asciinema.org
+  account. Just run `asciinema auth` in your terminal and open the printed URL
+  in your browser.  Once you sign in you'll see a "Delete" link on your
+  asciicast's page.
+
+  ## How can I point asciinema client to the custom asciinema instance?
+
+  You can easily tell asciinema client to use custom API URL by adding
+  following setting to _~/.asciinema/config_ file:
+
+      [api]
+      url = http://localhost:3000
+
+  ## Can I edit/post-process the recorded asciicast?
+
+  TL;DR answer: No, you can't.
+
+  That's tricky. You can't do that at the moment. And there is a little chance
+  asciinema will allow for this in the future. The thing is, the recording
+  consists of two streams: text printed to the terminal and the timing
+  information (how many characters to print after what delay). If you deleted
+  some text from the first stream you would need to track the appropriate item
+  in the second stream and adjust the number of characters for it. Otherwise
+  the replay of the asciicast would get broken and just look improper.
+
+  Also, some characters in the text stream are not printable characters, they
+  are escape sequences used to change the text foreground and background color,
+  erase some areas of the terminal etc. Each sequence depends on the state of
+  the terminal at a given moment. By (accidently) removing these sequences you
+  can break the whole output so it displays mostly rubbish.
