@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130828162232) do
+ActiveRecord::Schema.define(version: 20131011181418) do
 
   create_table "asciicasts", force: true do |t|
     t.integer  "user_id"
@@ -40,6 +40,7 @@ ActiveRecord::Schema.define(version: 20130828162232) do
     t.boolean  "time_compression", default: true,  null: false
     t.integer  "views_count",      default: 0,     null: false
     t.string   "stdout_frames"
+    t.string   "user_agent"
   end
 
   add_index "asciicasts", ["created_at"], name: "index_asciicasts_on_created_at", using: :btree

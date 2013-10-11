@@ -1,21 +1,23 @@
 class AsciicastParams
 
-  def initialize(input)
-    @input = input
+  def initialize(params, headers)
+    @params = params
+    @headers = headers
   end
 
   def to_h
     attributes = {
-      :stdout_data      => input[:stdout],
-      :stdout_timing    => input[:stdout_timing],
-      :stdin_data       => input[:stdin],
-      :stdin_timing     => input[:stdin_timing],
+      :stdout_data      => params[:stdout],
+      :stdout_timing    => params[:stdout_timing],
+      :stdin_data       => params[:stdin],
+      :stdin_timing     => params[:stdin_timing],
       :username         => meta['username'],
       :duration         => meta['duration'],
       :recorded_at      => meta['recorded_at'],
       :title            => meta['title'],
       :command          => meta['command'],
       :shell            => meta['shell'],
+      :user_agent       => headers['User-Agent'],
       :uname            => meta['uname'],
       :terminal_lines   => meta['term']['lines'],
       :terminal_columns => meta['term']['columns'],
@@ -29,10 +31,10 @@ class AsciicastParams
 
   private
 
-  attr_reader :input
+  attr_reader :params, :headers
 
   def meta
-    @meta ||= JSON.parse(input[:meta].read)
+    @meta ||= JSON.parse(params[:meta].read)
   end
 
   def assign_user_or_token(attributes, meta)

@@ -2,13 +2,14 @@ require 'spec_helper'
 
 describe AsciicastParams do
 
-  let(:asciicast_params) { described_class.new(input) }
+  let(:asciicast_params) { described_class.new(input, headers) }
 
   let(:input) { {
     :meta          => meta_file,
     :stdout        => stdout_data_file,
     :stdout_timing => stdout_timing_file
   } }
+  let(:headers) { { 'User-Agent' => 'asciinema/0.9.7' } }
 
   let(:stdout_data_file) { double('stdout_data_file') }
   let(:stdout_timing_file) { double('stdout_timing_file') }
@@ -25,6 +26,7 @@ describe AsciicastParams do
       :title            => 'bashing :)',
       :command          => '/bin/bash',
       :shell            => '/bin/zsh',
+      :user_agent       => 'asciinema/0.9.7',
       :uname            => 'Linux 3.9.9-302.fc19.x86_64 #1 SMP ' +
                            'Sat Jul 6 13:41:07 UTC 2013 x86_64',
       :terminal_columns => 96,

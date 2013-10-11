@@ -5,14 +5,12 @@ class AsciicastDecorator < ApplicationDecorator
   THUMBNAIL_HEIGHT = 10
 
   def os
-    return 'unknown' if uname.blank?
-
-    if uname =~ /Linux/
-      'Linux'
-    elsif uname =~ /Darwin/
-      'OSX'
+    if user_agent.present?
+      os_from_user_agent
+    elsif uname.present?
+      os_from_uname
     else
-      uname.split(' ', 2)[0]
+      'unknown'
     end
   end
 
@@ -97,6 +95,29 @@ class AsciicastDecorator < ApplicationDecorator
     seconds = duration % 60
 
     "%02d:%02d" % [minutes, seconds]
+  end
+
+  private
+
+  def os_from_user_agent
+    match = user_agent.match(/^[^\s]+\s+\(([^\)]+)\)/)
+    os = match[1].split(/(\s|-)/).first
+
+    guess_os(os)
+  end
+
+  def os_from_uname
+    guess_os(uname)
+  end
+
+  def guess_os(text)
+    if text =~ /Linux/
+      'Linux'
+    elsif text =~ /Darwin/
+      'OSX'
+    else
+      text.split(' ', 2)[0]
+    end
   end
 
 end

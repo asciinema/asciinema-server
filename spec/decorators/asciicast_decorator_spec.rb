@@ -11,42 +11,76 @@ describe AsciicastDecorator do
   describe '#os' do
     let(:method) { :os }
 
-    context 'for Linux-like uname' do
-      before do
-        asciicast.uname = "Linux t430u 3.5.0-18-generic #29-Ubuntu SMP"
+    context 'when user_agent is present' do
+      context 'and the OS is Linux' do
+        before do
+          asciicast.user_agent =
+            "asciinema/0.9.7 " \
+            "(Linux-3.8.0-30-generic-x86_64-with-Ubuntu-13.04-raring)"
+        end
+
+        it { should == 'Linux' }
       end
 
-      it { should == 'Linux' }
+      context 'and the OS is OSX' do
+        before do
+          asciicast.user_agent = "asciinema/0.9.7 (Darwin-10.0.0-i386-64bit)"
+        end
+
+        it { should == 'OSX' }
+      end
+
+      context 'and the OS is other' do
+        before do
+          asciicast.user_agent = "asciinema/0.9.7 (Jola Misio Foo)"
+        end
+
+        it 'should return first token' do
+          should == 'Jola'
+        end
+      end
     end
 
-    context 'for Darwin-like uname' do
-      before do
-        asciicast.uname = "Darwin local 10.3.0 Darwin Kernel Version 10.3.0"
+    context 'when uname is present' do
+      context "and it's Linux-like" do
+        before do
+          asciicast.uname = "Linux t430u 3.5.0-18-generic #29-Ubuntu SMP"
+        end
+
+        it { should == 'Linux' }
       end
 
-      it { should == 'OSX' }
+      context "and it's Darwin-like" do
+        before do
+          asciicast.uname = "Darwin local 10.3.0 Darwin Kernel Version 10.3.0"
+        end
+
+        it { should == 'OSX' }
+      end
+
+      context "and it's other" do
+        before do
+          asciicast.uname = "Jola Misio Foo"
+        end
+
+        it 'should return first token' do
+          should == 'Jola'
+        end
+      end
     end
 
-    context 'for other systems' do
+    context 'when user_agent and uname are nil' do
       before do
-        asciicast.uname = "Jola Misio Foo"
-      end
-
-      it 'should return first token' do
-        should == 'Jola'
-      end
-    end
-
-    context 'when uname is nil' do
-      before do
+        asciicast.user_agent = nil
         asciicast.uname = nil
       end
 
       it { should == 'unknown' }
     end
 
-    context 'when uname is blank string' do
+    context 'when user_agent and uname are a blank string' do
       before do
+        asciicast.user_agent = ' '
         asciicast.uname = ' '
       end
 

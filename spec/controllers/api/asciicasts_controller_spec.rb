@@ -14,7 +14,8 @@ describe Api::AsciicastsController do
       let(:asciicast) { stub_model(Asciicast, :id => 666) }
 
       before do
-        allow(creator).to receive(:create).with(attributes) { asciicast }
+        allow(creator).to receive(:create).
+          with(attributes, kind_of(ActionDispatch::Http::Headers)) { asciicast }
         post :create, :asciicast => attributes
       end
 
@@ -33,7 +34,8 @@ describe Api::AsciicastsController do
       let(:full_messages) { ['This is invalid'] }
 
       before do
-        allow(creator).to receive(:create).with(attributes).
+        allow(creator).to receive(:create).
+          with(attributes, kind_of(ActionDispatch::Http::Headers)).
           and_raise(ActiveRecord::RecordInvalid.new(asciicast))
         post :create, :asciicast => attributes
       end
@@ -42,7 +44,7 @@ describe Api::AsciicastsController do
         expect(response.status).to eq(422)
       end
 
-      it 'returns the full error messages as the content body' do
+      it 'returns nothing as the content body' do
         expect(response.body).to be_blank
       end
     end
