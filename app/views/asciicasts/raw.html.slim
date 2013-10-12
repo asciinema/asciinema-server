@@ -8,4 +8,13 @@ javascript:
       var h = $('.player').css('height');
       target.postMessage(['asciicast:size', { id: #{@asciicast.id}, width: w, height: h }], '*');
     }
+
+    function onMessage(e) {
+      var event = e.data[0];
+      if (event == 'asciicast:play') {
+        $('.start-prompt').click();
+      }
+    }
+
+    window.addEventListener("message", onMessage, false);
   });
