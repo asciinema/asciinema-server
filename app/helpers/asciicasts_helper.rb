@@ -21,7 +21,8 @@ module AsciicastsHelper
       container_width: params[:container_width],
       renderer_class: renderer_class,
       auto_play: options.key?(:auto_play) ? !!options[:auto_play] : false,
-      hud: options.key?(:hud) ? !!options[:hud] : true
+      hud: options.key?(:hud) ? !!options[:hud] : true,
+      size: params[:size] || 'small'
     }
   end
 

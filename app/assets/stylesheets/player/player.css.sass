@@ -27,6 +27,16 @@ $color5: #edc951
   .font-sample, .hud
     +terminal-font
 
+  &.big-font
+    .font-sample, .hud
+      +terminal-font-big
+
+    .hud
+      height: 32px
+      bottom: 6px
+      left: 6px
+      right: 6px
+
   .loading
     +player-overlay
     background-image: url(image-path("loader.gif"))
@@ -64,9 +74,9 @@ $color5: #edc951
     background-color: #eee
     opacity: 0
     position: absolute
-    left: 2px
-    right: 2px
-    bottom: 2px
+    left: 3px
+    right: 3px
+    bottom: 3px
     height: 16px
     overflow: hidden
     color: black
