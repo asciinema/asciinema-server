@@ -2,7 +2,7 @@
 
 (function() {
   function receiveSize(e) {
-    if (e.origin === document.location.protocol + "//<%= request.host %>") {
+    if (e.origin === document.location.protocol + "//<%= request.host_with_port %>") {
       var event = e.data[0];
       var data  = e.data[1];
       if (event == 'asciicast:size' && data.id == <%= @asciicast.id %>) {
