@@ -17,12 +17,16 @@ class AsciicastParams
       :title            => meta['title'],
       :command          => meta['command'],
       :shell            => meta['shell'],
-      :user_agent       => headers['User-Agent'],
-      :uname            => meta['uname'],
       :terminal_lines   => meta['term']['lines'],
       :terminal_columns => meta['term']['columns'],
       :terminal_type    => meta['term']['type'],
     }
+
+    if meta['uname']
+      attributes[:uname] = meta['uname']
+    else
+      attributes[:user_agent] = headers['User-Agent']
+    end
 
     assign_user_or_token(attributes, meta)
 
