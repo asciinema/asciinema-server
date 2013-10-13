@@ -5,10 +5,10 @@ class AsciicastDecorator < ApplicationDecorator
   THUMBNAIL_HEIGHT = 10
 
   def os
-    if user_agent.present?
-      os_from_user_agent
-    elsif uname.present?
+    if uname.present?
       os_from_uname
+    elsif user_agent.present?
+      os_from_user_agent
     else
       'unknown'
     end

@@ -86,6 +86,15 @@ describe AsciicastDecorator do
 
       it { should == 'unknown' }
     end
+
+    context 'when user_agent and uname are present' do
+      before do
+        asciicast.user_agent = 'python-requests/2.0.0 CPython/2.7.5 Linux/3.11.3-201.fc19.x86_64'
+        asciicast.uname = 'Some t430u 3.5.0-18-generic #29-Ubuntu SMP'
+      end
+
+      it { should == 'Some' }
+    end
   end
 
   describe '#terminal_type' do
