@@ -1,0 +1,52 @@
+markdown:
+
+  # Embedding the player
+
+  The Asciinema recordings can be easily embedded on any HTML page. If you want
+  to put the recording in your blog post, in your project's documentation or
+  in your conference talk slides you can do it by copy-pasting the embed
+  script.
+
+  You can find the embed script on the asciicast's page. It looks like this:
+
+      <script type="text/javascript" src="http://asciinema.org/a/14.js" id="asciicast-14" async></script>
+
+  The player shows up right at the place where the script is pasted. Let's look
+  at the following markup:
+
+      <p>This is some text.</p>
+      <script type="text/javascript" src="http://asciinema.org/a/14.js" id="asciicast-14" async></script>
+      <p>This is some other text.</p>
+
+  The player will show up as a `div` element with a class "asciicast" between
+  the two paragraphs.
+
+  ## Customizing the player
+
+  The embed script supports several customization options. An option can be
+  applied by adding it as a
+  <code>data-<em>option-name</em>="<em>option-value</em>"</code> attribute to
+  the script tag.
+
+  ### speed
+
+  The `speed` option alters the playback speed. The default speed is 1 which
+  means it plays at the unaltered, original speed.
+
+  For example, to make the playback 2 times faster than original recording the
+  script should look like this:
+
+      <script type="text/javascript" src="http://asciinema.org/a/14.js" id="asciicast-14" async data-speed="2"></script>
+
+  ### size
+
+  The `size` options alters the size of the terminal font. There are 3 available
+  sizes:
+
+  * small (default)
+  * medium
+  * big
+
+  For example, to make the font big the script should look like this:
+
+      <script type="text/javascript" src="http://asciinema.org/a/14.js" id="asciicast-14" async data-size="big"></script>
