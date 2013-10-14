@@ -15,8 +15,8 @@ describe AsciicastDecorator do
       context 'and the OS is Linux' do
         before do
           asciicast.user_agent =
-            "asciinema/0.9.7 " \
-            "(Linux-3.8.0-30-generic-x86_64-with-Ubuntu-13.04-raring)"
+            "asciinema/0.9.7 CPython/3.3.1 " \
+            "Linux/3.8.0-30-generic-x86_64-with-Ubuntu-13.04-raring"
         end
 
         it { should == 'Linux' }
@@ -24,7 +24,9 @@ describe AsciicastDecorator do
 
       context 'and the OS is OSX' do
         before do
-          asciicast.user_agent = "asciinema/0.9.7 (Darwin-10.0.0-i386-64bit)"
+          asciicast.user_agent =
+            "asciinema/0.9.7 CPython/2.7.4 " \
+            "Darwin/10.0.0-i386-64bit"
         end
 
         it { should == 'OSX' }
@@ -32,7 +34,7 @@ describe AsciicastDecorator do
 
       context 'and the OS is other' do
         before do
-          asciicast.user_agent = "asciinema/0.9.7 (Jola Misio Foo)"
+          asciicast.user_agent = "asciinema/0.9.7 CPython/2.7.4 Jola/Misio-Foo"
         end
 
         it 'should return first token' do

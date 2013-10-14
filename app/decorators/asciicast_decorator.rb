@@ -100,8 +100,8 @@ class AsciicastDecorator < ApplicationDecorator
   private
 
   def os_from_user_agent
-    match = user_agent.match(/^[^\s]+\s+\(([^\)]+)\)/)
-    os = match[1].split(/(\s|-)/).first
+    os_part = user_agent.split(' ')[2]
+    os = os_part.split('/').first
 
     guess_os(os)
   end
