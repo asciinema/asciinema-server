@@ -5,12 +5,14 @@ html[lang="en"]
     title = page_title
     = csrf_meta_tags
     = stylesheet_link_tag "application", :media => "all"
+    = javascript_include_tag "https://login.persona.org/include.js"
     = javascript_include_tag "application"
     = javascript_include_tag "player"
     = favicon_link_tag 'favicon.png'
     = render :partial => 'layouts/ga'
     script
       | window.mainWorkerPath = '#{javascript_path "main_worker"}';
+      | window.browserIdUser = #{browser_id_user};
   body
     header
       .wrapper

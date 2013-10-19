@@ -1,7 +1,13 @@
 class UsersController < ApplicationController
+
   PER_PAGE = 15
 
   before_filter :ensure_authenticated!, :only => [:edit, :update]
+
+  def new
+    @user = User.new
+    load_sensitive_user_data_from_session
+  end
 
   def show
     @user = User.find_by_nickname!(params[:nickname]).decorate
@@ -22,7 +28,7 @@ class UsersController < ApplicationController
     if @user.save
       clear_sensitive_session_user_data
       self.current_user = @user
-      redirect_back_or_to root_url, :notice => "Logged in!"
+      redirect_back_or_to root_url, :notice => "Welcome!"
     else
       render 'users/new', :status => 422
     end
@@ -45,10 +51,12 @@ class UsersController < ApplicationController
       @user.provider   = session[:new_user][:provider]
       @user.uid        = session[:new_user][:uid]
       @user.avatar_url = session[:new_user][:avatar_url]
+      @user.email      = @user.uid if @user.provider == 'browser_id'
     end
   end
 
   def clear_sensitive_session_user_data
     session.delete(:new_user)
   end
+
 end

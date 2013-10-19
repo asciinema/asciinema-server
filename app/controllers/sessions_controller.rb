@@ -1,17 +1,16 @@
 class SessionsController < ApplicationController
-  before_filter :load_omniauth_auth, :only => :create
 
   def new; end
 
   def create
-    @user = request.env['asciiio.user']
+    @user = user_from_omniauth
 
-    if @user.persisted? || @user.save
+    if @user.persisted?
       self.current_user = @user
       redirect_back_or_to root_url, :notice => "Logged in!"
     else
       store_sensitive_user_data_in_session
-      render 'users/new', :status => 422
+      redirect_to new_user_path
     end
   end
 
@@ -26,16 +25,35 @@ class SessionsController < ApplicationController
 
   private
 
-  def load_omniauth_auth
-    @auth = request.env["omniauth.auth"]
-  end
-
   def store_sensitive_user_data_in_session
     session[:new_user] = {
       :provider   => @user.provider,
       :uid        => @user.uid,
       :avatar_url => @user.avatar_url
     }
+  end
+
+  def user_from_omniauth
+    omniauth = request.env['omniauth.auth']
+    find_user(omniauth) || build_user(omniauth)
+  end
+
+  def find_user(omniauth)
+    query = { :provider => omniauth['provider'], :uid => omniauth['uid'].to_s }
+
+    User.where(query).first
+  end
+
+  def build_user(omniauth)
+    user = User.new
+    user.provider   = omniauth['provider']
+    user.uid        = omniauth['uid']
+    user.nickname   = omniauth['info']['nickname']
+    user.name       = omniauth['info']['name'] unless user.provider == 'browser_id'
+    user.email      = omniauth["info"]["email"]
+    user.avatar_url = OmniAuthHelper.get_avatar_url(omniauth)
+
+    user
   end
 
 end

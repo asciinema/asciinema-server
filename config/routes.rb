@@ -22,7 +22,7 @@ Asciinema::Application.routes.draw do
 
   get "/connect/:user_token" => "user_tokens#create"
 
-  resource :user, :only => [:create, :edit, :update]
+  resource :user
 
   namespace :api do
     resources :asciicasts

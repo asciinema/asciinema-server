@@ -3,7 +3,16 @@
     <h1>Log In</h1>
 
     <p>
-      Log in with your GitHub or Twitter account:
+      We recommend logging in with your email using <%= link_to "Mozilla Persona", "https://login.persona.org/" %>.
+      Look <%= link_to "here", "https://developer.mozilla.org/en-US/docs/Persona" %> for more details.
+    </p>
+
+    <ul id="login">
+      <li><%= link_to image_tag('persona_sign_in_blue.png', :title => "Log in via Persona"), '#', :id => 'persona-button' %></li>
+    </ul>
+
+    <p>
+      Or just log in with your GitHub or Twitter account:
     </p>
 
     <ul id="login">

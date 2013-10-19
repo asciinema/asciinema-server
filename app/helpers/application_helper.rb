@@ -1,4 +1,5 @@
 module ApplicationHelper
+
   def page_title
     title = "asciinema"
 
@@ -15,6 +16,16 @@ module ApplicationHelper
 
   def github_auth_path
     "/auth/github"
+  end
+
+  def browser_id_user
+    user = current_user || @user
+
+    if user && user.provider == 'browser_id'
+      "'#{user.uid}'".html_safe
+    else
+      'null'
+    end
   end
 
   def markdown(&block)
@@ -58,4 +69,5 @@ module ApplicationHelper
       asciicast_path(id)
     end
   end
+
 end

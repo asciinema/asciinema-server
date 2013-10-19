@@ -11,6 +11,7 @@
 //= require underscore-min
 //= require backbone-min
 //= require jquery.timeago
+//= require persona
 
 $(function() {
   $('abbr.timeago').timeago();
