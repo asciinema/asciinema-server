@@ -21,8 +21,8 @@ module ApplicationHelper
   def browser_id_user
     user = current_user || @user
 
-    if user && user.provider == 'browser_id'
-      "'#{user.uid}'".html_safe
+    if user
+      "'#{user.email}'".html_safe
     else
       'null'
     end

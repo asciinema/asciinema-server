@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131011181418) do
+ActiveRecord::Schema.define(version: 20131019165955) do
 
   create_table "asciicasts", force: true do |t|
     t.integer  "user_id"
@@ -85,8 +85,8 @@ ActiveRecord::Schema.define(version: 20131011181418) do
   add_index "user_tokens", ["user_id"], name: "index_user_tokens_on_user_id", using: :btree
 
   create_table "users", force: true do |t|
-    t.string   "provider",   null: false
-    t.string   "uid",        null: false
+    t.string   "provider"
+    t.string   "uid"
     t.string   "email"
     t.string   "name"
     t.string   "avatar_url"

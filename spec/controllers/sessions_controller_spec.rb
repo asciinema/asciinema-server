@@ -2,89 +2,80 @@ require 'spec_helper'
 
 describe SessionsController do
 
-  describe "#create" do
-    subject { get :create, :provider => 'twitter' }
+  let(:store) { {} }
 
-    shared_examples_for 'successful path' do
-      it "creates the session" do
+  before do
+    allow(controller).to receive(:store) { store }
+  end
+
+  describe '#new' do
+    subject { get :new }
+
+    it 'renders "new" template' do
+      should render_template('new')
+    end
+  end
+
+  describe '#create' do
+    subject { get :create, provider: 'twitter' }
+
+    let(:credentials) { double('credentials', email: 'foo@bar.com') }
+
+    before do
+      allow(controller).to receive(:omniauth_credentials) { credentials }
+      allow(User).to receive(:for_email).with('foo@bar.com') { user }
+    end
+
+    context "when user can be found for given credentials" do
+      let(:user) { stub_model(User) }
+
+      before do
+        allow(controller).to receive(:current_user=)
+
         subject
+      end
 
+      it 'sets the current_user' do
         expect(controller).to have_received(:current_user=).with(user)
       end
 
-      it "sets the flash message" do
+      it 'redirects to the root_path with a notice' do
+        expect(flash[:notice]).to_not be_blank
+        should redirect_to(root_path)
+      end
+    end
+
+    context "when user can't be found for given credentials" do
+      let(:user) { nil }
+
+      before do
         subject
-
-        expect(flash[:notice]).to eq('Logged in!')
       end
 
-      it "redirects to the root url" do
-        expect(subject).to redirect_to(root_url)
-      end
-    end
-
-    before do
-      request.env['asciiio.user'] = user
-      allow(controller).to receive(:current_user=)
-    end
-
-    context "when user was persisted" do
-      let(:user) { mock_model(User) }
-
-      it_behaves_like 'successful path'
-    end
-
-    context "when user doesn't exist" do
-      let(:user_attributes) { {
-        :uid        => '1234',
-        :provider   => 'github',
-        :avatar_url => 'http://foo'
-      } }
-
-      let(:user) { mock_model(User, user_attributes).as_new_record }
-
-      context "and creation succeeds" do
-        before do
-          allow(user).to receive(:save) { true }
-        end
-
-        it_behaves_like 'successful path'
+      it 'stores the email' do
+        expect(store[:new_user_email]).to eq('foo@bar.com')
       end
 
-      context "and creation fails" do
-        before do
-          allow(user).to receive(:save) { false }
-        end
-
-        it "stores uid and provider in session " do
-          subject
-
-          expect(session[:new_user]).to eq({
-            :uid => '1234', :provider => 'github', :avatar_url => 'http://foo'
-          })
-        end
-
-        it "renders users/new" do
-          expect(subject).to render_template('users/new')
-        end
+      it 'redirects to the new user page' do
+        should redirect_to(new_user_path)
       end
     end
   end
 
   describe "#destroy" do
     before do
-      session[:user_id] = "123"
+      allow(controller).to receive(:current_user=)
+
       get :destroy
     end
 
-    it "should destroy session" do
-      session[:user_id].should be_nil
-      @controller.current_user.should be_nil
+    it 'sets current_user to nil' do
+      expect(controller).to have_received(:current_user=).with(nil)
     end
 
-    it "should redirects to root_url" do
-      flash[:notice].should == "Logged out!"
-      should redirect_to(root_url)
+    it "redirects to root_path with a notice" do
+      expect(flash[:notice]).to_not be_blank
+      should redirect_to(root_path)
     end
   end
 
@@ -93,9 +84,9 @@ describe SessionsController do
       get :failure
     end
 
-    it "should redirect to root_url and set error message" do
-      flash[:alert].should =~ /Authentication failed/
-      should redirect_to(root_url)
+    it "redirects to root_url with an alert" do
+      expect(flash[:alert]).to_not be_blank
+      should redirect_to(root_path)
     end
   end
 

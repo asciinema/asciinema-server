@@ -1,0 +1,32 @@
+section.supplimental
+  .wrapper
+    p There is no account with email #{@user.email}.
+
+    h2 That's because I am here for the first time
+
+    h3 Pick your username:
+
+    = simple_form_for @user, :url => user_path do |f|
+      = f.input :nickname, label: 'Username', required: true
+      = f.button :submit
+
+    hr
+
+    /* p */
+    /*   |  We recommend logging in with your email using */ 
+    /*   = link_to "Mozilla Persona", "https://login.persona.org/" */
+    /*   | . Look */ 
+    /*   = link_to "here", "https://developer.mozilla.org/en-US/docs/Persona" */
+    /*   |  for more details. */ 
+
+    h2 That's because I've been logging in via Github/Twitter
+
+    p
+      | If you have been previously logging in via Github or Twitter
+      | pls do it again. One time!
+
+    ul.login
+      li = link_to "Log in via Github", github_auth_path, :class => 'btn-auth btn-github'
+      li = link_to "Log in via Twitter", twitter_auth_path, :class => 'btn-auth btn-twitter'
+
+  .vertical-expander

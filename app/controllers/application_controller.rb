@@ -18,6 +18,8 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  private
+
   def current_user=(user)
     if user
       @current_user = user
@@ -28,10 +30,12 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  private
-
   def ensure_authenticated!
     raise Unauthorized unless current_user
+  end
+
+  def omniauth_credentials
+    OmniAuthCredentials.new(request.env['omniauth.auth'])
   end
 
   def store_location

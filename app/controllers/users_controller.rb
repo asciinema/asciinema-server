@@ -5,8 +5,7 @@ class UsersController < ApplicationController
   before_filter :ensure_authenticated!, :only => [:edit, :update]
 
   def new
-    @user = User.new
-    load_sensitive_user_data_from_session
+    @user = build_user
   end
 
   def show
@@ -22,15 +21,14 @@ class UsersController < ApplicationController
   end
 
   def create
-    @user = User.new(params[:user])
-    load_sensitive_user_data_from_session
+    @user = build_user
 
     if @user.save
-      clear_sensitive_session_user_data
+      store.delete(:new_user_email)
       self.current_user = @user
-      redirect_back_or_to root_url, :notice => "Welcome!"
+      redirect_back_or_to root_path, :notice => "Welcome!"
     else
-      render 'users/new', :status => 422
+      render :new, :status => 422
     end
   end
 
@@ -46,17 +44,15 @@ class UsersController < ApplicationController
 
   private
 
-  def load_sensitive_user_data_from_session
-    if session[:new_user]
-      @user.provider   = session[:new_user][:provider]
-      @user.uid        = session[:new_user][:uid]
-      @user.avatar_url = session[:new_user][:avatar_url]
-      @user.email      = @user.uid if @user.provider == 'browser_id'
-    end
+  def store
+    session
   end
 
-  def clear_sensitive_session_user_data
-    session.delete(:new_user)
+  def build_user
+    user = User.new(params[:user])
+    user.email = store[:new_user_email]
+
+    user
   end
 
 end

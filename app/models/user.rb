@@ -5,8 +5,6 @@ class User < ActiveRecord::Base
   has_many :comments, :dependent => :destroy
   has_many :likes, :dependent => :destroy
 
-  validates :provider, :presence => true
-  validates :uid, :presence => true
   validates :nickname, :presence => true
 
   validates_uniqueness_of \
@@ -19,6 +17,12 @@ class User < ActiveRecord::Base
   has_many :comments, :dependent => :destroy
 
   attr_accessible :nickname, :email, :name
+
+  scope :for_credentials, -> (credentials) {
+    where(provider: credentials.provider, uid: credentials.uid).first
+  }
+
+  scope :for_email, -> (email) { where(email: email).first }
 
   def to_param
     nickname
