@@ -8,6 +8,7 @@ gem 'carrierwave',          '~> 0.8.0'
 gem 'omniauth',             '~> 1.1.4'
 gem 'omniauth-twitter',     '~> 0.0.16'
 gem 'omniauth-github',      '~> 1.1.0'
+gem 'omniauth-browserid',    github: 'callahad/omniauth-browserid'
 gem 'kaminari',             '~> 0.14.1'
 gem 'airbrake',             '~> 3.1.7', :require => false
 gem 'draper',               '~> 1.2.1'
