@@ -5,12 +5,7 @@ class User < ActiveRecord::Base
   has_many :comments, :dependent => :destroy
   has_many :likes, :dependent => :destroy
 
-  validates :nickname, :presence => true
-
-  validates_uniqueness_of \
-    :nickname,
-    :message => "Sorry, but your nickname is already taken, " \
-                "choose different one"
+  validates :nickname, presence: true, uniqueness: true
 
   has_many :user_tokens, :dependent => :destroy
   has_many :asciicasts, :dependent => :destroy
