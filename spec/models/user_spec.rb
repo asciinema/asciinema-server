@@ -2,17 +2,11 @@ require 'spec_helper'
 
 describe User do
 
-  let(:user) { FactoryGirl.build(:user) }
-
-  it "has valid factory" do
-    FactoryGirl.build(:user).should be_valid
-  end
-
   describe "validation" do
-    let(:user) { FactoryGirl.create(:user) }
+    let(:user) { create(:user) }
 
     it "validates nickname uniqueness" do
-      new_user = FactoryGirl.build(:user)
+      new_user = build(:user)
       new_user.nickname = user.nickname
 
       new_user.should_not be_valid
@@ -21,6 +15,8 @@ describe User do
   end
 
   describe '#add_user_token' do
+    let(:user) { build(:user) }
+
     before { user.save }
 
     context "when user doesn't have given token" do
