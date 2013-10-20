@@ -17,7 +17,7 @@ class BaseUploader < CarrierWave::Uploader::Base
   end
 
   def store_dir_prefix
-    Rails.env.test? ? '../tmp/' : ''
+    Rails.env.test? ? 'test/' : ''
   end
 
   # Provide a default URL as a default if there hasn't been a file uploaded:
