@@ -18,11 +18,13 @@ class User < ActiveRecord::Base
 
   attr_accessible :nickname, :email, :name
 
-  scope :for_credentials, -> (credentials) {
+  def self.for_credentials(credentials)
     where(provider: credentials.provider, uid: credentials.uid).first
-  }
+  end
 
-  scope :for_email, -> (email) { where(email: email).first }
+  def self.for_email(email)
+    where(email: email).first
+  end
 
   def to_param
     nickname
