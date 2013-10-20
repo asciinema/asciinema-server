@@ -15,4 +15,6 @@ $(function() {
   $("input[data-behavior=auto-select]").click(function() {
     this.select();
   });
+
+  $('input[data-behavior=focus]:first').focus();
 });

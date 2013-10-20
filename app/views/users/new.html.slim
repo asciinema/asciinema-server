@@ -7,7 +7,7 @@ section.supplimental
     h3 Pick your username:
 
     = simple_form_for @user, :url => user_path do |f|
-      = f.input :nickname, label: 'Username', required: true
+      = f.input :nickname, label: 'Username', required: true, input_html: { 'data-behavior' => 'focus' }
       = f.button :submit
 
     hr
