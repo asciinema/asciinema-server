@@ -4,7 +4,8 @@ module AsciicastsHelper
     if params[:fallback]
       player_class = "Asciinema.FallbackPlayer"
     else
-      player_class = "window.Worker ? Asciinema.Player : Asciinema.FallbackPlayer"
+      player_class =
+        "window.Worker ? Asciinema.Player : Asciinema.FallbackPlayer"
     end
 
     if custom_renderer = params[:renderer]
