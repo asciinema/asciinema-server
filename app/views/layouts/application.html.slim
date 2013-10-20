@@ -8,7 +8,6 @@ html[lang="en"]
     = javascript_include_tag "application"
     = javascript_include_tag "player"
     = favicon_link_tag 'favicon.png'
-    = render :partial => 'layouts/current_user_js'
     = render :partial => 'layouts/ga'
     script
       | window.mainWorkerPath = '#{javascript_path "main_worker"}';
