@@ -25,5 +25,3 @@ addEventListener 'message', (e) =>
 
   movie.on 'all', (event, args...) ->
     postMessage evt: event, src: 'movie', args: args
-
-  console.log 'inited!'
