@@ -11,6 +11,8 @@
  *= require bootstrap
  *= require home
  *= require login
+ *= require users
+ *= require forms
  *= require asciicasts
  *= require terminal
  *= require player/colors

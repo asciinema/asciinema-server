@@ -1,7 +1,11 @@
 $ ->
-  $('#persona-button').click (event) ->
+  $('#persona-button, #log-in').click (event) ->
     event.preventDefault()
-    navigator.id.request { siteName: window.location.hostname }
+    navigator.id.request {
+      siteName: 'Asciinema',
+      backgroundColor: '#d95525',
+      siteLogo: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEAAQMAAABmvDolAAAABlBMVEUAAAD///+l2Z/dAAAAAWJLR0QAiAUdSAAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9wHGBMiFVqqanYAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAAMklEQVRo3u3KoQEAAAgDoP3/tBaD0WiATAJwVIsgCIIgCIIgCIIgCIIgCIIgCMKHADAafyL3ebnQxskAAAAASUVORK5CYII='
+    }
 
   if window.browserIdUser
     $('.session-info .logout').click (event) ->
@@ -12,8 +16,6 @@ $ ->
     loggedInUser: window.browserIdUser
 
     onlogin: (assertion) ->
-      console.log 'onlogin'
-
       if assertion
         form = $(
           "<form action='/auth/browser_id/callback'>" +
@@ -24,5 +26,4 @@ $ ->
         form.submit()
 
     onlogout: ->
-      console.log 'onlogout'
       window.location = '/logout'

@@ -1,32 +1,38 @@
 section.supplimental
   .wrapper
-    p There is no account with email #{@user.email}.
 
-    h2 That's because I am here for the first time
+    .new-user
+      h2 New user?
 
-    h3 Pick your username:
+      p
+        ' Every Asciinema user gets a profile page at
+        br
+        a href="#"
+          | http://asciinema.org/~
+          strong username
+        ' . Pick a desired username below.
 
-    = simple_form_for @user, :url => user_path do |f|
-      = f.input :nickname, label: 'Username', required: true, input_html: { 'data-behavior' => 'focus' }
-      = f.button :submit
+      = simple_form_for @user, :url => user_path do |f|
+        p = f.input :nickname, label: 'Pick a username:', required: true, input_html: { 'data-behavior' => 'focus' }
+        p.actions = f.button :submit, 'Start recording'
 
-    hr
+    .returning-user
+      h2 Returning user?
 
-    /* p */
-    /*   |  We recommend logging in with your email using */ 
-    /*   = link_to "Mozilla Persona", "https://login.persona.org/" */
-    /*   | . Look */ 
-    /*   = link_to "here", "https://developer.mozilla.org/en-US/docs/Persona" */
-    /*   |  for more details. */ 
+      p
+        ' There is no account associated with the email
+        strong = @user.email
+        ' .
 
-    h2 That's because I've been logging in via Github/Twitter
+      p
+        ' However, if you have been previously signing in to Asciinema via
+        ' Github or Twitter then click a proper button below so we can locate
+        ' your existing account:
 
-    p
-      | If you have been previously logging in via Github or Twitter
-      | pls do it again. One time!
+      ul.login
+        li = link_to "Sign in via Github", github_auth_path, :class => 'btn-auth btn-github'
+        li = link_to "Sign in via Twitter", twitter_auth_path, :class => 'btn-auth btn-twitter'
 
-    ul.login
-      li = link_to "Log in via Github", github_auth_path, :class => 'btn-auth btn-github'
-      li = link_to "Log in via Twitter", twitter_auth_path, :class => 'btn-auth btn-twitter'
+      p Note: this is one-time task. You won't be asked to do it again.
 
   .vertical-expander
