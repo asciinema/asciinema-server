@@ -52,7 +52,7 @@ group :test do
   gem 'guard-rspec',                   '~> 3.0.0'
   gem 'rb-inotify',                    '~> 0.9.0'
   gem 'simplecov',                     '~> 0.7.1', :require => false
-  gem 'shoulda-matchers',              '~> 1.4.1'
+  gem 'shoulda-matchers',              '~> 2.4.0'
 end
 
 group :production do
