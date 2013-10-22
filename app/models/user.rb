@@ -20,6 +20,14 @@ class User < ActiveRecord::Base
     where(email: email).first
   end
 
+  def nickname=(value)
+    value ? super(value.strip) : super
+  end
+
+  def email=(value)
+    value ? super(value.strip) : super
+  end
+
   def to_param
     nickname
   end

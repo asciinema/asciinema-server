@@ -47,6 +47,22 @@ describe User do
     end
   end
 
+  describe '#nickname=' do
+    it 'strips the whitespace' do
+      user = User.new(nickname: ' sickill ')
+
+      expect(user.nickname).to eq('sickill')
+    end
+  end
+
+  describe '#email=' do
+    it 'strips the whitespace' do
+      user = User.new(email: ' foo@bar.com ')
+
+      expect(user.email).to eq('foo@bar.com')
+    end
+  end
+
   describe '#add_user_token' do
     let(:user) { build(:user) }
 
