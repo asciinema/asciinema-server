@@ -54,9 +54,9 @@ describe UsersController do
         expect(controller).to have_received(:current_user=).with(user)
       end
 
-      it 'redirects to the root_path with a notice' do
+      it 'redirects to the "getting started" page with a notice' do
         expect(flash[:notice]).to_not be_blank
-        should redirect_to(root_path)
+        should redirect_to(docs_path(:gettingstarted))
       end
     end
 
