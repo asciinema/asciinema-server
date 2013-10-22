@@ -2,16 +2,13 @@ require 'spec_helper'
 
 describe User do
 
-  describe "validation" do
-    let(:user) { create(:user) }
-
-    it "validates nickname uniqueness" do
-      new_user = build(:user)
-      new_user.nickname = user.nickname
-
-      new_user.should_not be_valid
-      new_user.should have(1).error_on(:nickname)
+  describe "#valid?" do
+    before do
+      create(:user)
     end
+
+    it { should validate_uniqueness_of(:nickname) }
+    it { should validate_uniqueness_of(:email) }
   end
 
   describe '.for_credentials' do
@@ -75,4 +72,5 @@ describe User do
       end
     end
   end
+
 end
