@@ -2,6 +2,14 @@ require 'spec_helper'
 
 describe User do
 
+  it 'gets an auth_token upon creation' do
+    attrs = attributes_for(:user)
+    attrs.delete(:auth_token)
+    user = described_class.create!(attrs)
+
+    expect(user.auth_token).to be_kind_of(String)
+  end
+
   describe "#valid?" do
     before do
       create(:user)
@@ -9,6 +17,21 @@ describe User do
 
     it { should validate_uniqueness_of(:nickname) }
     it { should validate_uniqueness_of(:email) }
+  end
+
+  describe '.generate_auth_token' do
+    it 'generates a string token' do
+      token = described_class.generate_auth_token
+
+      expect(token).to be_kind_of(String)
+    end
+
+    it 'generates unique token' do
+      token_1 = described_class.generate_auth_token
+      token_2 = described_class.generate_auth_token
+
+      expect(token_1).to_not eq(token_2)
+    end
   end
 
   describe '.for_credentials' do

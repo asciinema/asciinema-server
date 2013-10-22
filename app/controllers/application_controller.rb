@@ -13,21 +13,28 @@ class ApplicationController < ActionController::Base
   helper_method :current_user
 
   def current_user
-    if session[:user_id]
-      @current_user ||= User.find_by_id(session[:user_id]).decorate
+    if permanent_store[:auth_token]
+      @current_user ||= find_user_by_auth_token(permanent_store[:auth_token])
+    end
+  end
+
+  def current_user=(user)
+    if user
+      permanent_store.permanent[:auth_token] = user.auth_token
+    else
+      permanent_store.delete(:auth_token)
     end
   end
 
   private
 
-  def current_user=(user)
-    if user
-      @current_user = user
-      session[:user_id] = user.id
-    else
-      @current_user = nil
-      session[:user_id] = nil
-    end
+  def permanent_store
+    cookies
+  end
+
+  def find_user_by_auth_token(auth_token)
+    user = User.where(auth_token: auth_token).first
+    user && user.decorate
   end
 
   def ensure_authenticated!

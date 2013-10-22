@@ -12,12 +12,18 @@ class User < ActiveRecord::Base
 
   validates :nickname, :email, presence: true, uniqueness: true
 
+  before_create :generate_auth_token
+
   def self.for_credentials(credentials)
     where(provider: credentials.provider, uid: credentials.uid).first
   end
 
   def self.for_email(email)
     where(email: email).first
+  end
+
+  def self.generate_auth_token
+    SecureRandom.urlsafe_base64
   end
 
   def nickname=(value)
@@ -34,6 +40,14 @@ class User < ActiveRecord::Base
 
   def add_user_token(token)
     user_tokens.where(:token => token).first_or_create
+  end
+
+  private
+
+  def generate_auth_token
+    begin
+      self[:auth_token] = self.class.generate_auth_token
+    end while User.exists?(auth_token: self[:auth_token])
   end
 
 end
