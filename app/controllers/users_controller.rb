@@ -26,7 +26,7 @@ class UsersController < ApplicationController
     if @user.save
       store.delete(:new_user_email)
       self.current_user = @user
-      redirect_back_or_to root_path, :notice => "Welcome!"
+      redirect_back_or_to root_path, :notice => "Welcome to Asciinema!"
     else
       render :new, :status => 422
     end

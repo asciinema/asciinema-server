@@ -24,7 +24,7 @@ describe UserTokensController do
       let(:user) { nil }
 
       it { should redirect_to(login_path) }
-      specify { flash[:notice].should =~ /login first/ }
+      specify { flash[:notice].should =~ /sign in to proceed/ }
     end
 
     context "when # of claimed asciicasts is nil" do

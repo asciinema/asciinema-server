@@ -7,7 +7,7 @@ class SessionsController < ApplicationController
 
     if user
       self.current_user = user
-      redirect_back_or_to root_url, :notice => "Logged in!"
+      redirect_back_or_to root_url, :notice => "Welcome back!"
     else
       store[:new_user_email] = omniauth_credentials.email
       redirect_to new_user_path
@@ -16,7 +16,7 @@ class SessionsController < ApplicationController
 
   def destroy
     self.current_user = nil
-    redirect_to root_path, :notice => "Logged out!"
+    redirect_to root_path, :notice => "See you later!"
   end
 
   def failure

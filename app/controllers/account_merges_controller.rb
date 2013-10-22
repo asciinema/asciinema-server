@@ -6,7 +6,7 @@ class AccountMergesController < ApplicationController
     if user
       user.update_attribute(:email, store.delete(:new_user_email))
       self.current_user = user
-      redirect_back_or_to root_url, notice: 'Welcome!'
+      redirect_back_or_to root_url, notice: 'Welcome back!'
     else
       redirect_to new_user_path,
                   alert: 'Sorry, no account found. Try a different provider.'
