@@ -19,18 +19,20 @@ html[lang="en"]
   body
     header
       .wrapper
-        h1
-          a href="/"
-            ' asciinema
-            span.cursor-block
+        a.logo href="/"
+          img src=image_path('logo-bar.png')
+
         .navigation
           = render :partial => 'layouts/navigation'
           .divider-vertical
           = render :partial => 'layouts/session_info'
+
     - flash.each do |type, message|
       p[class=type] = message
+
     #content
       = content_for?(:content) ? yield(:content) : yield
+
     footer
       .wrapper
         p.links
