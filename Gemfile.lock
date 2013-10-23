@@ -263,9 +263,9 @@ GEM
       json
       redis (>= 3.0)
       redis-namespace
-    simple_form (3.0.0.rc)
-      actionpack (>= 4.0.0.rc1, < 4.1)
-      activemodel (>= 4.0.0.rc1, < 4.1)
+    simple_form (3.0.0)
+      actionpack (>= 4.0.0, < 4.1)
+      activemodel (>= 4.0.0, < 4.1)
     simplecov (0.7.1)
       multi_json (~> 1.0)
       simplecov-html (~> 0.7.1)
@@ -356,7 +356,7 @@ DEPENDENCIES
   sass-rails (~> 4.0.0)
   shoulda-matchers (~> 2.4.0)
   sidekiq (~> 2.13)
-  simple_form (~> 3.0.0.rc)
+  simple_form (~> 3.0.0)
   simplecov (~> 0.7.1)
   sinatra (~> 1.4.3)
   slim (~> 2.0.0)

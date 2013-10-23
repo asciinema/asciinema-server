@@ -13,7 +13,7 @@ gem 'kaminari',             '~> 0.14.1'
 gem 'airbrake',             '~> 3.1.7', :require => false
 gem 'draper',               '~> 1.2.1'
 gem 'fog',                  '~> 1.9.0'
-gem 'simple_form',          '~> 3.0.0.rc'
+gem 'simple_form',          '~> 3.0.0'
 gem 'sidekiq',              '~> 2.13'
 gem 'thin',                 '~> 1.5.0'
 gem 'open4',                '~> 1.3.0'
