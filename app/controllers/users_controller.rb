@@ -37,9 +37,13 @@ class UsersController < ApplicationController
   end
 
   def update
-    current_user.update_attributes(params[:user])
-    redirect_to profile_path(current_user),
-                :notice => 'Account settings saved.'
+    @user = User.find(current_user.id)
+
+    if @user.update_attributes(params[:user])
+      redirect_to profile_path(@user), notice: 'Account settings saved.'
+    else
+      render :edit, status: 422
+    end
   end
 
   private
