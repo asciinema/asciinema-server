@@ -19,13 +19,8 @@ module ApplicationHelper
   end
 
   def browser_id_user
-    user = current_user || @user
-
-    if user
-      "'#{user.email}'".html_safe
-    else
-      'null'
-    end
+    email = current_user && current_user.email || session[:new_user_email]
+    email ? "'#{email}'".html_safe : 'null'
   end
 
   def markdown(&block)
