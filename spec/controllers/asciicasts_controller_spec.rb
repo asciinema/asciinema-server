@@ -2,7 +2,7 @@ require 'spec_helper'
 
 shared_examples_for 'guest user trying to modify' do
   it { should redirect_to(login_path) }
-  specify { flash[:notice].should =~ /login first/ }
+  specify { flash[:notice].should =~ /sign in to proceed/ }
 end
 
 shared_examples_for 'non-owner user trying to modify' do

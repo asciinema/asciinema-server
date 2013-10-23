@@ -1,2 +1,2 @@
-//= require application
+//= require base
 //= require player

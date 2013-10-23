@@ -8,11 +8,12 @@ gem 'carrierwave',          '~> 0.8.0'
 gem 'omniauth',             '~> 1.1.4'
 gem 'omniauth-twitter',     '~> 0.0.16'
 gem 'omniauth-github',      '~> 1.1.0'
+gem 'omniauth-browserid',    github: 'callahad/omniauth-browserid'
 gem 'kaminari',             '~> 0.14.1'
 gem 'airbrake',             '~> 3.1.7', :require => false
 gem 'draper',               '~> 1.2.1'
 gem 'fog',                  '~> 1.9.0'
-gem 'simple_form',          '~> 3.0.0.rc'
+gem 'simple_form',          '~> 3.0.0'
 gem 'sidekiq',              '~> 2.13'
 gem 'thin',                 '~> 1.5.0'
 gem 'open4',                '~> 1.3.0'
@@ -51,7 +52,7 @@ group :test do
   gem 'guard-rspec',                   '~> 3.0.0'
   gem 'rb-inotify',                    '~> 0.9.0'
   gem 'simplecov',                     '~> 0.7.1', :require => false
-  gem 'shoulda-matchers',              '~> 1.4.1'
+  gem 'shoulda-matchers',              '~> 2.4.0'
 end
 
 group :production do

@@ -7,8 +7,8 @@ FactoryGirl.define do
   factory :user do
     provider "twitter"
     uid
-    nickname
-    email nil
+    sequence(:nickname) { |n| "foobar#{n}" }
+    sequence(:email) { |n| "foo#{n}@bar.com" }
     name nil
     avatar_url nil
   end

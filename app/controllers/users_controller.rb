@@ -1,7 +1,12 @@
 class UsersController < ApplicationController
+
   PER_PAGE = 15
 
   before_filter :ensure_authenticated!, :only => [:edit, :update]
+
+  def new
+    @user = build_user
+  end
 
   def show
     @user = User.find_by_nickname!(params[:nickname]).decorate
@@ -16,15 +21,14 @@ class UsersController < ApplicationController
   end
 
   def create
-    @user = User.new(params[:user])
-    load_sensitive_user_data_from_session
+    @user = build_user
 
     if @user.save
-      clear_sensitive_session_user_data
+      store.delete(:new_user_email)
       self.current_user = @user
-      redirect_back_or_to root_url, :notice => "Logged in!"
+      redirect_to docs_path(:gettingstarted), notice: "Welcome to Asciinema!"
     else
-      render 'users/new', :status => 422
+      render :new, :status => 422
     end
   end
 
@@ -33,22 +37,26 @@ class UsersController < ApplicationController
   end
 
   def update
-    current_user.update_attributes(params[:user])
-    redirect_to profile_path(current_user),
-                :notice => 'Account settings saved.'
+    @user = User.find(current_user.id)
+
+    if @user.update_attributes(params[:user])
+      redirect_to profile_path(@user), notice: 'Account settings saved.'
+    else
+      render :edit, status: 422
+    end
   end
 
   private
 
-  def load_sensitive_user_data_from_session
-    if session[:new_user]
-      @user.provider   = session[:new_user][:provider]
-      @user.uid        = session[:new_user][:uid]
-      @user.avatar_url = session[:new_user][:avatar_url]
-    end
+  def store
+    session
   end
 
-  def clear_sensitive_session_user_data
-    session.delete(:new_user)
+  def build_user
+    user = User.new(params[:user])
+    user.email = store[:new_user_email]
+
+    user
   end
+
 end

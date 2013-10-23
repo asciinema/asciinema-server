@@ -2,25 +2,93 @@ require 'spec_helper'
 
 describe User do
 
-  let(:user) { FactoryGirl.build(:user) }
+  it 'gets an auth_token upon creation' do
+    attrs = attributes_for(:user)
+    attrs.delete(:auth_token)
+    user = described_class.create!(attrs)
 
-  it "has valid factory" do
-    FactoryGirl.build(:user).should be_valid
+    expect(user.auth_token).to be_kind_of(String)
   end
 
-  describe "validation" do
-    let(:user) { FactoryGirl.create(:user) }
+  describe "#valid?" do
+    before do
+      create(:user)
+    end
 
-    it "validates nickname uniqueness" do
-      new_user = FactoryGirl.build(:user)
-      new_user.nickname = user.nickname
+    it { should validate_uniqueness_of(:nickname) }
+    it { should validate_uniqueness_of(:email) }
+  end
 
-      new_user.should_not be_valid
-      new_user.should have(1).error_on(:nickname)
+  describe '.generate_auth_token' do
+    it 'generates a string token' do
+      token = described_class.generate_auth_token
+
+      expect(token).to be_kind_of(String)
+    end
+
+    it 'generates unique token' do
+      token_1 = described_class.generate_auth_token
+      token_2 = described_class.generate_auth_token
+
+      expect(token_1).to_not eq(token_2)
+    end
+  end
+
+  describe '.for_credentials' do
+    subject { described_class.for_credentials(credentials) }
+
+    let!(:user) { create(:user, provider: 'twitter', uid: '1') }
+
+    context "when there is matching record" do
+      let(:credentials) { double('credentials', provider: 'twitter', uid: '1') }
+
+      it { should eq(user) }
+    end
+
+    context "when there isn't matching record" do
+      let(:credentials) { double('credentials', provider: 'twitter', uid: '2') }
+
+      it { should be(nil) }
+    end
+  end
+
+  describe '.for_email' do
+    subject { described_class.for_email(email) }
+
+    let!(:user) { create(:user, email: 'foo@bar.com') }
+
+    context "when there is matching record" do
+      let(:email) { 'foo@bar.com' }
+
+      it { should eq(user) }
+    end
+
+    context "when there isn't matching record" do
+      let(:email) { 'qux@bar.com' }
+
+      it { should be(nil) }
+    end
+  end
+
+  describe '#nickname=' do
+    it 'strips the whitespace' do
+      user = User.new(nickname: ' sickill ')
+
+      expect(user.nickname).to eq('sickill')
+    end
+  end
+
+  describe '#email=' do
+    it 'strips the whitespace' do
+      user = User.new(email: ' foo@bar.com ')
+
+      expect(user.email).to eq('foo@bar.com')
     end
   end
 
   describe '#add_user_token' do
+    let(:user) { build(:user) }
+
     before { user.save }
 
     context "when user doesn't have given token" do
@@ -43,4 +111,5 @@ describe User do
       end
     end
   end
+
 end

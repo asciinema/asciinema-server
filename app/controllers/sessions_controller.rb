@@ -1,41 +1,36 @@
 class SessionsController < ApplicationController
-  before_filter :load_omniauth_auth, :only => :create
 
   def new; end
 
   def create
-    @user = request.env['asciiio.user']
+    user = find_user
 
-    if @user.persisted? || @user.save
-      self.current_user = @user
-      redirect_back_or_to root_url, :notice => "Logged in!"
+    if user
+      self.current_user = user
+      redirect_back_or_to root_url, :notice => "Welcome back!"
     else
-      store_sensitive_user_data_in_session
-      render 'users/new', :status => 422
+      store[:new_user_email] = omniauth_credentials.email
+      redirect_to new_user_path
     end
   end
 
   def destroy
     self.current_user = nil
-    redirect_to root_url, :notice => "Logged out!"
+    redirect_to root_path, :notice => "See you later!"
   end
 
   def failure
-    redirect_to root_url, :alert => "Authentication failed. Maybe try again?"
+    redirect_to root_path, :alert => "Authentication failed. Maybe try again?"
   end
 
   private
 
-  def load_omniauth_auth
-    @auth = request.env["omniauth.auth"]
+  def store
+    session
   end
 
-  def store_sensitive_user_data_in_session
-    session[:new_user] = {
-      :provider   => @user.provider,
-      :uid        => @user.uid,
-      :avatar_url => @user.avatar_url
-    }
+  def find_user
+    User.for_email(omniauth_credentials.email)
   end
 
 end

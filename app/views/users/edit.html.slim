@@ -1,0 +1,17 @@
+section.supplimental
+  .wrapper
+    h1 Your account
+
+    = simple_form_for(@user) do |f|
+      = f.error_notification
+
+      .form-inputs
+        = f.input :nickname, label: 'Username'
+        = f.input :email
+        = f.input :name, label: 'Real name'
+
+      .form-actions
+        = f.button :submit, 'Save'
+        = link_to 'Cancel', profile_path(current_user), class: 'btn'
+
+    .vertical-expander

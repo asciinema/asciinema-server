@@ -4,13 +4,10 @@
 // It's not advisable to add code directly here, but if you do, it'll appear at the bottom of the
 // the compiled file.
 //
-//= require jquery
+//= require base
 //= require jquery_ujs
-//= require es5-shim.min
-//= require console-shim-min
-//= require underscore-min
-//= require backbone-min
 //= require jquery.timeago
+//= require persona
 
 $(function() {
   $('abbr.timeago').timeago();
@@ -18,4 +15,6 @@ $(function() {
   $("input[data-behavior=auto-select]").click(function() {
     this.select();
   });
+
+  $('input[data-behavior=focus]:first').focus();
 });

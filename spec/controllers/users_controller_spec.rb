@@ -2,62 +2,85 @@ require 'spec_helper'
 
 describe UsersController do
 
+  let(:store) { {} }
+
+  before do
+    allow(controller).to receive(:store) { store }
+  end
+
+  describe '#new' do
+    before do
+      store[:new_user_email] = 'foo@bar.com'
+
+      get :new
+    end
+
+    it 'assigns user with a stored email' do
+      expect(assigns(:user).email).to eq('foo@bar.com')
+    end
+
+    it 'renders new template' do
+      should render_template('new')
+    end
+  end
+
   describe "#create" do
-    let(:user) { mock_model(User).as_null_object }
+    let!(:user) { stub_model(User) }
+
+    subject { post :create, user: { nickname: 'jola' } }
 
     before do
-      User.stub(:new).and_return(user)
+      allow(controller).to receive(:current_user=)
+      allow(User).to receive(:new).with('nickname' => 'jola') { user }
+      store[:new_user_email] = 'foo@bar.com'
     end
 
-    context "when user saved" do
-      let(:provider) { 'foo' }
-      let(:uid) { '123' }
-      let(:avatar_url) { 'url' }
-
+    context "when user is persisted" do
       before do
-        session[:new_user] = {
-          :provider   => provider,
-          :uid        => uid,
-          :avatar_url => avatar_url
-        }
+        allow(user).to receive(:save) { true }
 
-        user.stub(:save => true)
+        subject
       end
 
-      it "assigns provider and uid" do
-        user.should_receive(:provider=).with(provider).and_return(true)
-        user.should_receive(:uid=).with(uid).and_return(true)
-        user.should_receive(:avatar_url=).with(avatar_url).and_return(true)
-
-        post :create
+      it 'removes the email from the store' do
+        expect(store.key?(:new_user_email)).to be(false)
       end
 
-      it "sets current_user" do
-        post :create
-        @controller.current_user.should_not be_nil
+      it 'assigns the stored email to the user' do
+        expect(user.email).to eq('foo@bar.com')
       end
 
-      it "clears user session data" do
-        post :create
-
-        session[:new_user].should be_nil
+      it 'sets the current_user' do
+        expect(controller).to have_received(:current_user=).with(user)
       end
 
-      it "redirects back" do
-        post :create
-        should redirect_to(root_url)
+      it 'redirects to the "getting started" page with a notice' do
+        expect(flash[:notice]).to_not be_blank
+        should redirect_to(docs_path(:gettingstarted))
       end
-
     end
 
-    context "when not valid data" do
+    context "when user isn't persisted" do
       before do
-        user.stub(:save => false)
+        allow(user).to receive(:save) { false }
+
+        subject
       end
 
-      it "renders user/new" do
-        post :create
-        should render_template('users/new')
+      it "doesn't remove the email from the store" do
+        expect(store.key?(:new_user_email)).to be(true)
+      end
+
+      it "doesn't set the current_user" do
+        expect(controller).to_not have_received(:current_user=)
+      end
+
+      it 'assigns user with a stored email' do
+        expect(assigns(:user).email).to eq('foo@bar.com')
+      end
+
+      it 'renders "new" template' do
+        should render_template('new')
       end
     end
   end
@@ -73,4 +96,5 @@ describe UsersController do
   describe '#update' do
     it 'should have specs'
   end
+
 end
