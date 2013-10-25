@@ -31,6 +31,8 @@ Asciinema::Application.routes.draw do
 
   root 'home#show'
 
+  get '/privacy' => 'pages#show', page: :privacy, as: :privacy
+
   mount JasmineRails::Engine => "/specs" unless Rails.env.production?
 
   get '/test/widget/:id' => 'test_widget#show' if Rails.env.test?

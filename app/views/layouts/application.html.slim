@@ -35,8 +35,9 @@ html[lang="en"]
 
     footer
       .wrapper
-        p.links
-          = link_to 'About', docs_path(:about)
+        ul.links
+          li = link_to 'About', docs_path(:about)
+          li = link_to 'Privacy Policy', privacy_path
         p.title
           ' Developed with passion by
           = link_to 'Marcin Kulik', 'https://github.com/sickill'
