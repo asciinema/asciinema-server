@@ -23,7 +23,7 @@ class UserDecorator < ApplicationDecorator
 
   def gravatar_url
     hash = Digest::MD5.hexdigest(model.email.to_s.downcase)
-    "http://gravatar.com/avatar/#{hash}?s=64"
+    "//gravatar.com/avatar/#{hash}?s=64"
   end
 
 end
