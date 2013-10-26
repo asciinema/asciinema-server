@@ -32,6 +32,7 @@ Asciinema::Application.routes.draw do
   root 'home#show'
 
   get '/privacy' => 'pages#show', page: :privacy, as: :privacy
+  get '/tos' => 'pages#show', page: :tos, as: :tos
 
   mount JasmineRails::Engine => "/specs" unless Rails.env.production?
 
