@@ -37,6 +37,4 @@ Asciinema::Application.routes.draw do
   mount JasmineRails::Engine => "/specs" unless Rails.env.production?
 
   get '/test/widget/:id' => 'test_widget#show' if Rails.env.test?
-
-  match '*a', :via => [:get, :post], :to => 'application#not_found'
 end
