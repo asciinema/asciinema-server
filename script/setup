@@ -2,13 +2,13 @@
 
 set -e
 
-if [ ! -e /usr/local/lib/libtsm.so ];
+if [ ! -e /usr/local/lib/libtsm.a ];
 then
   echo "libtsm missing, compiling from source..."
-  DIR=$(mktemp -d)
+  DIR=$(mktemp -d -t tsmXXXXXX)
   cd $DIR
-  git clone https://github.com/dvdhrm/libtsm.git .
-  git checkout d8fff00
+  git clone git://github.com/sickill/libtsm.git .
+  git checkout 7dfa43d
   test -f ./configure || NOCONFIGURE=1 ./autogen.sh
   ./configure --prefix=/usr/local
   make
