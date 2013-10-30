@@ -7,8 +7,8 @@ then
   echo "libtsm missing, compiling from source..."
   DIR=$(mktemp -d -t tsmXXXXXX)
   cd $DIR
-  git clone git://github.com/sickill/libtsm.git .
-  git checkout 7dfa43d
+  git clone git://people.freedesktop.org/~dvdhrm/libtsm .
+  git checkout e998bb
   test -f ./configure || NOCONFIGURE=1 ./autogen.sh
   ./configure --prefix=/usr/local
   make
