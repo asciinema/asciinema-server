@@ -133,7 +133,7 @@ describe AsciicastDecorator do
         asciicast.command = 'cmd'
       end
 
-      it { should == '$ cmd' }
+      it { should == 'cmd' }
     end
 
     context 'when no title nor command is present' do
@@ -144,7 +144,7 @@ describe AsciicastDecorator do
       end
 
       it 'should be in the form of "#<id>"' do
-        should == "##{asciicast.id}"
+        should == "asciicast:#{asciicast.id}"
       end
     end
   end

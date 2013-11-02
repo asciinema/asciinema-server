@@ -23,13 +23,7 @@ class AsciicastDecorator < ApplicationDecorator
   end
 
   def title
-    if model.title.present?
-      model.title
-    elsif command.present?
-      "$ #{command}"
-    else
-      "##{id}"
-    end
+    model.title.presence || model.command.presence || "asciicast:#{id}"
   end
 
   def thumbnail(width = THUMBNAIL_WIDTH, height = THUMBNAIL_HEIGHT)
