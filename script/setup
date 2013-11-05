@@ -8,7 +8,7 @@ then
   DIR=$(mktemp -d -t tsmXXXXXX)
   cd $DIR
   git clone git://people.freedesktop.org/~dvdhrm/libtsm .
-  git checkout e998bb
+  git checkout bb4e454
   test -f ./configure || NOCONFIGURE=1 ./autogen.sh
   ./configure --prefix=/usr/local
   make
