@@ -2,44 +2,23 @@ doctype html
 html[lang="en"]
   head
     meta[charset="utf-8"]
+    meta[name="viewport" content="width=device-width, initial-scale=1.0"]
     title = page_title
     = csrf_meta_tags
     = stylesheet_link_tag "application", :media => "all"
-    = javascript_include_tag "application"
-    = javascript_include_tag "player"
     - if Rails.env.development?
       = javascript_include_tag "persona-include.js"
     - else
       = javascript_include_tag "https://login.persona.org/include.js"
+    = javascript_include_tag "application"
+    = javascript_include_tag "player"
     = favicon_link_tag 'favicon.png'
-    = render :partial => 'layouts/ga'
+    = render 'layouts/ga'
     script
       | window.mainWorkerPath = '#{javascript_path "main_worker"}';
       | window.browserIdUser = #{browser_id_user};
   body
-    header
-      .wrapper
-        a.logo href="/"
-          img src=image_path('logo-bar.png')
-
-        .navigation
-          = render :partial => 'layouts/navigation'
-          .divider-vertical
-          = render :partial => 'layouts/session_info'
-
-    - flash.each do |type, message|
-      p[class=type] = message
-
-    #content
-      = content_for?(:content) ? yield(:content) : yield
-
-    footer
-      .wrapper
-        ul.links
-          li = link_to 'About', docs_path(:about)
-          li = link_to 'Terms of Service', tos_path
-          li = link_to 'Privacy Policy', privacy_path
-        p.title
-          ' Developed with passion by
-          = link_to 'Marcin Kulik', 'https://github.com/sickill'
-          img.avatar alt="Marcin" src="//gravatar.com/avatar/9cecfc695240b56e5d3c1a5dc3830967"
+    = render 'layouts/header'
+    = render 'shared/flash'
+    .main = content_for?(:content) ? yield(:content) : yield
+    = render 'layouts/footer'

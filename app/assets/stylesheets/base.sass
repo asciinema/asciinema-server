@@ -1,0 +1,90 @@
+body
+  font-family: "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif
+  font-size: 15px
+
+  .btn
+    font-size: 15px
+
+  .form-control, .btn, pre
+    border-radius: 3px
+
+.main
+  background-color: white
+  min-height: 500px
+
+  > div:first-child
+    margin-top: 20px
+
+h1, h2, h3
+  font-family: "Source Sans Pro", sans-serif
+
+h1
+  font-size: 30px
+
+h2
+  font-size: 24px
+
+h3
+  font-size: 18px
+
+blockquote
+  p
+    font-size: inherit
+    font-weight: inherit
+    color: #666
+
+section.cinema
+  color: #fff
+  background-color: #222
+  padding: 25px 0
+  margin-top: -20px
+
+section.odd, section.even
+  padding: 20px 0
+  border-bottom: 1px solid #ddd
+
+section.odd
+  background-color: #f7f7f7
+
+section.even:last-child, section.odd:last-child
+  border-bottom: 0
+
+$link-color: #06989a
+
+a
+  color: $link-color
+
+  &:hover
+    color: $link-color
+
+.btn-primary
+  background-color: $link-color
+
+.pagination
+  > .active
+    > a, a:hover
+      background-color: $link-color
+      border-color: $link-color
+
+.nav-pills
+  > li
+    > a
+      border-radius: 3px
+      padding: 6px 15px
+
+    &.active
+      > a
+        background-color: $link-color
+
+        &:hover
+          background-color: $link-color
+
+.dropdown-menu
+  > li
+    > a:hover, > a:focus
+      background-color: $link-color
+
+.author-avatar
+  img
+    width: 100%
+    height: 100%

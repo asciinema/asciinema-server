@@ -8,6 +8,7 @@
 //= require jquery_ujs
 //= require jquery.timeago
 //= require persona
+//= require bootstrap
 
 $(function() {
   $('abbr.timeago').timeago();

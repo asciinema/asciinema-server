@@ -16,17 +16,12 @@ class Asciicast < ActiveRecord::Base
   has_many :comments, -> { order(:created_at) }, :dependent => :destroy
   has_many :likes, :dependent => :destroy
 
-  scope :featured, -> { where(:featured => true) }
-  scope :popular, -> { where("views_count > 0").order("views_count DESC") }
-  scope :newest, -> { order("created_at DESC") }
-
-  scope(:newest_paginated, lambda do |page, per_page|
-    newest.includes(:user).page(page).per(per_page)
-  end)
-
-  scope(:popular_paginated, lambda do |page, per_page|
-    popular.includes(:user).page(page).per(per_page)
-  end)
+  scope :featured, -> { where(featured: true) }
+  scope :by_recency, -> { order("created_at DESC") }
+  scope :latest_limited, -> (n) { by_recency.limit(n).includes(:user) }
+  scope :latest_featured_limited, -> (n) {
+    featured.by_recency.limit(n).includes(:user)
+  }
 
   attr_accessible :title, :description, :time_compression
 

@@ -1,25 +1,39 @@
 class HomeController < ApplicationController
-  before_filter :load_asciicast
 
   def show
     @title = "Share Your Terminal With No Fuss"
 
-    if @asciicast
-      @asciicast = AsciicastDecorator.new(@asciicast)
-    end
-
-    @asciicasts = AsciicastDecorator.decorate_collection(
-      Asciicast.order("created_at DESC").limit(9).includes(:user)
-    )
+    render locals: {
+      asciicast:           asciicast,
+      featured_asciicasts: featured_asciicasts,
+      latest_asciicasts:   latest_asciicasts
+    }
   end
 
   private
 
-  def load_asciicast
-    if id = CFG['HOME_CAST_ID']
-      @asciicast = Asciicast.find(id)
+  def asciicast
+    id = CFG['HOME_CAST_ID']
+
+    asciicast = if id
+      asciicast_repository.find(id)
     else
-      @asciicast = Asciicast.order("created_at DESC").first
+      asciicast_repository.last
     end
+
+    asciicast && asciicast.decorate
   end
+
+  def latest_asciicasts
+    asciicast_repository.latest_limited(3).decorate
+  end
+
+  def featured_asciicasts
+    asciicast_repository.latest_featured_limited(3).decorate
+  end
+
+  def asciicast_repository
+    Asciicast
+  end
+
 end

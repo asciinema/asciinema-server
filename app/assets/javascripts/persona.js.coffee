@@ -10,7 +10,7 @@ $ ->
     }
 
   if window.browserIdUser
-    $('.session-info .logout').click (event) ->
+    $('header .logout').click (event) ->
       event.preventDefault()
       navigator.id.logout()
 

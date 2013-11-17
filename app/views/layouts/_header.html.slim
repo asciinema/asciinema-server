@@ -1,0 +1,39 @@
+header.navbar.navbar-default[role="navigation"]
+  .container
+    .navbar-header
+      button.navbar-toggle[type="button" data-toggle="collapse" data-target=".navbar-ex1-collapse"]
+        span.icon-bar
+        span.icon-bar
+        span.icon-bar
+      a.navbar-brand href="/"
+        = image_tag 'new-logo-bars.png'
+
+    .collapse.navbar-collapse.navbar-ex1-collapse
+      ul.nav.navbar-nav
+        li
+          = link_to "Browse", browse_path
+        li
+          = link_to "Docs", docs_index_path
+        li
+          = link_to "Blog", 'http://blog.asciinema.org'
+
+      ul.nav.navbar-nav.navbar-right.session-info
+        - if current_user
+          li.dropdown
+            a.dropdown-toggle[href="#" data-toggle="dropdown"]
+              = avatar_image_tag(current_user)
+              = current_user.nickname
+              b.caret
+            ul.dropdown-menu
+              li
+                a href=profile_path(current_user) Profile
+              li
+                a href=edit_user_path Settings
+              li
+                a.logout href=logout_path Log out
+        - else
+          li
+            a#log-in href=login_path Sign in
+
+        li
+          a.record href="#" Record

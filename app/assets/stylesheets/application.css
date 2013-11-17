@@ -1,20 +1,16 @@
 /*
- *= require normalize
+ *= require bootstrap.min
  *= require auth-buttons
- *= require overpass-font
+ *= require source-sans-pro
  *= require base
  *= require header
- *= require footer
  *= require flash
- *= require previews
- *= require 404
- *= require bootstrap
+ *= require footer
  *= require home
- *= require login
- *= require users
- *= require forms
  *= require asciicasts
- *= require terminal
- *= require player/colors
- *= require player/player
+ *= require pages
+ *= require profile
+ *= require new-user
+ *= require preview
+ *= require player
 */
