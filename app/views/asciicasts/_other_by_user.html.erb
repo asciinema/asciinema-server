@@ -1,8 +1,0 @@
-<% if @asciicast.other_by_user.any? %>
-  <div class="other-asciicasts">
-    <h2>Other asciicasts by <%= @asciicast.author %></h2>
-
-    <%= render :partial => 'previews',
-               :locals => { :asciicasts => @asciicast.other_by_user } %>
-  </div>
-<% end %>

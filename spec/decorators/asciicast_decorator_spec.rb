@@ -167,7 +167,7 @@ describe AsciicastDecorator do
         asciicast.description = ''
       end
 
-      it { should == '<em>No description.</em>' }
+      it { should be(nil) }
     end
   end
 

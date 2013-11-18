@@ -36,8 +36,6 @@ class AsciicastDecorator < ApplicationDecorator
     if model.description.present?
       text = model.description.to_s
       markdown(text)
-    else
-      h.content_tag :em, 'No description.'
     end
   end
 

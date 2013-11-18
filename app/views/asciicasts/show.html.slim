@@ -1,15 +1,71 @@
-section#presentation.feature
-  .asciicast-wrapper
-    = player @asciicast
+.asciicast-page
+  section.cinema
+    .container
+      = player @asciicast
 
-section.supplimental
-  .wrapper
-    .main
-      h1 = @asciicast.title
-      .description = @asciicast.description
-      = render :partial => 'other_by_user'
-    .extras
-      = render :partial => 'author'
-      = render :partial => 'actions'
-      = render :partial => 'info'
-      = render :partial => 'share'
+  section.odd.info
+    .container
+      .row
+        .col-md-8
+          span.author-avatar = @asciicast.author_img_link
+          h2
+            = @asciicast.title
+            small by #{@asciicast.author_link} #{time_ago_tag @asciicast.created_at}
+
+        .col-md-4.text-right
+          = render 'add_this', title: @asciicast.title, url: asciicast_url(@asciicast)
+
+  section.even.meta
+    .container
+      .row
+        .col-md-8
+          ul.meta-list
+            li
+              span.glyphicon.glyphicon-info-sign
+              ' 
+              ' #{@asciicast.os} /
+              ' #{@asciicast.shell} /
+              ' #{@asciicast.terminal_type}
+            li
+              span.glyphicon.glyphicon-eye-open
+              = " #{@asciicast.views_count}"
+
+        .col-md-4
+          - if @asciicast.user == current_user
+            .dropdown.actions-dropdown.pull-right
+              button.btn.btn-default.dropdown-toggle[type="button" data-toggle="dropdown"]
+                span.glyphicon.glyphicon-cog
+                ' 
+                span.caret
+              ul.dropdown-menu
+                li
+                  = link_to edit_asciicast_path(@asciicast) do
+                    span.glyphicon.glyphicon-edit
+                    '  Edit
+                li
+                  = link_to(asciicast_path(@asciicast), method: :delete, data: { confirm: 'Really delete this asciicast?' }) do
+                    span.glyphicon.glyphicon-remove
+                    '  Delete
+
+          ul.meta-list.actions-list
+            li
+              span.glyphicon.glyphicon-link
+              ' 
+              a href="#" id="embed-link" Embed
+
+  .container
+    .row
+      .col-md-6.col-md-offset-6
+        .embed-box.text-right
+          input[type="text" class="embed-script" value=@asciicast.embed_script data-behavior="auto-select" readonly]
+          br
+          | See the #{link_to 'embedding docs', docs_path(:embedding)} for more options.
+
+  - if @asciicast.description.present?
+    section.even.description
+      .container
+        .content = @asciicast.description
+
+  section.odd
+    .container
+      = render 'other_by_user'

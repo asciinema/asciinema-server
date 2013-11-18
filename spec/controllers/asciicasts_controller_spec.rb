@@ -248,4 +248,5 @@ describe AsciicastsController do
       it_should_behave_like 'non-owner user trying to modify'
     end
   end
+
 end

@@ -18,4 +18,9 @@ $(function() {
   });
 
   $('input[data-behavior=focus]:first').focus();
+
+  $('#embed-link').click(function(e) {
+    e.preventDefault();
+    $('.embed-box').slideDown('fast');
+  });
 });
