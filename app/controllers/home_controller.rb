@@ -1,8 +1,6 @@
 class HomeController < ApplicationController
 
   def show
-    @title = "Share Your Terminal With No Fuss"
-
     render locals: {
       asciicast:           asciicast,
       featured_asciicasts: featured_asciicasts,

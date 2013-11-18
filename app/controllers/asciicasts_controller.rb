@@ -19,7 +19,6 @@ class AsciicastsController < ApplicationController
       format.html do
         view_counter.increment(@asciicast, cookies)
         @asciicast = AsciicastDecorator.new(@asciicast)
-        @title = @asciicast.title
         respond_with @asciicast
       end
 

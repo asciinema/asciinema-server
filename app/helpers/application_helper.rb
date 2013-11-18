@@ -14,13 +14,11 @@ module ApplicationHelper
   end
 
   def page_title
-    title = "asciinema"
-
-    if @title
-      title = "#{@title} - #{title}"
+    if content_for?(:title)
+      "#{content_for(:title)} - Asciinema"
+    else
+      "Asciinema - Record and share your terminal sessions, the right way"
     end
-
-    title
   end
 
   def twitter_auth_path
