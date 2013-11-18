@@ -1,14 +1,8 @@
 @import ../terminal-font
-@import ../shared
 
-$color1: #00a0b0
-$color2: #6a4a3c
-$color3: #cc333f
 $color4: #eb6841
-$color5: #edc951
 
 =player-overlay
-  background-color: rgba(0, 0, 0, 0.5)
   z-index: 10
   background-repeat: no-repeat
   background-position: center
@@ -23,29 +17,31 @@ $color5: #edc951
   display: block
   padding: 0px
   position: relative
+  border: 3px solid black
+  box-sizing: content-box
+  -moz-box-sizing: content-box
+  -webkit-box-sizing: content-box
 
   .font-sample, .hud
     +terminal-font
 
   &.medium-font
+    border: 4px solid black
+
     .font-sample, .hud
       +terminal-font-medium
 
     .hud
       height: 24px
-      bottom: 4px
-      left: 4px
-      right: 4px
 
   &.big-font
+    border: 6px solid black
+
     .font-sample, .hud
       +terminal-font-big
 
     .hud
       height: 32px
-      bottom: 6px
-      left: 6px
-      right: 6px
 
   .loading
     +player-overlay
@@ -57,26 +53,7 @@ $color5: #edc951
     cursor: pointer
 
     .play-button
-      position: absolute
-      left: 50%
-      top: 50%
-      width: 0
-
-      .arrow
-        color: white
-        font-size: 140px
-        font-family: "Helvetica Neue", Helvetica, "Liberation Sans", FreeSans, Arial, sans-serif
-        width: 150px
-        margin-left: -75px
-        margin-top: -100px
-        -webkit-font-smoothing: none
-        text-align: center
-        font-weight: bold
-
-        &:hover
-          text-shadow: 2px 2px 5px $main-color
-          // -moz-transform: rotate(-5deg);
-          // -webkit-transform: rotate(-5deg);
+      font-size: 100px
 
   .hud
     padding: 0
@@ -85,9 +62,9 @@ $color5: #edc951
     background-color: #eee
     opacity: 0
     position: absolute
-    left: 3px
-    right: 3px
-    bottom: 3px
+    left: 0
+    right: 0
+    bottom: 0
     height: 16px
     overflow: hidden
     color: black
@@ -127,3 +104,6 @@ $color5: #edc951
 
   &:hover .hud
     opacity: 1.0
+
+  pre
+    border-radius: 0

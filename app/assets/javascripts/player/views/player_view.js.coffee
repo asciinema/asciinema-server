@@ -64,7 +64,7 @@ class Asciinema.PlayerView extends Backbone.View
     @$('.loading').remove()
 
   showPlayOverlay: ->
-    @showOverlay('<div class="start-prompt"><div class="play-button"><div class="arrow">►</div></div></div>')
+    @showOverlay('<div class="start-prompt"><div class="play-button"><div class="arrow"><span class="glyphicon glyphicon-play"></span></div></div></div>')
 
   hidePlayOverlay: ->
     @$('.start-prompt').remove()
