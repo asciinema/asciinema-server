@@ -1,0 +1,19 @@
+.container
+  = form_for @asciicast, html: { class: 'form-horizontal' } do |f|
+    legend Asciicast properties
+
+    .form-group
+      = f.label :title, class: 'col-sm-2 control-label'
+      .col-sm-10 = f.text_field :title, class: 'form-control'
+    .form-group
+      = f.label :description, class: 'col-sm-2 control-label'
+      .col-sm-10
+        = f.text_area :description, class: 'form-control', rows: 15
+        p.help-block
+          | Parsed with 
+          a[href="http://github.github.com/github-flavored-markdown/" target="_blank"]
+          | GitHub Flavored Markdown
+    .form-group
+      .col-sm-offset-2.col-sm-10
+        = f.submit 'Update asciicast', class: 'btn btn-primary'
+        = link_to 'Cancel', asciicast_path, class: 'btn'
