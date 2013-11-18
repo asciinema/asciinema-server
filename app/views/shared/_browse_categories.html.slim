@@ -1,0 +1,5 @@
+h2 Browse
+
+= category_links current_category do |categories|
+  = categories.link_to 'All', browse_path, :all
+  = categories.link_to 'Featured', category_path(:featured), :featured

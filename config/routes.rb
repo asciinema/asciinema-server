@@ -1,7 +1,7 @@
 Asciinema::Application.routes.draw do
 
   get "/browse" => "asciicasts#index", :as => :browse
-  get "/browse/popular" => "asciicasts#popular", :as => :popular
+  get "/browse/:category" => "asciicasts#index", :as => :category
 
   resources :asciicasts, :path => 'a' do
     member do

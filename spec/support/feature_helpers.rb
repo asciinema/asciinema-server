@@ -3,7 +3,7 @@ module Asciinema
 
     def expect_browse_links
       expect(page).to have_link('All')
-      expect(page).to have_link('Popular')
+      expect(page).to have_link('Featured')
     end
 
     def expect_doc_links

@@ -1,5 +1,6 @@
 class Asciicast < ActiveRecord::Base
-  MAX_DELAY = 5.0
+
+  ORDER_MODES = { recency: 'created_at', popularity: 'views_count' }
 
   mount_uploader :stdin_data,    StdinDataUploader
   mount_uploader :stdin_timing,  StdinTimingUploader
@@ -28,6 +29,20 @@ class Asciicast < ActiveRecord::Base
   def self.cache_key
     timestamps = scoped.select(:updated_at).map { |o| o.updated_at.to_i }
     Digest::MD5.hexdigest timestamps.join('/')
+  end
+
+  def self.paginate(page, per_page)
+    page(page).per(per_page)
+  end
+
+  def self.for_category_ordered(category, order)
+    collection = all
+
+    if category == :featured
+      collection = collection.featured
+    end
+
+    collection.order("#{ORDER_MODES[order]} DESC")
   end
 
   def stdout

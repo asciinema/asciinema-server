@@ -1,5 +1,4 @@
 class AsciicastsController < ApplicationController
-  PER_PAGE = 15
 
   before_filter :load_resource, :only => [:show, :raw, :edit, :update, :destroy]
   before_filter :ensure_authenticated!, :only => [:edit, :update, :destroy]
@@ -8,23 +7,11 @@ class AsciicastsController < ApplicationController
   respond_to :html, :json, :js
 
   def index
-    @asciicasts = PaginatingDecorator.new(
-      Asciicast.newest_paginated(params[:page], PER_PAGE)
-    )
+    asciicasts = AsciicastList.new(params[:category], params[:order])
 
-    @category_name = "All asciicasts"
-    @current_category = :all
-  end
-
-  def popular
-    @asciicasts = PaginatingDecorator.new(
-      Asciicast.popular_paginated(params[:page], PER_PAGE)
-    )
-
-    @category_name = "Popular asciicasts"
-    @current_category = :popular
-
-    render :index
+    render locals: {
+      asciicast_list: AsciicastListDecorator.new(asciicasts, params[:page])
+    }
   end
 
   def show

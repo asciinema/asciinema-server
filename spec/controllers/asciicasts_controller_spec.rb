@@ -11,49 +11,33 @@ shared_examples_for 'non-owner user trying to modify' do
 end
 
 describe AsciicastsController do
+
   let(:user) { stub_model(User, :nickname => 'nick') }
   let(:asciicast) { stub_model(Asciicast, :id => 666) }
 
   subject { response }
 
   describe '#index' do
-    let(:asciicasts) { [double('asciicast')] }
-    let(:page) { double('page').to_s }
+    let(:asciicast_list) { double('asciicast_list') }
+    let(:decorated_asciicast_list) { double('decorated_asciicast_list') }
 
     before do
-      Asciicast.should_receive(:newest_paginated).
-        with(page, an_instance_of(Fixnum)).and_return(asciicasts)
+      allow(controller).to receive(:render)
 
-      PaginatingDecorator.should_receive(:new).with(asciicasts).
-        and_return(asciicasts)
+      allow(AsciicastList).to receive(:new).
+        with('featured', 'recency') { asciicast_list }
+      allow(AsciicastListDecorator).to receive(:new).
+        with(asciicast_list, '2') { decorated_asciicast_list }
 
-      get :index, :page => page
+      get :index, category: 'featured', order: 'recency', page: '2'
     end
 
     it { should be_success }
-    specify { assigns(:asciicasts).should == asciicasts }
-    specify { assigns(:category_name).should =~ /^All/ }
-    specify { assigns(:current_category).should == :all }
-  end
 
-  describe '#popular' do
-    let(:asciicasts) { [double('asciicast')] }
-    let(:page) { double('page').to_s }
-
-    before do
-      Asciicast.should_receive(:popular_paginated).
-        with(page, an_instance_of(Fixnum)).and_return(asciicasts)
-
-      PaginatingDecorator.should_receive(:new).with(asciicasts).
-        and_return(asciicasts)
-
-      get :popular, :page => page
+    it 'renders template with asciicast_list' do
+      expect(controller).to have_received(:render).
+        with(locals: { asciicast_list: decorated_asciicast_list })
     end
-
-    it { should be_success }
-    specify { assigns(:asciicasts).should == asciicasts }
-    specify { assigns(:category_name).should =~ /^Popular/ }
-    specify { assigns(:current_category).should == :popular }
   end
 
   describe '#show' do

@@ -2,25 +2,26 @@ require 'spec_helper'
 
 feature "Asciicast lists" do
 
-  let!(:asciicast) { create(:asciicast) }
+  let!(:asciicast) { create(:asciicast, title: 'foo bar') }
+  let!(:featured_asciicast) { create(:asciicast, title: 'qux', featured: true) }
 
   scenario 'Visiting all' do
     visit browse_path
 
     expect(page).to have_content(/All Asciicasts/i)
     expect_browse_links
-    expect(page).to have_link("bashing")
-    expect(page).to have_selector('.supplimental .play-button')
+    expect(page).to have_link("foo bar")
+    expect(page).to have_selector('.asciicast-list .play-button')
   end
 
-  scenario 'Visiting popular' do
+  scenario 'Visiting featured' do
     visit asciicast_path(asciicast)
-    visit popular_path
+    visit category_path(:featured)
 
-    expect(page).to have_content(/Popular Asciicasts/i)
+    expect(page).to have_content(/Featured Asciicasts/i)
     expect_browse_links
-    expect(page).to have_link("bashing")
-    expect(page).to have_selector('.supplimental .play-button')
+    expect(page).to have_link("qux")
+    expect(page).to have_selector('.asciicast-list .play-button')
   end
 
 end

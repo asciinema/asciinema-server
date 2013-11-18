@@ -1,9 +1,30 @@
-section.supplimental
-  .wrapper
-    .main
-      h1 = @category_name
-      = render :partial => 'asciicasts/previews', :locals => { :asciicasts => @asciicasts }
-      = paginate @asciicasts
+.asciicasts-list-page
+  .container
+    .row
+      .col-md-3
+        = render 'shared/browse_categories', current_category: asciicast_list.category
 
-    .extras
-      = render :partial => 'shared/browse_categories'
+      .col-md-9
+        .row
+          .col-md-6
+            h2 = asciicast_list.category_name
+
+          .col-md-6.text-right
+            .sorting
+              span Sort by 
+              .btn-group.text-left
+                button.btn.btn-default.dropdown-toggle[type="button" data-toggle="dropdown"]
+                  | #{asciicast_list.order} 
+                  span.caret
+                ul.dropdown-menu[role="menu"]
+                  li
+                    a href="?order=recency"
+                      | recency
+                  li
+                    a href="?order=popularity"
+                      | popularity
+
+        .row.asciicast-list
+          .col-md-12
+            = render 'asciicasts/previews', asciicasts: asciicast_list.items, per_row: 2
+            = paginate asciicast_list.items
