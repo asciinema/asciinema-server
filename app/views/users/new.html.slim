@@ -1,8 +1,7 @@
-section.supplimental
-  .wrapper
-
-    .new-user
-      h2 New user?
+.container
+  .row
+    .col-md-6.new-user
+      h1 New user?
 
       p
         ' Every Asciinema user gets a profile page at
@@ -12,27 +11,28 @@ section.supplimental
           strong username
         ' . Pick a desired username below.
 
-      = simple_form_for @user, :url => user_path do |f|
-        p = f.input :nickname, label: 'Pick a username:', required: true, input_html: { 'data-behavior' => 'focus' }
-        p.actions = f.button :submit, 'Start recording'
+      = form_for @user, url: user_path do |f|
+        .form-group
+          = f.label :nickname, 'Pick a username:'
+          = f.text_field :nickname, required: true, 'class' => 'form-control', 'data-behavior' => 'focus'
+        .form-group
+          = f.submit 'Start recording', class: 'btn btn-primary'
 
-    .returning-user
-      h2 Returning user?
+    .col-md-6.returning-user
+        h1 Returning user?
 
-      p
-        ' There is no account associated with the email
-        strong = @user.email
-        ' .
+        p
+          ' There is no account associated with the email
+          strong = @user.email
+          ' .
 
-      p
-        ' However, if you have been previously signing in to Asciinema via
-        ' Github or Twitter then click a proper button below so we can locate
-        ' your existing account:
+        p
+          ' However, if you have been previously signing in to Asciinema via
+          ' Github or Twitter then click a proper button below so we can locate
+          ' your existing account:
 
-      ul.login
-        li = link_to "Sign in via Github", github_auth_path, :class => 'btn-auth btn-github'
-        li = link_to "Sign in via Twitter", twitter_auth_path, :class => 'btn-auth btn-twitter'
+        ul.login
+          li = link_to "Sign in via Github", github_auth_path, :class => 'btn-auth btn-github'
+          li = link_to "Sign in via Twitter", twitter_auth_path, :class => 'btn-auth btn-twitter'
 
-      p Note: this is one-time task. You won't be asked to do it again.
-
-  .vertical-expander
+        p Note: this is one-time task. You won't be asked to do it again.
