@@ -1,0 +1,9 @@
+- content_for :content do
+  .container
+    .row
+      .col-md-3
+        = render 'docs_topics', current_category: @current_category
+      .col-md-9
+        = yield
+
+= render :template => 'layouts/application'

@@ -2,17 +2,17 @@ require 'spec_helper'
 
 feature "Docs" do
 
-  scenario 'Visiting about page' do
-    visit docs_path(:about)
+  scenario 'Visiting "how it works" page' do
+    visit docs_path(:howitworks)
 
     within('.main') do
-      expect(page).to have_content('About')
+      expect(page).to have_content('How it works')
     end
 
     expect_doc_links
   end
 
-  scenario 'Visiting getting started page' do
+  scenario 'Visiting "getting started" page' do
     visit docs_path(:gettingstarted)
 
     within('.main') do

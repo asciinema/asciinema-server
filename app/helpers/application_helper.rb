@@ -1,5 +1,18 @@
 module ApplicationHelper
 
+  class CategoryLinks
+
+    def initialize(current_category, view_context)
+      @current_category = current_category
+      @view_context = view_context
+    end
+
+    def link_to(*args)
+      @view_context.link_to_category(@current_category, *args)
+    end
+
+  end
+
   def page_title
     title = "asciinema"
 
@@ -32,14 +45,22 @@ module ApplicationHelper
     string.lines.map { |l| "#{' ' * width}#{l}" }.join('')
   end
 
-  def link_to_category(text, url, name)
+  def category_links(current_category, &blk)
+    links = CategoryLinks.new(current_category, self)
+
+    content_tag(:ul, class: 'nav nav-pills nav-stacked') do
+      blk.call(links)
+    end
+  end
+
+  def link_to_category(current_category, text, url, name)
     opts = {}
 
-    if name == @current_category
+    if name == current_category
       opts[:class] = 'active'
     end
 
-    link_to text, url, opts
+    content_tag(:li, link_to(text, url), opts)
   end
 
   def time_ago_tag(time, options = {})
