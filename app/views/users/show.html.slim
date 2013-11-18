@@ -1,0 +1,25 @@
+.profile-page
+  section.cinema
+    .container
+      span.user-avatar = avatar_image_tag(@user)
+      h1
+        = @user.nickname
+        small
+          ' Joined on #{@user.created_at.strftime("%b %-d, %Y")}
+
+      - if current_user == @user
+        p.actions = link_to 'Settings', edit_user_path
+
+  .container
+    h2 #{pluralize @user.asciicasts_count, 'asciicast'} by #{@user.nickname}
+    .row.asciicast-list
+      .col-md-12
+        = render 'asciicasts/previews', asciicasts: @asciicasts, per_row: 3
+        = paginate @asciicasts
+
+        - if @asciicasts.size == 0
+          - if current_user && current_user.id == @user.id
+            ' You haven't recorded anything yet.
+            = link_to 'Record now', docs_path(:gettingstarted)
+          - else
+            ' #{@user.nickname} hasn't recorded anything yet.
