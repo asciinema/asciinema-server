@@ -1,9 +1,5 @@
 class UserDecorator < ApplicationDecorator
 
-  def asciicasts_count
-    model.asciicasts.count
-  end
-
   def link(options = {})
     text = block_given? ? yield : nickname
     h.link_to text, h.profile_path(model), :title => options[:title] || nickname
@@ -17,6 +13,14 @@ class UserDecorator < ApplicationDecorator
 
   def avatar_url
     model.avatar_url || gravatar_url
+  end
+
+  def fullname_and_nickname
+    if model.name.present?
+      "#{model.name} (#{model.nickname})"
+    else
+      model.nickname
+    end
   end
 
   private
