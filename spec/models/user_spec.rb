@@ -112,4 +112,16 @@ describe User do
     end
   end
 
+  describe '#asciicast_count' do
+    subject { user.asciicast_count }
+
+    let(:user) { create(:user) }
+
+    before do
+      2.times { create(:asciicast, user: user) }
+    end
+
+    it { should eq(2) }
+  end
+
 end

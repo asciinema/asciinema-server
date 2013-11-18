@@ -5,7 +5,7 @@
     .container
       span.user-avatar = avatar_image_tag(@user)
       h1
-        = @user.nickname
+        = @user.fullname_and_nickname
         small
           ' Joined on #{@user.created_at.strftime("%b %-d, %Y")}
 
@@ -13,7 +13,7 @@
         p.actions = link_to 'Settings', edit_user_path
 
   .container
-    h2 #{pluralize @user.asciicasts_count, 'asciicast'} by #{@user.nickname}
+    h2 #{pluralize @user.asciicast_count, 'asciicast'} by #{@user.nickname}
     .row.asciicast-list
       .col-md-12
         = render 'asciicasts/previews', asciicasts: @asciicasts, per_row: 3

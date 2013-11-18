@@ -42,6 +42,10 @@ class User < ActiveRecord::Base
     user_tokens.where(:token => token).first_or_create
   end
 
+  def asciicast_count
+    asciicasts.count
+  end
+
   private
 
   def generate_auth_token
