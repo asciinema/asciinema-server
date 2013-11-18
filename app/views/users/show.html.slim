@@ -20,6 +20,6 @@
         - if @asciicasts.size == 0
           - if current_user && current_user.id == @user.id
             ' You haven't recorded anything yet.
-            = link_to 'Record now', docs_path(:gettingstarted)
+            = link_to 'Record now', docs_path('getting-started')
           - else
             ' #{@user.nickname} hasn't recorded anything yet.

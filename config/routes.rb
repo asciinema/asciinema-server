@@ -11,7 +11,7 @@ Asciinema::Application.routes.draw do
 
   get "/~:nickname" => "users#show", :as => :profile
 
-  get "/docs" => "docs#show", :page => 'gettingstarted', :as => :docs_index
+  get "/docs" => "docs#show", :page => 'getting-started', :as => :docs_index
   get "/docs/:page" => "docs#show", :as => :docs
 
   get "/auth/browser_id/callback" => "sessions#create"

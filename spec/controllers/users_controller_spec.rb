@@ -56,7 +56,7 @@ describe UsersController do
 
       it 'redirects to the "getting started" page with a notice' do
         expect(flash[:notice]).to_not be_blank
-        should redirect_to(docs_path(:gettingstarted))
+        should redirect_to(docs_path('getting-started'))
       end
     end
 

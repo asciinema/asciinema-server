@@ -3,7 +3,7 @@ require 'spec_helper'
 feature "Docs" do
 
   scenario 'Visiting "how it works" page' do
-    visit docs_path(:howitworks)
+    visit docs_path('how-it-works')
 
     within('.main') do
       expect(page).to have_content('How it works')
@@ -13,7 +13,7 @@ feature "Docs" do
   end
 
   scenario 'Visiting "getting started" page' do
-    visit docs_path(:gettingstarted)
+    visit docs_path('getting-started')
 
     within('.main') do
       expect(page).to have_content('Getting started')

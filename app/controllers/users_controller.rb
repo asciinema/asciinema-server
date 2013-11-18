@@ -26,7 +26,7 @@ class UsersController < ApplicationController
     if @user.save
       store.delete(:new_user_email)
       self.current_user = @user
-      redirect_to docs_path(:gettingstarted), notice: "Welcome to Asciinema!"
+      redirect_to docs_path('getting-started'), notice: "Welcome to Asciinema!"
     else
       render :new, :status => 422
     end

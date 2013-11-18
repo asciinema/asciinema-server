@@ -1,8 +1,8 @@
 h2 Docs
 
 = category_links current_category do |categories|
-  = categories.link_to 'How it works', docs_path(:howitworks), :howitworks
-  = categories.link_to 'Getting started', docs_path(:gettingstarted), :gettingstarted
+  = categories.link_to 'How it works', docs_path('how-it-works'), :'how-it-works'
+  = categories.link_to 'Getting started', docs_path('getting-started'), :'getting-started'
   = categories.link_to 'Installation', docs_path(:installation), :installation
   = categories.link_to 'Recorder options', docs_path(:options), :options
   = categories.link_to 'Embedding', docs_path(:embedding), :embedding
