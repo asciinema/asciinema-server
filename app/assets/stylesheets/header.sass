@@ -7,7 +7,7 @@ header.navbar
   margin-bottom: 0
 
   .navbar-nav
-    li
+    > li
       a
         color: #fff
         padding-top: 12px
@@ -23,6 +23,9 @@ header.navbar
           color: #fff
           font-weight: bold
 
+      a:focus
+        color: #fff
+
       a:hover
         background-color: #333
         color: #fff
@@ -30,6 +33,33 @@ header.navbar
       &.active a:hover
         background-color: #000
         color: #fff
+
+    > .dropdown
+      > a
+        &:focus
+          color: #fff
+          background-color: #333
+
+        .caret
+          border-top-color: #aaaaaa
+          border-bottom-color: #aaaaaa
+
+      > a:hover, > a:focus
+        .caret
+          border-top-color: #aaaaaa
+          border-bottom-color: #aaaaaa
+
+      &.open
+        > a
+          color: inherit
+          background-color: #333
+
+      .dropdown-menu
+        background-color: #333
+
+        li
+          a:hover
+            background-color: #444
 
   .navbar-brand
     padding: 10px 15px
