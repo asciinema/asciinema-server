@@ -6,12 +6,12 @@ html[lang="en"]
     title = page_title
     = csrf_meta_tags
     = stylesheet_link_tag "application", :media => "all"
+    = javascript_include_tag "application"
+    = javascript_include_tag "player"
     - if Rails.env.development?
       = javascript_include_tag "persona-include.js"
     - else
       = javascript_include_tag "https://login.persona.org/include.js"
-    = javascript_include_tag "application"
-    = javascript_include_tag "player"
     = favicon_link_tag 'favicon.png'
     = render 'layouts/ga'
     script
