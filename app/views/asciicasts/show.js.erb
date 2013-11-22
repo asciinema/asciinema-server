@@ -8,8 +8,8 @@
       if (event == 'asciicast:size' && data.id == <%= @asciicast.id %>) {
         var player = document.getElementById("asciicast-iframe-<%= @asciicast.id %>");
         if (player) {
-          player.style.width  = data.width;
-          player.style.height = data.height;
+          player.style.width  = '' + data.width + 'px';
+          player.style.height = '' + data.height + 'px';
         }
       }
     }

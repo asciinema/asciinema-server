@@ -4,8 +4,8 @@ javascript:
   $(function() {
     var target = parent.postMessage ? parent : (parent.document.postMessage ? parent.document : undefined);
     if (typeof target != "undefined" && window !== window.parent) {
-      var w = $('.player').css('width');
-      var h = $('.player').css('height');
+      var w = $('.player').outerWidth();
+      var h = $('.player').outerHeight();
       target.postMessage(['asciicast:size', { id: #{@asciicast.id}, width: w, height: h }], '*');
     }
 
