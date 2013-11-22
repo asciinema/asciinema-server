@@ -6,6 +6,7 @@ Asciinema::Application.routes.draw do
   resources :asciicasts, :path => 'a' do
     member do
       get :raw
+      get :example
     end
   end
 

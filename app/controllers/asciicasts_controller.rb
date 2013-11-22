@@ -1,6 +1,6 @@
 class AsciicastsController < ApplicationController
 
-  before_filter :load_resource, :only => [:show, :raw, :edit, :update, :destroy]
+  before_filter :load_resource, :only => [:show, :raw, :example, :edit, :update, :destroy]
   before_filter :ensure_authenticated!, :only => [:edit, :update, :destroy]
   before_filter :ensure_owner!, :only => [:edit, :update, :destroy]
 
@@ -36,6 +36,10 @@ class AsciicastsController < ApplicationController
     response.headers.delete('X-Frame-Options')
     @asciicast = AsciicastDecorator.new(@asciicast)
     render :layout => 'raw'
+  end
+
+  def example
+    render layout: 'example'
   end
 
   def edit
