@@ -1,14 +1,15 @@
-.preview
-  = link_to asciicast, class: 'thumbnail-link' do
-    .play-button
-      span.arrow
-        span.glyphicon.glyphicon-play
-    .thumbnail
-      = asciicast.thumbnail(60, 15)
+- cache ['thumbnail', asciicast] do
+  .preview
+    = link_to asciicast, class: 'thumbnail-link' do
+      .play-button
+        span.arrow
+          span.glyphicon.glyphicon-play
+      .thumbnail
+        = asciicast.thumbnail(60, 15)
 
-  .info.clearfix
-    h2
-      = link_to asciicast.title, asciicast
-      span.duration = asciicast.formatted_duration
-    span.author-avatar = asciicast.author_img_link
-    small by #{asciicast.author_link} #{time_ago_tag asciicast.created_at}
+    .info.clearfix
+      h2
+        = link_to asciicast.title, asciicast
+        span.duration = asciicast.formatted_duration
+      span.author-avatar = asciicast.author_img_link
+      small by #{asciicast.author_link} #{time_ago_tag asciicast.created_at}

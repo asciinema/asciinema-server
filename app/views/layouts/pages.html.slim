@@ -1,5 +1,6 @@
 - content_for :content do
-  .container.pages
-    = yield
+  - cache do
+    .container.pages
+      = yield
 
 = render template: 'layouts/application'
