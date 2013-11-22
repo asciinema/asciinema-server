@@ -57,4 +57,12 @@ class Asciicast < ActiveRecord::Base
     terminal.release if terminal
   end
 
+  def managable_by?(user)
+    if user
+      user == self.user
+    else
+      false
+    end
+  end
+
 end

@@ -33,7 +33,7 @@
               = " #{@asciicast.views_count}"
 
         .col-md-4
-          - if @asciicast.user == current_user
+          - if @asciicast.managable_by?(current_user)
             .dropdown.actions-dropdown.pull-right
               button.btn.btn-default.dropdown-toggle[type="button" data-toggle="dropdown"]
                 span.glyphicon.glyphicon-cog

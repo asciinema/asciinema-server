@@ -82,4 +82,35 @@ describe Asciicast do
     end
   end
 
+  describe '#managable_by?' do
+    subject { asciicast.managable_by?(user) }
+
+    let(:asciicast) { Asciicast.new }
+    let(:owner) { nil }
+
+    before do
+      asciicast.user = owner
+    end
+
+    context "when user is nil" do
+      let(:user) { nil }
+
+      it { should be(false) }
+    end
+
+    context "when user is owner of the asciicast" do
+      let(:user) { User.new }
+      let(:owner) { user }
+
+      it { should be(true) }
+    end
+
+    context "when user isn't owner of the asciicast" do
+      let(:user) { User.new }
+      let(:owner) { User.new }
+
+      it { should be(false) }
+    end
+  end
+
 end
