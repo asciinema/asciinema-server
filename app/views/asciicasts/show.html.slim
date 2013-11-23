@@ -20,7 +20,7 @@
   section.even.meta
     .container
       .row
-        .col-md-8
+        .col-md-8.col-xs-8
           ul.meta-list
             li
               span.glyphicon.glyphicon-info-sign
@@ -32,7 +32,7 @@
               span.glyphicon.glyphicon-eye-open
               = " #{@asciicast.views_count}"
 
-        .col-md-4
+        .col-md-4.col-xs-4
           - if @asciicast.managable_by?(current_user)
             .dropdown.actions-dropdown.pull-right
               button.btn.btn-default.dropdown-toggle[type="button" data-toggle="dropdown"]
