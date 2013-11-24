@@ -8,12 +8,12 @@
   section.odd.info
     .container
       .row
-        .col-md-8
+        .col-md-8.col-xs-8
           span.author-avatar = @asciicast.author_img_link
           h2 = @asciicast.title
           small by #{@asciicast.author_link} #{time_ago_tag @asciicast.created_at}
 
-        .col-md-4.text-right
+        .col-md-4.col-xs-4.text-right
           = render 'add_this', title: @asciicast.title, url: asciicast_url(@asciicast)
 
   section.even.meta
