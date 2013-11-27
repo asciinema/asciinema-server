@@ -43,6 +43,6 @@
       params += '&speed=' + speed;
     }
 
-    container.innerHTML = '<iframe src="http://<%= request.host_with_port %>/a/<%= @asciicast.id %>/raw' + params + '" name="asciicast-iframe-<%= @asciicast.id %>" id="asciicast-iframe-<%= @asciicast.id %>" width="300" height="300" scrolling="no" marginheight="0" marginwidth="0" frameborder="0" style="display: block; float: none; visibility: hidden;" onload="this.style.visibility=\'visible\';"></iframe>';
+    container.innerHTML = '<iframe src="<%= request.protocol %><%= request.host_with_port %>/a/<%= @asciicast.id %>/raw' + params + '" name="asciicast-iframe-<%= @asciicast.id %>" id="asciicast-iframe-<%= @asciicast.id %>" width="300" height="300" scrolling="no" marginheight="0" marginwidth="0" frameborder="0" style="display: block; float: none; visibility: hidden;" onload="this.style.visibility=\'visible\';"></iframe>';
   }
 })();
