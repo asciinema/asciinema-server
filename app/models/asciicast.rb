@@ -19,9 +19,10 @@ class Asciicast < ActiveRecord::Base
 
   scope :featured, -> { where(featured: true) }
   scope :by_recency, -> { order("created_at DESC") }
+  scope :by_random, -> { order("RANDOM()") }
   scope :latest_limited, -> (n) { by_recency.limit(n).includes(:user) }
-  scope :latest_featured_limited, -> (n) {
-    featured.by_recency.limit(n).includes(:user)
+  scope :random_featured_limited, -> (n) {
+    featured.by_random.limit(n).includes(:user)
   }
 
   attr_accessible :title, :description, :time_compression

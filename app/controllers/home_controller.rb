@@ -27,7 +27,7 @@ class HomeController < ApplicationController
   end
 
   def featured_asciicasts
-    asciicast_repository.latest_featured_limited(3).decorate
+    asciicast_repository.random_featured_limited(3).decorate
   end
 
   def asciicast_repository

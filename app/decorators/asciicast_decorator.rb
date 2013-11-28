@@ -58,7 +58,7 @@ class AsciicastDecorator < ApplicationDecorator
   def other_by_user
     if user
       AsciicastDecorator.decorate_collection(
-        user.asciicasts.where('id <> ?', model.id).limit(3)
+        user.asciicasts.where('id <> ?', model.id).order('RANDOM()').limit(3)
       )
     else
       []
