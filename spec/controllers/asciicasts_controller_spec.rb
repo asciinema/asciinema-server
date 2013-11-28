@@ -67,7 +67,6 @@ describe AsciicastsController do
       end
 
       specify { assigns(:asciicast).should == asciicast_decorator }
-      specify { assigns(:title).should == 'The Title' }
     end
 
     context 'for json request' do
