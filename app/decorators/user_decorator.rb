@@ -1,18 +1,12 @@
 class UserDecorator < ApplicationDecorator
+  include AvatarHelper
 
-  def link(options = {})
-    text = block_given? ? yield : nickname
-    h.link_to text, h.profile_path(model), :title => options[:title] || nickname
+  def link
+    wrap_with_link(nickname)
   end
 
-  def img_link(options = {})
-    link(options) do
-      h.avatar_image_tag(self)
-    end
-  end
-
-  def avatar_url
-    gravatar_url || model.avatar_url || h.default_avatar_filename
+  def img_link
+    wrap_with_link(avatar_image_tag)
   end
 
   def fullname_and_nickname
@@ -25,11 +19,12 @@ class UserDecorator < ApplicationDecorator
 
   private
 
-  def gravatar_url
-    return unless email.present?
-
-    hash = Digest::MD5.hexdigest(model.email.to_s.downcase)
-    "//gravatar.com/avatar/#{hash}?s=128"
+  def wrap_with_link(html)
+    if id
+      h.link_to html, h.profile_path(model), title: nickname
+    else
+      html
+    end
   end
 
 end

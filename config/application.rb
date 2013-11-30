@@ -23,7 +23,7 @@ module Asciinema
     # config.i18n.default_locale = :de
 
     # Custom directories with classes and modules you want to be autoloadable.
-    config.autoload_paths += %W(#{config.root}/lib)
+    config.autoload_paths += %W(#{config.root}/lib #{config.root}/app/decorators/helpers)
 
     # Disable generation of helpers, javascripts, css, and view specs
     config.generators do |generate|

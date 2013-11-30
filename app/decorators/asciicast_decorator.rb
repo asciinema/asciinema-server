@@ -1,8 +1,8 @@
 class AsciicastDecorator < ApplicationDecorator
-  decorates_association :user
-
   THUMBNAIL_WIDTH = 20
   THUMBNAIL_HEIGHT = 10
+
+  decorates_association :user
 
   def os
     if user_agent.present?
@@ -40,19 +40,11 @@ class AsciicastDecorator < ApplicationDecorator
   end
 
   def author_link
-    if user
-      user.link
-    else
-      author
-    end
+    user.link
   end
 
   def author_img_link
-    if user
-      user.img_link
-    else
-      h.avatar_image_tag nil
-    end
+    user.img_link
   end
 
   def other_by_user
@@ -62,16 +54,6 @@ class AsciicastDecorator < ApplicationDecorator
       )
     else
       []
-    end
-  end
-
-  def author
-    if user
-      user.nickname
-    elsif model.username
-      model.username
-    else
-      'anonymous'
     end
   end
 

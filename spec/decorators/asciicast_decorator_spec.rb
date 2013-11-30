@@ -188,102 +188,30 @@ describe AsciicastDecorator do
     end
   end
 
-  describe '#author' do
-    let(:method) { :author }
-
-    context 'when user present' do
-      let(:nickname) { double('nickname') }
-      let(:user) { double('user', :nickname => nickname) }
-
-      before do
-        asciicast.user = User.new
-      end
-
-      it 'returns nickname from decorated user' do
-        decorator.should_receive(:user).twice.and_return(user)
-        subject.should == nickname
-      end
-    end
-
-    context 'when username present on asciicast' do
-      before do
-        asciicast.user = nil
-        asciicast.username = 'foo'
-      end
-
-      it { should == 'foo' }
-    end
-
-    context 'when no user nor username present' do
-      before do
-        asciicast.user = nil
-        asciicast.username = nil
-      end
-
-      it { should == 'anonymous' }
-    end
-  end
-
   describe '#author_link' do
-    let(:method) { :author_link }
+    subject { decorator.author_link }
 
-    context 'when user present' do
-      let(:link) { double('link') }
-      let(:user) { double('user', :link => link) }
+    let(:asciicast) { double('asciicast', user: user) }
+    let(:user) { double('user', link: 'link') }
 
-      before do
-        asciicast.user = User.new
-      end
-
-      it 'returns link from decorated user' do
-        decorator.should_receive(:user).twice.and_return(user)
-        subject.should == link
-      end
+    before do
+      allow(user).to receive(:decorate) { user }
     end
 
-    context 'when no user present' do
-      let(:author) { double('author') }
-
-      before do
-        asciicast.user = nil
-      end
-
-      it 'returns author from decorated user' do
-        decorator.should_receive(:author).and_return(author)
-        subject.should == author
-      end
-    end
+    it { should eq('link') }
   end
 
   describe '#author_img_link' do
-    let(:method) { :author_img_link }
+    subject { decorator.author_img_link }
 
-    context 'when user present' do
-      let(:img_link) { double('img_link') }
-      let(:user) { double('user', :img_link => img_link) }
+    let(:asciicast) { double('asciicast', user: user) }
+    let(:user) { double('user', img_link: 'img-link') }
 
-      before do
-        asciicast.user = User.new
-      end
-
-      it 'returns img_link from decorated user' do
-        decorator.should_receive(:user).twice.and_return(user)
-        subject.should == img_link
-      end
+    before do
+      allow(user).to receive(:decorate) { user }
     end
 
-    context 'when no user present' do
-      let(:avatar_image) { double('avatar_image') }
-
-      before do
-        asciicast.user = nil
-        allow(helpers).to receive(:avatar_image_tag).with(nil) { avatar_image }
-      end
-
-      it 'returns avatar_image_tag' do
-        subject.should == avatar_image
-      end
-    end
+    it { should eq('img-link') }
   end
 
   describe '#other_by_user' do

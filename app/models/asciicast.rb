@@ -46,6 +46,10 @@ class Asciicast < ActiveRecord::Base
     collection.order("#{ORDER_MODES[order]} DESC")
   end
 
+  def user
+    super || self.user = User.new(nickname: username)
+  end
+
   def stdout
     @stdout ||= BufferedStdout.new(stdout_data.decompressed_path,
                                    stdout_timing.decompressed_path).lazy

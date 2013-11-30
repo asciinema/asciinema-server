@@ -54,6 +54,30 @@ describe Asciicast do
 
   let(:asciicast) { described_class.new }
 
+  describe '#user' do
+    subject { asciicast.user }
+
+    before do
+      asciicast.username = 'hugo'
+    end
+
+    context "when user was set" do
+      let(:user) { User.new }
+
+      before do
+        asciicast.user = user
+      end
+
+      it { should be(user) }
+    end
+
+    context "when user wasn't set" do
+      it 'defaults to a user with nickname set to username' do
+        expect(asciicast.user.nickname).to eq('hugo')
+      end
+    end
+  end
+
   describe '#stdout' do
     let(:asciicast) { Asciicast.new }
     let(:data_uploader) { double('data_uploader',

@@ -66,18 +66,6 @@ module ApplicationHelper
     content_tag(:abbr, time.to_s, options.merge(:title => time.getutc.iso8601))
   end
 
-  def avatar_image_tag(user, options = {})
-    klass = options[:class] || "avatar"
-    title = options[:title] || user.try(:nickname)
-
-    avatar = user.try(:avatar_url) || default_avatar_filename
-    image_tag avatar, :alt => title, :class => klass
-  end
-
-  def default_avatar_filename
-    image_path "default_avatar.png"
-  end
-
   def color_check_asciicast_path
     if id = CFG['COLOR_CHECK_CAST_ID']
       asciicast_path(id)
