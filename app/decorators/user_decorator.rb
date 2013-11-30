@@ -12,7 +12,7 @@ class UserDecorator < ApplicationDecorator
   end
 
   def avatar_url
-    model.avatar_url || gravatar_url
+    gravatar_url || model.avatar_url || h.default_avatar_filename
   end
 
   def fullname_and_nickname
@@ -26,6 +26,8 @@ class UserDecorator < ApplicationDecorator
   private
 
   def gravatar_url
+    return unless email.present?
+
     hash = Digest::MD5.hexdigest(model.email.to_s.downcase)
     "//gravatar.com/avatar/#{hash}?s=128"
   end

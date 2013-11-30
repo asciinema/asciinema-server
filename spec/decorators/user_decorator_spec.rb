@@ -7,21 +7,32 @@ describe UserDecorator do
   describe '#avatar_url' do
     subject { decorator.avatar_url }
 
-    let(:user) { double('user', avatar_url: avatar_url, email: 'foo@email.com') }
+    let(:user) { double('user', avatar_url: avatar_url, email: email) }
 
-    context "when avatar_url present on user" do
+    context "when use has avatar_url" do
       let(:avatar_url) { 'http://avatar/url' }
 
-      it { should eq('http://avatar/url') }
+      context "and user has email" do
+        let(:email) { 'foo@email.com' }
+
+        it {
+          should
+             eq('//gravatar.com/avatar/9dcfeb70fe212ea12562dddd22b0fc92?s=128')
+        }
+      end
+
+      context "and user has no email" do
+        let(:email) { nil }
+
+        it { should eq('http://avatar/url') }
+      end
     end
 
-    context "when avatar_url missing on user" do
+    context "when user has neither email nor avatar_url" do
+      let(:email) { nil }
       let(:avatar_url) { nil }
 
-      it {
-        should
-          eq('//gravatar.com/avatar/9dcfeb70fe212ea12562dddd22b0fc92?s=128')
-      }
+      it { should eq(h.default_avatar_filename) }
     end
   end
 
