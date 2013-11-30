@@ -6,7 +6,7 @@ gem 'coffee-rails',         '~> 4.0.1'
 gem 'protected_attributes', '~> 1.0.5'
 
 gem 'jquery-rails',         '~> 3.0.4'
-gem 'pg',                   '~> 0.14.1'
+gem 'pg',                   '~> 0.14'
 gem 'carrierwave',          '~> 0.8.0'
 gem 'omniauth',             '~> 1.1.4'
 gem 'omniauth-twitter',     '~> 0.0.16'
