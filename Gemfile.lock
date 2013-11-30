@@ -299,9 +299,9 @@ GEM
       polyglot
       polyglot (>= 0.3.1)
     tzinfo (0.3.38)
-    uglifier (2.1.2)
+    uglifier (2.3.1)
       execjs (>= 0.3.0)
-      multi_json (~> 1.0, >= 1.0.2)
+      json (>= 1.8.0)
     unicorn (4.6.3)
       kgio (~> 2.6)
       rack
@@ -359,7 +359,7 @@ DEPENDENCIES
   sinatra (~> 1.4.3)
   slim (~> 2.0.0)
   thin (~> 1.5.0)
-  uglifier (>= 2.1.2)
+  uglifier (>= 2.3.1)
   unicorn (~> 4.6.2)
   yajl-ruby (~> 1.1.0)
   zeus (= 0.13.4.pre2)
