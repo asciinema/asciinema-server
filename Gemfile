@@ -1,7 +1,10 @@
 source 'https://rubygems.org'
 
-gem 'rails',                '~> 4.0.0'
-gem 'protected_attributes', '~> 1.0.3'
+gem 'rails',                '~> 4.0.1'
+gem 'sass-rails',           '~> 4.0.1'
+gem 'coffee-rails',         '~> 4.0.1'
+gem 'protected_attributes', '~> 1.0.5'
+
 gem 'jquery-rails',         '~> 2.2.0'
 gem 'pg',                   '~> 0.14.1'
 gem 'carrierwave',          '~> 0.8.0'
@@ -20,8 +23,6 @@ gem 'open4',                '~> 1.3.0'
 gem 'redcarpet',            '~> 2.2.2'
 gem 'slim',                 '~> 2.0.0'
 gem 'dotenv-rails',         '~> 0.8'
-gem 'sass-rails',           '~> 4.0.0'
-gem 'coffee-rails',         '~> 4.0.0'
 gem 'uglifier',             '>= 2.1.2'
 gem 'sinatra',              '~> 1.4.3', :require => false
 gem 'active_model_serializers', '~> 0.8.1'
