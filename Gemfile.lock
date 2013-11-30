@@ -1,5 +1,5 @@
 GIT
-  remote: git://github.com/callahad/omniauth-browserid.git
+  remote: https://github.com/callahad/omniauth-browserid.git
   revision: c594029ddf92661b9cf6f04374683981f25471c2
   specs:
     omniauth-browserid (0.0.1)
