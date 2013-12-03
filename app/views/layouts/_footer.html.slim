@@ -3,10 +3,11 @@ footer
     .row
       .col-md-6.col-xs-6
         ul.links
+          li = link_to image_tag('twitter-black.png'), 'https://twitter.com/asciinema', title: 'Follow @asciinema on Twitter'
           li = link_to 'About', about_path
+          li = link_to 'Contributing', contributing_path
           li = link_to 'Terms of Service', tos_path
           li = link_to 'Privacy Policy', privacy_path
-          li = link_to 'Contributing', contributing_path
 
       .col-md-6.col-xs-6.text-right
         ' Developed with passion by
