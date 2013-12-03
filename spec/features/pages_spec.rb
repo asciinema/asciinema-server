@@ -2,7 +2,7 @@ require 'spec_helper'
 
 feature "Static pages" do
 
-  scenario 'Visiting about page' do
+  scenario 'Visiting "about" page' do
     visit about_path
 
     within('.main') do
@@ -23,6 +23,14 @@ feature "Static pages" do
 
     within('.main') do
       expect(page).to have_content(/Privacy Policy/i)
+    end
+  end
+
+  scenario 'Visiting "contributing" page' do
+    visit contributing_path
+
+    within('.main') do
+      expect(page).to have_content(/Contributing/i)
     end
   end
 

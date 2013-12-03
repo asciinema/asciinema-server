@@ -14,7 +14,7 @@
           small by #{@asciicast.author_link} #{time_ago_tag @asciicast.created_at}
 
         .col-md-4.col-xs-4.text-right
-          = render 'add_this', title: @asciicast.title, url: asciicast_url(@asciicast)
+          = render 'shared/add_this', title: @asciicast.title, url: asciicast_url(@asciicast)
 
   section.even.meta
     .container
