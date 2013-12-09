@@ -12,9 +12,4 @@ CarrierWave.configure do |config|
   else
     config.storage = :file
   end
-
-  if Rails.env.test?
-    config.storage = :file
-    config.enable_processing = false
-  end
 end

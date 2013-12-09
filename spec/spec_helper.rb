@@ -21,6 +21,11 @@ Capybara.javascript_driver = :poltergeist
 
 OmniAuth.config.test_mode = true
 
+CarrierWave.configure do |config|
+  config.storage = :file
+  config.enable_processing = false
+end
+
 RSpec.configure do |config|
   config.mock_with :rspec
   config.use_transactional_fixtures = false
