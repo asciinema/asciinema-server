@@ -66,10 +66,4 @@ module ApplicationHelper
     content_tag(:abbr, time.to_s, options.merge(:title => time.getutc.iso8601))
   end
 
-  def color_check_asciicast_path
-    if id = CFG['COLOR_CHECK_CAST_ID']
-      asciicast_path(id)
-    end
-  end
-
 end
