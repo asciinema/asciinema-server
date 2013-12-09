@@ -2,12 +2,12 @@ require 'spec_helper'
 
 shared_examples_for 'guest user trying to modify' do
   it { should redirect_to(login_path) }
-  specify { flash[:notice].should =~ /sign in to proceed/ }
+  specify { expect(flash[:notice]).to match(/sign in to proceed/) }
 end
 
 shared_examples_for 'non-owner user trying to modify' do
   it { should redirect_to(asciicast_path(asciicast)) }
-  specify { flash[:alert].should =~ /can't/ }
+  specify { expect(flash[:alert]).to match(/can't/) }
 end
 
 describe AsciicastsController do
@@ -45,7 +45,7 @@ describe AsciicastsController do
 
     before do
       allow(controller).to receive(:view_counter) { view_counter }
-      Asciicast.should_receive(:find).and_return(asciicast)
+      expect(Asciicast).to receive(:find).and_return(asciicast)
       asciicast.title = 'some tit'
     end
 
@@ -66,7 +66,7 @@ describe AsciicastsController do
           with(asciicast, cookies)
       end
 
-      specify { assigns(:asciicast).should == asciicast_decorator }
+      specify { expect(assigns(:asciicast)).to eq(asciicast_decorator) }
     end
 
     context 'for json request' do
@@ -98,7 +98,7 @@ describe AsciicastsController do
     let(:make_request) { get :edit, :id => asciicast.id }
 
     before do
-      Asciicast.should_receive(:find).and_return(asciicast)
+      expect(Asciicast).to receive(:find).and_return(asciicast)
       asciicast.user = user
     end
 
@@ -133,7 +133,7 @@ describe AsciicastsController do
     let(:make_request) { put :update, :id => asciicast.id, :asciicast => { } }
 
     before do
-      Asciicast.should_receive(:find).and_return(asciicast)
+      expect(Asciicast).to receive(:find).and_return(asciicast)
       asciicast.user = user
     end
 
@@ -144,17 +144,17 @@ describe AsciicastsController do
 
       context 'when update succeeds' do
         before do
-          asciicast.should_receive(:update_attributes).and_return(true)
+          expect(asciicast).to receive(:update_attributes).and_return(true)
           make_request
         end
 
         it { should redirect_to(asciicast_path(asciicast)) }
-        specify { flash[:notice].should =~ /was updated/ }
+        specify { expect(flash[:notice]).to match(/was updated/) }
       end
 
       context 'when update fails' do
         before do
-          asciicast.should_receive(:update_attributes).and_return(false)
+          expect(asciicast).to receive(:update_attributes).and_return(false)
           make_request
         end
 
@@ -184,7 +184,7 @@ describe AsciicastsController do
     let(:make_request) { delete :destroy, :id => asciicast.id }
 
     before do
-      Asciicast.should_receive(:find).and_return(asciicast)
+      expect(Asciicast).to receive(:find).and_return(asciicast)
       asciicast.user = user
     end
 
@@ -195,22 +195,22 @@ describe AsciicastsController do
 
       context 'when destroy succeeds' do
         before do
-          asciicast.should_receive(:destroy).and_return(true)
+          expect(asciicast).to receive(:destroy).and_return(true)
           make_request
         end
 
         it { should redirect_to(profile_path(user)) }
-        specify { flash[:notice].should =~ /was deleted/ }
+        specify { expect(flash[:notice]).to match(/was deleted/) }
       end
 
       context 'when destroy fails' do
         before do
-          asciicast.should_receive(:destroy).and_return(false)
+          expect(asciicast).to receive(:destroy).and_return(false)
           make_request
         end
 
         it { should redirect_to(asciicast_path(asciicast)) }
-        specify { flash[:alert].should =~ /again/ }
+        specify { expect(flash[:alert]).to match(/again/) }
       end
     end
 

@@ -46,12 +46,12 @@ describe FakesController do
   describe "action raise unauthorized" do
 
     context "when xhr" do
-      before { request.stub(:xhr?).and_return(true) }
+      before { allow(request).to receive(:xhr?).and_return(true) }
 
       it "response with 401" do
         get :foo
 
-        response.status.should == 401
+        expect(response.status).to eq(401)
       end
 
     end
@@ -59,11 +59,11 @@ describe FakesController do
     context "when typical request" do
 
       it "redirects to login_path" do
-        @controller.should_receive(:store_location)
+        expect(@controller).to receive(:store_location)
 
         get :foo
 
-        flash[:notice].should == "Please sign in to proceed"
+        expect(flash[:notice]).to eq("Please sign in to proceed")
         should redirect_to(login_path)
       end
 
@@ -72,12 +72,12 @@ describe FakesController do
 
   context "when action raise forbidden" do
     context "when xhr" do
-      before { request.stub(:xhr?).and_return(true) }
+      before { allow(request).to receive(:xhr?).and_return(true) }
 
       it "response with 401" do
         get :bar
 
-        response.status.should == 403
+        expect(response.status).to eq(403)
       end
     end
 
@@ -86,7 +86,7 @@ describe FakesController do
       it "redirects to root_path" do
         get :bar
 
-        flash[:alert].should == "This action is forbidden"
+        expect(flash[:alert]).to eq("This action is forbidden")
         should redirect_to(root_path)
       end
 
@@ -97,8 +97,8 @@ describe FakesController do
     it 'stores current request path to be later retrieved' do
       get :store
       get :retrieve
-      assigns[:location].should == '/fake/store'
-      assigns[:location_again].should == 'NOWAI!'
+      expect(assigns[:location]).to eq('/fake/store')
+      expect(assigns[:location_again]).to eq('NOWAI!')
     end
   end
 
@@ -106,7 +106,7 @@ describe FakesController do
     context 'when there is no stored location' do
       it 'redirects to given location' do
         path = double
-        @controller.should_receive(:redirect_to).with(path)
+        expect(@controller).to receive(:redirect_to).with(path)
         @controller.send(:redirect_back_or_to, path)
       end
     end
@@ -115,8 +115,8 @@ describe FakesController do
       it 'redirects to stored location' do
         stored_path = double
         path = double
-        @controller.stub(:get_stored_location => stored_path)
-        @controller.should_receive(:redirect_to).with(stored_path)
+        allow(@controller).to receive(:get_stored_location).and_return(stored_path)
+        expect(@controller).to receive(:redirect_to).with(stored_path)
         @controller.send(:redirect_back_or_to, path)
       end
     end

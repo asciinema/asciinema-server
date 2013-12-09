@@ -96,8 +96,8 @@ describe User do
 
       it 'returns created UserToken' do
         ut = user.add_user_token(token)
-        ut.should be_kind_of(UserToken)
-        ut.id.should_not be(nil)
+        expect(ut).to be_kind_of(UserToken)
+        expect(ut.id).not_to be(nil)
       end
     end
 
@@ -107,7 +107,7 @@ describe User do
 
       it 'returns existing UserToken' do
         ut = user.add_user_token(token)
-        ut.should == existing_token
+        expect(ut).to eq(existing_token)
       end
     end
   end

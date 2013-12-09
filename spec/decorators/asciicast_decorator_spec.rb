@@ -230,7 +230,7 @@ describe AsciicastDecorator do
     }
 
     before do
-      asciicast.stub(:id => 123)
+      allow(asciicast).to receive(:id).and_return(123)
     end
 
     it 'should be an async script tag including asciicast id' do

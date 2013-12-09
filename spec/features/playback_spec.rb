@@ -26,7 +26,7 @@ EOS
       visit asciicast_path(asciicast, speed: 5)
       find(".play-button").find(".arrow").click
       inject_on_finished_callback
-      page.should have_selector('body .finished')
+      expect(page).to have_selector('body .finished')
     end
   end
 
