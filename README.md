@@ -1,8 +1,9 @@
 # asciinema.org
 
-Asciinema is the simplest way to record your terminal and share the recordings
-with your fellow geeks. Simply record and upload your terminal session with
-single command, and Asciinema will play it back in your browser.
+Record and share your terminal sessions, the right way.
+
+Asciinema is a free and open source solution for recording the terminal
+sessions and sharing them on the web.
 
 This is the source code of asciinema.org (formerly ascii.io) website and JS
 player. If you're looking for asciinema terminal recorder go here:
