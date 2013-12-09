@@ -13,11 +13,11 @@ class BaseUploader < CarrierWave::Uploader::Base
   # This is a sensible default for uploaders that are meant to be mounted:
   def store_dir
     store_dir_prefix +
-      "uploads/#{model.class.to_s.underscore}/#{mounted_as}/#{model.id}"
+      "#{model.class.to_s.underscore}/#{mounted_as}/#{model.id}"
   end
 
   def store_dir_prefix
-    Rails.env.test? ? 'test/' : ''
+    CFG.carrierwave_storage_dir_prefix
   end
 
   # Provide a default URL as a default if there hasn't been a file uploaded:

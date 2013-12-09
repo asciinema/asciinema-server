@@ -6,6 +6,7 @@ if ENV['COVERAGE']
 end
 
 ENV["RAILS_ENV"] ||= 'test'
+ENV['CARRIERWAVE_STORAGE_DIR_PREFIX'] ||= 'uploads/test/'
 
 require File.expand_path("../../config/environment", __FILE__)
 
