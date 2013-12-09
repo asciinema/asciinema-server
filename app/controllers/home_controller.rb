@@ -11,7 +11,7 @@ class HomeController < ApplicationController
   private
 
   def asciicast
-    id = CFG['HOME_CAST_ID']
+    id = CFG.home_cast_id
 
     asciicast = if id
       asciicast_repository.find(id)

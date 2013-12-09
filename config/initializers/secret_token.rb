@@ -9,4 +9,4 @@
 
 # Make sure your secret_key_base is kept private
 # if you're sharing your code publicly.
-Asciinema::Application.config.secret_key_base = CFG['SECRET_TOKEN']
+Asciinema::Application.config.secret_key_base = CFG.secret_token

@@ -1,15 +1,13 @@
 CarrierWave.configure do |config|
-  if CFG['CARRIERWAVE_STORAGE'].to_s == 'fog'
+  if CFG.carrierwave_storage == 'fog'
     config.storage = :fog
 
     config.fog_credentials = {
       :provider              => 'AWS',
-      :aws_access_key_id     => CFG['AWS_ACCESS_KEY_ID'],
-      :aws_secret_access_key => CFG['AWS_SECRET_ACCESS_KEY'],
-      :region                => CFG['AWS_REGION']
+      :aws_access_key_id     => CFG.aws_access_key_id,
+      :aws_secret_access_key => CFG.aws_secret_access_key,
+      :region                => CFG.aws_region
     }
-    config.fog_directory = CFG['AWS_BUCKET']
-  else
-    config.storage = :file
+    config.fog_directory = CFG.aws_bucket
   end
 end
