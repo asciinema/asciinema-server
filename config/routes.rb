@@ -37,7 +37,5 @@ Asciinema::Application.routes.draw do
   get '/tos' => 'pages#show', page: :tos, as: :tos
   get '/contributing' => 'pages#show', page: :contributing, as: :contributing
 
-  mount JasmineRails::Engine => "/specs" unless Rails.env.production?
-
   get '/test/widget/:id' => 'test_widget#show' if Rails.env.test?
 end
