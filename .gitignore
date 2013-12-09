@@ -16,7 +16,7 @@ config/database.yml
 rerun.txt
 pickle-email-*.html
 .jhw-cache/
-config/local.yml
+config/asciinema.yml
 public/uploads/*
 /bin/*
 /coverage
