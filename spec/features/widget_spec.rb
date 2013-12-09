@@ -1,5 +1,11 @@
 require 'spec_helper'
 
+routes = proc do
+  get '/test/widget/:id' => 'test_widget#show'
+end
+
+Rails.application.routes.eval_block(routes)
+
 class TestWidgetController < ActionController::Base
 
   def show

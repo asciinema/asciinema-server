@@ -36,6 +36,4 @@ Asciinema::Application.routes.draw do
   get '/privacy' => 'pages#show', page: :privacy, as: :privacy
   get '/tos' => 'pages#show', page: :tos, as: :tos
   get '/contributing' => 'pages#show', page: :contributing, as: :contributing
-
-  get '/test/widget/:id' => 'test_widget#show' if Rails.env.test?
 end
