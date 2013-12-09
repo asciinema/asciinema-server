@@ -39,7 +39,7 @@ end
 
 group :test, :development do
   gem 'pry-rails',     '~> 0.3.2'
-  gem 'rspec-rails',   '~> 2.14'
+  gem 'rspec-rails',   '~> 2.99.0.beta1'
   gem 'cane',          '~> 2.5.2'
   gem 'jasmine-rails', '~> 0.4.5'
 end
@@ -50,8 +50,8 @@ group :test do
   gem 'capybara',                      '~> 2.1.0'
   gem 'poltergeist',                   '~> 1.3.0'
   gem 'database_cleaner',              '~> 1.0.1'
-  gem 'guard',                         '~> 2.2'
-  gem 'guard-rspec',                   '~> 4.0'
+  gem 'guard'
+  gem 'guard-rspec'
   gem 'rb-inotify',                    '~> 0.9.0'
   gem 'simplecov',                     '~> 0.7.1', :require => false
   gem 'shoulda-matchers',              '~> 2.4.0'
