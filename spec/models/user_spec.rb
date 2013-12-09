@@ -92,7 +92,7 @@ describe User do
     before { user.save }
 
     context "when user doesn't have given token" do
-      let(:token) { FactoryGirl.attributes_for(:user_token)[:token] }
+      let(:token) { attributes_for(:user_token)[:token] }
 
       it 'returns created UserToken' do
         ut = user.add_user_token(token)
@@ -102,7 +102,7 @@ describe User do
     end
 
     context "when user doesn't have given token" do
-      let(:existing_token) { FactoryGirl.create(:user_token, :user => user) }
+      let(:existing_token) { create(:user_token, :user => user) }
       let(:token) { existing_token.token }
 
       it 'returns existing UserToken' do
