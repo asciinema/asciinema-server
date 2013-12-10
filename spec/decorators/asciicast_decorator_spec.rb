@@ -22,14 +22,14 @@ describe AsciicastDecorator do
         it { should == 'Linux' }
       end
 
-      context 'and the OS is OSX' do
+      context 'and the OS is OS X' do
         before do
           asciicast.user_agent =
             "asciinema/0.9.7 CPython/2.7.4 " \
             "Darwin/10.0.0-i386-64bit"
         end
 
-        it { should == 'OSX' }
+        it { should == 'OS X' }
       end
 
       context 'and the OS is other' do
@@ -57,7 +57,7 @@ describe AsciicastDecorator do
           asciicast.uname = "Darwin local 10.3.0 Darwin Kernel Version 10.3.0"
         end
 
-        it { should == 'OSX' }
+        it { should == 'OS X' }
       end
 
       context "and it's other" do

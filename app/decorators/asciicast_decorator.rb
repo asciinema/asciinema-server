@@ -88,7 +88,7 @@ class AsciicastDecorator < ApplicationDecorator
     if text =~ /Linux/
       'Linux'
     elsif text =~ /Darwin/
-      'OSX'
+      'OS X'
     else
       text.split(' ', 2)[0]
     end
