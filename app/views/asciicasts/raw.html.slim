@@ -1,11 +1,14 @@
 = player @asciicast
+p.powered
+  ' Powered by
+  a href=root_url target="_top" asciinema
 
 javascript:
   $(function() {
     var target = parent.postMessage ? parent : (parent.document.postMessage ? parent.document : undefined);
     if (typeof target != "undefined" && window !== window.parent) {
-      var w = $('.player').outerWidth();
-      var h = $('.player').outerHeight();
+      var w = $(document).width();
+      var h = $(document).height();
       target.postMessage(['asciicast:size', { id: #{@asciicast.id}, width: w, height: h }], '*');
     }
 

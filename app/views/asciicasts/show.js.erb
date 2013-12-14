@@ -1,16 +1,15 @@
 // asciinema.org - embeddable player
 
 (function() {
+  var iframe;
+
   function receiveSize(e) {
     if (e.origin === document.location.protocol + "//<%= request.host_with_port %>") {
       var event = e.data[0];
       var data  = e.data[1];
       if (event == 'asciicast:size' && data.id == <%= @asciicast.id %>) {
-        var player = document.getElementById("asciicast-iframe-<%= @asciicast.id %>");
-        if (player) {
-          player.style.width  = '' + data.width + 'px';
-          player.style.height = '' + data.height + 'px';
-        }
+        iframe.style.width  = '' + data.width + 'px';
+        iframe.style.height = '' + data.height + 'px';
       }
     }
   }
@@ -19,30 +18,54 @@
     referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
   }
 
-  var scriptTag = document.getElementById("asciicast-<%= @asciicast.id %>");
-
-  if (scriptTag) {
-    window.addEventListener("message", receiveSize, false);
-    var container = document.createElement('div');
-    container.className = 'asciicast';
-    container.style.display = 'block';
-    container.style.float = 'none';
-    container.style.overflow = 'hidden';
-    container.style.padding = '0';
-    insertAfter(scriptTag, container);
-
+  function params(container, script) {
     var params = '?container_width=' + container.offsetWidth;
 
-    var size = scriptTag.getAttribute('data-size');
+    var size = script.getAttribute('data-size');
     if (size) {
       params += '&size=' + size;
     }
-
-    var speed = scriptTag.getAttribute('data-speed');
+    var speed = script.getAttribute('data-speed');
     if (speed) {
       params += '&speed=' + speed;
     }
 
-    container.innerHTML = '<iframe src="<%= request.protocol %><%= request.host_with_port %>/a/<%= @asciicast.id %>/raw' + params + '" name="asciicast-iframe-<%= @asciicast.id %>" id="asciicast-iframe-<%= @asciicast.id %>" width="300" height="300" scrolling="no" marginheight="0" marginwidth="0" frameborder="0" style="display: block; float: none; visibility: hidden;" onload="this.style.visibility=\'visible\';"></iframe>';
+    return params;
+  }
+
+  function insertPlayer(script) {
+    var container = document.createElement('div');
+    container.id = "asciicast-container-<%= @asciicast.id %>";
+    container.className = 'asciicast';
+    container.style.display = 'block';
+    container.style.float = 'none';
+    container.style.overflow = 'hidden';
+    container.style.width = '100%';
+    container.style.padding = 0;
+    container.style.margin = '20px 0';
+
+    insertAfter(script, container);
+
+    iframe = document.createElement('iframe');
+    iframe.src = "<%= request.protocol %><%= request.host_with_port %>/a/<%= @asciicast.id %>/raw" + params(container, script);
+    iframe.id = "asciicast-iframe-<%= @asciicast.id %>";
+    iframe.name = "asciicast-iframe-<%= @asciicast.id %>";
+    iframe.scrolling = "no";
+    iframe.style.overflow = "hidden";
+    iframe.style.margin = 0;
+    iframe.style.border = 0;
+    iframe.style.display = "block";
+    iframe.style.float = "none";
+    iframe.style.visibility = "hidden";
+    iframe.onload = function() { this.style.visibility = 'visible' };
+
+    container.appendChild(iframe);
+  }
+
+  var script = document.getElementById("asciicast-<%= @asciicast.id %>");
+
+  if (script) {
+    insertPlayer(script);
+    window.addEventListener("message", receiveSize, false);
   }
 })();
