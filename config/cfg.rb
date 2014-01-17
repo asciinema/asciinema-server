@@ -41,12 +41,20 @@ module Asciinema
       @cfg.key?(key) || super
     end
 
+    def [](key)
+      send(key)
+    end
+
     def local_persona_js?
       local_persona_js.to_s == 'true'
     end
 
-    def [](key)
-      send(key)
+    def home_asciicast
+      asciicast = if home_cast_id
+        Asciicast.find(home_cast_id)
+      else
+        Asciicast.last
+      end
     end
 
     private

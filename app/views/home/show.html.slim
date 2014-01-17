@@ -4,7 +4,7 @@
       .row
         .col-md-6
           .player-wrapper
-            = player asciicast, speed: 2.0, hud: false if asciicast
+            = player page.asciicast, speed: 2.0, hud: false if page.asciicast
 
         .col-md-6
           h1
@@ -62,9 +62,9 @@
         .col-md-12
           h1 Featured asciicasts
           .asciicast-list
-            = render 'asciicasts/previews', asciicasts: featured_asciicasts, per_row: 3
+            = render 'asciicasts/previews', asciicasts: page.featured_asciicasts, per_row: 3
       .row
         .col-md-12
           h1 Latest asciicasts
           .asciicast-list
-            = render 'asciicasts/previews', asciicasts: latest_asciicasts, per_row: 3
+            = render 'asciicasts/previews', asciicasts: page.latest_asciicasts, per_row: 3

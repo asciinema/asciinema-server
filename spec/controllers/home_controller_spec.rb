@@ -2,34 +2,15 @@ require 'spec_helper'
 
 describe HomeController do
 
-  describe "GET 'show'" do
-    describe 'when there is at least one featured cast' do
-      before do
-        create(:asciicast, :featured => true)
-      end
-
-      it "returns http success" do
-        get 'show'
-        expect(response).to be_success
-      end
+  describe '#show' do
+    before do
+      allow(controller).to receive(:render)
+      get :show
     end
 
-    describe 'when there is no featured cast but any cast exists' do
-      before do
-        create(:asciicast, :featured => false)
-      end
-
-      it "returns http success" do
-        get 'show'
-        expect(response).to be_success
-      end
-    end
-
-    describe 'when there are no casts at all' do
-      it "returns http success" do
-        get 'show'
-        expect(response).to be_success
-      end
+    it "renders template with HomePresenter as page" do
+      expect(controller).to have_received(:render).
+        with(locals: { page: kind_of(HomePresenter) })
     end
   end
 
