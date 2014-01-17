@@ -36,14 +36,20 @@ class Asciicast < ActiveRecord::Base
     page(page).per(per_page)
   end
 
-  def self.for_category_ordered(category, order)
+  def self.for_category_ordered(category, order, page = nil, per_page = nil)
     collection = all
 
     if category == :featured
       collection = collection.featured
     end
 
-    collection.order("#{ORDER_MODES[order]} DESC")
+    collection = collection.order("#{ORDER_MODES[order]} DESC")
+
+    if page
+      collection = collection.paginate(page, per_page)
+    end
+
+    collection
   end
 
   def user

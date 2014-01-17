@@ -7,10 +7,9 @@ class AsciicastsController < ApplicationController
   respond_to :html, :json, :js
 
   def index
-    asciicasts = AsciicastList.new(params[:category], params[:order])
-
     render locals: {
-      asciicast_list: AsciicastListDecorator.new(asciicasts, params[:page])
+      page: AsciicastListPresenter.new(params[:category], params[:order],
+                                       params[:page])
     }
   end
 

@@ -18,25 +18,19 @@ describe AsciicastsController do
   subject { response }
 
   describe '#index' do
-    let(:asciicast_list) { double('asciicast_list') }
-    let(:decorated_asciicast_list) { double('decorated_asciicast_list') }
+    let(:asciicast_list_presenter) { double('asciicast_list_presenter') }
 
     before do
       allow(controller).to receive(:render)
-
-      allow(AsciicastList).to receive(:new).
-        with('featured', 'recency') { asciicast_list }
-      allow(AsciicastListDecorator).to receive(:new).
-        with(asciicast_list, '2') { decorated_asciicast_list }
+      allow(AsciicastListPresenter).to receive(:new).
+        with('featured', 'recency', '2') { asciicast_list_presenter }
 
       get :index, category: 'featured', order: 'recency', page: '2'
     end
 
-    it { should be_success }
-
-    it 'renders template with asciicast_list' do
+    it "renders template with AsciicastListPresenter as page" do
       expect(controller).to have_received(:render).
-        with(locals: { asciicast_list: decorated_asciicast_list })
+        with(locals: { page: asciicast_list_presenter })
     end
   end
 
