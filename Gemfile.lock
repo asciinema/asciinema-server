@@ -158,6 +158,7 @@ GEM
     net-ssh (2.6.8)
     net-ssh-gateway (1.2.0)
       net-ssh (>= 2.6.5)
+    newrelic_rpm (3.7.1.182)
     nokogiri (1.5.10)
     oauth (0.4.7)
     oauth2 (0.8.1)
@@ -336,6 +337,7 @@ DEPENDENCIES
   jasmine-rails (~> 0.4.5)
   jquery-rails (~> 3.0.4)
   kaminari (~> 0.14.1)
+  newrelic_rpm
   omniauth (~> 1.1.4)
   omniauth-browserid!
   omniauth-github (~> 1.1.0)
