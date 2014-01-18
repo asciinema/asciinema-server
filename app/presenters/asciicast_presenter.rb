@@ -3,7 +3,7 @@ class AsciicastPresenter
   attr_reader :asciicast, :user
 
   def initialize(asciicast, user)
-    @asciicast = AsciicastDecorator.new(asciicast)
+    @asciicast = asciicast.decorate
     @user = user
   end
 
@@ -58,9 +58,7 @@ class AsciicastPresenter
   end
 
   def other_asciicasts_by_author
-    asciicasts = author.asciicasts_excluding(asciicast, 3)
-
-    AsciicastDecorator.decorate_collection(asciicasts)
+    author.asciicasts_excluding(asciicast, 3).decorate
   end
 
   private

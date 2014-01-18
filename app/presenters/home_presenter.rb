@@ -5,11 +5,11 @@ class HomePresenter
   end
 
   def latest_asciicasts
-    AsciicastDecorator.decorate_collection(Asciicast.latest_limited(3))
+    Asciicast.latest_limited(3).decorate
   end
 
   def featured_asciicasts
-    AsciicastDecorator.decorate_collection(Asciicast.random_featured_limited(3))
+    Asciicast.random_featured_limited(3).decorate
   end
 
   private
@@ -17,7 +17,7 @@ class HomePresenter
   def get_asciicast
     asciicast = CFG.home_asciicast
 
-    asciicast && AsciicastDecorator.new(asciicast)
+    asciicast && asciicast.decorate
   end
 
 end

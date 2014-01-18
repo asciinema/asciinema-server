@@ -34,7 +34,7 @@ class AsciicastsController < ApplicationController
 
   def raw
     response.headers.delete('X-Frame-Options')
-    @asciicast = AsciicastDecorator.new(asciicast)
+    @asciicast = asciicast.decorate
     render :layout => 'raw'
   end
 
