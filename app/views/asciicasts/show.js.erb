@@ -1,10 +1,11 @@
 // asciinema.org - embeddable player
 
 (function() {
+  var apiUrl = "<%= request.protocol %><%= request.host_with_port %>";
   var iframe;
 
   function receiveSize(e) {
-    if (e.origin === document.location.protocol + "//<%= request.host_with_port %>") {
+    if (e.origin === apiUrl) {
       var event = e.data[0];
       var data  = e.data[1];
       if (event == 'asciicast:size' && data.id == <%= @asciicast.id %>) {
@@ -50,7 +51,7 @@
     insertAfter(script, container);
 
     iframe = document.createElement('iframe');
-    iframe.src = "<%= request.protocol %><%= request.host_with_port %>/a/<%= @asciicast.id %>/bare" + params(container, script);
+    iframe.src = apiUrl + "/a/<%= @asciicast.id %>/bare" + params(container, script);
     iframe.id = "asciicast-iframe-<%= @asciicast.id %>";
     iframe.name = "asciicast-iframe-<%= @asciicast.id %>";
     iframe.scrolling = "no";
