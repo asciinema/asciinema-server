@@ -29,6 +29,10 @@
     if (speed) {
       params += '&speed=' + speed;
     }
+    var autoplay = script.getAttribute('data-autoplay');
+    if (autoplay === '1') {
+      params += '&autoplay=' + autoplay;
+    }
 
     return params;
   }
