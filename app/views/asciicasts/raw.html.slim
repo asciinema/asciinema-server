@@ -1,4 +1,4 @@
-= player @asciicast
+= player page.asciicast, page.playback_options
 p.powered
   ' Powered by
   a href=root_url target="_top" asciinema
@@ -9,7 +9,7 @@ javascript:
     if (typeof target != "undefined" && window !== window.parent) {
       var w = $(document).width();
       var h = $(document).height();
-      target.postMessage(['asciicast:size', { id: #{@asciicast.id}, width: w, height: h }], '*');
+      target.postMessage(['asciicast:size', { id: #{page.asciicast_id}, width: w, height: h }], '*');
     }
 
     function onMessage(e) {

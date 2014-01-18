@@ -14,7 +14,7 @@ class Asciinema.AbstractPlayer
       hud: @options.hud
       rendererClass: @options.rendererClass
       snapshot: @model.get 'snapshot'
-      containerWidth: @options.containerWidth
+      maxWidth: @options.maxWidth
 
   createMovie: ->
     throw 'not implemented'

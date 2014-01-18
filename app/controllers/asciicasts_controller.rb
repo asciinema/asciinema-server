@@ -36,8 +36,8 @@ class AsciicastsController < ApplicationController
 
   def raw
     response.headers.delete('X-Frame-Options')
-    @asciicast = asciicast.decorate
-    render :layout => 'raw'
+    render locals: { page: BareAsciicastPresenter.build(asciicast, params) },
+           layout: 'raw'
   end
 
   def example

@@ -19,9 +19,9 @@ class Asciinema.PlayerView extends Backbone.View
     @renderSnapshot()
 
   setupClipping: ->
-    if @options.containerWidth
+    if @options.maxWidth
       rendererWidth = @rendererView.elementWidth()
-      min = Math.min(@options.containerWidth, rendererWidth)
+      min = Math.min(@options.maxWidth, rendererWidth)
       @rightClipWidth = rendererWidth - min
     else
       @rightClipWidth = 0
