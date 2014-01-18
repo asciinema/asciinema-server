@@ -1,17 +1,8 @@
 module AsciicastsHelper
 
   def player(asciicast, options = PlaybackOptions.new)
-    render :partial => 'asciicasts/player', :locals => {
-      asciicast:       serialized_asciicast(asciicast),
-      player_class:    options.player_class,
-      speed:           options.speed,
-      benchmark:       options.benchmark,
-      container_width: options.max_width,
-      renderer_class:  options.renderer_class,
-      auto_play:       options.autoplay,
-      hud:             !options.hide_hud,
-      size:            options.size,
-    }
+    render 'asciicasts/player', asciicast: serialized_asciicast(asciicast),
+                                options:   options
   end
 
   # TODO: move to AsciicastDecorator
