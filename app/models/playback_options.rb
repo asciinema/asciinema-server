@@ -3,7 +3,7 @@ class PlaybackOptions
   include Virtus.model
 
   attribute :speed,     Float,   default: 1.0
-  attribute :font_size, String,  default: 'small'
+  attribute :size,      String,  default: 'small'
   attribute :autoplay,  Boolean, default: false
   attribute :max_width, Integer
   attribute :hide_hud,  Boolean, default: false

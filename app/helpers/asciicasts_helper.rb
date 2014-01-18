@@ -10,7 +10,7 @@ module AsciicastsHelper
       renderer_class:  options.renderer_class,
       auto_play:       options.autoplay,
       hud:             !options.hide_hud,
-      size:            options.font_size,
+      size:            options.size,
     }
   end
 
