@@ -124,4 +124,16 @@ describe User do
     it { should eq(2) }
   end
 
+  describe '#asciicasts_excluding' do
+    subject { user.asciicasts_excluding(asciicast, 1) }
+
+    let(:user) { create(:user) }
+    let(:asciicast) { create(:asciicast, user: user) }
+
+    it "returns other asciicasts by user excluding the given one" do
+      other = create(:asciicast, user: user)
+      expect(subject).to eq([other])
+    end
+  end
+
 end

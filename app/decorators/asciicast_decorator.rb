@@ -47,22 +47,6 @@ class AsciicastDecorator < ApplicationDecorator
     user.img_link
   end
 
-  def other_by_user
-    if user
-      AsciicastDecorator.decorate_collection(
-        user.asciicasts.where('id <> ?', model.id).order('RANDOM()').limit(3)
-      )
-    else
-      []
-    end
-  end
-
-  def embed_script
-    src = h.asciicast_url(model, :format => :js)
-    id = "asciicast-#{model.id}"
-    %(<script type="text/javascript" src="#{src}" id="#{id}" async></script>)
-  end
-
   def formatted_duration
     duration = model.duration.to_i
     minutes = duration / 60

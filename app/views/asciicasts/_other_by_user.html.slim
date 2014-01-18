@@ -1,6 +1,0 @@
-- if @asciicast.other_by_user.any?
-  section.odd
-    .container
-      .other-asciicasts
-        h2 More by #{@asciicast.author_link}
-        = render 'previews', asciicasts: @asciicast.other_by_user, per_row: 3

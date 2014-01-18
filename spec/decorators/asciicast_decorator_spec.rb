@@ -214,30 +214,6 @@ describe AsciicastDecorator do
     it { should eq('img-link') }
   end
 
-  describe '#other_by_user' do
-    pending
-  end
-
-  describe '#embed_script' do
-    let(:src_regexp) {
-      /src="[^"]+\b123\b[^"]*\.js"/
-    }
-    let(:id_regexp) {
-      /id="asciicast-123"/
-    }
-    let(:script_regexp) {
-      /^<script[^>]+#{src_regexp}[^>]+#{id_regexp}[^>]*><\/script>/
-    }
-
-    before do
-      allow(asciicast).to receive(:id).and_return(123)
-    end
-
-    it 'should be an async script tag including asciicast id' do
-      expect(decorator.embed_script).to match(script_regexp)
-    end
-  end
-
   describe '#formatted_duration' do
     subject { decorator.formatted_duration }
 

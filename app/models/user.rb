@@ -46,6 +46,10 @@ class User < ActiveRecord::Base
     asciicasts.count
   end
 
+  def asciicasts_excluding(asciicast, limit)
+    asciicasts.where('id <> ?', asciicast.id).order('RANDOM()').limit(limit)
+  end
+
   private
 
   def generate_auth_token

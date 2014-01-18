@@ -6,6 +6,8 @@ class AsciicastsController < ApplicationController
 
   respond_to :html, :json, :js
 
+  attr_reader :asciicast
+
   def index
     render locals: {
       page: AsciicastListPresenter.new(params[:category], params[:order],
@@ -16,24 +18,23 @@ class AsciicastsController < ApplicationController
   def show
     respond_to do |format|
       format.html do
-        view_counter.increment(@asciicast, cookies)
-        @asciicast = AsciicastDecorator.new(@asciicast)
-        respond_with @asciicast
+        view_counter.increment(asciicast, cookies)
+        render locals: { page: AsciicastPresenter.new(asciicast, current_user) }
       end
 
       format.json do
-        respond_with @asciicast
+        respond_with asciicast
       end
 
       format.js do
-        respond_with @asciicast
+        respond_with asciicast
       end
     end
   end
 
   def raw
     response.headers.delete('X-Frame-Options')
-    @asciicast = AsciicastDecorator.new(@asciicast)
+    @asciicast = AsciicastDecorator.new(asciicast)
     render :layout => 'raw'
   end
 
@@ -45,8 +46,8 @@ class AsciicastsController < ApplicationController
   end
 
   def update
-    if @asciicast.update_attributes(params[:asciicast])
-      redirect_to asciicast_path(@asciicast),
+    if asciicast.update_attributes(params[:asciicast])
+      redirect_to asciicast_path(asciicast),
                   :notice => 'Asciicast was updated.'
     else
       render :edit
@@ -54,11 +55,11 @@ class AsciicastsController < ApplicationController
   end
 
   def destroy
-    if @asciicast.destroy
+    if asciicast.destroy
       redirect_to profile_path(current_user),
                   :notice => 'Asciicast was deleted.'
     else
-      redirect_to asciicast_path(@asciicast),
+      redirect_to asciicast_path(asciicast),
                   :alert => "Oops, we couldn't remove this asciicast. " \
                             "Try again later."
     end
@@ -71,8 +72,8 @@ class AsciicastsController < ApplicationController
   end
 
   def ensure_owner!
-    if current_user != @asciicast.user
-      redirect_to asciicast_path(@asciicast), :alert => "You can't do that."
+    if current_user != asciicast.user
+      redirect_to asciicast_path(asciicast), :alert => "You can't do that."
     end
   end
 

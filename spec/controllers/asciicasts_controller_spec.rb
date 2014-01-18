@@ -28,6 +28,8 @@ describe AsciicastsController do
       get :index, category: 'featured', order: 'recency', page: '2'
     end
 
+    it { should be_success }
+
     it "renders template with AsciicastListPresenter as page" do
       expect(controller).to have_received(:render).
         with(locals: { page: asciicast_list_presenter })
@@ -44,11 +46,14 @@ describe AsciicastsController do
     end
 
     context 'for html request' do
-      let(:asciicast_decorator) { double('decorator', :title => 'The Title') }
+      let(:asciicast_presenter) { double('asciicast_presenter') }
+      let(:user) { double('user') }
 
       before do
-        allow(AsciicastDecorator).to receive(:new).with(asciicast).
-          and_return(asciicast_decorator)
+        allow(controller).to receive(:render)
+        allow(controller).to receive(:current_user) { user }
+        allow(AsciicastPresenter).to receive(:new).with(asciicast, user).
+          and_return(asciicast_presenter)
 
         get :show, :id => asciicast.id, :format => :html
       end
@@ -60,7 +65,10 @@ describe AsciicastsController do
           with(asciicast, cookies)
       end
 
-      specify { expect(assigns(:asciicast)).to eq(asciicast_decorator) }
+      it "renders template with AsciicastPresenter as page" do
+        expect(controller).to have_received(:render).
+          with(locals: { page: asciicast_presenter })
+      end
     end
 
     context 'for json request' do
