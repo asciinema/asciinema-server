@@ -2,10 +2,30 @@ require 'spec_helper'
 
 describe AsciicastPresenter do
 
-  let(:presenter) { described_class.new(asciicast, current_user) }
-  let(:asciicast) { stub_model(Asciicast, decorate: decorated_asciicast) }
+  describe '.build' do
+    subject { described_class.build(asciicast, user, playback_options) }
+
+    let(:asciicast) { stub_model(Asciicast, decorate: decorated_asciicast) }
+    let(:user) { double('user') }
+    let(:playback_options) { { speed: 3.0 } }
+    let(:decorated_asciicast) { double('decorated_asciicast') }
+
+    it "builds presenter instance with given asciicast decorated" do
+      expect(subject.asciicast).to be(decorated_asciicast)
+    end
+
+    it "builds presenter instance with given user" do
+      expect(subject.user).to be(user)
+    end
+
+    it "builds presenter instance with given playback options" do
+      expect(subject.playback_options.speed).to eq(3.0)
+    end
+  end
+
+  let(:presenter) { described_class.new(asciicast, current_user, nil) }
+  let(:asciicast) { stub_model(Asciicast, user: author) }
   let(:current_user) { User.new }
-  let(:decorated_asciicast) { stub_model(Asciicast, user: author) }
   let(:author) { User.new }
 
   let(:view_context) {
@@ -14,15 +34,11 @@ describe AsciicastPresenter do
     controller.view_context
   }
 
-  before do
-    allow(asciicast).to receive(:decorate) { decorated_asciicast }
-  end
-
   describe '#title' do
     subject { presenter.title }
 
     before do
-      allow(decorated_asciicast).to receive(:title) { 'the-title' }
+      allow(asciicast).to receive(:title) { 'the-title' }
     end
 
     it { should eq('the-title') }
@@ -32,7 +48,7 @@ describe AsciicastPresenter do
     subject { presenter.asciicast_title }
 
     before do
-      allow(decorated_asciicast).to receive(:title) { 'the-title' }
+      allow(asciicast).to receive(:title) { 'the-title' }
     end
 
     it { should eq('the-title') }
@@ -42,7 +58,7 @@ describe AsciicastPresenter do
     subject { presenter.author_img_link }
 
     before do
-      allow(decorated_asciicast).to receive(:author_img_link) { '<a href=...>' }
+      allow(asciicast).to receive(:author_img_link) { '<a href=...>' }
     end
 
     it { should eq('<a href=...>') }
@@ -52,7 +68,7 @@ describe AsciicastPresenter do
     subject { presenter.author_link }
 
     before do
-      allow(decorated_asciicast).to receive(:author_link) { '<a href=...>' }
+      allow(asciicast).to receive(:author_link) { '<a href=...>' }
     end
 
     it { should eq('<a href=...>') }
@@ -64,7 +80,7 @@ describe AsciicastPresenter do
     let(:now) { Time.now }
 
     before do
-      allow(decorated_asciicast).to receive(:created_at) { now }
+      allow(asciicast).to receive(:created_at) { now }
     end
 
     it { should eq(now) }
@@ -74,9 +90,9 @@ describe AsciicastPresenter do
     subject { presenter.asciicast_env_details }
 
     before do
-      allow(decorated_asciicast).to receive(:os) { 'Linux' }
-      allow(decorated_asciicast).to receive(:shell) { 'bash' }
-      allow(decorated_asciicast).to receive(:terminal_type) { 'xterm' }
+      allow(asciicast).to receive(:os) { 'Linux' }
+      allow(asciicast).to receive(:shell) { 'bash' }
+      allow(asciicast).to receive(:terminal_type) { 'xterm' }
     end
 
     it { should eq('Linux / bash / xterm') }
@@ -86,7 +102,7 @@ describe AsciicastPresenter do
     subject { presenter.views_count }
 
     before do
-      allow(decorated_asciicast).to receive(:views_count) { 5 }
+      allow(asciicast).to receive(:views_count) { 5 }
     end
 
     it { should eq(5) }
@@ -102,7 +118,7 @@ describe AsciicastPresenter do
     }
 
     before do
-      allow(decorated_asciicast).to receive(:id).and_return(123)
+      allow(asciicast).to receive(:id).and_return(123)
     end
 
     it 'is an async script tag including asciicast id' do
@@ -114,7 +130,7 @@ describe AsciicastPresenter do
     subject { presenter.show_admin_dropdown? }
 
     before do
-      allow(decorated_asciicast).to receive(:managable_by?).
+      allow(asciicast).to receive(:managable_by?).
         with(current_user) { managable }
     end
 
@@ -135,7 +151,7 @@ describe AsciicastPresenter do
     subject { presenter.show_description? }
 
     before do
-      allow(decorated_asciicast).to receive(:description) { description }
+      allow(asciicast).to receive(:description) { description }
     end
 
     context "when description is present" do
@@ -155,7 +171,7 @@ describe AsciicastPresenter do
     subject { presenter.description }
 
     before do
-      allow(decorated_asciicast).to receive(:description) { 'i am description' }
+      allow(asciicast).to receive(:description) { 'i am description' }
     end
 
     it { should eq('i am description') }
@@ -189,7 +205,7 @@ describe AsciicastPresenter do
 
     before do
       allow(author).to receive(:asciicasts_excluding).
-        with(decorated_asciicast, 3) { others }
+        with(asciicast, 3) { others }
     end
 
     it "returns decorated asciicasts excluding the given one" do

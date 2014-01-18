@@ -1,10 +1,15 @@
 class AsciicastPresenter
 
-  attr_reader :asciicast, :user
+  attr_reader :asciicast, :user, :playback_options
 
-  def initialize(asciicast, user)
-    @asciicast = asciicast.decorate
-    @user = user
+  def self.build(asciicast, user, playback_options)
+    new(asciicast.decorate, user, PlaybackOptions.new(playback_options))
+  end
+
+  def initialize(asciicast, user, playback_options)
+    @asciicast        = asciicast
+    @user             = user
+    @playback_options = playback_options
   end
 
   def title

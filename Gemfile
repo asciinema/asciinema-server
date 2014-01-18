@@ -29,6 +29,7 @@ gem 'sinatra',              '~> 1.4.3', :require => false
 gem 'active_model_serializers', '~> 0.8.1'
 gem 'yajl-ruby',            '~> 1.1.0', :require => 'yajl'
 gem 'newrelic_rpm'
+gem 'virtus',               '~> 1.0.1'
 
 group :development do
   gem 'quiet_assets',   '~> 1.0.1'

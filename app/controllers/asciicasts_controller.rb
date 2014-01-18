@@ -19,7 +19,9 @@ class AsciicastsController < ApplicationController
     respond_to do |format|
       format.html do
         view_counter.increment(asciicast, cookies)
-        render locals: { page: AsciicastPresenter.new(asciicast, current_user) }
+        render locals: {
+          page: AsciicastPresenter.build(asciicast, current_user, params)
+        }
       end
 
       format.json do

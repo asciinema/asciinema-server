@@ -52,10 +52,11 @@ describe AsciicastsController do
       before do
         allow(controller).to receive(:render)
         allow(controller).to receive(:current_user) { user }
-        allow(AsciicastPresenter).to receive(:new).with(asciicast, user).
+        allow(AsciicastPresenter).to receive(:build).
+          with(asciicast, user, hash_including('speed' => '3.0')).
           and_return(asciicast_presenter)
 
-        get :show, :id => asciicast.id, :format => :html
+        get :show, id: asciicast.id, format: :html, speed: 3.0
       end
 
       it { should be_success }
