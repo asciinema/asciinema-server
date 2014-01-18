@@ -46,7 +46,7 @@
     insertAfter(script, container);
 
     iframe = document.createElement('iframe');
-    iframe.src = "<%= request.protocol %><%= request.host_with_port %>/a/<%= @asciicast.id %>/raw" + params(container, script);
+    iframe.src = "<%= request.protocol %><%= request.host_with_port %>/a/<%= @asciicast.id %>/bare" + params(container, script);
     iframe.id = "asciicast-iframe-<%= @asciicast.id %>";
     iframe.name = "asciicast-iframe-<%= @asciicast.id %>";
     iframe.scrolling = "no";

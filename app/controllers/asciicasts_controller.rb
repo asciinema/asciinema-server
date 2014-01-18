@@ -1,6 +1,6 @@
 class AsciicastsController < ApplicationController
 
-  before_filter :load_resource, :only => [:show, :raw, :example, :edit, :update, :destroy]
+  before_filter :load_resource, :only => [:show, :bare, :example, :edit, :update, :destroy]
   before_filter :ensure_authenticated!, :only => [:edit, :update, :destroy]
   before_filter :ensure_owner!, :only => [:edit, :update, :destroy]
 
@@ -34,10 +34,10 @@ class AsciicastsController < ApplicationController
     end
   end
 
-  def raw
+  def bare
     response.headers.delete('X-Frame-Options')
     render locals: { page: BareAsciicastPresenter.build(asciicast, params) },
-           layout: 'raw'
+           layout: 'bare'
   end
 
   def example
