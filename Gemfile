@@ -61,6 +61,7 @@ group :test do
 end
 
 group :production do
-  gem 'unicorn', '~> 4.7'
-  gem 'dalli',   '~> 2.6.2'
+  gem 'unicorn',               '~> 4.7'
+  gem 'dalli',                 '~> 2.6.2'
+  gem 'unicorn-worker-killer', '~> 0.4.2'
 end
