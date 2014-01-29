@@ -1,7 +1,7 @@
 class ViewCounter
 
   def increment(asciicast, storage)
-    key = :"asciicast_#{asciicast.id}_viewed"
+    key = "a#{asciicast.id}"
     return if storage[key]
 
     Asciicast.increment_counter(:views_count, asciicast.id)
