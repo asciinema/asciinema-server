@@ -27,6 +27,12 @@ class AsciicastListPresenter
   end
 
   def items
+    @items ||= get_items
+  end
+
+  private
+
+  def get_items
     PaginatingDecorator.new(
       Asciicast.for_category_ordered(category, order, page, per_page)
     )
