@@ -17,6 +17,8 @@ then
   cd -
 fi
 
+cd src && make && cd -
+
 rm -f log/*
 bundle install
 bundle exec rake db:setup

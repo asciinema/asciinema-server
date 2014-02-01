@@ -8,12 +8,11 @@ before_script:
   - "cp config/database.travis.yml config/database.yml"
 script: ./script/cibuild.sh
 rvm:
+  - 2.1.0
   - 2.0.0
-  - 1.9.3
-  - rbx-19mode
-  - jruby-19mode
+  - rbx
+  - jruby
 matrix:
   allow_failures:
-    - rvm: 1.9.3
-    - rvm: rbx-19mode
-    - rvm: jruby-19mode
+    - rvm: rbx
+    - rvm: jruby
