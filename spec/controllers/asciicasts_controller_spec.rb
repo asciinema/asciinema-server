@@ -22,7 +22,7 @@ describe AsciicastsController do
 
     before do
       allow(controller).to receive(:render)
-      allow(AsciicastListPresenter).to receive(:new).
+      allow(AsciicastListPresenter).to receive(:build).
         with('featured', 'recency', '2') { asciicast_list_presenter }
 
       get :index, category: 'featured', order: 'recency', page: '2'

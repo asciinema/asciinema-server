@@ -2,41 +2,68 @@ require 'spec_helper'
 
 describe AsciicastListPresenter do
 
+  describe '.build' do
+    subject { described_class.build(category, order, page, per_page) }
+
+    let(:category) { 'awesome' }
+    let(:order) { 'awesomeness' }
+    let(:page) { 2 }
+    let(:per_page) { 5 }
+
+    it "builds presenter instance with given category symbolized" do
+      expect(subject.category).to eq(:awesome)
+    end
+
+    context "when category is nil" do
+      let(:category) { nil }
+
+      it "builds presenter instance with category defaulting to DEFAULT_CATEGORY" do
+        expect(subject.category).to eq(described_class::DEFAULT_CATEGORY)
+      end
+    end
+
+    it "builds presenter instance with given order symbolized" do
+      expect(subject.order).to eq(:awesomeness)
+    end
+
+    context "when order is nil" do
+      let(:order) { nil }
+
+      it "builds presenter instance with order defaulting to DEFAULT_ORDER" do
+        expect(subject.order).to eq(described_class::DEFAULT_ORDER)
+      end
+    end
+
+    it "builds presenter instance with given page" do
+      expect(subject.page).to eq(2)
+    end
+
+    context "when page is nil" do
+      let(:page) { nil }
+
+      it "builds presenter instance with page = 1" do
+        expect(subject.page).to eq(1)
+      end
+    end
+
+    it "builds presenter instance with given per_page" do
+      expect(subject.per_page).to eq(5)
+    end
+
+    context "when per_page is nil" do
+      let(:per_page) { nil }
+
+      it "builds presenter instance with per_page = PER_PAGE" do
+        expect(subject.per_page).to eq(described_class::PER_PAGE)
+      end
+    end
+  end
+
   let(:presenter) { described_class.new(category, order, page, per_page) }
-  let(:category) { 'awesome' }
-  let(:order) { 'awesomeness' }
+  let(:category) { :awesome }
+  let(:order) { :awesomeness }
   let(:page) { 2 }
   let(:per_page) { 5 }
-
-  describe '#category' do
-    subject { presenter.category }
-
-    let(:category) { nil }
-
-    it "defaults to :all" do
-      expect(subject).to eq(:all)
-    end
-  end
-
-  describe '#order' do
-    subject { presenter.order }
-
-    let(:order) { nil }
-
-    it "defaults to :recency" do
-      expect(subject).to eq(:recency)
-    end
-  end
-
-  describe '#page' do
-    subject { presenter.page }
-
-    let(:page) { nil }
-
-    it "defaults to 1" do
-      expect(subject).to eq(1)
-    end
-  end
 
   describe '#category_name' do
     subject { presenter.category_name }

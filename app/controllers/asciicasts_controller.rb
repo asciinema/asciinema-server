@@ -10,8 +10,8 @@ class AsciicastsController < ApplicationController
 
   def index
     render locals: {
-      page: AsciicastListPresenter.new(params[:category], params[:order],
-                                       params[:page])
+      page: AsciicastListPresenter.build(params[:category], params[:order],
+                                         params[:page])
     }
   end
 
