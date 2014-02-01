@@ -1,5 +1,8 @@
 # asciinema.org
 
+[![Build Status](https://travis-ci.org/sickill/asciinema.org.png?branch=master)](https://travis-ci.org/sickill/asciinema.org)
+[![Code Climate](https://codeclimate.com/github/sickill/asciinema.org.png)](https://codeclimate.com/github/sickill/asciinema.org)
+
 Record and share your terminal sessions, the right way.
 
 Asciinema is a free and open source solution for recording the terminal
