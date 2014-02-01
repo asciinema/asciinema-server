@@ -10,50 +10,50 @@ describe BrowsePagePresenter do
     let(:page) { 2 }
     let(:per_page) { 5 }
 
-    it "builds presenter instance with given category symbolized" do
+    it "builds presenter with given category symbolized" do
       expect(subject.category).to eq(:awesome)
     end
 
     context "when category is nil" do
       let(:category) { nil }
 
-      it "builds presenter instance with category defaulting to DEFAULT_CATEGORY" do
+      it "builds presenter with category defaulting to DEFAULT_CATEGORY" do
         expect(subject.category).to eq(described_class::DEFAULT_CATEGORY)
       end
     end
 
-    it "builds presenter instance with given order symbolized" do
+    it "builds presenter with given order symbolized" do
       expect(subject.order).to eq(:awesomeness)
     end
 
     context "when order is nil" do
       let(:order) { nil }
 
-      it "builds presenter instance with order defaulting to DEFAULT_ORDER" do
+      it "builds presenter with order defaulting to DEFAULT_ORDER" do
         expect(subject.order).to eq(described_class::DEFAULT_ORDER)
       end
     end
 
-    it "builds presenter instance with given page" do
+    it "builds presenter with given page" do
       expect(subject.page).to eq(2)
     end
 
     context "when page is nil" do
       let(:page) { nil }
 
-      it "builds presenter instance with page = 1" do
+      it "builds presenter with page = 1" do
         expect(subject.page).to eq(1)
       end
     end
 
-    it "builds presenter instance with given per_page" do
+    it "builds presenter with given per_page" do
       expect(subject.per_page).to eq(5)
     end
 
     context "when per_page is nil" do
       let(:per_page) { nil }
 
-      it "builds presenter instance with per_page = PER_PAGE" do
+      it "builds presenter with per_page = PER_PAGE" do
         expect(subject.per_page).to eq(described_class::PER_PAGE)
       end
     end

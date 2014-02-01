@@ -1,8 +1,8 @@
 class AsciicastsController < ApplicationController
 
-  before_filter :load_resource, :only => [:show, :bare, :example, :edit, :update, :destroy]
-  before_filter :ensure_authenticated!, :only => [:edit, :update, :destroy]
-  before_filter :ensure_owner!, :only => [:edit, :update, :destroy]
+  before_filter :load_resource, except: [:index]
+  before_filter :ensure_authenticated!, only: [:edit, :update, :destroy]
+  before_filter :ensure_owner!, only: [:edit, :update, :destroy]
 
   respond_to :html, :json, :js
 
@@ -36,8 +36,9 @@ class AsciicastsController < ApplicationController
 
   def bare
     response.headers.delete('X-Frame-Options')
-    render locals: { page: BareAsciicastPagePresenter.build(asciicast, params) },
-           layout: 'bare'
+    render locals: {
+      page: BareAsciicastPagePresenter.build(asciicast, params)
+    }, layout: 'bare'
   end
 
   def example

@@ -10,15 +10,15 @@ describe AsciicastPagePresenter do
     let(:playback_options) { { speed: 3.0 } }
     let(:decorated_asciicast) { double('decorated_asciicast') }
 
-    it "builds presenter instance with given asciicast decorated" do
+    it "builds presenter with given asciicast decorated" do
       expect(subject.asciicast).to be(decorated_asciicast)
     end
 
-    it "builds presenter instance with given user" do
+    it "builds presenter with given user" do
       expect(subject.current_user).to be(user)
     end
 
-    it "builds presenter instance with given playback options" do
+    it "builds presenter with given playback options" do
       expect(subject.playback_options.speed).to eq(3.0)
     end
   end

@@ -11,34 +11,34 @@ describe UserPagePresenter do
     let(:page) { 2 }
     let(:per_page) { 5 }
 
-    it "builds presenter instance with given user decorated" do
+    it "builds presenter with given user decorated" do
       expect(subject.user).to be(decorated_user)
     end
 
-    it "builds presenter instance with given current_user" do
+    it "builds presenter with given current_user" do
       expect(subject.current_user).to be(current_user)
     end
 
-    it "builds presenter instance with given page" do
+    it "builds presenter with given page" do
       expect(subject.page).to eq(2)
     end
 
     context "when page is nil" do
       let(:page) { nil }
 
-      it "builds presenter instance with page = 1" do
+      it "builds presenter with page = 1" do
         expect(subject.page).to eq(1)
       end
     end
 
-    it "builds presenter instance with given per_page" do
+    it "builds presenter with given per_page" do
       expect(subject.per_page).to eq(5)
     end
 
     context "when per_page is nil" do
       let(:per_page) { nil }
 
-      it "builds presenter instance with per_page = PER_PAGE" do
+      it "builds presenter with per_page = PER_PAGE" do
         expect(subject.per_page).to eq(described_class::PER_PAGE)
       end
     end

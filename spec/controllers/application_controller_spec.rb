@@ -115,7 +115,7 @@ describe FakesController do
       it 'redirects to stored location' do
         stored_path = double
         path = double
-        allow(@controller).to receive(:get_stored_location).and_return(stored_path)
+        allow(@controller).to receive(:get_stored_location) { stored_path }
         expect(@controller).to receive(:redirect_to).with(stored_path)
         @controller.send(:redirect_back_or_to, path)
       end
