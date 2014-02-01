@@ -34,15 +34,6 @@ module ApplicationHelper
     email ? "'#{email}'".html_safe : 'null'
   end
 
-  def markdown(&block)
-    text = capture(&block)
-    MKD_RENDERER.render(capture(&block)).html_safe
-  end
-
-  def indented_text(string, width)
-    string.lines.map { |l| "#{' ' * width}#{l}" }.join('')
-  end
-
   def category_links(current_category, &blk)
     links = CategoryLinks.new(current_category, self)
 

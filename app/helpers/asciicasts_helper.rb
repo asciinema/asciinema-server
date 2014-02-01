@@ -5,12 +5,6 @@ module AsciicastsHelper
                                 options:   options
   end
 
-  # TODO: move to AsciicastDecorator
-  def link_to_delete_asciicast(name, asciicast)
-    link_to name, asciicast_path(asciicast), :method => :delete,
-      :data => { :confirm => 'Really delete this asciicast?' }
-  end
-
   private
 
   def serialized_asciicast(asciicast)
