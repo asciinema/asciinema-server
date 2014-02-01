@@ -136,4 +136,22 @@ describe User do
     end
   end
 
+  describe '#editable_by?' do
+    subject { user.editable_by?(other) }
+
+    let(:user) { create(:user) }
+
+    context "when it's the same user" do
+      let(:other) { user }
+
+      it { should be(true) }
+    end
+
+    context "when it's a different user" do
+      let(:other) { create(:user) }
+
+      it { should be(false) }
+    end
+  end
+
 end

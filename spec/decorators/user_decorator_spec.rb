@@ -65,8 +65,8 @@ describe UserDecorator do
     end
   end
 
-  describe '#fullname_and_nickname' do
-    subject { decorator.fullname_and_nickname }
+  describe '#full_name' do
+    subject { decorator.full_name }
 
     let(:user) { double('user', nickname: 'sickill', name: name) }
 
@@ -81,6 +81,14 @@ describe UserDecorator do
 
       it { should eq('sickill') }
     end
+  end
+
+  describe '#joined_at' do
+    subject { decorator.joined_at }
+
+    let(:user) { double('user', created_at: Time.parse('1970-01-01')) }
+
+    it { should eq('Jan 1, 1970') }
   end
 
 end

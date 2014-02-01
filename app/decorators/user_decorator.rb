@@ -9,12 +9,16 @@ class UserDecorator < ApplicationDecorator
     wrap_with_link(avatar_image_tag)
   end
 
-  def fullname_and_nickname
+  def full_name
     if model.name.present?
       "#{model.name} (#{model.nickname})"
     else
       model.nickname
     end
+  end
+
+  def joined_at
+    created_at.strftime("%b %-d, %Y")
   end
 
   private

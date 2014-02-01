@@ -1,27 +1,33 @@
-- content_for(:title, "#{@user.nickname}'s profile".html_safe)
+- content_for(:title, page.title)
 
 .profile-page
   section.cinema
     .container
-      span.user-avatar = @user.avatar_image_tag
+      span.user-avatar = page.user_avatar_image_tag
       h1
-        = @user.fullname_and_nickname
-        small
-          ' Joined on #{@user.created_at.strftime("%b %-d, %Y")}
+        = page.user_full_name
+        small = "Joined on #{page.user_joined_at}"
 
-      - if current_user == @user
+      - if page.show_settings?
         p.actions = link_to 'Settings', edit_user_path
 
   .container
-    h2 #{pluralize @user.asciicast_count, 'asciicast'} by #{@user.nickname}
+    h2 = page.asciicast_count_text(self)
     .row.asciicast-list
       .col-md-12
-        = render 'asciicasts/previews', asciicasts: @asciicasts, per_row: 3
-        = paginate @asciicasts
-
-        - if @asciicasts.size == 0
-          - if current_user && current_user.id == @user.id
-            ' You haven't recorded anything yet.
-            = link_to 'Record now', docs_path('getting-started')
+        - if page.asciicasts.present?
+          = render 'asciicasts/previews', asciicasts: page.asciicasts, per_row: 3
+          = paginate page.asciicasts
+        - else
+          - if page.current_users_profile?
+            p
+              ' Seems like you haven't recorded anything yet.
+              = link_to 'Record now', docs_path('getting-started')
+              ' .
+            p
+              ' If you have already recorded an asciicast but you don't see it
+                here then associate it with your account by running
+              code asciinema auth
+              '  in your terminal.
           - else
-            ' #{@user.nickname} hasn't recorded anything yet.
+            ' #{page.user_nickname} hasn't recorded anything yet.
