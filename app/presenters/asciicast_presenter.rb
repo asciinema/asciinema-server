@@ -1,14 +1,14 @@
 class AsciicastPresenter
 
-  attr_reader :asciicast, :user, :playback_options
+  attr_reader :asciicast, :current_user, :playback_options
 
-  def self.build(asciicast, user, playback_options)
-    new(asciicast.decorate, user, PlaybackOptions.new(playback_options))
+  def self.build(asciicast, current_user, playback_options)
+    new(asciicast.decorate, current_user, PlaybackOptions.new(playback_options))
   end
 
-  def initialize(asciicast, user, playback_options)
+  def initialize(asciicast, current_user, playback_options)
     @asciicast        = asciicast
-    @user             = user
+    @current_user     = current_user
     @playback_options = playback_options
   end
 
@@ -47,7 +47,7 @@ class AsciicastPresenter
   end
 
   def show_admin_dropdown?
-    asciicast.managable_by?(user)
+    asciicast.managable_by?(current_user)
   end
 
   def show_description?

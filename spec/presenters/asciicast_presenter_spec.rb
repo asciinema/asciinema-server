@@ -15,7 +15,7 @@ describe AsciicastPresenter do
     end
 
     it "builds presenter instance with given user" do
-      expect(subject.user).to be(user)
+      expect(subject.current_user).to be(user)
     end
 
     it "builds presenter instance with given playback options" do
