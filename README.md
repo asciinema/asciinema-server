@@ -79,4 +79,4 @@ source [contributors](https://github.com/sickill/asciinema.org/contributors)
 
 ## Copyright
 
-Copyright &copy; 2011-2013 Marcin Kulik. See LICENSE.txt for details.
+Copyright &copy; 2011-2014 Marcin Kulik. See LICENSE.txt for details.
