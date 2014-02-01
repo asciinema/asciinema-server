@@ -78,6 +78,12 @@ GEM
       execjs
     coffee-script-source (1.6.3)
     connection_pool (1.2.0)
+    coveralls (0.7.0)
+      multi_json (~> 1.3)
+      rest-client
+      simplecov (>= 0.7)
+      term-ansicolor
+      thor
     daemons (1.1.9)
     dalli (2.6.4)
     database_cleaner (1.0.1)
@@ -237,6 +243,8 @@ GEM
     redis-namespace (1.3.2)
       redis (~> 3.0.4)
     request_store (1.0.5)
+    rest-client (1.6.7)
+      mime-types (>= 1.16)
     rspec-collection_matchers (0.0.2)
       rspec-expectations (>= 2.99.0.beta1)
     rspec-core (3.0.0.beta1)
@@ -296,6 +304,8 @@ GEM
       activesupport (>= 3.0)
       sprockets (~> 2.8)
     temple (0.6.6)
+    term-ansicolor (1.2.2)
+      tins (~> 0.8)
     thin (1.5.1)
       daemons (>= 1.0.9)
       eventmachine (>= 0.12.6)
@@ -305,6 +315,7 @@ GEM
       atomic
     tilt (1.4.1)
     timers (1.1.0)
+    tins (0.13.1)
     treetop (1.4.15)
       polyglot
       polyglot (>= 0.3.1)
@@ -340,6 +351,7 @@ DEPENDENCIES
   capybara (~> 2.2.0)
   carrierwave (~> 0.8.0)
   coffee-rails (~> 4.0.1)
+  coveralls
   dalli (~> 2.6.2)
   database_cleaner (~> 1.0.1)
   dotenv-rails (~> 0.8)

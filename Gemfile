@@ -48,16 +48,17 @@ group :test, :development do
 end
 
 group :test do
-  gem "rake",                          '~> 10.0.4'
-  gem 'factory_girl_rails',            '~> 4.2.0'
-  gem 'capybara',                      '~> 2.2.0'
-  gem 'poltergeist',                   '~> 1.5.0'
-  gem 'database_cleaner',              '~> 1.0.1'
+  gem "rake",               '~> 10.0.4'
+  gem 'factory_girl_rails', '~> 4.2.0'
+  gem 'capybara',           '~> 2.2.0'
+  gem 'poltergeist',        '~> 1.5.0'
+  gem 'database_cleaner',   '~> 1.0.1'
   gem 'guard'
   gem 'guard-rspec'
-  gem 'rb-inotify',                    '~> 0.9.0'
-  gem 'simplecov',                     '~> 0.7.1', :require => false
-  gem 'shoulda-matchers',              '~> 2.4.0'
+  gem 'rb-inotify',         '~> 0.9.0'
+  gem 'simplecov',          '~> 0.7.1', require: false
+  gem 'shoulda-matchers',   '~> 2.4.0'
+  gem 'coveralls',          require: false
 end
 
 group :production do
