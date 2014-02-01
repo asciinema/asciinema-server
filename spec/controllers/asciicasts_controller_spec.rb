@@ -22,7 +22,7 @@ describe AsciicastsController do
 
     before do
       allow(controller).to receive(:render)
-      allow(AsciicastListPresenter).to receive(:build).
+      allow(BrowsePagePresenter).to receive(:build).
         with('featured', 'recency', '2') { asciicast_list_presenter }
 
       get :index, category: 'featured', order: 'recency', page: '2'
@@ -30,7 +30,7 @@ describe AsciicastsController do
 
     it { should be_success }
 
-    it "renders template with AsciicastListPresenter as page" do
+    it "renders template with BrowsePagePresenter as page" do
       expect(controller).to have_received(:render).
         with(locals: { page: asciicast_list_presenter })
     end
@@ -52,7 +52,7 @@ describe AsciicastsController do
       before do
         allow(controller).to receive(:render)
         allow(controller).to receive(:current_user) { user }
-        allow(AsciicastPresenter).to receive(:build).
+        allow(AsciicastPagePresenter).to receive(:build).
           with(asciicast, user, hash_including('speed' => '3.0')).
           and_return(asciicast_presenter)
 
@@ -66,7 +66,7 @@ describe AsciicastsController do
           with(asciicast, cookies)
       end
 
-      it "renders template with AsciicastPresenter as page" do
+      it "renders template with AsciicastPagePresenter as page" do
         expect(controller).to have_received(:render).
           with(locals: { page: asciicast_presenter })
       end

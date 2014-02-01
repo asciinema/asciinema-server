@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe AsciicastListPresenter do
+describe BrowsePagePresenter do
 
   describe '.build' do
     subject { described_class.build(category, order, page, per_page) }

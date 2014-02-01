@@ -10,8 +10,8 @@ class AsciicastsController < ApplicationController
 
   def index
     render locals: {
-      page: AsciicastListPresenter.build(params[:category], params[:order],
-                                         params[:page])
+      page: BrowsePagePresenter.build(params[:category], params[:order],
+                                      params[:page])
     }
   end
 
@@ -20,7 +20,7 @@ class AsciicastsController < ApplicationController
       format.html do
         view_counter.increment(asciicast, cookies)
         render locals: {
-          page: AsciicastPresenter.build(asciicast, current_user, params)
+          page: AsciicastPagePresenter.build(asciicast, current_user, params)
         }
       end
 
@@ -36,7 +36,7 @@ class AsciicastsController < ApplicationController
 
   def bare
     response.headers.delete('X-Frame-Options')
-    render locals: { page: BareAsciicastPresenter.build(asciicast, params) },
+    render locals: { page: BareAsciicastPagePresenter.build(asciicast, params) },
            layout: 'bare'
   end
 

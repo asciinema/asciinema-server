@@ -1,4 +1,4 @@
-class AsciicastListPresenter
+class BrowsePagePresenter
 
   DEFAULT_CATEGORY = :all
   DEFAULT_ORDER    = :recency

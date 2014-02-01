@@ -1,7 +1,7 @@
 class HomeController < ApplicationController
 
   def show
-    render locals: { page: HomePresenter.new }
+    render locals: { page: HomePagePresenter.new }
   end
 
 end

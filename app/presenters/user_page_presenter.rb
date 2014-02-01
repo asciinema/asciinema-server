@@ -1,4 +1,4 @@
-class UserPresenter
+class UserPagePresenter
 
   PER_PAGE = 15
 

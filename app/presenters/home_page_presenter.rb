@@ -1,4 +1,4 @@
-class HomePresenter
+class HomePagePresenter
 
   attr_reader :playback_options
 

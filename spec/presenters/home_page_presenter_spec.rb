@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe HomePresenter do
+describe HomePagePresenter do
 
   let(:presenter) { described_class.new }
 

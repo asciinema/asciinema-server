@@ -1,4 +1,4 @@
-class AsciicastPresenter
+class AsciicastPagePresenter
 
   attr_reader :asciicast, :current_user, :playback_options
 

@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe UserPresenter do
+describe UserPagePresenter do
 
   describe '.build' do
     subject { described_class.build(user, current_user, page, per_page) }

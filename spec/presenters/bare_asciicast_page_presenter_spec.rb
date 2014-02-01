@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe BareAsciicastPresenter do
+describe BareAsciicastPagePresenter do
   
   describe '.build' do
     subject { described_class.build(asciicast, playback_options) }

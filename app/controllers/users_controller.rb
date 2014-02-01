@@ -10,7 +10,7 @@ class UsersController < ApplicationController
 
   def show
     user = User.find_by_nickname!(params[:nickname])
-    render locals: { page: UserPresenter.build(user, current_user) }
+    render locals: { page: UserPagePresenter.build(user, current_user) }
   end
 
   def create

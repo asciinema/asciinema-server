@@ -8,9 +8,9 @@ describe HomeController do
       get :show
     end
 
-    it "renders template with HomePresenter as page" do
+    it "renders template with HomePagePresenter as page" do
       expect(controller).to have_received(:render).
-        with(locals: { page: kind_of(HomePresenter) })
+        with(locals: { page: kind_of(HomePagePresenter) })
     end
   end
 
