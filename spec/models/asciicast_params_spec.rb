@@ -3,6 +3,8 @@ require 'spec_helper'
 describe AsciicastParams do
 
   describe '.build' do
+    subject { asciicast_params.attributes }
+
     let(:asciicast_params) { described_class.build(input, headers) }
 
     let(:input) { {
@@ -14,6 +16,7 @@ describe AsciicastParams do
 
     let(:stdout_data_file) { double('stdout_data_file') }
     let(:stdout_timing_file) { double('stdout_timing_file') }
+    let(:now) { DateTime.new(2014) }
 
     let(:required_attrs) { {
       stdout_data:      stdout_data_file,
@@ -23,7 +26,7 @@ describe AsciicastParams do
       username:         'kill',
       user_id:          nil,
       duration:         11.146430015563965,
-      recorded_at:      DateTime.parse('Thu, 25 Jul 2013 20: 08: 57 +0000'),
+      recorded_at:      now,
       title:            'bashing :)',
       command:          '/bin/bash',
       shell:            '/bin/zsh',
@@ -37,7 +40,9 @@ describe AsciicastParams do
 
     let(:token) { 'f33e6188-f53c-11e2-abf4-84a6c827e88b' }
 
-    subject { asciicast_params.attributes }
+    before do
+      allow(DateTime).to receive(:now) { now }
+    end
 
     context "when uname given" do
       let(:meta_file) {

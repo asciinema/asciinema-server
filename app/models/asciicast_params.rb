@@ -8,7 +8,7 @@ class AsciicastParams
   attribute :stdin_timing
   attribute :username, String
   attribute :duration, Float
-  attribute :recorded_at, DateTime
+  attribute :recorded_at, DateTime, default: -> (p, a) { DateTime.now }
   attribute :title, String
   attribute :command, String
   attribute :shell, String
@@ -30,7 +30,6 @@ class AsciicastParams
       stdin_timing:     params[:stdin_timing],
       username:         meta['username'],
       duration:         meta['duration'],
-      recorded_at:      meta['recorded_at'],
       title:            meta['title'],
       command:          meta['command'],
       shell:            meta['shell'],
