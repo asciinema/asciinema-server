@@ -1,8 +1,8 @@
-class UserTokensController < ApplicationController
+class ApiTokensController < ApplicationController
   before_filter :ensure_authenticated!
 
   def create
-    claimed_num = user_token_creator.create(current_user, params[:user_token])
+    claimed_num = api_token_creator.create(current_user, params[:api_token])
 
     if claimed_num
       redirect_to_profile(claimed_num)
@@ -23,8 +23,8 @@ class UserTokensController < ApplicationController
     redirect_to profile_path(current_user), :notice => notice
   end
 
-  def user_token_creator
-    @user_token_creator ||= UserTokenCreator.new
+  def api_token_creator
+    @api_token_creator ||= ApiTokenCreator.new
   end
 
 end

@@ -86,27 +86,27 @@ describe User do
     end
   end
 
-  describe '#add_user_token' do
+  describe '#add_api_token' do
     let(:user) { build(:user) }
 
     before { user.save }
 
     context "when user doesn't have given token" do
-      let(:token) { attributes_for(:user_token)[:token] }
+      let(:token) { attributes_for(:api_token)[:token] }
 
-      it 'returns created UserToken' do
-        ut = user.add_user_token(token)
-        expect(ut).to be_kind_of(UserToken)
+      it 'returns created ApiToken' do
+        ut = user.add_api_token(token)
+        expect(ut).to be_kind_of(ApiToken)
         expect(ut.id).not_to be(nil)
       end
     end
 
     context "when user doesn't have given token" do
-      let(:existing_token) { create(:user_token, :user => user) }
+      let(:existing_token) { create(:api_token, :user => user) }
       let(:token) { existing_token.token }
 
-      it 'returns existing UserToken' do
-        ut = user.add_user_token(token)
+      it 'returns existing ApiToken' do
+        ut = user.add_api_token(token)
         expect(ut).to eq(existing_token)
       end
     end

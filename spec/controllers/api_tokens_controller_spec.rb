@@ -1,23 +1,23 @@
 require 'spec_helper'
 
-describe UserTokensController do
+describe ApiTokensController do
 
-  let(:user_token_creator) { double('user_token_creator') }
+  let(:api_token_creator) { double('api_token_creator') }
 
   before do
-    allow(controller).to receive(:user_token_creator) { user_token_creator }
+    allow(controller).to receive(:api_token_creator) { api_token_creator }
   end
 
   describe '#create' do
     let(:claimed_num) { 0 }
-    let(:user_token) { build(:user_token, :user => nil) }
+    let(:api_token) { build(:api_token, :user => nil) }
     let(:user) { create(:user) }
 
     before do
       login_as user
-      allow(user_token_creator).to receive(:create).
-        with(user, user_token.token) { claimed_num }
-      get :create, user_token: user_token.token
+      allow(api_token_creator).to receive(:create).
+        with(user, api_token.token) { claimed_num }
+      get :create, api_token: api_token.token
     end
 
     context 'for guest user' do

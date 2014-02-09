@@ -11,7 +11,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131022171709) do
+ActiveRecord::Schema.define(version: 20140209133703) do
+
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
+
+  create_table "api_tokens", force: true do |t|
+    t.integer  "user_id",    null: false
+    t.string   "token",      null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "api_tokens", ["token"], name: "index_api_tokens_on_token", using: :btree
+  add_index "api_tokens", ["user_id"], name: "index_api_tokens_on_user_id", using: :btree
 
   create_table "asciicasts", force: true do |t|
     t.integer  "user_id"
@@ -30,7 +43,7 @@ ActiveRecord::Schema.define(version: 20131022171709) do
     t.string   "stdin_timing"
     t.string   "stdout_data"
     t.string   "stdout_timing"
-    t.string   "user_token"
+    t.string   "api_token"
     t.text     "description"
     t.boolean  "featured",         default: false
     t.string   "username"
@@ -43,12 +56,12 @@ ActiveRecord::Schema.define(version: 20131022171709) do
     t.string   "user_agent"
   end
 
+  add_index "asciicasts", ["api_token"], name: "index_asciicasts_on_api_token", using: :btree
   add_index "asciicasts", ["created_at"], name: "index_asciicasts_on_created_at", using: :btree
   add_index "asciicasts", ["featured"], name: "index_asciicasts_on_featured", using: :btree
   add_index "asciicasts", ["likes_count"], name: "index_asciicasts_on_likes_count", using: :btree
   add_index "asciicasts", ["recorded_at"], name: "index_asciicasts_on_recorded_at", using: :btree
   add_index "asciicasts", ["user_id"], name: "index_asciicasts_on_user_id", using: :btree
-  add_index "asciicasts", ["user_token"], name: "index_asciicasts_on_user_token", using: :btree
   add_index "asciicasts", ["views_count"], name: "index_asciicasts_on_views_count", using: :btree
 
   create_table "comments", force: true do |t|
@@ -73,16 +86,6 @@ ActiveRecord::Schema.define(version: 20131022171709) do
   add_index "likes", ["asciicast_id"], name: "index_likes_on_asciicast_id", using: :btree
   add_index "likes", ["user_id", "asciicast_id"], name: "index_likes_on_user_id_and_asciicast_id", using: :btree
   add_index "likes", ["user_id"], name: "index_likes_on_user_id", using: :btree
-
-  create_table "user_tokens", force: true do |t|
-    t.integer  "user_id",    null: false
-    t.string   "token",      null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
-  add_index "user_tokens", ["token"], name: "index_user_tokens_on_token", using: :btree
-  add_index "user_tokens", ["user_id"], name: "index_user_tokens_on_user_id", using: :btree
 
   create_table "users", force: true do |t|
     t.string   "provider"

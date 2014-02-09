@@ -1,10 +1,10 @@
 class User < ActiveRecord::Base
 
-  has_many :user_tokens, :dependent => :destroy
+  has_many :api_tokens, :dependent => :destroy
   has_many :asciicasts, :dependent => :destroy
   has_many :comments, :dependent => :destroy
   has_many :likes, :dependent => :destroy
-  has_many :user_tokens, :dependent => :destroy
+  has_many :api_tokens, :dependent => :destroy
   has_many :asciicasts, :dependent => :destroy
   has_many :comments, :dependent => :destroy
 
@@ -38,8 +38,8 @@ class User < ActiveRecord::Base
     nickname
   end
 
-  def add_user_token(token)
-    user_tokens.where(:token => token).first_or_create
+  def add_api_token(token)
+    api_tokens.where(:token => token).first_or_create
   end
 
   def asciicast_count

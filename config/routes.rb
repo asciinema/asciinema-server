@@ -23,7 +23,7 @@ Asciinema::Application.routes.draw do
   get "/login" => "sessions#new"
   get "/logout" => "sessions#destroy"
 
-  get "/connect/:user_token" => "user_tokens#create"
+  get "/connect/:api_token" => "api_tokens#create"
 
   resource :user
 

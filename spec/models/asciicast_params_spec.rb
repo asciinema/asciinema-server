@@ -44,7 +44,7 @@ describe AsciicastParams do
       }
 
       let(:expected_attrs) { required_attrs.merge({
-        :user_token => token,
+        :api_token => token,
         :uname      => 'Linux 3.9.9-302.fc19.x86_64 #1 SMP ' +
                        'Sat Jul 6 13:41:07 UTC 2013 x86_64'
       }) }
@@ -56,7 +56,7 @@ describe AsciicastParams do
       it { should eq(expected_attrs) }
     end
 
-    context "when no user_token given" do
+    context "when no api_token given" do
       let(:meta_file) { fixture_file_upload('spec/fixtures/meta-no-token.json',
                                             'application/json') }
       let(:expected_attrs) { required_attrs }
@@ -64,20 +64,20 @@ describe AsciicastParams do
       it { should eq(expected_attrs) }
     end
 
-    context "when user_token given" do
+    context "when api_token given" do
       let(:meta_file) { fixture_file_upload('spec/fixtures/meta.json',
                                             'application/json') }
 
       context "and user with this token exists" do
         let(:user) { create(:user) }
-        let!(:user_token) { create(:user_token, token: token, user: user) }
+        let!(:api_token) { create(:api_token, token: token, user: user) }
         let(:expected_attrs) { required_attrs.merge(user_id: user.id) }
 
         it { should eq(expected_attrs) }
       end
 
       context "and user with this token doesn't exist" do
-        let(:expected_attrs) { required_attrs.merge(user_token: token) }
+        let(:expected_attrs) { required_attrs.merge(api_token: token) }
 
         it { should eq(expected_attrs) }
       end

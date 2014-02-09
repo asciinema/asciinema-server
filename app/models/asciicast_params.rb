@@ -45,12 +45,12 @@ class AsciicastParams
     token = meta['user_token']
 
     if token.present?
-      user_token = UserToken.find_by_token(token)
+      api_token = ApiToken.find_by_token(token)
 
-      if user_token
-        attributes[:user_id] = user_token.user_id
+      if api_token
+        attributes[:user_id] = api_token.user_id
       else
-        attributes[:user_token] = token
+        attributes[:api_token] = token
       end
     end
   end
