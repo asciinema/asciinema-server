@@ -1,11 +1,28 @@
 class AsciicastParams
 
-  def initialize(params, headers)
-    @params = params
-    @headers = headers
-  end
+  include Virtus.model
 
-  def to_h
+  attribute :stdout_data
+  attribute :stdout_timing
+  attribute :stdin_data
+  attribute :stdin_timing
+  attribute :username, String
+  attribute :duration, Float
+  attribute :recorded_at, DateTime
+  attribute :title, String
+  attribute :command, String
+  attribute :shell, String
+  attribute :terminal_lines, Integer
+  attribute :terminal_columns, Integer
+  attribute :terminal_type, String
+  attribute :uname, String
+  attribute :user_agent, String
+  attribute :user_id, Integer
+  attribute :api_token, String
+
+  def self.build(params, headers)
+    meta = JSON.parse(params[:meta].read)
+
     attributes = {
       stdout_data:      params[:stdout],
       stdout_timing:    params[:stdout_timing],
@@ -30,18 +47,10 @@ class AsciicastParams
 
     assign_user_or_token(attributes, meta)
 
-    attributes
+    new(attributes)
   end
 
-  private
-
-  attr_reader :params, :headers
-
-  def meta
-    @meta ||= JSON.parse(params[:meta].read)
-  end
-
-  def assign_user_or_token(attributes, meta)
+  def self.assign_user_or_token(attributes, meta)
     token = meta['user_token']
 
     if token.present?

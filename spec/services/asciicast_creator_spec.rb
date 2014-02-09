@@ -8,12 +8,12 @@ describe AsciicastCreator do
     let(:asciicast) { stub_model(Asciicast, id: 666) }
     let(:input_attrs) { { a: 'A' } }
     let(:headers) { { 'User-Agent' => 'asciinema/0.9.7' } }
-    let(:prepared_attrs) { { b: 'B' } }
+    let(:prepared_attrs) { double('prepared_attrs', attributes: { b: 'B' }) }
 
     subject { creator.create(input_attrs, headers) }
 
     before do
-      allow(AsciicastParams).to receive(:new).
+      allow(AsciicastParams).to receive(:build).
         with(input_attrs, headers) { prepared_attrs }
       allow(Asciicast).to receive(:create!) { asciicast }
     end
