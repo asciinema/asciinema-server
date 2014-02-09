@@ -7,19 +7,19 @@ class AsciicastParams
 
   def to_h
     attributes = {
-      :stdout_data      => params[:stdout],
-      :stdout_timing    => params[:stdout_timing],
-      :stdin_data       => params[:stdin],
-      :stdin_timing     => params[:stdin_timing],
-      :username         => meta['username'],
-      :duration         => meta['duration'],
-      :recorded_at      => meta['recorded_at'],
-      :title            => meta['title'],
-      :command          => meta['command'],
-      :shell            => meta['shell'],
-      :terminal_lines   => meta['term']['lines'],
-      :terminal_columns => meta['term']['columns'],
-      :terminal_type    => meta['term']['type'],
+      stdout_data:      params[:stdout],
+      stdout_timing:    params[:stdout_timing],
+      stdin_data:       params[:stdin],
+      stdin_timing:     params[:stdin_timing],
+      username:         meta['username'],
+      duration:         meta['duration'],
+      recorded_at:      meta['recorded_at'],
+      title:            meta['title'],
+      command:          meta['command'],
+      shell:            meta['shell'],
+      terminal_lines:   meta['term']['lines'],
+      terminal_columns: meta['term']['columns'],
+      terminal_type:    meta['term']['type'],
     }
 
     if meta['uname']
