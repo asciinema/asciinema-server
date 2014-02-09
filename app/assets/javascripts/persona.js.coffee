@@ -4,7 +4,7 @@ $ ->
     navigator.id.request {
       siteName: 'Asciinema',
       siteLogo: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEAAQMAAABmvDolAAAABlBMVEUAAAD///+l2Z/dAAAAAWJLR0QAiAUdSAAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9wHGBMiFVqqanYAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAAMklEQVRo3u3KoQEAAAgDoP3/tBaD0WiATAJwVIsgCIIgCIIgCIIgCIIgCIIgCMKHADAafyL3ebnQxskAAAAASUVORK5CYII=',
-      backgroundColor: '#d95525',
+      backgroundColor: '#06989a',
       privacyPolicy: 'https://asciinema.org/privacy',
       termsOfService: 'https://asciinema.org/tos'
     }
