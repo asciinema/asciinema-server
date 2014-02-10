@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140209133703) do
+ActiveRecord::Schema.define(version: 20140210153648) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -30,7 +30,6 @@ ActiveRecord::Schema.define(version: 20140209133703) do
     t.integer  "user_id"
     t.string   "title"
     t.float    "duration",                         null: false
-    t.datetime "recorded_at"
     t.string   "terminal_type"
     t.integer  "terminal_columns",                 null: false
     t.integer  "terminal_lines",                   null: false
@@ -60,7 +59,6 @@ ActiveRecord::Schema.define(version: 20140209133703) do
   add_index "asciicasts", ["created_at"], name: "index_asciicasts_on_created_at", using: :btree
   add_index "asciicasts", ["featured"], name: "index_asciicasts_on_featured", using: :btree
   add_index "asciicasts", ["likes_count"], name: "index_asciicasts_on_likes_count", using: :btree
-  add_index "asciicasts", ["recorded_at"], name: "index_asciicasts_on_recorded_at", using: :btree
   add_index "asciicasts", ["user_id"], name: "index_asciicasts_on_user_id", using: :btree
   add_index "asciicasts", ["views_count"], name: "index_asciicasts_on_views_count", using: :btree
 

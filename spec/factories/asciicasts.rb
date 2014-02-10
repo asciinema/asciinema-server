@@ -10,7 +10,6 @@ FactoryGirl.define do
     association :user
     title "bashing"
     duration 11.146430015563965
-    recorded_at "2011-11-23 22:06:07"
     terminal_type "screen-256color"
     terminal_columns 96
     terminal_lines 26

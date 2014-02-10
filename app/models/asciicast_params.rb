@@ -8,7 +8,6 @@ class AsciicastParams
   attribute :stdin_timing
   attribute :username, String
   attribute :duration, Float
-  attribute :recorded_at, DateTime, default: -> (p, a) { DateTime.now }
   attribute :title, String
   attribute :command, String
   attribute :shell, String

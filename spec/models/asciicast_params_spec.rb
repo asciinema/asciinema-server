@@ -26,7 +26,6 @@ describe AsciicastParams do
       username:         'kill',
       user_id:          nil,
       duration:         11.146430015563965,
-      recorded_at:      now,
       title:            'bashing :)',
       command:          '/bin/bash',
       shell:            '/bin/zsh',
