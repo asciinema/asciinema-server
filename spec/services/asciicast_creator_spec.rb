@@ -5,16 +5,12 @@ describe AsciicastCreator do
   let(:creator) { described_class.new }
 
   describe '#create' do
-    let(:asciicast) { stub_model(Asciicast, id: 666) }
-    let(:input_attrs) { { a: 'A' } }
-    let(:headers) { { 'User-Agent' => 'asciinema/0.9.7' } }
-    let(:prepared_attrs) { double('prepared_attrs', attributes: { b: 'B' }) }
+    subject { creator.create(attributes) }
 
-    subject { creator.create(input_attrs, headers) }
+    let(:attributes) { { a: 'A' } }
+    let(:asciicast) { stub_model(Asciicast, id: 666) }
 
     before do
-      allow(AsciicastParams).to receive(:build).
-        with(input_attrs, headers) { prepared_attrs }
       allow(Asciicast).to receive(:create!) { asciicast }
     end
 
@@ -22,7 +18,7 @@ describe AsciicastCreator do
       subject
 
       expect(Asciicast).to have_received(:create!).
-        with({ b: 'B' }, { without_protection: true })
+        with(attributes, { without_protection: true })
     end
 
     it 'enqueues a post-processing job' do

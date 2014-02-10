@@ -1,25 +1,6 @@
 class AsciicastParams
 
-  include Virtus.model
-
-  attribute :stdout_data
-  attribute :stdout_timing
-  attribute :stdin_data
-  attribute :stdin_timing
-  attribute :username, String
-  attribute :duration, Float
-  attribute :title, String
-  attribute :command, String
-  attribute :shell, String
-  attribute :terminal_lines, Integer
-  attribute :terminal_columns, Integer
-  attribute :terminal_type, String
-  attribute :uname, String
-  attribute :user_agent, String
-  attribute :user_id, Integer
-  attribute :api_token, String
-
-  def self.build(params, headers)
+  def self.build(params, user_agent)
     meta = JSON.parse(params[:meta].read)
 
     attributes = {
@@ -40,12 +21,12 @@ class AsciicastParams
     if meta['uname']
       attributes[:uname] = meta['uname']
     else
-      attributes[:user_agent] = headers['User-Agent']
+      attributes[:user_agent] = user_agent
     end
 
     assign_user_or_token(attributes, meta)
 
-    new(attributes)
+    attributes
   end
 
   def self.assign_user_or_token(attributes, meta)

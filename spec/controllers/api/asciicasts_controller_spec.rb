@@ -3,20 +3,25 @@ require 'spec_helper'
 describe Api::AsciicastsController do
 
   describe '#create' do
+    subject { post :create, asciicast: attributes }
+
+    let(:attributes) { { 'title' => 'bar' } }
     let(:creator) { double('creator') }
-    let(:attributes) { { 'foo' => 'bar' } }
 
     before do
-      allow(AsciicastCreator).to receive(:new).with(no_args()) { creator }
+      request.headers['User-Agent'] = 'Smith'
+      allow(controller).to receive(:asciicast_creator) { creator }
+      allow(AsciicastParams).to receive(:build).
+        with(attributes, 'Smith') { { title: 'bar', user_agent: 'Smith' } }
     end
 
     context 'when the creator returns an asciicast' do
-      let(:asciicast) { stub_model(Asciicast, :id => 666) }
+      let(:asciicast) { stub_model(Asciicast, id: 666) }
 
       before do
         allow(creator).to receive(:create).
-          with(attributes, kind_of(ActionDispatch::Http::Headers)) { asciicast }
-        post :create, :asciicast => attributes
+          with(title: 'bar', user_agent: 'Smith') { asciicast }
+        subject
       end
 
       it 'returns the status 201' do
@@ -29,15 +34,15 @@ describe Api::AsciicastsController do
     end
 
     context 'when the creator raises ActiveRecord::RecordInvalid' do
-      let(:asciicast) { stub_model(Asciicast, :errors => errors) }
-      let(:errors) { double('errors', :full_messages => full_messages) }
+      let(:asciicast) { stub_model(Asciicast, errors: errors) }
+      let(:errors) { double('errors', full_messages: full_messages) }
       let(:full_messages) { ['This is invalid'] }
 
       before do
         allow(creator).to receive(:create).
-          with(attributes, kind_of(ActionDispatch::Http::Headers)).
+          with(title: 'bar', user_agent: 'Smith').
           and_raise(ActiveRecord::RecordInvalid.new(asciicast))
-        post :create, :asciicast => attributes
+        post :create, asciicast: attributes
       end
 
       it 'returns the status 422' do
