@@ -24,10 +24,10 @@ class UserDecorator < ApplicationDecorator
   private
 
   def wrap_with_link(html)
-    if id
-      h.link_to html, h.profile_path(model), title: nickname
-    else
+    if dummy
       html
+    else
+      h.link_to html, h.profile_path(model), title: nickname
     end
   end
 

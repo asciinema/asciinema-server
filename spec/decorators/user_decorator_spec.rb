@@ -13,9 +13,9 @@ describe UserDecorator do
       allow(h).to receive(:profile_path).with(user) { '/path' }
     end
 
-    context "when user has id" do
+    context "when user is real" do
       before do
-        user.id = 1
+        user.dummy = false
       end
 
       it "is a nickname link to user's profile" do
@@ -23,9 +23,9 @@ describe UserDecorator do
       end
     end
 
-    context "when user has no id" do
+    context "when user is dummy" do
       before do
-        user.id = nil
+        user.dummy = true
       end
 
       it "is user's nickname" do
@@ -44,9 +44,9 @@ describe UserDecorator do
       allow(decorator).to receive(:avatar_image_tag) { '<img ...>'.html_safe }
     end
 
-    context "when user has id" do
+    context "when user is real" do
       before do
-        user.id = 1
+        user.dummy = false
       end
 
       it "is an avatar link to user's profile" do
@@ -54,9 +54,9 @@ describe UserDecorator do
       end
     end
 
-    context "when user has no id" do
+    context "when user is dummy" do
       before do
-        user.id = nil
+        user.dummy = true
       end
 
       it "is user's avatar image" do

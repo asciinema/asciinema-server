@@ -4,43 +4,31 @@ class AsciicastParams
     meta = JSON.parse(params[:meta].read)
 
     attributes = {
-      stdout_data:      params[:stdout],
-      stdout_timing:    params[:stdout_timing],
+      command:          meta['command'],
+      duration:         meta['duration'],
+      shell:            meta['shell'],
       stdin_data:       params[:stdin],
       stdin_timing:     params[:stdin_timing],
-      username:         meta['username'],
-      duration:         meta['duration'],
-      title:            meta['title'],
-      command:          meta['command'],
-      shell:            meta['shell'],
-      terminal_lines:   meta['term']['lines'],
+      stdout_data:      params[:stdout],
+      stdout_timing:    params[:stdout_timing],
       terminal_columns: meta['term']['columns'],
+      terminal_lines:   meta['term']['lines'],
       terminal_type:    meta['term']['type'],
+      title:            meta['title'],
+      user:             get_user(meta)
     }
 
-    if meta['uname']
+    if meta['uname'] # old client, with useless, random user_agent
       attributes[:uname] = meta['uname']
     else
       attributes[:user_agent] = user_agent
     end
 
-    assign_user_or_token(attributes, meta)
-
     attributes
   end
 
-  def self.assign_user_or_token(attributes, meta)
-    token = meta['user_token']
-
-    if token.present?
-      api_token = ApiToken.find_by_token(token)
-
-      if api_token
-        attributes[:user_id] = api_token.user_id
-      else
-        attributes[:api_token] = token
-      end
-    end
+  def self.get_user(attributes)
+    User.for_api_token(attributes['user_token'], attributes['username'])
   end
 
 end

@@ -2,6 +2,10 @@ require 'spec_helper'
 
 describe User do
 
+  it "is not dummy by default" do
+    expect(described_class.new).to_not be_dummy
+  end
+
   it 'gets an auth_token upon creation' do
     attrs = attributes_for(:user)
     attrs.delete(:auth_token)
@@ -11,12 +15,58 @@ describe User do
   end
 
   describe "#valid?" do
-    before do
-      create(:user)
+    let!(:existing_user) { create(:user) }
+    let(:user) { described_class.new }
+
+    it { should validate_presence_of(:nickname) }
+
+    context "when user is dummy" do
+      before do
+        user.dummy = true
+      end
+
+      it "doesn't check for nickname uniqueness" do
+        user.nickname = existing_user.nickname
+        user.valid?
+        expect(user.errors[:nickname]).to be_empty
+      end
+
+      it "doesn't check for email presence" do
+        user.email = nil
+        user.valid?
+        expect(user.errors[:email]).to be_empty
+      end
+
+      it "doesn't check for email uniqueness" do
+        user.email = existing_user.email
+        user.valid?
+        expect(user.errors[:email]).to be_empty
+      end
     end
 
-    it { should validate_uniqueness_of(:nickname) }
-    it { should validate_uniqueness_of(:email) }
+    context "when user is real" do
+      before do
+        user.dummy = false
+      end
+
+      it "checks for nickname uniqueness" do
+        user.nickname = existing_user.nickname
+        user.valid?
+        expect(user.errors[:nickname]).to_not be_empty
+      end
+
+      it "checks for email presence" do
+        user.email = nil
+        user.valid?
+        expect(user.errors[:email]).to_not be_empty
+      end
+
+      it "checks for email uniqueness" do
+        user.email = existing_user.email
+        user.valid?
+        expect(user.errors[:email]).to_not be_empty
+      end
+    end
   end
 
   describe '.generate_auth_token' do
@@ -70,9 +120,74 @@ describe User do
     end
   end
 
+  describe '.for_api_token' do
+    subject { described_class.for_api_token(token, username) }
+
+    let(:token) { 'f33e6188-f53c-11e2-abf4-84a6c827e88b' }
+    let(:username) { 'somerandomguy' }
+
+    context "when token doesn't exist" do
+      it "returns a persisted user record" do
+        expect(subject.id).not_to be(nil)
+      end
+
+      it "assigns given username to the user" do
+        expect(subject.nickname).to eq(username)
+      end
+
+      it "assigns given api token to the user" do
+        expect(subject.api_tokens.first.token).to eq(token)
+      end
+
+      context "and username is nil" do
+        let(:username) { nil }
+
+        it "returns a persisted user record" do
+          expect(subject.id).not_to be(nil)
+        end
+
+        it "assigns 'anonymous' as username to the user" do
+          expect(subject.nickname).to eq('anonymous')
+        end
+      end
+
+      context "and username is an empty string" do
+        let(:username) { nil }
+
+        it "returns a persisted user record" do
+          expect(subject.id).not_to be(nil)
+        end
+
+        it "assigns 'anonymous' as username to the user" do
+          expect(subject.nickname).to eq('anonymous')
+        end
+      end
+    end
+
+    context "when token already exists" do
+      let!(:existing_token) { create(:api_token, token: token) }
+
+      it "returns a persisted user record" do
+        expect(subject).to eq(existing_token.user)
+      end
+    end
+
+    context "when token is nil" do
+      let(:token) { nil }
+
+      it { should be(nil) }
+    end
+
+    context "when token is an empty string" do
+      let(:token) { '' }
+
+      it { should be(nil) }
+    end
+  end
+
   describe '#nickname=' do
     it 'strips the whitespace' do
-      user = User.new(nickname: ' sickill ')
+      user = described_class.new(nickname: ' sickill ')
 
       expect(user.nickname).to eq('sickill')
     end
@@ -80,7 +195,7 @@ describe User do
 
   describe '#email=' do
     it 'strips the whitespace' do
-      user = User.new(email: ' foo@bar.com ')
+      user = described_class.new(email: ' foo@bar.com ')
 
       expect(user.email).to eq('foo@bar.com')
     end
