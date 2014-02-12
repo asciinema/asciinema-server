@@ -51,7 +51,7 @@ class Asciicast < ActiveRecord::Base
   end
 
   def user
-    super || self.user = User.new(username: 'anonymous').tap { |u| u.dummy = true }
+    super || self.user = dummy_user
   end
 
   def stdout
@@ -72,6 +72,12 @@ class Asciicast < ActiveRecord::Base
     else
       false
     end
+  end
+
+  private
+
+  def dummy_user
+    User.new(username: 'anonymous').tap { |u| u.dummy = true }
   end
 
 end
