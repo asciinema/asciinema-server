@@ -14,6 +14,8 @@ class User < ActiveRecord::Base
   validates :nickname, uniqueness: { scope: :dummy }, unless: :dummy
   validates :email, presence: true, uniqueness: true, unless: :dummy
 
+  scope :real, -> { where(dummy: false) }
+
   before_create :generate_auth_token
 
   def self.for_credentials(credentials)
@@ -22,6 +24,10 @@ class User < ActiveRecord::Base
 
   def self.for_email(email)
     where(email: email).first
+  end
+
+  def self.real_for_nickname!(nickname)
+    real.where(nickname: nickname).first!
   end
 
   def self.for_api_token(token, username)

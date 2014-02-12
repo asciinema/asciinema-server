@@ -9,7 +9,7 @@ class UsersController < ApplicationController
   end
 
   def show
-    user = User.find_by_nickname!(params[:nickname])
+    user = User.real_for_nickname!(params[:nickname])
     render locals: { page: UserPagePresenter.build(user, current_user) }
   end
 

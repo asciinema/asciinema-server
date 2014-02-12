@@ -86,7 +86,37 @@ describe UsersController do
   end
 
   describe '#show' do
-    it 'should have specs'
+    subject { get :show, nickname: nickname }
+
+    let(:nickname) { user.nickname }
+
+    before do
+      subject
+    end
+
+    context "when real user nickname given" do
+      let(:user) { create(:user) }
+
+      it 'renders "show" template with HomePagePresenter as page' do
+        should render_template('show')
+      end
+    end
+
+    context "when dummy user nickname given" do
+      let(:user) { create(:dummy_user) }
+
+      it "responds with 404" do
+        expect(subject).to be_not_found
+      end
+    end
+
+    context "when fictional nickname given" do
+      let(:nickname) { 'nononono-no' }
+
+      it "responds with 404" do
+        expect(subject).to be_not_found
+      end
+    end
   end
 
   describe '#edit' do
