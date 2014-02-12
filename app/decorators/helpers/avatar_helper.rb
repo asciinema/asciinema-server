@@ -1,7 +1,7 @@
 module AvatarHelper
 
   def avatar_image_tag
-    h.image_tag avatar_url, alt: model.nickname, class: 'avatar'
+    h.image_tag avatar_url, alt: model.username, class: 'avatar'
   end
 
   private

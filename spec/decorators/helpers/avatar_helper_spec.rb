@@ -8,7 +8,7 @@ describe AvatarHelper do
 
   let(:decorator) { double('decorator', h: h, model: model).
                     extend(described_class) }
-  let(:model) { double('model', nickname: 'satyr', avatar_url: avatar_url,
+  let(:model) { double('model', username: 'satyr', avatar_url: avatar_url,
                                 email: email) }
 
   describe '#avatar_image_tag' do

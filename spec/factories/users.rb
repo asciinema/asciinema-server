@@ -2,12 +2,12 @@
 
 FactoryGirl.define do
   sequence(:uid) { |n| n }
-  sequence(:nickname) { |n| "user#{n}" }
+  sequence(:username) { |n| "user#{n}" }
 
   factory :user do
     provider "twitter"
     uid
-    sequence(:nickname) { generate(:nickname) }
+    sequence(:username) { generate(:username) }
     sequence(:email) { |n| "foo#{n}@bar.com" }
     name nil
     avatar_url nil
@@ -15,6 +15,6 @@ FactoryGirl.define do
 
   factory :dummy_user, class: User do
     dummy true
-    sequence(:nickname) { generate(:nickname) }
+    sequence(:username) { generate(:username) }
   end
 end

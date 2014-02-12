@@ -27,11 +27,11 @@ describe UsersController do
   describe "#create" do
     let!(:user) { stub_model(User) }
 
-    subject { post :create, user: { nickname: 'jola' } }
+    subject { post :create, user: { username: 'jola' } }
 
     before do
       allow(controller).to receive(:current_user=)
-      allow(User).to receive(:new).with('nickname' => 'jola') { user }
+      allow(User).to receive(:new).with('username' => 'jola') { user }
       store[:new_user_email] = 'foo@bar.com'
     end
 
@@ -86,15 +86,15 @@ describe UsersController do
   end
 
   describe '#show' do
-    subject { get :show, nickname: nickname }
+    subject { get :show, username: username }
 
-    let(:nickname) { user.nickname }
+    let(:username) { user.username }
 
     before do
       subject
     end
 
-    context "when real user nickname given" do
+    context "when real user username given" do
       let(:user) { create(:user) }
 
       it 'renders "show" template with HomePagePresenter as page' do
@@ -102,7 +102,7 @@ describe UsersController do
       end
     end
 
-    context "when dummy user nickname given" do
+    context "when dummy user username given" do
       let(:user) { create(:dummy_user) }
 
       it "responds with 404" do
@@ -110,8 +110,8 @@ describe UsersController do
       end
     end
 
-    context "when fictional nickname given" do
-      let(:nickname) { 'nononono-no' }
+    context "when fictional username given" do
+      let(:username) { 'nononono-no' }
 
       it "responds with 404" do
         expect(subject).to be_not_found

@@ -13,8 +13,8 @@
 
       = form_for @user, url: user_path do |f|
         .form-group
-          = f.label :nickname, 'Pick a username:'
-          = f.text_field :nickname, required: true, 'class' => 'form-control', 'data-behavior' => 'focus'
+          = f.label :username, 'Pick a username:'
+          = f.text_field :username, required: true, 'class' => 'form-control', 'data-behavior' => 'focus'
         .form-group
           = f.submit 'Start recording', class: 'btn btn-primary'
 

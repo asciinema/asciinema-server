@@ -16,7 +16,7 @@ class UserPagePresenter
   end
 
   def title
-    "#{user.nickname}'s profile".html_safe
+    "#{user.username}'s profile".html_safe
   end
 
   def user_full_name
@@ -37,11 +37,11 @@ class UserPagePresenter
 
   def asciicast_count_text(h)
     count = h.pluralize(user.asciicast_count, 'asciicast')
-    "#{count} by #{user.nickname}"
+    "#{count} by #{user.username}"
   end
 
-  def user_nickname
-    user.nickname
+  def user_username
+    user.username
   end
 
   def asciicasts

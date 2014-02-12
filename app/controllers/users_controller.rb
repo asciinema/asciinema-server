@@ -9,7 +9,7 @@ class UsersController < ApplicationController
   end
 
   def show
-    user = User.real_for_nickname!(params[:nickname])
+    user = User.real_for_username!(params[:username])
     render locals: { page: UserPagePresenter.build(user, current_user) }
   end
 
@@ -53,11 +53,11 @@ class UsersController < ApplicationController
   end
 
   def create_params
-    params.fetch(:user, {}).permit(:nickname, :name)
+    params.fetch(:user, {}).permit(:username, :name)
   end
 
   def update_params
-    params.require(:user).permit(:nickname, :name, :email)
+    params.require(:user).permit(:username, :name, :email)
   end
 
 end

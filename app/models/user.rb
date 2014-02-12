@@ -8,8 +8,8 @@ class User < ActiveRecord::Base
   has_many :asciicasts, :dependent => :destroy
   has_many :comments, :dependent => :destroy
 
-  validates :nickname, presence: true
-  validates :nickname, uniqueness: { scope: :dummy }, unless: :dummy
+  validates :username, presence: true
+  validates :username, uniqueness: { scope: :dummy }, unless: :dummy
   validates :email, presence: true, uniqueness: true, unless: :dummy
 
   scope :real, -> { where(dummy: false) }
@@ -24,8 +24,8 @@ class User < ActiveRecord::Base
     where(email: email).first
   end
 
-  def self.real_for_nickname!(nickname)
-    real.where(nickname: nickname).first!
+  def self.real_for_username!(username)
+    real.where(username: username).first!
   end
 
   def self.for_api_token(token, username)
@@ -41,7 +41,7 @@ class User < ActiveRecord::Base
     transaction do |tx|
       user = User.new
       user.dummy = true
-      user.nickname = username
+      user.username = username
       user.save!
       user.api_tokens.create!(token: token)
       user
@@ -52,7 +52,7 @@ class User < ActiveRecord::Base
     SecureRandom.urlsafe_base64
   end
 
-  def nickname=(value)
+  def username=(value)
     value ? super(value.strip) : super
   end
 
@@ -61,7 +61,7 @@ class User < ActiveRecord::Base
   end
 
   def to_param
-    nickname
+    username
   end
 
   def assign_api_token(token)

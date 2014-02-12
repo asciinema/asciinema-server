@@ -12,7 +12,7 @@ end
 
 describe AsciicastsController do
 
-  let(:user) { stub_model(User, :nickname => 'nick') }
+  let(:user) { stub_model(User, username: 'nick') }
   let(:asciicast) { stub_model(Asciicast, :id => 666) }
 
   subject { response }

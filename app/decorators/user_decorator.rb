@@ -2,7 +2,7 @@ class UserDecorator < ApplicationDecorator
   include AvatarHelper
 
   def link
-    wrap_with_link(nickname)
+    wrap_with_link(username)
   end
 
   def img_link
@@ -11,9 +11,9 @@ class UserDecorator < ApplicationDecorator
 
   def full_name
     if model.name.present?
-      "#{model.name} (#{model.nickname})"
+      "#{model.name} (#{model.username})"
     else
-      model.nickname
+      model.username
     end
   end
 
@@ -27,7 +27,7 @@ class UserDecorator < ApplicationDecorator
     if dummy
       html
     else
-      h.link_to html, h.profile_path(model), title: nickname
+      h.link_to html, h.profile_path(model), title: username
     end
   end
 

@@ -11,7 +11,7 @@ Asciinema::Application.routes.draw do
     end
   end
 
-  get "/~:nickname" => "users#show", :as => :profile
+  get "/~:username" => "users#show", :as => :profile
 
   get "/docs" => "docs#show", :page => 'getting-started', :as => :docs_index
   get "/docs/:page" => "docs#show", :as => :docs

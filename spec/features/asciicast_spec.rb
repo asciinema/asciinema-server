@@ -2,7 +2,7 @@ require 'spec_helper'
 
 feature "Asciicast page", :js => true do
 
-  let!(:user) { create(:user, nickname: 'aaron') }
+  let!(:user) { create(:user, username: 'aaron') }
   let!(:asciicast) { create(:asciicast, user: user, title: 'the title') }
   let!(:other_asciicast) { create(:asciicast, user: user) }
 

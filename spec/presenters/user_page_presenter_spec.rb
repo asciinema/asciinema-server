@@ -45,7 +45,7 @@ describe UserPagePresenter do
   end
 
   let(:presenter) { described_class.new(user, current_user, page, per_page) }
-  let(:user) { double('user', nickname: 'cartman') }
+  let(:user) { double('user', username: 'cartman') }
   let(:current_user) { double('current_user') }
   let(:page) { 2 }
   let(:per_page) { 5 }
@@ -112,8 +112,8 @@ describe UserPagePresenter do
     it { should eq('3 asciicasts by cartman') }
   end
 
-  describe '#user_nickname' do
-    subject { presenter.user_nickname }
+  describe '#user_username' do
+    subject { presenter.user_username }
 
     it { should eq('cartman') }
   end

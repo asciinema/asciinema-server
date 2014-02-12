@@ -72,8 +72,8 @@ describe Asciicast do
         expect(asciicast.user).to be_dummy
       end
 
-      it 'is a user with "anonymous" as nickname' do
-        expect(asciicast.user.nickname).to eq('anonymous')
+      it 'is a user with "anonymous" as username' do
+        expect(asciicast.user.username).to eq('anonymous')
       end
     end
   end

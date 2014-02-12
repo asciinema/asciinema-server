@@ -22,7 +22,7 @@ module Asciinema
         OmniAuth.config.mock_auth[provider] = OmniAuth::AuthHash.new({
           :provider => provider.to_s,
           :uid => '123456',
-          :info => { :nickname => opts[:nickname] },
+          :info => { :username => opts[:username] },
           :extra => {
             :raw_info => {
               :avatar_url =>

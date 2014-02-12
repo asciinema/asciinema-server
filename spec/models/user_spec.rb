@@ -18,17 +18,17 @@ describe User do
     let!(:existing_user) { create(:user) }
     let(:user) { described_class.new }
 
-    it { should validate_presence_of(:nickname) }
+    it { should validate_presence_of(:username) }
 
     context "when user is dummy" do
       before do
         user.dummy = true
       end
 
-      it "doesn't check for nickname uniqueness" do
-        user.nickname = existing_user.nickname
+      it "doesn't check for username uniqueness" do
+        user.username = existing_user.username
         user.valid?
-        expect(user.errors[:nickname]).to be_empty
+        expect(user.errors[:username]).to be_empty
       end
 
       it "doesn't check for email presence" do
@@ -49,10 +49,10 @@ describe User do
         user.dummy = false
       end
 
-      it "checks for nickname uniqueness" do
-        user.nickname = existing_user.nickname
+      it "checks for username uniqueness" do
+        user.username = existing_user.username
         user.valid?
-        expect(user.errors[:nickname]).to_not be_empty
+        expect(user.errors[:username]).to_not be_empty
       end
 
       it "checks for email presence" do
@@ -132,7 +132,7 @@ describe User do
       end
 
       it "assigns given username to the user" do
-        expect(subject.nickname).to eq(username)
+        expect(subject.username).to eq(username)
       end
 
       it "assigns given api token to the user" do
@@ -147,7 +147,7 @@ describe User do
         end
 
         it "assigns 'anonymous' as username to the user" do
-          expect(subject.nickname).to eq('anonymous')
+          expect(subject.username).to eq('anonymous')
         end
       end
 
@@ -159,7 +159,7 @@ describe User do
         end
 
         it "assigns 'anonymous' as username to the user" do
-          expect(subject.nickname).to eq('anonymous')
+          expect(subject.username).to eq('anonymous')
         end
       end
     end
@@ -185,11 +185,11 @@ describe User do
     end
   end
 
-  describe '#nickname=' do
+  describe '#username=' do
     it 'strips the whitespace' do
-      user = described_class.new(nickname: ' sickill ')
+      user = described_class.new(username: ' sickill ')
 
-      expect(user.nickname).to eq('sickill')
+      expect(user.username).to eq('sickill')
     end
   end
 
