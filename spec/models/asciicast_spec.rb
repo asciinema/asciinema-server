@@ -57,10 +57,6 @@ describe Asciicast do
   describe '#user' do
     subject { asciicast.user }
 
-    before do
-      asciicast.username = 'hugo'
-    end
-
     context "when it has user assigned" do
       let(:user) { User.new }
 
@@ -76,8 +72,8 @@ describe Asciicast do
         expect(asciicast.user).to be_dummy
       end
 
-      it 'is a user with nickname set to username' do
-        expect(asciicast.user.nickname).to eq('hugo')
+      it 'is a user with "anonymous" as nickname' do
+        expect(asciicast.user.nickname).to eq('anonymous')
       end
     end
   end
