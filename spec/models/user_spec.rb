@@ -136,7 +136,7 @@ describe User do
       end
 
       it "assigns given api token to the user" do
-        expect(subject.api_tokens.first.token).to eq(token)
+        expect(subject.api_tokens.reload.first.token).to eq(token)
       end
 
       context "and username is nil" do
@@ -201,29 +201,33 @@ describe User do
     end
   end
 
-  describe '#add_api_token' do
-    let(:user) { build(:user) }
+  describe '#assign_api_token' do
+    subject { user.assign_api_token(token) }
 
-    before { user.save }
+    let(:user) { create(:user) }
+    let(:token) { 'a33e6188-f53c-11e2-abf4-84a6c827e88b' }
 
-    context "when user doesn't have given token" do
-      let(:token) { attributes_for(:api_token)[:token] }
-
-      it 'returns created ApiToken' do
-        ut = user.add_api_token(token)
-        expect(ut).to be_kind_of(ApiToken)
-        expect(ut.id).not_to be(nil)
-      end
+    before do
+      allow(ApiToken).to receive(:for_token).with(token) { api_token }
     end
 
-    context "when user doesn't have given token" do
-      let(:existing_token) { create(:api_token, :user => user) }
-      let(:token) { existing_token.token }
+    context "when given token doesn't exist" do
+      let(:api_token) { nil }
 
-      it 'returns existing ApiToken' do
-        ut = user.add_api_token(token)
-        expect(ut).to eq(existing_token)
+      it { should be_kind_of(ApiToken) }
+      it { should be_persisted }
+      specify { expect(subject.token).to eq(token) }
+    end
+
+    context "when given token already exists" do
+      let(:api_token) { double('api_token', reassign_to: nil) }
+
+      it "reassigns it to the user" do
+        subject
+        expect(api_token).to have_received(:reassign_to).with(user)
       end
+
+      it { should be(api_token) }
     end
   end
 
@@ -269,4 +273,38 @@ describe User do
     end
   end
 
+  describe '#merge_to' do
+    subject { user.merge_to(target_user) }
+
+    let(:user) { create(:user) }
+    let(:target_user) { create(:user) }
+    let!(:api_token_1) { create(:api_token, user: user) }
+    let!(:api_token_2) { create(:api_token, user: user) }
+    let!(:asciicast_1) { create(:asciicast, user: user) }
+    let!(:asciicast_2) { create(:asciicast, user: user) }
+
+    before do
+      subject
+    end
+
+    it "reassigns all user api tokens to the target user" do
+      api_token_1.reload
+      api_token_2.reload
+
+      expect(api_token_1.user).to eq(target_user)
+      expect(api_token_2.user).to eq(target_user)
+    end
+
+    it "reassigns all user asciicasts to the target user" do
+      asciicast_1.reload
+      asciicast_2.reload
+
+      expect(asciicast_1.user).to eq(target_user)
+      expect(asciicast_2.user).to eq(target_user)
+    end
+
+    it "removes the source user" do
+      expect(user).to be_destroyed
+    end
+  end
 end

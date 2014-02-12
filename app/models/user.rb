@@ -39,7 +39,7 @@ class User < ActiveRecord::Base
       user.dummy = true
       user.nickname = username
       user.save!
-      user.add_api_token(token)
+      user.api_tokens.create!(token: token)
       user
     end
   end
@@ -60,8 +60,24 @@ class User < ActiveRecord::Base
     nickname
   end
 
-  def add_api_token(token)
-    api_tokens.where(:token => token).first_or_create
+  def assign_api_token(token)
+    api_token = ApiToken.for_token(token)
+
+    if api_token
+      api_token.reassign_to(self)
+    else
+      api_token = api_tokens.create!(token: token)
+    end
+
+    api_token
+  end
+
+  def merge_to(target_user)
+    self.class.transaction do |tx|
+      asciicasts.update_all(user_id: target_user.id, updated_at: DateTime.now)
+      api_tokens.update_all(user_id: target_user.id, updated_at: DateTime.now)
+      destroy
+    end
   end
 
   def asciicast_count

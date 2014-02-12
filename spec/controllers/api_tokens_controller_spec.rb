@@ -2,51 +2,58 @@ require 'spec_helper'
 
 describe ApiTokensController do
 
-  let(:api_token_creator) { double('api_token_creator') }
-
-  before do
-    allow(controller).to receive(:api_token_creator) { api_token_creator }
-  end
-
   describe '#create' do
-    let(:claimed_num) { 0 }
-    let(:api_token) { build(:api_token, :user => nil) }
-    let(:user) { create(:user) }
+    subject { get :create, api_token: 'a-toh-can' }
+
+    let(:user) { double('user', assign_api_token: nil) }
 
     before do
-      login_as user
-      allow(api_token_creator).to receive(:create).
-        with(user, api_token.token) { claimed_num }
-      get :create, api_token: api_token.token
+      login_as(user)
     end
 
     context 'for guest user' do
       let(:user) { nil }
 
+      before do
+        subject
+      end
+
       it { should redirect_to(login_path) }
+
       specify { expect(flash[:notice]).to match(/sign in to proceed/) }
     end
 
-    context "when # of claimed asciicasts is nil" do
-      let(:claimed_num) { nil }
+    context "when assigning succeeds" do
+      before do
+        allow(user).to receive(:assign_api_token).with('a-toh-can')
+        subject
+      end
+
+      it { should redirect_to(profile_path(user)) }
+
+      specify { expect(flash[:notice]).to_not be_blank }
+    end
+
+    context "when token is invalid" do
+      before do
+        allow(user).to receive(:assign_api_token).with('a-toh-can').
+          and_raise(ActiveRecord::RecordInvalid, ApiToken.new)
+      end
 
       it 'displays error page' do
-        expect(response).to render_template(:error)
+        expect(subject).to render_template(:error)
       end
     end
 
-    context "when # of claimed asciicast is 0" do
-      let(:claimed_num) { 0 }
+    context "when token is taken" do
+      before do
+        allow(user).to receive(:assign_api_token).with('a-toh-can').
+          and_raise(ApiToken::ApiTokenTakenError)
+      end
 
-      it { should redirect_to(profile_path(user)) }
-      specify { expect(flash[:notice]).to match(/Authenticated/) }
-    end
-
-    context "when # of claimed asciicast is > 0" do
-      let(:claimed_num) { 1 }
-
-      it { should redirect_to(profile_path(user)) }
-      specify { expect(flash[:notice]).to match(/Claimed #{claimed_num}/) }
+      it 'displays error page' do
+        expect(subject).to render_template(:error)
+      end
     end
   end
 
