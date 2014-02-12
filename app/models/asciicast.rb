@@ -25,8 +25,6 @@ class Asciicast < ActiveRecord::Base
     featured.by_random.limit(n).includes(:user)
   }
 
-  attr_accessible :title, :description, :time_compression
-
   def self.cache_key
     timestamps = scoped.select(:updated_at).map { |o| o.updated_at.to_i }
     Digest::MD5.hexdigest timestamps.join('/')

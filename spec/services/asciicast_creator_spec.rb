@@ -17,8 +17,7 @@ describe AsciicastCreator do
     it 'calls Asciicast.create! with proper attributes' do
       subject
 
-      expect(Asciicast).to have_received(:create!).
-        with(attributes, { without_protection: true })
+      expect(Asciicast).to have_received(:create!).with(attributes)
     end
 
     it 'enqueues a post-processing job' do

@@ -7,8 +7,6 @@ class ApiToken < ActiveRecord::Base
   validates :user, :token, presence: true
   validates :token, uniqueness: true
 
-  attr_accessible :token
-
   def self.for_token(token)
     ApiToken.where(token: token).first
   end

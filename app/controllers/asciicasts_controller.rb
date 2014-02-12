@@ -49,7 +49,7 @@ class AsciicastsController < ApplicationController
   end
 
   def update
-    if asciicast.update_attributes(params[:asciicast])
+    if asciicast.update_attributes(update_params)
       redirect_to asciicast_path(asciicast),
                   :notice => 'Asciicast was updated.'
     else
@@ -82,6 +82,10 @@ class AsciicastsController < ApplicationController
 
   def view_counter
     @view_counter ||= ViewCounter.new
+  end
+
+  def update_params
+    params.require(:asciicast).permit(:title, :description)
   end
 
 end

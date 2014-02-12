@@ -1,7 +1,7 @@
 class AsciicastCreator
 
   def create(attributes)
-    asciicast = Asciicast.create!(attributes, without_protection: true)
+    asciicast = Asciicast.create!(attributes)
     AsciicastWorker.perform_async(asciicast.id)
 
     asciicast

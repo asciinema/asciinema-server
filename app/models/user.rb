@@ -8,8 +8,6 @@ class User < ActiveRecord::Base
   has_many :asciicasts, :dependent => :destroy
   has_many :comments, :dependent => :destroy
 
-  attr_accessible :nickname, :email, :name
-
   validates :nickname, presence: true
   validates :nickname, uniqueness: { scope: :dummy }, unless: :dummy
   validates :email, presence: true, uniqueness: true, unless: :dummy

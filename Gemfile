@@ -6,7 +6,6 @@ gem 'sass-rails',           '~> 4.0.1'
 gem 'coffee-rails',         '~> 4.0.1'
 gem 'uglifier',             '>= 2.3.1'
 gem 'jquery-rails',         '~> 3.0.4'
-gem 'protected_attributes', '~> 1.0.5'
 
 gem 'pg',                   '~> 0.14'
 gem 'carrierwave',          '~> 0.8.0'

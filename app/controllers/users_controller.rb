@@ -32,7 +32,7 @@ class UsersController < ApplicationController
   def update
     @user = User.find(current_user.id)
 
-    if @user.update_attributes(params[:user])
+    if @user.update_attributes(update_params)
       redirect_to profile_path(@user), notice: 'Account settings saved.'
     else
       render :edit, status: 422
@@ -46,10 +46,18 @@ class UsersController < ApplicationController
   end
 
   def build_user
-    user = User.new(params[:user])
+    user = User.new(create_params)
     user.email = store[:new_user_email]
 
     user
+  end
+
+  def create_params
+    params.fetch(:user, {}).permit(:nickname, :name)
+  end
+
+  def update_params
+    params.require(:user).permit(:nickname, :name, :email)
   end
 
 end

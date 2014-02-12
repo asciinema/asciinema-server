@@ -133,7 +133,9 @@ describe AsciicastsController do
   end
 
   describe '#update' do
-    let(:make_request) { put :update, :id => asciicast.id, :asciicast => { } }
+    let(:make_request) {
+      put :update, id: asciicast.id, asciicast: { title: 'title'}
+    }
 
     before do
       expect(Asciicast).to receive(:find).and_return(asciicast)
