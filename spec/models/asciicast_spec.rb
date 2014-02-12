@@ -61,7 +61,7 @@ describe Asciicast do
       asciicast.username = 'hugo'
     end
 
-    context "when user was set" do
+    context "when it has user assigned" do
       let(:user) { User.new }
 
       before do
@@ -71,8 +71,12 @@ describe Asciicast do
       it { should be(user) }
     end
 
-    context "when user wasn't set" do
-      it 'defaults to a user with nickname set to username' do
+    context "when it doesn't have user assigned" do
+      it 'is a dummy user' do
+        expect(asciicast.user).to be_dummy
+      end
+
+      it 'is a user with nickname set to username' do
         expect(asciicast.user.nickname).to eq('hugo')
       end
     end

@@ -53,7 +53,7 @@ class Asciicast < ActiveRecord::Base
   end
 
   def user
-    super || self.user = User.new(nickname: username)
+    super || self.user = User.new(nickname: username).tap { |u| u.dummy = true }
   end
 
   def stdout
