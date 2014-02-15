@@ -13,11 +13,7 @@ class Api::AsciicastsController < ApplicationController
   private
 
   def attributes
-    AsciicastParams.build(params[:asciicast], user_agent)
-  end
-
-  def user_agent
-    request.headers['User-Agent']
+    AsciicastParams.build(params[:asciicast], request.user_agent)
   end
 
   def asciicast_creator

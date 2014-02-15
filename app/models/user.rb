@@ -28,14 +28,14 @@ class User < ActiveRecord::Base
     real.where(username: username).first!
   end
 
-  def self.for_api_token(token, username)
+  def self.for_api_token(token)
     return nil if token.blank?
 
-    user = User.joins(:api_tokens).where('api_tokens.token' => token).first
-    user ? user : create_user_with_token(token, username)
+    joins(:api_tokens).where('api_tokens.token' => token).first
   end
 
-  def self.create_user_with_token(token, username)
+  def self.create_dummy(token, username)
+    return nil if token.blank?
     username = 'anonymous' if username.blank?
 
     transaction do |tx|

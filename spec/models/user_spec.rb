@@ -121,50 +121,11 @@ describe User do
   end
 
   describe '.for_api_token' do
-    subject { described_class.for_api_token(token, username) }
+    subject { described_class.for_api_token(token) }
 
     let(:token) { 'f33e6188-f53c-11e2-abf4-84a6c827e88b' }
-    let(:username) { 'somerandomguy' }
 
-    context "when token doesn't exist" do
-      it "returns a persisted user record" do
-        expect(subject.id).not_to be(nil)
-      end
-
-      it "assigns given username to the user" do
-        expect(subject.username).to eq(username)
-      end
-
-      it "assigns given api token to the user" do
-        expect(subject.api_tokens.reload.first.token).to eq(token)
-      end
-
-      context "and username is nil" do
-        let(:username) { nil }
-
-        it "returns a persisted user record" do
-          expect(subject.id).not_to be(nil)
-        end
-
-        it "assigns 'anonymous' as username to the user" do
-          expect(subject.username).to eq('anonymous')
-        end
-      end
-
-      context "and username is an empty string" do
-        let(:username) { nil }
-
-        it "returns a persisted user record" do
-          expect(subject.id).not_to be(nil)
-        end
-
-        it "assigns 'anonymous' as username to the user" do
-          expect(subject.username).to eq('anonymous')
-        end
-      end
-    end
-
-    context "when token already exists" do
+    context "when token exists" do
       let!(:existing_token) { create(:api_token, token: token) }
 
       it "returns a persisted user record" do
@@ -182,6 +143,55 @@ describe User do
       let(:token) { '' }
 
       it { should be(nil) }
+    end
+  end
+
+  describe '.create_dummy' do
+    subject { described_class.create_dummy(token, username) }
+
+    let(:token) { 'f33e6188-f53c-11e2-abf4-84a6c827e88b' }
+    let(:username) { 'somerandomguy' }
+
+    it "returns a persisted user record" do
+      expect(subject.id).not_to be(nil)
+    end
+
+    it "assigns given username to the user" do
+      expect(subject.username).to eq(username)
+    end
+
+    it "assigns given api token to the user" do
+      expect(subject.api_tokens.reload.first.token).to eq(token)
+    end
+
+    context "when token is blank" do
+      let(:token) { '' }
+
+      it { should be(nil) }
+    end
+
+    context "when username is nil" do
+      let(:username) { nil }
+
+      it "returns a persisted user record" do
+        expect(subject.id).not_to be(nil)
+      end
+
+      it "assigns 'anonymous' as username to the user" do
+        expect(subject.username).to eq('anonymous')
+      end
+    end
+
+    context "when username is an empty string" do
+      let(:username) { nil }
+
+      it "returns a persisted user record" do
+        expect(subject.id).not_to be(nil)
+      end
+
+      it "assigns 'anonymous' as username to the user" do
+        expect(subject.username).to eq('anonymous')
+      end
     end
   end
 

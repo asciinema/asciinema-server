@@ -28,7 +28,10 @@ class AsciicastParams
   end
 
   def self.get_user(attributes)
-    User.for_api_token(attributes['user_token'], attributes['username'])
+    token = attributes['user_token']
+    username = attributes['username']
+
+    User.for_api_token(token) || User.create_dummy(token, username)
   end
 
 end
