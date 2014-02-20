@@ -1,6 +1,7 @@
-class NotFound < StandardError; end
+require 'authentication/warden_authentication'
 
 class ApplicationController < ActionController::Base
+
   protect_from_forgery
 
   class Unauthorized < Exception; end
@@ -10,31 +11,14 @@ class ApplicationController < ActionController::Base
   rescue_from Unauthorized, :with => :unauthorized
   rescue_from Forbidden, :with => :forbidden
 
-  helper_method :current_user
+  helper_method :decorated_current_user
 
-  def current_user
-    if permanent_store[:auth_token]
-      @current_user ||= find_user_by_auth_token(permanent_store[:auth_token])
-    end
-  end
-
-  def current_user=(user)
-    if user
-      permanent_store.permanent[:auth_token] = user.auth_token
-    else
-      permanent_store.delete(:auth_token)
-    end
-  end
+  include WardenAuthentication
 
   private
 
-  def permanent_store
-    cookies
-  end
-
-  def find_user_by_auth_token(auth_token)
-    user = User.where(auth_token: auth_token).first
-    user && user.decorate
+  def decorated_current_user
+    current_user && current_user.decorate
   end
 
   def ensure_authenticated!
@@ -91,4 +75,5 @@ class ApplicationController < ActionController::Base
       end
     end
   end
+
 end

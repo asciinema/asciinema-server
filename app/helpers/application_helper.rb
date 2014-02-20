@@ -13,6 +13,10 @@ module ApplicationHelper
 
   end
 
+  def current_user
+    decorated_current_user
+  end
+
   def page_title
     if content_for?(:title)
       "#{content_for(:title)} - Asciinema"
