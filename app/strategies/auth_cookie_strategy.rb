@@ -5,7 +5,7 @@ class AuthCookieStrategy < ::Warden::Strategies::Base
   end
 
   def authenticate!
-    user = User.where(auth_token: auth_token).first
+    user = User.for_auth_token(auth_token)
     user && success!(user)
   end
 

@@ -128,19 +128,26 @@ describe User do
     context "when token exists" do
       let!(:existing_token) { create(:api_token, token: token) }
 
-      it "returns a persisted user record" do
-        expect(subject).to eq(existing_token.user)
-      end
+      it { should eq(existing_token.user) }
     end
 
-    context "when token is nil" do
-      let(:token) { nil }
-
+    context "when token doesn't exist" do
       it { should be(nil) }
     end
+  end
 
-    context "when token is an empty string" do
-      let(:token) { '' }
+  describe '.for_auth_token' do
+    subject { described_class.for_auth_token(auth_token) }
+
+    context "when user with given token exists" do
+      let(:auth_token) { user.auth_token }
+      let(:user) { create(:user) }
+
+      it { should eq(user) }
+    end
+
+    context "when user with given token doesn't exist" do
+      let(:auth_token) { 'Km3u8ZsAZ_Qo0qgBT0rE0g' }
 
       it { should be(nil) }
     end

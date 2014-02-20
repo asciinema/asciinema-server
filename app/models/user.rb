@@ -34,6 +34,10 @@ class User < ActiveRecord::Base
     joins(:api_tokens).where('api_tokens.token' => token).first
   end
 
+  def self.for_auth_token(auth_token)
+    where(auth_token: auth_token).first
+  end
+
   def self.create_dummy(token, username)
     return nil if token.blank?
     username = 'anonymous' if username.blank?

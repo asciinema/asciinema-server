@@ -26,10 +26,14 @@ describe AuthCookieStrategy do
     subject { strategy.authenticate! }
 
     let(:cookies) { "auth_token=#{auth_token}" }
+    let(:auth_token) { "yadayadayada" }
 
-    context "when valid token given" do
-      let(:auth_token) { user.auth_token }
-      let(:user) { create(:user) }
+    before do
+      allow(User).to receive(:for_auth_token).with(auth_token) { user }
+    end
+
+    context "when user exists for given token" do
+      let(:user) { User.new }
 
       it "halts the chain" do
         subject
@@ -44,8 +48,8 @@ describe AuthCookieStrategy do
       end
     end
 
-    context "when invalid token given" do
-      let(:auth_token) { "yadayadayada" }
+    context "when user doesn't exist for given token" do
+      let(:user) { nil }
 
       it "doesn't halt the chain" do
         subject
