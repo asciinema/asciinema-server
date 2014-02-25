@@ -1,7 +1,6 @@
 require 'spec_helper'
 
-describe "Asciicast upload" do
-  subject { response.body }
+describe "Asciicast creation" do
 
   before do
     post '/api/asciicasts', asciicast: {

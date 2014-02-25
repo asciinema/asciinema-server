@@ -27,9 +27,7 @@ Asciinema::Application.routes.draw do
 
   resource :user
 
-  namespace :api do
-    resources :asciicasts
-  end
+  post '/api/asciicasts' => 'api/v0/asciicasts#create'
 
   root 'home#show'
 
