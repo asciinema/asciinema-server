@@ -42,58 +42,31 @@ describe AsciicastsController do
     before do
       allow(controller).to receive(:view_counter) { view_counter }
       expect(Asciicast).to receive(:find).and_return(asciicast)
-      asciicast.title = 'some tit'
     end
 
-    context 'for html request' do
-      let(:asciicast_presenter) { double('asciicast_presenter') }
-      let(:user) { double('user') }
+    let(:asciicast_presenter) { double('asciicast_presenter') }
+    let(:user) { double('user') }
 
-      before do
-        allow(controller).to receive(:render)
-        allow(controller).to receive(:current_user) { user }
-        allow(AsciicastPagePresenter).to receive(:build).
-          with(asciicast, user, hash_including('speed' => '3.0')).
-          and_return(asciicast_presenter)
+    before do
+      allow(controller).to receive(:render)
+      allow(controller).to receive(:current_user) { user }
+      allow(AsciicastPagePresenter).to receive(:build).
+        with(asciicast, user, hash_including('speed' => '3.0')).
+        and_return(asciicast_presenter)
 
-        get :show, id: asciicast.id, format: :html, speed: 3.0
-      end
-
-      it { should be_success }
-
-      it 'should be counted as a visit' do
-        expect(view_counter).to have_received(:increment).
-          with(asciicast, cookies)
-      end
-
-      it "renders template with AsciicastPagePresenter as page" do
-        expect(controller).to have_received(:render).
-          with(locals: { page: asciicast_presenter })
-      end
+      get :show, id: asciicast.id, format: :html, speed: 3.0
     end
 
-    context 'for json request' do
-      before do
-        get :show, :id => asciicast.id, :format => :json
-      end
+    it { should be_success }
 
-      it { should be_success }
-
-      it 'should not be counted as a visit' do
-        expect(view_counter).to_not have_received(:increment)
-      end
+    it 'should be counted as a visit' do
+      expect(view_counter).to have_received(:increment).
+        with(asciicast, cookies)
     end
 
-    context 'for js request' do
-      before do
-        get :show, :id => asciicast.id, :format => :js
-      end
-
-      it { should be_success }
-
-      it 'should not be counted as a visit' do
-        expect(view_counter).to_not have_received(:increment)
-      end
+    it "renders template with AsciicastPagePresenter as page" do
+      expect(controller).to have_received(:render).
+        with(locals: { page: asciicast_presenter })
     end
   end
 

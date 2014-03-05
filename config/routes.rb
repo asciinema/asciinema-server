@@ -3,15 +3,20 @@ Asciinema::Application.routes.draw do
   get "/browse" => "asciicasts#index", :as => :browse
   get "/browse/:category" => "asciicasts#index", :as => :category
 
-  resources :asciicasts, :path => 'a' do
+  get '/a/:id.js' => 'api/asciicasts#show', format: false, defaults: { format: 'js' }
+
+  resources :asciicasts, path: 'a' do
     member do
-      get :bare
-      get :raw, action: :bare
+      get '/raw' => 'api/asciicasts#show'
       get :example
     end
   end
 
   get "/~:username" => "users#show", :as => :profile
+
+  namespace :api do
+    resources :asciicasts
+  end
 
   get "/docs" => "docs#show", :page => 'getting-started', :as => :docs_index
   get "/docs/:page" => "docs#show", :as => :docs
@@ -26,8 +31,6 @@ Asciinema::Application.routes.draw do
   get "/connect/:api_token" => "api_tokens#create"
 
   resource :user
-
-  post '/api/asciicasts' => 'api/v0/asciicasts#create'
 
   root 'home#show'
 

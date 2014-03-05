@@ -4,7 +4,7 @@ class AsciicastsController < ApplicationController
   before_filter :ensure_authenticated!, only: [:edit, :update, :destroy]
   before_filter :ensure_owner!, only: [:edit, :update, :destroy]
 
-  respond_to :html, :json, :js
+  respond_to :html
 
   attr_reader :asciicast
 
@@ -23,22 +23,7 @@ class AsciicastsController < ApplicationController
           page: AsciicastPagePresenter.build(asciicast, current_user, params)
         }
       end
-
-      format.json do
-        respond_with asciicast
-      end
-
-      format.js do
-        respond_with asciicast
-      end
     end
-  end
-
-  def bare
-    response.headers.delete('X-Frame-Options')
-    render locals: {
-      page: BareAsciicastPagePresenter.build(asciicast, params)
-    }, layout: 'bare'
   end
 
   def example
