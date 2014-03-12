@@ -19,7 +19,7 @@ module ApplicationHelper
 
   def page_title
     if content_for?(:title)
-      "#{content_for(:title)} - Asciinema"
+      "#{content_for(:title)} - Asciinema".html_safe
     else
       "Asciinema - Record and share your terminal sessions, the right way"
     end
