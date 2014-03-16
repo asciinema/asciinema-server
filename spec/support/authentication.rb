@@ -29,6 +29,10 @@ module Asciinema
       def login_as(user)
         controller.current_user = user
       end
+
+      def logout
+        controller.current_user = nil
+      end
     end
 
     module FeatureHelpers

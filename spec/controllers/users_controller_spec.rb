@@ -97,7 +97,7 @@ describe UsersController do
     context "when real user username given" do
       let(:user) { create(:user) }
 
-      it 'renders "show" template with HomePagePresenter as page' do
+      it 'renders "show" template' do
         should render_template('show')
       end
     end
@@ -120,11 +120,76 @@ describe UsersController do
   end
 
   describe '#edit' do
-    it 'should have specs'
+    subject { get :edit }
+
+    let(:user) { create(:user) }
+
+    before do
+      login_as(user)
+    end
+
+    it "is successful" do
+      subject
+      expect(response.status).to eq(200)
+    end
+
+    it 'renders "edit" template' do
+      subject
+      expect(response).to render_template(:edit)
+    end
+
+    context "for guest user" do
+      before do
+        logout
+      end
+
+      it "redirects to login page" do
+        subject
+        expect(response).to redirect_to(login_path)
+      end
+    end
   end
 
   describe '#update' do
-    it 'should have specs'
+    subject { put :update, user: { username: 'batman' } }
+
+    let(:user) { create(:user) }
+
+    before do
+      login_as(user)
+    end
+
+    it "redirects to profile" do
+      subject
+      expect(response).to redirect_to(profile_path('batman'))
+    end
+
+    context "when update fails" do
+      before do
+        allow(user).to receive(:update_attributes) { false }
+      end
+
+      it "responds with 422 status code" do
+        subject
+        expect(response.status).to eq(422)
+      end
+
+      it 'renders "edit" template' do
+        subject
+        expect(response).to render_template(:edit)
+      end
+    end
+
+    context "for guest user" do
+      before do
+        logout
+      end
+
+      it "redirects to login page" do
+        subject
+        expect(response).to redirect_to(login_path)
+      end
+    end
   end
 
 end
