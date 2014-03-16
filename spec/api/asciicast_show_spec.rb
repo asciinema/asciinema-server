@@ -37,6 +37,11 @@ describe "Asciicast retrieval" do
       expect(response.headers['Content-Type']).to match('text/html')
     end
 
+    it "responds without X-Frame-Options header" do
+      pending "the header is added back by Rails only in tests O_o"
+      expect(response.headers).to_not have_key('Content-Type')
+    end
+
     it "responds with player page using iframe layout" do
       expect(response.body).to have_selector('body.iframe div.player')
     end

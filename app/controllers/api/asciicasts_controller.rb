@@ -19,7 +19,7 @@ module Api
     def show
       respond_with(asciicast) do |format|
         format.html do
-          response.headers.delete('X-Frame-Options')
+          allow_iframe_requests
           render locals: {
             page: BareAsciicastPagePresenter.build(asciicast, params)
           }, layout: 'bare'
@@ -39,6 +39,10 @@ module Api
 
     def asciicast_creator
       AsciicastCreator.new
+    end
+
+    def allow_iframe_requests
+      response.headers.delete('X-Frame-Options')
     end
 
   end
