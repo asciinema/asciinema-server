@@ -22,8 +22,6 @@ require 'sidekiq/testing'
 Dir[Rails.root.join("spec/support/**/*.rb")].each { |f| require f }
 Dir[Rails.root.join("spec/shared/**/*.rb")].each  { |f| require f }
 
-require 'authentication/test_authentication'
-
 Capybara.javascript_driver = :poltergeist
 
 OmniAuth.config.test_mode = true
@@ -42,7 +40,6 @@ RSpec.configure do |config|
   config.include FactoryGirl::Syntax::Methods
   config.include Asciinema::FixtureHelpers
   config.include Asciinema::FeatureHelpers
-  config.include Asciinema::ControllerHelpers, type: :controller
 
   config.before(:suite) do
     DatabaseCleaner.clean_with(:truncation)
@@ -50,10 +47,6 @@ RSpec.configure do |config|
 
   config.before(:each) do
     DatabaseCleaner.strategy = :transaction
-  end
-
-  config.before(:each, type: :controller) do
-    controller.class_eval { include TestAuthentication }
   end
 
   config.before(:each, :js => true) do

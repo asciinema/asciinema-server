@@ -5,8 +5,8 @@ module Api
 
     private
 
-    def authenticate
-      warden.authenticate(:api_token)
+    def warden_strategies
+      [:api_token]
     end
 
   end

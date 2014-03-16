@@ -3,7 +3,7 @@ module WardenAuthentication
   private
 
   def current_user
-    warden.authenticate(:auth_cookie) unless warden.authenticated?
+    warden.authenticate(*warden_strategies) unless warden.authenticated?
     warden.user
   end
 
@@ -20,6 +20,10 @@ module WardenAuthentication
 
   def warden
     request.env['warden']
+  end
+
+  def warden_strategies
+    raise NotImplementedError
   end
 
 end
