@@ -38,7 +38,6 @@ module Asciinema
     module FeatureHelpers
       def login_as(user)
         visit edit_user_path(email: user.email)
-        page.save_screenshot 'a.png'
       end
     end
   end
