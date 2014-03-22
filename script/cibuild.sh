@@ -1,4 +1,4 @@
 #!/bin/bash
 
 ./script/setup
-bundle exec rake && ./script/check-style.sh
+LOCAL_PERSONA_JS=true bundle exec rake
