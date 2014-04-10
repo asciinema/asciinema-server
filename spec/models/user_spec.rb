@@ -299,9 +299,12 @@ describe User do
     let!(:api_token_2) { create(:api_token, user: user) }
     let!(:asciicast_1) { create(:asciicast, user: user) }
     let!(:asciicast_2) { create(:asciicast, user: user) }
+    let(:updated_at) { 1.hour.from_now }
 
     before do
-      subject
+      Timecop.freeze(updated_at) do
+        subject
+      end
     end
 
     it "reassigns all user api tokens to the target user" do
@@ -310,6 +313,8 @@ describe User do
 
       expect(api_token_1.user).to eq(target_user)
       expect(api_token_2.user).to eq(target_user)
+      expect(api_token_1.updated_at.to_i).to eq(updated_at.to_i)
+      expect(api_token_2.updated_at.to_i).to eq(updated_at.to_i)
     end
 
     it "reassigns all user asciicasts to the target user" do
@@ -318,6 +323,8 @@ describe User do
 
       expect(asciicast_1.user).to eq(target_user)
       expect(asciicast_2.user).to eq(target_user)
+      expect(asciicast_1.updated_at.to_i).to eq(updated_at.to_i)
+      expect(asciicast_2.updated_at.to_i).to eq(updated_at.to_i)
     end
 
     it "removes the source user" do

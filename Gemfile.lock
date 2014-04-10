@@ -312,6 +312,7 @@ GEM
     thread_safe (0.1.3)
       atomic
     tilt (1.4.1)
+    timecop (0.7.1)
     timers (1.1.0)
     tins (0.13.1)
     treetop (1.4.15)
@@ -389,6 +390,7 @@ DEPENDENCIES
   spring
   spring-commands-rspec
   thin (~> 1.5.0)
+  timecop (~> 0.7.1)
   uglifier (>= 2.3.1)
   unicorn (~> 4.7)
   unicorn-worker-killer (~> 0.4.2)
