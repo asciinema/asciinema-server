@@ -25,19 +25,19 @@ describe User do
         user.dummy = true
       end
 
-      it "doesn't check for username uniqueness" do
+      it "doesn't check username uniqueness" do
         user.username = existing_user.username
         user.valid?
         expect(user.errors[:username]).to be_empty
       end
 
-      it "doesn't check for email presence" do
+      it "doesn't check email presence" do
         user.email = nil
         user.valid?
         expect(user.errors[:email]).to be_empty
       end
 
-      it "doesn't check for email uniqueness" do
+      it "doesn't check email uniqueness" do
         user.email = existing_user.email
         user.valid?
         expect(user.errors[:email]).to be_empty
@@ -49,19 +49,30 @@ describe User do
         user.dummy = false
       end
 
-      it "checks for username uniqueness" do
+      it { should allow_value('sickill').for(:username) }
+      it { should allow_value('sick-ill').for(:username) }
+      it { should allow_value('abc').for(:username) }
+      it { should allow_value('s' * 16).for(:username) }
+      it { should_not allow_value('Sickill').for(:username) }
+      it { should_not allow_value('sick.ill').for(:username) }
+      it { should_not allow_value('-sickill').for(:username) }
+      it { should_not allow_value('sickill-').for(:username) }
+      it { should_not allow_value('ab').for(:username) }
+      it { should_not allow_value('s' * 17).for(:username) }
+
+      it "checks username uniqueness" do
         user.username = existing_user.username
         user.valid?
         expect(user.errors[:username]).to_not be_empty
       end
 
-      it "checks for email presence" do
+      it "checks email presence" do
         user.email = nil
         user.valid?
         expect(user.errors[:email]).to_not be_empty
       end
 
-      it "checks for email uniqueness" do
+      it "checks email uniqueness" do
         user.email = existing_user.email
         user.valid?
         expect(user.errors[:email]).to_not be_empty
