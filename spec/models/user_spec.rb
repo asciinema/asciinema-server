@@ -15,7 +15,7 @@ describe User do
   end
 
   describe "#valid?" do
-    let!(:existing_user) { create(:user) }
+    let!(:existing_user) { create(:user, username: 'the-user-name') }
     let(:user) { described_class.new }
 
     it { should validate_presence_of(:username) }
@@ -53,7 +53,7 @@ describe User do
       it { should allow_value('sick-ill').for(:username) }
       it { should allow_value('abc').for(:username) }
       it { should allow_value('s' * 16).for(:username) }
-      it { should_not allow_value('Sickill').for(:username) }
+      it { should allow_value('Sickill').for(:username) }
       it { should_not allow_value('sick.ill').for(:username) }
       it { should_not allow_value('-sickill').for(:username) }
       it { should_not allow_value('sickill-').for(:username) }
@@ -61,7 +61,7 @@ describe User do
       it { should_not allow_value('s' * 17).for(:username) }
 
       it "checks username uniqueness" do
-        user.username = existing_user.username
+        user.username = 'The-User-Name'
         user.valid?
         expect(user.errors[:username]).to_not be_empty
       end
