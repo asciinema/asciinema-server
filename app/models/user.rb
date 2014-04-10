@@ -1,6 +1,6 @@
 class User < ActiveRecord::Base
 
-  USERNAME_FORMAT = /\A[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\z/
+  USERNAME_FORMAT = /\A[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]\z/
 
   has_many :api_tokens, :dependent => :destroy
   has_many :asciicasts, :dependent => :destroy
@@ -13,7 +13,7 @@ class User < ActiveRecord::Base
   validates :username, presence: true
   validates :username, uniqueness: { scope: :dummy, case_sensitive: false },
                        format: { with: USERNAME_FORMAT },
-                       length: { minimum: 3, maximum: 16 },
+                       length: { minimum: 2, maximum: 16 },
                        unless: :dummy
   validates :email, presence: true, uniqueness: true, unless: :dummy
 

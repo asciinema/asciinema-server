@@ -51,13 +51,13 @@ describe User do
 
       it { should allow_value('sickill').for(:username) }
       it { should allow_value('sick-ill').for(:username) }
-      it { should allow_value('abc').for(:username) }
+      it { should allow_value('ab').for(:username) }
       it { should allow_value('s' * 16).for(:username) }
       it { should allow_value('Sickill').for(:username) }
       it { should_not allow_value('sick.ill').for(:username) }
       it { should_not allow_value('-sickill').for(:username) }
       it { should_not allow_value('sickill-').for(:username) }
-      it { should_not allow_value('ab').for(:username) }
+      it { should_not allow_value('a').for(:username) }
       it { should_not allow_value('s' * 17).for(:username) }
 
       it "checks username uniqueness" do
