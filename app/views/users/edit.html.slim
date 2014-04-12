@@ -1,20 +1,10 @@
-.container
-  = form_for @user, html: { class: 'form-horizontal' } do |f|
-    legend Your account
+.container.account-settings
+  = horizontal_form_for @user do |f|
+    legend Account settings
 
-    .form-group
-      = f.label :username, 'Username *', class: 'col-sm-2 control-label'
-      .col-sm-4 = f.text_field :username, class: 'form-control'
-
-    .form-group
-      = f.label :email, 'E-mail *', class: 'col-sm-2 control-label'
-      .col-sm-4 = f.email_field :email, class: 'form-control'
-
-    .form-group
-      = f.label :name, 'Real name', class: 'col-sm-2 control-label'
-      .col-sm-4 = f.text_field :name, class: 'form-control'
-
-    .form-group
-      .col-sm-offset-2.col-sm-4
-        = f.submit 'Save', class: 'btn btn-primary'
-        = link_to 'Cancel', profile_path(current_user), class: 'btn'
+    = f.input :username
+    = f.input :email, required: true
+    = f.input :name, label: 'Real name'
+    = f.buttons do
+      = f.button :submit, 'Save', class: 'btn-primary'
+      = link_to 'Cancel', profile_path(current_user), class: 'btn'
