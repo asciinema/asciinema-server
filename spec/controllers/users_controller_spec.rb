@@ -151,9 +151,10 @@ describe UsersController do
   end
 
   describe '#update' do
-    subject { put :update, user: { username: 'batman' } }
+    subject { put :update, user: { username: new_username } }
 
     let(:user) { create(:user) }
+    let(:new_username) { 'batman' }
 
     before do
       login_as(user)
@@ -165,9 +166,7 @@ describe UsersController do
     end
 
     context "when update fails" do
-      before do
-        allow(user).to receive(:update_attributes) { false }
-      end
+      let(:new_username) { '' }
 
       it "responds with 422 status code" do
         subject

@@ -30,7 +30,7 @@ class UsersController < ApplicationController
   end
 
   def update
-    @user = current_user.clone
+    @user = User.find(current_user.id)
 
     if @user.update_attributes(update_params)
       redirect_to profile_path(@user), notice: 'Account settings saved.'
