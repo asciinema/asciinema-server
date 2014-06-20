@@ -17,6 +17,7 @@ html[lang="en"]
     script
       | window.mainWorkerPath = '#{javascript_path "main_worker"}';
       | window.browserIdUser = #{browser_id_user};
+    = content_for?(:oembed) ? yield(:oembed) : yield
   body
     = render 'layouts/header'
     = render 'shared/flash'

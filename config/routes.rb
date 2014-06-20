@@ -4,6 +4,7 @@ Asciinema::Application.routes.draw do
   get "/browse/:category" => "asciicasts#index", :as => :category
 
   get '/a/:id.js' => 'api/asciicasts#show', format: false, defaults: { format: 'js' }
+  get '/oembed' => 'asciicasts#oembed'
 
   resources :asciicasts, path: 'a' do
     member do
