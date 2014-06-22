@@ -4,7 +4,7 @@ class AsciicastsController < ApplicationController
   before_filter :ensure_authenticated!, only: [:edit, :update, :destroy]
   before_filter :ensure_owner!, only: [:edit, :update, :destroy]
 
-  respond_to :html
+  respond_to :html, :json
 
   attr_reader :asciicast
 
@@ -22,6 +22,10 @@ class AsciicastsController < ApplicationController
         render locals: {
           page: AsciicastPagePresenter.build(asciicast, current_user, params)
         }
+      end
+
+      format.json do
+        render json: asciicast
       end
     end
   end
