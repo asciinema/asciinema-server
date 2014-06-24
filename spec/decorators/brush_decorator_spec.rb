@@ -1,3 +1,5 @@
+require 'spec_helper'
+
 describe BrushDecorator do
   let(:decorator) { described_class.new(brush) }
   let(:brush) { double('brush', :fg => nil, :bg => nil, :bold? => false,
@@ -32,7 +34,7 @@ describe BrushDecorator do
           allow(brush).to receive(:fg) { 1 }
         end
 
-        it { should match(/\bfg1\b/) }
+        it { should match(/\bfg-1\b/) }
       end
 
       context "when bg is default" do
@@ -48,7 +50,7 @@ describe BrushDecorator do
           allow(brush).to receive(:bg) { 2 }
         end
 
-        it { should match(/\bbg2\b/) }
+        it { should match(/\bbg-2\b/) }
       end
 
       context "when both fg and bg are non-default" do
@@ -57,8 +59,8 @@ describe BrushDecorator do
           allow(brush).to receive(:bg) { 2 }
         end
 
-        it { should match(/\bfg1\b/) }
-        it { should match(/\bbg2\b/) }
+        it { should match(/\bfg-1\b/) }
+        it { should match(/\bbg-2\b/) }
       end
 
       context "when it's bold" do

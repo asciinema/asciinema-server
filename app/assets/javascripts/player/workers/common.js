@@ -1,1 +1,0 @@
-//= require player/workers/console

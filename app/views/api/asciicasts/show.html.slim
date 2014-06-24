@@ -7,7 +7,7 @@ javascript:
   $(function() {
     var target = parent.postMessage ? parent : (parent.document.postMessage ? parent.document : undefined);
     if (typeof target != "undefined" && window !== window.parent) {
-      var w = $(document).width();
+      var w = $('.asciinema-player').width();
       var h = $(document).height();
       target.postMessage(['asciicast:size', { id: #{page.asciicast_id}, width: w, height: h }], '*');
     }

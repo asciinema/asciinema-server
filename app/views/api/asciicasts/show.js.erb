@@ -21,22 +21,22 @@
   }
 
   function params(container, script) {
-    var params = '?max_width=' + container.offsetWidth;
+    var params = [];
 
     var size = script.getAttribute('data-size');
     if (size) {
-      params += '&size=' + size;
+      params = params.concat(['size=' + size]);
     }
     var speed = script.getAttribute('data-speed');
     if (speed) {
-      params += '&speed=' + speed;
+      params = params.concat(['speed=' + speed]);
     }
     var autoplay = script.getAttribute('data-autoplay');
     if (autoplay === '1') {
-      params += '&autoplay=' + autoplay;
+      params = params.concat(['autoplay=' + autoplay]);
     }
 
-    return params;
+    return '?' + params.join('&');
   }
 
   function insertPlayer(script) {
@@ -59,7 +59,8 @@
     iframe.style.overflow = "hidden";
     iframe.style.margin = 0;
     iframe.style.border = 0;
-    iframe.style.display = "block";
+    iframe.style.display = "inline-block";
+    iframe.style.width = "100%";
     iframe.style.float = "none";
     iframe.style.visibility = "hidden";
     iframe.onload = function() { this.style.visibility = 'visible' };

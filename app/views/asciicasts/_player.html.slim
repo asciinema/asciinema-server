@@ -1,18 +1,34 @@
-.player class="#{options.size}-font"
+.player
+
+p.processing-info style="display: none"
+  | This recording is being pre-processed at the moment. It will open automatically in a few seconds.
 
 javascript:
   $(function() {
-    var playerClass = #{options.player_class};
-    var maxWidth = #{options.max_width || 'null'};
+    var model = new Asciinema.Asciicast(#{asciicast.html_safe});
 
-    window.player = new playerClass({
-      el:            $('.player'),
-      speed:         #{options.speed},
-      benchmark:     #{options.benchmark},
-      model:         new Asciinema.Asciicast(#{asciicast.html_safe}),
-      maxWidth:      maxWidth || $('.cinema .player').parent().width(),
-      rendererClass: #{options.renderer_class},
-      autoPlay:      #{options.autoplay},
-      hud:           #{!options.hide_hud}
-    });
+    function createPlayer() {
+      var source = new asciinema.HttpArraySource(model.get('stdout_frames_url'), #{options.speed});
+      var snapshot = model.get('snapshot');
+      var movie = new asciinema.Movie(model.get('width'), model.get('height'), source, snapshot, model.get('duration'));
+
+      React.renderComponent(
+        asciinema.Player({ fontSize: '#{options.size}', autoPlay: #{options.autoplay}, movie: movie }),
+        $('.player')[0]
+      );
+    }
+
+    function tryCreatePlayer() {
+      if (model.get('stdout_frames_url')) {
+        $('.processing-info').remove();
+        createPlayer();
+      } else {
+        $('.processing-info').show();
+        setTimeout(function() {
+          model.fetch({ success: tryCreatePlayer });
+        }, 2000);
+      }
+    }
+
+    tryCreatePlayer();
   });

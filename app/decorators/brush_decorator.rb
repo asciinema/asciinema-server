@@ -12,11 +12,11 @@ class BrushDecorator < ApplicationDecorator
   private
 
   def fg_class
-    "fg#{model.fg}" if model.fg
+    "fg-#{model.fg}" if model.fg
   end
 
   def bg_class
-    "bg#{model.bg}" if model.bg
+    "bg-#{model.bg}" if model.bg
   end
 
   def bold_class

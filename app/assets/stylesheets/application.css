@@ -11,6 +11,7 @@
  *= require pages
  *= require users
  *= require preview
- *= require player
+ *= require asciinema-player
+ *= require themes/default
  *= require contributing
 */
