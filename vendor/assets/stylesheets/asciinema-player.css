@@ -38,9 +38,11 @@
   border-radius: 0;
   cursor: text;
   font-family: Consolas, Menlo, "Bitstream Vera Sans Mono", monospace; }
-  .asciinema-terminal .line span {
-    padding: 0;
-    display: inline-block; }
+  .asciinema-terminal .line {
+    letter-spacing: normal; }
+    .asciinema-terminal .line span {
+      padding: 0;
+      display: inline; }
   .asciinema-terminal .line {
     display: block; }
   .asciinema-terminal .bright {
