@@ -37,7 +37,7 @@
   word-break: normal;
   border-radius: 0;
   cursor: text;
-  font-family: Consolas, Menlo, "Bitstream Vera Sans Mono", monospace; }
+  font-family: Consolas, Menlo, "Bitstream Vera Sans Mono", monospace, "Powerline Symbols"; }
   .asciinema-terminal .line {
     letter-spacing: normal;
     overflow: hidden; }
