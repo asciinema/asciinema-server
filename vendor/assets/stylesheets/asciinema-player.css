@@ -39,10 +39,11 @@
   cursor: text;
   font-family: Consolas, Menlo, "Bitstream Vera Sans Mono", monospace; }
   .asciinema-terminal .line {
-    letter-spacing: normal; }
+    letter-spacing: normal;
+    overflow: hidden; }
     .asciinema-terminal .line span {
       padding: 0;
-      display: inline; }
+      display: inline-block; }
   .asciinema-terminal .line {
     display: block; }
   .asciinema-terminal .bright {
@@ -57,37 +58,49 @@
     font-size: 12px;
     line-height: 16px;
     border: 6px solid black; }
-    .asciinema-terminal.font-small .line span {
+    .asciinema-terminal.font-small .line {
       height: 16px; }
+      .asciinema-terminal.font-small .line span {
+        height: 16px; }
   .asciinema-terminal.font-medium {
     font-size: 18px;
     line-height: 24px;
     border: 9px solid black; }
-    .asciinema-terminal.font-medium .line span {
+    .asciinema-terminal.font-medium .line {
       height: 24px; }
+      .asciinema-terminal.font-medium .line span {
+        height: 24px; }
   .asciinema-terminal.font-big {
     font-size: 24px;
     line-height: 32px;
     border: 12px solid black; }
-    .asciinema-terminal.font-big .line span {
+    .asciinema-terminal.font-big .line {
       height: 32px; }
+      .asciinema-terminal.font-big .line span {
+        height: 32px; }
   .asciinema-terminal .font-sample {
     display: block; }
     .asciinema-terminal .font-sample.font-small {
       font-size: 12px;
       line-height: 16px; }
-      .asciinema-terminal .font-sample.font-small .line span {
+      .asciinema-terminal .font-sample.font-small .line {
         height: 16px; }
+        .asciinema-terminal .font-sample.font-small .line span {
+          height: 16px; }
     .asciinema-terminal .font-sample.font-medium {
       font-size: 18px;
       line-height: 24px; }
-      .asciinema-terminal .font-sample.font-medium .line span {
+      .asciinema-terminal .font-sample.font-medium .line {
         height: 24px; }
+        .asciinema-terminal .font-sample.font-medium .line span {
+          height: 24px; }
     .asciinema-terminal .font-sample.font-big {
       font-size: 24px;
       line-height: 32px; }
-      .asciinema-terminal .font-sample.font-big .line span {
+      .asciinema-terminal .font-sample.font-big .line {
         height: 32px; }
+        .asciinema-terminal .font-sample.font-big .line span {
+          height: 32px; }
 
 svg.icon path {
   fill: white; }
