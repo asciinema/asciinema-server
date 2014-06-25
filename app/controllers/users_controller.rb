@@ -10,7 +10,7 @@ class UsersController < ApplicationController
 
   def show
     user = User.real_for_username!(params[:username])
-    render locals: { page: UserPagePresenter.build(user, current_user) }
+    render locals: { page: UserPagePresenter.build(user, current_user, params[:page]) }
   end
 
   def create
