@@ -52,8 +52,6 @@
     text-decoration: underline; }
   .asciinema-terminal .italic {
     font-style: italic; }
-  .asciinema-terminal .fg-8, .asciinema-terminal .fg-9, .asciinema-terminal .fg-10, .asciinema-terminal .fg-11, .asciinema-terminal .fg-12, .asciinema-terminal .fg-13, .asciinema-terminal .fg-14, .asciinema-terminal .fg-15 {
-    font-weight: bold; }
   .asciinema-terminal.font-small {
     font-size: 12px;
     line-height: 16px;

@@ -17,19 +17,19 @@
 .asciinema-theme-default .bg-6 { background-color: #06989A }
 .asciinema-theme-default .fg-7 { color: #D3D7CF }
 .asciinema-theme-default .bg-7 { background-color: #D3D7CF }
-.asciinema-theme-default .fg-8 { color: #555753 }
+.asciinema-theme-default .fg-8 { color: #555753; font-weight: bold }
 .asciinema-theme-default .bg-8 { background-color: #555753 }
-.asciinema-theme-default .fg-9 { color: #EF2929 }
+.asciinema-theme-default .fg-9 { color: #EF2929; font-weight: bold }
 .asciinema-theme-default .bg-9 { background-color: #EF2929 }
-.asciinema-theme-default .fg-10 { color: #8AE234 }
+.asciinema-theme-default .fg-10 { color: #8AE234; font-weight: bold }
 .asciinema-theme-default .bg-10 { background-color: #8AE234 }
-.asciinema-theme-default .fg-11 { color: #FCE94F }
+.asciinema-theme-default .fg-11 { color: #FCE94F; font-weight: bold }
 .asciinema-theme-default .bg-11 { background-color: #FCE94F }
-.asciinema-theme-default .fg-12 { color: #729FCF }
+.asciinema-theme-default .fg-12 { color: #729FCF; font-weight: bold }
 .asciinema-theme-default .bg-12 { background-color: #729FCF }
-.asciinema-theme-default .fg-13 { color: #AD7FA8 }
+.asciinema-theme-default .fg-13 { color: #AD7FA8; font-weight: bold }
 .asciinema-theme-default .bg-13 { background-color: #AD7FA8 }
-.asciinema-theme-default .fg-14 { color: #34E2E2 }
+.asciinema-theme-default .fg-14 { color: #34E2E2; font-weight: bold }
 .asciinema-theme-default .bg-14 { background-color: #34E2E2 }
-.asciinema-theme-default .fg-15 { color: #EEEEEC }
+.asciinema-theme-default .fg-15 { color: #EEEEEC; font-weight: bold }
 .asciinema-theme-default .bg-15 { background-color: #EEEEEC }
