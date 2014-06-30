@@ -3,7 +3,7 @@ class HomePagePresenter
   attr_reader :playback_options
 
   def initialize
-    @playback_options = PlaybackOptions.new(speed: 2.0, hide_hud: true)
+    @playback_options = PlaybackOptions.new(speed: 2.0)
   end
 
   def asciicast

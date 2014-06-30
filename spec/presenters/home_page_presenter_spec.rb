@@ -34,10 +34,6 @@ describe HomePagePresenter do
     it "has speed set to 2.0" do
       expect(subject.speed).to eq(2.0)
     end
-
-    it "has HUD hidden" do
-      expect(subject.hide_hud).to be(true)
-    end
   end
 
   describe '#latest_asciicasts' do
