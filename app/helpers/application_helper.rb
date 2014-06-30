@@ -61,4 +61,16 @@ module ApplicationHelper
     content_tag(:abbr, time.to_s, options.merge(:title => time.getutc.iso8601))
   end
 
+  def default_user_theme_label(theme = Theme.default)
+    "Default (#{theme.label})"
+  end
+
+  def default_asciicast_theme_label(theme)
+    "Default account theme (#{theme.label})"
+  end
+
+  def themes_for_select
+    Theme::AVAILABLE.invert
+  end
+
 end

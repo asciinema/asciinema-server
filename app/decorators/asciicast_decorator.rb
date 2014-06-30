@@ -1,4 +1,5 @@
 class AsciicastDecorator < ApplicationDecorator
+
   THUMBNAIL_WIDTH = 20
   THUMBNAIL_HEIGHT = 10
 
@@ -53,6 +54,10 @@ class AsciicastDecorator < ApplicationDecorator
     seconds = duration % 60
 
     "%02d:%02d" % [minutes, seconds]
+  end
+
+  def theme_name
+    (model.theme || user.theme || Theme.default).name
   end
 
   private

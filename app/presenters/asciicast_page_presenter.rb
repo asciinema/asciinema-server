@@ -3,7 +3,13 @@ class AsciicastPagePresenter
   attr_reader :asciicast, :current_user, :playback_options
 
   def self.build(asciicast, current_user, playback_options)
-    new(asciicast.decorate, current_user, PlaybackOptions.new(playback_options))
+    decorated_asciicast = asciicast.decorate
+
+    playback_options = {
+      'theme' =>  decorated_asciicast.theme_name
+    }.merge(playback_options)
+
+    new(decorated_asciicast, current_user, PlaybackOptions.new(playback_options))
   end
 
   def initialize(asciicast, current_user, playback_options)

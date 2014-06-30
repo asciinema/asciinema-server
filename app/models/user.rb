@@ -69,6 +69,10 @@ class User < ActiveRecord::Base
     value ? super(value.strip) : super
   end
 
+  def theme
+    theme_name.presence && Theme.for_name(theme_name)
+  end
+
   def to_param
     username
   end

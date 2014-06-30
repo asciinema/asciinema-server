@@ -74,7 +74,7 @@ class AsciicastsController < ApplicationController
   end
 
   def update_params
-    params.require(:asciicast).permit(:title, :description)
+    params.require(:asciicast).permit(:title, :description, :theme_name)
   end
 
 end

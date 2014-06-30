@@ -21,6 +21,10 @@ class UserDecorator < ApplicationDecorator
     created_at.strftime("%b %-d, %Y")
   end
 
+  def theme
+    model.theme || Theme.default
+  end
+
   private
 
   def wrap_with_link(html)

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140212194017) do
+ActiveRecord::Schema.define(version: 20140701185744) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -51,6 +51,7 @@ ActiveRecord::Schema.define(version: 20140212194017) do
     t.integer  "views_count",      default: 0,     null: false
     t.string   "stdout_frames"
     t.string   "user_agent"
+    t.string   "theme_name"
   end
 
   add_index "asciicasts", ["created_at"], name: "index_asciicasts_on_created_at", using: :btree
@@ -93,6 +94,7 @@ ActiveRecord::Schema.define(version: 20140212194017) do
     t.string   "username",                   null: false
     t.string   "auth_token"
     t.boolean  "dummy",      default: false, null: false
+    t.string   "theme_name"
   end
 
   add_index "users", ["auth_token"], name: "index_users_on_auth_token", using: :btree

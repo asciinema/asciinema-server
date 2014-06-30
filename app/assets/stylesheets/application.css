@@ -12,9 +12,6 @@
  *= require pages
  *= require users
  *= require preview
- *= require asciinema-player
- *= require themes/default
- *= require themes/solarized-dark
- *= require themes/solarized-light
+ *= require player
  *= require contributing
 */

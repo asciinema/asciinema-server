@@ -6,6 +6,6 @@ class PlaybackOptions
   attribute :size,      String,  default: 'small'
   attribute :autoplay,  Boolean, default: false
   attribute :benchmark, Boolean, default: false
-  attribute :theme,     String,  default: 'default'
+  attribute :theme,     String,  default: Theme::DEFAULT
 
 end

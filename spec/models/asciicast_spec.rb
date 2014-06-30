@@ -137,4 +137,18 @@ describe Asciicast do
     end
   end
 
+  describe '#theme' do
+    it 'returns proper theme when theme_name is not blank' do
+      asciicast = described_class.new(theme_name: 'tango')
+
+      expect(asciicast.theme.name).to eq('tango')
+    end
+
+    it 'returns nil when theme_name is blank' do
+      asciicast = described_class.new(theme_name: '')
+
+      expect(asciicast.theme).to be(nil)
+    end
+  end
+
 end

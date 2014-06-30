@@ -229,6 +229,20 @@ describe User do
     end
   end
 
+  describe '#theme' do
+    it 'returns proper theme when theme_name is not blank' do
+      user = described_class.new(theme_name: 'tango')
+
+      expect(user.theme.name).to eq('tango')
+    end
+
+    it 'returns nil when theme_name is blank' do
+      user = described_class.new(theme_name: '')
+
+      expect(user.theme).to be(nil)
+    end
+  end
+
   describe '#assign_api_token' do
     subject { user.assign_api_token(token) }
 

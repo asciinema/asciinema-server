@@ -74,6 +74,10 @@ class Asciicast < ActiveRecord::Base
     end
   end
 
+  def theme
+    theme_name.presence && Theme.for_name(theme_name)
+  end
+
   private
 
   def dummy_user

@@ -771,7 +771,7 @@
     },
 
     themeClassName: function() {
-      return 'asciinema-theme-' + (this.props.theme || 'default');
+      return 'asciinema-theme-' + (this.props.theme || 'tango');
     },
 
     fontSize: function() {
