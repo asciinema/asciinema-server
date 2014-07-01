@@ -35,6 +35,10 @@
     if (autoplay === '1') {
       params = params.concat(['autoplay=' + autoplay]);
     }
+    var theme = script.getAttribute('data-theme');
+    if (theme) {
+      params = params.concat(['theme=' + theme]);
+    }
 
     return '?' + params.join('&');
   }
