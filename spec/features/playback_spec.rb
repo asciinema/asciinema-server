@@ -5,17 +5,9 @@ describe 'Asciicast playback', :js => true, :slow => true do
   let(:asciicast) { create(:asciicast) }
 
   describe "from fixture" do
-    def inject_on_finished_callback
-      page.execute_script(<<EOS)
-        window.player.movie.on('finished', function() {
-          $('body').append('<span class=\"finished\"></span>');
-        })
-EOS
-    end
-
     before do
       @old_wait_time = Capybara.default_wait_time
-      Capybara.default_wait_time = 120
+      Capybara.default_wait_time = 15
     end
 
     after do
@@ -24,9 +16,8 @@ EOS
 
     it "is successful" do
       visit asciicast_path(asciicast, speed: 5)
-      find(".play-button").find(".arrow").click
-      inject_on_finished_callback
-      expect(page).to have_selector('body .finished')
+      find(".start-prompt .play-button").click
+      page.should have_css('.time-remaining', visible: false, text: '-00:0')
     end
   end
 
