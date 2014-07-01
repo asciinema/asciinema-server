@@ -1,5 +1,7 @@
 - content_for(:title, page.title)
 
+- content_for(:oembed, raw(page.oembed_discovery(self)))
+
 .asciicast-page
   section.cinema
     .container

@@ -40,6 +40,16 @@ class AsciicastPagePresenter
     asciicast.views_count
   end
 
+  def oembed_discovery(h)
+    url = h.asciicast_url(asciicast)
+    href = helpers.url_for(
+              :controller => "asciicasts", :action => "oembed", :only_path => false,
+              :params => {:url => url, :format => "json"}
+            )
+    %(<link rel="alternate" type="application/json+oembed"
+    href="#{href}" title="#{asciicast.title}">)
+  end
+
   def embed_script(h)
     src = h.asciicast_url(asciicast, format: :js)
     id = "asciicast-#{asciicast.id}"
@@ -67,6 +77,10 @@ class AsciicastPagePresenter
   end
 
   private
+
+  def helpers
+    Rails.application.routes.url_helpers
+  end
 
   def author
     asciicast.user

@@ -1,6 +1,6 @@
 class AsciicastsController < ApplicationController
 
-  before_filter :load_resource, except: [:index]
+  before_filter :load_resource, except: [:index, :oembed]
   before_filter :ensure_authenticated!, only: [:edit, :update, :destroy]
   before_filter :ensure_owner!, only: [:edit, :update, :destroy]
 
@@ -28,6 +28,26 @@ class AsciicastsController < ApplicationController
         render json: asciicast
       end
     end
+  end
+
+  def oembed
+    if params[:format] != 'json'
+      return head :not_implemented
+    end
+    url = params[:url]
+    id = URI(url).path.split('/').last
+    ascii = Asciicast.find(id)
+    src = asciicast_url(ascii, format: :js)
+    ascii_oembed = {
+      "type" => "rich",
+      "version" => "1.0",
+      "html" => "<script type='text/javascript' src='#{src}' id='#{id}' async></script>",
+      "width" => 599,
+      "height" => 487,
+      "title" => ascii.decorate.title,
+      "description" => ascii.decorate.description,
+    }
+    render json: ascii_oembed, content_type: "application/json"
   end
 
   def example
