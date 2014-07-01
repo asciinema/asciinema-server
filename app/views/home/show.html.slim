@@ -2,15 +2,9 @@
   section.cinema
     .container
       .row
-        .col-md-7
-          .player-wrapper
-            = player page.asciicast, page.playback_options if page.asciicast
-
         .col-md-5
           h1
-            ' Record and share your terminal sessions,
-            br
-            ' the right way.
+            ' Record and share your terminal sessions, the&nbsp;right&nbsp;way.
           h2
             ' Forget screen recording apps and blurry video.
               Enjoy a lightweight, purely text based approach to terminal recording.
@@ -20,6 +14,10 @@
             = link_to 'Start Recording', docs_path('getting-started'), class: 'btn btn-success'
           p
             ' Supports Linux, Mac OS X and FreeBSD
+
+        .col-md-7
+          .player-wrapper
+            = player page.asciicast, page.playback_options if page.asciicast
 
   section.even
     .container
