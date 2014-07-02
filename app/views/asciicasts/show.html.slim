@@ -5,7 +5,7 @@
     .container
       = player page.asciicast, page.playback_options
 
-  section.odd.info
+  section.even.info
     .container
       .row
         .col-md-8.col-xs-8
@@ -16,7 +16,7 @@
         .col-md-4.col-xs-4.text-right
           = render 'shared/add_this', title: page.asciicast_title, url: asciicast_url(page.asciicast)
 
-  section.even.meta
+  section.odd.meta
     .container
       .row
         .col-md-8.col-xs-8
@@ -60,12 +60,12 @@
           | See the #{link_to 'embedding docs', docs_path(:embedding)} for more options.
 
   - if page.show_description?
-    section.even.description
+    section.odd.description
       .container
         .content = page.description
 
   - if page.show_other_asciicasts_by_author?
-    section.odd
+    section.even
       .container
         .other-asciicasts
           h2 More by #{page.author_link}

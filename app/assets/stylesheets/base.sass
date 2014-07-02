@@ -1,6 +1,10 @@
+$background-color: #f7f7f7
+$link-color: #06989a
+
 body
   font-family: "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif
   font-size: 15px
+  background-color: $background-color
 
   .btn
     font-size: 15px
@@ -8,8 +12,11 @@ body
   .form-control, .btn, pre
     border-radius: 3px
 
+  pre
+    background-color: #fff
+
 .main
-  background-color: white
+  background-color: $background-color
   min-height: 500px
 
   > div:first-child
@@ -44,12 +51,10 @@ section.odd, section.even
   border-bottom: 1px solid #ddd
 
 section.odd
-  background-color: #f7f7f7
+  background-color: #fff
 
 section.even:last-child, section.odd:last-child
   border-bottom: 0
-
-$link-color: #06989a
 
 a
   color: $link-color
