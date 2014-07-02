@@ -36,6 +36,7 @@
   word-wrap: normal;
   word-break: normal;
   border-radius: 0;
+  border-style: solid;
   cursor: text;
   font-family: Consolas, Menlo, "Bitstream Vera Sans Mono", monospace, "Powerline Symbols"; }
   .asciinema-terminal .line {
@@ -55,7 +56,7 @@
   .asciinema-terminal.font-small {
     font-size: 12px;
     line-height: 16px;
-    border: 6px solid black; }
+    border-width: 6px; }
     .asciinema-terminal.font-small .line {
       height: 16px; }
       .asciinema-terminal.font-small .line span {
@@ -63,7 +64,7 @@
   .asciinema-terminal.font-medium {
     font-size: 18px;
     line-height: 24px;
-    border: 9px solid black; }
+    border-width: 9px; }
     .asciinema-terminal.font-medium .line {
       height: 24px; }
       .asciinema-terminal.font-medium .line span {
@@ -71,7 +72,7 @@
   .asciinema-terminal.font-big {
     font-size: 24px;
     line-height: 32px;
-    border: 12px solid black; }
+    border-width: 12px; }
     .asciinema-terminal.font-big .line {
       height: 32px; }
       .asciinema-terminal.font-big .line span {
