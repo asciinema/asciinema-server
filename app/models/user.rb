@@ -105,15 +105,15 @@ class User < ActiveRecord::Base
     asciicasts.where('id <> ?', asciicast.id).order('RANDOM()').limit(limit)
   end
 
-  def editable_by?(user)
-    user && user.id == id
-  end
-
   def paged_asciicasts(page, per_page)
     asciicasts.
       includes(:user).
       order("created_at DESC").
       paginate(page, per_page)
+  end
+
+  def admin?
+    CFG.admin_ids.include?(id)
   end
 
   private

@@ -3,11 +3,11 @@ require 'spec_helper'
 class FakesController < ApplicationController
 
   def foo
-    raise Unauthorized
+    ensure_authenticated!
   end
 
   def bar
-    raise Forbidden
+    raise Pundit::NotAuthorizedError
   end
 
   def store
@@ -41,20 +41,17 @@ describe FakesController do
   end
 
   describe "action raise unauthorized" do
-
     context "when xhr" do
       before { allow(request).to receive(:xhr?).and_return(true) }
 
-      it "response with 401" do
+      it "responds with 401" do
         get :foo
 
         expect(response.status).to eq(401)
       end
-
     end
 
-    context "when typical request" do
-
+    context "when normal request" do
       it "redirects to login_path" do
         expect(@controller).to receive(:store_location)
 
@@ -63,30 +60,27 @@ describe FakesController do
         expect(flash[:notice]).to eq("Please sign in to proceed")
         should redirect_to(login_path)
       end
-
     end
   end
 
-  context "when action raise forbidden" do
+  context "when action raises Pundit::NotAuthorizedError" do
     context "when xhr" do
       before { allow(request).to receive(:xhr?).and_return(true) }
 
-      it "response with 401" do
+      it "responds with 403" do
         get :bar
 
         expect(response.status).to eq(403)
       end
     end
 
-    context "when typical request" do
-
+    context "when normal request" do
       it "redirects to root_path" do
         get :bar
 
-        expect(flash[:alert]).to eq("This action is forbidden")
+        expect(flash[:alert]).to_not be(nil)
         should redirect_to(root_path)
       end
-
     end
   end
 

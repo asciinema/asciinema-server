@@ -1,20 +1,23 @@
 class AsciicastPagePresenter
 
-  attr_reader :asciicast, :current_user, :playback_options
+  attr_reader :asciicast, :current_user, :policy, :playback_options
 
   def self.build(asciicast, current_user, playback_options)
     decorated_asciicast = asciicast.decorate
+    policy = Pundit.policy(current_user, asciicast)
 
     playback_options = {
       'theme' =>  decorated_asciicast.theme_name
     }.merge(playback_options)
 
-    new(decorated_asciicast, current_user, PlaybackOptions.new(playback_options))
+    new(decorated_asciicast, current_user, policy,
+        PlaybackOptions.new(playback_options))
   end
 
-  def initialize(asciicast, current_user, playback_options)
+  def initialize(asciicast, current_user, policy, playback_options)
     @asciicast        = asciicast
     @current_user     = current_user
+    @policy           = policy
     @playback_options = playback_options
   end
 
@@ -46,14 +49,33 @@ class AsciicastPagePresenter
     asciicast.views_count
   end
 
-  def embed_script(h)
-    src = h.asciicast_url(asciicast, format: :js)
+  def embed_script(routes)
+    src = routes.asciicast_url(asciicast, format: :js)
     id = "asciicast-#{asciicast.id}"
     %(<script type="text/javascript" src="#{src}" id="#{id}" async></script>)
   end
 
   def show_admin_dropdown?
-    asciicast.managable_by?(current_user)
+    [show_edit_link?,
+     show_delete_link?,
+     show_set_featured_link?,
+     show_unset_featured_link?].any?
+  end
+
+  def show_edit_link?
+    policy.update?
+  end
+
+  def show_delete_link?
+    policy.destroy?
+  end
+
+  def show_set_featured_link?
+    !asciicast.featured? && policy.feature?
+  end
+
+  def show_unset_featured_link?
+    asciicast.featured? && policy.unfeature?
   end
 
   def show_description?

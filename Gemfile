@@ -31,6 +31,7 @@ gem 'yajl-ruby',            '~> 1.1.0', :require => 'yajl'
 gem 'newrelic_rpm'
 gem 'virtus',               '~> 1.0.1'
 gem 'warden',               '~> 1.2.3'
+gem 'pundit',               '~> 0.2.3'
 
 group :development do
   gem 'quiet_assets',   '~> 1.0.1'

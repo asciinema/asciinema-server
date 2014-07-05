@@ -24,9 +24,10 @@ describe AsciicastPagePresenter do
     end
   end
 
-  let(:presenter) { described_class.new(asciicast, current_user, nil) }
+  let(:presenter) { described_class.new(asciicast, current_user, policy, nil) }
   let(:asciicast) { stub_model(Asciicast, user: author) }
   let(:current_user) { User.new }
+  let(:policy) { double('policy') }
   let(:author) { User.new }
 
   let(:view_context) {
@@ -124,27 +125,6 @@ describe AsciicastPagePresenter do
 
     it 'is an async script tag including asciicast id' do
       expect(subject).to match(script_regexp)
-    end
-  end
-
-  describe '#show_admin_dropdown?' do
-    subject { presenter.show_admin_dropdown? }
-
-    before do
-      allow(asciicast).to receive(:managable_by?).
-        with(current_user) { managable }
-    end
-
-    context "when asciicast can't be managed by the user" do
-      let(:managable) { false }
-
-      it { should be(false) }
-    end
-
-    context "when asciicast can be managed by the user" do
-      let(:managable) { true }
-
-      it { should be(true) }
     end
   end
 

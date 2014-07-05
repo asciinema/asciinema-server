@@ -44,9 +44,11 @@ describe UserPagePresenter do
     end
   end
 
-  let(:presenter) { described_class.new(user, current_user, page, per_page) }
-  let(:user) { double('user', username: 'cartman') }
-  let(:current_user) { double('current_user') }
+  let(:presenter) { described_class.new(user, current_user, policy, page,
+                                        per_page) }
+  let(:user) { stub_model(User, username: 'cartman') }
+  let(:current_user) { stub_model(User) }
+  let(:policy) { double('policy') }
   let(:page) { 2 }
   let(:per_page) { 5 }
 
@@ -95,11 +97,21 @@ describe UserPagePresenter do
   describe '#show_settings?' do
     subject { presenter.show_settings? }
 
-    before do
-      allow(user).to receive(:editable_by?).with(current_user) { :right }
+    context "when policy allows for update" do
+      before do
+        allow(policy).to receive(:update?) { true }
+      end
+
+      it { should be(true) }
     end
 
-    it { should eq(:right) }
+    context "when policy doesn't allow for update" do
+      before do
+        allow(policy).to receive(:update?) { false }
+      end
+
+      it { should be(false) }
+    end
   end
 
   describe '#asciicast_count_text' do
@@ -152,7 +164,7 @@ describe UserPagePresenter do
     end
 
     context "when current_user is a different user" do
-      let(:current_user) { double('other_user') }
+      let(:current_user) { stub_model(User) }
 
       it { should be(false) }
     end

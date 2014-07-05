@@ -36,14 +36,26 @@
                 ' 
                 span.caret
               ul.dropdown-menu
-                li
-                  = link_to edit_asciicast_path(page.asciicast) do
-                    span.glyphicon.glyphicon-edit
-                    '  Edit
-                li
-                  = link_to(asciicast_path(page.asciicast), method: :delete, data: { confirm: 'Really delete this asciicast?' }) do
-                    span.glyphicon.glyphicon-remove
-                    '  Delete
+                - if page.show_edit_link?
+                  li
+                    = link_to edit_asciicast_path(page.asciicast) do
+                      span.glyphicon.glyphicon-edit
+                      '  Edit
+                - if page.show_set_featured_link?
+                  li
+                    = link_to(asciicast_path(page.asciicast, 'asciicast[featured]' => 1), method: :put) do
+                      span.glyphicon.glyphicon-eye-open
+                      '  Make featured
+                - if page.show_unset_featured_link?
+                  li
+                    = link_to(asciicast_path(page.asciicast, 'asciicast[featured]' => 0), method: :put) do
+                      span.glyphicon.glyphicon-eye-close
+                      '  Make not featured
+                - if page.show_delete_link?
+                  li
+                    = link_to(asciicast_path(page.asciicast), method: :delete, data: { confirm: 'Really delete this asciicast?' }) do
+                      span.glyphicon.glyphicon-remove
+                      '  Delete
 
           ul.meta-list.actions-list
             li

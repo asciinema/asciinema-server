@@ -6,7 +6,7 @@ shared_examples_for 'guest user trying to modify' do
 end
 
 shared_examples_for 'non-owner user trying to modify' do
-  it { should redirect_to(asciicast_path(asciicast)) }
+  it { should redirect_to(root_path) }
   specify { expect(flash[:alert]).to match(/can't/) }
 end
 

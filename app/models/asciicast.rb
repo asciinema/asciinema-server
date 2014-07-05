@@ -66,14 +66,6 @@ class Asciicast < ActiveRecord::Base
     terminal.release if terminal
   end
 
-  def managable_by?(user)
-    if user
-      user == self.user
-    else
-      false
-    end
-  end
-
   def theme
     theme_name.presence && Theme.for_name(theme_name)
   end

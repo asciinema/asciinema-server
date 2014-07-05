@@ -4,16 +4,13 @@ class ApplicationController < ActionController::Base
 
   protect_from_forgery
 
-  class Unauthorized < Exception; end
-  class Forbidden < Exception; end
-
-  rescue_from ActiveRecord::RecordNotFound, :with => :not_found
-  rescue_from Unauthorized, :with => :unauthorized
-  rescue_from Forbidden, :with => :forbidden
+  rescue_from ActiveRecord::RecordNotFound, with: :handle_not_found
+  rescue_from Pundit::NotAuthorizedError, with: :handle_unauthorized
 
   helper_method :decorated_current_user
 
   include WardenAuthentication
+  include Pundit
 
   private
 
@@ -26,7 +23,7 @@ class ApplicationController < ActionController::Base
   end
 
   def ensure_authenticated!
-    raise Unauthorized unless current_user
+    handle_unauthenticated unless current_user
   end
 
   def omniauth_credentials
@@ -51,31 +48,31 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def forbidden
+  def handle_unauthorized
     if request.xhr?
-      render :json => "Forbidden", :status => 403
+      render json: "Unauthorized", status: 403
     else
-      redirect_to root_path, :alert => "This action is forbidden"
+      redirect_to(request.referrer || root_path, alert: "You can't do that.")
     end
   end
 
-  def unauthorized
+  def handle_unauthenticated
     if request.xhr?
-      render :json => "Unauthorized", :status => 401
+      render json: "Unauthenticated", status: 401
     else
       store_location
-      redirect_to login_path, :notice => "Please sign in to proceed"
+      redirect_to login_path, notice: "Please sign in to proceed"
     end
   end
 
-  def not_found
+  def handle_not_found
     respond_to do |format|
       format.any do
-        render :text => 'Requested resource not found', :status => 404
+        render text: 'Requested resource not found', status: 404
       end
 
       format.html do
-        render 'application/not_found', :status => 404, :layout => 'application'
+        render 'application/not_found', status: 404, layout: 'application'
       end
     end
   end

@@ -2,15 +2,17 @@ class UserPagePresenter
 
   PER_PAGE = 15
 
-  attr_reader :user, :current_user, :page, :per_page
+  attr_reader :user, :current_user, :policy, :page, :per_page
 
   def self.build(user, current_user, page = nil, per_page = nil)
-    new(user.decorate, current_user, page || 1, per_page || PER_PAGE)
+    policy = Pundit.policy(current_user, user)
+    new(user.decorate, current_user, policy, page || 1, per_page || PER_PAGE)
   end
 
-  def initialize(user, current_user, page, per_page)
+  def initialize(user, current_user, policy, page, per_page)
     @user         = user
     @current_user = current_user
+    @policy       = policy
     @page         = page
     @per_page     = per_page
   end
@@ -32,7 +34,7 @@ class UserPagePresenter
   end
 
   def show_settings?
-    user.editable_by?(current_user)
+    policy.update?
   end
 
   def asciicast_count_text(h)

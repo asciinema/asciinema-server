@@ -2,7 +2,6 @@ class AsciicastsController < ApplicationController
 
   before_filter :load_resource, except: [:index]
   before_filter :ensure_authenticated!, only: [:edit, :update, :destroy]
-  before_filter :ensure_owner!, only: [:edit, :update, :destroy]
 
   respond_to :html, :json
 
@@ -35,9 +34,12 @@ class AsciicastsController < ApplicationController
   end
 
   def edit
+    authorize asciicast
   end
 
   def update
+    authorize asciicast
+
     if asciicast.update_attributes(update_params)
       redirect_to asciicast_path(asciicast),
                   :notice => 'Asciicast was updated.'
@@ -47,6 +49,8 @@ class AsciicastsController < ApplicationController
   end
 
   def destroy
+    authorize asciicast
+
     if asciicast.destroy
       redirect_to profile_path(current_user),
                   :notice => 'Asciicast was deleted.'
@@ -63,18 +67,12 @@ class AsciicastsController < ApplicationController
     @asciicast = Asciicast.find(params[:id])
   end
 
-  def ensure_owner!
-    if current_user != asciicast.user
-      redirect_to asciicast_path(asciicast), :alert => "You can't do that."
-    end
-  end
-
   def view_counter
     @view_counter ||= ViewCounter.new
   end
 
   def update_params
-    params.require(:asciicast).permit(:title, :description, :theme_name)
+    params.require(:asciicast).permit(*policy(asciicast).permitted_attributes)
   end
 
 end
