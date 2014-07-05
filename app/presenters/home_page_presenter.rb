@@ -11,11 +11,11 @@ class HomePagePresenter
   end
 
   def latest_asciicasts
-    Asciicast.latest_limited(3).decorate
+    Asciicast.latest_limited(6).decorate
   end
 
   def featured_asciicasts
-    Asciicast.random_featured_limited(3).decorate
+    Asciicast.random_featured_limited(6).decorate
   end
 
   private
