@@ -34,7 +34,7 @@
       .row.features
         .col-md-4
           h1 Simple recording
-          p 
+          p
             ' Record right where you work - in a terminal.
               To start just run <code>asciinema rec</code>, to finish hit &lt;ctrl-d&gt; or type <code>exit</code>.
           p
@@ -62,11 +62,11 @@
           .asciicast-list
             = render 'asciicasts/previews', asciicasts: page.featured_asciicasts, per_row: 3
           p
-            a href=category_path(:featured) Browse featured asciicasts
+            a href=category_path(:featured) class="btn btn-success" Browse featured asciicasts
       .row
         .col-md-12
           h1 Latest asciicasts
           .asciicast-list
             = render 'asciicasts/previews', asciicasts: page.latest_asciicasts, per_row: 3
           p
-            a href=browse_path Browse all asciicasts
+            a href=browse_path class="btn btn-success" Browse all asciicasts
