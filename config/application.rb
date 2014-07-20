@@ -33,5 +33,13 @@ module Asciinema
     end
 
     config.i18n.enforce_available_locales = true
+
+    config.middleware.use ::Rack::Robustness do |g|
+      g.no_catch_all
+      g.on(ArgumentError) { |ex| 400 }
+      g.content_type 'text/plain'
+      g.body{ |ex| ex.message }
+      g.ensure(true) { |ex| env['rack.errors'].write(ex.message) }
+    end
   end
 end
