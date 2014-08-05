@@ -1,6 +1,6 @@
 # asciinema.org
 
-[![Build Status](https://travis-ci.org/sickill/asciinema.org.png?branch=master)](https://travis-ci.org/sickill/asciinema.org)
+[![Build Status](https://travis-ci.org/asciinema/asciinema.org.svg?branch=master)](https://travis-ci.org/asciinema/asciinema.org)
 [![Code Climate](https://codeclimate.com/github/sickill/asciinema.org.png)](https://codeclimate.com/github/sickill/asciinema.org)
 [![Coverage Status](https://coveralls.io/repos/sickill/asciinema.org/badge.png)](https://coveralls.io/r/sickill/asciinema.org)
 
@@ -40,8 +40,10 @@ dependencies installed:
 
 Clone git repository:
 
-    $ git clone git://github.com/sickill/asciinema.org.git
-    $ cd asciinema.org
+```bash
+$ git clone git://github.com/sickill/asciinema.org.git
+$ cd asciinema.org
+```
 
 ### 3. Prepare database config file
 
@@ -56,17 +58,23 @@ databases).
 
 Following script will install gem dependencies and setup database:
 
-    $ ./script/setup
+```bash
+$ ./script/setup
+```
 
 ### 5. Run Rails server
 
-    $ bundle exec rails server
+```bash
+$ bundle exec rails server
+```
 
 ### 6. Run the background job processor
 
 The background job processor is needed for thumbnail generation.
 
-    $ bundle exec sidekiq
+```bash
+$ bundle exec sidekiq
+```
 
 ## Contributing
 
