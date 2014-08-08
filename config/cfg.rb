@@ -3,8 +3,7 @@ module Asciinema
     include Virtus.model
 
     attribute :add_this_profile_id,            String
-    attribute :airbrake_api_key,               String
-    attribute :airbrake_host,                  String
+    attribute :bugsnag_api_key,                String
     attribute :aws_access_key_id,              String
     attribute :aws_bucket,                     String
     attribute :aws_region,                     String
