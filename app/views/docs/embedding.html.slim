@@ -35,8 +35,8 @@ markdown:
   The `speed` option alters the playback speed. The default speed is 1 which
   means it plays at the unaltered, original speed.
 
-  For example, to make the playback 2 times faster than original recording the
-  script should look like this:
+  For example, to make the playback 2 times faster than original use the
+  following script:
 
       <script type="text/javascript" src="https://asciinema.org/a/14.js" id="asciicast-14" async data-speed="2"></script>
 
@@ -49,9 +49,23 @@ markdown:
   * medium
   * big
 
-  For example, to make the font big the script should look like this:
+  For example, to make the font big use the following script:
 
       <script type="text/javascript" src="https://asciinema.org/a/14.js" id="asciicast-14" async data-size="big"></script>
+
+  ### theme
+
+  The `theme` option allows overriding a theme used for the terminal.
+  It defaults to a theme set by the asciicast author (or to "tango" if not set
+  by the author).  There are 3 available themes:
+
+  * tango
+  * solarized-dark
+  * solarized-light
+
+  For example, to use Solarized Dark theme use the following script:
+
+      <script type="text/javascript" src="https://asciinema.org/a/14.js" id="asciicast-14" async data-theme="solarized-dark"></script>
 
   ### autoplay
 
@@ -61,7 +75,7 @@ markdown:
   * 0 / false - do not start playback automatically (default)
   * 1 / true - start playback automatically
 
-  For example, to make the asciicast auto play:
+  For example, to make the asciicast auto play use the following script:
 
       <script type="text/javascript" src="https://asciinema.org/a/14.js" id="asciicast-14" async data-autoplay="true"></script>
 
@@ -73,6 +87,6 @@ markdown:
   * 0 / false - disable looping (default)
   * 1 / true - enable looping
 
-  For example, to make the asciicast play infinitely:
+  For example, to make the asciicast play infinitely use the following script:
 
       <script type="text/javascript" src="https://asciinema.org/a/14.js" id="asciicast-14" async data-loop="true"></script>
