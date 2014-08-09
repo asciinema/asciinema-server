@@ -5,7 +5,5 @@ html[lang="en"]
     title = page_title
     = stylesheet_link_tag 'embed', :media => 'all'
     = javascript_include_tag 'embed'
-    script
-      | window.mainWorkerPath = '#{javascript_path "main_worker"}';
   body.iframe
     = yield

@@ -15,7 +15,6 @@ html[lang="en"]
     = favicon_link_tag 'favicon.png'
     = render 'layouts/ga'
     script
-      | window.mainWorkerPath = '#{javascript_path "main_worker"}';
       | window.browserIdUser = #{browser_id_user};
   body
     = render 'layouts/header'
