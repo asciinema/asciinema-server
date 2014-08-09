@@ -32,8 +32,12 @@
       params = params.concat(['speed=' + speed]);
     }
     var autoplay = script.getAttribute('data-autoplay');
-    if (autoplay === '1') {
+    if (autoplay) {
       params = params.concat(['autoplay=' + autoplay]);
+    }
+    var loop = script.getAttribute('data-loop');
+    if (loop) {
+      params = params.concat(['loop=' + loop]);
     }
     var theme = script.getAttribute('data-theme');
     if (theme) {

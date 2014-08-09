@@ -349,15 +349,29 @@
     this.totalTime = totalTime;
   }
 
-  Movie.prototype.start = function(onFrame, onFinish, setTime, setLoading) {
+  Movie.prototype.start = function(onFrame, onFinish, setTime, setLoading, loop) {
     var timeIntervalId;
 
+    var controller = {};
+
     function onSourceFinish() {
-      clearInterval(timeIntervalId);
-      onFinish();
+      if (loop) {
+        start();
+      } else {
+        clearInterval(timeIntervalId);
+        onFinish();
+      }
     }
 
-    var controller = this.source.start(onFrame, onSourceFinish, setLoading);
+    function start() {
+      var ctrl = this.source.start(onFrame, onSourceFinish, setLoading);
+
+      for (prop in ctrl) {
+        controller[prop] = ctrl[prop];
+      }
+    }
+
+    start();
 
     timeIntervalId = setInterval(function() {
       setTime(controller.time());
@@ -685,7 +699,7 @@
   var dom = React.DOM;
 
   exports.Player = React.createClass({ displayName: 'Player',
-    // props: movie, autoPlay, fontSize, theme
+    // props: movie, autoPlay, fontSize, theme, loop
 
     getInitialState: function() {
       var lines = this.props.movie.snapshot || [];
@@ -800,7 +814,7 @@
 
     start: function() {
       this.setState({ state: 'playing' });
-      this.movieController = this.props.movie.start(this.onFrame, this.onFinish, this.setTime, this.setLoading);
+      this.movieController = this.props.movie.start(this.onFrame, this.onFinish, this.setTime, this.setLoading, this.props.loop);
     },
 
     onFinish: function() {

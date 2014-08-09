@@ -58,9 +58,21 @@ markdown:
   The `autoplay` option allows for automatic playback start when the player
   loads. Accepted values:
 
-  * 0 - do not start playback automatically (default)
-  * 1 - start playback automatically
+  * 0 / false - do not start playback automatically (default)
+  * 1 / true - start playback automatically
 
   For example, to make the asciicast auto play:
 
-      <script type="text/javascript" src="https://asciinema.org/a/14.js" id="asciicast-14" async data-autoplay="1"></script>
+      <script type="text/javascript" src="https://asciinema.org/a/14.js" id="asciicast-14" async data-autoplay="true"></script>
+
+  ### loop
+
+  The `loop` option allows for looping the playback. This option is usually
+  combined with `autoplay` option. Accepted values:
+
+  * 0 / false - disable looping (default)
+  * 1 / true - enable looping
+
+  For example, to make the asciicast play infinitely:
+
+      <script type="text/javascript" src="https://asciinema.org/a/14.js" id="asciicast-14" async data-loop="true"></script>
