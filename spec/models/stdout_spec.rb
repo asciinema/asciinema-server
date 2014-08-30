@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Stdout do
   let(:stdout) { Stdout.new('spec/fixtures/stdout.decompressed',

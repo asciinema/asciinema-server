@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe 'connect routing' do
   it 'routes /connect/:api_token to api_tokens#create for api_token' do

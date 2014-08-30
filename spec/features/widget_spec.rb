@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 routes = proc do
   get '/test/widget/:id' => 'test_widget#show'

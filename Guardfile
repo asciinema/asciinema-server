@@ -1,7 +1,7 @@
 notification :tmux, :color_location => 'status-right-bg'
 
 guard 'rspec', all_on_start: false, cmd: 'spring rspec --fail-fast --tag ~js --tag ~slow' do
-  watch('spec/spec_helper.rb')  { "spec" }
+  watch('spec/rails_helper.rb')  { "spec" }
   watch('config/routes.rb')                           { "spec/routing" }
   watch('app/controllers/application_controller.rb')  { "spec/controllers" }
   watch(%r{^spec/.+_spec\.rb$})

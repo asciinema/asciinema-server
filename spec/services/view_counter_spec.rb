@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe ViewCounter do
   let(:view_counter) { described_class.new }

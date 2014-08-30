@@ -1,4 +1,4 @@
-Asciinema::Application.routes.draw do
+Rails.application.routes.draw do
 
   get "/browse" => "asciicasts#index", :as => :browse
   get "/browse/:category" => "asciicasts#index", :as => :category
@@ -38,4 +38,5 @@ Asciinema::Application.routes.draw do
   get '/privacy' => 'pages#show', page: :privacy, as: :privacy
   get '/tos' => 'pages#show', page: :tos, as: :tos
   get '/contributing' => 'pages#show', page: :contributing, as: :contributing
+
 end

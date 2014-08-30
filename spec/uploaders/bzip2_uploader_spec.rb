@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe Bzip2Uploader do
   let(:uploader) { Bzip2Uploader.new(user, :photo) }

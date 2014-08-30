@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe 'Asciicast playback', :js => true, :slow => true do
 

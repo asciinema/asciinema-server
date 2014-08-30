@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 require 'tempfile'
 
 describe Asciicast do
