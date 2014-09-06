@@ -23,7 +23,7 @@ it on your local machine or setup your own instance for your organization.
 asciinema.org site is a Ruby on Rails application. You need to have following
 dependencies installed:
 
-* Ruby 1.9.3+ (Ruby 2.0.0-p247 is recommended)
+* Ruby 2.0+ (Ruby 2.1 is recommended)
 
 * bundler gem  
   `gem install bundler`
