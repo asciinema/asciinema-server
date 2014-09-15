@@ -1,4 +1,4 @@
-class StdoutDataUploader < Bzip2Uploader
+class StdoutDataUploader < CompressedFileUploader
 
   def store_dir
     store_dir_prefix +

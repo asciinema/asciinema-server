@@ -1,1 +1,1 @@
-class StdoutTimingUploader < Bzip2Uploader; end
+class StdoutTimingUploader < CompressedFileUploader; end

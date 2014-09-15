@@ -1,7 +1,7 @@
 require 'rails_helper'
 
-describe Bzip2Uploader do
-  let(:uploader) { Bzip2Uploader.new(user, :photo) }
+describe CompressedFileUploader do
+  let(:uploader) { CompressedFileUploader.new(user, :photo) }
   let(:user) { User.new }
 
   describe '#decompressed_path' do
@@ -14,14 +14,7 @@ describe Bzip2Uploader do
     end
 
     context "when file was stored" do
-      let(:decompressed_data) { File.read(subject) }
-
-      before do
-        uploader.store!(File.open('spec/fixtures/munch.bz2'))
-      end
-
-      it 'returns a path to the decompressed data' do
-        expect(decompressed_data).to eq(<<EOS)
+      let(:expected_contents) { <<EOS }
 Edvard Munch - The Scream
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXP
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXY?"""  .
@@ -155,6 +148,27 @@ $F        `'      <!               !!!               !!>    !!
                   `-                ;!                                `"$$
                                                                         `?
 EOS
+
+      context "and it was bzip2" do
+        before do
+          uploader.store!(File.open('spec/fixtures/munch.bz2'))
+        end
+
+        it 'returns a path to the decompressed data' do
+          path = subject
+          expect(File.read(path)).to eq(expected_contents)
+        end
+      end
+
+      context "and it was gzip" do
+        before do
+          uploader.store!(File.open('spec/fixtures/munch.gz'))
+        end
+
+        it 'returns a path to the decompressed data' do
+          path = subject
+          expect(File.read(path)).to eq(expected_contents)
+        end
       end
     end
   end
