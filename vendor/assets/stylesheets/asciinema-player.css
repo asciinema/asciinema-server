@@ -46,7 +46,8 @@
       padding: 0;
       display: inline-block; }
   .asciinema-terminal .line {
-    display: block; }
+    display: block;
+    width: 101%; }
   .asciinema-terminal .bright {
     font-weight: bold; }
   .asciinema-terminal .underline {
