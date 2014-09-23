@@ -21,9 +21,9 @@ class CompressedFileUploader < BaseUploader
 
     case header
     when [31, 139]
-      system("gzip -d -k -c #{current_path} >#{out_path}")
+      system("gzip -d -c #{current_path} >#{out_path}")
     when [66, 90]
-      system("bzip2 -d -k -c #{current_path} >#{out_path}")
+      system("bzip2 -d -c #{current_path} >#{out_path}")
     else
       raise "unknown compressed file format"
     end
