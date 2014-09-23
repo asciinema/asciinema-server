@@ -13,7 +13,7 @@ feature "User's profile" do
     expect(page).to have_selector('.asciicast-list .play-button')
   end
 
-  scenario 'Updating profile', js: true do
+  scenario 'Updating profile', js: true, unstable: true do
     login_as user
 
     within 'header' do

@@ -7,7 +7,7 @@ before_script:
   - psql -c 'create database myapp_test;' -U postgres
   - "cp config/database.travis.yml config/database.yml"
   - phantomjs --version
-script: ./script/cibuild.sh
+script: RSPEC_EXCLUDE_UNSTABLE=1 ./script/cibuild.sh
 rvm:
   - 2.1.0
   - rbx
