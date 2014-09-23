@@ -5,7 +5,7 @@ describe AsciicastFramesFileUpdater do
   let(:updater) { described_class.new(file_writer) }
   let(:file_writer) { double('file_writer') }
 
-  describe '#update' do
+  describe '#update', needs_terminal_bin: true do
     let(:asciicast) { create(:asciicast) }
     let(:film) { double('film', :frames => frames) }
     let(:frames) { [1, 2] }

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe Terminal do
+describe Terminal, needs_terminal_bin: true do
 
   let(:terminal) { Terminal.new(6, 3) }
   let(:first_line_text) { subject.as_json.first.map(&:first).join.strip }
