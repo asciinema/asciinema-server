@@ -177,6 +177,14 @@ describe AsciicastDecorator do
     let(:thumbnail) { double('thumbnail') }
 
     before do
+      RSpec::Mocks.configuration.verify_partial_doubles = false # for stubbing "helpers"
+    end
+
+    after do
+      RSpec::Mocks.configuration.verify_partial_doubles = true
+    end
+
+    before do
       allow(asciicast).to receive(:snapshot) { json }
       allow(Snapshot).to receive(:build).with(json) { snapshot }
       allow(helpers).to receive(:render).

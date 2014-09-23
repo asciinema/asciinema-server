@@ -10,7 +10,15 @@ describe UserDecorator do
     let(:user) { User.new(username: 'satyr') }
 
     before do
+      RSpec::Mocks.configuration.verify_partial_doubles = false # for stubbing "h"
+    end
+
+    before do
       allow(h).to receive(:profile_path).with(user) { '/path' }
+    end
+
+    after do
+      RSpec::Mocks.configuration.verify_partial_doubles = true
     end
 
     context "when user is real" do
@@ -40,8 +48,16 @@ describe UserDecorator do
     let(:user) { User.new(username: 'satyr') }
 
     before do
+      RSpec::Mocks.configuration.verify_partial_doubles = false # for stubbing "h"
+    end
+
+    before do
       allow(h).to receive(:profile_path).with(user) { '/path' }
       allow(decorator).to receive(:avatar_image_tag) { '<img ...>'.html_safe }
+    end
+
+    after do
+      RSpec::Mocks.configuration.verify_partial_doubles = true
     end
 
     context "when user is real" do

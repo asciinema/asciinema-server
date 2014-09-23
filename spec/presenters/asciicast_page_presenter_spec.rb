@@ -25,7 +25,7 @@ describe AsciicastPagePresenter do
   end
 
   let(:presenter) { described_class.new(asciicast, current_user, policy, nil) }
-  let(:asciicast) { stub_model(Asciicast, user: author) }
+  let(:asciicast) { stub_model(Asciicast, user: author).decorate }
   let(:current_user) { User.new }
   let(:policy) { double('policy') }
   let(:author) { User.new }
@@ -113,15 +113,12 @@ describe AsciicastPagePresenter do
   describe '#embed_script' do
     subject { presenter.embed_script(view_context) }
 
+    let(:asciicast) { stub_model(Asciicast, id: 123).decorate }
     let(:src_regexp) { /src="[^"]+\b123\b[^"]*\.js"/ }
     let(:id_regexp) { /id="asciicast-123"/ }
     let(:script_regexp) {
       /^<script[^>]+#{src_regexp}[^>]+#{id_regexp}[^>]*><\/script>/
     }
-
-    before do
-      allow(asciicast).to receive(:id).and_return(123)
-    end
 
     it 'is an async script tag including asciicast id' do
       expect(subject).to match(script_regexp)

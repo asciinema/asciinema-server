@@ -46,7 +46,7 @@ describe UserPagePresenter do
 
   let(:presenter) { described_class.new(user, current_user, policy, page,
                                         per_page) }
-  let(:user) { stub_model(User, username: 'cartman') }
+  let(:user) { stub_model(User, username: 'cartman').decorate }
   let(:current_user) { stub_model(User) }
   let(:policy) { double('policy') }
   let(:page) { 2 }

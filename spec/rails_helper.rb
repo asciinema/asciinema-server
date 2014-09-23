@@ -1,3 +1,7 @@
+ENV["RAILS_ENV"] ||= 'test'
+
+require 'spec_helper'
+
 if ENV["CI"] && (!defined?(RUBY_ENGINE) || RUBY_ENGINE == "ruby")
   require 'simplecov'
   require 'coveralls'
@@ -9,7 +13,6 @@ if ENV["CI"] && (!defined?(RUBY_ENGINE) || RUBY_ENGINE == "ruby")
   end
 end
 
-ENV["RAILS_ENV"] ||= 'test'
 ENV['CARRIERWAVE_STORAGE_DIR_PREFIX'] ||= 'uploads/test/'
 
 require File.expand_path("../../config/environment", __FILE__)
