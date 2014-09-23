@@ -129,6 +129,16 @@ describe User do
 
       it { should be(nil) }
     end
+
+    context "when given email is nil" do
+      let(:email) { nil }
+
+      before do
+        create(:dummy_user, email: nil)
+      end
+
+      it { should be(nil) }
+    end
   end
 
   describe '.for_api_token' do

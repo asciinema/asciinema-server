@@ -26,7 +26,9 @@ class User < ActiveRecord::Base
   end
 
   def self.for_email(email)
-    where(email: email).first
+    if email
+      where(email: email).first
+    end
   end
 
   def self.real_for_username!(username)
