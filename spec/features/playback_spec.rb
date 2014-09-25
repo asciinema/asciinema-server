@@ -17,7 +17,7 @@ describe 'Asciicast playback', :js => true, :slow => true do
     it "is successful" do
       visit asciicast_path(asciicast, speed: 5)
       find(".start-prompt .play-button").click
-      page.should have_css('.time-remaining', visible: false, text: '-00:0')
+      expect(page).to have_css('.time-remaining', visible: false, text: '-00:0')
     end
   end
 
