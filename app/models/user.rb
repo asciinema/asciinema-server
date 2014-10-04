@@ -9,6 +9,7 @@ class User < ActiveRecord::Base
   has_many :api_tokens, :dependent => :destroy
   has_many :asciicasts, :dependent => :destroy
   has_many :comments, :dependent => :destroy
+  has_many :expiring_tokens, dependent: :destroy
 
   validates :username, uniqueness: { case_sensitive: false },
                        format: { with: USERNAME_FORMAT },

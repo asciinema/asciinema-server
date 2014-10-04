@@ -72,6 +72,17 @@ ActiveRecord::Schema.define(version: 20141005152615) do
   add_index "comments", ["asciicast_id"], name: "index_comments_on_asciicast_id", using: :btree
   add_index "comments", ["user_id"], name: "index_comments_on_user_id", using: :btree
 
+  create_table "expiring_tokens", force: true do |t|
+    t.integer  "user_id",    null: false
+    t.string   "token",      null: false
+    t.datetime "expires_at", null: false
+    t.datetime "created_at"
+    t.datetime "used_at"
+  end
+
+  add_index "expiring_tokens", ["used_at", "expires_at", "token"], name: "index_expiring_tokens_on_used_at_and_expires_at_and_token", using: :btree
+  add_index "expiring_tokens", ["user_id"], name: "index_expiring_tokens_on_user_id", using: :btree
+
   create_table "likes", force: true do |t|
     t.integer  "asciicast_id", null: false
     t.integer  "user_id",      null: false
