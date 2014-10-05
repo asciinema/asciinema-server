@@ -21,7 +21,7 @@ class ApiToken < ActiveRecord::Base
   private
 
   def taken?
-    !user.dummy?
+    user.confirmed?
   end
 
 end

@@ -9,7 +9,7 @@ class UsersController < ApplicationController
   end
 
   def show
-    user = User.real_for_username!(params[:username])
+    user = User.for_username!(params[:username])
     render locals: { page: UserPagePresenter.build(user, current_user, params[:page]) }
   end
 

@@ -68,12 +68,8 @@ describe Asciicast do
     end
 
     context "when it doesn't have user assigned" do
-      it 'is a dummy user' do
-        expect(asciicast.user).to be_dummy
-      end
-
-      it 'is a user with "anonymous" as username' do
-        expect(asciicast.user.username).to eq('anonymous')
+      it 'is a null user' do
+        expect(asciicast.user.temporary_username).to eq('anonymous')
       end
     end
   end

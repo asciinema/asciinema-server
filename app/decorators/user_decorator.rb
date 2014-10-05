@@ -2,7 +2,7 @@ class UserDecorator < ApplicationDecorator
   include AvatarHelper
 
   def link
-    wrap_with_link(username)
+    wrap_with_link(username || temporary_username || 'anonymous')
   end
 
   def img_link
@@ -28,10 +28,10 @@ class UserDecorator < ApplicationDecorator
   private
 
   def wrap_with_link(html)
-    if dummy
-      html
-    else
+    if username
       h.link_to html, h.profile_path(model), title: username
+    else
+      html
     end
   end
 

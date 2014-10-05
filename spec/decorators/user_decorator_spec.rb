@@ -7,7 +7,7 @@ describe UserDecorator do
   describe '#link' do
     subject { decorator.link }
 
-    let(:user) { User.new(username: 'satyr') }
+    let(:user) { User.new }
 
     before do
       RSpec::Mocks.configuration.verify_partial_doubles = false # for stubbing "h"
@@ -21,9 +21,9 @@ describe UserDecorator do
       RSpec::Mocks.configuration.verify_partial_doubles = true
     end
 
-    context "when user is real" do
+    context "when user has username" do
       before do
-        user.dummy = false
+        user.username = "satyr"
       end
 
       it "is a username link to user's profile" do
@@ -31,13 +31,23 @@ describe UserDecorator do
       end
     end
 
-    context "when user is dummy" do
+    context "when user has temporary username" do
       before do
-        user.dummy = true
+        user.temporary_username = "temp"
       end
 
       it "is user's username" do
-        expect(subject).to eq('satyr')
+        expect(subject).to eq('temp')
+      end
+    end
+
+    context "when user has neither username nor temporary username" do
+      before do
+        user.username = user.temporary_username = nil
+      end
+
+      it 'is "anonymous"' do
+        expect(subject).to eq('anonymous')
       end
     end
   end
@@ -45,7 +55,7 @@ describe UserDecorator do
   describe '#img_link' do
     subject { decorator.img_link }
 
-    let(:user) { User.new(username: 'satyr') }
+    let(:user) { User.new }
 
     before do
       RSpec::Mocks.configuration.verify_partial_doubles = false # for stubbing "h"
@@ -60,9 +70,9 @@ describe UserDecorator do
       RSpec::Mocks.configuration.verify_partial_doubles = true
     end
 
-    context "when user is real" do
+    context "when user has username" do
       before do
-        user.dummy = false
+        user.username = "satyr"
       end
 
       it "is an avatar link to user's profile" do
@@ -70,9 +80,9 @@ describe UserDecorator do
       end
     end
 
-    context "when user is dummy" do
+    context "when user has no username" do
       before do
-        user.dummy = true
+        user.username = nil
       end
 
       it "is user's avatar image" do

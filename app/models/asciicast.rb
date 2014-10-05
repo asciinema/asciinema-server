@@ -51,7 +51,7 @@ class Asciicast < ActiveRecord::Base
   end
 
   def user
-    super || self.user = dummy_user
+    super || self.user = User.null
   end
 
   def stdout
@@ -68,12 +68,6 @@ class Asciicast < ActiveRecord::Base
 
   def theme
     theme_name.presence && Theme.for_name(theme_name)
-  end
-
-  private
-
-  def dummy_user
-    User.new(username: 'anonymous').tap { |u| u.dummy = true }
   end
 
 end

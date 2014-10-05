@@ -2,10 +2,6 @@ require 'rails_helper'
 
 describe User do
 
-  it "is not dummy by default" do
-    expect(described_class.new).to_not be_dummy
-  end
-
   it 'gets an auth_token upon creation' do
     attrs = attributes_for(:user)
     attrs.delete(:auth_token)
@@ -18,37 +14,7 @@ describe User do
     let!(:existing_user) { create(:user, username: 'the-user-name') }
     let(:user) { described_class.new }
 
-    it { should validate_presence_of(:username) }
-
-    context "when user is dummy" do
-      before do
-        user.dummy = true
-      end
-
-      it "doesn't check username uniqueness" do
-        user.username = existing_user.username
-        user.valid?
-        expect(user.errors[:username]).to be_empty
-      end
-
-      it "doesn't check email presence" do
-        user.email = nil
-        user.valid?
-        expect(user.errors[:email]).to be_empty
-      end
-
-      it "doesn't check email uniqueness" do
-        user.email = existing_user.email
-        user.valid?
-        expect(user.errors[:email]).to be_empty
-      end
-    end
-
-    context "when user is real" do
-      before do
-        user.dummy = false
-      end
-
+    context "when username is set" do
       it { should allow_value('sickill').for(:username) }
       it { should allow_value('sick-ill').for(:username) }
       it { should allow_value('ab').for(:username) }
@@ -59,24 +25,6 @@ describe User do
       it { should_not allow_value('sickill-').for(:username) }
       it { should_not allow_value('a').for(:username) }
       it { should_not allow_value('s' * 17).for(:username) }
-
-      it "checks username uniqueness" do
-        user.username = 'The-User-Name'
-        user.valid?
-        expect(user.errors[:username]).to_not be_empty
-      end
-
-      it "checks email presence" do
-        user.email = nil
-        user.valid?
-        expect(user.errors[:email]).to_not be_empty
-      end
-
-      it "checks email uniqueness" do
-        user.email = existing_user.email
-        user.valid?
-        expect(user.errors[:email]).to_not be_empty
-      end
     end
   end
 
@@ -184,8 +132,8 @@ describe User do
       expect(subject.id).not_to be(nil)
     end
 
-    it "assigns given username to the user" do
-      expect(subject.username).to eq(username)
+    it "assigns given username to the user as temporary_username" do
+      expect(subject.temporary_username).to eq(username)
     end
 
     it "assigns given api token to the user" do
@@ -205,8 +153,8 @@ describe User do
         expect(subject.id).not_to be(nil)
       end
 
-      it "assigns 'anonymous' as username to the user" do
-        expect(subject.username).to eq('anonymous')
+      it "assigns nil as temporary_username to the user" do
+        expect(subject.temporary_username).to be(nil)
       end
     end
 
@@ -217,8 +165,8 @@ describe User do
         expect(subject.id).not_to be(nil)
       end
 
-      it "assigns 'anonymous' as username to the user" do
-        expect(subject.username).to eq('anonymous')
+      it "assigns nil as temporary_username to the user" do
+        expect(subject.temporary_username).to be(nil)
       end
     end
   end

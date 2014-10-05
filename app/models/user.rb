@@ -10,14 +10,13 @@ class User < ActiveRecord::Base
   has_many :asciicasts, :dependent => :destroy
   has_many :comments, :dependent => :destroy
 
-  validates :username, presence: true
-  validates :username, uniqueness: { scope: :dummy, case_sensitive: false },
+  validates :username, uniqueness: { case_sensitive: false },
                        format: { with: USERNAME_FORMAT },
                        length: { minimum: 2, maximum: 16 },
-                       unless: :dummy
-  validates :email, presence: true, uniqueness: true, unless: :dummy
+                       if: :username
+  validates :email, uniqueness: true, if: :email
 
-  scope :real, -> { where(dummy: false) }
+  scope :with_username, -> { where('username IS NOT NULL') }
 
   before_create :generate_auth_token
 
@@ -31,8 +30,8 @@ class User < ActiveRecord::Base
     end
   end
 
-  def self.real_for_username!(username)
-    real.where(username: username).first!
+  def self.for_username!(username)
+    with_username.where(username: username).first!
   end
 
   def self.for_api_token(token)
@@ -47,12 +46,11 @@ class User < ActiveRecord::Base
 
   def self.create_dummy(token, username)
     return nil if token.blank?
-    username = 'anonymous' if username.blank?
+    username = nil if username.blank?
 
     transaction do |tx|
       user = User.new
-      user.dummy = true
-      user.username = username
+      user.temporary_username = username
       user.save!
       user.api_tokens.create!(token: token)
       user
@@ -61,6 +59,14 @@ class User < ActiveRecord::Base
 
   def self.generate_auth_token
     SecureRandom.urlsafe_base64
+  end
+
+  def self.null
+    new(temporary_username: 'anonymous')
+  end
+
+  def confirmed?
+    email.present?
   end
 
   def username=(value)

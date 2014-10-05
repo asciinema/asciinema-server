@@ -44,7 +44,7 @@ describe ApiToken do
 
     context "when source user is a dummy user" do
       before do
-        user.dummy = true
+        allow(user).to receive(:confirmed?) { false }
       end
 
       it "merges user to target user" do
@@ -62,9 +62,9 @@ describe ApiToken do
       end
     end
 
-    context "when source user is a real user" do
+    context "when source user is confirmed user" do
       before do
-        user.dummy = false
+        allow(user).to receive(:confirmed?) { true }
       end
 
       it "raises ApiTokenTakenError" do
