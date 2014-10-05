@@ -12,7 +12,8 @@ Rails.application.routes.draw do
     end
   end
 
-  get "/~:username" => "users#show", :as => :profile
+  get "/u/:id" => "users#show", as: :unnamed_user
+  get "/~:username" => "users#show", as: :public_profile
 
   namespace :api do
     resources :asciicasts

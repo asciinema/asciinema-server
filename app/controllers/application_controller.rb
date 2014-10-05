@@ -77,4 +77,14 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def profile_path(user)
+    if user.username
+      public_profile_path(username: user.username)
+    else
+      unnamed_user_path(user)
+    end
+  end
+
+  helper_method :profile_path
+
 end

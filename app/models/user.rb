@@ -81,10 +81,6 @@ class User < ActiveRecord::Base
     theme_name.presence && Theme.for_name(theme_name)
   end
 
-  def to_param
-    username
-  end
-
   def assign_api_token(token)
     api_token = ApiToken.for_token(token)
 
