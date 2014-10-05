@@ -11,7 +11,7 @@ FactoryGirl.define do
     sequence(:email) { |n| "foo#{n}@bar.com" }
   end
 
-  factory :dummy_user, class: User do
+  factory :unconfirmed_user, class: User do
     sequence(:temporary_username) { generate(:username) }
   end
 end

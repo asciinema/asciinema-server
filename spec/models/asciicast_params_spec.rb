@@ -54,14 +54,14 @@ describe AsciicastParams do
     it { should eq(expected_attrs) }
 
     context "when given api token is not found" do
-      let(:expected_user) { dummy_user }
-      let(:dummy_user) { User.new }
+      let(:expected_user) { unconfirmed_user }
+      let(:unconfirmed_user) { User.new }
 
       before do
         allow(User).to receive(:for_api_token).
           with('f33e6188-f53c-11e2-abf4-84a6c827e88b') { nil }
-        allow(User).to receive(:create_dummy).
-          with('f33e6188-f53c-11e2-abf4-84a6c827e88b', 'kill') { dummy_user }
+        allow(User).to receive(:create_with_token).
+          with('f33e6188-f53c-11e2-abf4-84a6c827e88b', 'kill') { unconfirmed_user }
       end
 
       it { should eq(expected_attrs) }

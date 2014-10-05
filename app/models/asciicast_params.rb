@@ -31,7 +31,7 @@ class AsciicastParams
     token = attributes['user_token']
     username = attributes['username']
 
-    User.for_api_token(token) || User.create_dummy(token, username)
+    User.for_api_token(token) || User.create_with_token(token, username)
   end
 
 end

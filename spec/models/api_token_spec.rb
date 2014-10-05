@@ -42,7 +42,7 @@ describe ApiToken do
       allow(user).to receive(:merge_to)
     end
 
-    context "when source user is a dummy user" do
+    context "when source user is unconfirmed user" do
       before do
         allow(user).to receive(:confirmed?) { false }
       end

@@ -94,7 +94,7 @@ describe UsersController do
       subject
     end
 
-    context "when real user username given" do
+    context "when confirmed user username given" do
       let(:user) { create(:user) }
 
       it 'renders "show" template' do
@@ -102,8 +102,8 @@ describe UsersController do
       end
     end
 
-    context "when dummy user username given" do
-      let(:user) { create(:dummy_user) }
+    context "when unconfirmed user username given" do
+      let(:user) { create(:unconfirmed_user) }
 
       it "responds with 404" do
         expect(subject).to be_not_found

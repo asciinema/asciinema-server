@@ -45,14 +45,12 @@ class User < ActiveRecord::Base
     where(auth_token: auth_token).first
   end
 
-  def self.create_dummy(token, username)
+  def self.create_with_token(token, username)
     return nil if token.blank?
     username = nil if username.blank?
 
     transaction do |tx|
-      user = User.new
-      user.temporary_username = username
-      user.save!
+      user = User.create!(temporary_username: username)
       user.api_tokens.create!(token: token)
       user
     end

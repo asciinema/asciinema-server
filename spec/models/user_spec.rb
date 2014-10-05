@@ -82,7 +82,7 @@ describe User do
       let(:email) { nil }
 
       before do
-        create(:dummy_user, email: nil)
+        create(:unconfirmed_user, email: nil)
       end
 
       it { should be(nil) }
@@ -122,8 +122,8 @@ describe User do
     end
   end
 
-  describe '.create_dummy' do
-    subject { described_class.create_dummy(token, username) }
+  describe '.create_with_token' do
+    subject { described_class.create_with_token(token, username) }
 
     let(:token) { 'f33e6188-f53c-11e2-abf4-84a6c827e88b' }
     let(:username) { 'somerandomguy' }
