@@ -11,11 +11,12 @@ class User < ActiveRecord::Base
   has_many :comments, :dependent => :destroy
   has_many :expiring_tokens, dependent: :destroy
 
+  validates :email, presence: true, on: :update
+  validates :email, format: { with: /.+@.+\..+/i }, uniqueness: true, if: :email
   validates :username, uniqueness: { case_sensitive: false },
                        format: { with: USERNAME_FORMAT },
                        length: { minimum: 2, maximum: 16 },
                        if: :username
-  validates :email, uniqueness: true, if: :email
 
   scope :with_username, -> { where('username IS NOT NULL') }
 
