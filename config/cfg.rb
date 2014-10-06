@@ -20,6 +20,8 @@ module Asciinema
     attribute :twitter_consumer_key,           String
     attribute :twitter_consumer_secret,        String
     attribute :admin_ids,                      Array[Integer]
+    attribute :host,                           String, default: 'localhost:3000'
+    attribute :smtp_settings,                  Hash
 
     alias_method :local_persona_js?, :local_persona_js
 
