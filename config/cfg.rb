@@ -10,21 +10,14 @@ module Asciinema
     attribute :aws_secret_access_key,          String
     attribute :carrierwave_storage,            String, default: 'file'
     attribute :carrierwave_storage_dir_prefix, String, default: 'uploads/'
-    attribute :github_consumer_key,            String
-    attribute :github_consumer_secret,         String
     attribute :google_analytics_id,            String
     attribute :home_asciicast_id,              Integer
-    attribute :local_persona_js,               Boolean, default: false
     attribute :scheme,                         String, default: 'http'
-    attribute :secret_token,                   String, default: '21deaa1a1228e119434aa783ecb4af21be7513ff1f5b8c1d8894241e5fc70ad395db72c8c1b0508a0ebb994ed88a8d73f6c84e44f7a4bc554a40d77f9844d2f4'
-    attribute :twitter_consumer_key,           String
-    attribute :twitter_consumer_secret,        String
-    attribute :admin_ids,                      Array[Integer]
     attribute :host,                           String, default: 'localhost:3000'
+    attribute :secret_token,                   String, default: '21deaa1a1228e119434aa783ecb4af21be7513ff1f5b8c1d8894241e5fc70ad395db72c8c1b0508a0ebb994ed88a8d73f6c84e44f7a4bc554a40d77f9844d2f4'
+    attribute :admin_ids,                      Array[Integer]
     attribute :smtp_settings,                  Hash
     attribute :from_email,                     String, default: "Asciinema <hello@asciinema.org>"
-
-    alias_method :local_persona_js?, :local_persona_js
 
     def home_asciicast
       asciicast = if home_asciicast_id

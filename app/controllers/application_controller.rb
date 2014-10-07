@@ -26,10 +26,6 @@ class ApplicationController < ActionController::Base
     handle_unauthenticated unless current_user
   end
 
-  def omniauth_credentials
-    OmniAuthCredentials.new(request.env['omniauth.auth'])
-  end
-
   def store_location
     session[:return_to] = request.path
   end

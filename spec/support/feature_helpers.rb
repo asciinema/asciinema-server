@@ -15,23 +15,5 @@ module Asciinema
       expect(page).to have_link('FAQ')
     end
 
-    def set_omniauth(provider, opts = {})
-      if opts[:message]
-        OmniAuth.config.mock_auth[provider] = opts[:message]
-      else
-        OmniAuth.config.mock_auth[provider] = OmniAuth::AuthHash.new({
-          :provider => provider.to_s,
-          :uid => '123456',
-          :info => { :username => opts[:username] },
-          :extra => {
-            :raw_info => {
-              :avatar_url =>
-                'http://gravatar.com/avatar/9cecfc695240b56e5d3c1a5dc3830967'
-            }
-          }
-        })
-      end
-    end
-
   end
 end

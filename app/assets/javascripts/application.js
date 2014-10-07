@@ -7,7 +7,6 @@
 //= require base
 //= require jquery_ujs
 //= require jquery.timeago
-//= require persona
 //= require bootstrap
 
 $(function() {

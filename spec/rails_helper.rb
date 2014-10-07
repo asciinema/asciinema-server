@@ -29,8 +29,6 @@ Dir[Rails.root.join("spec/shared/**/*.rb")].each  { |f| require f }
 
 Capybara.javascript_driver = :poltergeist
 
-OmniAuth.config.test_mode = true
-
 CarrierWave.configure do |config|
   config.storage = :file
   config.enable_processing = false

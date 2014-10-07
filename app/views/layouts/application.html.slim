@@ -8,14 +8,8 @@ html[lang="en"]
     = stylesheet_link_tag "application", :media => "all"
     = javascript_include_tag "application"
     = javascript_include_tag "player"
-    - if CFG.local_persona_js?
-      = javascript_include_tag "persona-include.js"
-    - else
-      = javascript_include_tag "https://login.persona.org/include.js"
     = favicon_link_tag 'favicon.png'
     = render 'layouts/ga'
-    script
-      | window.browserIdUser = #{browser_id_user};
   body
     = render 'layouts/header'
     = render 'shared/flash'
