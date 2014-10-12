@@ -73,4 +73,8 @@ module ApplicationHelper
     Theme::AVAILABLE.invert
   end
 
+  def flash_notifications
+    flash.select { |type, _| [:notice, :alert].include?(type.to_sym) }
+  end
+
 end
