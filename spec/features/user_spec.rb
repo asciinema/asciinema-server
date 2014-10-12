@@ -6,7 +6,7 @@ feature "User's profile" do
   let!(:asciicast) { create(:asciicast, :user => user, :title => 'Tricks!') }
 
   scenario 'Visiting' do
-    visit profile_path(user)
+    visit public_profile_path(username: user.username)
 
     expect(page).to have_content(/1 asciicast by #{user.username}/i)
     expect(page).to have_link('Tricks!')

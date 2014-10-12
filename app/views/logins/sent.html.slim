@@ -1,0 +1,14 @@
+.container
+  .row
+    .col-md-12
+      h1 You're almost in!
+
+      br
+
+      p
+        | We sent a login link to 
+        strong = @email_recipient
+        ' . Please click on the link to login to your account.
+        ' The link is valid for next 15 minutes.
+
+      p If it doesn't arrive, check your spam folder, or enter your email again to send another login link.

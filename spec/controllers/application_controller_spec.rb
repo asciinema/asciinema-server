@@ -52,13 +52,13 @@ describe FakesController do
     end
 
     context "when normal request" do
-      it "redirects to login_path" do
+      it "redirects to login page" do
         expect(@controller).to receive(:store_location)
 
         get :foo
 
-        expect(flash[:notice]).to eq("Please sign in to proceed")
-        should redirect_to(login_path)
+        expect(flash[:notice]).to eq("Please log in to proceed")
+        should redirect_to(new_login_path)
       end
     end
   end

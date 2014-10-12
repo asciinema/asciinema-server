@@ -23,4 +23,6 @@ $(function() {
     e.preventDefault();
     $('.embed-box').slideDown('fast');
   });
+
+  $('.login-form input[type=email]').focus();
 });

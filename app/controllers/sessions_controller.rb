@@ -1,36 +1,33 @@
 class SessionsController < ApplicationController
 
-  def new; end
-
   def create
-    user = find_user
+    user = login_service.validate(params[:token].to_s.strip)
 
     if user
       self.current_user = user
-      redirect_back_or_to root_url, :notice => "Welcome back!"
+      redirect_back_or_to profile_path(user), notice: login_notice(user)
     else
-      store[:new_user_email] = omniauth_credentials.email
-      redirect_to new_user_path
+      render :error
     end
   end
 
   def destroy
     self.current_user = nil
-    redirect_to root_path, :notice => "See you later!"
-  end
-
-  def failure
-    redirect_to root_path, :alert => "Authentication failed. Maybe try again?"
+    redirect_to root_path, notice: "See you later!"
   end
 
   private
 
-  def store
-    session
+  def login_service
+    EmailLoginService.new
   end
 
-  def find_user
-    User.for_email(omniauth_credentials.email)
+  def login_notice(user)
+    if user.first_login?
+      "Welcome to Asciinema!"
+    else
+      "Welcome back!"
+    end
   end
 
 end

@@ -5,7 +5,7 @@ describe ApiTokensController do
   describe '#create' do
     subject { get :create, api_token: 'a-toh-can' }
 
-    let(:user) { double('user', assign_api_token: nil) }
+    let(:user) { double('user', assign_api_token: nil, username: 'foobar') }
 
     before do
       login_as(user)
@@ -18,9 +18,9 @@ describe ApiTokensController do
         subject
       end
 
-      it { should redirect_to(login_path) }
+      it { should redirect_to(new_login_path) }
 
-      specify { expect(flash[:notice]).to match(/sign in to proceed/) }
+      specify { expect(flash[:notice]).to match(/log in to proceed/) }
     end
 
     context "when assigning succeeds" do
@@ -29,7 +29,7 @@ describe ApiTokensController do
         subject
       end
 
-      it { should redirect_to(profile_path(user)) }
+      it { should redirect_to(public_profile_path(username: 'foobar')) }
 
       specify { expect(flash[:notice]).to_not be_blank }
     end

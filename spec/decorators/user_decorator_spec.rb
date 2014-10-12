@@ -7,8 +7,6 @@ describe UserDecorator do
   describe '#link' do
     subject { decorator.link }
 
-    let(:user) { User.new }
-
     before do
       RSpec::Mocks.configuration.verify_partial_doubles = false # for stubbing "h"
     end
@@ -22,9 +20,7 @@ describe UserDecorator do
     end
 
     context "when user has username" do
-      before do
-        user.username = "satyr"
-      end
+      let(:user) { create(:user, username: "satyr") }
 
       it "is a username link to user's profile" do
         expect(subject).to eq('<a href="/path" title="satyr">satyr</a>')
@@ -32,30 +28,24 @@ describe UserDecorator do
     end
 
     context "when user has temporary username" do
-      before do
-        user.temporary_username = "temp"
-      end
+      let(:user) { create(:unconfirmed_user, temporary_username: "frost") }
 
-      it "is user's username" do
-        expect(subject).to eq('temp')
+      it "is a temporary username link to user's profile" do
+        expect(subject).to eq('<a href="/path" title="frost">frost</a>')
       end
     end
 
-    context "when user has neither username nor temporary username" do
-      before do
-        user.username = user.temporary_username = nil
-      end
+    context "when user has not username nor temporary username" do
+      let(:user) { create(:unconfirmed_user, temporary_username: nil) }
 
-      it 'is "anonymous"' do
-        expect(subject).to eq('anonymous')
+      it "is id-based link to user's profile" do
+        expect(subject).to eq(%(<a href="/path" title="user:#{user.id}">user:#{user.id}</a>))
       end
     end
   end
 
   describe '#img_link' do
     subject { decorator.img_link }
-
-    let(:user) { User.new }
 
     before do
       RSpec::Mocks.configuration.verify_partial_doubles = false # for stubbing "h"
@@ -70,20 +60,24 @@ describe UserDecorator do
       RSpec::Mocks.configuration.verify_partial_doubles = true
     end
 
-    context "when user has username" do
-      before do
-        user.username = "satyr"
-      end
+    context "when user is persisted and has username" do
+      let(:user) { create(:user, username: "satyr") }
 
       it "is an avatar link to user's profile" do
         expect(subject).to eq('<a href="/path" title="satyr"><img ...></a>')
       end
     end
 
-    context "when user has no username" do
-      before do
-        user.username = nil
+    context "when user is persisted and has temporary username" do
+      let(:user) { create(:unconfirmed_user, temporary_username: "frost") }
+
+      it "is an avatar link to user's profile" do
+        expect(subject).to eq('<a href="/path" title="frost"><img ...></a>')
       end
+    end
+
+    context "when user is not persisted" do
+      let(:user) { User.new }
 
       it "is user's avatar image" do
         expect(subject).to eq('<img ...>')

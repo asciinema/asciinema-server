@@ -1,8 +1,8 @@
 require 'rails_helper'
 
 shared_examples_for 'guest user trying to modify' do
-  it { should redirect_to(login_path) }
-  specify { expect(flash[:notice]).to match(/sign in to proceed/) }
+  it { should redirect_to(new_login_path) }
+  specify { expect(flash[:notice]).to match(/log in to proceed/) }
 end
 
 shared_examples_for 'non-owner user trying to modify' do
@@ -177,7 +177,7 @@ describe AsciicastsController do
           make_request
         end
 
-        it { should redirect_to(profile_path(user)) }
+        it { should redirect_to(public_profile_path(username: 'nick')) }
         specify { expect(flash[:notice]).to match(/was deleted/) }
       end
 

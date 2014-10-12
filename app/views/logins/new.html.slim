@@ -1,0 +1,17 @@
+.container
+  .row
+    .col-md-12
+      h1 Log in
+
+      br
+
+      p Log in to Asciinema using your email address:
+
+      = form_tag login_path, class: "form-inline login-form"  do
+        .form-group
+          input.form-control.email name="email" type="email" placeholder="Enter email"
+        button.btn.btn-primary type="submit" Log in
+
+      - if @invalid_email
+        br
+        p.text-danger This email address doesn't seem to be correct.

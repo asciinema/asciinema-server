@@ -2,6 +2,8 @@ class User < ActiveRecord::Base
 
   USERNAME_FORMAT = /\A[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]\z/
 
+  InvalidEmailError = Class.new(StandardError)
+
   has_many :api_tokens, :dependent => :destroy
   has_many :asciicasts, :dependent => :destroy
   has_many :comments, :dependent => :destroy
@@ -22,13 +24,16 @@ class User < ActiveRecord::Base
 
   before_create :generate_auth_token
 
-  def self.for_credentials(credentials)
-    where(provider: credentials.provider, uid: credentials.uid).first
-  end
+  def self.for_email!(email)
+    raise InvalidEmailError if email.blank?
 
-  def self.for_email(email)
-    if email
-      where(email: email).first
+    self.where(email: email).first_or_create!
+
+  rescue ActiveRecord::RecordInvalid => e
+    if e.record.errors[:email].present?
+      raise InvalidEmailError
+    else
+      raise e
     end
   end
 
@@ -118,6 +123,10 @@ class User < ActiveRecord::Base
 
   def admin?
     CFG.admin_ids.include?(id)
+  end
+
+  def first_login?
+    expiring_tokens.count == 1
   end
 
   private

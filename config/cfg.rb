@@ -22,6 +22,7 @@ module Asciinema
     attribute :admin_ids,                      Array[Integer]
     attribute :host,                           String, default: 'localhost:3000'
     attribute :smtp_settings,                  Hash
+    attribute :from_email,                     String, default: "Asciinema <hello@asciinema.org>"
 
     alias_method :local_persona_js?, :local_persona_js
 

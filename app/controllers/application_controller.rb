@@ -61,7 +61,7 @@ class ApplicationController < ActionController::Base
       render json: "Unauthenticated", status: 401
     else
       store_location
-      redirect_to login_path, notice: "Please sign in to proceed"
+      redirect_to new_login_path, notice: "Please log in to proceed"
     end
   end
 

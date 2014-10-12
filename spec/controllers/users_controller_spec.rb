@@ -145,7 +145,7 @@ describe UsersController do
 
       it "redirects to login page" do
         subject
-        expect(response).to redirect_to(login_path)
+        expect(response).to redirect_to(new_login_path)
       end
     end
   end
@@ -162,7 +162,7 @@ describe UsersController do
 
     it "redirects to profile" do
       subject
-      expect(response).to redirect_to(profile_path('batman'))
+      expect(response).to redirect_to(public_profile_path(username: 'batman'))
     end
 
     context "when update fails" do
@@ -186,7 +186,7 @@ describe UsersController do
 
       it "redirects to login page" do
         subject
-        expect(response).to redirect_to(login_path)
+        expect(response).to redirect_to(new_login_path)
       end
     end
   end

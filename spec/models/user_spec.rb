@@ -43,52 +43,6 @@ describe User do
     end
   end
 
-  describe '.for_credentials' do
-    subject { described_class.for_credentials(credentials) }
-
-    let!(:user) { create(:user, provider: 'twitter', uid: '1') }
-
-    context "when there is matching record" do
-      let(:credentials) { double('credentials', provider: 'twitter', uid: '1') }
-
-      it { should eq(user) }
-    end
-
-    context "when there isn't matching record" do
-      let(:credentials) { double('credentials', provider: 'twitter', uid: '2') }
-
-      it { should be(nil) }
-    end
-  end
-
-  describe '.for_email' do
-    subject { described_class.for_email(email) }
-
-    let!(:user) { create(:user, email: 'foo@bar.com') }
-
-    context "when there is matching record" do
-      let(:email) { 'foo@bar.com' }
-
-      it { should eq(user) }
-    end
-
-    context "when there isn't matching record" do
-      let(:email) { 'qux@bar.com' }
-
-      it { should be(nil) }
-    end
-
-    context "when given email is nil" do
-      let(:email) { nil }
-
-      before do
-        create(:unconfirmed_user, email: nil)
-      end
-
-      it { should be(nil) }
-    end
-  end
-
   describe '.for_api_token' do
     subject { described_class.for_api_token(token) }
 

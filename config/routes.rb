@@ -22,11 +22,13 @@ Rails.application.routes.draw do
   get "/docs" => "docs#show", :page => 'getting-started', :as => :docs_index
   get "/docs/:page" => "docs#show", :as => :docs
 
-  get "/auth/browser_id/callback" => "sessions#create"
-  get "/auth/:provider/callback" => "account_merges#create"
-  get "/auth/failure" => "sessions#failure"
+  resource :login, only: [:new, :create] do
+    get :sent
+  end
 
-  get "/login" => "sessions#new"
+  get "/login" => redirect("/login/new")
+
+  get "/login/:token" => "sessions#create", as: :login_token
   get "/logout" => "sessions#destroy"
 
   get "/connect/:api_token" => "api_tokens#create"
