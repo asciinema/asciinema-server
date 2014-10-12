@@ -5,8 +5,6 @@ FactoryGirl.define do
   sequence(:username) { |n| "user#{n}" }
 
   factory :user do
-    provider "twitter"
-    uid
     sequence(:username) { generate(:username) }
     sequence(:email) { |n| "foo#{n}@bar.com" }
   end

@@ -4,10 +4,6 @@ class UsersController < ApplicationController
 
   attr_reader :user
 
-  def new
-    @user = build_user
-  end
-
   def show
     if params[:username]
       user = User.for_username!(params[:username])
@@ -16,18 +12,6 @@ class UsersController < ApplicationController
     end
 
     render locals: { page: UserPagePresenter.build(user, current_user, params[:page]) }
-  end
-
-  def create
-    @user = build_user
-
-    if @user.save
-      store.delete(:new_user_email)
-      self.current_user = @user
-      redirect_to docs_path('getting-started'), notice: "Welcome to Asciinema!"
-    else
-      render :new, :status => 422
-    end
   end
 
   def edit
@@ -47,21 +31,6 @@ class UsersController < ApplicationController
   end
 
   private
-
-  def store
-    session
-  end
-
-  def build_user
-    user = User.new(create_params)
-    user.email = store[:new_user_email]
-
-    user
-  end
-
-  def create_params
-    params.fetch(:user, {}).permit(:username, :name)
-  end
 
   def update_params
     params.require(:user).permit(:username, :name, :email, :theme_name)
