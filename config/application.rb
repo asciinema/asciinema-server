@@ -42,7 +42,7 @@ module Asciinema
       g.ensure(true) { |ex| env['rack.errors'].write(ex.message) }
     end
 
-    config.action_mailer.default_url_options = { host: CFG.host }
+    config.action_mailer.default_url_options = { protocol: CFG.scheme, host: CFG.host }
 
     if CFG.smtp_settings
       config.action_mailer.smtp_settings = CFG.smtp_settings
