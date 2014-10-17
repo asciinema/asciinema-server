@@ -15,9 +15,9 @@ class UserDecorator < ApplicationDecorator
 
   def full_name
     if model.name.present?
-      "#{model.name} (#{model.username})"
+      "#{model.name} (#{display_name})"
     else
-      model.username
+      display_name
     end
   end
 

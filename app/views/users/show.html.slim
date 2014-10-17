@@ -9,7 +9,7 @@
         small = "Joined on #{page.user_joined_at}"
 
       - if page.show_settings?
-        p.actions = link_to 'Settings', edit_user_path
+        p.actions = link_to 'Edit information', edit_user_path
 
   .container
     h2 = page.asciicast_count_text(self)
@@ -20,14 +20,10 @@
           = paginate page.asciicasts
         - else
           - if page.current_users_profile?
+            = render 'recording_instructions'
             p
-              ' Seems like you haven't recorded anything yet.
-              = link_to 'Record now', docs_path('getting-started')
-              ' .
-            p
+              br
               ' If you have already recorded an asciicast but you don't see it
                 here then associate it with your account by running
               code asciinema auth
               '  in your terminal.
-          - else
-            ' #{page.user_username} hasn't recorded anything yet.

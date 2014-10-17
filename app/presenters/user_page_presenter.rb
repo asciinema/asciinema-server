@@ -18,7 +18,7 @@ class UserPagePresenter
   end
 
   def title
-    "#{user.username}'s profile".html_safe
+    "#{user.display_name}'s profile".html_safe
   end
 
   def user_full_name
@@ -38,8 +38,21 @@ class UserPagePresenter
   end
 
   def asciicast_count_text(h)
-    count = h.pluralize(user.asciicast_count, 'asciicast')
-    "#{count} by #{user.username}"
+    if current_users_profile?
+      if user.asciicast_count > 0
+        count = h.pluralize(user.asciicast_count, 'asciicast')
+        "You have recorded #{count}"
+      else
+        "You haven't recorded anything yet"
+      end
+    else
+      if user.asciicast_count > 0
+        count = h.pluralize(user.asciicast_count, 'asciicast')
+        "#{count} by #{user.display_name}"
+      else
+        "#{user.display_name} hasn't recorded anything yet"
+      end
+    end
   end
 
   def user_username
