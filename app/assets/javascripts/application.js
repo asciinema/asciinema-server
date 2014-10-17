@@ -16,12 +16,10 @@ $(function() {
     this.select();
   });
 
-  $('input[data-behavior=focus]:first').focus();
+  $('input[data-behavior=focus]:first').focus().select();
 
   $('#embed-link').click(function(e) {
     e.preventDefault();
     $('.embed-box').slideDown('fast');
   });
-
-  $('.login-form input[type=email]').focus();
 });

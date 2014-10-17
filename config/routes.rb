@@ -35,6 +35,10 @@ Rails.application.routes.draw do
 
   resource :user
 
+  resource :username do
+    get :skip
+  end
+
   root 'home#show'
 
   get '/about' => 'pages#show', page: :about, as: :about

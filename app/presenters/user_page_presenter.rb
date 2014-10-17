@@ -43,7 +43,7 @@ class UserPagePresenter
         count = h.pluralize(user.asciicast_count, 'asciicast')
         "You have recorded #{count}"
       else
-        "You haven't recorded anything yet"
+        "Record your first asciicast"
       end
     else
       if user.asciicast_count > 0

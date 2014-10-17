@@ -25,9 +25,24 @@ describe SessionsController do
         expect(controller).to have_received(:current_user=).with(user)
       end
 
-      it "redirects to the user's profile with a notice" do
+      it "sets a notice" do
         expect(flash[:notice]).to_not be_blank
-        should redirect_to(unnamed_user_path(user))
+      end
+
+      context "when user has username" do
+        let(:user) { User.new(username: "foobar") }
+
+        it "redirects to user's profile" do
+          should redirect_to(public_profile_path(username: "foobar"))
+        end
+      end
+
+      context "when user has no username" do
+        let(:user) { User.new }
+
+        it "redirects to new username page" do
+          should redirect_to(new_username_path)
+        end
       end
     end
 

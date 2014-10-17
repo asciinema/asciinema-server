@@ -9,7 +9,7 @@
 
       = form_tag login_path, class: "form-inline login-form"  do
         .form-group
-          input.form-control.email name="email" type="email" placeholder="Enter email"
+          input.form-control.email name="email" type="email" placeholder="Enter email" data-behavior="focus"
         button.btn.btn-primary type="submit" Log in
 
       - if @invalid_email
