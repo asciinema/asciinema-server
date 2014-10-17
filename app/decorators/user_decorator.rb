@@ -1,6 +1,10 @@
 class UserDecorator < ApplicationDecorator
   include AvatarHelper
 
+  def display_name
+    model.username || model.temporary_username || "user:#{id}"
+  end
+
   def link
     wrap_with_link(display_name)
   end
@@ -33,10 +37,6 @@ class UserDecorator < ApplicationDecorator
     else
       html
     end
-  end
-
-  def display_name
-    username || temporary_username || "user:#{id}"
   end
 
 end

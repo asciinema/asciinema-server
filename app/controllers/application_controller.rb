@@ -19,7 +19,7 @@ class ApplicationController < ActionController::Base
   end
 
   def decorated_current_user
-    current_user && current_user.decorate
+    current_user && CurrentUserDecorator.new(current_user)
   end
 
   def ensure_authenticated!
