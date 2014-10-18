@@ -3,8 +3,9 @@ header.navbar
   color: #fff
   border-radius: 0
   border: 0
-  min-height: 40px
+  min-height: 42px
   margin-bottom: 0
+  border-bottom: 1px solid #222222
 
   .navbar-nav
     > li
@@ -62,10 +63,13 @@ header.navbar
             background-color: #444
 
   .navbar-collapse
-    border-color: #666 !important
+    border-color: #444 !important
 
   .navbar-toggle
-    border-color: #888
+    border: 0
+    padding: 10px
+    margin: 3px 5px 0 0
+    border-radius: 0
 
     .icon-bar
       background-color: #888
@@ -90,3 +94,7 @@ header.navbar
 
     .caret
       margin-left: 10px
+
+@media (max-width: 767px)
+  .navbar-default .navbar-nav .open .dropdown-menu > li > a
+    color: #fff
