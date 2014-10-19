@@ -1,8 +1,6 @@
 module Api
   class AsciicastsController < BaseController
 
-    before_action :load_asciicast, only: [:show]
-
     respond_to :html, :js, only: [:show]
 
     attr_reader :asciicast
@@ -17,6 +15,8 @@ module Api
     end
 
     def show
+      @asciicast = Asciicast.find(params[:id])
+
       respond_with(asciicast) do |format|
         format.html do
           allow_iframe_requests
@@ -28,10 +28,6 @@ module Api
     end
 
     private
-
-    def load_asciicast
-      @asciicast = Asciicast.find(params[:id])
-    end
 
     def attributes
       AsciicastParams.build(params[:asciicast], request.user_agent)
