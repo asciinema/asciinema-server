@@ -32,7 +32,7 @@ dependencies installed:
   `sudo apt-get install postgresql libpq-dev` on Debian/Ubuntu
 
 * libtsm  
-  See [here](https://github.com/dvdhrm/libtsm) for installation instructions.
+  See [here](http://cgit.freedesktop.org/~dvdhrm/libtsm/tree/README) for installation instructions.
   If you don't install it now the setup script (point 4 below) will try to
   install it for you anyway.
 
