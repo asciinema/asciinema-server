@@ -7,7 +7,7 @@ describe AsciicastParams do
     subject { described_class.build(input, user_agent) }
 
     let(:input) { {
-      meta:          StringIO.new(meta.to_json),
+      meta:          meta,
       stdout:        stdout_data_file,
       stdout_timing: stdout_timing_file,
     } }
@@ -17,7 +17,7 @@ describe AsciicastParams do
     let(:stdout_data_file) { double('stdout_data_file') }
     let(:stdout_timing_file) { double('stdout_timing_file') }
 
-    let(:meta) { {
+    let(:meta) { HashWithIndifferentAccess.new({
       command:    '/bin/bash',
       duration:   11.146430015563965,
       shell:      '/bin/zsh',
@@ -25,7 +25,7 @@ describe AsciicastParams do
       title:      'bashing :)',
       user_token: 'f33e6188-f53c-11e2-abf4-84a6c827e88b',
       username:   'kill',
-    } }
+    }) }
 
     let(:expected_attrs) { {
       command:          '/bin/bash',
@@ -39,11 +39,9 @@ describe AsciicastParams do
       terminal_lines:   26,
       terminal_type:    'screen-256color',
       title:            'bashing :)',
-      user:             expected_user,
       user_agent:       'asciinema/0.9.7',
     } }
 
-    let(:expected_user) { existing_user }
     let(:existing_user) { User.new }
 
     before do
@@ -52,20 +50,6 @@ describe AsciicastParams do
     end
 
     it { should eq(expected_attrs) }
-
-    context "when given api token is not found" do
-      let(:expected_user) { unconfirmed_user }
-      let(:unconfirmed_user) { User.new }
-
-      before do
-        allow(User).to receive(:for_api_token).
-          with('f33e6188-f53c-11e2-abf4-84a6c827e88b') { nil }
-        allow(User).to receive(:create_with_token).
-          with('f33e6188-f53c-11e2-abf4-84a6c827e88b', 'kill') { unconfirmed_user }
-      end
-
-      it { should eq(expected_attrs) }
-    end
 
     context "when uname given" do
       before do

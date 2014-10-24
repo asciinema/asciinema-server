@@ -1,7 +1,7 @@
 class AsciicastParams
 
   def self.build(params, user_agent)
-    meta = JSON.parse(params[:meta].read)
+    meta = params[:meta]
 
     attributes = {
       command:          meta['command'],
@@ -15,7 +15,6 @@ class AsciicastParams
       terminal_lines:   meta['term']['lines'],
       terminal_type:    meta['term']['type'],
       title:            meta['title'],
-      user:             get_user(meta)
     }
 
     if meta['uname'] # old client, with useless, random user_agent
@@ -25,13 +24,6 @@ class AsciicastParams
     end
 
     attributes
-  end
-
-  def self.get_user(attributes)
-    token = attributes['user_token']
-    username = attributes['username']
-
-    User.for_api_token(token) || User.create_with_token(token, username)
   end
 
 end

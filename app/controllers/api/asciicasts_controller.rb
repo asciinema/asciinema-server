@@ -6,7 +6,7 @@ module Api
     attr_reader :asciicast
 
     def create
-      asciicast = asciicast_creator.create(attributes)
+      asciicast = asciicast_creator.create(*parse_request)
       render text: asciicast_url(asciicast), status: :created,
         location: asciicast
 
@@ -29,8 +29,14 @@ module Api
 
     private
 
-    def attributes
-      AsciicastParams.build(params[:asciicast], request.user_agent)
+    def parse_request
+      meta = JSON.parse(params[:asciicast][:meta].read)
+
+      [
+        AsciicastParams.build(params[:asciicast].merge(meta: meta), request.user_agent),
+        authenticate_with_http_basic { |username, password| password } || meta.delete('user_token'),
+        meta.delete('username'),
+      ]
     end
 
     def asciicast_creator

@@ -47,6 +47,10 @@ class User < ActiveRecord::Base
     joins(:api_tokens).where('api_tokens.token' => token).first
   end
 
+  def self.for_api_token!(token, username)
+    for_api_token(token) || create_with_token(token, username)
+  end
+
   def self.for_auth_token(auth_token)
     where(auth_token: auth_token).first
   end
