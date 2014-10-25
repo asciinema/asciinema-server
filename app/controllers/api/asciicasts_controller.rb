@@ -31,11 +31,12 @@ module Api
 
     def parse_request
       meta = JSON.parse(params[:asciicast][:meta].read)
+      username, token = authenticate_with_http_basic { |username, password| [username, password] }
 
       [
         AsciicastParams.build(params[:asciicast].merge(meta: meta), request.user_agent),
-        authenticate_with_http_basic { |username, password| password } || meta.delete('user_token'),
-        meta.delete('username'),
+        token || meta.delete('user_token'),
+        username || meta.delete('username'),
       ]
     end
 
