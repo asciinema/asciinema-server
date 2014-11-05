@@ -74,12 +74,12 @@ class AsciicastDecorator < ApplicationDecorator
   end
 
   def guess_os(text)
-    if text =~ /Linux/
+    if text =~ /Linux/i
       'Linux'
-    elsif text =~ /Darwin/
+    elsif text =~ /Darwin/i
       'OS X'
     else
-      text.split(' ', 2)[0]
+      text.split(/[\s-]/, 2)[0].to_s.titleize
     end
   end
 

@@ -12,7 +12,7 @@ describe AsciicastDecorator do
     let(:method) { :os }
 
     context 'when user_agent is present' do
-      context 'and the OS is Linux' do
+      context 'and the OS is Linux (pre-0.9.9 client)' do
         before do
           asciicast.user_agent =
             "asciinema/0.9.7 CPython/3.3.1 " \
@@ -22,7 +22,17 @@ describe AsciicastDecorator do
         it { should == 'Linux' }
       end
 
-      context 'and the OS is OS X' do
+      context 'and the OS is Linux (0.9.9+ client)' do
+        before do
+          asciicast.user_agent =
+            "asciinema/0.9.9 gc/go1.3 " \
+            "linux-amd64"
+        end
+
+        it { should == 'Linux' }
+      end
+
+      context 'and the OS is OS X (pre-0.9.9 client)' do
         before do
           asciicast.user_agent =
             "asciinema/0.9.7 CPython/2.7.4 " \
@@ -32,12 +42,32 @@ describe AsciicastDecorator do
         it { should == 'OS X' }
       end
 
-      context 'and the OS is other' do
+      context 'and the OS is OS X (0.9.9+ client)' do
+        before do
+          asciicast.user_agent =
+            "asciinema/0.9.9 gc/go1.3 " \
+            "darwin-amd64"
+        end
+
+        it { should == 'OS X' }
+      end
+
+      context 'and the OS is other (pre-0.9.9 client)' do
         before do
           asciicast.user_agent = "asciinema/0.9.7 CPython/2.7.4 Jola/Misio-Foo"
         end
 
         it 'should return first token' do
+          should == 'Jola'
+        end
+      end
+
+      context 'and the OS is other (0.9.9+ client)' do
+        before do
+          asciicast.user_agent = "asciinema/0.9.9 gc/go1.3 jola-amd64"
+        end
+
+        it 'should return first token titleized' do
           should == 'Jola'
         end
       end
