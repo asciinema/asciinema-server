@@ -64,7 +64,7 @@ class Asciicast < ActiveRecord::Base
   end
 
   def self.generate_secret_token
-    SecureRandom.hex.to_i(16).to_s(36)
+    SecureRandom.hex.to_i(16).to_s(36).rjust(25, '0')
   end
 
   def stdout
