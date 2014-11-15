@@ -55,6 +55,16 @@
                     = link_to(asciicast_path(page.asciicast, 'asciicast[featured]' => 0), method: :put) do
                       span.glyphicon.glyphicon-eye-close
                       '  Make not featured
+                - if page.show_make_public_link?
+                  li
+                    = link_to(asciicast_path(page.asciicast, 'asciicast[private]' => 0), method: :put) do
+                      span.glyphicon.glyphicon-eye-open
+                      '  Make public
+                - if page.show_make_private_link?
+                  li
+                    = link_to(asciicast_path(page.asciicast, 'asciicast[private]' => 1), method: :put) do
+                      span.glyphicon.glyphicon-eye-close
+                      '  Make private
                 - if page.show_delete_link?
                   li
                     = link_to(asciicast_path(page.asciicast), method: :delete, data: { confirm: 'Really delete this asciicast?' }) do

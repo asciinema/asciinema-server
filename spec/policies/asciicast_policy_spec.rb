@@ -27,8 +27,8 @@ describe AsciicastPolicy do
       context "and is creator of the asciicast" do
         let(:asciicast) { Asciicast.new(user: user) }
 
-        it "includes form field, but no featured" do
-          expect(subject).to eq([:title, :description, :theme_name, :snapshot_at])
+        it "doesn't include featured but includes private" do
+          expect(subject).to eq([:title, :description, :theme_name, :snapshot_at, :private])
         end
       end
     end
@@ -103,6 +103,46 @@ describe AsciicastPolicy do
     it "denies access if user isn't admin" do
       user = stub_model(User, admin?: false)
       expect(subject).not_to permit(user, Asciicast.new)
+    end
+  end
+
+  permissions :make_public? do
+    let(:asciicast) { Asciicast.new }
+
+    it "denies access if user is nil" do
+      expect(subject).not_to permit(nil, asciicast)
+    end
+
+    it "grants access if user is owner of the asciicast" do
+      user = stub_model(User)
+      asciicast.user = user
+      expect(subject).to permit(user, asciicast)
+    end
+
+    it "denies access if user isn't owner of the asciicast" do
+      user = stub_model(User)
+      asciicast.user = stub_model(User)
+      expect(subject).not_to permit(user, asciicast)
+    end
+  end
+
+  permissions :make_private? do
+    let(:asciicast) { Asciicast.new }
+
+    it "denies access if user is nil" do
+      expect(subject).not_to permit(nil, asciicast)
+    end
+
+    it "grants access if user is owner of the asciicast" do
+      user = stub_model(User)
+      asciicast.user = user
+      expect(subject).to permit(user, asciicast)
+    end
+
+    it "denies access if user isn't owner of the asciicast" do
+      user = stub_model(User)
+      asciicast.user = stub_model(User)
+      expect(subject).not_to permit(user, asciicast)
     end
   end
 

@@ -92,6 +92,10 @@ class Asciicast < ActiveRecord::Base
     !image.file || (image.file.filename != image_filename)
   end
 
+  def owner?(user)
+    user && self.user == user
+  end
+
   private
 
   def get_stdout

@@ -94,6 +94,14 @@ class AsciicastPagePresenter
     asciicast.featured? && policy.unfeature?
   end
 
+  def show_make_private_link?
+    !asciicast.private? && policy.make_private?
+  end
+
+  def show_make_public_link?
+    asciicast.private? && policy.make_public?
+  end
+
   def show_description?
     asciicast.description.present?
   end
