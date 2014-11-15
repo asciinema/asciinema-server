@@ -11,11 +11,11 @@ class HomePagePresenter
   end
 
   def latest_asciicasts
-    Asciicast.latest_limited(6).decorate
+    Asciicast.homepage_latest.decorate
   end
 
   def featured_asciicasts
-    Asciicast.random_featured_limited(6).decorate
+    Asciicast.homepage_featured.decorate
   end
 
   def install_script_url

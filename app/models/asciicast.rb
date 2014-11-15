@@ -24,10 +24,9 @@ class Asciicast < ActiveRecord::Base
   scope :featured, -> { where(featured: true) }
   scope :by_recency, -> { order("created_at DESC") }
   scope :by_random, -> { order("RANDOM()") }
-  scope :latest_limited, -> (n) { by_recency.limit(n).includes(:user) }
-  scope :random_featured_limited, -> (n) {
-    featured.by_random.limit(n).includes(:user)
-  }
+  scope :non_private, -> { where(private: false) }
+  scope :homepage_latest, -> { non_private.by_recency.limit(6).includes(:user) }
+  scope :homepage_featured, -> { non_private.featured.by_random.limit(6).includes(:user) }
 
   before_create :generate_secret_token
 
@@ -41,7 +40,7 @@ class Asciicast < ActiveRecord::Base
   end
 
   def self.for_category_ordered(category, order, page = nil, per_page = nil)
-    collection = all
+    collection = self.non_private
 
     if category == :featured
       collection = collection.featured
