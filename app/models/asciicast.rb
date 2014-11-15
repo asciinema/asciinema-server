@@ -29,6 +29,8 @@ class Asciicast < ActiveRecord::Base
     featured.by_random.limit(n).includes(:user)
   }
 
+  before_create :generate_secret_token
+
   def self.cache_key
     timestamps = scoped.select(:updated_at).map { |o| o.updated_at.to_i }
     Digest::MD5.hexdigest timestamps.join('/')
@@ -60,6 +62,10 @@ class Asciicast < ActiveRecord::Base
 
   def command=(value)
     value ? super(value.strip[0...255]) : super
+  end
+
+  def self.generate_secret_token
+    SecureRandom.hex.to_i(16).to_s(36)
   end
 
   def stdout
@@ -101,6 +107,12 @@ class Asciicast < ActiveRecord::Base
     version = 2 # version of screenshot, increment to force regeneration
     input = "#{version}/#{id}/#{snapshot_at}"
     Digest::SHA1.hexdigest(input)
+  end
+
+  def generate_secret_token
+    begin
+      self.secret_token = self.class.generate_secret_token
+    end while self.class.exists?(secret_token: secret_token)
   end
 
 end

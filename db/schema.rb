@@ -59,11 +59,15 @@ ActiveRecord::Schema.define(version: 20150401161102) do
     t.string   "image"
     t.integer  "image_width"
     t.integer  "image_height"
+    t.string   "secret_token",                     null: false
+    t.boolean  "private",          default: false, null: false
   end
 
   add_index "asciicasts", ["created_at"], name: "index_asciicasts_on_created_at", using: :btree
   add_index "asciicasts", ["featured"], name: "index_asciicasts_on_featured", using: :btree
   add_index "asciicasts", ["likes_count"], name: "index_asciicasts_on_likes_count", using: :btree
+  add_index "asciicasts", ["private"], name: "index_asciicasts_on_private", using: :btree
+  add_index "asciicasts", ["secret_token"], name: "index_asciicasts_on_secret_token", unique: true, using: :btree
   add_index "asciicasts", ["user_id"], name: "index_asciicasts_on_user_id", using: :btree
   add_index "asciicasts", ["views_count"], name: "index_asciicasts_on_views_count", using: :btree
 

@@ -131,7 +131,7 @@ class User < ActiveRecord::Base
   def generate_auth_token
     begin
       self[:auth_token] = self.class.generate_auth_token
-    end while User.exists?(auth_token: self[:auth_token])
+    end while self.class.exists?(auth_token: self[:auth_token])
   end
 
 end
