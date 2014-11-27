@@ -40,7 +40,7 @@ class AsciicastsController < ApplicationController
   def update
     authorize asciicast
 
-    if asciicast.update_attributes(update_params)
+    if asciicast_updater.update(asciicast, update_params)
       redirect_to asciicast_path(asciicast),
                   :notice => 'Asciicast was updated.'
     else
@@ -73,6 +73,10 @@ class AsciicastsController < ApplicationController
 
   def update_params
     params.require(:asciicast).permit(*policy(asciicast).permitted_attributes)
+  end
+
+  def asciicast_updater
+    AsciicastUpdater.new
   end
 
 end

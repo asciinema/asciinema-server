@@ -12,8 +12,8 @@ describe AsciicastPolicy do
     context "when user is admin" do
       let(:user) { stub_model(User, admin?: true) }
 
-      it "includes featured" do
-        expect(subject).to eq([:title, :description, :theme_name, :featured])
+      it "includes form fields + featured" do
+        expect(subject).to eq([:title, :description, :theme_name, :snapshot_at, :featured])
       end
     end
 
@@ -27,8 +27,8 @@ describe AsciicastPolicy do
       context "and is creator of the asciicast" do
         let(:asciicast) { Asciicast.new(user: user) }
 
-        it "doesn't include featured" do
-          expect(subject).to eq([:title, :description, :theme_name])
+        it "includes form field, but no featured" do
+          expect(subject).to eq([:title, :description, :theme_name, :snapshot_at])
         end
       end
     end

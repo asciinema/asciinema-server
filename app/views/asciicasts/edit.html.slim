@@ -7,6 +7,7 @@
         = f.input :title
         = f.input :description, as: :text, input_html: { rows: 10 }, hint: 'Parsed with <a href="http://github.github.com/github-flavored-markdown/" target="_blank">GitHub Flavored Markdown</a>'.html_safe
         = f.input :theme_name, label: 'Terminal theme', collection: themes_for_select, include_blank: default_asciicast_theme_label(decorated_current_user.theme)
+        = f.input :snapshot_at, label: 'Thumbnail frame', hint: 'Time of frame to be displayed as snapshot/thumbnail (float, in seconds, for example: 10.5)'
         = f.buttons do
           = f.button :submit, 'Save', class: 'btn-primary'
           = link_to 'Cancel', asciicast_path, class: 'btn'

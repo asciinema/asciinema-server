@@ -8,7 +8,7 @@ class AsciicastPolicy < ApplicationPolicy
 
   def permitted_attributes
     if user.admin? || record.user == user
-      attrs = [:title, :description, :theme_name]
+      attrs = [:title, :description, :theme_name, :snapshot_at]
       attrs << :featured if user.admin?
 
       attrs

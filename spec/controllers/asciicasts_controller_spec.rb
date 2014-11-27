@@ -110,7 +110,10 @@ describe AsciicastsController do
       put :update, id: asciicast.id, asciicast: { title: 'title'}
     }
 
+    let(:asciicast_updater) { double(:asciicast_updater) }
+
     before do
+      allow(controller).to receive(:asciicast_updater) { asciicast_updater }
       expect(Asciicast).to receive(:find).and_return(asciicast)
       asciicast.user = user
     end
@@ -122,7 +125,7 @@ describe AsciicastsController do
 
       context 'when update succeeds' do
         before do
-          expect(asciicast).to receive(:update_attributes).and_return(true)
+          expect(asciicast_updater).to receive(:update).and_return(true)
           make_request
         end
 
@@ -132,7 +135,7 @@ describe AsciicastsController do
 
       context 'when update fails' do
         before do
-          expect(asciicast).to receive(:update_attributes).and_return(false)
+          expect(asciicast_updater).to receive(:update).and_return(false)
           make_request
         end
 

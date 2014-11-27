@@ -12,6 +12,7 @@ class Asciicast < ActiveRecord::Base
 
   validates :stdout_data, :stdout_timing, :presence => true
   validates :terminal_columns, :terminal_lines, :duration, :presence => true
+  validates :snapshot_at, numericality: { greater_than: 0, allow_blank: true }
 
   belongs_to :user
   has_many :comments, -> { order(:created_at) }, :dependent => :destroy
