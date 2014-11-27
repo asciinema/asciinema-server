@@ -1,6 +1,7 @@
 class AsciicastSnapshotUpdater
 
-  def update(asciicast, at_seconds = asciicast.duration / 2)
+  def update(asciicast, at_seconds = nil)
+    at_seconds ||= asciicast.snapshot_at || asciicast.duration / 2
     snapshot = generate_snapshot(asciicast, at_seconds)
     asciicast.update_attribute(:snapshot, snapshot)
   end

@@ -5,11 +5,13 @@ describe AsciicastSnapshotUpdater do
   let(:updater) { described_class.new }
 
   describe '#update' do
-    let(:asciicast) { double('asciicast', :duration => 5.0, :stdout => stdout,
-                                          :update_attribute => nil) }
+    let(:asciicast) { double('asciicast', duration: 5.0, stdout: stdout,
+                                          update_attribute: nil,
+                                          snapshot_at: snapshot_at) }
     let(:stdout) { double('stdout') }
     let(:terminal) { double('terminal') }
     let(:film) { double('film', :snapshot_at => 'foo') }
+    let(:snapshot_at) { nil }
 
     subject { updater.update(asciicast) }
 
@@ -20,13 +22,23 @@ describe AsciicastSnapshotUpdater do
       subject
     end
 
-    it "generates the snapshot at half of asciicast's duration" do
-      expect(film).to have_received(:snapshot_at).with(2.5)
-    end
-
     it "updates asciicast's snapshot to the terminal's snapshot" do
       expect(asciicast).to have_received(:update_attribute).
         with(:snapshot, 'foo')
+    end
+
+    context "when no snapshot time set on asciicast nor custom time given" do
+      it "generates the snapshot at half of asciicast's duration" do
+        expect(film).to have_received(:snapshot_at).with(2.5)
+      end
+    end
+
+    context "when snapshot time set on asciicast" do
+      let(:snapshot_at) { 2.0 }
+
+      it "generates the snapshot at half of asciicast's duration" do
+        expect(film).to have_received(:snapshot_at).with(2.0)
+      end
     end
 
     context "when snapshot time given" do
