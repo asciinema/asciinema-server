@@ -44,7 +44,7 @@ module Asciinema
 
     # It seems some browsers (Firefox) use encoded "~" character which for
     # unknown reason isn't properly decoded by rack and/or Rails router.
-    config.middleware.insert_before(Rack::Lock, Rack::Rewrite) do
+    config.middleware.insert_before(Rack::Runtime, Rack::Rewrite) do
       rewrite /%7E(.+)/i, '/~$1'
     end
 
