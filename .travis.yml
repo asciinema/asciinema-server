@@ -1,5 +1,5 @@
 language: ruby
-bundler_args: --without development
+bundler_args: --jobs 4 --retry 3 --without development
 before_install:
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
