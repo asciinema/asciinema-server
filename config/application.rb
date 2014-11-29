@@ -42,6 +42,12 @@ module Asciinema
       g.ensure(true) { |ex| env['rack.errors'].write(ex.message) }
     end
 
+    # It seems some browsers (Firefox) use encoded "~" character which for
+    # unknown reason isn't properly decoded by rack and/or Rails router.
+    config.middleware.insert_before(Rack::Lock, Rack::Rewrite) do
+      rewrite /%7E(.+)/i, '/~$1'
+    end
+
     config.action_mailer.default_url_options = { protocol: CFG.scheme, host: CFG.host }
 
     if CFG.smtp_settings

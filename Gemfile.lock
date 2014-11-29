@@ -189,6 +189,7 @@ GEM
     rack (1.5.2)
     rack-protection (1.5.0)
       rack
+    rack-rewrite (1.5.0)
     rack-robustness (1.1.0)
     rack-test (0.6.2)
       rack (>= 1.0)
@@ -359,6 +360,7 @@ DEPENDENCIES
   pry-rails (~> 0.3.2)
   pundit (~> 0.3.0)
   quiet_assets (~> 1.0.1)
+  rack-rewrite (~> 1.5.0)
   rack-robustness (~> 1.1.0)
   rails (= 4.1.5)
   rake (~> 10.0.4)

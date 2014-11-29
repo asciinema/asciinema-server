@@ -29,6 +29,7 @@ gem 'virtus',               '~> 1.0.1'
 gem 'warden',               '~> 1.2.3'
 gem 'pundit',               '~> 0.3.0'
 gem 'rack-robustness',      '~> 1.1.0'
+gem 'rack-rewrite',         '~> 1.5.0'
 
 group :development do
   gem 'quiet_assets',   '~> 1.0.1'
