@@ -7,8 +7,8 @@ module AvatarHelper
   private
 
   def avatar_url
-    username = model.username || model.temporary_username || model.id
-    email = model.email || "#{username}@asciinema.org"
+    username = model.username || model.temporary_username
+    email = model.email || "#{username}+#{model.id}@asciinema.org"
     hash = Digest::MD5.hexdigest(email.downcase)
     "//gravatar.com/avatar/#{hash}?s=128&d=retro"
   end

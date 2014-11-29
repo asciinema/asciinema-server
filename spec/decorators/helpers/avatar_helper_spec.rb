@@ -8,7 +8,7 @@ describe AvatarHelper do
 
   let(:decorator) { double('decorator', h: h, model: model).
                     extend(described_class) }
-  let(:model) { double('model', username: 'satyr', email: email) }
+  let(:model) { double('model', id: 1, username: 'satyr', email: email) }
 
   describe '#avatar_image_tag' do
     subject { decorator.avatar_image_tag }
@@ -24,7 +24,7 @@ describe AvatarHelper do
       let(:email) { nil }
 
       it { should eq(expected_img(
-        '//gravatar.com/avatar/9c0388ed63799af1e5f588e610851f0c?s=128&d=retro')) }
+        '//gravatar.com/avatar/40affe80f7becd02ac38d316f7fe7057?s=128&d=retro')) }
     end
   end
 
