@@ -11,7 +11,6 @@ html[lang="en"]
     = favicon_link_tag 'favicon.png'
     = render 'layouts/ga'
   body
-    = render 'layouts/banner'
     = render 'layouts/header'
     = render 'shared/flash'
     .main = content_for?(:content) ? yield(:content) : yield
