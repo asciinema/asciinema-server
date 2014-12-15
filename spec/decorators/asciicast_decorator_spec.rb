@@ -149,33 +149,47 @@ describe AsciicastDecorator do
   describe '#title' do
     let(:method) { :title }
 
-    context 'when title is present' do
-      before do
-        asciicast.title = 'tit'
-      end
+    it "prefers model title to command and id" do
+      asciicast.attributes = {
+        title: 'the title',
+        command: 'the-command',
+        id: 123,
+      }
 
-      it { should == 'tit' }
+      expect(subject).to eq('the title')
     end
 
-    context 'when no title but command is present' do
-      before do
-        asciicast.title = nil
-        asciicast.command = 'cmd'
-      end
+    it "prefers command to id when command is not equal to shell" do
+      asciicast.attributes = {
+        title: '',
+        command: '/bin/bash',
+        shell: '/bin/zsh',
+        id: 123,
+      }
 
-      it { should == 'cmd' }
+      expect(subject).to eq('/bin/bash')
     end
 
-    context 'when no title nor command is present' do
-      before do
-        asciicast.title = nil
-        asciicast.command = nil
-        asciicast.id = 999
-      end
+    it "prefers id to command when command is equal to shell" do
+      asciicast.attributes = {
+        title: '',
+        command: '/bin/zsh',
+        shell: '/bin/zsh',
+        id: 123,
+      }
 
-      it 'should be in the form of "#<id>"' do
-        should == "asciicast:#{asciicast.id}"
-      end
+      expect(subject).to eq('asciicast:123')
+    end
+
+    it "returns id when no model title nor command set" do
+      asciicast.attributes = {
+        title: '',
+        command: '',
+        shell: '/bin/zsh',
+        id: 123,
+      }
+
+      expect(subject).to eq('asciicast:123')
     end
   end
 

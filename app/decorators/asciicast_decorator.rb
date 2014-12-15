@@ -24,7 +24,11 @@ class AsciicastDecorator < ApplicationDecorator
   end
 
   def title
-    model.title.presence || model.command.presence || "asciicast:#{id}"
+    model.title.presence || command || "asciicast:#{id}"
+  end
+
+  def command
+    model.command != model.shell && model.command.presence
   end
 
   def thumbnail(width = THUMBNAIL_WIDTH, height = THUMBNAIL_HEIGHT)
