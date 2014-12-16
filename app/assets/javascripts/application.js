@@ -22,4 +22,6 @@ $(function() {
     e.preventDefault();
     $('.embed-box').slideDown('fast');
   });
+
+  $('[data-toggle="popover"]').popover({ html: true });
 });

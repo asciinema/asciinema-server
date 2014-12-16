@@ -1,18 +1,11 @@
 - content_for(:title, 'Getting started')
 
+h1 Getting started
+h2 1. Install the recorder
+
+= render partial: 'docs/script_install_and_other'
+
 markdown:
-
-  # Getting started
-
-  ## 1. Install the recorder
-
-  The latest stable version of asciinema can always be installed or updated
-  to via [pip](http://www.pip-installer.org/en/latest/index.html):
-
-      sudo pip install --upgrade asciinema
-
-  See [installation docs](#{docs_path(:installation)}) for more installation
-  methods (Ubuntu, Fedora, Arch Linux, Gentoo).
 
   ## 2. Record
 
@@ -31,8 +24,8 @@ markdown:
 
       $ asciinema auth
 
-  If you skip this step now, you can always run the above command later and all
-  previously recorded asciicasts will automatically get assigned to your new
+  If you skip this step now, you can run the above command later and all
+  previously recorded asciicasts will automatically get assigned to your
   profile.
 
   NOTE: To be able to edit/delete your recordings you have to assign them to
