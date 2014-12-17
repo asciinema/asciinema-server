@@ -32,7 +32,7 @@ class SessionsController < ApplicationController
 
   def login_notice(user)
     if user.first_login?
-      "Welcome to Asciinema!"
+      "Welcome to asciinema!"
     else
       "Welcome back!"
     end

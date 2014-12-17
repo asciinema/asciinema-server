@@ -1,21 +1,22 @@
-- content_for(:title, 'About Asciinema')
+- content_for(:title, 'About asciinema')
 
 .row.about
   .col-md-8
     markdown:
-      # About Asciinema
+      # About asciinema
 
-      Asciinema (formerly ascii.io) is a free and open source solution for
-      recording the terminal sessions and sharing them on the web.
+      asciinema (formerly ascii.io) is a free and open source solution for
+      recording terminal sessions and sharing them on the web.
 
       It aims to be a "go to" place for every command-line user who wants to share
       his skills with others. Or putting it differently, it's a place to show off
       your geekiness.
 
-      The Asciinema project is built of 2 sub-projects:
+      asciinema project is built of several sub-projects:
 
-      * a command-line based terminal session recorder, `asciinema` ([source code](https://github.com/sickill/asciinema)),
-      * a website with an API and a player at asciinema.org ([source code](https://github.com/sickill/asciinema.org))
+      * command-line based terminal session recorder, `asciinema` ([source code](https://github.com/asciinema/asciinema-cli))
+      * asciinema.org - a website with an API ([source code](https://github.com/asciinema/asciinema.org))
+      * javascript player ([source code](https://github.com/asciinema/asciinema-player))
 
       If technical details interest you then read more about
       [how it works](#{docs_path('how-it-works')}).
@@ -26,22 +27,23 @@
 
       ## A bit of a history
 
-      Asciinema project was started by <a href="/~sickill">Marcin Kulik</a> 
+      asciinema project was started by <a href="/~sickill">Marcin Kulik</a> 
       ([@sickill](https://twitter.com/sickill)) in the beginning of 2011 as
       ascii.io.  He was playing with the idea of sharing terminal session
       recordings on the web since 2010 but the working prototype came to life a bit
       later. asciinema.org site had a first public release in March 2012 (as
-      ascii.io then). The project was renamed to Asciinema in September 2013.
+      ascii.io then). The project was renamed to "asciinema" in September 2013.
 
-      Asciinema is actively developed with the help of great open
-      source [contributors](https://github.com/sickill/asciinema.org/contributors).
+      asciinema is actively developed with the help of great open
+      source [contributors](https://github.com/asciinema/asciinema.org/contributors).
 
       ## Reporting bugs
 
-      As the service is built of 2 parts there are 2 separate bug trackers:
+      As the service is built of several parts there are separate bug trackers:
 
-      * [github.com/sickill/asciinema.org/issues](https://github.com/sickill/asciinema.org/issues) - for the website / player / embedding issues and ideas,
-      * [github.com/sickill/asciinema/issues](https://github.com/sickill/asciinema/issues) - for the recorder issues and ideas.
+      * [github.com/asciinema/asciinema-cli/issues](https://github.com/asciinema/asciinema-cli/issues) - for recorder issues and ideas
+      * [github.com/asciinema/asciinema.org/issues](https://github.com/asciinema/asciinema.org/issues) - for website/embedding issues and ideas
+      * [github.com/asciinema/asciinema-player/issues](https://github.com/asciinema/asciinema-player/issues) - for player issues and ideas
 
       Please only use them for reporting bugs and submitting feature requests.
       Do not ask for general help there. Use IRC or the support email for that.

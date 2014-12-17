@@ -6,12 +6,12 @@
 
 Record and share your terminal sessions, the right way.
 
-Asciinema is a free and open source solution for recording the terminal
-sessions and sharing them on the web.
+asciinema is a free and open source solution for recording terminal sessions
+and sharing them on the web.
 
-This is the source code of asciinema.org (formerly ascii.io) website and JS
-player. If you're looking for asciinema terminal recorder go here:
-[sickill/asciinema](https://github.com/sickill/asciinema)
+This is the source code of asciinema.org (formerly ascii.io) website. If you're
+looking for asciinema's terminal recorder go here:
+[asciinema/asciinema-cli](https://github.com/asciinema/asciinema-cli)
 
 ## Setup instructions
 
@@ -41,7 +41,7 @@ dependencies installed:
 Clone git repository:
 
 ```bash
-$ git clone git://github.com/sickill/asciinema.org.git
+$ git clone git://github.com/asciinema/asciinema.org.git
 $ cd asciinema.org
 ```
 
@@ -84,7 +84,7 @@ If you want to contribute to this project check out
 ## Authors
 
 Developed with passion by [Marcin Kulik](http://ku1ik.com) and great open
-source [contributors](https://github.com/sickill/asciinema.org/contributors)
+source [contributors](https://github.com/asciinema/asciinema.org/contributors)
 
 ## Copyright
 

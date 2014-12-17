@@ -4,10 +4,11 @@ markdown:
 
   # How it works
 
-  Asciinema project is built of 2 complementary pieces:
+  asciinema project is built of several complementary pieces:
 
-  * a command-line based terminal session recorder, `asciinema`,
-  * a website with an API and a player at asciinema.org
+  * command-line based terminal session recorder, `asciinema`,
+  * website with an API at asciinema.org,
+  * javascript player
 
   When you run `asciinema rec` in your terminal the recording starts, capturing
   all output that is being printed to your terminal while you're issuing the
@@ -15,11 +16,11 @@ markdown:
   typing `exit`) then the captured output is uploaded to asciinema.org website
   and prepared for playback on the web.
 
-  Here's a brief overview of how both these parts work.
+  Here's a brief overview of how these parts work.
 
   ## Recording
 
-  You probably know `ssh`, `screen` or `script` command. Actually, Asciinema
+  You probably know `ssh`, `screen` or `script` command. Actually, asciinema
   was inspired by `script` (and `scriptreplay`) commands. What you may not know
   is they all use the same UNIX system capability: [a
   pseudo-terminal](http://en.wikipedia.org/wiki/Pseudo_terminal).
@@ -42,7 +43,7 @@ markdown:
   <kbd>Ctrl-A</kbd> and altering the output in order to display window
   numbers/names and other messages.
 
-  Asciinema recorder does its job by utilizing pseudo-terminal for capturing
+  asciinema recorder does its job by utilizing pseudo-terminal for capturing
   all the output that goes to a terminal and saving it in memory (together with
   timing information). The captured output includes all the text and invisible
   escape/control sequences in a raw, unaltered form. When the recording session
@@ -50,7 +51,7 @@ markdown:
   part.
 
   For the implementation details check out [recorder source
-  code](https://github.com/sickill/asciinema).
+  code](https://github.com/asciinema/asciinema-cli).
 
   ## Playback
 
@@ -62,7 +63,7 @@ markdown:
   correctly display color changes, cursor movement and printing text at proper
   places on the screen.
 
-  Escape sequence interpretation was initially handled by Asciinema's own VT100
+  Escape sequence interpretation was initially handled by asciinema's own VT100
   terminal emulation layer written in Javascript but was later replaced with
   [libtsm](http://www.freedesktop.org/wiki/Software/kmscon/libtsm/) based
   interpreter.  libtsm, "terminal-emulator state machine", is a wonderful, rock
@@ -79,4 +80,4 @@ markdown:
   underline, inverse, ...) and 256 colors perfectly rendered.
 
   For the implementation details check out [asciinema.org source
-  code](https://github.com/sickill/asciinema.org).
+  code](https://github.com/asciinema/asciinema.org).
