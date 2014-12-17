@@ -32,11 +32,11 @@ feature "Docs" do
     expect_doc_links
   end
 
-  scenario 'Visiting options page' do
-    visit docs_path(:options)
+  scenario 'Visiting usage page' do
+    visit docs_path(:usage)
 
     within('.main') do
-      expect(page).to have_content('Recorder options')
+      expect(page).to have_content('Usage')
     end
 
     expect_doc_links
