@@ -1,7 +1,7 @@
 module Api
   class AsciicastsController < BaseController
 
-    respond_to :html, :js, only: [:show]
+    respond_to :html, only: [:show]
 
     attr_reader :asciicast
 

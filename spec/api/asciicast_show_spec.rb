@@ -9,16 +9,8 @@ describe "Asciicast retrieval" do
       get "/a/#{asciicast.id}.js"
     end
 
-    it "responds with status 200" do
-      expect(response.status).to eq(200)
-    end
-
-    it "responds with javascript content type" do
-      expect(response.headers['Content-Type']).to match('text/javascript')
-    end
-
-    it "responds with embeddable player code" do
-      expect(response.body).to match(/iframe/)
+    it "responds with status 302" do
+      expect(response.status).to eq(302)
     end
   end
 

@@ -1,21 +1,6 @@
-// asciinema.org - embeddable player
+// asciinema embedded player
 
 (function() {
-  var apiHost = "<%= request.protocol %><%= request.host_with_port %>";
-  var apiUrl = apiHost + '/api';
-  var iframe;
-
-  function receiveSize(e) {
-    if (e.origin === apiHost) {
-      var event = e.data[0];
-      var data  = e.data[1];
-      if (event == 'asciicast:size' && data.id == <%= @asciicast.id %>) {
-        iframe.style.width  = '' + data.width + 'px';
-        iframe.style.height = '' + data.height + 'px';
-      }
-    }
-  }
-
   function insertAfter(referenceNode, newNode) {
     referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
   }
@@ -47,9 +32,30 @@
     return '?' + params.join('&');
   }
 
+  function locationFromString(string) {
+    var parser = document.createElement('a');
+    parser.href = string;
+    return parser;
+  }
+
+  function apiHostFromScript(script) {
+    var location = locationFromString(script.src);
+    return location.protocol + '//' + location.host;
+  }
+
   function insertPlayer(script) {
+    // do not insert player if there's one already associated with this script
+    if (script.dataset.player) {
+      return;
+    }
+
+    var apiHost = apiHostFromScript(script);
+    var apiUrl = apiHost + '/api';
+
+    var asciicastId = script.id.split('-')[1];
+
     var container = document.createElement('div');
-    container.id = "asciicast-container-<%= @asciicast.id %>";
+    container.id = "asciicast-container-" + asciicastId;
     container.className = 'asciicast';
     container.style.display = 'block';
     container.style.float = 'none';
@@ -59,10 +65,10 @@
 
     insertAfter(script, container);
 
-    iframe = document.createElement('iframe');
-    iframe.src = apiUrl + "/asciicasts/<%= @asciicast.id %>" + params(container, script);
-    iframe.id = "asciicast-iframe-<%= @asciicast.id %>";
-    iframe.name = "asciicast-iframe-<%= @asciicast.id %>";
+    var iframe = document.createElement('iframe');
+    iframe.src = apiUrl + "/asciicasts/" + asciicastId + params(container, script);
+    iframe.id = "asciicast-iframe-" + asciicastId;
+    iframe.name = "asciicast-iframe-" + asciicastId;
     iframe.scrolling = "no";
     iframe.setAttribute('allowFullScreen', 'true');
     iframe.style.overflow = "hidden";
@@ -75,12 +81,26 @@
     iframe.onload = function() { this.style.visibility = 'visible' };
 
     container.appendChild(iframe);
-  }
 
-  var script = document.getElementById("asciicast-<%= @asciicast.id %>");
+    function receiveSize(e) {
+      if (e.origin === apiHost) {
+        var event = e.data[0];
+        var data  = e.data[1];
+        if (event == 'asciicast:size' && data.id == asciicastId) {
+          iframe.style.width  = '' + data.width + 'px';
+          iframe.style.height = '' + data.height + 'px';
+        }
+      }
+    }
 
-  if (script) {
-    insertPlayer(script);
     window.addEventListener("message", receiveSize, false);
+
+    script.dataset.player = container;
   }
+
+  var scripts = document.querySelectorAll("script[id^='asciicast-']")
+  for (var i = 0; i < scripts.length; i++) {
+    insertPlayer(scripts[i]);
+  }
+
 })();
