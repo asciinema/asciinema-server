@@ -6,30 +6,16 @@
   }
 
   function params(container, script) {
-    var params = [];
-
-    var size = script.getAttribute('data-size');
-    if (size) {
-      params = params.concat(['size=' + size]);
-    }
-    var speed = script.getAttribute('data-speed');
-    if (speed) {
-      params = params.concat(['speed=' + speed]);
-    }
-    var autoplay = script.getAttribute('data-autoplay');
-    if (autoplay) {
-      params = params.concat(['autoplay=' + autoplay]);
-    }
-    var loop = script.getAttribute('data-loop');
-    if (loop) {
-      params = params.concat(['loop=' + loop]);
-    }
-    var theme = script.getAttribute('data-theme');
-    if (theme) {
-      params = params.concat(['theme=' + theme]);
+    function format(name) {
+      var value = script.getAttribute('data-' + name);
+      if (value) {
+        return name + '=' + value;
+      }
     }
 
-    return '?' + params.join('&');
+    var options = ['size', 'speed', 'autoplay', 'loop', 'theme'];
+
+    return '?' + options.map(format).filter(Boolean).join('&');
   }
 
   function locationFromString(string) {
