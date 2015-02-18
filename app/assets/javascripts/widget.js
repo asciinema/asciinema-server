@@ -84,9 +84,6 @@
     script.dataset.player = container;
   }
 
-  var scripts = document.querySelectorAll("script[id^='asciicast-']")
-  for (var i = 0; i < scripts.length; i++) {
-    insertPlayer(scripts[i]);
-  }
-
+  var scripts = document.querySelectorAll("script[id^='asciicast-']");
+  [].forEach.call(scripts, insertPlayer);
 })();
