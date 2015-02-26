@@ -1,0 +1,14 @@
+{
+    "command": "/bin/bash", 
+    "duration": 11.146430015564, 
+    "recorded_at": "Thu, 25 Jul 2013 20:08:57 +0000", 
+    "shell": "/bin/zsh", 
+    "term": {
+        "columns": 96, 
+        "lines": 26, 
+        "type": "screen-256color"
+    }, 
+    "title": "bashing :)", 
+    "user_token": "f33e6188-f53c-11e2-abf4-84a6c827e88b", 
+    "username": "kill"
+}
