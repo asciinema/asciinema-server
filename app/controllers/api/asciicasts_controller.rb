@@ -30,14 +30,20 @@ module Api
     private
 
     def parse_request
+      attrs, username, token = parse_format_0_request
+      user = User.for_api_token!(token, username)
+
+      [attrs, user]
+    end
+
+    def parse_format_0_request
       meta = JSON.parse(params[:asciicast][:meta].read)
       username, token = authenticate_with_http_basic { |username, password| [username, password] }
+      token ||= meta.delete('user_token')
+      username ||= meta.delete('username')
+      attrs = AsciicastParams.build(params[:asciicast].merge(meta: meta), request.user_agent)
 
-      [
-        AsciicastParams.build(params[:asciicast].merge(meta: meta), request.user_agent),
-        token || meta.delete('user_token'),
-        username || meta.delete('username'),
-      ]
+      [attrs, username, token]
     end
 
     def asciicast_creator
