@@ -1,7 +1,7 @@
 class AsciicastCreator
 
-  def create(attributes, user)
-    asciicast = Asciicast.create!(attributes.merge(user: user))
+  def create(attributes)
+    asciicast = Asciicast.create!(attributes)
     AsciicastWorker.perform_async(asciicast.id)
 
     asciicast
