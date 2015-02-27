@@ -40,6 +40,12 @@ class AsciicastParams
 
   def self.from_format_1_request(asciicast_file, username, token, user_agent)
     asciicast = Oj.sc_parse(AsciicastHandler.new, asciicast_file)
+    version = asciicast['version']
+
+    if version != 1
+      raise "unsupported asciicast format version: #{version}"
+    end
+
     env = asciicast['env']
 
     {
@@ -53,12 +59,12 @@ class AsciicastParams
       title:            asciicast['title'],
       user:             User.for_api_token!(token, username),
       user_agent:       user_agent,
-      version: 1,
+      version:          version,
     }
   end
 
   class AsciicastHandler < ::Oj::ScHandler
-    META_ATTRIBUTES = %w[width height duration command title env SHELL TERM]
+    META_ATTRIBUTES = %w[version width height duration command title env SHELL TERM]
 
     def hash_start
       {}
