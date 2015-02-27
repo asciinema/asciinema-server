@@ -9,7 +9,7 @@ FactoryGirl.define do
   factory :asciicast do
     association :user
     title "bashing"
-    duration 11.146430015563965
+    duration 11.146430015564
     terminal_type "screen-256color"
     terminal_columns 96
     terminal_lines 26
