@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141129115837) do
+ActiveRecord::Schema.define(version: 20150227112949) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -53,6 +53,8 @@ ActiveRecord::Schema.define(version: 20141129115837) do
     t.string   "user_agent"
     t.string   "theme_name"
     t.float    "snapshot_at"
+    t.integer  "version",          default: 0,     null: false
+    t.string   "file"
   end
 
   add_index "asciicasts", ["created_at"], name: "index_asciicasts_on_created_at", using: :btree

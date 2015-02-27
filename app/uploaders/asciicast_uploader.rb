@@ -1,0 +1,3 @@
+class AsciicastUploader < BaseUploader
+
+end

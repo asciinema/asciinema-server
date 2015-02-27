@@ -30,6 +30,8 @@ gem 'warden',               '~> 1.2.3'
 gem 'pundit',               '~> 0.3.0'
 gem 'rack-robustness',      '~> 1.1.0'
 gem 'rack-rewrite',         '~> 1.5.0'
+gem 'oj'
+gem 'oj_mimic_json'
 
 group :development do
   gem 'quiet_assets',   '~> 1.0.1'

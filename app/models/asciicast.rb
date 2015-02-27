@@ -7,10 +7,12 @@ class Asciicast < ActiveRecord::Base
   mount_uploader :stdout_data,   StdoutDataUploader
   mount_uploader :stdout_timing, StdoutTimingUploader
   mount_uploader :stdout_frames, StdoutFramesUploader
+  mount_uploader :file, AsciicastUploader
 
   serialize :snapshot, ActiveSupportJsonProxy
 
-  validates :stdout_data, :stdout_timing, :presence => true
+  validates :stdout_data, :stdout_timing, presence: true, unless: :file
+  validates :file, presence: true, unless: :stdout_data
   validates :terminal_columns, :terminal_lines, :duration, :presence => true
   validates :snapshot_at, numericality: { greater_than: 0, allow_blank: true }
 

@@ -167,6 +167,8 @@ GEM
       net-ssh (>= 2.6.5)
     newrelic_rpm (3.7.1.182)
     nokogiri (1.5.11)
+    oj (2.11.5)
+    oj_mimic_json (1.0.1)
     open4 (1.3.0)
     parallel (0.7.1)
     pg (0.17.0)
@@ -354,6 +356,8 @@ DEPENDENCIES
   jquery-rails (~> 3.0.4)
   kaminari (~> 0.14.1)
   newrelic_rpm
+  oj
+  oj_mimic_json
   open4 (~> 1.3.0)
   pg (~> 0.14)
   poltergeist (~> 1.5.0)
