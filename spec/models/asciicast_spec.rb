@@ -75,30 +75,32 @@ describe Asciicast do
   end
 
   describe '#stdout' do
-    let(:asciicast) { Asciicast.new }
-    let(:data_uploader) { double('data_uploader',
-                                 :decompressed_path => '/foo') }
-    let(:timing_uploader) { double('timing_uploader',
-                                   :decompressed_path => '/bar') }
-    let(:stdout) { double('stdout', :lazy => lazy_stdout) }
-    let(:lazy_stdout) { double('lazy_stdout') }
+    context 'for single-file, JSON asciicast' do
+      let(:asciicast) { create(:asciicast) }
 
-    subject { asciicast.stdout }
+      subject { asciicast.stdout.to_a }
 
-    before do
-      allow(BufferedStdout).to receive(:new) { stdout }
-      allow(StdoutDataUploader).to receive(:new) { data_uploader }
-      allow(StdoutTimingUploader).to receive(:new) { timing_uploader }
+      it 'is enumerable with [delay, data] pair as every item' do
+        expect(subject).to eq([
+          [1.234567, "foo bar"],
+          [5.678987, "baz qux"],
+          [3.456789, "żółć jaźń"],
+        ])
+      end
     end
 
-    it 'creates a new BufferedStdout instance' do
-      subject
+    context 'for multi-file, legacy asciicast' do
+      let(:asciicast) { create(:legacy_asciicast) }
 
-      expect(BufferedStdout).to have_received(:new).with('/foo', '/bar')
-    end
+      subject { asciicast.stdout.to_a }
 
-    it 'returns lazy instance of stdout' do
-      expect(subject).to be(lazy_stdout)
+      it 'is enumerable with [delay, data] pair as every item' do
+        expect(subject).to eq([
+          [1.234567, "foobar"],
+          [0.123456, "baz"],
+          [2.345678, "qux"],
+        ])
+      end
     end
   end
 

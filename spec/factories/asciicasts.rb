@@ -7,6 +7,7 @@ FactoryGirl.define do
   }
 
   factory :asciicast do
+    version 1
     association :user
     title "bashing"
     duration 11.146430015564
@@ -21,6 +22,7 @@ FactoryGirl.define do
   end
 
   factory :legacy_asciicast, parent: :asciicast do
+    version 0
     file nil
     stdout_data { fixture_file['0.9.9/stdout', 'application/octet-stream'] }
     stdout_timing { fixture_file['0.9.9/stdout.time', 'application/octet-stream'] }

@@ -58,8 +58,8 @@ class Asciicast < ActiveRecord::Base
   end
 
   def stdout
-    @stdout ||= BufferedStdout.new(stdout_data.decompressed_path,
-                                   stdout_timing.decompressed_path).lazy
+    return @stdout if @stdout
+    @stdout = Stdout::Buffered.new(get_stdout)
   end
 
   def with_terminal
@@ -71,6 +71,18 @@ class Asciicast < ActiveRecord::Base
 
   def theme
     theme_name.presence && Theme.for_name(theme_name)
+  end
+
+  private
+
+  def get_stdout
+    if version == 0
+      Stdout::MultiFile.new(stdout_data.decompressed_path,
+                            stdout_timing.decompressed_path)
+    else
+      file.cache!
+      Stdout::SingleFile.new(file.current_path)
+    end
   end
 
 end
