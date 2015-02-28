@@ -14,12 +14,16 @@ FactoryGirl.define do
     terminal_columns 96
     terminal_lines 26
     shell "/bin/zsh"
-    uname 'Linux 3.9.9-302.fc19.x86_64 #1 SMP ' +
-          'Sat Jul 6 13:41:07 UTC 2013 x86_64'
     views_count 1
-    stdout_data   { fixture_file['stdout', 'application/octet-stream'] }
-    stdout_timing { fixture_file['stdout.time', 'application/octet-stream'] }
+    file { fixture_file['1/asciicast.json', 'application/json'] }
     stdout_frames { fixture_file['stdout.json', 'application/json'] }
     snapshot JSON.parse(File.read('spec/fixtures/snapshot.json'))
+  end
+
+  factory :legacy_asciicast, parent: :asciicast do
+    file nil
+    stdout_data { fixture_file['0.9.9/stdout', 'application/octet-stream'] }
+    stdout_timing { fixture_file['0.9.9/stdout.time', 'application/octet-stream'] }
+    uname 'Linux 3.9.9-302.fc19.x86_64 #1 SMP Sat Jul 6 13:41:07 UTC 2013 x86_64'
   end
 end
