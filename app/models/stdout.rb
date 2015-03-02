@@ -1,3 +1,5 @@
+require 'open-uri'
+
 class Stdout
   include Enumerable
 
@@ -9,7 +11,7 @@ class Stdout
     end
 
     def each(&blk)
-      File.open(path, 'r') do |f|
+      open(path, 'r') do |f|
         Oj.sc_parse(FrameIterator.new(blk), f)
       end
     end
