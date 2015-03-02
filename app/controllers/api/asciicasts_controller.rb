@@ -11,7 +11,7 @@ module Api
         location: asciicast
 
     rescue ActiveRecord::RecordInvalid => e
-      render nothing: true, status: 422
+      render text: e.record.errors.messages, status: 422
     end
 
     def show
