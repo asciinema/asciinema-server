@@ -59,7 +59,6 @@ group :test do
   gem 'guard'
   gem 'guard-rspec'
   gem 'rb-inotify',         '~> 0.9.0'
-  gem 'simplecov',          '~> 0.7.1', require: false
   gem 'shoulda-matchers'
   gem 'coveralls',          require: false
   gem 'rspec-activemodel-mocks'

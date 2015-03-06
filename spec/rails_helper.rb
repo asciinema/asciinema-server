@@ -3,14 +3,8 @@ ENV["RAILS_ENV"] ||= 'test'
 require 'spec_helper'
 
 if ENV["CI"] && (!defined?(RUBY_ENGINE) || RUBY_ENGINE == "ruby")
-  require 'simplecov'
   require 'coveralls'
-
-  SimpleCov.formatter = Coveralls::SimpleCov::Formatter
-  SimpleCov.start 'rails' do
-    add_group "Decorators", "app/decorators"
-    add_group "Presenters", "app/presenters"
-  end
+  Coveralls.wear!
 end
 
 ENV['CARRIERWAVE_STORAGE_DIR_PREFIX'] ||= 'uploads/test/'
