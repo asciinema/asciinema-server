@@ -1,7 +1,7 @@
 # asciinema.org
 
 [![Build Status](https://travis-ci.org/asciinema/asciinema.org.svg?branch=master)](https://travis-ci.org/asciinema/asciinema.org)
-[![Code Climate](https://codeclimate.com/github/sickill/asciinema.org.png)](https://codeclimate.com/github/sickill/asciinema.org)
+[![Code Climate](https://codeclimate.com/github/asciinema/asciinema.org/badges/gpa.svg)](https://codeclimate.com/github/asciinema/asciinema.org)
 [![Coverage Status](https://coveralls.io/repos/sickill/asciinema.org/badge.png)](https://coveralls.io/r/sickill/asciinema.org)
 
 Record and share your terminal sessions, the right way.
@@ -11,7 +11,7 @@ and sharing them on the web.
 
 This is the source code of asciinema.org (formerly ascii.io) website. If you're
 looking for asciinema's terminal recorder go here:
-[asciinema/asciinema-cli](https://github.com/asciinema/asciinema-cli)
+[asciinema/asciinema-cli](https://github.com/asciinema/asciinema)
 
 ## Setup instructions
 
