@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/asciinema/asciinema.org.svg?branch=master)](https://travis-ci.org/asciinema/asciinema.org)
 [![Code Climate](https://codeclimate.com/github/asciinema/asciinema.org/badges/gpa.svg)](https://codeclimate.com/github/asciinema/asciinema.org)
-[![Coverage Status](https://coveralls.io/repos/sickill/asciinema.org/badge.png)](https://coveralls.io/r/sickill/asciinema.org)
+[![Coverage Status](https://coveralls.io/repos/asciinema/asciinema.org/badge.svg)](https://coveralls.io/r/asciinema/asciinema.org)
 
 Record and share your terminal sessions, the right way.
 
