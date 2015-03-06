@@ -70,7 +70,7 @@ $ bundle exec rails server
 
 ### 6. Run the background job processor
 
-The background job processor is needed for thumbnail generation.
+The background job processor is needed for asciicast pre-processing and thumbnail generation.
 
 ```bash
 $ bundle exec sidekiq
@@ -88,4 +88,4 @@ source [contributors](https://github.com/asciinema/asciinema.org/contributors)
 
 ## Copyright
 
-Copyright &copy; 2011-2014 Marcin Kulik. See LICENSE.txt for details.
+Copyright &copy; 2011-2015 Marcin Kulik. See LICENSE.txt for details.
