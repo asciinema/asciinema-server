@@ -16,7 +16,8 @@ asciinema's terminal recorder go here:
 ## Setup instructions
 
 Below you'll find setup instructions in case you want to contribute, play with
-it on your local machine or setup your own instance for your organization.
+it on your local machine, or setup your own instance for private use or for
+your organization.
 
 ### 1. Install dependencies
 
@@ -70,7 +71,8 @@ $ bundle exec rails server
 
 ### 6. Run the background job processor
 
-The background job processor is needed for asciicast pre-processing and thumbnail generation.
+The background job processor is needed for asciicast pre-processing and
+thumbnail generation.
 
 ```bash
 $ bundle exec sidekiq
