@@ -58,7 +58,7 @@ group :test do
   gem 'database_cleaner',   '~> 1.0.1'
   gem 'guard'
   gem 'guard-rspec'
-  gem 'rb-inotify',         '~> 0.9.0'
+  gem 'rb-inotify', require: RUBY_PLATFORM.include?('linux') && 'rb-inotify'
   gem 'shoulda-matchers'
   gem 'coveralls',          require: false
   gem 'rspec-activemodel-mocks'
