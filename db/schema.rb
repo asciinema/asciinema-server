@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150228174314) do
+ActiveRecord::Schema.define(version: 20150311094819) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -114,5 +114,17 @@ ActiveRecord::Schema.define(version: 20150228174314) do
   add_index "users", ["email"], name: "index_users_on_email", using: :btree
   add_index "users", ["provider", "uid"], name: "index_users_on_provider_and_uid", unique: true, using: :btree
   add_index "users", ["username"], name: "index_users_on_username", using: :btree
+
+  add_foreign_key "api_tokens", "users", name: "api_tokens_user_id_fk"
+
+  add_foreign_key "asciicasts", "users", name: "asciicasts_user_id_fk"
+
+  add_foreign_key "comments", "asciicasts", name: "comments_asciicast_id_fk"
+  add_foreign_key "comments", "users", name: "comments_user_id_fk"
+
+  add_foreign_key "expiring_tokens", "users", name: "expiring_tokens_user_id_fk"
+
+  add_foreign_key "likes", "asciicasts", name: "likes_asciicast_id_fk"
+  add_foreign_key "likes", "users", name: "likes_user_id_fk"
 
 end

@@ -11,14 +11,14 @@ class Asciicast < ActiveRecord::Base
 
   serialize :snapshot, ActiveSupportJsonProxy
 
+  belongs_to :user
+  has_many :comments, -> { order(:created_at) }, dependent: :destroy
+  has_many :likes, dependent: :destroy
+
+  validates :user, :terminal_columns, :terminal_lines, :duration, presence: true
   validates :stdout_data, :stdout_timing, presence: true, unless: :file
   validates :file, presence: true, unless: :stdout_data
-  validates :terminal_columns, :terminal_lines, :duration, :presence => true
   validates :snapshot_at, numericality: { greater_than: 0, allow_blank: true }
-
-  belongs_to :user
-  has_many :comments, -> { order(:created_at) }, :dependent => :destroy
-  has_many :likes, :dependent => :destroy
 
   scope :featured, -> { where(featured: true) }
   scope :by_recency, -> { order("created_at DESC") }

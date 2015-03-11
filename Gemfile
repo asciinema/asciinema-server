@@ -32,6 +32,7 @@ gem 'rack-robustness',      '~> 1.1.0'
 gem 'rack-rewrite',         '~> 1.5.0'
 gem 'oj',                   '~> 2.11'
 gem 'oj_mimic_json',        '~> 1.0'
+gem 'foreigner',            '~> 1.7'
 
 group :development do
   gem 'quiet_assets',   '~> 1.0.1'
@@ -40,6 +41,7 @@ group :development do
   gem 'foreman',        '~> 0.63.0'
   gem 'spring'
   gem 'spring-commands-rspec'
+  gem 'immigrant'
 end
 
 group :test, :development do
