@@ -360,8 +360,8 @@ DEPENDENCIES
   jquery-rails (~> 3.0.4)
   kaminari (~> 0.14.1)
   newrelic_rpm
-  oj
-  oj_mimic_json
+  oj (~> 2.11)
+  oj_mimic_json (~> 1.0)
   open4 (~> 1.3.0)
   pg (~> 0.14)
   poltergeist (~> 1.6.0)
