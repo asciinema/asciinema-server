@@ -34,18 +34,8 @@ markdown:
 
   ## Can I edit/post-process the recorded asciicast?
 
-  TL;DR answer: No, you can't. Not yet.
-
-  That's tricky. You can't do that at the moment. And there is a little chance
-  asciinema will allow for this in the future. The thing is, the recording
-  consists of two streams: text printed to the terminal and the timing
-  information (how many characters to print after what delay). If you deleted
-  some text from the first stream you would need to track the appropriate item
-  in the second stream and adjust the number of characters for it. Otherwise
-  the replay of the asciicast would get broken and just look improper.
-
-  Also, some characters in the text stream are not printable characters, they
-  are escape sequences used to change the text foreground and background color,
-  erase some areas of the terminal etc. Each sequence depends on the state of
-  the terminal at a given moment. By (accidently) removing these sequences you
-  could break the whole output so it would display mostly rubbish.
+  Yes, if you know how to deal with [ansi escape
+  sequences](https://en.wikipedia.org/wiki/ANSI_escape_code). Asciicasts are
+  self-contained JSON files which you can edit before uploading. Look at
+  `stdout` attribute in [asciicast format doc](https://github.com/asciinema/asciinema/blob/master/doc/asciicast-v1.md)
+  for inspiration.
