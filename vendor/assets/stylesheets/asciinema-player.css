@@ -1,15 +1,15 @@
 .asciinema-player-wrapper {
   text-align: center; }
   .asciinema-player-wrapper:fullscreen {
-    background-color: black;
+    background-color: #000;
     width: 100%;
     height: 100%; }
   .asciinema-player-wrapper:-webkit-full-screen {
-    background-color: black;
+    background-color: #000;
     width: 100%;
     height: 100%; }
   .asciinema-player-wrapper:-moz-full-screen {
-    background-color: black;
+    background-color: #000;
     width: 100%;
     height: 100%; }
   .asciinema-player-wrapper .asciinema-player {
@@ -103,14 +103,14 @@
           height: 32px; }
 
 svg.icon path {
-  fill: white; }
+  fill: #fff; }
 
 .asciinema-player .control-bar {
   width: 100%;
   height: 32px;
-  background-color: black;
-  color: white;
-  border-top: 1px solid #222222;
+  background-color: #000;
+  color: #fff;
+  border-top: 1px solid #222;
   box-sizing: content-box;
   line-height: 1; }
   .asciinema-player .control-bar * {
@@ -160,11 +160,11 @@ svg.icon path {
       .asciinema-player .control-bar .progressbar .bar .gutter {
         display: block;
         height: 3px;
-        background-color: #333333; }
+        background-color: #333; }
         .asciinema-player .control-bar .progressbar .bar .gutter span {
           display: inline-block;
           height: 100%;
-          background-color: white;
+          background-color: #fff;
           border-radius: 3px; }
   .asciinema-player .control-bar .fullscreen-button {
     display: block;
@@ -200,7 +200,7 @@ svg.icon path {
   z-index: 20;
   cursor: pointer; }
   .asciinema-player .start-prompt .play-button {
-    font-size: 100px; }
+    font-size: 0px; }
   .asciinema-player .start-prompt .play-button {
     position: absolute;
     left: 0;
@@ -223,37 +223,29 @@ svg.icon path {
 @-webkit-keyframes expand {
   0% {
     -webkit-transform: scale(0); }
-
   50% {
     -webkit-transform: scale(1); }
-
   100% {
     z-index: 1; } }
 @-moz-keyframes expand {
   0% {
     -moz-transform: scale(0); }
-
   50% {
     -moz-transform: scale(1); }
-
   100% {
     z-index: 1; } }
 @-o-keyframes expand {
   0% {
     -o-transform: scale(0); }
-
   50% {
     -o-transform: scale(1); }
-
   100% {
     z-index: 1; } }
 @keyframes expand {
   0% {
     transform: scale(0); }
-
   50% {
     transform: scale(1); }
-
   100% {
     z-index: 1; } }
 .loader {
@@ -292,10 +284,10 @@ svg.icon path {
   animation: expand 1.6s linear 0.8s infinite both; }
 
 .asciinema-terminal .fg-16 {
-  color: black; }
+  color: #000000; }
 
 .asciinema-terminal .bg-16 {
-  background-color: black; }
+  background-color: #000000; }
 
 .asciinema-terminal .fg-17 {
   color: #00005f; }
@@ -322,10 +314,10 @@ svg.icon path {
   background-color: #0000d7; }
 
 .asciinema-terminal .fg-21 {
-  color: blue; }
+  color: #0000ff; }
 
 .asciinema-terminal .bg-21 {
-  background-color: blue; }
+  background-color: #0000ff; }
 
 .asciinema-terminal .fg-22 {
   color: #005f00; }
@@ -472,10 +464,10 @@ svg.icon path {
   background-color: #00d7ff; }
 
 .asciinema-terminal .fg-46 {
-  color: lime; }
+  color: #00ff00; }
 
 .asciinema-terminal .bg-46 {
-  background-color: lime; }
+  background-color: #00ff00; }
 
 .asciinema-terminal .fg-47 {
   color: #00ff5f; }
@@ -502,10 +494,10 @@ svg.icon path {
   background-color: #00ffd7; }
 
 .asciinema-terminal .fg-51 {
-  color: cyan; }
+  color: #00ffff; }
 
 .asciinema-terminal .bg-51 {
-  background-color: cyan; }
+  background-color: #00ffff; }
 
 .asciinema-terminal .fg-52 {
   color: #5f0000; }
@@ -1372,10 +1364,10 @@ svg.icon path {
   background-color: #d7ffff; }
 
 .asciinema-terminal .fg-196 {
-  color: red; }
+  color: #ff0000; }
 
 .asciinema-terminal .bg-196 {
-  background-color: red; }
+  background-color: #ff0000; }
 
 .asciinema-terminal .fg-197 {
   color: #ff005f; }
@@ -1402,10 +1394,10 @@ svg.icon path {
   background-color: #ff00d7; }
 
 .asciinema-terminal .fg-201 {
-  color: magenta; }
+  color: #ff00ff; }
 
 .asciinema-terminal .bg-201 {
-  background-color: magenta; }
+  background-color: #ff00ff; }
 
 .asciinema-terminal .fg-202 {
   color: #ff5f00; }
@@ -1516,10 +1508,10 @@ svg.icon path {
   background-color: #ffafff; }
 
 .asciinema-terminal .fg-220 {
-  color: gold; }
+  color: #ffd700; }
 
 .asciinema-terminal .bg-220 {
-  background-color: gold; }
+  background-color: #ffd700; }
 
 .asciinema-terminal .fg-221 {
   color: #ffd75f; }
@@ -1552,10 +1544,10 @@ svg.icon path {
   background-color: #ffd7ff; }
 
 .asciinema-terminal .fg-226 {
-  color: yellow; }
+  color: #ffff00; }
 
 .asciinema-terminal .bg-226 {
-  background-color: yellow; }
+  background-color: #ffff00; }
 
 .asciinema-terminal .fg-227 {
   color: #ffff5f; }
@@ -1582,10 +1574,10 @@ svg.icon path {
   background-color: #ffffd7; }
 
 .asciinema-terminal .fg-231 {
-  color: white; }
+  color: #ffffff; }
 
 .asciinema-terminal .bg-231 {
-  background-color: white; }
+  background-color: #ffffff; }
 
 .asciinema-terminal .fg-232 {
   color: #080808; }
@@ -1660,10 +1652,10 @@ svg.icon path {
   background-color: #767676; }
 
 .asciinema-terminal .fg-244 {
-  color: gray; }
+  color: #808080; }
 
 .asciinema-terminal .bg-244 {
-  background-color: gray; }
+  background-color: #808080; }
 
 .asciinema-terminal .fg-245 {
   color: #8a8a8a; }
@@ -1730,3 +1722,5 @@ svg.icon path {
 
 .asciinema-terminal .bg-255 {
   background-color: #eeeeee; }
+
+/*# sourceMappingURL=asciinema-player.css.map */
