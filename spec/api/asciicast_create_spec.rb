@@ -307,9 +307,9 @@ describe "Asciicast creation" do
   context 'format 1' do
     subject { make_request }
 
-    def make_request
+    def make_request(asciicast_path = '1/asciicast.json')
       post '/api/asciicasts',
-        { asciicast: fixture_file('1/asciicast.json', 'application/json') },
+        { asciicast: fixture_file(asciicast_path, 'application/json') },
         headers('kill', 'f33e6188-f53c-11e2-abf4-84a6c827e88b', 'asciinema/1.0.0 gc/go1.3 jola-amd64')
     end
 
@@ -388,6 +388,23 @@ describe "Asciicast creation" do
     it 'returns the URL to the uploaded asciicast' do
       expect(response.body).to eq(asciicast_url(created_asciicast))
     end
+
+    context 'when json is missing data / has invalid data' do
+      subject { make_request('1/invalid.json') }
+
+      it 'returns 422 status' do
+        expect(response.status).to eq(422)
+      end
+    end
+
+    context 'when non-json file given' do
+      subject { make_request('stdout.decompressed') }
+
+      it 'returns 400 status' do
+        expect(response.status).to eq(400)
+      end
+    end
+
   end
 
 end

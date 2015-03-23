@@ -1,4 +1,5 @@
 class AsciicastParams
+  FormatError = Class.new(StandardError)
 
   def self.build(asciicast_params, username, token, user_agent)
     if asciicast_params.try(:respond_to?, :read)
@@ -39,11 +40,16 @@ class AsciicastParams
   end
 
   def self.from_format_1_request(asciicast_file, username, token, user_agent)
-    asciicast = Oj.sc_parse(AsciicastHandler.new, asciicast_file)
+    begin
+      asciicast = Oj.sc_parse(AsciicastHandler.new, asciicast_file)
+    rescue Oj::ParseError
+      raise FormatError, "This doesn't look like a valid asciicast file"
+    end
+
     version = asciicast['version']
 
     if version != 1
-      raise "unsupported asciicast format version: #{version}"
+      raise FormatError, "Unsupported asciicast format version: #{version}"
     end
 
     env = asciicast['env']

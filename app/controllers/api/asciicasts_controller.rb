@@ -12,6 +12,8 @@ module Api
 
     rescue ActiveRecord::RecordInvalid => e
       render text: e.record.errors.messages, status: 422
+    rescue AsciicastParams::FormatError => e
+      render text: e.message, status: 400
     end
 
     def show
