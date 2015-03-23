@@ -13,12 +13,10 @@ describe "Asciicast creation" do
   end
 
   def headers(user, password, user_agent)
-    h = {}
-
-    h.merge!(basic_auth_header(user, password)) if user
-    h.merge!(user_agent_header(user_agent)) if user_agent
-
-    h
+    {}.tap do |h|
+      h.merge!(basic_auth_header(user, password)) if user
+      h.merge!(user_agent_header(user_agent)) if user_agent
+    end
   end
 
   context '<= v0.9.7 client' do
