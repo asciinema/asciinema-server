@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150324103607) do
+ActiveRecord::Schema.define(version: 20150327171201) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -56,6 +56,8 @@ ActiveRecord::Schema.define(version: 20150324103607) do
     t.integer  "version",                          null: false
     t.string   "file"
     t.string   "image"
+    t.integer  "image_width"
+    t.integer  "image_height"
   end
 
   add_index "asciicasts", ["created_at"], name: "index_asciicasts_on_created_at", using: :btree

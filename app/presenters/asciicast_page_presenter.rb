@@ -58,7 +58,7 @@ class AsciicastPagePresenter
   def embed_html_link(routes)
     img_src = routes.asciicast_url(asciicast, format: :png)
     url = routes.asciicast_url(asciicast)
-    %(<a href="#{url}"><img src="#{img_src}"/></a>)
+    %(<a href="#{url}"><img src="#{img_src}" width="#{asciicast.image_width}" /></a>)
   end
 
   def embed_markdown_link(routes)

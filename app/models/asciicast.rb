@@ -94,7 +94,7 @@ class Asciicast < ActiveRecord::Base
   end
 
   def image_hash
-    version = 1 # version of screenshot, increment to force regeneration
+    version = 2 # version of screenshot, increment to force regeneration
     input = "#{version}/#{id}/#{snapshot_at}"
     Digest::SHA1.hexdigest(input)
   end

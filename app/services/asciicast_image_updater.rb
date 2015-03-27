@@ -16,6 +16,11 @@ class AsciicastImageUpdater
         asciicast.image = f
       end
 
+      image = ChunkyPNG::Image.from_file(png_path)
+      # image has double density so "display" size is half the actual one
+      asciicast.image_width = image.width / 2
+      asciicast.image_height = image.height / 2
+
       asciicast.save!
     end
   end
