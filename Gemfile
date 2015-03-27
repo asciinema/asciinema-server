@@ -64,6 +64,7 @@ group :test do
   gem 'shoulda-matchers'
   gem 'coveralls',          require: false
   gem 'rspec-activemodel-mocks'
+  gem 'chunky_png'
 end
 
 group :production do

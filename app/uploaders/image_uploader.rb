@@ -1,0 +1,2 @@
+class ImageUploader < BaseUploader
+end

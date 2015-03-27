@@ -26,6 +26,16 @@ class AsciicastsController < ApplicationController
       format.json do
         render json: asciicast
       end
+
+      format.png do
+        if asciicast.image_stale?
+          with_player_html_file do |html_path|
+            image_updater.update(asciicast, html_path)
+          end
+        end
+
+        redirect_to asciicast.image_url
+      end
     end
   end
 
@@ -77,6 +87,24 @@ class AsciicastsController < ApplicationController
 
   def asciicast_updater
     AsciicastUpdater.new
+  end
+
+  def image_updater
+    AsciicastImageUpdater.new
+  end
+
+  def with_player_html_file
+    html = render_to_string(
+      template: 'asciicasts/screenshot.html.slim',
+      layout: 'screenshot',
+      locals: { page: BareAsciicastPagePresenter.build(asciicast, params) }
+    )
+
+    Dir.mktmpdir do |dir|
+      path = "#{dir}/asciicast.html"
+      File.open(path, 'w') { |f| f.write(html) }
+      yield(path)
+    end
   end
 
 end

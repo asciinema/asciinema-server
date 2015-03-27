@@ -37,6 +37,9 @@ dependencies installed:
   If you don't install it now the setup script (point 4 below) will try to
   install it for you anyway.
 
+* phantomjs 2.0+  
+  `sudo add-apt-repository ppa:tanguy-patte/phantomjs && sudo apt-get update && sudo apt-get install phantomjs`
+
 ### 2. Get the source code
 
 Clone git repository:

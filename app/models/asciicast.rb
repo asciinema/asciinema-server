@@ -8,6 +8,7 @@ class Asciicast < ActiveRecord::Base
   mount_uploader :stdout_timing, StdoutTimingUploader
   mount_uploader :stdout_frames, StdoutFramesUploader
   mount_uploader :file, AsciicastUploader
+  mount_uploader :image, ImageUploader
 
   serialize :snapshot, ActiveSupportJsonProxy
 
@@ -73,6 +74,14 @@ class Asciicast < ActiveRecord::Base
     theme_name.presence && Theme.for_name(theme_name)
   end
 
+  def image_filename
+    "#{image_hash}.png"
+  end
+
+  def image_stale?
+    !image.file || (image.file.filename != image_filename)
+  end
+
   private
 
   def get_stdout
@@ -82,6 +91,12 @@ class Asciicast < ActiveRecord::Base
     else
       Stdout::SingleFile.new(file.url)
     end
+  end
+
+  def image_hash
+    version = 1 # version of screenshot, increment to force regeneration
+    input = "#{version}/#{id}/#{snapshot_at}"
+    Digest::SHA1.hexdigest(input)
   end
 
 end
