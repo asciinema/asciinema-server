@@ -18,10 +18,5 @@ $(function() {
 
   $('input[data-behavior=focus]:first').focus().select();
 
-  $('#embed-link').click(function(e) {
-    e.preventDefault();
-    $('.embed-box').slideDown('fast');
-  });
-
   $('[data-toggle="popover"]').popover({ html: true });
 });

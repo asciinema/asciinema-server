@@ -55,6 +55,18 @@ class AsciicastPagePresenter
     %(<script type="text/javascript" src="#{src}" id="#{id}" async></script>)
   end
 
+  def embed_html_link(routes)
+    img_src = routes.asciicast_url(asciicast, format: :png)
+    url = routes.asciicast_url(asciicast)
+    %(<a href="#{url}"><img src="#{img_src}"/></a>)
+  end
+
+  def embed_markdown_link(routes)
+    img_src = routes.asciicast_url(asciicast, format: :png)
+    url = routes.asciicast_url(asciicast)
+    "[![alt](#{img_src})](#{url})"
+  end
+
   def show_admin_dropdown?
     [show_edit_link?,
      show_delete_link?,
