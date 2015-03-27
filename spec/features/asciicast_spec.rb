@@ -19,7 +19,7 @@ feature "Asciicast page", :js => true do
     [ChunkyPNG::Color.r(color), ChunkyPNG::Color.g(color), ChunkyPNG::Color.b(color)]
   end
 
-  scenario 'Requesting PNG' do
+  scenario 'Requesting PNG', needs_phantomjs_2_bin: true do
     visit asciicast_path(asciicast, format: :png)
 
     expect(current_path).to match(%r{/uploads/test/asciicast/image/\d+/\w+\.png$})
