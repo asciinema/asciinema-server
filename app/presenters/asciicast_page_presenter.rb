@@ -65,7 +65,7 @@ class AsciicastPagePresenter
   def embed_markdown_link(routes)
     img_src = routes.asciicast_url(asciicast, format: :png)
     url = routes.asciicast_url(asciicast)
-    "[![alt](#{img_src})](#{url})"
+    "[![asciicast](#{img_src})](#{url})"
   end
 
   def show_admin_dropdown?
