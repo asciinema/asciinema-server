@@ -1,12 +1,10 @@
 class AsciicastUploader < BaseUploader
 
   def url
-    url = super
-
-    if url[0] == '/'
+    if CFG.carrierwave_storage == 'file'
       path
     else
-      url
+      super
     end
   end
 

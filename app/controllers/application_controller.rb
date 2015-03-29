@@ -81,6 +81,10 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  helper_method :profile_path
+  def profile_url(user)
+    root_url[0..-2] + profile_path(user)
+  end
+
+  helper_method :profile_path, :profile_url
 
 end

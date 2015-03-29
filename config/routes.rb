@@ -15,6 +15,8 @@ Rails.application.routes.draw do
   get "/u/:id" => "users#show", as: :unnamed_user
   get "/~:username" => "users#show", as: :public_profile
 
+  get "/oembed" => "oembed#show", as: :oembed
+
   namespace :api do
     resources :asciicasts
   end
