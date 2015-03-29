@@ -2,17 +2,26 @@
 
 var system = require('system');
 
-if (system.args.length < 3) {
-  console.log("usage: " + system.args[0] + " <url> <filename.png>");
+if (system.args.length < 6) {
+  console.log("usage: " + system.args[0] + " <url> <filename> <format> <selector> <scale>");
+  console.log("   ex: " + system.args[0] + " page.html page.png png 'body > div' 2");
   phantom.exit(1);
 }
 
 var url = system.args[1];
 var filename = system.args[2];
+var format = system.args[3];
+var selector = system.args[4];
+var scale = parseInt(system.args[5], 10);
+
 var page = require('webpage').create();
 
 page.viewportSize = { width: 9999, height: 9999 };
-page.zoomFactor = 2;
+page.zoomFactor = scale;
+
+page.onConsoleMessage = function(msg) {
+  console.log('console.log: ' + msg);
+};
 
 page.onError = function(msg, trace) {
   console.log('Script error: ' + msg);
@@ -31,7 +40,7 @@ page.open(url, function(status) {
     phantom.exit(1);
   }
 
-  var size = page.evaluate(function() {
+  var rect = page.evaluate(function(selector) {
     // Alternative to zoomFactor:
     //
     // /* scale the whole body */
@@ -42,18 +51,27 @@ page.open(url, function(status) {
     //
     // It has small issue with letter spacing though.
 
-    var term = $('.asciinema-player');
-    return [term.width(), term.height()];
-  });
+    var elements = document.querySelectorAll(selector);
 
-  if (!size[0]) {
-    console.log("Couldn't get dimensions of the player");
+    if (elements.length > 0) {
+      return elements[0].getBoundingClientRect();
+    }
+  }, selector);
+
+  if (!rect) {
+    console.log("Couldn't get geometry of requested DOM element");
     phantom.exit(1);
     return;
   }
 
-  page.clipRect = { left: 0, top: 0, width: size[0] * 2, height: size[1] * 2 };
-  page.render(filename, { format: 'png' });
+  page.clipRect = {
+    left: rect.left * scale,
+    top: rect.top * scale,
+    width: rect.width * scale,
+    height: rect.height * scale
+  };
+
+  page.render(filename, { format: format });
   phantom.exit(0);
 });
 

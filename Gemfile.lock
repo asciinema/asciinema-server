@@ -350,7 +350,7 @@ DEPENDENCIES
   capistrano-ext (~> 1.2)
   capybara (~> 2.4.1)
   carrierwave (~> 0.8.0)
-  chunky_png (~> 1.3)
+  chunky_png
   coffee-rails (~> 4.0.1)
   coveralls
   dalli (~> 2.6.2)

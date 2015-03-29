@@ -1,25 +1,28 @@
 class AsciicastImageUpdater
+  PIXEL_DENSITY = 2
 
-  attr_reader :png_generator
+  attr_reader :rasterizer, :image_inspector
 
-  def initialize(png_generator = PngGenerator.new)
-    @png_generator = png_generator
+  def initialize(rasterizer = Rasterizer.new, image_inspector = ImageInspector.new)
+    @rasterizer = rasterizer
+    @image_inspector = image_inspector
   end
 
   def update(asciicast, page_path)
     Dir.mktmpdir do |dir|
-      png_path = "#{dir}/#{asciicast.image_filename}"
+      image_path = "#{dir}/#{asciicast.image_filename}"
 
-      png_generator.generate(page_path, png_path)
+      rasterizer.generate_image(page_path, image_path, 'png', '.asciinema-player', PIXEL_DENSITY)
 
-      File.open(png_path) do |f|
+      File.open(image_path) do |f|
         asciicast.image = f
       end
 
-      image = ChunkyPNG::Image.from_file(png_path)
-      # image has double density so "display" size is half the actual one
-      asciicast.image_width = image.width / 2
-      asciicast.image_height = image.height / 2
+      width, height = image_inspector.get_size(image_path)
+
+      # "display" size is 1/PIXEL_DENSITY of the actual one
+      asciicast.image_width = width / PIXEL_DENSITY
+      asciicast.image_height = height / PIXEL_DENSITY
 
       asciicast.save!
     end

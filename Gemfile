@@ -33,7 +33,6 @@ gem 'rack-rewrite',         '~> 1.5.0'
 gem 'oj',                   '~> 2.11'
 gem 'oj_mimic_json',        '~> 1.0'
 gem 'foreigner',            '~> 1.7'
-gem 'chunky_png',           '~> 1.3'
 
 group :development do
   gem 'quiet_assets',   '~> 1.0.1'
@@ -65,6 +64,7 @@ group :test do
   gem 'shoulda-matchers'
   gem 'coveralls',          require: false
   gem 'rspec-activemodel-mocks'
+  gem 'chunky_png'
 end
 
 group :production do
