@@ -1,4 +1,7 @@
 - content_for(:title, page.title)
+- content_for(:head) do
+  link rel="alternate" type="application/json+oembed" href="#{page.asciicast_oembed_url(self, :json)}"
+  link rel="alternate" type="text/xml+oembed" href="#{page.asciicast_oembed_url(self, :xml)}"
 
 .asciicast-page
   section.cinema

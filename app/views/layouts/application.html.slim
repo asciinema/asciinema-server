@@ -11,6 +11,7 @@ html[lang="en"]
     = javascript_include_tag "player"
     = favicon_link_tag 'favicon.png'
     = render 'layouts/ga' if Rails.env.production?
+    = content_for(:head)
   body
     = render 'layouts/header'
     = render 'shared/flash'

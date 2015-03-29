@@ -107,6 +107,10 @@ class AsciicastPagePresenter
     author.asciicasts_excluding(asciicast, 3).decorate
   end
 
+  def asciicast_oembed_url(routes, format)
+    routes.oembed_url(url: routes.asciicast_url(asciicast), format: format)
+  end
+
   private
 
   def author
