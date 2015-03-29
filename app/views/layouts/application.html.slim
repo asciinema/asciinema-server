@@ -10,7 +10,7 @@ html[lang="en"]
     = javascript_include_tag "application"
     = javascript_include_tag "player"
     = favicon_link_tag 'favicon.png'
-    = render 'layouts/ga'
+    = render 'layouts/ga' if Rails.env.production?
   body
     = render 'layouts/header'
     = render 'shared/flash'
