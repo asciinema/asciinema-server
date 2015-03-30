@@ -6,14 +6,13 @@ class OembedController < ApplicationController
     if url.path =~ %r{^/a/(\d+)$}
       id = $1
       asciicast = AsciicastDecorator.new(Asciicast.find(id))
-      oembed = oembed_response(asciicast)
 
       respond_to do |format|
         format.json do
-          render json: oembed
+          render json: oembed_response(asciicast)
         end
         format.xml do
-          render xml: oembed.to_xml(root: 'oembed')
+          render xml: oembed_response(asciicast).to_xml(root: 'oembed')
         end
       end
     else
@@ -24,6 +23,8 @@ class OembedController < ApplicationController
   private
 
   def oembed_response(asciicast)
+    asciicast_image_generator.generate(asciicast) if asciicast.image_stale?
+
     width, height = asciicast.image_width, asciicast.image_height
 
     if params[:maxwidth]
@@ -65,6 +66,10 @@ class OembedController < ApplicationController
       f = [fw, fh].min
       [(Rational(width) * f).to_i, (Rational(height) * f).to_i]
     end
+  end
+
+  def asciicast_image_generator
+    AsciicastImageGenerator.new(self)
   end
 
 end
