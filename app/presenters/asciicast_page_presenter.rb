@@ -1,4 +1,6 @@
 class AsciicastPagePresenter
+  include ActionView::Helpers::SanitizeHelper
+  include ActionView::Helpers::TextHelper
 
   attr_reader :routes, :asciicast, :current_user, :policy, :playback_options
 
@@ -98,6 +100,14 @@ class AsciicastPagePresenter
 
   def description
     asciicast.description
+  end
+
+  def short_text_description
+    if asciicast.description.present?
+      truncate(strip_tags(asciicast.description).gsub(/\n+/, ' '), length: 200)
+    else
+      "Recorded by #{asciicast.user.display_name}"
+    end
   end
 
   def show_other_asciicasts_by_author?
