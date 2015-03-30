@@ -28,12 +28,7 @@ class AsciicastsController < ApplicationController
       end
 
       format.png do
-        if asciicast.image_stale?
-          with_player_html_file do |html_path|
-            image_updater.update(asciicast, html_path)
-          end
-        end
-
+        image_updater.update(asciicast) if asciicast.image_stale?
         redirect_to asciicast.image_url
       end
     end
@@ -90,21 +85,7 @@ class AsciicastsController < ApplicationController
   end
 
   def image_updater
-    AsciicastImageUpdater.new
-  end
-
-  def with_player_html_file
-    html = render_to_string(
-      template: 'asciicasts/screenshot.html.slim',
-      layout: 'screenshot',
-      locals: { page: BareAsciicastPagePresenter.build(asciicast, params) }
-    )
-
-    Dir.mktmpdir do |dir|
-      path = "#{dir}/asciicast.html"
-      File.open(path, 'w') { |f| f.write(html) }
-      yield(path)
-    end
+    AsciicastImageUpdater.new(self)
   end
 
 end

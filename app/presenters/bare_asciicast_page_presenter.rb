@@ -2,7 +2,7 @@ class BareAsciicastPagePresenter
 
   attr_reader :asciicast, :playback_options
 
-  def self.build(asciicast, playback_options)
+  def self.build(asciicast, playback_options = {})
     decorated_asciicast = asciicast.decorate
 
     playback_options = {
