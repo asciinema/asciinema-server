@@ -16,7 +16,7 @@ class AsciicastImageGenerator
 
       generate_html_file(asciicast, page_path)
       generate_png_file(page_path, image_path)
-      image_width, image_height = image_inspector.get_size(image_path)
+      image_width, image_height = get_size(image_path)
 
       update_asciicast(asciicast, image_path, image_width, image_height)
     end
@@ -38,14 +38,20 @@ class AsciicastImageGenerator
     rasterizer.generate_image(page_path, image_path, 'png', '.asciinema-player', PIXEL_DENSITY)
   end
 
+  def get_size(image_path)
+    width, height = image_inspector.get_size(image_path)
+
+    # "display" size is 1/PIXEL_DENSITY of the actual one
+    [width / PIXEL_DENSITY, height / PIXEL_DENSITY]
+  end
+
   def update_asciicast(asciicast, image_path, image_width, image_height)
     File.open(image_path) do |f|
       asciicast.image = f
     end
 
-    # "display" size is 1/PIXEL_DENSITY of the actual one
-    asciicast.image_width = image_width / PIXEL_DENSITY
-    asciicast.image_height = image_height / PIXEL_DENSITY
+    asciicast.image_width = image_width
+    asciicast.image_height = image_height
 
     asciicast.save!
   end
