@@ -39,7 +39,7 @@ class OembedController < ApplicationController
       author_url: profile_url(asciicast.user),
       provider_name: 'asciinema',
       provider_url: root_url,
-      thumbnail_url: asciicast.image_url,
+      thumbnail_url: asciicast_url(asciicast, format: :png),
       thumbnail_width: width,
       thumbnail_height: height,
       html: render_html(asciicast, width),
