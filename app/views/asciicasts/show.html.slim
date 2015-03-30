@@ -1,7 +1,6 @@
 - content_for(:title, page.title)
 - content_for(:head) do
-  link rel="alternate" type="application/json+oembed" href="#{page.asciicast_oembed_url(:json)}"
-  link rel="alternate" type="text/xml+oembed" href="#{page.asciicast_oembed_url(:xml)}"
+  = render 'discovery_tags', page: page
 
 .asciicast-page
   section.cinema
