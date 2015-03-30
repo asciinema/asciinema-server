@@ -2,8 +2,14 @@ require 'rails_helper'
 
 describe AsciicastPagePresenter do
 
+  let(:routes) {
+    controller = ApplicationController.new
+    controller.request = ActionController::TestRequest.new
+    controller.view_context
+  }
+
   describe '.build' do
-    subject { described_class.build(asciicast, user, playback_options) }
+    subject { described_class.build(routes, asciicast, user, playback_options) }
 
     let(:asciicast) { stub_model(Asciicast, decorate: decorated_asciicast) }
     let(:user) { double('user') }
@@ -24,17 +30,11 @@ describe AsciicastPagePresenter do
     end
   end
 
-  let(:presenter) { described_class.new(asciicast, current_user, policy, nil) }
+  let(:presenter) { described_class.new(routes, asciicast, current_user, policy, nil) }
   let(:asciicast) { stub_model(Asciicast, user: author).decorate }
   let(:current_user) { User.new }
   let(:policy) { double('policy') }
   let(:author) { User.new }
-
-  let(:view_context) {
-    controller = ApplicationController.new
-    controller.request = ActionController::TestRequest.new
-    controller.view_context
-  }
 
   describe '#title' do
     subject { presenter.title }
@@ -111,7 +111,7 @@ describe AsciicastPagePresenter do
   end
 
   describe '#embed_script' do
-    subject { presenter.embed_script(view_context) }
+    subject { presenter.embed_script }
 
     let(:asciicast) { stub_model(Asciicast, id: 123).decorate }
     let(:src_regexp) { /src="[^"]+\b123\b[^"]*\.js"/ }

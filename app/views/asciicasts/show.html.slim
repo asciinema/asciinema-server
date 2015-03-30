@@ -1,7 +1,7 @@
 - content_for(:title, page.title)
 - content_for(:head) do
-  link rel="alternate" type="application/json+oembed" href="#{page.asciicast_oembed_url(self, :json)}"
-  link rel="alternate" type="text/xml+oembed" href="#{page.asciicast_oembed_url(self, :xml)}"
+  link rel="alternate" type="application/json+oembed" href="#{page.asciicast_oembed_url(:json)}"
+  link rel="alternate" type="text/xml+oembed" href="#{page.asciicast_oembed_url(:xml)}"
 
 .asciicast-page
   section.cinema
@@ -89,7 +89,7 @@
           h2 Player
           p Paste this script tag where you want the player to be displayed on your page:
           p
-            input[type="text" value=page.embed_script(self) data-behavior="auto-select" readonly]
+            input[type="text" value=page.embed_script data-behavior="auto-select" readonly]
           p See the #{link_to 'embedding docs', docs_path(:embedding)} for additional options.
 
           h2 Image link
@@ -97,8 +97,8 @@
           p
             span HTML:
             br
-            input[type="text" value=page.embed_html_link(self) data-behavior="auto-select" readonly]
+            input[type="text" value=page.embed_html_link data-behavior="auto-select" readonly]
           p
             span Markdown:
             br
-            input[type="text" value=page.embed_markdown_link(self) data-behavior="auto-select" readonly]
+            input[type="text" value=page.embed_markdown_link data-behavior="auto-select" readonly]

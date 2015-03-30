@@ -19,7 +19,7 @@ class AsciicastsController < ApplicationController
       format.html do
         view_counter.increment(asciicast, cookies)
         render locals: {
-          page: AsciicastPagePresenter.build(asciicast, current_user, params)
+          page: AsciicastPagePresenter.build(self, asciicast, current_user, params)
         }
       end
 

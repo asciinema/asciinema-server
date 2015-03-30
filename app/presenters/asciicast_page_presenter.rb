@@ -1,8 +1,8 @@
 class AsciicastPagePresenter
 
-  attr_reader :asciicast, :current_user, :policy, :playback_options
+  attr_reader :routes, :asciicast, :current_user, :policy, :playback_options
 
-  def self.build(asciicast, current_user, playback_options)
+  def self.build(routes, asciicast, current_user, playback_options)
     decorated_asciicast = asciicast.decorate
     policy = Pundit.policy(current_user, asciicast)
 
@@ -10,11 +10,12 @@ class AsciicastPagePresenter
       'theme' =>  decorated_asciicast.theme_name
     }.merge(playback_options)
 
-    new(decorated_asciicast, current_user, policy,
+    new(routes, decorated_asciicast, current_user, policy,
         PlaybackOptions.new(playback_options))
   end
 
-  def initialize(asciicast, current_user, policy, playback_options)
+  def initialize(routes, asciicast, current_user, policy, playback_options)
+    @routes           = routes
     @asciicast        = asciicast
     @current_user     = current_user
     @policy           = policy
@@ -49,20 +50,20 @@ class AsciicastPagePresenter
     asciicast.views_count
   end
 
-  def embed_script(routes)
+  def embed_script
     src = routes.asciicast_url(asciicast, format: :js)
     id = "asciicast-#{asciicast.id}"
     %(<script type="text/javascript" src="#{src}" id="#{id}" async></script>)
   end
 
-  def embed_html_link(routes)
+  def embed_html_link
     img_src = routes.asciicast_url(asciicast, format: :png)
     url = routes.asciicast_url(asciicast)
     width = %{width="#{asciicast.image_width}"} if asciicast.image_width
     %(<a href="#{url}"><img src="#{img_src}" #{width}/></a>)
   end
 
-  def embed_markdown_link(routes)
+  def embed_markdown_link
     img_src = routes.asciicast_url(asciicast, format: :png)
     url = routes.asciicast_url(asciicast)
     "[![asciicast](#{img_src})](#{url})"
@@ -107,7 +108,7 @@ class AsciicastPagePresenter
     author.asciicasts_excluding(asciicast, 3).decorate
   end
 
-  def asciicast_oembed_url(routes, format)
+  def asciicast_oembed_url(format)
     routes.oembed_url(url: routes.asciicast_url(asciicast), format: format)
   end
 
