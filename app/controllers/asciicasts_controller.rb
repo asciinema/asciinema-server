@@ -28,7 +28,7 @@ class AsciicastsController < ApplicationController
       end
 
       format.png do
-        image_updater.update(asciicast) if asciicast.image_stale?
+        asciicast_image_generator.generate(asciicast) if asciicast.image_stale?
         redirect_to asciicast.image_url
       end
     end
@@ -84,8 +84,8 @@ class AsciicastsController < ApplicationController
     AsciicastUpdater.new
   end
 
-  def image_updater
-    AsciicastImageUpdater.new(self)
+  def asciicast_image_generator
+    AsciicastImageGenerator.new(self)
   end
 
 end

@@ -1,4 +1,4 @@
-class AsciicastImageUpdater
+class AsciicastImageGenerator
   PIXEL_DENSITY = 2
 
   attr_reader :template_renderer, :rasterizer, :image_inspector
@@ -9,7 +9,7 @@ class AsciicastImageUpdater
     @image_inspector = image_inspector
   end
 
-  def update(asciicast)
+  def generate(asciicast)
     Dir.mktmpdir do |dir|
       page_path = "#{dir}/asciicast.html"
       image_path = "#{dir}/#{asciicast.image_filename}"
