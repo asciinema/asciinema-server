@@ -1,0 +1,90 @@
+<% content_for(:title, 'Embedding') %>
+
+# Embedding the player
+
+The asciicasts can easily be embedded on any HTML page. If you want
+to put the recording in your blog post, in your project's documentation or
+in your conference talk slides you can do it by copy-pasting the embed
+script.
+
+You can find the embed script on the asciicast's page. It looks like this:
+
+    <script type="text/javascript" src="https://asciinema.org/a/14.js" id="asciicast-14" async></script>
+
+The player shows up right at the place where the script is pasted. Let's look
+at the following markup:
+
+    <p>This is some text.</p>
+    <script type="text/javascript" src="https://asciinema.org/a/14.js" id="asciicast-14" async></script>
+    <p>This is some other text.</p>
+
+The player will show up as a `div` element with a class "asciicast" between
+the two paragraphs.
+
+## Customizing the player
+
+The embed script supports several customization options. An option can be
+applied by adding it as a
+<code>data-<em>option-name</em>="<em>option-value</em>"</code> attribute to
+the script tag.
+
+### speed
+
+The `speed` option alters the playback speed. The default speed is 1 which
+means it plays at the unaltered, original speed.
+
+For example, to make the playback 2 times faster than original use the
+following script:
+
+    <script type="text/javascript" src="https://asciinema.org/a/14.js" id="asciicast-14" async data-speed="2"></script>
+
+### size
+
+The `size` option alters the size of the terminal font. There are 3 available
+sizes:
+
+* small (default)
+* medium
+* big
+
+For example, to make the font big use the following script:
+
+    <script type="text/javascript" src="https://asciinema.org/a/14.js" id="asciicast-14" async data-size="big"></script>
+
+### theme
+
+The `theme` option allows overriding a theme used for the terminal.
+It defaults to a theme set by the asciicast author (or to "tango" if not set
+by the author).  There are 3 available themes:
+
+* tango
+* solarized-dark
+* solarized-light
+
+For example, to use Solarized Dark theme use the following script:
+
+    <script type="text/javascript" src="https://asciinema.org/a/14.js" id="asciicast-14" async data-theme="solarized-dark"></script>
+
+### autoplay
+
+The `autoplay` option allows for automatic playback start when the player
+loads. Accepted values:
+
+* 0 / false - do not start playback automatically (default)
+* 1 / true - start playback automatically
+
+For example, to make the asciicast auto play use the following script:
+
+    <script type="text/javascript" src="https://asciinema.org/a/14.js" id="asciicast-14" async data-autoplay="true"></script>
+
+### loop
+
+The `loop` option allows for looping the playback. This option is usually
+combined with `autoplay` option. Accepted values:
+
+* 0 / false - disable looping (default)
+* 1 / true - enable looping
+
+For example, to make the asciicast play infinitely use the following script:
+
+    <script type="text/javascript" src="https://asciinema.org/a/14.js" id="asciicast-14" async data-loop="true"></script>

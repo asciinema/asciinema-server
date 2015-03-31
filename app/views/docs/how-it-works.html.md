@@ -1,0 +1,81 @@
+<% content_for(:title, 'How it works') %>
+
+# How it works
+
+asciinema project is built of several complementary pieces:
+
+* command-line based terminal session recorder, `asciinema`,
+* website with an API at asciinema.org,
+* javascript player
+
+When you run `asciinema rec` in your terminal the recording starts, capturing
+all output that is being printed to your terminal while you're issuing the
+shell commands. When the recording finishes (by hitting <kbd>Ctrl-D</kbd> or
+typing `exit`) then the captured output is uploaded to asciinema.org website
+and prepared for playback on the web.
+
+Here's a brief overview of how these parts work.
+
+## Recording
+
+You probably know `ssh`, `screen` or `script` command. Actually, asciinema
+was inspired by `script` (and `scriptreplay`) commands. What you may not know
+is they all use the same UNIX system capability: [a
+pseudo-terminal](http://en.wikipedia.org/wiki/Pseudo_terminal).
+
+> A pseudo terminal is a pair of pseudo-devices, one of which, the slave,
+> emulates a real text terminal device, the other of which, the master,
+> provides the means by which a terminal emulator process controls the slave.
+
+Here's how terminal emulator interfaces with a user and a shell:
+
+> The role of the terminal emulator process is to interact with the user; to
+> feed text input to the master pseudo-device for use by the shell (which is
+> connected to the slave pseudo-device) and to read text output from the
+> master pseudo-device and show it to the user.
+
+In other words, pseudo-terminals give programs the ability to act as a
+middlemen between the user, the display and the shell. It allows for
+transparent capture of user input (keyboard) and terminal output (display).
+`screen` command utilizes it for capturing special keyboard shortcuts like
+<kbd>Ctrl-A</kbd> and altering the output in order to display window
+numbers/names and other messages.
+
+asciinema recorder does its job by utilizing pseudo-terminal for capturing
+all the output that goes to a terminal and saving it in memory (together with
+timing information). The captured output includes all the text and invisible
+escape/control sequences in a raw, unaltered form. When the recording session
+finishes it uploads the output to asciinema.org. That's all about "recording"
+part.
+
+For the implementation details check out [recorder source
+code](https://github.com/asciinema/asciinema).
+
+## Playback
+
+When asciinema.org accepts the upload of the captured output it saves it in a
+file. Now, as the output is a raw, unaltered stream of text and control
+sequences it can't be just played by incrementally printing text in proper
+intervals. It requires interpretation of [ANSI escape code
+sequences](http://en.wikipedia.org/wiki/ANSI_escape_code) in order to
+correctly display color changes, cursor movement and printing text at proper
+places on the screen.
+
+Escape sequence interpretation was initially handled by asciinema's own VT100
+terminal emulation layer written in Javascript but was later replaced with
+[libtsm](http://www.freedesktop.org/wiki/Software/kmscon/libtsm/) based
+interpreter.  libtsm, "terminal-emulator state machine", is a wonderful, rock
+solid library created by David Herrmann that is meant to be used by terminal
+emulator authors and others in need of an escape sequence interpreter.
+
+asciinema.org pre-processes the captured stream with libtsm based converter and
+saves the result in a JSON file that contains simple representation of screen
+changes for each animation frame (for each line that was changed on the
+screen there is a string to be printed and color attributes for it). The
+player loads the JSON data and simply renders each change at a right time.
+
+The end result is a smooth animation with all text attributes (bold,
+underline, inverse, ...) and 256 colors perfectly rendered.
+
+For the implementation details check out [asciinema.org source
+code](https://github.com/asciinema/asciinema.org).
