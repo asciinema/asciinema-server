@@ -122,8 +122,8 @@ For example, to make the asciicast play infinitely use the following script:
 ## oEmbed / Open Graph / Twitter Card
 
 asciinema supports [oEmbed](http://oembed.com/), [Open Graph](http://ogp.me/)
-and [Twitter Card](https://dev.twitter.com/cards/overview) protocols. When you
-share an asciicast on Facebook, Twitter, Slack, Google+ or any other site which
-supports one of these protocols, the asciicast will be presented in a rich
-form (usually with a title, author, description and a thumbnail image), linking
-to your recording on asciinema.org.
+and [Twitter Card](https://dev.twitter.com/cards/overview) APIs. When you share
+an asciicast on Twitter, Slack, Facebook, Google+ or any other site which
+supports one of these APIs, the asciicast is presented in a rich form (usually
+with a title, author, description and a thumbnail image), linking to your
+recording on asciinema.org.
