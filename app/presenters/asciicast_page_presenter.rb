@@ -62,7 +62,7 @@ class AsciicastPagePresenter
     img_src = routes.asciicast_url(asciicast, format: :png)
     url = routes.asciicast_url(asciicast)
     width = %{width="#{asciicast.image_width}"} if asciicast.image_width
-    %(<a href="#{url}"><img src="#{img_src}" #{width}/></a>)
+    %(<a href="#{url}" target="_blank"><img src="#{img_src}" #{width}/></a>)
   end
 
   def embed_markdown_link
