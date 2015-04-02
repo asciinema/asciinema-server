@@ -33,6 +33,7 @@ Rails.application.routes.draw do
   get "/login/:token" => "sessions#create", as: :login_token
   get "/logout" => "sessions#destroy"
 
+  resources :api_tokens, only: [:create, :destroy]
   get "/connect/:api_token" => "api_tokens#create"
 
   resource :user

@@ -66,9 +66,9 @@ publishing it on asciinema.org.
 
 ## `auth`
 
-__Assign local API token to asciinema.org account.__
+__Assign local recorder token to asciinema.org account.__
 
-On every machine you install asciinema recorder, you get a new, unique API
+On every machine you install asciinema recorder, you get a new, unique recorder
 token. This command connects this local token with your asciinema.org account,
 and links all asciicasts recorded on this machine with the account.
 
@@ -79,6 +79,6 @@ URL.
 NOTE: it is __necessary__ to do this if you want to __edit or delete__ your
 recordings on asciinema.org.
 
-You can synchronize your `~/.asciinema/config` file (which keeps the API
-token) across the machines but that's not necessary. You can assign new
+You can synchronize your `~/.asciinema/config` file (which keeps the token)
+across the machines but that's not necessary. You can assign new recorder
 tokens to your account from as many machines as you want.
