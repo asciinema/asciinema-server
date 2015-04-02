@@ -1,8 +1,8 @@
-.container
+.container.edit-page
   .row
     .col-md-9
-      = horizontal_form_for @user do |f|
-        legend Your settings
+      = horizontal_form_for page.user do |f|
+        legend Account settings
 
         = f.input :username
         = f.input :email, required: true
@@ -11,3 +11,40 @@
         = f.buttons do
           = f.button :submit, 'Save', class: 'btn-primary'
           = link_to 'Cancel', profile_path(current_user), class: 'btn'
+
+  .row
+    .col-md-12
+      legend Recorder tokens
+
+      - if page.show_tokens?
+        p The following recorder tokens have been associated with your account:
+
+        - unless page.active_tokens.empty?
+          ul
+            - page.active_tokens.each do |token|
+              li
+                = token.token
+                '  registered
+                = time_ago_tag token.created_at
+                '  -
+                = link_to 'Revoke', api_token_path(token), method: :delete
+
+        - unless page.revoked_tokens.empty?
+          ul
+            - page.revoked_tokens.each do |token|
+              li.revoked-token
+                = token.token
+                '  registered
+                = time_ago_tag token.created_at
+                ' , revoked
+                = time_ago_tag token.revoked_at
+      - else
+        p
+          | If you want your recordings to be assigned to your profile
+            you have to register your local recorder token.
+
+        p
+          ' There is currently no recorder token associated with your account.
+            Run
+          code asciinema auth
+          |  in your terminal to register one.

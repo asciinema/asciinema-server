@@ -56,6 +56,14 @@ class User < ActiveRecord::Base
     new(temporary_username: 'anonymous')
   end
 
+  def active_api_tokens
+    api_tokens.active
+  end
+
+  def revoked_api_tokens
+    api_tokens.revoked
+  end
+
   def confirmed?
     email.present?
   end

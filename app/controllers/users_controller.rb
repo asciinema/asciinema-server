@@ -15,18 +15,18 @@ class UsersController < ApplicationController
   end
 
   def edit
-    @user = current_user
-    authorize @user
+    authorize current_user
+    render locals: { page: UserEditPagePresenter.new(current_user) }
   end
 
   def update
-    @user = User.find(current_user.id)
-    authorize @user
+    authorize current_user
+    user = User.find(current_user.id)
 
-    if @user.update_attributes(update_params)
-      redirect_to profile_path(@user), notice: 'Account settings saved.'
+    if user.update_attributes(update_params)
+      redirect_to profile_path(user), notice: 'Account settings saved.'
     else
-      render :edit, status: 422
+      render :edit, status: 422, locals: { page: UserEditPagePresenter.new(user) }
     end
   end
 
