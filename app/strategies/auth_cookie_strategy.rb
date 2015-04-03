@@ -16,5 +16,3 @@ class AuthCookieStrategy < ::Warden::Strategies::Base
   end
 
 end
-
-Warden::Strategies.add(:auth_cookie, AuthCookieStrategy)

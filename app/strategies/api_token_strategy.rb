@@ -20,5 +20,3 @@ class ApiTokenStrategy < ::Warden::Strategies::Base
   end
 
 end
-
-Warden::Strategies.add(:api_token, ApiTokenStrategy)
