@@ -44,23 +44,8 @@ class User < ActiveRecord::Base
     joins(:api_tokens).where('api_tokens.token' => token).first
   end
 
-  def self.for_api_token!(token, username)
-    for_api_token(token) || create_with_token(token, username)
-  end
-
   def self.for_auth_token(auth_token)
     where(auth_token: auth_token).first
-  end
-
-  def self.create_with_token(token, username)
-    return nil if token.blank?
-    username = nil if username.blank?
-
-    transaction do |tx|
-      user = User.create!(temporary_username: username)
-      user.api_tokens.create!(token: token)
-      user
-    end
   end
 
   def self.generate_auth_token

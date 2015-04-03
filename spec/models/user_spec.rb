@@ -76,55 +76,6 @@ describe User do
     end
   end
 
-  describe '.create_with_token' do
-    subject { described_class.create_with_token(token, username) }
-
-    let(:token) { 'f33e6188-f53c-11e2-abf4-84a6c827e88b' }
-    let(:username) { 'somerandomguy' }
-
-    it "returns a persisted user record" do
-      expect(subject.id).not_to be(nil)
-    end
-
-    it "assigns given username to the user as temporary_username" do
-      expect(subject.temporary_username).to eq(username)
-    end
-
-    it "assigns given api token to the user" do
-      expect(subject.api_tokens.reload.first.token).to eq(token)
-    end
-
-    context "when token is blank" do
-      let(:token) { '' }
-
-      it { should be(nil) }
-    end
-
-    context "when username is nil" do
-      let(:username) { nil }
-
-      it "returns a persisted user record" do
-        expect(subject.id).not_to be(nil)
-      end
-
-      it "assigns nil as temporary_username to the user" do
-        expect(subject.temporary_username).to be(nil)
-      end
-    end
-
-    context "when username is an empty string" do
-      let(:username) { nil }
-
-      it "returns a persisted user record" do
-        expect(subject.id).not_to be(nil)
-      end
-
-      it "assigns nil as temporary_username to the user" do
-        expect(subject.temporary_username).to be(nil)
-      end
-    end
-  end
-
   describe '#username=' do
     it 'strips the whitespace' do
       user = described_class.new(username: ' sickill ')

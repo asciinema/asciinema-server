@@ -8,7 +8,16 @@ class ApiToken < ActiveRecord::Base
   validates :token, uniqueness: true
 
   def self.for_token(token)
-    ApiToken.where(token: token).first
+    where(token: token).first
+  end
+
+  def self.create_with_tmp_user!(token, username)
+    transaction do
+      ApiToken.create!(
+        token: token,
+        user: User.create!(temporary_username: username.presence),
+      )
+    end
   end
 
   def reassign_to(target_user)

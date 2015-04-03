@@ -1,18 +1,16 @@
 class AsciicastParams
   FormatError = Class.new(StandardError)
 
-  def self.build(asciicast_params, username, token, user_agent)
+  def self.build(asciicast_params, user, user_agent)
     if asciicast_params.try(:respond_to?, :read)
-      from_format_1_request(asciicast_params, username, token, user_agent)
+      from_format_1_request(asciicast_params, user, user_agent)
     else
-      from_format_0_request(asciicast_params, username, token, user_agent)
+      from_format_0_request(asciicast_params, user, user_agent)
     end
   end
 
-  def self.from_format_0_request(params, username, token, user_agent)
-    meta = JSON.parse(params.delete(:meta).read)
-    token ||= meta.delete('user_token')
-    username ||= meta.delete('username')
+  def self.from_format_0_request(params, user, user_agent)
+    meta = params.delete(:meta)
 
     attributes = {
       command:          meta['command'],
@@ -26,7 +24,7 @@ class AsciicastParams
       terminal_lines:   meta['term']['lines'],
       terminal_type:    meta['term']['type'],
       title:            meta['title'],
-      user:             User.for_api_token!(token, username),
+      user:             user,
       version:          0,
     }
 
@@ -39,7 +37,7 @@ class AsciicastParams
     attributes
   end
 
-  def self.from_format_1_request(asciicast_file, username, token, user_agent)
+  def self.from_format_1_request(asciicast_file, user, user_agent)
     begin
       asciicast = Oj.sc_parse(AsciicastHandler.new, asciicast_file)
     rescue Oj::ParseError
@@ -63,7 +61,7 @@ class AsciicastParams
       terminal_lines:   asciicast['height'],
       terminal_type:    env && env['TERM'],
       title:            asciicast['title'],
-      user:             User.for_api_token!(token, username),
+      user:             user,
       user_agent:       user_agent,
       version:          version,
     }

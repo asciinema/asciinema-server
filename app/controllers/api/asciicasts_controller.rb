@@ -32,12 +32,7 @@ module Api
     private
 
     def asciicast_attributes
-      username, token = basic_auth_credentials
-      AsciicastParams.build(params[:asciicast], username, token, request.user_agent)
-    end
-
-    def basic_auth_credentials
-      authenticate_with_http_basic { |username, password| [username, password] }
+      AsciicastParams.build(params[:asciicast], current_user, request.user_agent)
     end
 
     def asciicast_creator

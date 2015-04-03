@@ -97,7 +97,7 @@ describe "Asciicast creation" do
     end
 
     context 'when a user with given token exists' do
-      let(:user) { User.create_with_token('f33e6188-f53c-11e2-abf4-84a6c827e88b', 'kill') }
+      let(:user) { ApiToken.create_with_tmp_user!('f33e6188-f53c-11e2-abf4-84a6c827e88b', 'kill').user }
 
       subject do
         user
@@ -192,7 +192,7 @@ describe "Asciicast creation" do
     end
 
     context 'when a user with given token exists' do
-      let(:user) { User.create_with_token('f33e6188-f53c-11e2-abf4-84a6c827e88b', 'kill') }
+      let(:user) { ApiToken.create_with_tmp_user!('f33e6188-f53c-11e2-abf4-84a6c827e88b', 'kill').user }
 
       subject do
         user
@@ -287,7 +287,7 @@ describe "Asciicast creation" do
     end
 
     context 'when a user with given token exists' do
-      let(:user) { User.create_with_token('f33e6188-f53c-11e2-abf4-84a6c827e88b', 'kill') }
+      let(:user) { ApiToken.create_with_tmp_user!('f33e6188-f53c-11e2-abf4-84a6c827e88b', 'kill').user }
 
       subject do
         user
@@ -373,7 +373,7 @@ describe "Asciicast creation" do
     end
 
     context 'when a user with given token exists' do
-      let(:user) { User.create_with_token('f33e6188-f53c-11e2-abf4-84a6c827e88b', 'kill') }
+      let(:user) { ApiToken.create_with_tmp_user!('f33e6188-f53c-11e2-abf4-84a6c827e88b', 'kill').user }
 
       subject do
         user

@@ -48,6 +48,10 @@ module Asciinema
       rewrite /%7E(.+)/i, '/~$1'
     end
 
+    config.middleware.use 'MetadataParser'
+    config.middleware.use 'ApiTokenRegistrator'
+    config.middleware.use 'Warden::Manager'
+
     config.action_mailer.default_url_options = { protocol: CFG.scheme, host: CFG.host }
 
     if CFG.smtp_settings

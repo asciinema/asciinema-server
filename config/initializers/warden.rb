@@ -7,6 +7,4 @@ Warden::Manager.serialize_from_session do |id|
 end
 
 require 'auth_cookie_strategy'
-
-Rails.application.config.middleware.insert_after ActionDispatch::Flash, Warden::Manager do |manager|
-end
+require 'api_token_strategy'
