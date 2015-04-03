@@ -1,24 +1,25 @@
-.player
+<div class="player"></div>
 
-p.processing-info style="display: none"
-  | This recording is being pre-processed at the moment. It will open automatically in a few seconds.
+<p class="processing-info" style="display: none">
+  This recording is being pre-processed at the moment. It will open automatically in a few seconds.
+</p>
 
-javascript:
+<script>
   $(function() {
-    var model = new Asciinema.Asciicast(#{asciicast.html_safe});
+    var model = new Asciinema.Asciicast(<%= asciicast.to_json.gsub('</', '<\/').html_safe %>);
 
     function createPlayer() {
-      var source = new asciinema.HttpArraySource(model.get('stdout_frames_url'), #{options.speed});
+      var source = new asciinema.HttpArraySource(model.get('stdout_frames_url'), <%= options.speed %>);
       var snapshot = model.get('snapshot');
       var movie = new asciinema.Movie(model.get('width'), model.get('height'), source, snapshot, model.get('duration'));
 
       React.renderComponent(
         asciinema.Player({
-          fontSize: '#{options.size}',
-          autoPlay: #{options.autoplay},
-          loop: #{options.loop},
+          fontSize: '<%= options.size %>',
+          autoPlay: <%= options.autoplay %>,
+          loop: <%= options.loop %>,
           movie: movie,
-          theme: '#{h options.theme}',
+          theme: '<%= h options.theme %>',
         }),
         $('.player')[0]
       );
@@ -38,3 +39,4 @@ javascript:
 
     tryCreatePlayer();
   });
+</script>

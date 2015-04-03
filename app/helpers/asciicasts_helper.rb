@@ -1,7 +1,7 @@
 module AsciicastsHelper
 
   def player(asciicast, options = PlaybackOptions.new)
-    render 'asciicasts/player', asciicast: serialized_asciicast(asciicast),
+    render 'asciicasts/player', asciicast: AsciicastSerializer.new(asciicast),
                                 options:   options
   end
 
@@ -16,10 +16,6 @@ module AsciicastsHelper
   end
 
   private
-
-  def serialized_asciicast(asciicast)
-    AsciicastSerializer.new(asciicast).to_json
-  end
 
   def translate_asset_paths(css)
     css.gsub(/['"]\/assets\/(.+?)(-\w{32})?\.(.+?)['"]/) { |m|
