@@ -1,6 +1,8 @@
 module Api
   class AsciicastsController < BaseController
 
+    before_filter :ensure_authenticated!, only: :create
+
     respond_to :html, only: [:show]
 
     attr_reader :asciicast

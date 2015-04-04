@@ -307,10 +307,13 @@ describe "Asciicast creation" do
   context 'format 1' do
     subject { make_request }
 
+    let(:username) { 'kill' }
+    let(:token) { 'f33e6188-f53c-11e2-abf4-84a6c827e88b' }
+
     def make_request(asciicast_path = '1/asciicast.json')
       post '/api/asciicasts',
         { asciicast: fixture_file(asciicast_path, 'application/json') },
-        headers('kill', 'f33e6188-f53c-11e2-abf4-84a6c827e88b', 'asciinema/1.0.0 gc/go1.3 jola-amd64')
+        headers(username, token, 'asciinema/1.0.0 gc/go1.3 jola-amd64')
     end
 
     before { subject }
@@ -402,6 +405,15 @@ describe "Asciicast creation" do
 
       it 'returns 400 status' do
         expect(response.status).to eq(400)
+      end
+    end
+
+    context 'when auth is not present' do
+      let(:username) { nil }
+      let(:token) { nil }
+
+      it 'returns 401 status' do
+        expect(response.status).to eq(401)
       end
     end
 
