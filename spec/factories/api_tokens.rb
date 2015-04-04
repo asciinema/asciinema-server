@@ -7,4 +7,8 @@ FactoryGirl.define do
       "2b4b4e02-6613-11e1-9be5-#{Kernel.format('%012i', n)}"
     end
   end
+
+  factory :revoked_api_token, parent: :api_token do
+    revoked_at 1.day.ago
+  end
 end

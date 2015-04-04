@@ -41,7 +41,10 @@ class User < ActiveRecord::Base
   def self.for_api_token(token)
     return nil if token.blank?
 
-    joins(:api_tokens).where('api_tokens.token' => token).first
+    joins(:api_tokens).where(
+      'api_tokens.token' => token,
+      'api_tokens.revoked_at' => nil,
+    ).first
   end
 
   def self.for_auth_token(auth_token)

@@ -417,6 +417,14 @@ describe "Asciicast creation" do
       end
     end
 
+    context 'when given token has been revoked' do
+      let(:token) { create(:revoked_api_token).token }
+
+      it 'returns 401 status' do
+        expect(response.status).to eq(401)
+      end
+    end
+
     context 'when given token is invalid' do
       let(:token) { 'foo' }
 
