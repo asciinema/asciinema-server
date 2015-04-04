@@ -1,26 +1,5 @@
 module Asciinema
   module Test
-    module Warden
-      class EmailStrategy < ::Warden::Strategies::Base
-
-        def valid?
-          email.present?
-        end
-
-        def authenticate!
-          user = User.find_by_email(email)
-          user && success!(user)
-        end
-
-        private
-
-        def email
-          request.params['email']
-        end
-
-      end
-    end
-
     module Authentication
       attr_accessor :current_user
     end
@@ -37,17 +16,12 @@ module Asciinema
 
     module FeatureHelpers
       def login_as(user)
-        visit edit_user_path(email: user.email)
+        visit new_login_path
+        fill_in :email, with: user.email
+        click_button 'Log in'
+        visit "/login/#{user.expiring_tokens.last.token}"
       end
     end
-  end
-end
-
-Warden::Strategies.add(:test, Asciinema::Test::Warden::EmailStrategy)
-
-ApplicationController.class_eval do
-  def warden_strategies
-    [:test]
   end
 end
 
