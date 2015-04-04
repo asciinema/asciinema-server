@@ -54,10 +54,6 @@ class Asciicast < ActiveRecord::Base
     collection
   end
 
-  def user
-    super || self.user = User.null
-  end
-
   def stdout
     return @stdout if @stdout
     @stdout = Stdout::Buffered.new(get_stdout)

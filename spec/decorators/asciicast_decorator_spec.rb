@@ -240,32 +240,6 @@ describe AsciicastDecorator do
     end
   end
 
-  describe '#author_link' do
-    subject { decorator.author_link }
-
-    let(:asciicast) { double('asciicast', user: user) }
-    let(:user) { double('user', link: 'link') }
-
-    before do
-      allow(user).to receive(:decorate) { user }
-    end
-
-    it { should eq('link') }
-  end
-
-  describe '#author_img_link' do
-    subject { decorator.author_img_link }
-
-    let(:asciicast) { double('asciicast', user: user) }
-    let(:user) { double('user', img_link: 'img-link') }
-
-    before do
-      allow(user).to receive(:decorate) { user }
-    end
-
-    it { should eq('img-link') }
-  end
-
   describe '#formatted_duration' do
     subject { decorator.formatted_duration }
 

@@ -54,26 +54,6 @@ describe Asciicast do
 
   let(:asciicast) { described_class.new }
 
-  describe '#user' do
-    subject { asciicast.user }
-
-    context "when it has user assigned" do
-      let(:user) { User.new }
-
-      before do
-        asciicast.user = user
-      end
-
-      it { should be(user) }
-    end
-
-    context "when it doesn't have user assigned" do
-      it 'is a null user' do
-        expect(asciicast.user.temporary_username).to eq('anonymous')
-      end
-    end
-  end
-
   describe '#stdout' do
     context 'for single-file, JSON asciicast' do
       let(:asciicast) { create(:asciicast) }

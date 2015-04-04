@@ -3,7 +3,9 @@ class AsciicastDecorator < ApplicationDecorator
   THUMBNAIL_WIDTH = 20
   THUMBNAIL_HEIGHT = 10
 
-  decorates_association :user
+  def user
+    @user ||= UserDecorator.new(model.user || User.null)
+  end
 
   def os
     if user_agent.present?
