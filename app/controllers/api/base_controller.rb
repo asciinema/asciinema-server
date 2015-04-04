@@ -1,12 +1,14 @@
-module Api
-  class BaseController < ApplicationController
+require 'authentication/warden_authentication'
 
-    skip_before_filter :verify_authenticity_token
+module Api
+  class BaseController < ActionController::Base
+
+    include WardenAuthentication
 
     private
 
-    def warden_strategies
-      [:api_token]
+    def warden_scope
+      :api
     end
 
   end

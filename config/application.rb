@@ -50,7 +50,22 @@ module Asciinema
 
     config.middleware.use 'MetadataParser'
     config.middleware.use 'ApiTokenRegistrator'
-    config.middleware.use 'Warden::Manager'
+
+    config.middleware.use 'Warden::Manager' do |manager|
+      manager.failure_app = ApplicationController
+      manager.scope_defaults(
+        :user,
+        strategies: [:auth_cookie],
+        store: true,
+        action: "unauthenticated_user"
+      )
+      manager.scope_defaults(
+        :api,
+        strategies: [:api_token],
+        store: false,
+        action: "unauthenticated_api"
+      )
+    end
 
     config.action_mailer.default_url_options = { protocol: CFG.scheme, host: CFG.host }
 

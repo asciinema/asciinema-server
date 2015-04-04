@@ -12,18 +12,23 @@ class ApplicationController < ActionController::Base
   include WardenAuthentication
   include Pundit
 
+  def unauthenticated_user
+    store_location
+    redirect_to new_login_path, notice: "Please log in to proceed"
+  end
+
+  def unauthenticated_api
+    render json: "Unauthenticated", status: 401
+  end
+
   private
 
-  def warden_strategies
-    [:auth_cookie]
+  def warden_scope
+    :user
   end
 
   def decorated_current_user
     current_user && CurrentUserDecorator.new(current_user)
-  end
-
-  def ensure_authenticated!
-    handle_unauthenticated unless current_user
   end
 
   def store_location
@@ -49,15 +54,6 @@ class ApplicationController < ActionController::Base
       render json: "Unauthorized", status: 403
     else
       redirect_to(request.referrer || root_path, alert: "You can't do that.")
-    end
-  end
-
-  def handle_unauthenticated
-    if request.xhr?
-      render json: "Unauthenticated", status: 401
-    else
-      store_location
-      redirect_to new_login_path, notice: "Please log in to proceed"
     end
   end
 

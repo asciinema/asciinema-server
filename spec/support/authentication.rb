@@ -2,6 +2,10 @@ module Asciinema
   module Test
     module Authentication
       attr_accessor :current_user
+
+      def ensure_authenticated!
+        unauthenticated_user unless current_user
+      end
     end
 
     module ControllerHelpers
