@@ -10,6 +10,9 @@ class ApiToken < ActiveRecord::Base
   scope :active, -> { where(revoked_at: nil) }
   scope :revoked, -> { where('revoked_at IS NOT NULL') }
 
+  scope :active, -> { where(revoked_at: nil) }
+  scope :revoked, -> { where('revoked_at IS NOT NULL') }
+
   def self.for_token(token)
     where(token: token).first
   end
