@@ -12,6 +12,9 @@ class ApiTokenRegistrator
     end
 
     @app.call(env)
+
+  rescue ActiveRecord::RecordInvalid
+    [401, { 'Content-Type' => 'text/plain' }, 'Invalid token']
   end
 
   private
