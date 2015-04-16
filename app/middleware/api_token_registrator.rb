@@ -5,10 +5,13 @@ class ApiTokenRegistrator
   end
 
   def call(env)
+    request = Rack::Request.new(env)
     auth = Rack::Auth::Basic::Request.new(env)
 
-    if auth.provided? && auth.basic? && auth.credentials
-      ensure_user_with_token(*auth.credentials)
+    if request.post? && request.path == '/api/asciicasts'
+      if auth.provided? && auth.basic? && auth.credentials
+        ensure_user_with_token(*auth.credentials)
+      end
     end
 
     @app.call(env)
