@@ -14,13 +14,15 @@ footer
           br
           a href="http://brightbox.com/" rel="nofollow" class="brightbox-logo" = image_tag 'brightbox.png'
 
-      .col-md-4.col-xs-4.text-right
-        p
-          ' Follow
-          = link_to '@asciinema', 'https://twitter.com/asciinema', title: 'Follow @asciinema on Twitter'
-          '  on Twitter
-          = link_to image_tag('twitter-black.png'), 'https://twitter.com/asciinema', title: 'Follow @asciinema on Twitter'
-
-        p
-          ' Developed with passion by
-          = link_to 'Marcin Kulik', 'http://ku1ik.com'
+      .col-md-4.col-xs-4
+        ul.links.pull-right
+          li
+            b irc: 
+            a href="irc://freenode/asciinema" #asciinema
+            |  on Freenode
+          li
+            b twitter: 
+            = link_to '@asciinema', 'https://twitter.com/asciinema', title: 'Follow @asciinema on Twitter'
+          li
+            b e-mail: 
+            | support at this domain
