@@ -54,6 +54,14 @@ class Asciicast < ActiveRecord::Base
     collection
   end
 
+  def title=(value)
+    value ? super(value.strip[0...255]) : super
+  end
+
+  def command=(value)
+    value ? super(value.strip[0...255]) : super
+  end
+
   def stdout
     return @stdout if @stdout
     @stdout = Stdout::Buffered.new(get_stdout)
