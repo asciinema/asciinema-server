@@ -1,0 +1,27 @@
+.modal.fade id="embed-modal" tabindex="-1" role="dialog"
+  .modal-dialog.embed-modal
+    .modal-content
+      .modal-header
+        button type="button" class="close" data-dismiss="modal"
+          span &times;
+        h4.modal-title id="myModalLabel" Embed this asciicast
+      .modal-body
+        h2 Image link
+        p Use snippets below to display a screenshot linking to this asciicast. Useful in places where scripts are not allowed (e.g. in a project's README file).
+        p
+          span HTML:
+          br
+          input[type="text" value=page.embed_html_link data-behavior="auto-select" readonly]
+        p
+          span Markdown:
+          br
+          input[type="text" value=page.embed_markdown_link data-behavior="auto-select" readonly]
+
+        h2 Player
+
+        p If you're embedding on your own page or on a site which permits script tags,
+          you can use the full player widget:
+        p
+          input[type="text" value=page.embed_script data-behavior="auto-select" readonly]
+        p Paste the above script tag where you want the player to be displayed on your page.
+        p See the #{link_to 'embedding docs', docs_path(:embedding)} for additional options.
