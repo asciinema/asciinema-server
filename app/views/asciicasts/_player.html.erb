@@ -9,19 +9,19 @@
     var model = new Asciinema.Asciicast(<%= asciicast.to_json.gsub('</', '<\/').html_safe %>);
 
     function createPlayer() {
-      var source = new asciinema.HttpArraySource(model.get('stdout_frames_url'), <%= options.speed %>);
-      var snapshot = model.get('snapshot');
-      var movie = new asciinema.Movie(model.get('width'), model.get('height'), source, snapshot, model.get('duration'));
-
-      React.renderComponent(
-        asciinema.Player({
-          fontSize: '<%= options.size %>',
+      asciinema.CreatePlayer(
+        $('.player')[0],
+        model.get('width'), model.get('height'),
+        model.get('stdout_frames_url'),
+        model.get('duration'),
+        {
+          snapshot: model.get('snapshot'),
+          speed: <%= options.speed %>,
           autoPlay: <%= options.autoplay %>,
           loop: <%= options.loop %>,
-          movie: movie,
-          theme: '<%= h options.theme %>',
-        }),
-        $('.player')[0]
+          fontSize: '<%= options.size %>',
+          theme: '<%= h options.theme %>'
+        }
       );
     }
 
