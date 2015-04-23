@@ -1,5 +1,6 @@
 .asciinema-player-wrapper {
-  text-align: center; }
+  text-align: center;
+  outline: none; }
   .asciinema-player-wrapper:fullscreen {
     background-color: #000;
     width: 100%;
@@ -102,20 +103,25 @@
         .asciinema-terminal .font-sample.font-big .line span {
           height: 32px; }
 
-svg.icon path {
-  fill: #fff; }
-
+.asciinema-player:hover .control-bar {
+  color: #fff; }
+  .asciinema-player:hover .control-bar .progressbar .bar .gutter span {
+    background-color: #fff; }
+  .asciinema-player:hover .control-bar svg.icon path {
+    fill: #fff; }
 .asciinema-player .control-bar {
   width: 100%;
   height: 32px;
   background-color: #000;
-  color: #fff;
+  color: #bbb;
   border-top: 1px solid #222;
   box-sizing: content-box;
   line-height: 1; }
   .asciinema-player .control-bar * {
     box-sizing: inherit;
     font-size: 0; }
+  .asciinema-player .control-bar svg.icon path {
+    fill: #bbb; }
   .asciinema-player .control-bar .playback-button {
     display: block;
     float: left;
@@ -164,7 +170,7 @@ svg.icon path {
         .asciinema-player .control-bar .progressbar .bar .gutter span {
           display: inline-block;
           height: 100%;
-          background-color: #fff;
+          background-color: #bbb;
           border-radius: 3px; }
   .asciinema-player .control-bar .fullscreen-button {
     display: block;

@@ -42,7 +42,7 @@
         icon = asciinema.ExpandIcon();
       }
 
-      return dom.span({ className: "fullscreen-button", onClick: this.handleClick }, icon);
+      return dom.span({ className: "fullscreen-button", onClick: this.handleClick, title: 'Toggle full screen mode (f)' }, icon);
     },
 
     handleClick: function(event) {
@@ -752,7 +752,23 @@
         });
       }.bind(this), true);
 
+      $(this.getDOMNode()).on('keypress', this.onKeyPress);
+
       requestAnimationFrame(this.applyChanges);
+    },
+
+    componentWillUnmount: function() {
+      $(this.getDOMNode()).off('keypress', this.onKeyPress);
+    },
+
+    onKeyPress: function(event) {
+      if (event.which == 32) { // space bar
+        event.preventDefault();
+        this.togglePlay();
+      } else if (event.which == 102) { // 'f'
+        event.preventDefault();
+        this.toggleFullscreen();
+      }
     },
 
     render: function() {
@@ -765,7 +781,7 @@
       }
 
       return (
-        dom.div({ className: 'asciinema-player-wrapper' },
+        dom.div({ className: 'asciinema-player-wrapper', tabIndex: -1 },
           dom.div({ ref: 'player', className: this.playerClassName(), style: this.playerStyle() },
 
             asciinema.Terminal({
@@ -855,6 +871,16 @@
       }
     },
 
+    togglePlay: function() {
+      if (this.isNotStarted()) {
+        this.start();
+      } else if (this.isPlaying()) {
+        this.pause();
+      } else {
+        this.resume();
+      }
+    },
+
     seek: function(time) {
       if (this.movieController.seek && this.movieController.seek(time)) {
         this.setState({ state: 'playing', currentTime: time });
@@ -920,6 +946,10 @@
 
     isPlaying: function() {
       return this.state.state === 'playing';
+    },
+
+    isPaused: function() {
+      return this.state.state === 'paused';
     },
 
     isFinished: function() {
