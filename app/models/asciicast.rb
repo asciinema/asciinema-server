@@ -45,7 +45,7 @@ class Asciicast < ActiveRecord::Base
       collection = collection.featured
     end
 
-    collection = collection.order("#{ORDER_MODES[order]} DESC")
+    collection = collection.order("#{ORDER_MODES.fetch(order)} DESC")
 
     if page
       collection = collection.paginate(page, per_page)
