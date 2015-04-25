@@ -87,19 +87,19 @@ class AsciicastPagePresenter
   end
 
   def show_set_featured_link?
-    !asciicast.featured? && policy.feature?
+    !asciicast.featured? && policy.change_featured?
   end
 
   def show_unset_featured_link?
-    asciicast.featured? && policy.unfeature?
+    asciicast.featured? && policy.change_featured?
   end
 
   def show_make_private_link?
-    !asciicast.private? && policy.make_private?
+    !asciicast.private? && policy.change_visibility?
   end
 
   def show_make_public_link?
-    asciicast.private? && policy.make_public?
+    asciicast.private? && policy.change_visibility?
   end
 
   def show_description?

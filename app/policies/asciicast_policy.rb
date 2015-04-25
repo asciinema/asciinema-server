@@ -9,8 +9,8 @@ class AsciicastPolicy < ApplicationPolicy
   def permitted_attributes
     if user.admin? || record.owner?(user)
       attrs = [:title, :description, :theme_name, :snapshot_at]
-      attrs << :featured if user.admin?
-      attrs << :private if record.owner?(user)
+      attrs << :featured if change_featured?
+      attrs << :private if change_visibility?
 
       attrs
     else
@@ -30,25 +30,13 @@ class AsciicastPolicy < ApplicationPolicy
     user.admin? || record.owner?(user)
   end
 
-  def feature?
+  def change_featured?
     return false unless user
 
     user.admin?
   end
 
-  def unfeature?
-    return false unless user
-
-    user.admin?
-  end
-
-  def make_public?
-    return false unless user
-
-    record.owner?(user)
-  end
-
-  def make_private?
+  def change_visibility?
     return false unless user
 
     record.owner?(user)
