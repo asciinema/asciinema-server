@@ -15,7 +15,6 @@ class AsciicastsController < ApplicationController
   end
 
   def show
-    # TODO: filter out private or not (????)
     respond_to do |format|
       format.html do
         view_counter.increment(asciicast, cookies)

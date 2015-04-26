@@ -48,7 +48,7 @@ class Asciicast < ActiveRecord::Base
   end
 
   def self.for_category_ordered(category, order, page = nil, per_page = nil)
-    collection = self.non_private
+    collection = non_private
 
     if category == :featured
       collection = collection.featured
