@@ -41,6 +41,12 @@ describe Asciicast do
     end
   end
 
+  describe '.generate_secret_token' do
+    subject { Asciicast.generate_secret_token }
+
+    it { should match(/^[a-z0-9]{25}$/) }
+  end
+
   describe '.for_category_ordered' do
     subject { described_class.for_category_ordered(category, order) }
 
