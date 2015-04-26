@@ -18,7 +18,7 @@ class BareAsciicastPagePresenter
   end
 
   def asciicast_id
-    asciicast.id
+    asciicast.to_param
   end
 
 end
