@@ -19,7 +19,7 @@ module Api
     end
 
     def show
-      @asciicast = Asciicast.find(params[:id])
+      @asciicast = Asciicast.find_by_id_or_secret_token!(params[:id])
 
       respond_with(asciicast) do |format|
         format.html do

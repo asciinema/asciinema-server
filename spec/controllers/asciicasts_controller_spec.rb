@@ -41,7 +41,7 @@ describe AsciicastsController do
 
     before do
       allow(controller).to receive(:view_counter) { view_counter }
-      expect(Asciicast).to receive(:find).and_return(asciicast)
+      expect(Asciicast).to receive(:find_by_id_or_secret_token!).and_return(asciicast)
     end
 
     let(:asciicast_presenter) { double('asciicast_presenter') }
@@ -74,7 +74,7 @@ describe AsciicastsController do
     let(:make_request) { get :edit, :id => asciicast.id }
 
     before do
-      expect(Asciicast).to receive(:find).and_return(asciicast)
+      expect(Asciicast).to receive(:find_by_id_or_secret_token!).and_return(asciicast)
       asciicast.user = user
     end
 
@@ -114,7 +114,7 @@ describe AsciicastsController do
 
     before do
       allow(controller).to receive(:asciicast_updater) { asciicast_updater }
-      expect(Asciicast).to receive(:find).and_return(asciicast)
+      expect(Asciicast).to receive(:find_by_id_or_secret_token!).and_return(asciicast)
       asciicast.user = user
     end
 
@@ -165,7 +165,7 @@ describe AsciicastsController do
     let(:make_request) { delete :destroy, :id => asciicast.id }
 
     before do
-      expect(Asciicast).to receive(:find).and_return(asciicast)
+      expect(Asciicast).to receive(:find_by_id_or_secret_token!).and_return(asciicast)
       asciicast.user = user
     end
 

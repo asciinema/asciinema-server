@@ -118,12 +118,8 @@ class AsciicastPagePresenter
     end
   end
 
-  def show_other_asciicasts_by_author?
-    author.asciicast_count > 1
-  end
-
   def other_asciicasts_by_author
-    author.asciicasts_excluding(asciicast, 3).decorate
+    @other_asciicasts_by_author ||= author.other_asciicasts(asciicast, 3).decorate
   end
 
   def asciicast_oembed_url(format)

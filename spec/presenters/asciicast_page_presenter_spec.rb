@@ -155,26 +155,6 @@ describe AsciicastPagePresenter do
     it { should eq('i am description') }
   end
 
-  describe '#show_other_asciicasts_by_author?' do
-    subject { presenter.show_other_asciicasts_by_author? }
-
-    before do
-      allow(author).to receive(:asciicast_count) { count }
-    end
-
-    context "when user has more than 1 asciicast" do
-      let(:count) { 2 }
-
-      it { should be(true) }
-    end
-
-    context "when user doesn't have more than 1 asciicasts" do
-      let(:count) { 1 }
-
-      it { should be(false) }
-    end
-  end
-
   describe '#other_asciicasts_by_author' do
     subject { presenter.other_asciicasts_by_author }
 
@@ -182,7 +162,7 @@ describe AsciicastPagePresenter do
     let(:decorated_others) { double('decorated_others') }
 
     before do
-      allow(author).to receive(:asciicasts_excluding).
+      allow(author).to receive(:other_asciicasts).
         with(asciicast, 3) { others }
     end
 

@@ -82,7 +82,7 @@
       .container
         .content = page.description
 
-  - if page.show_other_asciicasts_by_author?
+  - unless page.other_asciicasts_by_author.empty?
     section.even
       .container
         .other-asciicasts

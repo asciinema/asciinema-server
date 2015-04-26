@@ -148,8 +148,8 @@ describe User do
     it { should eq(2) }
   end
 
-  describe '#asciicasts_excluding' do
-    subject { user.asciicasts_excluding(asciicast, 1) }
+  describe '#other_asciicasts' do
+    subject { user.other_asciicasts(asciicast, 1) }
 
     let(:user) { create(:user) }
     let(:asciicast) { create(:asciicast, user: user) }

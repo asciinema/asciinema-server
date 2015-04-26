@@ -117,11 +117,23 @@ describe UserPagePresenter do
   describe '#asciicast_count_text' do
     subject { presenter.asciicast_count_text(view_context) }
 
-    before do
-      allow(user).to receive(:asciicast_count) { 3 }
+    context 'for non author' do
+      before do
+        allow(user).to receive(:public_asciicast_count) { 2 }
+      end
+
+      it { should match(/2.+cartman/) }
     end
 
-    it { should eq('3 asciicasts by cartman') }
+    context 'for author' do
+      let(:current_user) { user }
+
+      before do
+        allow(user).to receive(:asciicast_count) { 3 }
+      end
+
+      it { should match(/you.+3/i) }
+    end
   end
 
   describe '#user_username' do
@@ -143,7 +155,7 @@ describe UserPagePresenter do
     it "gets user's asciicasts paged" do
       subject
 
-      expect(user).to have_received(:paged_asciicasts).with(2, 5)
+      expect(user).to have_received(:paged_asciicasts).with(2, 5, false)
     end
 
     it "wraps the asciicasts with paginating decorator" do
