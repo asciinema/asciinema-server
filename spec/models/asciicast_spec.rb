@@ -62,6 +62,7 @@ describe Asciicast do
     let!(:asciicast_4) { create(:asciicast, created_at:  3.hours.ago,
                                             views_count: 40,
                                             featured:    true) }
+    let!(:asciicast_5) { create(:asciicast, private: true) }
 
     context "when category is :all" do
       let(:category) { :all }
