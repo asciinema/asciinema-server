@@ -6,5 +6,6 @@ html[lang="en"]
     title = page_title
     = stylesheet_link_tag 'embed', :media => 'all'
     = javascript_include_tag 'embed'
+    = content_for(:head)
   body.iframe
     = yield
