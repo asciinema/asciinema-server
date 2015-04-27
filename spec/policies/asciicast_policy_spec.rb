@@ -13,7 +13,7 @@ describe AsciicastPolicy do
       let(:user) { stub_model(User, admin?: true) }
 
       it "includes form fields + featured" do
-        expect(subject).to eq([:title, :description, :theme_name, :snapshot_at, :featured])
+        expect(subject).to eq([:title, :description, :theme_name, :snapshot_at, :featured, :private])
       end
     end
 
@@ -27,7 +27,7 @@ describe AsciicastPolicy do
       context "and is creator of the asciicast" do
         let(:asciicast) { Asciicast.new(user: user) }
 
-        it "includes form field, but no featured" do
+        it "doesn't include featured but includes private" do
           expect(subject).to eq([:title, :description, :theme_name, :snapshot_at])
         end
       end
@@ -74,23 +74,7 @@ describe AsciicastPolicy do
     end
   end
 
-  permissions :feature? do
-    it "denies access if user is nil" do
-      expect(subject).not_to permit(nil, Asciicast.new)
-    end
-
-    it "grants access if user is admin" do
-      user = stub_model(User, admin?: true)
-      expect(subject).to permit(user, Asciicast.new)
-    end
-
-    it "denies access if user isn't admin" do
-      user = stub_model(User, admin?: false)
-      expect(subject).not_to permit(user, Asciicast.new)
-    end
-  end
-
-  permissions :unfeature? do
+  permissions :change_featured? do
     it "denies access if user is nil" do
       expect(subject).not_to permit(nil, Asciicast.new)
     end

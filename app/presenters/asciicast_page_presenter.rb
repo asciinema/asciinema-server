@@ -87,11 +87,19 @@ class AsciicastPagePresenter
   end
 
   def show_set_featured_link?
-    !asciicast.featured? && policy.feature?
+    !asciicast.featured? && policy.change_featured?
   end
 
   def show_unset_featured_link?
-    asciicast.featured? && policy.unfeature?
+    asciicast.featured? && policy.change_featured?
+  end
+
+  def show_make_private_link?
+    !asciicast.private? && policy.change_visibility?
+  end
+
+  def show_make_public_link?
+    asciicast.private? && policy.change_visibility?
   end
 
   def show_description?
@@ -110,12 +118,8 @@ class AsciicastPagePresenter
     end
   end
 
-  def show_other_asciicasts_by_author?
-    author.asciicast_count > 1
-  end
-
   def other_asciicasts_by_author
-    author.asciicasts_excluding(asciicast, 3).decorate
+    @other_asciicasts_by_author ||= author.other_asciicasts(asciicast, 3).decorate
   end
 
   def asciicast_oembed_url(format)

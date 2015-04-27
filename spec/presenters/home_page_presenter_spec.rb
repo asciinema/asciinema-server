@@ -43,7 +43,7 @@ describe HomePagePresenter do
     let(:decorated_latest) { double('decorated_latest') }
 
     before do
-      allow(Asciicast).to receive(:latest_limited) { latest }
+      allow(Asciicast).to receive(:homepage_latest) { latest }
     end
 
     it "returns decorated latest asciicasts" do
@@ -58,10 +58,10 @@ describe HomePagePresenter do
     let(:decorated_featured) { double('decorated_featured') }
 
     before do
-      allow(Asciicast).to receive(:random_featured_limited) { featured }
+      allow(Asciicast).to receive(:homepage_featured) { featured }
     end
 
-    it "returns decorated random featured asciicasts" do
+    it "returns decorated featured asciicasts" do
       expect(subject).to be(decorated_featured)
     end
   end

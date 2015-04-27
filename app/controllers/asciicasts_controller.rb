@@ -69,7 +69,7 @@ class AsciicastsController < ApplicationController
   private
 
   def load_resource
-    @asciicast = Asciicast.find(params[:id])
+    @asciicast = Asciicast.find_by_id_or_secret_token!(params[:id])
   end
 
   def view_counter

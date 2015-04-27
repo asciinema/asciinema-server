@@ -25,7 +25,7 @@ describe BareAsciicastPagePresenter do
   describe '#asciicast_id' do
     subject { presenter.asciicast_id }
 
-    it { should eq(123) }
+    it { should eq('123') }
   end
 
 end

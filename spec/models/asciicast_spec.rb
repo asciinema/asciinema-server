@@ -3,6 +3,50 @@ require 'tempfile'
 
 describe Asciicast do
 
+  describe '.find_by_id_or_secret_token!' do
+    subject { Asciicast.find_by_id_or_secret_token!(thing) }
+
+    context 'for public asciicast' do
+      let(:asciicast) { create(:asciicast, private: false) }
+
+      context 'when looked up by id' do
+        let(:thing) { asciicast.id }
+
+        it { should eq(asciicast) }
+      end
+
+      context 'when looked up by secret token' do
+        let(:thing) { asciicast.secret_token }
+
+        it { should eq(asciicast) }
+      end
+    end
+
+    context 'for private asciicast' do
+      let(:asciicast) { create(:asciicast, private: true) }
+
+      context 'when looked up by id' do
+        let(:thing) { asciicast.id }
+
+        it 'raises RecordNotFound' do
+          expect { subject }.to raise_error(ActiveRecord::RecordNotFound)
+        end
+      end
+
+      context 'when looked up by secret token' do
+        let(:thing) { asciicast.secret_token }
+
+        it { should eq(asciicast) }
+      end
+    end
+  end
+
+  describe '.generate_secret_token' do
+    subject { Asciicast.generate_secret_token }
+
+    it { should match(/^[a-z0-9]{25}$/) }
+  end
+
   describe '.for_category_ordered' do
     subject { described_class.for_category_ordered(category, order) }
 
@@ -18,6 +62,7 @@ describe Asciicast do
     let!(:asciicast_4) { create(:asciicast, created_at:  3.hours.ago,
                                             views_count: 40,
                                             featured:    true) }
+    let!(:asciicast_5) { create(:asciicast, private: true) }
 
     context "when category is :all" do
       let(:category) { :all }
@@ -52,7 +97,27 @@ describe Asciicast do
     end
   end
 
-  let(:asciicast) { described_class.new }
+  describe '#to_param' do
+    subject { asciicast.to_param }
+
+    let(:asciicast) { Asciicast.new(id: 123, secret_token: 'sekrit') }
+
+    context 'for public asciicast' do
+      before do
+        asciicast.private = false
+      end
+
+      it { should eq('123') }
+    end
+
+    context 'for private asciicast' do
+      before do
+        asciicast.private = true
+      end
+
+      it { should eq('sekrit') }
+    end
+  end
 
   describe '#stdout' do
     context 'for single-file, JSON asciicast' do

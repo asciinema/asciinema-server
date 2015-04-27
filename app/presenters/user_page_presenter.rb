@@ -39,15 +39,17 @@ class UserPagePresenter
 
   def asciicast_count_text(h)
     if current_users_profile?
-      if user.asciicast_count > 0
-        count = h.pluralize(user.asciicast_count, 'asciicast')
+      count = user.asciicast_count
+      if count > 0
+        count = h.pluralize(count, 'asciicast')
         "You have recorded #{count}"
       else
         "Record your first asciicast"
       end
     else
-      if user.asciicast_count > 0
-        count = h.pluralize(user.asciicast_count, 'asciicast')
+      count = user.public_asciicast_count
+      if count > 0
+        count = h.pluralize(count, 'asciicast')
         "#{count} by #{user.display_name}"
       else
         "#{user.display_name} hasn't recorded anything yet"
@@ -70,7 +72,8 @@ class UserPagePresenter
   private
 
   def get_asciicasts
-    PaginatingDecorator.new(user.paged_asciicasts(page, per_page))
+    asciicasts = user.paged_asciicasts(page, per_page, current_users_profile?)
+    PaginatingDecorator.new(asciicasts)
   end
 
 end

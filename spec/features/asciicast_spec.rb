@@ -15,4 +15,15 @@ feature "Asciicast page", :js => true do
     expect(page).to have_selector('.cinema .play-button')
   end
 
+  scenario 'Visiting as guest when asciicast is private' do
+    asciicast.update(private: true)
+
+    visit asciicast_path(asciicast)
+
+    expect(page).to have_content('the title')
+    expect(page).to have_link('aaron')
+    expect(page).to have_link('Embed')
+    expect(page).to have_selector('.cinema .play-button')
+  end
+
 end

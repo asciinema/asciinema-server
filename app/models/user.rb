@@ -103,16 +103,20 @@ class User < ActiveRecord::Base
     end
   end
 
+  def public_asciicast_count
+    asciicasts.non_private.count
+  end
+
   def asciicast_count
     asciicasts.count
   end
 
-  def asciicasts_excluding(asciicast, limit)
-    asciicasts.where('id <> ?', asciicast.id).order('RANDOM()').limit(limit)
+  def other_asciicasts(asciicast, limit)
+    asciicasts.non_private.where('id <> ?', asciicast.id).order('RANDOM()').limit(limit)
   end
 
-  def paged_asciicasts(page, per_page)
-    asciicasts.
+  def paged_asciicasts(page, per_page, include_private)
+    asciicasts_scope(include_private).
       includes(:user).
       order("created_at DESC").
       paginate(page, per_page)
@@ -131,7 +135,15 @@ class User < ActiveRecord::Base
   def generate_auth_token
     begin
       self[:auth_token] = self.class.generate_auth_token
-    end while User.exists?(auth_token: self[:auth_token])
+    end while self.class.exists?(auth_token: self[:auth_token])
+  end
+
+  def asciicasts_scope(include_private)
+    if include_private
+      asciicasts
+    else
+      asciicasts.non_private
+    end
   end
 
 end
