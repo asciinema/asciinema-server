@@ -10,8 +10,6 @@ before_script:
 script: RSPEC_EXCLUDE_UNSTABLE=1 ./script/cibuild.sh
 rvm:
   - 2.1.0
-  - rbx
-  - jruby
 matrix:
   allow_failures:
     - rvm: rbx
