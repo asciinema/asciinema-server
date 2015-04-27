@@ -39,7 +39,7 @@ class AsciicastPolicy < ApplicationPolicy
   def change_visibility?
     return false unless user
 
-    record.owner?(user)
+    user.admin?
   end
 
 end
