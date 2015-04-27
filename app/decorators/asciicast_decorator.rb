@@ -26,7 +26,7 @@ class AsciicastDecorator < ApplicationDecorator
   end
 
   def title
-    model.title.presence || command || "asciicast:#{id}"
+    model.title.presence || command || "asciicast:#{to_param}"
   end
 
   def command
