@@ -9,5 +9,6 @@ CarrierWave.configure do |config|
       :region                => CFG.aws_region
     }
     config.fog_directory = CFG.aws_bucket
+    config.fog_public = false
   end
 end
