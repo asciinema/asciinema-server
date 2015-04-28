@@ -2,11 +2,13 @@ class AsciicastParams
   FormatError = Class.new(StandardError)
 
   def self.build(asciicast_params, user, user_agent)
-    if asciicast_params.try(:respond_to?, :read)
+    attributes = if asciicast_params.try(:respond_to?, :read)
       from_format_1_request(asciicast_params, user, user_agent)
     else
       from_format_0_request(asciicast_params, user, user_agent)
     end
+
+    attributes.merge(private: user.new_asciicast_private?)
   end
 
   def self.from_format_0_request(params, user, user_agent)

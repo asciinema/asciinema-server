@@ -90,4 +90,25 @@ describe AsciicastPolicy do
     end
   end
 
+  permissions :change_visibility? do
+    it "denies access if user is nil" do
+      expect(subject).not_to permit(nil, Asciicast.new)
+    end
+
+    it "grants access if user is admin" do
+      user = stub_model(User, admin?: true)
+      expect(subject).to permit(user, Asciicast.new)
+    end
+
+    it "denies access if user isn't supporter" do
+      user = stub_model(User, supporter?: false)
+      expect(subject).not_to permit(user, Asciicast.new)
+    end
+
+    it "grants access if user is a supporter" do
+      user = stub_model(User, supporter?: true)
+      expect(subject).to permit(user, Asciicast.new)
+    end
+  end
+
 end

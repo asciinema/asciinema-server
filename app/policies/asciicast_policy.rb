@@ -39,7 +39,7 @@ class AsciicastPolicy < ApplicationPolicy
   def change_visibility?
     return false unless user
 
-    user.admin?
+    user.admin? || user.supporter?
   end
 
 end

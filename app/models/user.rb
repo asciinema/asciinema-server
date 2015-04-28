@@ -130,6 +130,10 @@ class User < ActiveRecord::Base
     expiring_tokens.count == 1
   end
 
+  def new_asciicast_private?
+    supporter? && asciicasts_private_by_default?
+  end
+
   private
 
   def generate_auth_token
