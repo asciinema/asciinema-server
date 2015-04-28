@@ -18,6 +18,10 @@ class UserEditPagePresenter
     !active_tokens.empty? || !revoked_tokens.empty?
   end
 
+  def show_privacy_controls?
+    user.supporter?
+  end
+
   private
 
   def sort(tokens)

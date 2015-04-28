@@ -21,7 +21,7 @@ class UsersController < ApplicationController
 
   def update
     authorize current_user
-    user = User.find(current_user.id)
+    @user = User.find(current_user.id)
 
     if user.update_attributes(update_params)
       redirect_to profile_path(user), notice: 'Account settings saved.'
@@ -33,7 +33,7 @@ class UsersController < ApplicationController
   private
 
   def update_params
-    params.require(:user).permit(:username, :name, :email, :theme_name)
+    params.require(:user).permit(*policy(user).permitted_attributes)
   end
 
 end
