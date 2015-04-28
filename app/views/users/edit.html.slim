@@ -6,7 +6,7 @@
 
         = f.input :username
         = f.input :email, required: true
-        = f.input :name, label: 'Real name'
+        = f.input :name, label: 'Full name'
         = f.input :theme_name, label: 'Terminal theme', collection: themes_for_select, include_blank: default_user_theme_label, hint: 'Used for all recordings unless custom theme chosen for a specific recording'
         = f.buttons do
           = f.button :submit, 'Save', class: 'btn-primary'
