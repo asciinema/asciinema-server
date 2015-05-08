@@ -42,12 +42,12 @@ class Terminal
     end
 
     def write(data)
-      raise "terminal died" unless @thread.alive?
+      check_thread!
       @stdin.write(data)
     end
 
     def read_line
-      raise "terminal died" unless @thread.alive?
+      check_thread!
       @stdout.readline.strip
     end
 
@@ -55,6 +55,11 @@ class Terminal
       @stdin.close
     end
 
+    private
+
+    def check_thread!
+      raise "terminal died, exit code: #{@thread.value.exitstatus}, signaled?: #{@thread.value.signaled?}" unless @thread.alive?
+    end
   end
 
 end
