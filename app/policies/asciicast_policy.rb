@@ -19,26 +19,18 @@ class AsciicastPolicy < ApplicationPolicy
   end
 
   def update?
-    return false unless user
-
     user.admin? || record.owner?(user)
   end
 
   def destroy?
-    return false unless user
-
     user.admin? || record.owner?(user)
   end
 
   def change_featured?
-    return false unless user
-
     user.admin?
   end
 
   def change_visibility?
-    return false unless user
-
     user.admin? || user.supporter?
   end
 
