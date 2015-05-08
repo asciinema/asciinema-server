@@ -16,10 +16,12 @@ class Asciicast < ActiveRecord::Base
   has_many :comments, -> { order(:created_at) }, dependent: :destroy
   has_many :likes, dependent: :destroy
 
-  validates :user, :terminal_columns, :terminal_lines, :duration, presence: true
+  validates :user, :duration, presence: true
   validates :stdout_data, :stdout_timing, presence: true, unless: :file
   validates :file, presence: true, unless: :stdout_data
   validates :snapshot_at, numericality: { greater_than: 0, allow_blank: true }
+  validates :terminal_columns, presence: true, numericality: { less_than_or_equal_to: 1000 }
+  validates :terminal_lines, presence: true, numericality: { less_than_or_equal_to: 500 }
 
   scope :featured, -> { where(featured: true) }
   scope :by_recency, -> { order("created_at DESC") }
