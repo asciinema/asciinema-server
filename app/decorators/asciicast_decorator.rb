@@ -26,7 +26,15 @@ class AsciicastDecorator < ApplicationDecorator
   end
 
   def title
-    model.title.presence || command || "asciicast:#{to_param}"
+    model.title.presence || command || default_title
+  end
+
+  def default_title
+    if private?
+      "untitled"
+    else
+      "asciicast:#{to_param}"
+    end
   end
 
   def command
