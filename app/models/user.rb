@@ -131,7 +131,7 @@ class User < ActiveRecord::Base
   end
 
   def new_asciicast_private?
-    supporter? && asciicasts_private_by_default?
+    asciicasts_private_by_default?
   end
 
   private

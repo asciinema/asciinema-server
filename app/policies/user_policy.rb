@@ -7,10 +7,7 @@ class UserPolicy < ApplicationPolicy
   end
 
   def permitted_attributes
-    attrs = [:username, :name, :email, :theme_name]
-    attrs << :asciicasts_private_by_default if record.supporter?
-
-    attrs
+    [:username, :name, :email, :theme_name, :asciicasts_private_by_default]
   end
 
   def update?

@@ -19,7 +19,7 @@ class UserEditPagePresenter
   end
 
   def show_privacy_controls?
-    user.supporter?
+    true
   end
 
   private

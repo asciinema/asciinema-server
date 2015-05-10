@@ -28,7 +28,7 @@ describe AsciicastPolicy do
         let(:asciicast) { Asciicast.new(user: user) }
 
         it "doesn't include featured but includes private" do
-          expect(subject).to eq([:title, :description, :theme_name, :snapshot_at])
+          expect(subject).to eq([:title, :description, :theme_name, :snapshot_at, :private])
         end
       end
     end
@@ -100,14 +100,13 @@ describe AsciicastPolicy do
       expect(subject).to permit(user, Asciicast.new)
     end
 
-    it "denies access if user isn't supporter" do
-      user = stub_model(User, supporter?: false)
-      expect(subject).not_to permit(user, Asciicast.new)
+    it "grants access if user is creator of the asciicast" do
+      user = stub_model(User, admin?: false)
+      expect(subject).to permit(user, Asciicast.new(user: user))
     end
 
-    it "grants access if user is a supporter" do
-      user = stub_model(User, supporter?: true)
-      expect(subject).to permit(user, Asciicast.new)
+    it "denies access if user isn't the creator of the asciicast" do
+      expect(subject).not_to permit(User.new, Asciicast.new(user: User.new))
     end
   end
 

@@ -31,7 +31,7 @@ class AsciicastPolicy < ApplicationPolicy
   end
 
   def change_visibility?
-    user.admin? || user.supporter?
+    user.admin? || record.owner?(user)
   end
 
 end

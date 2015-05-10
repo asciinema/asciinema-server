@@ -10,15 +10,7 @@ describe UserPolicy do
     let(:user) { User.new }
 
     it "includes basic form fields" do
-      expect(subject).to eq([:username, :name, :email, :theme_name])
-    end
-
-    context "when user is a supporter" do
-      let(:user) { stub_model(User, supporter?: true) }
-
-      it "also includes asciicasts_private_by_default" do
-        expect(subject).to eq([:username, :name, :email, :theme_name, :asciicasts_private_by_default])
-      end
+      expect(subject).to eq([:username, :name, :email, :theme_name, :asciicasts_private_by_default])
     end
   end
 
