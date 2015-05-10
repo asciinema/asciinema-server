@@ -1,6 +1,6 @@
 class BrowsePagePresenter
 
-  DEFAULT_CATEGORY = :all
+  DEFAULT_CATEGORY = :public
   DEFAULT_ORDER    = :recency
   PER_PAGE         = 12
 
