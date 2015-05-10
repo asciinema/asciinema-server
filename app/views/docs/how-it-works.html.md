@@ -77,5 +77,6 @@ player loads the JSON data and simply renders each change at a right time.
 The end result is a smooth animation with all text attributes (bold,
 underline, inverse, ...) and 256 colors perfectly rendered.
 
-For the implementation details check out [asciinema.org source
-code](https://github.com/asciinema/asciinema.org).
+For the implementation details check out [asciinema.org website source
+code](https://github.com/asciinema/asciinema.org) and [player source
+code](https://github.com/asciinema/asciinema-player).
