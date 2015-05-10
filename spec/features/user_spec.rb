@@ -8,7 +8,7 @@ feature "User's profile" do
   scenario 'Visiting' do
     visit public_profile_path(username: user.username)
 
-    expect(page).to have_content(/1 asciicast by #{user.username}/i)
+    expect(page).to have_content(/1 public asciicast by #{user.username}/i)
     expect(page).to have_link('Tricks!')
     expect(page).to have_selector('.asciicast-list .play-button')
   end

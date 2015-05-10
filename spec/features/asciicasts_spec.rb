@@ -8,7 +8,7 @@ feature "Asciicast lists" do
   scenario 'Visiting all' do
     visit browse_path
 
-    expect(page).to have_content(/All Asciicasts/i)
+    expect(page).to have_content(/Public asciicasts/i)
     expect_browse_links
     expect(page).to have_link("foo bar")
     expect(page).to have_selector('.asciicast-list .play-button')
@@ -18,7 +18,7 @@ feature "Asciicast lists" do
     visit asciicast_path(asciicast)
     visit category_path(:featured)
 
-    expect(page).to have_content(/Featured Asciicasts/i)
+    expect(page).to have_content(/Featured asciicasts/i)
     expect_browse_links
     expect(page).to have_link("qux")
     expect(page).to have_selector('.asciicast-list .play-button')
