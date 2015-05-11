@@ -52,7 +52,7 @@ class UserPagePresenter
         count = h.pluralize(count, 'public asciicast')
         "#{count} by #{user.display_name}"
       else
-        "#{user.display_name} hasn't recorded anything yet"
+        "#{user.display_name} has no public asciicasts"
       end
     end
   end
