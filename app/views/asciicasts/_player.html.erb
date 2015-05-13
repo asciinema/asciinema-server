@@ -13,16 +13,16 @@
 
 <script>
   $(function() {
-    var model = new Asciinema.Asciicast(<%= asciicast.to_json.gsub('</', '<\/').html_safe %>);
+    var asciicast = <%= asciicast.to_json.gsub('</', '<\/').html_safe %>;
 
     function createPlayer() {
       asciinema.CreatePlayer(
         $('.player')[0],
-        model.get('width'), model.get('height'),
-        model.get('stdout_frames_url'),
-        model.get('duration'),
+        asciicast.width, asciicast.height,
+        asciicast.stdout_frames_url,
+        asciicast.duration,
         {
-          snapshot: model.get('snapshot'),
+          snapshot: asciicast.snapshot,
           speed: <%= options.speed %>,
           autoPlay: <%= options.autoplay %>,
           loop: <%= options.loop %>,
@@ -33,13 +33,16 @@
     }
 
     function tryCreatePlayer() {
-      if (model.get('stdout_frames_url')) {
+      if (asciicast.stdout_frames_url) {
         $('.processing-info').remove();
         createPlayer();
       } else {
         $('.processing-info').show();
         setTimeout(function() {
-          model.fetch({ success: tryCreatePlayer });
+          $.get('/a/' + asciicast.id + '.json', function(data) {
+            asciicast = data;
+            tryCreatePlayer();
+          });
         }, 2000);
       }
     }
