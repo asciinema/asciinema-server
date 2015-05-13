@@ -48,7 +48,6 @@ group :test, :development do
   gem 'pry-rails',     '~> 0.3.2'
   gem 'rspec-rails',   '~> 3.0.2'
   gem 'cane',          '~> 2.5.2'
-  gem 'jasmine-rails', '~> 0.4.5'
   gem 'timecop',       '~> 0.7.1'
 end
 
