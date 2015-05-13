@@ -5,6 +5,10 @@ class AsciicastSerializer < ActiveModel::Serializer
   attribute :terminal_columns, key: :width
   attribute :terminal_lines, key: :height
 
+  def id
+    object.to_param
+  end
+
   def private?
     object.private?
   end

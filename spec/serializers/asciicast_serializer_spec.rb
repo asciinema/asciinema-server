@@ -9,7 +9,7 @@ describe AsciicastSerializer do
     subject { JSON.parse(serializer.to_json) }
 
     it 'includes id' do
-      expect(subject['id']).to eq(asciicast.id)
+      expect(subject['id']).to eq(asciicast.to_param)
     end
 
     it 'includes duration' do
