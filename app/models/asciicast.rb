@@ -120,7 +120,7 @@ class Asciicast < ActiveRecord::Base
       Stdout::MultiFile.new(stdout_data.decompressed_path,
                             stdout_timing.decompressed_path)
     else
-      Stdout::SingleFile.new(file.url)
+      Stdout::SingleFile.new(file.absolute_url)
     end
   end
 

@@ -1,10 +1,10 @@
 class AsciicastUploader < BaseUploader
 
-  def url
+  def absolute_url
     if CFG.carrierwave_storage == 'file'
       path
     else
-      super
+      url
     end
   end
 
