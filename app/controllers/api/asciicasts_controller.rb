@@ -28,6 +28,10 @@ module Api
             page: BareAsciicastPagePresenter.build(asciicast, params)
           }, layout: 'bare'
         end
+
+        format.json do
+          render json: asciicast
+        end
       end
     end
 

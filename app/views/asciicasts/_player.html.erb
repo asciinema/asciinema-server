@@ -39,7 +39,7 @@
       } else {
         $('.processing-info').show();
         setTimeout(function() {
-          $.get('/a/' + asciicast.id + '.json', function(data) {
+          $.get('/api/asciicasts/' + asciicast.id + '.json', function(data) {
             asciicast = data;
             tryCreatePlayer();
           });

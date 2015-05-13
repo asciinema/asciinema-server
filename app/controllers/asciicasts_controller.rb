@@ -23,10 +23,6 @@ class AsciicastsController < ApplicationController
         }
       end
 
-      format.json do
-        render json: asciicast
-      end
-
       format.png do
         asciicast_image_generator.generate(asciicast) if asciicast.image_stale?
         redirect_to asciicast.image_url
