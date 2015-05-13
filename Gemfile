@@ -3,7 +3,6 @@ source 'https://rubygems.org'
 gem 'rails',                '4.1.5'
 
 gem 'sass-rails',           '~> 4.0.3'
-gem 'coffee-rails',         '~> 4.0.1'
 gem 'uglifier',             '>= 2.3.1'
 gem 'jquery-rails',         '~> 3.0.4'
 
@@ -36,8 +35,6 @@ gem 'foreigner',            '~> 1.7'
 
 group :development do
   gem 'quiet_assets',   '~> 1.0.1'
-  gem 'capistrano',     '~> 2.15'
-  gem 'capistrano-ext', '~> 1.2'
   gem 'foreman',        '~> 0.63.0'
   gem 'spring'
   gem 'spring-commands-rspec'
