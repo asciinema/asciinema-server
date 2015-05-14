@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <libtsm.h>
+#include <string.h>
 
 #define READ_BUF_SIZE 16 * 1024
 
@@ -179,6 +180,7 @@ bool attr_eq(struct tsm_screen_attr *attr1, const struct tsm_screen_attr *attr2)
 
 void attr_cp(const struct tsm_screen_attr *src, struct tsm_screen_attr *dst) {
     memcpy((void *)dst, (const void *)src, sizeof(last_attr));
+
 }
 
 void close_cell() {
@@ -194,7 +196,7 @@ void open_cell(const struct tsm_screen_attr *attr) {
 
 int draw_cb(struct tsm_screen *con, uint32_t id, const uint32_t *ch, size_t len,
             unsigned int width, unsigned int posx, unsigned int posy,
-            const struct tsm_screen_attr *attr, void *data) {
+            const struct tsm_screen_attr *attr, tsm_age_t age, void *data) {
 
     int *line = (int *)data;
 
@@ -283,7 +285,10 @@ int main(int argc, char *argv[]) {
                 }
                 break;
             case 'p':
-                tsm_screen_draw(screen, prepare_cb, draw_cb, render_cb, &line_n);
+                //tsm_screen_draw(screen, prepare_cb, draw_cb, render_cb, &line_n);
+                prepare_cb(screen, &line_n);
+                tsm_screen_draw(screen, draw_cb, &line_n);
+                render_cb(screen, &line_n);
                 break;
             case 'c':
                 cursor_x = tsm_screen_get_cursor_x(screen);
