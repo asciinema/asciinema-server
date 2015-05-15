@@ -10,6 +10,10 @@
     .info.clearfix
       h2
         = link_to asciicast.title, asciicast
+        - if asciicast.private?
+          = render 'asciicasts/private_label'
+        - if asciicast.featured?
+          = render 'asciicasts/featured_label'
         span.duration = asciicast.formatted_duration
       span.author-avatar = asciicast.author_img_link
       small by #{asciicast.author_link} #{time_ago_tag asciicast.created_at}

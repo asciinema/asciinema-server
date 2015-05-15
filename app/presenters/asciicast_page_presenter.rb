@@ -126,6 +126,14 @@ class AsciicastPagePresenter
     routes.oembed_url(url: routes.asciicast_url(asciicast), format: format)
   end
 
+  def show_private_label?
+    asciicast.private?
+  end
+
+  def show_featured_label?
+    asciicast.featured?
+  end
+
   private
 
   def author

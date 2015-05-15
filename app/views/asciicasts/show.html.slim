@@ -14,7 +14,12 @@
       .row
         .col-md-8.col-xs-8
           span.author-avatar = page.author_img_link
-          h2 = page.asciicast_title
+          h2
+            = page.asciicast_title
+            - if page.show_private_label?
+              = render 'private_label'
+            - if page.show_featured_label?
+              = render 'featured_label'
           small by #{page.author_link} #{time_ago_tag page.asciicast_created_at}
 
         .col-md-4.col-xs-4.text-right
