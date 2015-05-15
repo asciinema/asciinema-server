@@ -1,5 +1,14 @@
 class ApplicationPolicy
 
+  class Scope
+    attr_reader :user, :scope
+
+    def initialize(user, scope)
+      @user = user || User.new
+      @scope = scope
+    end
+  end
+
   attr_reader :user, :record
 
   def initialize(user, record)

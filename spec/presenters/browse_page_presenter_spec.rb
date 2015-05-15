@@ -3,8 +3,9 @@ require 'rails_helper'
 describe BrowsePagePresenter do
 
   describe '.build' do
-    subject { described_class.build(category, order, page, per_page) }
+    subject { described_class.build(scope, category, order, page, per_page) }
 
+    let(:scope) { double('scope') }
     let(:category) { 'awesome' }
     let(:order) { 'awesomeness' }
     let(:page) { 2 }
@@ -59,7 +60,8 @@ describe BrowsePagePresenter do
     end
   end
 
-  let(:presenter) { described_class.new(category, order, page, per_page) }
+  let(:presenter) { described_class.new(scope, category, order, page, per_page) }
+  let(:scope) { double('scope') }
   let(:category) { :awesome }
   let(:order) { :awesomeness }
   let(:page) { 2 }
@@ -78,13 +80,13 @@ describe BrowsePagePresenter do
     let(:asciicast) { double('asciicast', decorate: double(title: 'quux')) }
 
     before do
-      allow(Asciicast).to receive(:for_category_ordered) { collection }
+      allow(scope).to receive(:for_category_ordered) { collection }
     end
 
     it "gets the asciicasts for given category, order, page and per_page" do
       subject
 
-      expect(Asciicast).to have_received(:for_category_ordered).
+      expect(scope).to have_received(:for_category_ordered).
         with(:awesome, :awesomeness, 2, 5)
     end
 

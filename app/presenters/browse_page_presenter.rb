@@ -4,10 +4,11 @@ class BrowsePagePresenter
   DEFAULT_ORDER    = :recency
   PER_PAGE         = 12
 
-  attr_reader :category, :order, :page, :per_page
+  attr_reader :scope, :category, :order, :page, :per_page
 
-  def self.build(category, order, page = nil, per_page = nil)
+  def self.build(scope, category, order, page = nil, per_page = nil)
     new(
+      scope,
       (category || DEFAULT_CATEGORY).to_sym,
       (order    || DEFAULT_ORDER).to_sym,
       page      || 1,
@@ -15,7 +16,8 @@ class BrowsePagePresenter
     )
   end
 
-  def initialize(category, order, page, per_page)
+  def initialize(scope, category, order, page, per_page)
+    @scope    = scope
     @category = category
     @order    = order
     @page     = page
@@ -34,7 +36,7 @@ class BrowsePagePresenter
 
   def get_items
     PaginatingDecorator.new(
-      Asciicast.for_category_ordered(category, order, page, per_page)
+      scope.for_category_ordered(category, order, page, per_page)
     )
   end
 

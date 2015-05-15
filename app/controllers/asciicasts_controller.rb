@@ -9,8 +9,12 @@ class AsciicastsController < ApplicationController
 
   def index
     render locals: {
-      page: BrowsePagePresenter.build(params[:category], params[:order],
-                                      params[:page])
+      page: BrowsePagePresenter.build(
+        policy_scope(Asciicast),
+        params[:category],
+        params[:order],
+        params[:page]
+      )
     }
   end
 

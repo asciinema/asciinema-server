@@ -2,6 +2,27 @@ require 'rails_helper'
 
 describe AsciicastPolicy do
 
+  describe AsciicastPolicy::Scope do
+    let(:policy_scope) { AsciicastPolicy::Scope.new(user, Asciicast.all) }
+
+    subject { policy_scope.resolve }
+
+    let!(:asciicast_1) { create(:asciicast, private: false) }
+    let!(:asciicast_2) { create(:asciicast, private: true) }
+
+    context "when user is not admin" do
+      let(:user) { double(:user, admin?: false) }
+
+      it { should eq([asciicast_1]) }
+    end
+
+    context "when user is admin" do
+      let(:user) { double(:user, admin?: true) }
+
+      it { should eq([asciicast_1, asciicast_2]) }
+    end
+  end
+
   subject { described_class }
 
   describe '#permitted_attributes' do

@@ -18,22 +18,11 @@ describe AsciicastsController do
   subject { response }
 
   describe '#index' do
-    let(:asciicast_list_presenter) { double('asciicast_list_presenter') }
-
     before do
-      allow(controller).to receive(:render)
-      allow(BrowsePagePresenter).to receive(:build).
-        with('featured', 'recency', '2') { asciicast_list_presenter }
-
       get :index, category: 'featured', order: 'recency', page: '2'
     end
 
     it { should be_success }
-
-    it "renders template with BrowsePagePresenter as page" do
-      expect(controller).to have_received(:render).
-        with(locals: { page: asciicast_list_presenter })
-    end
   end
 
   describe '#show' do

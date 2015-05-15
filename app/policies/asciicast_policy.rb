@@ -1,8 +1,12 @@
 class AsciicastPolicy < ApplicationPolicy
 
-  class Scope < Struct.new(:user, :scope)
+  class Scope < Scope
     def resolve
-      scope
+      if user.admin?
+        scope.all
+      else
+        scope.non_private
+      end
     end
   end
 
