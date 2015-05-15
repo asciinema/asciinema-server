@@ -9,7 +9,7 @@ if [ ! -e /usr/local/lib/libtsm.a ]; then
   DIR=$(mktemp -d -t tsmXXXXXX)
   cd $DIR
   git clone git://people.freedesktop.org/~dvdhrm/libtsm .
-  git checkout bb4e454
+  git checkout libtsm-3
   test -f ./configure || NOCONFIGURE=1 ./autogen.sh
   ./configure --prefix=/usr/local
   make
