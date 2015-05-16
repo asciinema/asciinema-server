@@ -13,40 +13,16 @@
 
 <script>
   $(function() {
-    var asciicast = <%= asciicast.to_json.gsub('</', '<\/').html_safe %>;
-
-    function createPlayer() {
-      asciinema.CreatePlayer(
-        $('.player')[0],
-        asciicast.width, asciicast.height,
-        asciicast.stdout_frames_url,
-        asciicast.duration,
-        {
-          snapshot: asciicast.snapshot,
-          speed: <%= options.speed %>,
-          autoPlay: <%= options.autoplay %>,
-          loop: <%= options.loop %>,
-          fontSize: '<%= options.size %>',
-          theme: '<%= h options.theme %>'
-        }
-      );
-    }
-
-    function tryCreatePlayer() {
-      if (asciicast.stdout_frames_url) {
-        $('.processing-info').remove();
-        createPlayer();
-      } else {
-        $('.processing-info').show();
-        setTimeout(function() {
-          $.get('/api/asciicasts/' + asciicast.id + '.json', function(data) {
-            asciicast = data;
-            tryCreatePlayer();
-          });
-        }, 2000);
+    tryCreatePlayer(
+      $('.player')[0],
+      <%= asciicast.to_json.gsub('</', '<\/').html_safe %>,
+      {
+        speed: <%= options.speed %>,
+        autoPlay: <%= options.autoplay %>,
+        loop: <%= options.loop %>,
+        fontSize: '<%= options.size %>',
+        theme: '<%= h options.theme %>'
       }
-    }
-
-    tryCreatePlayer();
+    );
   });
 </script>
