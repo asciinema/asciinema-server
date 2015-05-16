@@ -8,7 +8,6 @@
 //= require jquery_ujs
 //= require jquery.timeago
 //= require bootstrap
-//= require asciicasts
 
 $(function() {
   $('abbr.timeago').timeago();
