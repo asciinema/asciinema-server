@@ -20,8 +20,8 @@ class Asciicast < ActiveRecord::Base
   validates :stdout_data, :stdout_timing, presence: true, unless: :file
   validates :file, presence: true, unless: :stdout_data
   validates :snapshot_at, numericality: { greater_than: 0, allow_blank: true }
-  validates :terminal_columns, presence: true, numericality: { less_than_or_equal_to: 1000 }
-  validates :terminal_lines, presence: true, numericality: { less_than_or_equal_to: 500 }
+  validates :terminal_columns, presence: true, numericality: { greater_than: 0, less_than_or_equal_to: 1000 }
+  validates :terminal_lines, presence: true, numericality: { greater_than: 0, less_than_or_equal_to: 500 }
 
   scope :featured, -> { where(featured: true) }
   scope :by_recency, -> { order("created_at DESC") }
