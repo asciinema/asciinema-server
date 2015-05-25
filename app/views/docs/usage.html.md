@@ -83,6 +83,6 @@ URL.
 NOTE: it is __necessary__ to do this if you want to __edit or delete__ your
 recordings on asciinema.org.
 
-You can synchronize your config file (which keeps the API token) across the
-machines but that's not necessary. You can assign new tokens to your account
-from as many machines as you want.
+You can synchronize your [config file](<%= docs_path(:config) %>) (which keeps
+the API token) across the machines but that's not necessary. You can assign new
+tokens to your account from as many machines as you want.
