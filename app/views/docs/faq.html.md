@@ -21,7 +21,7 @@ runs asciinema.org is available
 [here](https://github.com/asciinema/asciinema.org).
 
 When you have the site up and running you can easily tell asciinema client to
-use it by adding following setting to _~/.asciinema/config_ file:
+use it by adding following setting to _~/.config/asciinema/config_ file:
 
     [api]
     url = http://asciinema.example.com

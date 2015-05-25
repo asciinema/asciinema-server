@@ -53,6 +53,10 @@ NOTE: it is recommended to run it in a terminal of dimensions not smaller than
 the one used for recording as there's no "transcoding" of control sequences for
 new terminal size.
 
+Available options:
+
+* `-w, --max-wait=<sec>` - Reduce replayed terminal inactivity to max <sec> seconds
+
 ## `upload <filename>`
 
 __Upload recorded asciicast to asciinema.org site.__
@@ -68,7 +72,7 @@ publishing it on asciinema.org.
 
 __Assign local recorder token to asciinema.org account.__
 
-On every machine you install asciinema recorder, you get a new, unique recorder
+On every machine you install asciinema recorder, you get a new, unique API
 token. This command connects this local token with your asciinema.org account,
 and links all asciicasts recorded on this machine with the account.
 
@@ -79,6 +83,6 @@ URL.
 NOTE: it is __necessary__ to do this if you want to __edit or delete__ your
 recordings on asciinema.org.
 
-You can synchronize your `~/.asciinema/config` file (which keeps the token)
-across the machines but that's not necessary. You can assign new recorder
-tokens to your account from as many machines as you want.
+You can synchronize your config file (which keeps the API token) across the
+machines but that's not necessary. You can assign new tokens to your account
+from as many machines as you want.
