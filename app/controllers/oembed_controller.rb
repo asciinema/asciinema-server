@@ -25,11 +25,12 @@ class OembedController < ApplicationController
   def oembed_response(asciicast)
     asciicast_image_generator.generate(asciicast) if asciicast.image_stale?
 
-    width, height = asciicast.image_width, asciicast.image_height
-
-    if params[:maxwidth]
-      width, height = size_smaller_than(width, height, params[:maxwidth], params[:maxheight])
-    end
+    width, height = size_smaller_than(
+      asciicast.image_width,
+      asciicast.image_height,
+      params[:maxwidth] || asciicast.image_width,
+      params[:maxheight] || asciicast.image_height
+    )
 
     oembed = {
       type: 'rich',

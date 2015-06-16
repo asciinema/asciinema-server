@@ -14,4 +14,9 @@ describe "oEmbed provider", needs_phantomjs_2_bin: true do
     expect(response.status).to eq(200)
   end
 
+  it "responds with status 200 when only maxwidth given" do
+    get "/oembed?url=http://localhost:3000/a/#{asciicast.id}&format=json&maxwidth=500"
+    expect(response.status).to eq(200)
+  end
+
 end
