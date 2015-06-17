@@ -43,6 +43,9 @@ class AsciicastParams
     begin
       asciicast = Oj.sc_parse(AsciicastHandler.new, asciicast_file)
     rescue Oj::ParseError
+    end
+
+    if asciicast.nil?
       raise FormatError, "This doesn't look like a valid asciicast file"
     end
 
