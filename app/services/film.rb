@@ -14,7 +14,7 @@ class Film
   end
 
   def frames
-    frames = stdout.map do |delay, data|
+    frames = stdout.lazy.map do |delay, data|
       terminal.feed(data)
       [delay, Frame.new(terminal.snapshot, terminal.cursor)]
     end
