@@ -20,7 +20,7 @@ module Asciinema
     attribute :from_email,                     String, default: "asciinema <hello@asciinema.org>"
 
     def home_asciicast
-      asciicast = if home_asciicast_id
+      if home_asciicast_id
         Asciicast.find(home_asciicast_id)
       else
         Asciicast.last
