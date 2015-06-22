@@ -2,6 +2,13 @@
 
 # Frequently Asked Questions
 
+## How is it pronounced?
+
+_[as-kee-nuh-muh]_.
+
+The word “asciinema” is a combination of English “ASCII” and Ancient Greek
+“κίνημα” (kínēma, “movement”).
+
 ## Can I embed the asciicast player on my blog?
 
 Yes, see [embedding docs](<%= docs_path(:embedding) %>).
