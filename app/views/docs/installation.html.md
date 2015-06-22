@@ -18,12 +18,17 @@ You can also use your favorite package manager to install asciinema recorder.
 Note that it takes time for native packages to be updated so you may not get
 the latest released version.
 
-### Homebrew
+### OS X
 
-On OS X asciinema is available in Homebrew:
+On OS X asciinema is available via Homebrew:
 
     brew update
     brew install asciinema
+
+Or via MacPorts:
+
+    sudo port selfupdate
+    sudo port install asciinema
 
 ### Arch Linux
 
