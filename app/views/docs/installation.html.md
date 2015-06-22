@@ -45,10 +45,14 @@ asciinema rpm package is included in the main Fedora 19 and 20 repository:
 
 ### Gentoo Linux
 
-Gentoo Linux users can install the
-[portage package](http://packages.gentoo.org/package/app-misc/asciinema):
+Gentoo Linux users can install asciinema from
+[Mauro Toffanin's overlay](https://github.com/Dr-Terrible/go-overlay):
 
-    sudo emerge asciinema
+    emerge -av app-portage/layman
+    wget -q -O /etc/layman/overlays/go-overlay.xml https://raw.github.com/Dr-Terrible/go-overlay/master/overlay.xml
+    layman -Lk
+    layman -a go-overlay
+    emerge -av dev-go/asciinema
 
 ### Ubuntu
 
