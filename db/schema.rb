@@ -124,6 +124,7 @@ ActiveRecord::Schema.define(version: 20150510164222) do
   add_index "users", ["provider", "uid"], name: "index_users_on_provider_and_uid", unique: true, using: :btree
   add_index "users", ["username"], name: "index_users_on_username", using: :btree
 
+  Foreigner.load
   add_foreign_key "api_tokens", "users", name: "api_tokens_user_id_fk"
 
   add_foreign_key "asciicasts", "users", name: "asciicasts_user_id_fk"
