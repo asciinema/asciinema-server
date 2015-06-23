@@ -54,6 +54,12 @@ Gentoo Linux users can install asciinema from
     layman -a go-overlay
     emerge -av dev-go/asciinema
 
+### Nix / NixOS
+
+If you're using Nix package manager then we have you covered too:
+
+    nix-env -i asciinema
+
 ### Ubuntu
 
 To install Ubuntu package add
