@@ -5,7 +5,7 @@
 asciinema uses a config file to keep API token and user settings. In most cases
 the location of this file is `$HOME/.config/asciinema/config`.
 
-When you first run `asciinema`, local API token is generated and saved in the
+When you first run `asciinema`, local API token is generated (UUID) and saved in the
 file (unless the file already exists). It looks like this:
 
     [api]
@@ -32,7 +32,7 @@ the default one (asciinema.org), you can set `url` option. API URL can also be
 passed via `ASCIINEMA_API_URL` environment variable.
 
 The options in `[record]` and `[play]` sections have the same meaning as the
-options you pass to `asciinema rec`/`asciinema play` command. If you happen to
+options you pass to `asciinema rec`/`asciinema play` command (see [Usage](<%= docs_path(:usage) %>)). If you happen to
 often use either `-c`, `-w` or `-y` with these commands then consider saving it
 as a default in the config file.
 
