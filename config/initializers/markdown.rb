@@ -17,7 +17,7 @@ module MarkdownHandler
 
   def self.call(template)
     compiled_source = erb.call(template)
-    "MKD_RENDERER.render(begin;#{compiled_source};end)"
+    "MKD_RENDERER.render(begin;#{compiled_source};end).html_safe"
   end
 end
 
