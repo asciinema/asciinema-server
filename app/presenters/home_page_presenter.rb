@@ -18,10 +18,6 @@ class HomePagePresenter
     Asciicast.homepage_featured.decorate
   end
 
-  def install_script_url
-    "https://asciinema.org/install"
-  end
-
   private
 
   def get_asciicast
