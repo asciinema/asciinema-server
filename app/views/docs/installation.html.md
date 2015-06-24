@@ -22,6 +22,10 @@ MacPorts:
 
     sudo yum install asciinema
 
+### FreeBSD
+
+    cd /usr/ports/textproc/asciinema && make install
+
 ### Gentoo Linux
 
     emerge -av app-portage/layman
