@@ -12,8 +12,7 @@ Homebrew:
 
 MacPorts:
 
-    sudo port selfupdate
-    sudo port install asciinema
+    sudo port selfupdate && sudo port install asciinema
 
 ### Arch Linux
 
