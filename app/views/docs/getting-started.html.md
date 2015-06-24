@@ -8,11 +8,11 @@
 
 ## 2. Record
 
-Go to your terminal and run the following command:
+To start recording run the following command:
 
     asciinema rec
 
-New shell will be spawned and everything you do in it will get recorded.
+This spawns a new shell instance and records all terminal output.
 When you're ready to finish simply exit the shell either by typing `exit` or
 hitting <kbd>Ctrl-D</kdb>.
 
