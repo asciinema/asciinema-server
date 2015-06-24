@@ -4,7 +4,7 @@
 
 ## 1. Install the recorder
 
-<%= render partial: 'docs/script_install_and_other' %>
+<%= render partial: "docs/quick_install" %>
 
 ## 2. Record
 

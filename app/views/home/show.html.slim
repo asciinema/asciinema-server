@@ -11,7 +11,7 @@
           p
             ' &nbsp;
           p
-            button type="button" class="btn btn-success" data-toggle="popover" data-content="#{render partial: 'docs/script_install_and_other'}<p>Once installed start recording with:</p><pre>asciinema rec</pre>" Start Recording
+            button type="button" class="btn btn-success" data-toggle="popover" data-content="#{render(partial: 'docs/quick_install').gsub('"', "'")} <p>Start recording with:</p><pre>asciinema rec</pre>" Start Recording
           p
             ' Supports Linux and Mac OS X
 

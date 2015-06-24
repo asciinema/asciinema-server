@@ -8,8 +8,7 @@
 
 Homebrew:
 
-    brew update
-    brew install asciinema
+<%= render 'install_homebrew' %>
 
 MacPorts:
 
