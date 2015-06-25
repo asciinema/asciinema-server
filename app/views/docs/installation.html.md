@@ -24,7 +24,13 @@ MacPorts:
 
 ### FreeBSD
 
+Ports:
+
     cd /usr/ports/textproc/asciinema && make install
+
+Packages:
+
+    pkg install asciinema
 
 ### Gentoo Linux
 
