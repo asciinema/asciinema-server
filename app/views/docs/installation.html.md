@@ -28,11 +28,8 @@ MacPorts:
 
 ### Gentoo Linux
 
-    emerge -av app-portage/layman
-    wget -q -O /etc/layman/overlays/go-overlay.xml https://raw.github.com/Dr-Terrible/go-overlay/master/overlay.xml
-    layman -Lk
     layman -a go-overlay
-    emerge -av dev-go/asciinema
+    emerge -av asciinema
 
 ### Nix / NixOS
 
