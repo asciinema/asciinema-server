@@ -9,6 +9,16 @@ _[as-kee-nuh-muh]_.
 The word “asciinema” is a combination of English “ASCII” and Ancient Greek
 “κίνημα” (kínēma, “movement”).
 
+## Does it record the passwords I type during recording?
+
+asciinema records only terminal output - everything that you can actually see
+in a terminal window. It doesn't record input (keys pressed). Some
+applications turn off "echo mode" when asking for a password, and because
+the passwords are not visible they are not recorded. Some applications
+display star characters instead of real characters and asciinema records
+only "******". However, some applications don't have any precautions and
+the actual password is visible to the user, and thus recorded by asciinema.
+
 ## Can I embed the asciicast player on my blog?
 
 Yes, see [embedding docs](<%= docs_path(:embedding) %>).
