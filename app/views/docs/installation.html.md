@@ -64,9 +64,9 @@ for detailed instructions on building from source.
 
 ## Download static binary
 
-There are prebuilt static binaries for Mac OS X and Linux. You can
-[download](https://github.com/asciinema/asciinema/releases) one
-for your platform and place it in your `$PATH`.
+There are prebuilt static binaries for Mac OS X, Linux and FreeBSD. You can
+[download](https://github.com/asciinema/asciinema/releases) one for your
+platform and place it in your `$PATH`.
 
 You can use the following snippet to fetch and run our install script, which automates this:
 
