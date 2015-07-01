@@ -34,8 +34,7 @@ Packages:
 
 ### Gentoo Linux
 
-    layman -a go-overlay
-    emerge -av asciinema
+    layman -a go-overlay && emerge -av asciinema
 
 ### Nix / NixOS
 
