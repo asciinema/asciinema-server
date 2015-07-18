@@ -5,12 +5,12 @@ p
     Some pilots get picked and become television programs. Some don't, become
     nothing. She starred in one of the ones that became nothing.
 
-script[type="text/javascript" src=asciicast_url(@asciicast, format: 'js') id="asciicast-#{@asciicast.to_param}" async data-speed="2"]
+= embed_script @asciicast
 
 p
   ' And now again. There should be an embedded player below this paragraph.
 
-script[type="text/javascript" src=asciicast_url(@asciicast, format: 'js') id="asciicast-#{@asciicast.to_param}" async data-speed="2"]
+= embed_script @asciicast
 
 p
   ' This is at the bottom of the page, below all players.

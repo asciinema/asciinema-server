@@ -11,17 +11,17 @@
         p
           span HTML:
           br
-          input[type="text" value=page.embed_html_link data-behavior="auto-select" readonly]
+          input[type="text" value=embed_html_link(page.asciicast) data-behavior="auto-select" readonly]
         p
           span Markdown:
           br
-          input[type="text" value=page.embed_markdown_link data-behavior="auto-select" readonly]
+          input[type="text" value=embed_markdown_link(page.asciicast) data-behavior="auto-select" readonly]
 
         h2 Player
 
         p If you're embedding on your own page or on a site which permits script tags,
           you can use the full player widget:
         p
-          input[type="text" value=page.embed_script data-behavior="auto-select" readonly]
+          input[type="text" value=embed_script(page.asciicast) data-behavior="auto-select" readonly]
         p Paste the above script tag where you want the player to be displayed on your page.
         p See the #{link_to 'embedding docs', docs_path(:embedding)} for additional options.

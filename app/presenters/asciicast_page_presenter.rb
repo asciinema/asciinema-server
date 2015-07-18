@@ -52,25 +52,6 @@ class AsciicastPagePresenter
     asciicast.views_count
   end
 
-  def embed_script
-    src = routes.asciicast_url(asciicast, format: :js)
-    id = "asciicast-#{asciicast.id}"
-    %(<script type="text/javascript" src="#{src}" id="#{id}" async></script>)
-  end
-
-  def embed_html_link
-    img_src = routes.asciicast_url(asciicast, format: :png)
-    url = routes.asciicast_url(asciicast)
-    width = %{width="#{asciicast.image_width}"} if asciicast.image_width
-    %(<a href="#{url}" target="_blank"><img src="#{img_src}" #{width}/></a>)
-  end
-
-  def embed_markdown_link
-    img_src = routes.asciicast_url(asciicast, format: :png)
-    url = routes.asciicast_url(asciicast)
-    "[![asciicast](#{img_src})](#{url})"
-  end
-
   def show_admin_dropdown?
     [show_edit_link?,
      show_delete_link?,

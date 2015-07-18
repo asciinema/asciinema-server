@@ -110,21 +110,6 @@ describe AsciicastPagePresenter do
     it { should eq(5) }
   end
 
-  describe '#embed_script' do
-    subject { presenter.embed_script }
-
-    let(:asciicast) { stub_model(Asciicast, id: 123).decorate }
-    let(:src_regexp) { /src="[^"]+\b123\b[^"]*\.js"/ }
-    let(:id_regexp) { /id="asciicast-123"/ }
-    let(:script_regexp) {
-      /^<script[^>]+#{src_regexp}[^>]+#{id_regexp}[^>]*><\/script>/
-    }
-
-    it 'is an async script tag including asciicast id' do
-      expect(subject).to match(script_regexp)
-    end
-  end
-
   describe '#show_description?' do
     subject { presenter.show_description? }
 
