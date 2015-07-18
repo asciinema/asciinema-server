@@ -17,7 +17,7 @@ module AsciicastsHelper
 
   def embed_script(asciicast)
     src = asciicast_url(asciicast, format: :js)
-    id = "asciicast-#{asciicast.id}"
+    id = "asciicast-#{asciicast.to_param}"
     %(<script type="text/javascript" src="#{src}" id="#{id}" async></script>).html_safe
   end
 
