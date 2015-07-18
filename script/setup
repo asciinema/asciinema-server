@@ -22,7 +22,9 @@ if [ ! -e config/database.yml ]; then
   cp config/database.yml.example config/database.yml
 fi
 
-cd src && make && cd -
+if [ -e /usr/local/lib/libtsm.a ]; then
+  cd src && make && cd -
+fi
 
 rm -f log/*
 bundle install
