@@ -2,28 +2,30 @@
 
 set -e
 
-sudo apt-get install -y autoconf libtool pkg-config
+if sudo apt-get install -y autoconf libtool pkg-config; then
+  if [ ! -e /usr/local/lib/libtsm.a ]; then
+    echo "libtsm missing, compiling from source..."
+    DIR=$(mktemp -d -t tsmXXXXXX)
+    cd $DIR
+    git clone git://people.freedesktop.org/~dvdhrm/libtsm .
+    git checkout libtsm-3
+    test -f ./configure || NOCONFIGURE=1 ./autogen.sh
+    ./configure --prefix=/usr/local
+    make
+    sudo make install
+    sudo ldconfig
+    cd -
+  fi
 
-if [ ! -e /usr/local/lib/libtsm.a ]; then
-  echo "libtsm missing, compiling from source..."
-  DIR=$(mktemp -d -t tsmXXXXXX)
-  cd $DIR
-  git clone git://people.freedesktop.org/~dvdhrm/libtsm .
-  git checkout libtsm-3
-  test -f ./configure || NOCONFIGURE=1 ./autogen.sh
-  ./configure --prefix=/usr/local
-  make
-  sudo make install
-  sudo ldconfig
-  cd -
+  if [ -e /usr/local/lib/libtsm.a ]; then
+      cd src && make && cd -
+  fi
+else
+  echo "warning: sudo failed, not compiling libtsm and terminal binary"
 fi
 
 if [ ! -e config/database.yml ]; then
   cp config/database.yml.example config/database.yml
-fi
-
-if [ -e /usr/local/lib/libtsm.a ]; then
-  cd src && make && cd -
 fi
 
 rm -f log/*
