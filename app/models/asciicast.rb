@@ -1,6 +1,6 @@
 class Asciicast < ActiveRecord::Base
 
-  ORDER_MODES = { recency: 'created_at', popularity: 'views_count' }
+  ORDER_MODES = { date: 'created_at', popularity: 'views_count' }
 
   mount_uploader :stdin_data,    StdinDataUploader
   mount_uploader :stdin_timing,  StdinTimingUploader
@@ -24,10 +24,10 @@ class Asciicast < ActiveRecord::Base
   validates :terminal_lines, presence: true, numericality: { greater_than: 0, less_than_or_equal_to: 500 }
 
   scope :featured, -> { where(featured: true) }
-  scope :by_recency, -> { order("created_at DESC") }
+  scope :by_date, -> { order("created_at DESC") }
   scope :by_random, -> { order("RANDOM()") }
   scope :non_private, -> { where(private: false) }
-  scope :homepage_latest, -> { non_private.by_recency.limit(6).includes(:user) }
+  scope :homepage_latest, -> { non_private.by_date.limit(6).includes(:user) }
   scope :homepage_featured, -> { non_private.featured.by_random.limit(6).includes(:user) }
 
   before_create :generate_secret_token

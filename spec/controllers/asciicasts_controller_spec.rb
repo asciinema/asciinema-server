@@ -19,7 +19,7 @@ describe AsciicastsController do
 
   describe '#index' do
     before do
-      get :index, category: 'featured', order: 'recency', page: '2'
+      get :index, category: 'featured', order: 'date', page: '2'
     end
 
     it { should be_success }

@@ -1,7 +1,7 @@
 class BrowsePagePresenter
 
   DEFAULT_CATEGORY = :public
-  DEFAULT_ORDER    = :recency
+  DEFAULT_ORDER    = :date
   PER_PAGE         = 12
 
   attr_reader :scope, :category, :order, :page, :per_page

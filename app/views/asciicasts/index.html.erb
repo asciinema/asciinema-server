@@ -17,7 +17,7 @@
             <div class="sorting">
               <span>Sort by </span>
               <div class="btn-group btn-group-sm">
-                <%= link_to 'recency', "?order=recency", class: "btn btn-default #{'active' if page.order == :recency}" %>
+                <%= link_to 'date', "?order=date", class: "btn btn-default #{'active' if page.order == :date}" %>
                 <%= link_to 'popularity', "?order=popularity", class: "btn btn-default #{'active' if page.order == :popularity}" %>
               </div>
             </div>

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 require 'rails_helper'
 require 'tempfile'
 
@@ -66,8 +68,8 @@ describe Asciicast do
     context "when category is :all" do
       let(:category) { :all }
 
-      context "and order is :recency" do
-        let(:order) { :recency }
+      context "and order is :date" do
+        let(:order) { :date }
 
         it { should eq([asciicast_2, asciicast_1, asciicast_4, asciicast_3]) }
       end
@@ -82,8 +84,8 @@ describe Asciicast do
     context "when category is :featured" do
       let(:category) { :featured }
 
-      context "and order is :recency" do
-        let(:order) { :recency }
+      context "and order is :date" do
+        let(:order) { :date }
 
         it { should eq([asciicast_2, asciicast_4]) }
       end
