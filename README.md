@@ -81,6 +81,37 @@ thumbnail generation.
 $ bundle exec sidekiq
 ```
 
+## Update instructions
+
+### 1. Update the code
+```bash
+$ git pull
+```
+
+### 2. Update and install required dependencies
+```bash
+$ bundle install
+```
+
+### 3. Run the database migrations 
+```bash
+$ bundle exec rake db:migrate RAILS_ENV=development
+```
+
+### 4. Run the asciinema again
+```bash
+$ bundle exec rails server
+```
+
+### 5. Run the background job processor
+
+The background job processor is needed for asciicast pre-processing and
+thumbnail generation.
+
+```bash
+$ bundle exec sidekiq
+```
+
 ## Contributing
 
 If you want to contribute to this project check out
