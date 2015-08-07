@@ -14,6 +14,10 @@ MacPorts:
 
     sudo port selfupdate && sudo port install asciinema
 
+Nix:
+
+    nix-env -i go1.4-asciinema
+
 ### Arch Linux
 
     sudo yaourt -S asciinema
@@ -36,9 +40,9 @@ Packages:
 
     layman -a go-overlay && emerge -av asciinema
 
-### Nix / NixOS
+### NixOS / Nix
 
-    nix-env -i asciinema
+    nix-env -i go1.4-asciinema
 
 ### Ubuntu
 
