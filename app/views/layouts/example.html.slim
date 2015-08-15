@@ -1,14 +1,14 @@
 doctype html
 html[lang="en"]
-head
-  css:
-    body { margin: 20px }
-    .content {
-      background-color: #ddd;
-      padding: 20px;
-      width: #{params[:width] || 960}px;
-    }
-    p { font-family: serif; font-size: 16px }
-body
-  div.content
-    = yield
+  head
+    css:
+      body { margin: 20px }
+      .content {
+        background-color: #ddd;
+        padding: 20px;
+        width: #{params[:width] || 960}px;
+      }
+      p { font-family: serif; font-size: 16px }
+  body
+    div.content
+      = yield
