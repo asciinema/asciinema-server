@@ -37,7 +37,7 @@ module AsciicastsHelper
   private
 
   def translate_asset_paths(css)
-    css.gsub(/['"]\/assets\/(.+?)(-\w{32})?\.(.+?)['"]/) { |m|
+    css.gsub(/['"]\/assets\/(.+?)(-\w{64})?\.(.+?)['"]/) { |m|
       path = assets.find_asset("#{$1}.#{$3}").pathname
       "'#{path}'"
     }
