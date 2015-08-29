@@ -9,6 +9,37 @@ _[as-kee-nuh-muh]_.
 The word “asciinema” is a combination of English “ASCII” and Ancient Greek
 “κίνημα” (kínēma, “movement”).
 
+## Why am I getting `command not found` at the begining of the recording session?
+
+When recording asciinema starts new shell instance (as indicated by `$SHELL`
+environment variable) by default. It invokes `exec $SHELL`, which in most
+cases translates to `exec /bin/bash` or `exec /bin/zsh`. This means the shell
+runs as an "interactive shell", but **not as a "login shell"**.
+
+If you have functions and/or other shell configuration defined in either
+`.bash_profile`, `.zprofile` or `.profile` file they are not loaded unless the
+shell is started as a login shell.
+
+Some terminal emulators do that (passing "-l" option to the shell command-line),
+some don't. asciinema doesn't.
+
+Worry not, you have several options. You can:
+
+* move this part of configuration to `.bashrc/.zshrc`,
+* record with `asciinema rec -c "/bin/bash -l"` or,
+* add the following setting to your `$HOME/.config/asciinema/config` file:
+
+        [record]
+        command="/bin/bash -l"
+
+## Why my shell prompt/theme isn't working during recording?
+
+See above.
+
+## Why some of my custom shell functions are not available during recording?
+
+See above.
+
 ## Does it record the passwords I type during recording?
 
 asciinema records only terminal output - everything that you can actually see
