@@ -20,7 +20,7 @@ Nix:
 
 ### Arch Linux
 
-    sudo yaourt -S asciinema
+    yaourt -S asciinema
 
 ### Fedora
 
