@@ -18,6 +18,8 @@ class OembedController < ApplicationController
     else
       head :bad_request
     end
+  rescue URI::InvalidURIError
+    head :bad_request
   end
 
   private
