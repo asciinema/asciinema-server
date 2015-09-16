@@ -2,4 +2,4 @@
   .row
     - slice.each do |asciicast|
       div class="col-md-#{12/per_row}"
-        = render 'asciicasts/preview', asciicast: asciicast
+        = render 'asciicasts/preview', asciicast: asciicast, no_created_at: local_assigns[:no_created_at]

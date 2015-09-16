@@ -16,4 +16,4 @@
           = render 'asciicasts/featured_label'
         span.duration = asciicast.formatted_duration
       span.author-avatar = asciicast.author_img_link
-      small by #{asciicast.author_link} #{time_ago_tag asciicast.created_at}
+      small by #{asciicast.author_link} #{time_ago_tag asciicast.created_at unless no_created_at}

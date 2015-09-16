@@ -64,7 +64,7 @@
         .col-md-12
           h1 Featured asciicasts
           .asciicast-list
-            = render 'asciicasts/previews', asciicasts: page.featured_asciicasts, per_row: 3
+            = render 'asciicasts/previews', asciicasts: page.featured_asciicasts, per_row: 3, no_created_at: true
           p
             a href=category_path(:featured) class="btn btn-success" Browse featured asciicasts
       .row
