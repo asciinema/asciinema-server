@@ -1,6 +1,7 @@
 - content_for(:title, page.title)
 - content_for(:head) do
   = render 'discovery_tags', page: page
+  = render 'alternate_links', page: page
 
 .asciicast-page
   = render 'embed', page: page
