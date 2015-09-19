@@ -22,6 +22,10 @@ Nix:
 
     yaourt -S asciinema
 
+### Debian
+
+    sudo apt-get install asciinema
+
 ### Fedora
 
     sudo yum install asciinema
