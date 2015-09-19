@@ -1,11 +1,8 @@
-//= require rAF
-//= require react-0.10.0
 //= require asciinema-player
-//= require screenfull
 
 function tryCreatePlayer(parentNode, asciicast, options) {
   function createPlayer() {
-    asciinema.CreatePlayer(
+    asciinema_player.core.CreatePlayer(
       parentNode,
       asciicast.width, asciicast.height,
       asciicast.stdout_frames_url,
