@@ -1,12 +1,13 @@
 class Theme < Struct.new(:name, :label)
 
   AVAILABLE = {
+    'seti' => 'Seti',
     'tango' => 'Tango',
     'solarized-dark' => 'Solarized Dark',
     'solarized-light' => 'Solarized Light',
   }
 
-  DEFAULT = 'tango'
+  DEFAULT = 'seti'
 
   def self.default
     new(DEFAULT, AVAILABLE[DEFAULT])

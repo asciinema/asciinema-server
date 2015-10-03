@@ -84,9 +84,10 @@ For example, to make the font big use the following script:
 #### theme
 
 The `theme` option allows overriding a theme used for the terminal.
-It defaults to a theme set by the asciicast author (or to "tango" if not set
-by the author).  There are 3 available themes:
+It defaults to a theme set by the asciicast author (or to "seti" if not set
+by the author). There are 4 themes available:
 
+* seti
 * tango
 * solarized-dark
 * solarized-light

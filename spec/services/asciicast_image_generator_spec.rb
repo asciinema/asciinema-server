@@ -6,7 +6,7 @@ describe AsciicastImageGenerator, needs_phantomjs_2_bin: true do
   let(:template_renderer) { ApplicationController.new }
 
   describe '#generate' do
-    let(:asciicast) { create(:asciicast) }
+    let(:asciicast) { create(:asciicast, theme_name: 'tango') }
 
     def rgb(color)
       [ChunkyPNG::Color.r(color), ChunkyPNG::Color.g(color), ChunkyPNG::Color.b(color)]
