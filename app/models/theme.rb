@@ -1,6 +1,7 @@
 class Theme < Struct.new(:name, :label)
 
   AVAILABLE = {
+    'seti' => 'Seti',
     'tango' => 'Tango',
     'solarized-dark' => 'Solarized Dark',
     'solarized-light' => 'Solarized Light',

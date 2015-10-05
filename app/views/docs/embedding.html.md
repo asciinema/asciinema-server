@@ -87,6 +87,7 @@ The `theme` option allows overriding a theme used for the terminal.
 It defaults to a theme set by the asciicast author (or to "tango" if not set
 by the author).  There are 3 available themes:
 
+* seti
 * tango
 * solarized-dark
 * solarized-light
