@@ -3,6 +3,32 @@
   text-align: center;
   outline: none;
 }
+.asciinema-player-wrapper .title-bar {
+  top: -78px;
+  transition: top 0.15s linear;
+  position: absolute;
+  left: 0;
+  right: 0;
+  box-sizing: content-box;
+  font-size: 20px;
+  line-height: 1em;
+  padding: 15px;
+  font-family: sans-serif;
+  color: white;
+  background-color: rgba(0, 0, 0, 0.8);
+}
+.asciinema-player-wrapper .title-bar img {
+  vertical-align: middle;
+  height: 48px;
+  margin-right: 16px;
+}
+.asciinema-player-wrapper .title-bar a {
+  color: white;
+  text-decoration: underline;
+}
+.asciinema-player-wrapper .title-bar a:hover {
+  text-decoration: none;
+}
 .asciinema-player-wrapper:fullscreen {
   background-color: #000;
   width: 100%;
@@ -17,6 +43,9 @@
 }
 .asciinema-player-wrapper:fullscreen .asciinema-player {
   position: static;
+}
+.asciinema-player-wrapper:fullscreen.hud .title-bar {
+  top: 0;
 }
 .asciinema-player-wrapper:-webkit-full-screen {
   background-color: #000;
@@ -33,6 +62,9 @@
 .asciinema-player-wrapper:-webkit-full-screen .asciinema-player {
   position: static;
 }
+.asciinema-player-wrapper:-webkit-full-screen.hud .title-bar {
+  top: 0;
+}
 .asciinema-player-wrapper:-moz-full-screen {
   background-color: #000;
   width: 100%;
@@ -48,6 +80,9 @@
 .asciinema-player-wrapper:-moz-full-screen .asciinema-player {
   position: static;
 }
+.asciinema-player-wrapper:-moz-full-screen.hud .title-bar {
+  top: 0;
+}
 .asciinema-player-wrapper:-ms-fullscreen {
   background-color: #000;
   width: 100%;
@@ -62,6 +97,9 @@
 }
 .asciinema-player-wrapper:-ms-fullscreen .asciinema-player {
   position: static;
+}
+.asciinema-player-wrapper:-ms-fullscreen.hud .title-bar {
+  top: 0;
 }
 .asciinema-player-wrapper .asciinema-player {
   text-align: left;
@@ -290,8 +328,12 @@
 }
 .asciinema-player-wrapper:fullscreen .control-bar {
   position: absolute;
-  bottom: 0;
+  bottom: -35px;
   left: 0;
+  transition: bottom 0.15s linear;
+}
+.asciinema-player-wrapper:fullscreen.hud .control-bar {
+  bottom: 0px;
 }
 .asciinema-player-wrapper:-webkit-full-screen .fullscreen-button svg:first-child {
   display: none;
@@ -301,8 +343,12 @@
 }
 .asciinema-player-wrapper:-webkit-full-screen .control-bar {
   position: absolute;
-  bottom: 0;
+  bottom: -35px;
   left: 0;
+  transition: bottom 0.15s linear;
+}
+.asciinema-player-wrapper:-webkit-full-screen.hud .control-bar {
+  bottom: 0px;
 }
 .asciinema-player-wrapper:-moz-full-screen .fullscreen-button svg:first-child {
   display: none;
@@ -312,8 +358,12 @@
 }
 .asciinema-player-wrapper:-moz-full-screen .control-bar {
   position: absolute;
-  bottom: 0;
+  bottom: -35px;
   left: 0;
+  transition: bottom 0.15s linear;
+}
+.asciinema-player-wrapper:-moz-full-screen.hud .control-bar {
+  bottom: 0px;
 }
 .asciinema-player-wrapper:-ms-fullscreen .fullscreen-button svg:first-child {
   display: none;
@@ -323,8 +373,12 @@
 }
 .asciinema-player-wrapper:-ms-fullscreen .control-bar {
   position: absolute;
-  bottom: 0;
+  bottom: -35px;
   left: 0;
+  transition: bottom 0.15s linear;
+}
+.asciinema-player-wrapper:-ms-fullscreen.hud .control-bar {
+  bottom: 0px;
 }
 .asciinema-player .loading {
   z-index: 10;
