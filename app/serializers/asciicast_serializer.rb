@@ -13,4 +13,20 @@ class AsciicastSerializer < ActiveModel::Serializer
     object.private?
   end
 
+  def title
+    object.title
+  end
+
+  def author_display_name
+    object.user.display_name
+  end
+
+  def author_url
+    object.user.url
+  end
+
+  def author_avatar_url
+    object.user.avatar_url(object.user)
+  end
+
 end

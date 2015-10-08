@@ -13,7 +13,11 @@ function tryCreatePlayer(parentNode, asciicast, options) {
         autoPlay: options.autoPlay,
         loop: options.loop,
         fontSize: options.fontSize,
-        theme: options.theme
+        theme: options.theme,
+        title: options.title,
+        author: options.author,
+        authorURL: options.authorURL,
+        authorImgURL: options.authorImgURL
       }
     );
   }

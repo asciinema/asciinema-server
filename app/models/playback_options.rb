@@ -9,4 +9,14 @@ class PlaybackOptions
   attribute :benchmark, Boolean, default: false
   attribute :theme,     String,  default: Theme::DEFAULT
 
+  def as_json(*)
+    {
+      speed: speed,
+      autoPlay: autoplay,
+      loop: loop,
+      fontSize: size,
+      theme: theme
+    }
+  end
+
 end

@@ -21,13 +21,12 @@
     tryCreatePlayer(
       $('.player')[0],
       <%= asciicast.to_json.gsub('</', '<\/').html_safe %>,
-      {
-        speed: <%= options.speed %>,
-        autoPlay: <%= options.autoplay %>,
-        loop: <%= options.loop %>,
-        fontSize: '<%= options.size %>',
-        theme: '<%= h options.theme %>'
-      }
+      <%= options.as_json.merge(skip_titlebar ? {} : {
+        title: asciicast.title,
+        author: asciicast.author_display_name,
+        authorURL: asciicast.author_url,
+        authorImgURL: asciicast.author_avatar_url
+      }).to_json.gsub('</', '<\/').html_safe %>
     );
   });
 </script>

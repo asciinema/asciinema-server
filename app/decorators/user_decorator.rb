@@ -29,6 +29,10 @@ class UserDecorator < ApplicationDecorator
     model.theme || Theme.default
   end
 
+  def url
+    h.profile_path(model)
+  end
+
   private
 
   def wrap_with_link(html)
