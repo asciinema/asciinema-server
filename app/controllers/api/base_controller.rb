@@ -4,6 +4,7 @@ module Api
   class BaseController < ActionController::Base
 
     include WardenAuthentication
+    include RouteHelper
 
     private
 
