@@ -11,7 +11,7 @@ module Asciinema
       expect(page).to have_link('Getting started')
       expect(page).to have_link('Installation')
       expect(page).to have_link('Usage')
-      expect(page).to have_link('Embedding')
+      expect(page).to have_link('Sharing & embedding')
       expect(page).to have_link('FAQ')
     end
 

@@ -1,22 +1,37 @@
-<% content_for(:title, 'Embedding') %>
+<% content_for(:title, 'Sharing & embedding') %>
 
-# Embedding
+# Sharing & embedding
 
-An asciicast can be easily embedded on any HTML page. If you want to put a
+You can share any recording by copying its URL and sending it to a friend or
+posting it on a social network. asciinema.org supports oEmbed/Open Graph/Twitter
+Card protocols, displaying a nice thumbnail where possible.
+
+You can also easily embedded an asciicast on any HTML page. If you want to put a
 recording in a blog post, project's documentation or in a conference talk
-slides, you can do it by copy-pasting one of the the embed scripts. In
-addition, you can share it on your favorite social network thanks to
-oEmbed/Open Graph/Twitter Card support.
+slides, you can do it by copy-pasting one of the the embed scripts.
 
-## Image link
+## Sharing a link
+
+You can get the share link for a specific asciicast by clicking on "Share" link
+on asciicast page.
+
+Any of the options listed in "Customizing the playback" section below can be
+appended to the asciicast URL as the query params, e.g.:
+
+    https://asciinema.org/a/14?t=25&speed=2&theme=solarized-dark
+
+Visiting this link will start the playback at 25s and play at double speed,
+using Solarized Dark terminal theme.
+
+## Embedding image link
 
 Embedding as an image link is useful in places where scripts are not allowed,
 e.g. in a project's README file.
 
-You can get the embed snippets for a specific asciicast by clicking on "Embed"
+You can get the embed snippets for a specific asciicast by clicking on "Share"
 link on asciicast page.
 
-See the example below for asciicast 14.
+This is how they look for asciicast 14:
 
 HTML:
 
@@ -26,15 +41,22 @@ Markdown:
 
     [![asciicast](https://asciinema.org/a/14.png)](https://asciinema.org/a/14)
 
-To start the playback automatically after opening linked asciicast page append
-`?autoplay=1` to asciicast URL:
+You can pass extra options (listed in "Customizing the playback" below) to the
+linked URL as query params. For example, to start the playback automatically
+when opening linked asciicast page append `?autoplay=1` to the asciicast URL in
+`href` attribute:
 
     <a href="https://asciinema.org/a/14?autoplay=1"><img src="https://asciinema.org/a/14.png" width="836"/></a>
 
-## Player
+## Embedding the player
 
-If you're embedding on your own page or on a site which permits script tags,
-you can use the full player widget:
+If you're embedding on your own page or on a site which permits script tags, you
+can use the full player widget.
+
+You can get the widget script for a specific asciicast by clicking on "Embed"
+link on asciicast page.
+
+It looks like this:
 
     <script type="text/javascript" src="https://asciinema.org/a/14.js" id="asciicast-14" async></script>
 
@@ -48,27 +70,55 @@ at the following markup:
 The player is displayed between the two paragraphs, as a `div` element with
 "asciicast" class.
 
-You can get the player widget script for a specific asciicast by clicking on
-"Embed" link on asciicast page.
+The embed script supports all customization options (see the section below). An
+option can be specified by adding it as a
+<code>data-<em>option-name</em>="<em>value</em>"</code> attribute to the script
+tag.
 
-### Customizing the player
+For example, to make the embedded player auto start playback when loaded and use
+big font, use the following script:
 
-The embed script supports several customization options. An option can be
-applied by adding it as a
-<code>data-<em>option-name</em>="<em>option-value</em>"</code> attribute to
-the script tag.
+    <script type="text/javascript" src="https://asciinema.org/a/14.js" id="asciicast-14" async data-autoplay="true" data-size="big"></script>
 
-#### speed
+## Customizing the playback
+
+The player supports several options that control the behavior and look of it.
+Append them to the URL (`?speed=2&theme=tango`) or set them as data attributes
+on embed script (`data-speed="2" data-theme="tango"`).
+
+### t
+
+The `t` option specifies the time at which the playback should start. The
+default is `t=0` (play from the beginning).
+
+Accepted formats: `ss`, `mm:ss`, `hh:mm:ss`.
+
+NOTE: when `t` is specified then `autoplay=1` is implied. To prevent the player
+from starting automatically when `t` option is set you have to explicitly set
+`autoplay=0`.
+
+### autoplay
+
+The `autoplay` option controls whether the playback should automatically start
+when the player loads. Accepted values:
+
+* 0 / false - do not start playback automatically (default)
+* 1 / true - start playback automatically
+
+### loop
+
+The `loop` option allows for looping the playback. This option is usually
+combined with `autoplay` option. Accepted values:
+
+* 0 / false - disable looping (default)
+* 1 / true - enable looping
+
+### speed
 
 The `speed` option alters the playback speed. The default speed is 1 which
 means it plays at the unaltered, original speed.
 
-For example, to make the playback 2 times faster than original use the
-following script:
-
-    <script type="text/javascript" src="https://asciinema.org/a/14.js" id="asciicast-14" async data-speed="2"></script>
-
-#### size
+### size
 
 The `size` option alters the size of the terminal font. There are 3 available
 sizes:
@@ -77,48 +127,16 @@ sizes:
 * medium
 * big
 
-For example, to make the font big use the following script:
+### theme
 
-    <script type="text/javascript" src="https://asciinema.org/a/14.js" id="asciicast-14" async data-size="big"></script>
-
-#### theme
-
-The `theme` option allows overriding a theme used for the terminal.
-It defaults to a theme set by the asciicast author (or to "tango" if not set
-by the author).  There are 3 available themes:
+The `theme` option allows overriding a theme used for the terminal. It defaults
+to a theme set by the asciicast author (or to "tango" if not set by the author).
+There are 4 available themes:
 
 * seti
 * tango
 * solarized-dark
 * solarized-light
-
-For example, to use Solarized Dark theme use the following script:
-
-    <script type="text/javascript" src="https://asciinema.org/a/14.js" id="asciicast-14" async data-theme="solarized-dark"></script>
-
-#### autoplay
-
-The `autoplay` option allows for automatic playback start when the player
-loads. Accepted values:
-
-* 0 / false - do not start playback automatically (default)
-* 1 / true - start playback automatically
-
-For example, to make the asciicast auto play use the following script:
-
-    <script type="text/javascript" src="https://asciinema.org/a/14.js" id="asciicast-14" async data-autoplay="true"></script>
-
-#### loop
-
-The `loop` option allows for looping the playback. This option is usually
-combined with `autoplay` option. Accepted values:
-
-* 0 / false - disable looping (default)
-* 1 / true - enable looping
-
-For example, to make the asciicast play infinitely use the following script:
-
-    <script type="text/javascript" src="https://asciinema.org/a/14.js" id="asciicast-14" async data-loop="true"></script>
 
 ## oEmbed / Open Graph / Twitter Card
 
