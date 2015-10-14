@@ -4,7 +4,7 @@
   = render 'alternate_links', page: page
 
 .asciicast-page
-  = render 'embed', page: page
+  = render 'share', page: page
 
   section.cinema
     .container
@@ -13,7 +13,7 @@
   section.even.info
     .container
       .row
-        .col-md-8.col-xs-8
+        .col-md-12.col-xs-12
           span.author-avatar = page.author_img_link
           h2
             = page.asciicast_title
@@ -22,9 +22,6 @@
             - if page.show_featured_label?
               = render 'featured_label'
           small by #{page.author_link} #{time_ago_tag page.asciicast_created_at}
-
-        .col-md-4.col-xs-4.text-right
-          = render 'shared/add_this', title: page.asciicast_title, url: asciicast_url(page.asciicast)
 
   section.odd.meta
     .container
@@ -79,9 +76,9 @@
 
           ul.meta-list.actions-list
             li
-              span.glyphicon.glyphicon-link
+              span.glyphicon.glyphicon-share-alt
               ' 
-              a href="#" id="embed-link" data-toggle="modal" data-target="#embed-modal" Embed
+              a href="#" id="share-link" data-toggle="modal" data-target="#share-modal" Share
 
   - if page.show_description?
     section.odd.description

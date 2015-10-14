@@ -11,7 +11,7 @@ feature "Asciicast page", :js => true do
 
     expect(page).to have_content('the title')
     expect(page).to have_link('aaron')
-    expect(page).to have_link('Embed')
+    expect(page).to have_link('Share')
     expect(page).to have_selector('.cinema .play-button')
   end
 
@@ -22,7 +22,7 @@ feature "Asciicast page", :js => true do
 
     expect(page).to have_content('the title')
     expect(page).to have_link('aaron')
-    expect(page).to have_link('Embed')
+    expect(page).to have_link('Share')
     expect(page).to have_selector('.cinema .play-button')
   end
 
