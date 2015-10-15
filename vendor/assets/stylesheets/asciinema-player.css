@@ -2395,3 +2395,121 @@
 .asciinema-theme-seti .fg-15 {
   font-weight: bold;
 }
+/* Based on Monokai from base16 collection - https://github.com/chriskempson/base16 */
+.asciinema-theme-monokai .asciinema-terminal {
+  color: #f8f8f2;
+  background-color: #272822;
+  border-color: #272822;
+}
+.asciinema-theme-monokai .fg-bg {
+  color: #272822;
+}
+.asciinema-theme-monokai .bg-fg {
+  background-color: #f8f8f2;
+}
+.asciinema-theme-monokai .fg-0 {
+  color: #272822;
+}
+.asciinema-theme-monokai .bg-0 {
+  background-color: #272822;
+}
+.asciinema-theme-monokai .fg-1 {
+  color: #f92672;
+}
+.asciinema-theme-monokai .bg-1 {
+  background-color: #f92672;
+}
+.asciinema-theme-monokai .fg-2 {
+  color: #a6e22e;
+}
+.asciinema-theme-monokai .bg-2 {
+  background-color: #a6e22e;
+}
+.asciinema-theme-monokai .fg-3 {
+  color: #f4bf75;
+}
+.asciinema-theme-monokai .bg-3 {
+  background-color: #f4bf75;
+}
+.asciinema-theme-monokai .fg-4 {
+  color: #66d9ef;
+}
+.asciinema-theme-monokai .bg-4 {
+  background-color: #66d9ef;
+}
+.asciinema-theme-monokai .fg-5 {
+  color: #ae81ff;
+}
+.asciinema-theme-monokai .bg-5 {
+  background-color: #ae81ff;
+}
+.asciinema-theme-monokai .fg-6 {
+  color: #a1efe4;
+}
+.asciinema-theme-monokai .bg-6 {
+  background-color: #a1efe4;
+}
+.asciinema-theme-monokai .fg-7 {
+  color: #f8f8f2;
+}
+.asciinema-theme-monokai .bg-7 {
+  background-color: #f8f8f2;
+}
+.asciinema-theme-monokai .fg-8 {
+  color: #75715e;
+}
+.asciinema-theme-monokai .bg-8 {
+  background-color: #75715e;
+}
+.asciinema-theme-monokai .fg-9 {
+  color: #f92672;
+}
+.asciinema-theme-monokai .bg-9 {
+  background-color: #f92672;
+}
+.asciinema-theme-monokai .fg-10 {
+  color: #a6e22e;
+}
+.asciinema-theme-monokai .bg-10 {
+  background-color: #a6e22e;
+}
+.asciinema-theme-monokai .fg-11 {
+  color: #f4bf75;
+}
+.asciinema-theme-monokai .bg-11 {
+  background-color: #f4bf75;
+}
+.asciinema-theme-monokai .fg-12 {
+  color: #66d9ef;
+}
+.asciinema-theme-monokai .bg-12 {
+  background-color: #66d9ef;
+}
+.asciinema-theme-monokai .fg-13 {
+  color: #ae81ff;
+}
+.asciinema-theme-monokai .bg-13 {
+  background-color: #ae81ff;
+}
+.asciinema-theme-monokai .fg-14 {
+  color: #a1efe4;
+}
+.asciinema-theme-monokai .bg-14 {
+  background-color: #a1efe4;
+}
+.asciinema-theme-monokai .fg-15 {
+  color: #f9f8f5;
+}
+.asciinema-theme-monokai .bg-15 {
+  background-color: #f9f8f5;
+}
+.asciinema-theme-monokai .fg-8,
+.asciinema-theme-monokai .fg-9,
+.asciinema-theme-monokai .fg-10,
+.asciinema-theme-monokai .fg-11,
+.asciinema-theme-monokai .fg-12,
+.asciinema-theme-monokai .fg-13,
+.asciinema-theme-monokai .fg-14,
+.asciinema-theme-monokai .fg-15 {
+  font-weight: bold;
+}
