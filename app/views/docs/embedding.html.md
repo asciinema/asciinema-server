@@ -130,13 +130,14 @@ sizes:
 ### theme
 
 The `theme` option allows overriding a theme used for the terminal. It defaults
-to a theme set by the asciicast author (or to "tango" if not set by the author).
-There are 4 available themes:
+to a theme set by the asciicast author (or to "asciinema" if not set by the
+author). The available themes are:
 
-* seti
+* asciinema
 * tango
 * solarized-dark
 * solarized-light
+* monokai
 
 ## oEmbed / Open Graph / Twitter Card
 
