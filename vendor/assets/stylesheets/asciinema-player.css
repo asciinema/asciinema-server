@@ -1947,8 +1947,6 @@
 .asciinema-terminal .bg-255 {
   background-color: #eeeeee;
 }
-/* Based on Monokai from base16 collection - https://github.com/chriskempson/base16 */
-/* hue, saturation, lightness */
 .asciinema-theme-asciinema .asciinema-terminal {
   color: #cccccc;
   background-color: #121314;
@@ -2015,40 +2013,40 @@
   background-color: #4d4d4d;
 }
 .asciinema-theme-asciinema .fg-9 {
-  color: #e0527a;
+  color: #dd3c69;
 }
 .asciinema-theme-asciinema .bg-9 {
-  background-color: #e0527a;
+  background-color: #dd3c69;
 }
 .asciinema-theme-asciinema .fg-10 {
-  color: #55d025;
+  color: #4ebf22;
 }
 .asciinema-theme-asciinema .bg-10 {
-  background-color: #55d025;
+  background-color: #4ebf22;
 }
 .asciinema-theme-asciinema .fg-11 {
-  color: #e0b852;
+  color: #ddaf3c;
 }
 .asciinema-theme-asciinema .bg-11 {
-  background-color: #e0b852;
+  background-color: #ddaf3c;
 }
 .asciinema-theme-asciinema .fg-12 {
-  color: #6c8ee5;
+  color: #547ce1;
 }
 .asciinema-theme-asciinema .bg-12 {
-  background-color: #6c8ee5;
+  background-color: #547ce1;
 }
 .asciinema-theme-asciinema .fg-13 {
-  color: #b852e0;
+  color: #af3cdd;
 }
 .asciinema-theme-asciinema .bg-13 {
-  background-color: #b852e0;
+  background-color: #af3cdd;
 }
 .asciinema-theme-asciinema .fg-14 {
-  color: #38dcad;
+  color: #26d7a5;
 }
 .asciinema-theme-asciinema .bg-14 {
-  background-color: #38dcad;
+  background-color: #26d7a5;
 }
 .asciinema-theme-asciinema .fg-15 {
   color: #ffffff;
