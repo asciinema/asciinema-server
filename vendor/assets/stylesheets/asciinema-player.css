@@ -4,6 +4,7 @@
   outline: none;
 }
 .asciinema-player-wrapper .title-bar {
+  display: none;
   top: -78px;
   transition: top 0.15s linear;
   position: absolute;
@@ -44,6 +45,9 @@
 .asciinema-player-wrapper:fullscreen .asciinema-player {
   position: static;
 }
+.asciinema-player-wrapper:fullscreen .title-bar {
+  display: initial;
+}
 .asciinema-player-wrapper:fullscreen.hud .title-bar {
   top: 0;
 }
@@ -61,6 +65,9 @@
 }
 .asciinema-player-wrapper:-webkit-full-screen .asciinema-player {
   position: static;
+}
+.asciinema-player-wrapper:-webkit-full-screen .title-bar {
+  display: initial;
 }
 .asciinema-player-wrapper:-webkit-full-screen.hud .title-bar {
   top: 0;
@@ -80,6 +87,9 @@
 .asciinema-player-wrapper:-moz-full-screen .asciinema-player {
   position: static;
 }
+.asciinema-player-wrapper:-moz-full-screen .title-bar {
+  display: initial;
+}
 .asciinema-player-wrapper:-moz-full-screen.hud .title-bar {
   top: 0;
 }
@@ -97,6 +107,9 @@
 }
 .asciinema-player-wrapper:-ms-fullscreen .asciinema-player {
   position: static;
+}
+.asciinema-player-wrapper:-ms-fullscreen .title-bar {
+  display: initial;
 }
 .asciinema-player-wrapper:-ms-fullscreen.hud .title-bar {
   top: 0;
