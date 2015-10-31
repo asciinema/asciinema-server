@@ -13,7 +13,24 @@ This is the source code of asciinema.org website. If you're looking for
 asciinema's terminal recorder go here:
 [asciinema/asciinema](https://github.com/asciinema/asciinema)
 
-## Setup instructions
+## Using Docker
+
+```bash
+$ docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=mypass --name=postgres postgres
+$ docker run -d -p 6379:6379 --name=redis redis
+$ docker run --rm -e DATABASE_URL="postgresql://postgres:mypass@172.17.42.1/asciinema" foobarto/asciinema.org bundle exec rake db:setup
+# starting sidekiq using the provided start_sidekiq.rb file will also start sendmail service if you don't want to use SMTP
+# otherwise start sidekiq by starting: bundle exec sidekiq
+$ docker run -d -e DATABASE_URL="postgresql://postgres:mypass@172.17.42.1/asciinema" foobarto/asciinema.org ruby  start_sidekiq.rb
+$ docker run -d -e DATABASE_URL="postgresql://postgres:mypass@172.17.42.1/asciinema" -p 3000:3000 foobarto/asciinema.org
+```
+
+You can override the address/port that is sent in email with login token by passing HOST="host:port" environment variable when starting the web server.
+
+Assuming you are running Docker Toolbox and VirtualBox: go to http://192.168.99.100:3000/ and enjoy.
+
+
+## Manual Setup instructions
 
 Below you'll find setup instructions in case you want to contribute, play with
 it on your local machine, or setup your own instance for private use or for
