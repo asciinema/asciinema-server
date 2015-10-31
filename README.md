@@ -17,6 +17,10 @@ player at
 
 ## Setup instructions
 
+Below you'll find setup instructions in case you want to contribute, play with
+it on your local machine, or setup your own instance for private use or for
+your organization.
+
 ### Using Docker
 
 ```bash
@@ -34,10 +38,6 @@ You can override the address/port that is sent in email with login token by pass
 Assuming you are running Docker Toolbox and VirtualBox: go to http://192.168.99.100:3000/ and enjoy.
 
 ### Manual setup
-
-Below you'll find setup instructions in case you want to contribute, play with
-it on your local machine, or setup your own instance for private use or for
-your organization.
 
 #### 1. Install dependencies
 
