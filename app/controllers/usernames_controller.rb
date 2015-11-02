@@ -12,7 +12,7 @@ class UsernamesController < ApplicationController
     if @user.update(username: params[:user][:username].strip)
       redirect_to_profile(@user)
     else
-      @invalid_username = true
+      @error = @user.errors[:username].to_s =~ /taken/ ? :username_taken : :username_invalid
       render :new
     end
   end
