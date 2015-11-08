@@ -36,4 +36,4 @@ Rails.application.configure do
   # config.action_view.raise_on_missing_translations = true
 end
 
-AvatarHelper.include(AvatarHelper::GravatarURL)
+AvatarHelper.send(:include, AvatarHelper::GravatarURL)
