@@ -9,7 +9,7 @@ javascript:
     if (typeof target != "undefined" && window !== window.parent) {
       var w = $('.asciinema-player').width();
       var h = $(document).height();
-      target.postMessage(['asciicast:size', { id: '#{page.asciicast_id}', width: w, height: h }], '*');
+      target.postMessage(['asciicast:size', { width: w, height: h }], '*');
     }
 
     function onMessage(e) {

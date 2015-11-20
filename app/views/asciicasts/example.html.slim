@@ -10,7 +10,7 @@ p
 p
   ' And now again. There should be an embedded player below this paragraph.
 
-= embed_script(@asciicast).html_safe
+= embed_script(Asciicast.where('id <> ?', @asciicast.id).first || @asciicast).html_safe
 
 p
   ' This is at the bottom of the page, below all players.

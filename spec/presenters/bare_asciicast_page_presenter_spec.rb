@@ -19,13 +19,4 @@ describe BareAsciicastPagePresenter do
     end
   end
 
-  let(:presenter) { described_class.new(asciicast, nil) }
-  let(:asciicast) { stub_model(Asciicast, id: 123) }
-
-  describe '#asciicast_id' do
-    subject { presenter.asciicast_id }
-
-    it { should eq('123') }
-  end
-
 end

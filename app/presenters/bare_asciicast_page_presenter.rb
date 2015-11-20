@@ -17,8 +17,4 @@ class BareAsciicastPagePresenter
     @playback_options = playback_options
   end
 
-  def asciicast_id
-    asciicast.to_param
-  end
-
 end

@@ -70,9 +70,11 @@
 
     function receiveSize(e) {
       if (e.origin === apiHost) {
-        var event = e.data[0];
+        var name = e.data[0];
         var data  = e.data[1];
-        if (event == 'asciicast:size' && data.id == asciicastId) {
+        var iframeWindow = iframe.contentWindow || iframe;
+
+        if (e.source == iframeWindow && name == 'asciicast:size') {
           iframe.style.width  = '' + data.width + 'px';
           iframe.style.height = '' + data.height + 'px';
         }
