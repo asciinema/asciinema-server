@@ -5,22 +5,22 @@ id:
     required:
       text: 'Wajib'
       mark: '*'
-      # You can uncomment the line below if you need to overwrite the whole required html.
-      # When using html, text and mark won't be used.
+      # Anda dapat memberi tanda komentar pada baris di bawah ini jika Anda perlu untuk menimpa seluruh html yang diperlukan.
+      # Bila menggunakan html, teks dan mark tidak akan digunakan.
       # html: '<abbr title="required">*</abbr>'
     error_notification:
       default_message: "Harap tinjau masalah di bawah ini:"
-    # Labels and hints examples
+    # Label dan petunjuk contoh
     # labels:
     #   defaults:
-    #     password: 'Password'
+    #     password: 'Kata Sandi'
     #   user:
     #     new:
-    #       email: 'E-mail to sign in.'
+    #       email: 'E-mail untuk masuk.'
     #     edit:
     #       email: 'E-mail.'
     # hints:
     #   defaults:
-    #     username: 'User name to sign in.'
-    #     password: 'No special characters, please.'
+    #     username: 'Nama user untuk masuk.'
+    #     password: 'Mohon untuk tidak memasukkan karakter khusus.'
 
