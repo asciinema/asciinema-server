@@ -6,7 +6,7 @@ asciinema (formerly ascii.io) is a free and open source solution for
 recording terminal sessions and sharing them on the web.
 
 It aims to be a "go to" place for every command-line user who wants to share
-his skills with others. Or putting it differently, it's a place to show off
+their skills with others. Or putting it differently, it's a place to show off
 your geekiness.
 
 asciinema project is built of several sub-projects:
