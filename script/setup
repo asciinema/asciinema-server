@@ -7,8 +7,8 @@ if sudo apt-get install -y autoconf libtool pkg-config; then
     echo "libtsm missing, compiling from source..."
     DIR=$(mktemp -d -t tsmXXXXXX)
     cd $DIR
-    git clone git://people.freedesktop.org/~dvdhrm/libtsm .
-    git checkout libtsm-3
+    git clone https://github.com/asciinema/libtsm.git .
+    git checkout asciinema
     test -f ./configure || NOCONFIGURE=1 ./autogen.sh
     ./configure --prefix=/usr/local
     make

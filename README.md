@@ -52,8 +52,8 @@ dependencies installed:
 * PostgreSQL 8+ with libpq development headers  
   `sudo apt-get install postgresql libpq-dev` on Debian/Ubuntu
 
-* libtsm  
-  See [here](http://cgit.freedesktop.org/~dvdhrm/libtsm/tree/README) for installation instructions.
+* asciinema's libtsm fork (`asciinema` branch)  
+  See [here](https://github.com/asciinema/libtsm/blob/asciinema/README) for installation instructions.
   If you don't install it now the setup script (point 4 below) will try to
   install it for you anyway.
 
