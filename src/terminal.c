@@ -180,7 +180,6 @@ bool attr_eq(struct tsm_screen_attr *attr1, const struct tsm_screen_attr *attr2)
 
 void attr_cp(const struct tsm_screen_attr *src, struct tsm_screen_attr *dst) {
     memcpy((void *)dst, (const void *)src, sizeof(last_attr));
-
 }
 
 void close_cell() {
