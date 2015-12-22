@@ -1,12 +1,20 @@
 class AsciicastSerializer < ActiveModel::Serializer
   self.root = false
 
-  attributes :id, :duration, :stdout_frames_url, :snapshot
+  attributes :id, :url, :snapshot
   attribute :terminal_columns, key: :width
   attribute :terminal_lines, key: :height
 
   def id
     object.to_param
+  end
+
+  def url
+    if playback_options.v0
+      object.stdout_frames_url
+    else
+      object.data_url
+    end
   end
 
   def private?
@@ -27,6 +35,12 @@ class AsciicastSerializer < ActiveModel::Serializer
 
   def author_avatar_url
     object.user.avatar_url(object.user)
+  end
+
+  private
+
+  def playback_options
+    @options[:playback_options]
   end
 
 end

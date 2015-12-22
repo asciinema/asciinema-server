@@ -20,6 +20,7 @@ class PlaybackOptions
   attribute :benchmark, Boolean, default: false
   attribute :theme,     String,  default: Theme::DEFAULT
   attribute :t,         Time
+  attribute :v0,        Boolean, default: false
 
   def as_json(*)
     opts = {

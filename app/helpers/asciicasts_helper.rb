@@ -1,9 +1,10 @@
 module AsciicastsHelper
 
   def player(asciicast, options = PlaybackOptions.new, skip_titlebar = false)
-    render 'asciicasts/player', asciicast: AsciicastSerializer.new(asciicast),
-                                options:   options,
-                                skip_titlebar: skip_titlebar
+    render 'asciicasts/player',
+      asciicast: AsciicastSerializer.new(asciicast, playback_options: options),
+      options: options,
+      skip_titlebar: skip_titlebar
   end
 
   def screenshot_javascript_tag

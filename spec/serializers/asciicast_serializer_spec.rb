@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe AsciicastSerializer do
 
-  let(:serializer) { described_class.new(asciicast) }
+  let(:serializer) { AsciicastSerializer.new(asciicast, playback_options: PlaybackOptions.new) }
   let(:asciicast) { create(:asciicast) }
 
   describe '#to_json' do
@@ -12,12 +12,8 @@ describe AsciicastSerializer do
       expect(subject['id']).to eq(asciicast.to_param)
     end
 
-    it 'includes duration' do
-      expect(subject['duration']).to eq(asciicast.duration)
-    end
-
-    it 'includes stdout_frames_url' do
-      expect(subject['stdout_frames_url']).to eq(asciicast.stdout_frames_url)
+    it 'includes url' do
+      expect(subject['url']).to eq(asciicast.file_url)
     end
 
     it 'includes snapshot' do

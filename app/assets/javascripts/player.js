@@ -5,8 +5,7 @@ function tryCreatePlayer(parentNode, asciicast, options) {
     asciinema_player.core.CreatePlayer(
       parentNode,
       asciicast.width, asciicast.height,
-      asciicast.stdout_frames_url,
-      asciicast.duration,
+      asciicast.url,
       {
         snapshot: asciicast.snapshot,
         speed: options.speed,
@@ -31,7 +30,7 @@ function tryCreatePlayer(parentNode, asciicast, options) {
   }
 
   function checkReadiness() {
-    if (asciicast.stdout_frames_url) {
+    if (asciicast.url && asciicast.snapshot) {
       $('.processing-info').remove();
       createPlayer();
     } else {

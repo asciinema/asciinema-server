@@ -85,6 +85,10 @@ class Asciicast < ActiveRecord::Base
     end
   end
 
+  def data_url
+    file_url || stdout_frames_url
+  end
+
   def stdout
     return @stdout if @stdout
     @stdout = Stdout::Buffered.new(get_stdout)
