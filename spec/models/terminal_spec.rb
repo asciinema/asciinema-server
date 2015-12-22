@@ -38,8 +38,7 @@ describe Terminal, needs_terminal_bin: true do
           ['r', fg: 1, bg: 2],
           ['b', {}],
           ['az', bold: true, underline: true, inverse: true, blink: true],
-          [' ', inverse: true],  # <- cursor here
-          [' ', {}]
+          ['  ', {}]
         ],
         [
           ['      ', {}]
