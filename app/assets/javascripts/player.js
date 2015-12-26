@@ -4,9 +4,10 @@ function tryCreatePlayer(parentNode, asciicast, options) {
   function createPlayer() {
     asciinema_player.core.CreatePlayer(
       parentNode,
-      asciicast.width, asciicast.height,
       asciicast.url,
       {
+        width: asciicast.width,
+        height: asciicast.height,
         snapshot: asciicast.snapshot,
         speed: options.speed,
         autoPlay: options.autoPlay,

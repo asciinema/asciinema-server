@@ -149,6 +149,7 @@
 .asciinema-terminal .line span {
   padding: 0;
   display: inline-block;
+  overflow: hidden;
 }
 .asciinema-terminal .line {
   display: block;
