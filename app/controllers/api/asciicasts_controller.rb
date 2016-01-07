@@ -30,7 +30,7 @@ module Api
         end
 
         format.json do
-          render json: asciicast, playback_options: PlaybackOptions.new
+          render json: asciicast, v0: params[:v0]
         end
       end
     end

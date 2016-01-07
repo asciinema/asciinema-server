@@ -25,7 +25,7 @@ class PlaybackOptions
   def as_json(*)
     opts = {
       speed: speed,
-      autoPlay: autoplay,
+      autoPlay: autoplay.nil? ? !!t : autoplay,
       loop: loop,
       fontSize: size,
       theme: theme,

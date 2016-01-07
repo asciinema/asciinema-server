@@ -9,7 +9,7 @@ class BareAsciicastPagePresenter
       'theme' =>  decorated_asciicast.theme_name
     }.merge(playback_options)
 
-    new(decorated_asciicast, PlaybackOptions.new(playback_options))
+    new(decorated_asciicast, EmbedPlaybackOptions.new(playback_options))
   end
 
   def initialize(asciicast, playback_options)

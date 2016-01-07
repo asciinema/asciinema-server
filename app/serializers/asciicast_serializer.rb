@@ -10,7 +10,7 @@ class AsciicastSerializer < ActiveModel::Serializer
   end
 
   def url
-    if playback_options.v0
+    if v0_url?
       object.stdout_frames_url
     else
       object.data_url
@@ -39,8 +39,8 @@ class AsciicastSerializer < ActiveModel::Serializer
 
   private
 
-  def playback_options
-    @options[:playback_options]
+  def v0_url?
+    !!@options[:v0]
   end
 
 end
