@@ -19,4 +19,10 @@ module AvatarHelper
     end
   end
 
+  if Rails.env.test?
+    include TestAvatarURL
+  else
+    include GravatarURL
+  end
+
 end
