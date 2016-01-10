@@ -13,7 +13,7 @@ class AsciicastSerializer < ActiveModel::Serializer
     if v0_url?
       object.stdout_frames_url
     else
-      asciicast_path(object, format: :json)
+      object.data_url
     end
   end
 

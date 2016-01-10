@@ -13,7 +13,7 @@ describe AsciicastSerializer do
     end
 
     it 'includes url' do
-      expect(subject['url']).to eq("/a/#{asciicast.to_param}.json")
+      expect(subject['url']).to eq(asciicast.file_url)
     end
 
     it 'includes snapshot' do
