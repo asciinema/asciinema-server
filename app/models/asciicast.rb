@@ -85,8 +85,12 @@ class Asciicast < ActiveRecord::Base
     end
   end
 
-  def data_url
-    file_url || stdout_frames_url
+  def data_url(options = {})
+    file_url(options) || stdout_frames_url(options)
+  end
+
+  def download_filename
+    "asciicast-#{id}.json"
   end
 
   def stdout
