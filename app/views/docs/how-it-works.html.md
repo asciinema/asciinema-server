@@ -41,38 +41,32 @@ transparent capture of user input (keyboard) and terminal output (display).
 <kbd>Ctrl-A</kbd> and altering the output in order to display window
 numbers/names and other messages.
 
-asciinema recorder does its job by utilizing pseudo-terminal for capturing
-all the output that goes to a terminal and saving it in memory (together with
-timing information). The captured output includes all the text and invisible
+asciinema recorder does its job by utilizing pseudo-terminal for capturing all
+the output that goes to a terminal and saving it in memory (together with timing
+information). The captured output includes all the text and invisible
 escape/control sequences in a raw, unaltered form. When the recording session
-finishes it uploads the output to asciinema.org. That's all about "recording"
-part.
+finishes it uploads the output (in
+[asciicast format](https://github.com/asciinema/asciinema/blob/master/doc/asciicast-v1.md))
+to asciinema.org. That's all about "recording" part.
 
 For the implementation details check out [recorder source
 code](https://github.com/asciinema/asciinema).
 
 ## Playback
 
-When asciinema.org accepts the upload of the captured output it saves it in a
-file. Now, as the output is a raw, unaltered stream of text and control
+As the recording is a raw stream of text and control
 sequences it can't be just played by incrementally printing text in proper
 intervals. It requires interpretation of [ANSI escape code
 sequences](http://en.wikipedia.org/wiki/ANSI_escape_code) in order to
 correctly display color changes, cursor movement and printing text at proper
 places on the screen.
 
-Escape sequence interpretation was initially handled by asciinema's own VT100
-terminal emulation layer written in Javascript but was later replaced with
-[libtsm](http://www.freedesktop.org/wiki/Software/kmscon/libtsm/) based
-interpreter.  libtsm, "terminal-emulator state machine", is a wonderful, rock
-solid library created by David Herrmann that is meant to be used by terminal
-emulator authors and others in need of an escape sequence interpreter.
-
-asciinema.org pre-processes the captured stream with libtsm based converter and
-saves the result in a JSON file that contains simple representation of screen
-changes for each animation frame (for each line that was changed on the
-screen there is a string to be printed and color attributes for it). The
-player loads the JSON data and simply renders each change at a right time.
+The player comes with its own terminal emulator based on
+[Paul Williams' parser for ANSI-compatible video terminals](http://vt100.net/emu/dec_ansi_parser).
+It covers only the display part of the emulation as this is what the player is
+about (input is handled by your terminal+shell at the time of recording anyway)
+and its handling of escape sequences is fully compatible with most modern
+terminal emulators like xterm, Gnome Terminal, iTerm, mosh etc.
 
 The end result is a smooth animation with all text attributes (bold,
 underline, inverse, ...) and 256 colors perfectly rendered.
