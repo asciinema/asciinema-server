@@ -5,6 +5,7 @@
 
 .asciicast-page
   = render 'share', page: page
+  = render 'download', page: page
 
   section.cinema
     .container
@@ -26,7 +27,7 @@
   section.odd.meta
     .container
       .row
-        .col-md-8.col-xs-8
+        .col-md-8.col-xs-6
           ul.meta-list
             li
               span.glyphicon.glyphicon-info-sign
@@ -35,7 +36,7 @@
               span.glyphicon.glyphicon-eye-open
               '  #{page.views_count}
 
-        .col-md-4.col-xs-4
+        .col-md-4.col-xs-6
           - if page.show_admin_dropdown?
             .dropdown.actions-dropdown.pull-right
               button.btn.btn-default.dropdown-toggle[type="button" data-toggle="dropdown"]
@@ -79,6 +80,10 @@
               span.glyphicon.glyphicon-share-alt
               ' 
               a href="#" id="share-link" data-toggle="modal" data-target="#share-modal" Share
+            li
+              span.glyphicon.glyphicon-download
+              ' 
+              a href="#" id="download-link" data-toggle="modal" data-target="#download-modal" Download
 
   - if page.show_description?
     section.odd.description

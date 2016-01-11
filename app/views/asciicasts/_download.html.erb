@@ -1,0 +1,57 @@
+<div class="modal fade" id="download-modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Download this recording</h4>
+      </div>
+      <div class="modal-body">
+        <p>
+          <% if page.can_replay_in_terminal? %>
+            You can download this recording in <a href="https://github.com/asciinema/asciinema/blob/master/doc/asciicast-v1.md">asciicast format</a>, as a .json file:
+          <% else %>
+            You can download this recording as a .json file.
+          <% end %>
+        </p>
+
+        <a href="<%= asciicast_url(format: :json, dl: 1) %>" class="btn btn-primary" download="<%= page.asciicast_download_filename %>" rel="nofollow">Download</a>
+
+        <% if page.can_replay_in_terminal? %>
+          <h2>Replay in terminal</h2>
+          <p>
+            You can replay this recording in your terminal with <code>asciinema play</code> command:
+          </p>
+
+          <pre><code>asciinema play <%= page.asciicast_download_filename %></code></pre>
+
+          <p>
+            If you don't have asciinema cli installed then <a href="https://asciinema.org/docs/installation">see installation instructions</a>.
+          </p>
+
+          <hr>
+        <% end %>
+
+        <h2>Use with stand-alone player on your website</h2>
+
+        <p>
+          Download asciinema player from <a href="https://github.com/asciinema/asciinema-player/releases">player's releases page</a> (you only need <code>.js</code> and <code>.css</code> file), then use it as seen on the following example:
+        </p>
+
+        <pre><code>&lt;html>
+&lt;head>
+  &lt;link rel="stylesheet" type="text/css" href="/asciinema-player.css" />
+  &lt;script src="/asciinema-player.js">&lt;/script>
+&lt;/head>
+&lt;body>
+  &lt;div id="player-container">&lt;/div>
+  &lt;script>
+    asciinema_player.core.CreatePlayer('player-container', '/<%= page.asciicast_download_filename %>');
+  &lt;/script>
+&lt;/body>
+&lt;/html></code></pre>
+
+        <p>See <a href="https://github.com/asciinema/asciinema-player">asciinema player README</a> for full usage instructions.</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -4,6 +4,8 @@ class AsciicastPagePresenter
 
   attr_reader :routes, :asciicast, :current_user, :policy, :playback_options
 
+  delegate :download_filename, to: :asciicast, prefix: true
+
   def self.build(routes, asciicast, current_user, playback_options)
     decorated_asciicast = asciicast.decorate
     policy = Pundit.policy(current_user, asciicast)
@@ -113,6 +115,10 @@ class AsciicastPagePresenter
 
   def show_featured_label?
     asciicast.featured?
+  end
+
+  def can_replay_in_terminal?
+    asciicast.version > 0
   end
 
   private
