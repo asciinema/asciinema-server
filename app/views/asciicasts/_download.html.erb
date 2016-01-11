@@ -45,7 +45,7 @@
 &lt;body>
   &lt;div id="player-container">&lt;/div>
   &lt;script>
-    asciinema_player.core.CreatePlayer('player-container', '/<%= page.asciicast_download_filename %>');
+    asciinema_player.core.CreatePlayer('player-container', '/<%= page.asciicast_download_filename %>', { width: <%= page.asciicast_width %>, height: <%= page.asciicast_height %> });
   &lt;/script>
 &lt;/body>
 &lt;/html></code></pre>

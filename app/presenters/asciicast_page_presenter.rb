@@ -4,7 +4,7 @@ class AsciicastPagePresenter
 
   attr_reader :routes, :asciicast, :current_user, :policy, :playback_options
 
-  delegate :download_filename, to: :asciicast, prefix: true
+  delegate :download_filename, :width, :height, to: :asciicast, prefix: true
 
   def self.build(routes, asciicast, current_user, playback_options)
     decorated_asciicast = asciicast.decorate

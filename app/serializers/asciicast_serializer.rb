@@ -1,9 +1,7 @@
 class AsciicastSerializer < ActiveModel::Serializer
   self.root = false
 
-  attributes :id, :url, :snapshot
-  attribute :terminal_columns, key: :width
-  attribute :terminal_lines, key: :height
+  attributes :id, :url, :snapshot, :width, :height
 
   def id
     object.to_param

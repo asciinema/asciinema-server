@@ -65,6 +65,14 @@ class Asciicast < ActiveRecord::Base
     collection
   end
 
+  def width
+    terminal_columns
+  end
+
+  def height
+    terminal_lines
+  end
+
   def title=(value)
     value ? super(value.strip[0...255]) : super
   end
