@@ -2,7 +2,7 @@ module AsciicastsHelper
 
   def player(asciicast, options = PlaybackOptions.new, skip_titlebar = false)
     render 'asciicasts/player',
-      asciicast: AsciicastSerializer.new(asciicast, playback_options: options),
+      asciicast: AsciicastSerializer.new(asciicast, v0: options.v0),
       options: options,
       skip_titlebar: skip_titlebar
   end
