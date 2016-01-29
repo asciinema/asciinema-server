@@ -3,11 +3,11 @@ module WardenAuthentication
   private
 
   def ensure_authenticated!
-    warden.authenticate!(scope: warden_scope) unless warden.authenticated?(warden_scope)
+    warden.authenticate!(*warden_strategies, scope: warden_scope) unless warden.authenticated?(warden_scope)
   end
 
   def current_user
-    warden.authenticate(scope: warden_scope) unless warden.authenticated?(warden_scope)
+    warden.authenticate(*warden_strategies, scope: warden_scope) unless warden.authenticated?(warden_scope)
     warden.user(warden_scope)
   end
 

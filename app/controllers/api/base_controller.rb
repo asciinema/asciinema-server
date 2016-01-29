@@ -12,5 +12,9 @@ module Api
       :api
     end
 
+    def warden_strategies
+      [:api_token]
+    end
+
   end
 end

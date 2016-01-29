@@ -23,6 +23,10 @@ class ApplicationController < ActionController::Base
 
   private
 
+  def warden_strategies
+    [:auth_cookie]
+  end
+
   def warden_scope
     :user
   end
