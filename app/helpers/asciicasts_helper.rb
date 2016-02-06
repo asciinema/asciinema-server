@@ -7,6 +7,32 @@ module AsciicastsHelper
       skip_titlebar: skip_titlebar
   end
 
+  def player_tag(asciicast, options, skip_titlebar)
+    opts = {
+      src: asciicast.url,
+      cols: asciicast.width,
+      rows: asciicast.height,
+      poster: 'data:application/json;base64,' + Base64.encode64(asciicast.snapshot.to_json),
+      speed: options.speed,
+      autoplay: options.autoplay,
+      loop: options.loop,
+      'start-at' => options.t,
+      'font-size' => options.size,
+      theme: options.theme,
+    }
+
+    unless skip_titlebar
+      opts.merge!(
+        title: asciicast.title,
+        author: asciicast.author_display_name,
+        'author-url' => asciicast.author_url,
+        'author-img-url' => asciicast.author_avatar_url,
+      )
+    end
+
+    content_tag('asciinema-player', '', opts)
+  end
+
   def screenshot_javascript_tag
     js = assets.find_asset('embed.js').to_s
     content_tag(:script, js.html_safe)

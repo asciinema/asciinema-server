@@ -105,6 +105,10 @@ class Asciicast < ActiveRecord::Base
     data.url(options)
   end
 
+  def ready?
+    data_url && snapshot
+  end
+
   def download_filename
     "asciicast-#{id}.json"
   end
