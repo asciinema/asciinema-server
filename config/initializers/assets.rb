@@ -5,4 +5,4 @@ Rails.application.config.assets.version = '1.0'
 
 # Precompile additional assets.
 # application.js, application.css, and all non-JS/CSS in app/assets folder are already added.
-Rails.application.config.assets.precompile += %w( player.css player.js embed.css embed.js widget.js screenshot.css )
+Rails.application.config.assets.precompile += %w( player.css asciinema-player.js embed.css embed.js widget.js screenshot.css )

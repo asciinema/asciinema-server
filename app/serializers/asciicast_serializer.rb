@@ -3,6 +3,8 @@ class AsciicastSerializer < ActiveModel::Serializer
 
   attributes :id, :url, :snapshot, :width, :height
 
+  delegate :private?, :title, :ready?, to: :object
+
   def id
     object.to_param
   end
@@ -13,14 +15,6 @@ class AsciicastSerializer < ActiveModel::Serializer
     else
       object.data_url
     end
-  end
-
-  def private?
-    object.private?
-  end
-
-  def title
-    object.title
   end
 
   def author_display_name
