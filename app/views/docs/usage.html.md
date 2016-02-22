@@ -2,10 +2,10 @@
 
 # Usage
 
-asciinema is composed of multiple commands, similar to `git`, `rails` or
+asciinema is composed of multiple commands, similar to `git`, `apt-get` or
 `brew`.
 
-When you run `asciinema` with no arguments help message is displayed showing
+When you run `asciinema` with no arguments help message is displayed, listing
 all available commands with their options.
 
 ## `rec [filename]`
@@ -38,9 +38,10 @@ prompt or play a sound when shell is being recorded.
 Available options:
 
 * `-c, --command=<command>` - Specify command to record, defaults to $SHELL
-* `-t, --title=<title>` - Specify title of the asciicast
+* `-t, --title=<title>` - Specify the title of the asciicast
 * `-w, --max-wait=<sec>` - Reduce recorded terminal inactivity to max <sec> seconds
-* `-y, --yes` - Answer yes to all prompts (e.g. upload confirmation)
+* `-y, --yes` - Answer "yes" to all prompts (e.g. upload confirmation)
+* `-q, --quiet` - Be quiet, suppress all notices/warnings (implies -y)
 
 ## `play <filename>`
 
@@ -49,13 +50,38 @@ __Replay recorded asciicast in a terminal.__
 This command replays given asciicast (as recorded by `rec` command) directly in
 your terminal.
 
-NOTE: it is recommended to run it in a terminal of dimensions not smaller than
-the one used for recording as there's no "transcoding" of control sequences for
-new terminal size.
+Playing from a local file:
+
+    asciinema play /path/to/asciicast.json
+
+Playing from HTTP(S) URL:
+
+    asciinema play https://asciinema.org/a/22124.json
+    asciinema play http://example.com/demo.json
+
+Playing from asciicast page URL (requires `<link rel="alternate"
+type="application/asciicast+json" href="....json">` in page's HTML):
+
+    asciinema play https://asciinema.org/a/22124
+    asciinema play http://example.com/blog/post.html
+
+Playing from stdin:
+
+    cat /path/to/asciicast.json | asciinema play -
+    ssh user@host cat asciicast.json | asciinema play -
+
+Playing from IPFS:
+
+    asciinema play ipfs:/ipfs/QmcdXYJp6e4zNuimuGeWPwNMHQdxuqWmKx7NhZofQ1nw2V
+    asciinema play fs:/ipfs/QmcdXYJp6e4zNuimuGeWPwNMHQdxuqWmKx7NhZofQ1nw2V
 
 Available options:
 
 * `-w, --max-wait=<sec>` - Reduce replayed terminal inactivity to max <sec> seconds
+
+NOTE: it is recommended to run `asciinema play` in a terminal of dimensions not
+smaller than the one used for recording as there's no "transcoding" of control
+sequences for new terminal size.
 
 ## `upload <filename>`
 
