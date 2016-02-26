@@ -1,2 +1,2 @@
 //= require base
-//= require player
+//= require asciinema-player

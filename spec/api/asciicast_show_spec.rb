@@ -15,7 +15,7 @@ shared_examples_for "asciicast iframe response" do
   end
 
   it "responds with player page using iframe layout" do
-    expect(response.body).to have_selector('body.iframe div.player')
+    expect(response.body).to have_selector('body.iframe asciinema-player')
   end
 end
 
