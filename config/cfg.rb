@@ -23,7 +23,7 @@ module Asciinema
       if home_asciicast_id
         Asciicast.find(home_asciicast_id)
       else
-        Asciicast.last
+        Asciicast.non_private.last
       end
     end
 
