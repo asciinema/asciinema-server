@@ -113,4 +113,4 @@ source [contributors](https://github.com/asciinema/asciinema.org/contributors)
 
 ## Copyright
 
-Copyright &copy; 2011-2015 Marcin Kulik. See LICENSE.txt for details.
+Copyright &copy; 2011-2016 Marcin Kulik. See LICENSE.txt for details.
