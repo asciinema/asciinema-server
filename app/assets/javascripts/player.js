@@ -31,7 +31,7 @@ function tryCreatePlayer(parentNode, asciicast, options) {
   }
 
   function checkReadiness() {
-    if (asciicast.url && asciicast.snapshot) {
+    if (asciicast.url) {
       $('.processing-info').remove();
       createPlayer();
     } else {
