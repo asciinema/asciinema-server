@@ -10,5 +10,11 @@ CarrierWave.configure do |config|
     }
     config.fog_directory = CFG.aws_bucket
     config.fog_public = false
+  elsif CFG.carrierwave_storage == 'file'
+    config.root = Rails.root
   end
+end
+
+if File.exists?(Rails.root.to_s + "/public/uploads/asciicast")
+  raise "Please move all directories from ./public/uploads/ to ./uploads/"
 end

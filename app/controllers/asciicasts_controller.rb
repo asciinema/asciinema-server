@@ -28,18 +28,12 @@ class AsciicastsController < ApplicationController
       end
 
       format.json do
-        opts = if params[:dl]
-          { query: { "response-content-disposition" => "attachment; filename=#{asciicast.download_filename}" } }
-               else
-                 {}
-               end
-
-        redirect_to asciicast.data_url(opts)
+        serve_file(asciicast.data, !!params[:dl])
       end
 
       format.png do
         asciicast_image_generator.generate(asciicast) if asciicast.image_stale?
-        redirect_to asciicast.image_url
+        serve_file(asciicast.image)
       end
     end
   end
@@ -98,4 +92,19 @@ class AsciicastsController < ApplicationController
     AsciicastImageGenerator.new(self)
   end
 
+  def serve_file(uploader, as_attachment = false)
+    opts = if as_attachment
+             { query: { "response-content-disposition" => "attachment; filename=#{asciicast.download_filename}" } }
+           else
+             {}
+           end
+
+    url = uploader.url(opts)
+
+    if url.starts_with?("/")
+      send_file uploader.path, disposition: as_attachment ? 'attachment' : 'inline'
+    else
+      redirect_to url
+    end
+  end
 end

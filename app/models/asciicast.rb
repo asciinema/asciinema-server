@@ -93,8 +93,16 @@ class Asciicast < ActiveRecord::Base
     end
   end
 
+  def data
+    if file.present?
+      file
+    else
+      stdout_frames
+    end
+  end
+
   def data_url(options = {})
-    file_url(options) || stdout_frames_url(options)
+    data.url(options)
   end
 
   def download_filename

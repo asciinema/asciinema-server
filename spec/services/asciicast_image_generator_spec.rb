@@ -17,7 +17,7 @@ describe AsciicastImageGenerator, needs_phantomjs_2_bin: true do
     end
 
     it 'generates screenshot of "snapshot frame"' do
-      png = ChunkyPNG::Image.from_file("#{Rails.root}/public/#{asciicast.image_url}")
+      png = ChunkyPNG::Image.from_file(asciicast.image.path)
 
       # make sure there are black-ish borders
       expect(rgb(png[1, 1])).to eq([18, 19, 20])
