@@ -11,11 +11,12 @@ class AsciicastSerializer < ActiveModel::Serializer
     if v0_url?
       object.stdout_frames_url
     else
-      url = object.data.url
-      if url.starts_with?("/")
-        asciicast_path(object, format: :json) # download URL for local carrierwave store
-      else
-        url # direct signed S3 URL (because XHR CORS redirect doesn't work under Safari)
+      if url = object.data.url
+        if url.starts_with?("/")
+          asciicast_path(object, format: :json) # download URL for local carrierwave store
+        else
+          url # direct signed S3 URL (because XHR CORS redirect doesn't work under Safari)
+        end
       end
     end
   end
