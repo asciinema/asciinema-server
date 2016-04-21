@@ -110,8 +110,10 @@ when the player loads. Accepted values:
 The `preload` option controls whether the player should immediately start
 fetching the recording.
 
-* 0 / false - do not preload the recording, wait for user action (default)
+* 0 / false - do not preload the recording, wait for user action
 * 1 / true - preload the recording
+
+Defaults to 1 for asciinema.org URLs, to 0 for embed script.
 
 ### loop
 
