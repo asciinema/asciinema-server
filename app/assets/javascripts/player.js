@@ -12,6 +12,7 @@ function tryCreatePlayer(parentNode, asciicast, options) {
         speed: options.speed,
         autoPlay: options.autoPlay,
         loop: options.loop,
+        preload: options.preload,
         startAt: options.startAt,
         fontSize: options.fontSize,
         theme: options.theme,
