@@ -105,6 +105,14 @@ when the player loads. Accepted values:
 * 0 / false - do not start playback automatically (default)
 * 1 / true - start playback automatically
 
+### preload
+
+The `preload` option controls whether the player should immediately start
+fetching the recording.
+
+* 0 / false - do not preload the recording, wait for user action (default)
+* 1 / true - preload the recording
+
 ### loop
 
 The `loop` option allows for looping the playback. This option is usually
