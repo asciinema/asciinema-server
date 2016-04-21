@@ -17,6 +17,7 @@ class PlaybackOptions
   attribute :size,      String,  default: 'small'
   attribute :autoplay,  Boolean
   attribute :loop,      Boolean, default: false
+  attribute :preload,   Boolean, default: true
   attribute :benchmark, Boolean, default: false
   attribute :theme,     String,  default: Theme::DEFAULT
   attribute :t,         Time
@@ -27,6 +28,7 @@ class PlaybackOptions
       speed: speed,
       autoPlay: autoplay.nil? ? !!t : autoplay,
       loop: loop,
+      preload: preload,
       fontSize: size,
       theme: theme,
     }
