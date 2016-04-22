@@ -2,7 +2,7 @@
 
 function tryCreatePlayer(parentNode, asciicast, options) {
   function createPlayer() {
-    asciinema_player.core.CreatePlayer(
+    asciinema.player.js.CreatePlayer(
       parentNode,
       asciicast.url,
       {
