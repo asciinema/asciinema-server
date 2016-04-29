@@ -1,0 +1,44 @@
+version: '2'
+services:
+  postgres:
+    image: postgres
+  # storage:
+  #   image: busybox
+  #   volumes:
+  #     - /var/lib/docker/registry
+  #   command: 'true'
+  redis:
+    image: redis
+    ports: 
+      - 6379
+  dbsetup:
+    image: asciinema/asciinema.org
+    links: 
+      - postgres
+    command: 'bundle exec rake db:setup'
+    environment:
+      DATABASE_URL: postgresql://postgres:mypass@postgres/asciinema
+  sidekiq:
+    links: 
+      - postgres
+      - redis
+    image: asciinema/asciinema.org
+    depends_on: 
+      - dbsetup
+    command: 'ruby  start_sidekiq.rb'
+    environment:
+      DATABASE_URL: postgresql://postgres:mypass@postgres/asciinema
+      REDIS_URL: redis://redis:6379
+  asciinema:
+    depends_on: 
+      - dbsetup
+    image: asciinema/asciinema.org
+    links: 
+      - postgres
+      - redis
+    ports:
+      - 3000:3000
+    environment:
+      DATABASE_URL: postgresql://postgres:mypass@postgres/asciinema
+      REDIS_URL: redis://redis:6379
+      RAILS_ENV: development
