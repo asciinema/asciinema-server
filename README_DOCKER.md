@@ -1,29 +1,65 @@
-# asciinema.org
+Please read the [full setup](README.md) to understand the components involved.
 
-[![Build Status](https://travis-ci.org/asciinema/asciinema.org.svg?branch=master)](https://travis-ci.org/asciinema/asciinema.org)
-[![Code Climate](https://codeclimate.com/github/asciinema/asciinema.org/badges/gpa.svg)](https://codeclimate.com/github/asciinema/asciinema.org)
-[![Coverage Status](https://coveralls.io/repos/asciinema/asciinema.org/badge.svg)](https://coveralls.io/r/asciinema/asciinema.org)
 
-Record and share your terminal sessions, the right way.
-
-asciinema is a free and open source solution for recording terminal sessions
-and sharing them on the web.
-
-This is the source code of asciinema.org website. You can find asciinema's
-terminal recorder at
-[asciinema/asciinema](https://github.com/asciinema/asciinema) and asciinema
-player at
-[asciinema/asciinema-player](https://github.com/asciinema/asciinema-player).
-
-## Setup instructions
-
-Below you'll find setup instructions in case you want to contribute, play with
-it on your local machine, or setup your own instance for private use or for
-your organization.
 
 ### Using Docker
 
 ```bash
+$ docker-compose up -d
+
+$ docker-compose logs
+```
+
+
+Get the ip of the docker host and port.  If you're using docker-machine you could do
+
+```docker-machine ip default```
+
+otherwise you could do
+
+
+``` docker inspect --format '{{ .NetworkSettings.IPAddress }}' asciinemaorg_asciinema_1 ```
+
+to get the IP. You'll need this when setting up your CLI tool to point at it.
+
+### Using the asciinema server 
+
+Assuming you've installed the CLI tool, 
+
+Edit the file ```~/.config/asciinema/config``` to have your host in there.  Please ensure that you have an auth token. 
+
+Note that if you have an older version of asciinema it may have written to ```~/.asciinema/config``` and you'll need to get your token from there.
+
+
+Run ```asciinema``` once if you haven't already to generate a token.  Now you can add your private server to it.
+
+
+
+The file should in the end looks something like
+
+```
+[api]
+token = 62398be2-16e4-476b-ae31-2806ca643e29
+url = http://localhost:3000
+```
+
+now run 
+
+```bash
+$ asciinema auth
+Open the following URL in a browser to register your API token and assign any recorded asciicasts to your profile:
+http://localhost:3000/connect/62398be2-16e4-476b-ae31-2806ca643e29
+
+```
+
+And go the url in question.
+
+You'll be prompted for an email address to which the server will send an authorization token.  Please note that this email is very likely to go into your spam folder :)
+
+Follow that link and start recording
+
+
+
 $ docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=mypass --name=postgres postgres
 $ docker run -d -p 6379:6379 --name=redis redis
 $ docker run --rm --link postgres:postgres -e DATABASE_URL="postgresql://postgres:mypass@postgres/asciinema" asciinema/asciinema.org bundle exec rake db:setup
