@@ -8,7 +8,7 @@ function tryCreatePlayer(parentNode, asciicast, options) {
       {
         width: asciicast.width,
         height: asciicast.height,
-        snapshot: asciicast.snapshot,
+        poster: options.poster || asciicast.snapshot,
         speed: options.speed,
         autoPlay: options.autoPlay,
         loop: options.loop,

@@ -22,6 +22,7 @@ class PlaybackOptions
   attribute :theme,     String,  default: Theme::DEFAULT
   attribute :t,         Time
   attribute :v0,        Boolean, default: false
+  attribute :poster,    String
 
   def as_json(*)
     opts = {
@@ -31,6 +32,7 @@ class PlaybackOptions
       preload: preload,
       fontSize: size,
       theme: theme,
+      poster: poster,
     }
 
     if t
