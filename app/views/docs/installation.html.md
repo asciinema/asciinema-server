@@ -28,7 +28,13 @@ Nix:
 
 ### Fedora
 
+For Fedora < 22:
+
     sudo yum install asciinema
+
+For Fedora >= 22:
+
+    sudo dnf install asciinema
 
 ### FreeBSD
 
