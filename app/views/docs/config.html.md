@@ -48,4 +48,4 @@ file (in the given order):
 * `$HOME/.config/asciinema/config` - in most cases it's here
 * `$HOME/.asciinema/config` - created by asciinema versions prior to 1.1
 
-The first one which is found is used.
+The first found is used.
