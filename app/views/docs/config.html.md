@@ -5,17 +5,19 @@
 asciinema uses a config file to keep API token and user settings. In most cases
 the location of this file is `$HOME/.config/asciinema/config`.
 
-When you first run `asciinema`, local API token is generated (UUID) and saved in the
-file (unless the file already exists). It looks like this:
+*NOTE! When you first run `asciinema`, local API token is generated (UUID) and
+saved in the file (unless the file already exists).*
+
+The auto-generated, minimal config file looks like this:
 
     [api]
-    token = d5a2dce4-173f-45b2-a405-ac33d7b70c5f
+    token = <your-api-token-here>
 
 There are several options you can set in this file. Here's a config with all
 available options set:
 
     [api]
-    token = d5a2dce4-173f-45b2-a405-ac33d7b70c5f
+    token = <your-api-token-here>
     url = https://asciinema.example.com
 
     [record]
