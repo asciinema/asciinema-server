@@ -22,6 +22,16 @@ describe AsciicastDecorator do
         it { should == 'Linux' }
       end
 
+      context 'and the OS is *BSD (pre-0.9.9 client)' do
+        before do
+          asciicast.user_agent =
+            "asciinema/0.9.8 CPython/2.7.5 " \
+            "FreeBSD/10.0-RELEASE-p7-amd64-64bit-ELF"
+        end
+
+        it { should == 'FreeBSD' }
+      end
+
       context 'and the OS is Linux (0.9.9+ client)' do
         before do
           asciicast.user_agent =

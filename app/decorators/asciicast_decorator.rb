@@ -77,10 +77,12 @@ class AsciicastDecorator < ApplicationDecorator
   private
 
   def os_from_user_agent
-    os_part = user_agent.split(' ')[2]
-    os = os_part.split('/').first
-
-    guess_os(os)
+    if user_agent =~ %r{^asciinema/\d(\.\d+)+ [^/\s]+/[^/\s]+ (.+)$}
+      os = $2.sub('-', '/').split('/').first.sub(/[dD]arwin/, 'OS X')
+      os[0].upcase + os[1..-1]
+    else
+      'unknown'
+    end
   end
 
   def os_from_uname
