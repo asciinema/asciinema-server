@@ -2,7 +2,14 @@
 
 # Installation
 
-## Using package manager
+## Python package
+
+asciinema is available on [PyPI](https://pypi.python.org/pypi/asciinema) and can
+be installed with pip (Python 3 required):
+
+    sudo pip3 install asciinema
+
+## Native packages
 
 ### OS X
 
@@ -65,22 +72,11 @@ Packages:
 If you use other operating system and you can build a native package
 for it then don't hesitate, do it and let us know.
 
-## From source
+## Running latest version from master
 
-If you have Go toolchain installed you can install latest (master) version with:
+If none of the above works for you (or you want to help with development) just
+clone the repo and run asciinema straight from the checkout:
 
-    go get github.com/asciinema/asciinema
-
-Refer to the
-[README file](https://github.com/asciinema/asciinema/blob/master/README.md)
-for detailed instructions on building from source.
-
-## Download static binary
-
-There are prebuilt static binaries for Mac OS X, Linux and FreeBSD. You can
-[download](https://github.com/asciinema/asciinema/releases) one for your
-platform and place it in your `$PATH`.
-
-You can use the following snippet to fetch and run our install script, which automates this:
-
-    curl -sL https://asciinema.org/install | sh
+    git clone https://github.com/asciinema/asciinema.git
+    cd asciinema
+    python3 -m asciinema --version
