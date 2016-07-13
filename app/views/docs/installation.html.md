@@ -11,20 +11,6 @@ be installed with pip (Python 3 required):
 
 ## Native packages
 
-### OS X
-
-Homebrew:
-
-<%= render 'install_homebrew' %>
-
-MacPorts:
-
-    sudo port selfupdate && sudo port install asciinema
-
-Nix:
-
-    nix-env -i go1.4-asciinema
-
 ### Arch Linux
 
     yaourt -S asciinema
@@ -58,6 +44,20 @@ Packages:
     layman -a go-overlay && emerge -av asciinema
 
 ### NixOS / Nix
+
+    nix-env -i go1.4-asciinema
+
+### OS X
+
+Homebrew:
+
+<%= render 'install_homebrew' %>
+
+MacPorts:
+
+    sudo port selfupdate && sudo port install asciinema
+
+Nix:
 
     nix-env -i go1.4-asciinema
 
