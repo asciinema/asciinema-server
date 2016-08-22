@@ -1,28 +1,19 @@
-*.rbc
-*.sassc
-.sass-cache
-capybara-*.html
-.rspec
+## Rails app
 /.bundle
-/vendor/bundle
-/log/*
+/.vagrant
+/.rspec
+/.env
 /tmp/*
-/db/*.sqlite3
-/public/system/*
-/coverage/
-/spec/tmp/*
-**.orig
-config/database.yml
-rerun.txt
-pickle-email-*.html
-.jhw-cache/
-config/asciinema.yml
-public/uploads/*
+/log/*
 /bin/*
+/config/database.yml
+/config/asciinema.yml
+/db/*.sqlite3
 /coverage
-.rbx
-.env
-.env.production
+/public/uploads/*
+/uploads/*
+
+## Clojure app
 
 /target
 /classes
@@ -38,5 +29,35 @@ pom.xml.asc
 /dev/resources/local.edn
 /dev/src/local.clj
 
+## Elixir app
+
+# App artifacts
+/_build
+/db
+/deps
+/*.ez
+
+# Generated on crash by the VM
+erl_crash.dump
+
+# Static artifacts
+/node_modules
+
+# Since we are building assets from web/static,
+# we ignore priv/static. You may want to comment
+# this depending on your deployment strategy.
+/priv/static/
+
+# The config/prod.secret.exs file by default contains sensitive
+# data and you should not commit it into version control.
+#
+# Alternatively, you may comment the line below and commit the
+# secrets file as long as you replace its contents by environment
+# variables.
+/config/prod.secret.exs
+
+## Docker
+
 /volumes
-/.m2
+.m2
+/.env.production
