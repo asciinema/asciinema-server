@@ -1,0 +1,77 @@
+.preview
+  margin-bottom: 30px
+  overflow: hidden
+
+  .thumbnail-link
+    display: block
+    position: relative
+    text-decoration: none
+
+    .play-button
+      display: none
+      z-index: 1
+      font-size: 80px
+
+    &:hover
+      .play-button
+        display: block
+
+    &:active
+      .play-button
+        font-size: 90px
+
+  .thumbnail
+    padding: 0
+    background-color: #000
+    border: 0
+    border-radius: 3px
+    border-bottom-left-radius: 0
+    border-bottom-right-radius: 0
+
+  .info
+    background-color: #fff
+    padding: 10px
+    border-bottom-left-radius: 3px
+    border-bottom-right-radius: 3px
+    border: 1px solid #eee
+    border-bottom: 1px solid #ddd
+    border-top-width: 0
+
+    .author-avatar
+      float: left
+      width: 20px
+      height: 20px
+
+    h2
+      margin: 0 0 6px 0
+      font-size: 20px
+
+      .duration
+        float: right
+        font-size: 14px
+
+    small
+      margin-left: 5px
+      font-size: 14px
+      color: #333
+
+      abbr
+        border-bottom: 0
+
+  .play-button
+    position: absolute
+    left: 0
+    top: 0
+    right: 0
+    bottom: 0
+    text-align: center
+    color: white
+
+    .arrow
+      width: 100%
+      height: 100%
+      display: table
+
+      span
+        vertical-align: middle
+        display: table-cell

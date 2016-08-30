@@ -1,0 +1,27 @@
+<header class="navbar navbar-default navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button class="navbar-toggle" data-target=".navbar-ex1-collapse" data-toggle="collapse" type="button">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+
+      <a class="navbar-brand" href="/">
+        <img src="<%= static_path(@conn, "/images/logo-red.svg") %>">
+      </a>
+    </div>
+
+    <div class="collapse navbar-collapse navbar-ex1-collapse">
+      <ul class="nav navbar-nav">
+        <li><a href="/browse/featured">Browse</a></li>
+        <li><a href="/docs">Docs</a></li>
+        <li><a href="http://blog.asciinema.org">Blog</a></li>
+      </ul>
+
+      <ul class="nav navbar-nav navbar-right session-info">
+        <li><a href="/login/new" id="log-in">Log in</a></li>
+      </ul>
+    </div>
+  </div>
+</header>

@@ -22,7 +22,19 @@ exports.config = {
     stylesheets: {
       joinTo: "css/app.css",
       order: {
-        after: ["web/static/css/app.css"] // concat app.css last
+        before: [
+          "web/static/css/source-sans-pro.css",
+          "web/static/css/base.sass",
+          "web/static/css/header.sass",
+          "web/static/css/flash.sass",
+          "web/static/css/footer.sass",
+          "web/static/css/home.sass",
+          "web/static/css/asciicasts.sass",
+          "web/static/css/users.sass",
+          "web/static/css/preview.sass",
+          "web/static/css/player.sass",
+          "web/static/css/contributing.sass"
+        ]
       }
     },
     templates: {

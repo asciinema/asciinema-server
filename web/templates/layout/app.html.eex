@@ -4,32 +4,25 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="">
-
-    <title>Hello Asciinema!</title>
+    <title><%= page_title @conn %></title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
+    <link rel="shortcut icon" href="<%= static_path(@conn, "/images/favicon.png") %>">
+    <!-- google analytics -->
+    <!-- content for head (twitter, open graph tags) -->
   </head>
 
   <body>
-    <div class="container">
-      <header class="header">
-        <nav role="navigation">
-          <ul class="nav nav-pills pull-right">
-            <li><a href="http://www.phoenixframework.org/docs">Get Started</a></li>
-          </ul>
-        </nav>
-        <span class="logo"></span>
-      </header>
+    <%= render "header.html", conn: @conn %>
+    <%= render "flash.html", conn: @conn %>
 
-      <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
-      <p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>
+    <div class="main">
+      <%= render @view_module, @view_template, assigns %>
+    </div>
 
-      <main role="main">
-        <%= render @view_module, @view_template, assigns %>
-      </main>
+    <%= render "footer.html", conn: @conn %>
 
-    </div> <!-- /container -->
-    <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
+    <%# <script src="<%= static_path(@conn, "/js/app.js") %1>"></script> %>
+    <!-- https://maxcdn.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js -->
   </body>
 </html>
