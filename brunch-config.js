@@ -23,6 +23,7 @@ exports.config = {
       joinTo: "css/app.css",
       order: {
         before: [
+          "web/static/vendor/css/bootstrap.css",
           "web/static/css/source-sans-pro.css",
           "web/static/css/base.sass",
           "web/static/css/header.sass",
