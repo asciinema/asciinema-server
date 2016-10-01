@@ -6,7 +6,7 @@ class BareAsciicastPagePresenter
     decorated_asciicast = asciicast.decorate
 
     playback_options = {
-      'theme' =>  decorated_asciicast.theme_name
+      'theme' => decorated_asciicast.theme_name
     }.merge(playback_options)
 
     new(decorated_asciicast, EmbedPlaybackOptions.new(playback_options))

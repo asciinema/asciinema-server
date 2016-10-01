@@ -17,11 +17,14 @@ module AsciicastsHelper
       speed: options.speed,
       autoplay: options.autoplay,
       loop: options.loop,
-      preload: options.preload,
       'start-at' => options.t,
       'font-size' => options.size,
       theme: options.theme,
     }
+
+    if options.preload # because {preload: false} gets converted to "preload=preload" by Rails
+      opts[:preload] = true
+    end
 
     unless skip_titlebar
       opts.merge!(
