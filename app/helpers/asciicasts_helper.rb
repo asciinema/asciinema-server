@@ -9,6 +9,7 @@ module AsciicastsHelper
 
   def player_tag(asciicast, options, skip_titlebar)
     opts = {
+      id: 'player',
       src: asciicast.url,
       cols: asciicast.width,
       rows: asciicast.height,

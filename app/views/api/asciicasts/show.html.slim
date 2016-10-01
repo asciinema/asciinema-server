@@ -4,18 +4,21 @@ p.powered
   a href=root_url target="_top" asciinema
 
 javascript:
-  $(function() {
+
+  var player = document.getElementById('player');
+
+  player.addEventListener('attached', function() {
     var target = parent.postMessage ? parent : (parent.document.postMessage ? parent.document : undefined);
     if (typeof target != "undefined" && window !== window.parent) {
-      var w = $('.asciinema-player').width();
-      var h = $(document).height();
+      var w = player.getElementsByClassName('asciinema-player')[0].offsetWidth;
+      var h = Math.max(document.body.scrollHeight, document.body.offsetHeight);
       target.postMessage(['asciicast:size', { width: w, height: h }], '*');
     }
 
     function onMessage(e) {
       var event = e.data[0];
       if (event == 'asciicast:play') {
-        $('.start-prompt').click();
+        // player.play(); // TODO
       }
     }
 
