@@ -17,6 +17,7 @@ module AsciicastsHelper
       speed: options.speed,
       autoplay: options.autoplay,
       loop: options.loop,
+      preload: options.preload,
       'start-at' => options.t,
       'font-size' => options.size,
       theme: options.theme,
