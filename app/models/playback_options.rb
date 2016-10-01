@@ -24,22 +24,19 @@ class PlaybackOptions
   attribute :v0,        Boolean, default: false
   attribute :poster,    String
 
-  def as_json(*)
-    opts = {
-      speed: speed,
-      autoPlay: autoplay.nil? ? !!t : autoplay,
-      loop: loop,
-      preload: preload,
-      fontSize: size,
-      theme: theme,
-      poster: poster,
-    }
+  def autoplay()
+    ap = super
+    ap.nil? ? !!t : ap
+  end
 
-    if t
-      opts = opts.merge(startAt: t)
+  def poster()
+    p = super
+
+    if !p && t && t > 0 && !autoplay
+      "npt:#{t}"
+    else
+      p
     end
-
-    opts
   end
 
 end

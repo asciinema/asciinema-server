@@ -13,7 +13,7 @@ module AsciicastsHelper
       src: asciicast.url,
       cols: asciicast.width,
       rows: asciicast.height,
-      poster: 'data:application/json;base64,' + Base64.encode64(asciicast.snapshot.to_json),
+      poster: options.poster || base64_poster(asciicast),
       speed: options.speed,
       autoplay: options.autoplay,
       loop: options.loop,
@@ -70,6 +70,10 @@ module AsciicastsHelper
       path = assets.find_asset("#{$1}.#{$3}").pathname
       "'#{path}'"
     }
+  end
+
+  def base64_poster(asciicast)
+    'data:application/json;base64,' + Base64.encode64(asciicast.snapshot.to_json)
   end
 
 end
