@@ -28,7 +28,7 @@ gem 'rails_warden',         '~> 0.5.8'
 gem 'pundit',               '~> 0.3.0'
 gem 'rack-robustness',      '~> 1.1.0'
 gem 'rack-rewrite',         '~> 1.5.0'
-gem 'oj',                   '~> 2.11'
+gem 'oj',                   '~> 2.17.4'
 gem 'oj_mimic_json',        '~> 1.0'
 gem 'foreigner',            '~> 1.7'
 
