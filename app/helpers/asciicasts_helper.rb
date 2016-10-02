@@ -77,7 +77,7 @@ module AsciicastsHelper
   end
 
   def base64_poster(asciicast)
-    'data:application/json;base64,' + Base64.encode64(asciicast.snapshot.to_json)
+    'data:application/json;base64,' + Base64.encode64(JSON.generate(asciicast.snapshot, ascii_only: true))
   end
 
 end
