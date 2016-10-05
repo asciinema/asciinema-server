@@ -1,0 +1,10 @@
+<div class="container">
+  <div class="row">
+    <div class="col-md-3">
+      <%= render "topics.html", conn: @conn, active_topic: @topic %>
+    </div>
+    <div class="col-md-9">
+      <%= render @view_module, @topic_template, assigns %>
+    </div>
+  </div>
+</div>

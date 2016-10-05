@@ -1,0 +1,11 @@
+<h2>Docs</h2>
+
+<ul class="nav nav-pills nav-stacked">
+  <%= topic_link @conn, @active_topic, :"how-it-works" %>
+  <%= topic_link @conn, @active_topic, :"getting-started" %>
+  <%= topic_link @conn, @active_topic, :installation %>
+  <%= topic_link @conn, @active_topic, :usage %>
+  <%= topic_link @conn, @active_topic, :config %>
+  <%= topic_link @conn, @active_topic, :embedding %>
+  <%= topic_link @conn, @active_topic, :faq %>
+</ul>
