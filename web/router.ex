@@ -16,7 +16,8 @@ defmodule Asciinema.Router do
   scope "/", Asciinema do
     pipe_through :browser # Use the default browser stack
 
-    get "/", PageController, :index
+    get "/docs", DocController, :index
+    get "/docs/:topic", DocController, :show
   end
 
   # Other scopes may use custom stacks.

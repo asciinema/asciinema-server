@@ -3,7 +3,7 @@
   "cowlib": {:hex, :cowlib, "1.0.2", "9d769a1d062c9c3ac753096f868ca121e2730b9a377de23dec0f7e08b1df84ee", [:make], []},
   "db_connection": {:hex, :db_connection, "1.0.0-rc.5", "1d9ab6e01387bdf2de7a16c56866971f7c2f75aea7c69cae2a0346e4b537ae0d", [:mix], [{:connection, "~> 1.0.2", [hex: :connection, optional: false]}, {:poolboy, "~> 1.5", [hex: :poolboy, optional: true]}, {:sbroker, "~> 1.0.0-beta.3", [hex: :sbroker, optional: true]}]},
   "decimal": {:hex, :decimal, "1.1.2", "79a769d4657b2d537b51ef3c02d29ab7141d2b486b516c109642d453ee08e00c", [:mix], []},
-  "earmark": {:hex, :earmark, "1.0.1", "2c2cd903bfdc3de3f189bd9a8d4569a075b88a8981ded9a0d95672f6e2b63141", [:mix], []},
+  "earmark": {:git, "https://github.com/pragdave/earmark.git", "e6324c6f8d17c96ed99daa98d563860329db27b9", []},
   "ecto": {:hex, :ecto, "2.0.4", "03fd3b9aa508b1383eb38c00ac389953ed22af53811aa2e504975a3e814a8d97", [:mix], [{:db_connection, "~> 1.0-rc.2", [hex: :db_connection, optional: true]}, {:decimal, "~> 1.0", [hex: :decimal, optional: false]}, {:mariaex, "~> 0.7.7", [hex: :mariaex, optional: true]}, {:poison, "~> 1.5 or ~> 2.0", [hex: :poison, optional: true]}, {:poolboy, "~> 1.5", [hex: :poolboy, optional: false]}, {:postgrex, "~> 0.11.2", [hex: :postgrex, optional: true]}, {:sbroker, "~> 1.0-beta", [hex: :sbroker, optional: true]}]},
   "fs": {:hex, :fs, "0.9.2", "ed17036c26c3f70ac49781ed9220a50c36775c6ca2cf8182d123b6566e49ec59", [:rebar], []},
   "gettext": {:hex, :gettext, "0.11.0", "80c1dd42d270482418fa158ec5ba073d2980e3718bacad86f3d4ad71d5667679", [:mix], []},

@@ -1,0 +1,9 @@
+<p>
+  Install asciinema with:
+</p>
+
+<pre><code>brew update && brew install asciinema</code></pre>
+
+<p>
+  See other <a href="<%= doc_path(@conn, :show, :installation) %>">installation options</a>.
+</p>
