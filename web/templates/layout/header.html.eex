@@ -15,12 +15,25 @@
     <div class="collapse navbar-collapse navbar-ex1-collapse">
       <ul class="nav navbar-nav">
         <li><a href="/browse/featured">Browse</a></li>
-        <li><a href="/docs">Docs</a></li>
+        <li><a href="<%= doc_path(@conn, :index) %>">Docs</a></li>
         <li><a href="http://blog.asciinema.org">Blog</a></li>
       </ul>
 
       <ul class="nav navbar-nav navbar-right session-info">
-        <li><a href="/login/new" id="log-in">Log in</a></li>
+        <%= if @current_user do %>
+          <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+              <img class="avatar" src="<%= avatar_url(@current_user) %>"><%= @current_user.username || @current_user.email %><b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+              <li><a href="<%= profile_path(@current_user) %>">Profile</a></li>
+              <li><a href="/user/edit">Settings</a></li>
+              <li><a class="logout" href="/logout">Log out</a></li>
+            </ul>
+          </li>
+        <% else %>
+          <li><a href="/login/new" id="log-in">Log in</a></li>
+        <% end %>
       </ul>
     </div>
   </div>
