@@ -52,6 +52,7 @@ defmodule Asciinema.Web do
       import Asciinema.Router.Helpers
       import Asciinema.ErrorHelpers
       import Asciinema.Gettext
+      import Asciinema.UserView
     end
   end
 
