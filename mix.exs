@@ -19,7 +19,7 @@ defmodule Asciinema.Mixfile do
   def application do
     [mod: {Asciinema, []},
      applications: [:phoenix, :phoenix_pubsub, :phoenix_html, :cowboy, :logger, :gettext,
-                    :phoenix_ecto, :postgrex]]
+                    :phoenix_ecto, :postgrex, :plug_rails_cookie_session_store]]
   end
 
   # Specifies which paths to compile per environment.
@@ -39,6 +39,8 @@ defmodule Asciinema.Mixfile do
      {:gettext, "~> 0.11"},
      {:earmark, github: "pragdave/earmark", override: true},
      {:phoenix_markdown, "~> 0.1"},
+     {:plug_rails_cookie_session_store, "~> 0.1"},
+     {:poison, "~> 2.2"},
      {:cowboy, "~> 1.0"}]
   end
 
