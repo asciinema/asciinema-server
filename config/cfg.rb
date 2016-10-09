@@ -14,6 +14,8 @@ module Asciinema
     attribute :google_analytics_id,            String
     attribute :home_asciicast_id,              String
     attribute :secret_key_base,                String
+    attribute :session_encryption_salt,        String, default: 'encrypted cookie'
+    attribute :session_signing_salt,           String, default: 'signed encrypted cookie'
     attribute :admin_ids,                      Array[Integer]
     attribute :smtp_settings,                  Hash
     attribute :smtp_from_address,              String

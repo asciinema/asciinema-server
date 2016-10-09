@@ -30,13 +30,17 @@ defmodule Asciinema.Endpoint do
   plug Plug.MethodOverride
   plug Plug.Head
 
-  # The session will be stored in the cookie and signed,
-  # this means its contents can be read but not tampered with.
-  # Set :encryption_salt if you would also like to encrypt it.
   plug Plug.Session,
-    store: :cookie,
-    key: "_asciinema_key",
-    signing_salt: "bAmOWL3A"
+    store: PlugRailsCookieSessionStore,
+    key: "_asciinema_session",
+    secure: System.get_env("SCHEME") == "https",
+    signing_salt: System.get_env("SESSION_SIGNING_SALT") || "signed encrypted cookie",
+    encrypt: true,
+    encryption_salt: System.get_env("SESSION_ENCRYPTION_SALT") || "encrypted cookie",
+    key_iterations: 1000,
+    key_length: 64,
+    key_digest: :sha,
+    serializer: Poison
 
   plug Asciinema.Router
 end
