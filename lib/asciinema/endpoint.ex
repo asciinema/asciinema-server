@@ -33,7 +33,6 @@ defmodule Asciinema.Endpoint do
   plug Plug.Session,
     store: PlugRailsCookieSessionStore,
     key: "_asciinema_session",
-    secure: System.get_env("SCHEME") == "https",
     signing_salt: "signed encrypted cookie",
     encrypt: true,
     encryption_salt: "encrypted cookie",
