@@ -11,7 +11,7 @@ be installed with pip (Python 3 required):
 
 ### Arch Linux
 
-    yaourt -S asciinema
+    pacman -S asciinema
 
 ### Debian
 
