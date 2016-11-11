@@ -10,7 +10,7 @@ defmodule Asciinema.User do
     field :theme_name, :string
     field :asciicasts_private_by_default, :boolean, default: true
 
-    # timestamps()
+    timestamps()
   end
 
   @doc """
