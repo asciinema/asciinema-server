@@ -19,6 +19,7 @@ defmodule Asciinema.Web do
   def model do
     quote do
       use Ecto.Schema
+      @timestamps_opts inserted_at: :created_at
 
       import Ecto
       import Ecto.Changeset
