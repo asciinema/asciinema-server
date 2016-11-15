@@ -40,7 +40,7 @@ defmodule Asciinema.Mixfile do
      {:earmark, github: "pragdave/earmark", override: true},
      {:phoenix_markdown, "~> 0.1"},
      {:plug_rails_cookie_session_store, "~> 0.1"},
-     {:plugsnag, "~> 1.1.0"},
+     {:plugsnag, "~> 1.2.0"},
      {:poison, "~> 2.2"},
      {:cowboy, "~> 1.0"}]
   end
