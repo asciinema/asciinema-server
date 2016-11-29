@@ -21,16 +21,16 @@ Below you'll find setup instructions in case you want to contribute, play with
 it on your local machine, or setup your own instance for private use or for
 your organization.
 
-### Using Docker
+### Quickstart Using Docker Compose
 
+Required:
+  - [Docker](https://docs.docker.com/engine/getstarted/step_one/#step-1-get-docker)
+  - [docker-compose 1.5+](https://docs.docker.com/compose/install/)
 ```bash
-$ docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=mypass --name=postgres postgres
-$ docker run -d -p 6379:6379 --name=redis redis
-$ docker run --rm --link postgres:postgres -e DATABASE_URL="postgresql://postgres:mypass@postgres/asciinema" --link redis:redis -e REDIS_URL="redis://redis:6379" asciinema/asciinema.org bundle exec rake db:setup
-# starting sidekiq using the provided start_sidekiq.rb file will also start sendmail service if you don't want to use SMTP
-# otherwise start sidekiq by starting: bundle exec sidekiq
-$ docker run -d --link postgres:postgres -e DATABASE_URL="postgresql://postgres:mypass@postgres/asciinema" --link redis:redis -e REDIS_URL="redis://redis:6379" asciinema/asciinema.org ruby  start_sidekiq.rb
-$ docker run -d --link postgres:postgres -e DATABASE_URL="postgresql://postgres:mypass@postgres/asciinema" --link redis:redis -e REDIS_URL="redis://redis:6379" -p 3000:3000 asciinema/asciinema.org
+$ wget https://raw.githubusercontent.com/asciinema/asciinema.org/master/docker-compose.yml
+$ docker-compose up -d asciinema
+$ docker-compose run --rm db_init
+
 ```
 
 You can override the address/port that is sent in email with login token by passing HOST="host:port" environment variable when starting the web server.
