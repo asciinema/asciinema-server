@@ -1,0 +1,55 @@
+version: '2'
+
+# Quickstart:
+# docker-compose up -d asciinema
+# docker-compose run --rm db_init
+
+# To cleanup:
+# docker-compose stop && docker-compose rm
+
+services:
+  postgres:
+    image: postgres
+    container_name: postgres
+  redis:
+    image: redis
+    container_name: redis
+  sidekiq:
+    image: asciinema/asciinema.org
+    links:
+      - redis
+      - postgres
+    environment:
+      DATABASE_URL: "postgresql://postgres:mypass@postgres/asciinema"
+      REDIS_URL: "redis://redis:6379"
+      HOST: "localhost:3000"
+    command: "ruby start_sidekiq.rb"
+    volumes:
+      - /tmp/asciinema/uploads:/app/uploads
+
+  asciinema:
+    image: asciinema/asciinema.org
+    container_name: asciinema
+    links:
+      - redis
+      - postgres
+    depends_on:
+      - sidekiq
+    environment:
+      DATABASE_URL: "postgresql://postgres:mypass@postgres/asciinema"
+      REDIS_URL: "redis://redis:6379"
+      HOST: "localhost:3000" # replace with actual hostname/ip.... ${HOSTNAME} doesn't seem to work..
+    ports:
+      - "3000:3000"
+    volumes:
+      - /tmp/asciinema/uploads:/app/uploads
+
+  db_init:
+    image: asciinema/asciinema.org
+    links:
+      - redis
+      - postgres
+    environment:
+      DATABASE_URL: "postgresql://postgres:mypass@postgres/asciinema"
+      REDIS_URL: "redis://redis:6379"
+    command: "bundle exec rake db:setup"

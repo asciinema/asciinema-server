@@ -86,7 +86,7 @@ RUN rbenv local $RUBY_VERSION && \
     mkdir -p tmp && \
     touch tmp/restart.txt
 
-VOLUME ["/app/config", "/app/log"]
+VOLUME ["/app/config", "/app/log", "/app/uploads"]
 
 # 172.17.42.1 is the docker0 address
 ENV DATABASE_URL "postgresql://postgres:mypass@172.17.42.1/asciinema"
@@ -95,7 +95,7 @@ ENV RAILS_ENV "development"
 # when using Docker Toolbox/Virtualbox this is going to be your address
 # set to whatever FQDN/address you want asciinema to advertise itself as
 # for ex. asciinema.example.com
-ENV HOST "192.168.99.100:3000"
+ENV HOST "localhost:3000"
 
 ENTRYPOINT ["rbenv", "exec"]
 CMD ["bundle", "exec", "rails", "server"]
