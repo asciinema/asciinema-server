@@ -2263,10 +2263,10 @@
   background-color: #657b83;
 }
 .asciinema-theme-solarized-light .fg-0 {
-  color: #eee8d5;
+  color: #073642;
 }
 .asciinema-theme-solarized-light .bg-0 {
-  background-color: #eee8d5;
+  background-color: #073642;
 }
 .asciinema-theme-solarized-light .fg-1 {
   color: #dc322f;
@@ -2305,16 +2305,16 @@
   background-color: #2aa198;
 }
 .asciinema-theme-solarized-light .fg-7 {
-  color: #073642;
+  color: #eee8d5;
 }
 .asciinema-theme-solarized-light .bg-7 {
-  background-color: #073642;
+  background-color: #eee8d5;
 }
 .asciinema-theme-solarized-light .fg-8 {
-  color: #fdf6e3;
+  color: #002b36;
 }
 .asciinema-theme-solarized-light .bg-8 {
-  background-color: #fdf6e3;
+  background-color: #002b36;
 }
 .asciinema-theme-solarized-light .fg-9 {
   color: #cb4b16;
@@ -2323,22 +2323,22 @@
   background-color: #cb4b16;
 }
 .asciinema-theme-solarized-light .fg-10 {
-  color: #93a1a1;
+  color: #586e75;
 }
 .asciinema-theme-solarized-light .bg-10 {
-  background-color: #93a1a1;
+  background-color: #586e75;
 }
 .asciinema-theme-solarized-light .fg-11 {
-  color: #839496;
+  color: #657c83;
 }
 .asciinema-theme-solarized-light .bg-11 {
-  background-color: #839496;
+  background-color: #657c83;
 }
 .asciinema-theme-solarized-light .fg-12 {
-  color: #657b83;
+  color: #839496;
 }
 .asciinema-theme-solarized-light .bg-12 {
-  background-color: #657b83;
+  background-color: #839496;
 }
 .asciinema-theme-solarized-light .fg-13 {
   color: #6c71c4;
@@ -2347,16 +2347,16 @@
   background-color: #6c71c4;
 }
 .asciinema-theme-solarized-light .fg-14 {
-  color: #586e75;
+  color: #93a1a1;
 }
 .asciinema-theme-solarized-light .bg-14 {
-  background-color: #586e75;
+  background-color: #93a1a1;
 }
 .asciinema-theme-solarized-light .fg-15 {
-  color: #002b36;
+  color: #fdf6e3;
 }
 .asciinema-theme-solarized-light .bg-15 {
-  background-color: #002b36;
+  background-color: #fdf6e3;
 }
 .asciinema-theme-seti .asciinema-terminal {
   color: #cacecd;
