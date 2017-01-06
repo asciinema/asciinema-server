@@ -1,1 +1,1 @@
-    brew update && brew install asciinema
+brew install asciinema
