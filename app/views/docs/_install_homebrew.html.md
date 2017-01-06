@@ -1,1 +1,1 @@
-brew install asciinema
+  brew install asciinema
