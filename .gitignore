@@ -23,10 +23,16 @@ public/uploads/*
 .rbx
 .env
 
-/.dir-locals.el
-/.lein-env
-/.lein-repl-history
+/target
+/classes
+/checkouts
+pom.xml
+pom.xml.asc
+*.jar
+*.class
+/.lein-*
 /.nrepl-port
-/dev/
+/.dir-locals.el
 /profiles.clj
-/target/
+/dev/resources/local.edn
+/dev/src/local.clj

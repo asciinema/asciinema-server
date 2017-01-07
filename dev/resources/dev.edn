@@ -1,0 +1,9 @@
+{:config
+ {:app
+  {:middleware
+   {:functions {:stacktrace #var ring.middleware.stacktrace/wrap-stacktrace}
+    :applied   ^:replace [:not-found :webjars :ring-defaults :route-aliases :stacktrace]}}
+  :http
+  {:port 4000}
+  :db
+  {:uri "jdbc:postgresql://localhost/postgres"}}}
