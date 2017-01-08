@@ -22,3 +22,11 @@ public/uploads/*
 /coverage
 .rbx
 .env
+
+/.dir-locals.el
+/.lein-env
+/.lein-repl-history
+/.nrepl-port
+/dev/
+/profiles.clj
+/target/
