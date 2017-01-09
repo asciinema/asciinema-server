@@ -1,6 +1,6 @@
 {:components
  {:app  #var duct.component.handler/handler-component
-  :http #var ring.component.jetty/jetty-server
+  :http #var asciinema.component.aleph/aleph-server
   :db   #var duct.component.hikaricp/hikaricp
   :ragtime #var duct.component.ragtime/ragtime}
  :endpoints
