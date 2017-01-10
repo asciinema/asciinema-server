@@ -1,0 +1,3 @@
+[submodule "a2png"]
+	path = a2png
+	url = https://github.com/asciinema/a2png
