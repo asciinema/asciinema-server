@@ -24,6 +24,8 @@ else
   echo "warning: sudo failed, not compiling libtsm and terminal binary"
 fi
 
+sudo apt-get install -y pngquant
+
 if [ ! -e config/database.yml ]; then
   cp config/database.yml.example config/database.yml
 fi

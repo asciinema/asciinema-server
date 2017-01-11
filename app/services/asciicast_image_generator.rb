@@ -11,11 +11,11 @@ class AsciicastImageGenerator
 
   def generate(asciicast)
     Dir.mktmpdir do |dir|
-      page_path = "#{dir}/asciicast.html"
+      asciicast_url = asciicast.file.absolute_url
       image_path = "#{dir}/#{asciicast.image_filename}"
+      time = asciicast.snapshot_at || asciicast.duration / 2
 
-      generate_html_file(asciicast, page_path)
-      generate_png_file(page_path, image_path)
+      generate_png_file(asciicast_url, image_path, time)
       image_width, image_height = get_size(image_path)
 
       update_asciicast(asciicast, image_path, image_width, image_height)
@@ -24,18 +24,8 @@ class AsciicastImageGenerator
 
   private
 
-  def generate_html_file(asciicast, path)
-    html = template_renderer.render_to_string(
-      template: 'asciicasts/screenshot.html.slim',
-      layout: 'screenshot',
-      locals: { page: BareAsciicastPagePresenter.build(asciicast) },
-    )
-
-    File.open(path, 'w') { |f| f.write(html) }
-  end
-
-  def generate_png_file(page_path, image_path)
-    rasterizer.generate_image(page_path, image_path, 'png', '.asciinema-player', PIXEL_DENSITY)
+  def generate_png_file(asciicast_url, image_path, time)
+    rasterizer.generate_image(asciicast_url, image_path, time)
   end
 
   def get_size(image_path)

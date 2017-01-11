@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "width": 96,
+  "height": 26,
+  "duration": 11.146430015564,
+  "command": "/bin/bash",
+  "title": "bashing :)",
+  "env": {
+    "TERM": "screen-256color",
+    "SHELL": "/bin/zsh"
+  },
+  "stdout": [
+    [1.234567, "foo \u001b[41mbar\u001b[32m"],
+    [5.678987, "baz qux"],
+    [3.456789, "żółć jaźń"]
+  ]
+}
