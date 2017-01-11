@@ -14,8 +14,9 @@ class AsciicastImageGenerator
       asciicast_url = asciicast.file.absolute_url
       image_path = "#{dir}/#{asciicast.image_filename}"
       time = asciicast.snapshot_at || asciicast.duration / 2
+      theme = AsciicastDecorator.new(asciicast).theme_name
 
-      generate_png_file(asciicast_url, image_path, time)
+      rasterizer.generate_image(asciicast_url, image_path, time, PIXEL_DENSITY, theme)
       image_width, image_height = get_size(image_path)
 
       update_asciicast(asciicast, image_path, image_width, image_height)
@@ -23,10 +24,6 @@ class AsciicastImageGenerator
   end
 
   private
-
-  def generate_png_file(asciicast_url, image_path, time)
-    rasterizer.generate_image(asciicast_url, image_path, time)
-  end
 
   def get_size(image_path)
     width, height = image_inspector.get_size(image_path)

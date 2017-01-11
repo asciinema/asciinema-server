@@ -9,7 +9,7 @@ describe AsciicastImageGenerator, needs_phantomjs_2_bin: true do
     let(:asciicast) {
       create(
         :asciicast,
-        theme_name: 'tango',
+        theme_name: 'asciinema',
         file: Asciinema::FixtureHelpers.fixture_file('1/screenshot.json', 'application/json')
       )
     }
