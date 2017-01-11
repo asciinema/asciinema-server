@@ -38,16 +38,6 @@ module AsciicastsHelper
     content_tag('asciinema-player', '', opts)
   end
 
-  def screenshot_javascript_tag
-    js = assets.find_asset('embed.js').to_s
-    content_tag(:script, js.html_safe)
-  end
-
-  def screenshot_stylesheet_tag
-    css = translate_asset_paths(assets.find_asset('screenshot.css').to_s)
-    content_tag(:style, css.html_safe)
-  end
-
   def embed_script(asciicast)
     src = asciicast_url(asciicast, format: :js)
     id = "asciicast-#{asciicast.to_param}"
@@ -68,13 +58,6 @@ module AsciicastsHelper
   end
 
   private
-
-  def translate_asset_paths(css)
-    css.gsub(/['"]\/assets\/(.+?)(-\w{64})?\.(.+?)['"]/) { |m|
-      path = assets.find_asset("#{$1}.#{$3}").pathname
-      "'#{path}'"
-    }
-  end
 
   def base64_poster(asciicast)
     'data:application/json;base64,' + Base64.encode64(JSON.generate(asciicast.snapshot, ascii_only: true))
