@@ -47,6 +47,10 @@ Packages:
 
     nix-env -i go1.4-asciinema
 
+### OpenBSD
+
+    cd /usr/ports/textproc/asciinema && make install
+
 ### OS X
 
 Homebrew:
