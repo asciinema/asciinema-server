@@ -49,7 +49,7 @@ Packages:
 
 ### OpenBSD
 
-    cd /usr/ports/textproc/asciinema && make install
+    pkg_add asciinema
 
 ### OS X
 
