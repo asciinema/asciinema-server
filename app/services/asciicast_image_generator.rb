@@ -11,7 +11,7 @@ class AsciicastImageGenerator
 
   def generate(asciicast)
     Dir.mktmpdir do |dir|
-      asciicast_url = asciicast.file.absolute_url
+      asciicast_url = asciicast.data.absolute_url
       image_path = "#{dir}/#{asciicast.image_filename}"
       time = asciicast.snapshot_at || asciicast.duration / 2
       theme = AsciicastDecorator.new(asciicast).theme_name

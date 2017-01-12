@@ -50,4 +50,12 @@ class BaseUploader < CarrierWave::Uploader::Base
   #   "something.jpg" if original_filename
   # end
 
+  def absolute_url
+    if CFG.carrierwave_storage == 'file'
+      path
+    else
+      url
+    end
+  end
+
 end
