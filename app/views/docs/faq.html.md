@@ -30,7 +30,7 @@ Worry not, you have several options. You can:
 * add the following setting to your `$HOME/.config/asciinema/config` file:
 
         [record]
-        command="/bin/bash -l"
+        command= /bin/bash -l
 
 ## Why my shell prompt/theme isn't working during recording?
 
