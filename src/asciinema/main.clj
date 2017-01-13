@@ -12,4 +12,5 @@
         system   (->> (load-system [(io/resource "asciinema/system.edn")] bindings)
                       (component/start))]
     (add-shutdown-hook ::stop-system #(component/stop system))
-    (println "Started HTTP server on port" (-> system :http :port))))
+    (println "Started HTTP server on port" (-> system :http :port)))
+  @(promise))
