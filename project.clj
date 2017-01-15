@@ -11,6 +11,8 @@
                  [ring/ring-defaults "0.2.1"]
                  [ring-jetty-component "0.3.1"]
                  [ring-webjars "0.1.1"]
+                 [metosin/ring-http-response "0.8.1"]
+                 [clj-aws-s3 "0.3.10" :exclusions [clj-time]]
                  [aleph "0.4.1"]
                  [org.slf4j/slf4j-nop "1.7.21"]
                  [org.webjars/normalize.css "3.0.2"]

@@ -1,4 +1,9 @@
-{:config
+{:components
+ {:file-store #var asciinema.component.local-file-store/local-file-store
+  :file-server #var asciinema.component.local-file-server/local-file-server}
+ :dependencies
+ {:file-server [:file-store]}
+ :config
  {:app
   {:middleware
    {:functions {:stacktrace #var ring.middleware.stacktrace/wrap-stacktrace}
@@ -6,4 +11,6 @@
   :http
   {:port 4000}
   :db
-  {:uri "jdbc:postgresql://localhost/postgres"}}}
+  {:uri "jdbc:postgresql://localhost:15432/asciinema_development?user=vagrant"}
+  :file-store
+  {:path "uploads/"}}}
