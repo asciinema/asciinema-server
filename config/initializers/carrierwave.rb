@@ -18,3 +18,12 @@ end
 if File.exists?(Rails.root.to_s + "/public/uploads/asciicast")
   raise "Please move all directories from ./public/uploads/ to ./uploads/"
 end
+
+# fix filename (remove ?AWSAccessKeyId=...)
+CarrierWave::Storage::Fog::File.class_eval do
+  def filename(options = {})
+    if file_url = url(options)
+      file_url.gsub(/.*\/(.*?$)/, '\1').sub(/\?.*$/, '')
+    end
+  end
+end
