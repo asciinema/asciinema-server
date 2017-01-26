@@ -84,6 +84,8 @@ RUN rbenv local $RUBY_VERSION && \
     rm -f log/* && \
     bundle install && \
     mkdir -p tmp && \
+    ln -s /app/vendor/assets/javascripts/asciinema-player.js /app/a2png/ && \
+    ln -s /app/vendor/assets/stylesheets/asciinema-player.css /app/a2png/ && \
     touch tmp/restart.txt
 
 VOLUME ["/app/config", "/app/log", "/app/uploads"]
