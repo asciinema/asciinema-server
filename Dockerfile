@@ -100,4 +100,4 @@ ENV HOST "localhost:3000"
 ENTRYPOINT ["rbenv", "exec"]
 CMD ["bundle", "exec", "rails", "server"]
 # bundle exec rake db:setup
-# budnle exec sidekiq  OR ruby start_sidekiq.rb (to start sidekiq with sendmail)
+# bundle exec sidekiq  OR ruby start_sidekiq.rb (to start sidekiq with sendmail)
