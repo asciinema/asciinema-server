@@ -1,13 +1,12 @@
 (ns asciinema.component.s3-file-server
   (:require [asciinema.boundary.file-server :as file-server]
-            [aws.sdk.s3 :as s3]
-            [clj-time.core :as time]
-            [clj-time.coerce :as timec]
+            [clj-time
+             [coerce :as timec]
+             [core :as time]]
             [ring.util.http-response :as response])
-  (:import com.amazonaws.services.s3.model.ResponseHeaderOverrides
+  (:import com.amazonaws.auth.BasicAWSCredentials
            com.amazonaws.services.s3.AmazonS3Client
-           com.amazonaws.auth.BasicAWSCredentials
-           com.amazonaws.services.s3.model.GeneratePresignedUrlRequest))
+           [com.amazonaws.services.s3.model GeneratePresignedUrlRequest ResponseHeaderOverrides]))
 
 (defn- s3-client* [cred]
   (let [credentials (BasicAWSCredentials. (:access-key cred) (:secret-key cred))]

@@ -1,6 +1,7 @@
 (ns asciinema.component.local-file-server
-  (:require [asciinema.boundary.file-server :as file-server]
-            [asciinema.boundary.file-store :as file-store]
+  (:require [asciinema.boundary
+             [file-server :as file-server]
+             [file-store :as file-store]]
             [ring.util.http-response :as response]))
 
 (defrecord LocalFileServer [file-store]
