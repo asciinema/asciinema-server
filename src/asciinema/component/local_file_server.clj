@@ -6,7 +6,12 @@
 (defrecord LocalFileServer [file-store]
   file-server/FileServer
   (serve [this path]
-    (response/ok (file-store/input-stream file-store path))))
+    (file-server/serve this path {}))
+  (serve [this path {:keys [filename]}]
+    (let [resp (response/ok (file-store/input-stream file-store path))]
+      (if filename
+        (response/header resp "Content-Disposition" (str "attachment; filename=" filename))
+        resp))))
 
 (defn local-file-server [{:keys [file-store]}]
   (->LocalFileServer file-store))
