@@ -7,7 +7,7 @@
  {:app
   {:middleware
    {:functions {:stacktrace #var ring.middleware.stacktrace/wrap-stacktrace}
-    :applied   ^:replace [:not-found :webjars :ring-defaults :route-aliases :stacktrace]}}
+    :applied   ^:replace [:not-found :webjars :ring-defaults :route-aliases :ring-logger :stacktrace]}}
   :http
   {:port 4000}
   :db

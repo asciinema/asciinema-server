@@ -15,6 +15,7 @@
                  [ring/ring-defaults "0.2.1"]
                  [ring-jetty-component "0.3.1"]
                  [ring-webjars "0.1.1"]
+                 [ring-logger-timbre "0.7.5"]
                  [clj-aws-s3 "0.3.10" :exclusions [joda-time com.fasterxml.jackson.core/jackson-core com.fasterxml.jackson.core/jackson-annotations]]
                  [aleph "0.4.1"]
                  [org.slf4j/slf4j-nop "1.7.21"]

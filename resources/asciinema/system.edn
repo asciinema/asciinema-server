@@ -20,9 +20,10 @@
      :not-found     #var duct.middleware.not-found/wrap-not-found
      :ring-defaults #var ring.middleware.defaults/wrap-defaults
      :route-aliases #var duct.middleware.route-aliases/wrap-route-aliases
+     :ring-logger   #var ring.logger.timbre/wrap-with-logger
      :webjars       #var ring.middleware.webjars/wrap-webjars}
     :applied
-    [:not-found :webjars :ring-defaults :route-aliases :hide-errors]
+    [:not-found :webjars :ring-defaults :route-aliases :ring-logger :hide-errors]
     :arguments
     {:not-found     #resource "asciinema/errors/404.html"
      :hide-errors   #resource "asciinema/errors/500.html"
