@@ -14,7 +14,7 @@
           <% end %>
         </p>
 
-        <a href="<%= asciicast_url(format: :json, dl: 1) %>" class="btn btn-primary" download="<%= page.asciicast_download_filename %>" rel="nofollow">Download</a>
+        <a href="<%= asciicast_url(format: :json, dl: true) %>" class="btn btn-primary" download="<%= page.asciicast_download_filename %>" rel="nofollow">Download</a>
 
         <% if page.can_replay_in_terminal? %>
           <h2>Replay in terminal</h2>
