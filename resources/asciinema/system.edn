@@ -6,12 +6,12 @@
   :file-store #var asciinema.component.s3-file-store/s3-file-store
   :file-server #var asciinema.component.s3-file-server/s3-file-server}
  :endpoints
- {:example #var asciinema.endpoint.example/example-endpoint}
+ {:asciicasts #var asciinema.endpoint.asciicasts/asciicasts-endpoint}
  :dependencies
  {:http [:app]
-  :app  [:example]
+  :app  [:asciicasts]
   :ragtime [:db]
-  :example [:db]}
+  :asciicasts [:db :file-server]}
  :config
  {:app
   {:middleware
