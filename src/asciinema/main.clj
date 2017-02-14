@@ -8,7 +8,10 @@
 
 (defn -main [& args]
   (let [bindings {'http-port (Integer/parseInt (:port env "3000"))
-                  'db-uri    (:database-url env)}
+                  'db-uri    (:database-url env)
+                  's3-bucket (:s3-bucket env)
+                  's3-access-key (:s3-access-key env)
+                  's3-secret-key (:s3-secret-key env)}
         system   (->> (load-system [(io/resource "asciinema/system.edn")] bindings)
                       (component/start))]
     (add-shutdown-hook ::stop-system #(component/stop system))
