@@ -8,7 +8,10 @@
 
 (defn -main [& args]
   (let [bindings {'http-port (Integer/parseInt (:port env "3000"))
-                  'db-uri    (:database-url env)
+                  'db-uri (:database-url env)
+                  'env-name (:env-name env "production")
+                  'git-sha (:git-sha env)
+                  'bugsnag-key (:bugsnag-key env)
                   's3-bucket (:s3-bucket env)
                   's3-access-key (:s3-access-key env)
                   's3-secret-key (:s3-secret-key env)}

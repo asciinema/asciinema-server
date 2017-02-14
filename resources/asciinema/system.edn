@@ -21,12 +21,18 @@
      :ring-defaults #var ring.middleware.defaults/wrap-defaults
      :route-aliases #var duct.middleware.route-aliases/wrap-route-aliases
      :ring-logger   #var ring.logger.timbre/wrap-with-logger
+     :bugsnag       #var clj-bugsnag.ring/wrap-bugsnag
      :webjars       #var ring.middleware.webjars/wrap-webjars}
     :applied
-    [:not-found :webjars :ring-defaults :route-aliases :ring-logger :hide-errors]
+    [:not-found :webjars :ring-defaults :route-aliases :ring-logger :bugsnag :hide-errors]
     :arguments
     {:not-found     #resource "asciinema/errors/404.html"
      :hide-errors   #resource "asciinema/errors/500.html"
+     :bugsnag
+     {:api-key bugsnag-key
+      :environment env-name
+      :version git-sha
+      :project-ns "asciinema"}
      :route-aliases {"/" "/index.html"}
      :ring-defaults
      {:params    {:urlencoded true
