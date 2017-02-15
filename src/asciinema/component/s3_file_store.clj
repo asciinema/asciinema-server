@@ -1,25 +1,58 @@
 (ns asciinema.component.s3-file-store
   (:require [asciinema.boundary.file-store :as file-store]
-            [aws.sdk.s3 :as s3]))
+            [aws.sdk.s3 :as s3]
+            [clj-time
+             [coerce :as timec]
+             [core :as time]]
+            [ring.util.http-response :as response])
+  (:import com.amazonaws.auth.BasicAWSCredentials
+           com.amazonaws.services.s3.AmazonS3Client
+           [com.amazonaws.services.s3.model GeneratePresignedUrlRequest ResponseHeaderOverrides]))
+
+(defn- s3-client* [cred]
+  (let [credentials (BasicAWSCredentials. (:access-key cred) (:secret-key cred))]
+    (AmazonS3Client. credentials)))
+
+(def ^:private s3-client (memoize s3-client*))
+
+(defn- generate-presigned-url [cred bucket path {:keys [expires filename]
+                                                 :or {expires (-> 1 time/days time/from-now)}}]
+  (let [client (s3-client cred)
+        request (GeneratePresignedUrlRequest. bucket path)]
+    (.setExpiration request (timec/to-date expires))
+    (when filename
+      (let [header-overrides (doto (ResponseHeaderOverrides.)
+                               (.setContentDisposition (str "attachment; filename=" filename)))]
+        (.setResponseHeaders request header-overrides)))
+    (.toString (.generatePresignedUrl client request))))
 
 (defrecord S3FileStore [cred bucket path-prefix]
   file-store/FileStore
+
   (put-file [this file path]
     (file-store/put-file this file path nil))
+
   (put-file [this file path size]
     (let [path (str path-prefix path)]
       (s3/put-object cred bucket path file {:content-length size})))
+
   (input-stream [this path]
     (let [path (str path-prefix path)]
       (:content (s3/get-object cred bucket path))))
+
   (move-file [this old-path new-path]
     (let [old-path (str path-prefix old-path)
           new-path (str path-prefix new-path)]
       (s3/copy-object cred bucket old-path new-path)
       (s3/delete-object cred bucket old-path)))
+
   (delete-file [this path]
     (let [path (str path-prefix path)]
-      (s3/delete-object cred bucket path))))
+      (s3/delete-object cred bucket path)))
+
+  (serve-file [this path opts]
+    (let [path (str path-prefix path)]
+      (response/found (generate-presigned-url cred bucket path opts)))))
 
 (defn s3-file-store [{:keys [cred bucket path-prefix]}]
   (->S3FileStore cred bucket path-prefix))

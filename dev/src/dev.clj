@@ -9,10 +9,10 @@
             [duct.util.repl :refer [setup test cljs-repl migrate rollback]]
             [duct.util.system :refer [load-system]]
             [reloaded.repl :refer [system init start stop go reset]]
-            [asciinema.boundary.file-server :as file-server]
             [asciinema.boundary.file-store :as file-store]
+            [asciinema.boundary.asciicast-database :as asciicast-database]
             [asciinema.component.local-file-store :refer [->LocalFileStore]]
-            [asciinema.component.local-file-server :refer [->LocalFileServer]]))
+            [asciinema.component.s3-file-store :refer [->S3FileStore]]))
 
 (defn new-system []
   (load-system (keep io/resource ["asciinema/system.edn" "dev.edn" "local.edn"])))

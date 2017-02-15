@@ -1,8 +1,5 @@
 {:components
- {:file-store #var asciinema.component.local-file-store/local-file-store
-  :file-server #var asciinema.component.local-file-server/local-file-server}
- :dependencies
- {:file-server [:file-store]}
+ {:file-store #var asciinema.component.local-file-store/local-file-store}
  :config
  {:app
   {:middleware

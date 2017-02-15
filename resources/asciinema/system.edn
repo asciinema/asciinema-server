@@ -3,15 +3,14 @@
   :http #var asciinema.component.aleph/aleph-server
   :db   #var asciinema.component.db/hikaricp
   :ragtime #var duct.component.ragtime/ragtime
-  :file-store #var asciinema.component.s3-file-store/s3-file-store
-  :file-server #var asciinema.component.s3-file-server/s3-file-server}
+  :file-store #var asciinema.component.s3-file-store/s3-file-store}
  :endpoints
  {:asciicasts #var asciinema.endpoint.asciicasts/asciicasts-endpoint}
  :dependencies
  {:http [:app]
   :app  [:asciicasts]
   :ragtime [:db]
-  :asciicasts [:db :file-server]}
+  :asciicasts [:db :file-store]}
  :config
  {:app
   {:middleware
@@ -58,11 +57,6 @@
   :ragtime
   {:resource-path "asciinema/migrations"}
   :file-store
-  {:cred {:access-key s3-access-key
-          :secret-key s3-secret-key}
-   :bucket s3-bucket
-   :path-prefix "uploads/"}
-  :file-server
   {:cred {:access-key s3-access-key
           :secret-key s3-secret-key}
    :bucket s3-bucket
