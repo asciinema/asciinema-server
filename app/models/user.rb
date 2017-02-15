@@ -79,8 +79,15 @@ class User < ActiveRecord::Base
     value ? super(value.strip) : super
   end
 
+  def theme_name=(value)
+    if value == ""
+      value = nil
+    end
+    super(value)
+  end
+
   def theme
-    theme_name.presence && Theme.for_name(theme_name)
+    theme_name && Theme.for_name(theme_name)
   end
 
   def assign_api_token(token)

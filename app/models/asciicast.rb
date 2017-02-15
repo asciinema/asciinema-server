@@ -81,6 +81,13 @@ class Asciicast < ActiveRecord::Base
     value ? super(value.strip[0...255]) : super
   end
 
+  def theme_name=(value)
+    if value == ""
+      value = nil
+    end
+    super(value)
+  end
+
   def self.generate_secret_token
     SecureRandom.hex.to_i(16).to_s(36).rjust(25, '0')
   end
@@ -126,7 +133,7 @@ class Asciicast < ActiveRecord::Base
   end
 
   def theme
-    theme_name.presence && Theme.for_name(theme_name)
+    theme_name && Theme.for_name(theme_name)
   end
 
   def image_filename
