@@ -8,6 +8,6 @@
 (def default-theme "asciinema")
 
 (defn theme-name [asciicast user]
-  (or (:theme_name asciicast) ; ensure we don't store empty strings in db
+  (or (:theme_name asciicast)
       (:theme_name user)
       default-theme))
