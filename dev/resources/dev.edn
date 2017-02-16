@@ -1,5 +1,6 @@
 {:components
- {:file-store #var asciinema.component.local-file-store/local-file-store}
+ {:file-store #var asciinema.component.local-file-store/local-file-store
+  :exp-set #var asciinema.component.mem-expiring-set/mem-expiring-set}
  :config
  {:app
   {:middleware

@@ -14,7 +14,9 @@
                   'bugsnag-key (:bugsnag-key env)
                   's3-bucket (:s3-bucket env)
                   's3-access-key (:s3-access-key env)
-                  's3-secret-key (:s3-secret-key env)}
+                  's3-secret-key (:s3-secret-key env)
+                  'redis-host (:redis-host env "localhost")
+                  'redis-port (Integer/parseInt (:redis-port env "6379"))}
         system   (->> (load-system [(io/resource "asciinema/system.edn")] bindings)
                       (component/start))]
     (add-shutdown-hook ::stop-system #(component/stop system))
