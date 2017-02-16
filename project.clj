@@ -19,6 +19,7 @@
                  [clj-bugsnag "0.2.9"]
                  [clj-aws-s3 "0.3.10" :exclusions [joda-time com.fasterxml.jackson.core/jackson-core com.fasterxml.jackson.core/jackson-annotations]]
                  [aleph "0.4.1"]
+                 [pandect "0.6.1"]
                  [org.slf4j/slf4j-nop "1.7.21"]
                  [org.webjars/normalize.css "3.0.2"]
                  [duct/hikaricp-component "0.1.0"]
