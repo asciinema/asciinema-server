@@ -1,5 +1,8 @@
 class SessionsController < ApplicationController
 
+  def new
+  end
+
   def create
     user = login_service.validate(params[:token].to_s.strip)
 

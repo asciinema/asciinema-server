@@ -30,7 +30,8 @@ Rails.application.routes.draw do
 
   get "/login" => redirect("/login/new")
 
-  get "/login/:token" => "sessions#create", as: :login_token
+  get "/login/:token" => "sessions#new", as: :login_token
+  post "/login/:token" => "sessions#create"
   get "/logout" => "sessions#destroy"
 
   resources :api_tokens, only: [:create, :destroy]

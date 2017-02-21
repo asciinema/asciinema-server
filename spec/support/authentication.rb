@@ -24,6 +24,7 @@ module Asciinema
         fill_in :email, with: user.email
         click_button 'Log in'
         visit "/login/#{user.expiring_tokens.last.token}"
+        click_button "Log in"
       end
     end
   end

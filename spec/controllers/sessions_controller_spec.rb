@@ -2,8 +2,20 @@ require 'rails_helper'
 
 describe SessionsController do
 
+  describe "#new" do
+    subject { get :new, token: 'the-to-ken' }
+
+    before do
+      subject
+    end
+
+    it "displays button" do
+      should render_template('new')
+    end
+  end
+
   describe "#create" do
-    subject { get :create, token: 'the-to-ken' }
+    subject { post :create, token: 'the-to-ken' }
 
     let(:login_service) { double(:login_service) }
 
