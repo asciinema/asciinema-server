@@ -4,8 +4,8 @@
   :min-lein-version "2.0.0"
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [com.stuartsierra/component "0.3.1"]
-                 [metosin/ring-http-response "0.8.1"]
-                 [clj-time "0.12.0"]
+                 [metosin/ring-http-response "0.8.0"]
+                 [clj-time "0.13.0"]
                  [duct "0.8.2"]
                  [compojure "1.5.1"]
                  [metosin/compojure-api "1.1.10"]
