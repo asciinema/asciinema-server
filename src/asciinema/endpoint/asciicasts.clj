@@ -1,15 +1,16 @@
 (ns asciinema.endpoint.asciicasts
   (:require [asciinema.boundary
              [asciicast-database :as adb]
+             [executor :as executor]
              [expiring-set :as exp-set]
              [file-store :as fstore]
-             [executor :as executor]
              [user-database :as udb]]
             [asciinema.model.asciicast :as asciicast]
             [asciinema.util.io :refer [with-tmp-dir]]
             [clj-time.core :as t]
-            [clojure.java.io :as io]
-            [clojure.java.shell :as shell]
+            [clojure.java
+             [io :as io]
+             [shell :as shell]]
             [clojure.string :as str]
             [compojure.api.sweet :refer :all]
             [environ.core :refer [env]]
