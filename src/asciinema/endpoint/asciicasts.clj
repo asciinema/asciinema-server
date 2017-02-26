@@ -3,6 +3,7 @@
              [asciicast-database :as adb]
              [expiring-set :as exp-set]
              [file-store :as fstore]
+             [executor :as executor]
              [user-database :as udb]]
             [asciinema.model.asciicast :as asciicast]
             [asciinema.util.io :refer [with-tmp-dir]]
@@ -37,7 +38,7 @@
 
 (def png-ttl-days 7)
 
-(defn asciicasts-endpoint [{:keys [db file-store exp-set]}]
+(defn asciicasts-endpoint [{:keys [db file-store exp-set executor]}]
   (api
    {:exceptions {:handlers {:compojure.api.exception/default exception-handler}}}
    (context
@@ -63,17 +64,19 @@
                               theme (assoc :theme theme)
                               scale (assoc :scale (Integer/parseInt scale)))
                  png-store-path (asciicast/png-store-path asciicast png-params)]
-             (when-not (exp-set/contains? exp-set png-store-path)
-               (with-tmp-dir [dir "asciinema-png-"]
-                 (let [json-store-path (asciicast/json-store-path asciicast)
-                       json-local-path (str dir "/asciicast.json")
-                       png-local-path (str dir "/asciicast.png")
-                       expires (-> png-ttl-days t/days t/from-now)]
-                   (with-open [in (fstore/input-stream file-store json-store-path)]
-                     (let [out (io/file json-local-path)]
-                       (io/copy in out)))
-                   (a2png json-local-path png-local-path png-params)
-                   (fstore/put-file file-store (io/file png-local-path) png-store-path)
-                   (exp-set/conj! exp-set png-store-path expires))))
-             (fstore/serve-file file-store png-store-path {}))
+             (if (exp-set/contains? exp-set png-store-path)
+               (fstore/serve-file file-store png-store-path {})
+               (executor/execute executor (fn []
+                                            (with-tmp-dir [dir "asciinema-png-"]
+                                              (let [json-store-path (asciicast/json-store-path asciicast)
+                                                    json-local-path (str dir "/asciicast.json")
+                                                    png-local-path (str dir "/asciicast.png")
+                                                    expires (-> png-ttl-days t/days t/from-now)]
+                                                (with-open [in (fstore/input-stream file-store json-store-path)]
+                                                  (let [out (io/file json-local-path)]
+                                                    (io/copy in out)))
+                                                (a2png json-local-path png-local-path png-params)
+                                                (fstore/put-file file-store (io/file png-local-path) png-store-path)
+                                                (exp-set/conj! exp-set png-store-path expires)))
+                                            (fstore/serve-file file-store png-store-path {})))))
            (response/not-found))))))

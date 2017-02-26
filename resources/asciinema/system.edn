@@ -4,14 +4,15 @@
   :db   #var asciinema.component.db/hikaricp
   :ragtime #var duct.component.ragtime/ragtime
   :file-store #var asciinema.component.s3-file-store/s3-file-store
-  :exp-set #var asciinema.component.redis-client/redis-client}
+  :exp-set #var asciinema.component.redis-client/redis-client
+  :executor #var asciinema.component.fixed-thread-executor/fixed-thread-executor}
  :endpoints
  {:asciicasts #var asciinema.endpoint.asciicasts/asciicasts-endpoint}
  :dependencies
  {:http [:app]
   :app  [:asciicasts]
   :ragtime [:db]
-  :asciicasts [:db :file-store :exp-set]}
+  :asciicasts [:db :file-store :exp-set :executor]}
  :config
  {:app
   {:middleware
@@ -64,4 +65,7 @@
    :path-prefix "uploads/"}
   :exp-set
   {:host redis-host
-   :port redis-port}}}
+   :port redis-port}
+  :executor
+  {:threads 1
+   :queue-length 1}}}
