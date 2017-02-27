@@ -14,13 +14,4 @@ javascript:
       var h = Math.max(document.body.scrollHeight, document.body.offsetHeight);
       target.postMessage(['asciicast:size', { width: w, height: h }], '*');
     }
-
-    function onMessage(e) {
-      var event = e.data[0];
-      if (event == 'asciicast:play') {
-        // player.play(); // TODO
-      }
-    }
-
-    window.addEventListener("message", onMessage, false);
   });
