@@ -5,4 +5,4 @@
   (input-stream [this path])
   (move-file [this old-path new-path])
   (delete-file [this path])
-  (serve-file [this path opts]))
+  (serve-file [this ctx path opts]))

@@ -2,11 +2,7 @@
  {:file-store #var asciinema.component.local-file-store/local-file-store
   :exp-set #var asciinema.component.mem-expiring-set/mem-expiring-set}
  :config
- {:app
-  {:middleware
-   {:functions {:stacktrace #var ring.middleware.stacktrace/wrap-stacktrace}
-    :applied   ^:replace [:not-found :webjars :ring-defaults :route-aliases :ring-logger :stacktrace]}}
-  :http
+ {:http
   {:port 4000}
   :db
   {:uri "jdbc:postgresql://localhost:15432/asciinema_development?user=vagrant"}

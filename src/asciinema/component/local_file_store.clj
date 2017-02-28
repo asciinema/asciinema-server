@@ -27,11 +27,12 @@
     (let [path (str base-path path)]
       (io/delete-file path)))
 
-  (serve-file [this path {:keys [filename]}]
-    (let [resp (response/ok (file-store/input-stream this path))]
+  (serve-file [this ctx path {:keys [filename]}]
+    (let [path (str base-path path)
+          response (assoc (:response ctx) :body (io/file path))]
       (if filename
-        (response/header resp "Content-Disposition" (str "attachment; filename=" filename))
-        resp))))
+        (update response :headers assoc "content-disposition" (str "attachment; filename=" filename))
+        response))))
 
 (defn local-file-store [{:keys [path]}]
   (->LocalFileStore path))

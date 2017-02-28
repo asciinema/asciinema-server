@@ -50,9 +50,12 @@
     (let [path (str path-prefix path)]
       (s3/delete-object cred bucket path)))
 
-  (serve-file [this path opts]
-    (let [path (str path-prefix path)]
-      (response/found (generate-presigned-url cred bucket path opts)))))
+  (serve-file [this ctx path opts]
+    (let [path (str path-prefix path)
+          url (generate-presigned-url cred bucket path opts)]
+      (-> (:response ctx)
+          (assoc :status 302)
+          (update :headers assoc "location" url)))))
 
 (defn s3-file-store [{:keys [cred bucket path-prefix]}]
   (->S3FileStore cred bucket path-prefix))

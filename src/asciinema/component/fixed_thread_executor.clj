@@ -21,7 +21,7 @@
         (.execute executor f)
         result)
       (catch RejectedExecutionException _
-        {:status 503 :headers {"Retry-After" "5"} :body "<h1>503</h1>"})))
+        nil)))
 
   component/Lifecycle
   (start [{:keys [threads queue-length] :as component}]

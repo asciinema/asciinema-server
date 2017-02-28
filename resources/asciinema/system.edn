@@ -1,6 +1,5 @@
 {:components
- {:app  #var duct.component.handler/handler-component
-  :http #var asciinema.component.aleph/aleph-server
+ {:http #var asciinema.component.yada-listener/yada-listener
   :db   #var asciinema.component.db/hikaricp
   :ragtime #var duct.component.ragtime/ragtime
   :file-store #var asciinema.component.s3-file-store/s3-file-store
@@ -9,50 +8,11 @@
  :endpoints
  {:asciicasts #var asciinema.endpoint.asciicasts/asciicasts-endpoint}
  :dependencies
- {:http [:app]
-  :app  [:asciicasts]
+ {:http {:app :asciicasts}
   :ragtime [:db]
   :asciicasts [:db :file-store :exp-set :executor]}
  :config
- {:app
-  {:middleware
-   {:functions
-    {:hide-errors   #var duct.middleware.errors/wrap-hide-errors
-     :not-found     #var duct.middleware.not-found/wrap-not-found
-     :ring-defaults #var ring.middleware.defaults/wrap-defaults
-     :route-aliases #var duct.middleware.route-aliases/wrap-route-aliases
-     :ring-logger   #var ring.logger.timbre/wrap-with-logger
-     :bugsnag       #var clj-bugsnag.ring/wrap-bugsnag
-     :webjars       #var ring.middleware.webjars/wrap-webjars}
-    :applied
-    [:not-found :webjars :ring-defaults :route-aliases :ring-logger :bugsnag :hide-errors]
-    :arguments
-    {:not-found     #resource "asciinema/errors/404.html"
-     :hide-errors   #resource "asciinema/errors/500.html"
-     :bugsnag
-     {:api-key bugsnag-key
-      :environment env-name
-      :version git-sha
-      :project-ns "asciinema"}
-     :route-aliases {"/" "/index.html"}
-     :ring-defaults
-     {:params    {:urlencoded true
-                  :keywordize true
-                  :multipart  true
-                  :nested     true}
-      :cookies   true
-      :session   {:flash true
-                  :cookie-attrs {:http-only true}}
-      :security  {:anti-forgery   true
-                  :xss-protection {:enable? true, :mode :block}
-                  :frame-options  :sameorigin
-                  :content-type-options :nosniff}
-      :static    {:resources "asciinema/public"}
-      :responses {:not-modified-responses true
-                  :absolute-redirects     true
-                  :content-types          true
-                  :default-charset        "utf-8"}}}}}
-  :http
+ {:http
   {:port http-port}
   :db
   {:uri db-uri}

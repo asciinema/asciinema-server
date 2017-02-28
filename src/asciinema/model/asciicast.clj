@@ -25,7 +25,7 @@
    :theme (theme-name asciicast user)
    :scale default-png-scale})
 
-(defn- png-version [asciicast params]
+(defn png-version [asciicast params]
   (let [attrs (assoc params :id (:id asciicast))]
     (->> attrs
          (map (fn [[k v]] (str (name k) "=" v)))
