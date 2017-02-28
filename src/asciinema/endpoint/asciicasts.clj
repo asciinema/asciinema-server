@@ -7,7 +7,7 @@
              [user-database :as udb]]
             [asciinema.model.asciicast :as asciicast]
             [asciinema.util.io :refer [with-tmp-dir]]
-            [asciinema.yada :refer [resource]]
+            [asciinema.yada :refer [resource not-found-model]]
             [clj-time.core :as t]
             [clojure.java
              [io :as io]
@@ -103,4 +103,4 @@
 (defn asciicasts-endpoint [{:keys [db file-store exp-set executor]}]
   ["" [["/a/" [[[:token ".json"] (asciicast-json-resource db file-store)]
                [[:token ".png"] (asciicast-png-resource db file-store exp-set executor)]]]
-       [true (yada/as-resource nil)]]])
+       [true (yada/resource not-found-model)]]])
