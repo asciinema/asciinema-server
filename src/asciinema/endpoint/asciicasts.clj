@@ -7,6 +7,7 @@
              [user-database :as udb]]
             [asciinema.model.asciicast :as asciicast]
             [asciinema.util.io :refer [with-tmp-dir]]
+            [asciinema.yada :refer [resource]]
             [clj-time.core :as t]
             [clojure.java
              [io :as io]
@@ -53,49 +54,51 @@
       (service-unavailable-response ctx)))
 
 (defn asciicast-json-resource [db file-store]
-  (yada/resource {:produces "application/json"
-                  :parameters {:path {:token String}
-                               :query {(s/optional-key :dl) s/Bool}}
-                  :properties (fn [ctx]
-                                (if-let [asciicast (adb/get-asciicast-by-token db (-> ctx :parameters :path :token))]
-                                  {:exists? true
-                                   ::asciicast asciicast}
-                                  {:exists? false}))
-                  :response (fn [ctx]
-                              (let [asciicast (-> ctx :properties ::asciicast)
-                                    dl (-> ctx :parameters :query :dl)
-                                    path (asciicast/json-store-path asciicast)
-                                    filename (str "asciicast-" (:id asciicast) ".json")]
-                                (fstore/serve-file file-store ctx path (when dl {:filename filename}))))}))
+  (resource
+   {:produces "application/json"
+    :parameters {:path {:token String}
+                 :query {(s/optional-key :dl) s/Bool}}
+    :properties (fn [ctx]
+                  (if-let [asciicast (adb/get-asciicast-by-token db (-> ctx :parameters :path :token))]
+                    {:exists? true
+                     ::asciicast asciicast}
+                    {:exists? false}))
+    :response (fn [ctx]
+                (let [asciicast (-> ctx :properties ::asciicast)
+                      dl (-> ctx :parameters :query :dl)
+                      path (asciicast/json-store-path asciicast)
+                      filename (str "asciicast-" (:id asciicast) ".json")]
+                  (fstore/serve-file file-store ctx path (when dl {:filename filename}))))}))
 
 (defn asciicast-png-resource [db file-store exp-set executor]
-  (yada/resource {:produces "image/png"
-                  :parameters {:path {:token String}
-                               :query {(s/optional-key :time) s/Num
-                                       (s/optional-key :theme) Theme
-                                       (s/optional-key :scale) (s/enum "1" "2")}}
-                  :properties (fn [ctx]
-                                (if-let [asciicast (adb/get-asciicast-by-token db (-> ctx :parameters :path :token))]
-                                  (let [user (udb/get-user-by-id db (:user_id asciicast))
-                                        {:keys [time theme scale]} (-> ctx :parameters :query)
-                                        png-params (cond-> (asciicast/png-params asciicast user)
-                                                     time (assoc :snapshot-at time)
-                                                     theme (assoc :theme theme)
-                                                     scale (assoc :scale (Integer/parseInt scale)))]
-                                    {:exists? true
-                                     :version (asciicast/png-version asciicast png-params)
-                                     ::asciicast asciicast
-                                     ::png-params png-params})
-                                  {:exists? false}))
-                  :response (fn [ctx]
-                              (let [asciicast (-> ctx :properties ::asciicast)
-                                    png-params (-> ctx :properties ::png-params)
-                                    png-store-path (asciicast/png-store-path asciicast png-params)]
-                                (if (exp-set/contains? exp-set png-store-path)
-                                  (fstore/serve-file file-store ctx png-store-path {})
-                                  (async-response ctx executor (fn []
-                                                                 (generate-png file-store exp-set asciicast png-params png-store-path)
-                                                                 (fstore/serve-file file-store ctx png-store-path {}))))))}))
+  (resource
+   {:produces "image/png"
+    :parameters {:path {:token String}
+                 :query {(s/optional-key :time) s/Num
+                         (s/optional-key :theme) Theme
+                         (s/optional-key :scale) (s/enum "1" "2")}}
+    :properties (fn [ctx]
+                  (if-let [asciicast (adb/get-asciicast-by-token db (-> ctx :parameters :path :token))]
+                    (let [user (udb/get-user-by-id db (:user_id asciicast))
+                          {:keys [time theme scale]} (-> ctx :parameters :query)
+                          png-params (cond-> (asciicast/png-params asciicast user)
+                                       time (assoc :snapshot-at time)
+                                       theme (assoc :theme theme)
+                                       scale (assoc :scale (Integer/parseInt scale)))]
+                      {:exists? true
+                       :version (asciicast/png-version asciicast png-params)
+                       ::asciicast asciicast
+                       ::png-params png-params})
+                    {:exists? false}))
+    :response (fn [ctx]
+                (let [asciicast (-> ctx :properties ::asciicast)
+                      png-params (-> ctx :properties ::png-params)
+                      png-store-path (asciicast/png-store-path asciicast png-params)]
+                  (if (exp-set/contains? exp-set png-store-path)
+                    (fstore/serve-file file-store ctx png-store-path {})
+                    (async-response ctx executor (fn []
+                                                   (generate-png file-store exp-set asciicast png-params png-store-path)
+                                                   (fstore/serve-file file-store ctx png-store-path {}))))))}))
 
 (defn asciicasts-endpoint [{:keys [db file-store exp-set executor]}]
   ["" [["/a/" [[[:token ".json"] (asciicast-json-resource db file-store)]
