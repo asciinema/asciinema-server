@@ -13,7 +13,7 @@
                  [environ "1.1.0"]
                  [ring "1.5.0"]
                  [clj-bugsnag "0.2.9"]
-                 [clj-aws-s3 "0.3.10" :exclusions [joda-time com.fasterxml.jackson.core/jackson-core com.fasterxml.jackson.core/jackson-annotations]]
+                 [clj-aws-s3 "0.3.10" :exclusions [joda-time]]
                  [pandect "0.6.1"]
                  [com.taoensso/carmine "2.15.1"]
                  [org.slf4j/slf4j-nop "1.7.21"]
