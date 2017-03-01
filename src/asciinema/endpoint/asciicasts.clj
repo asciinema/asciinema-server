@@ -60,8 +60,7 @@
                  :query {(s/optional-key :dl) s/Bool}}
     :properties (fn [ctx]
                   (if-let [asciicast (adb/get-asciicast-by-token db (-> ctx :parameters :path :token))]
-                    {:exists? true
-                     ::asciicast asciicast}
+                    {::asciicast asciicast}
                     {:exists? false}))
     :response (fn [ctx]
                 (let [asciicast (-> ctx :properties ::asciicast)
@@ -85,8 +84,7 @@
                                        time (assoc :snapshot-at time)
                                        theme (assoc :theme theme)
                                        scale (assoc :scale (Integer/parseInt scale)))]
-                      {:exists? true
-                       :version (asciicast/png-version asciicast png-params)
+                      {:version (asciicast/png-version asciicast png-params)
                        ::asciicast asciicast
                        ::png-params png-params})
                     {:exists? false}))
