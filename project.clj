@@ -14,6 +14,7 @@
                  [ring "1.5.0"]
                  [clj-bugsnag "0.2.9"]
                  [clj-aws-s3 "0.3.10" :exclusions [joda-time]]
+                 [cheshire "5.7.0"]
                  [pandect "0.6.1"]
                  [com.taoensso/carmine "2.15.1"]
                  [org.slf4j/slf4j-nop "1.7.21"]
