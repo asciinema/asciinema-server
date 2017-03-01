@@ -1,7 +1,8 @@
 (ns asciinema.util.io
   (:require [clojure.java.shell :as shell])
-  (:import java.nio.file.Files
-           java.nio.file.attribute.FileAttribute))
+  (:import java.io.FilterInputStream
+           java.nio.file.attribute.FileAttribute
+           java.nio.file.Files))
 
 (defn create-tmp-dir [prefix]
   (let [dir (Files/createTempDirectory prefix (into-array FileAttribute []))]
@@ -13,3 +14,9 @@
        ~@body
        (finally
          (shell/sh "rm" "-rf" (.getPath ~sym))))))
+
+(defn cleanup-input-stream [is cleanup]
+  (proxy [FilterInputStream] [is]
+    (close []
+      (proxy-super close)
+      (cleanup))))
