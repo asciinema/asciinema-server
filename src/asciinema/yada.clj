@@ -1,6 +1,6 @@
 (ns asciinema.yada
   (:require [clojure.java.io :as io]
-            [clojure.tools.logging :as log]
+            [taoensso.timbre :as log]
             [yada.yada :as yada]))
 
 (def not-found-model

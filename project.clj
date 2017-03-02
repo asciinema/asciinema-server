@@ -16,6 +16,7 @@
                  [clj-aws-s3 "0.3.10" :exclusions [joda-time]]
                  [cheshire "5.7.0"]
                  [pandect "0.6.1"]
+                 [com.taoensso/timbre "4.8.0"]
                  [com.taoensso/carmine "2.15.1"]
                  [org.slf4j/slf4j-nop "1.7.21"]
                  [duct/hikaricp-component "0.1.0"]
