@@ -16,7 +16,7 @@
 
 (defn logger [ctx]
   (when-let [error (:error ctx)]
-    (when (= (-> ctx :response :status) 500)
+    (when (not= (-> ctx :response :status) 404)
       (log/error error))))
 
 (defn resource [model]
