@@ -8,7 +8,7 @@
                  [duct "0.8.2"]
                  [yada "1.2.0"]
                  [aleph "0.4.1"]
-                 [bidi "2.0.12"]
+                 [bidi "2.0.16"]
                  [prismatic/schema "1.1.3"]
                  [environ "1.1.0"]
                  [ring "1.5.0"]
