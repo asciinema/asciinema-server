@@ -4,7 +4,8 @@
             [clj-time
              [coerce :as timec]
              [core :as time]]
-            [ring.util.http-response :as response])
+            [ring.util.http-response :as response]
+            [ring.util.mime-type :as mime-type])
   (:import com.amazonaws.auth.BasicAWSCredentials
            com.amazonaws.services.s3.AmazonS3Client
            [com.amazonaws.services.s3.model GeneratePresignedUrlRequest ResponseHeaderOverrides]))
@@ -33,8 +34,10 @@
     (file-store/put-file this file path nil))
 
   (put-file [this file path size]
-    (let [path (str path-prefix path)]
-      (s3/put-object cred bucket path file {:content-length size})))
+    (let [path (str path-prefix path)
+          content-type (mime-type/ext-mime-type path)]
+      (s3/put-object cred bucket path file {:content-length size
+                                            :content-type content-type})))
 
   (input-stream [this path]
     (let [path (str path-prefix path)]
