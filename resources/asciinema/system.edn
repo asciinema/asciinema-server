@@ -30,5 +30,5 @@
   :png-gen
   {:bin-path "a2png/a2png.sh"}
   :executor
-  {:threads 1
-   :queue-length 1}}}
+  {:threads 2
+   :queue-length 16}}}
