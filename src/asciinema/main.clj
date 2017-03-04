@@ -33,7 +33,8 @@
                     's3-access-key (:s3-access-key env)
                     's3-secret-key (:s3-secret-key env)
                     'redis-host (:redis-host env "localhost")
-                    'redis-port (Integer/parseInt (:redis-port env "6379"))}
+                    'redis-port (Integer/parseInt (:redis-port env "6379"))
+                    'a2png-bin-path (:a2png-bin-path env "a2png/a2png.sh")}
           system (->> (load-system [(io/resource "asciinema/system.edn")] bindings)
                       (component/start))]
       (add-shutdown-hook ::stop-system #(component/stop system))
