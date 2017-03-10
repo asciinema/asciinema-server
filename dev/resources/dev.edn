@@ -7,4 +7,6 @@
   :db
   {:uri "jdbc:postgresql://localhost:15432/asciinema_development?user=vagrant"}
   :file-store
-  {:path "uploads/"}}}
+  {:path "uploads/"}
+  :png-gen
+  {:bin-path "a2png/a2png.sh"}}}
