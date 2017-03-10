@@ -23,7 +23,7 @@
   (or (executor/execute executor f)
       (service-unavailable-response ctx)))
 
-(defn asciicast-json-resource [db file-store]
+(defn asciicast-file-resource [db file-store]
   (resource
    {:produces "application/json"
     :parameters {:path {:token String}
@@ -41,7 +41,7 @@
 
 (def png-ttl-days 7)
 
-(defn asciicast-png-resource [db file-store exp-set executor png-gen]
+(defn asciicast-image-resource [db file-store exp-set executor png-gen]
   (resource
    {:produces
     "image/png"
@@ -85,6 +85,6 @@
                             (fstore/serve-file file-store ctx png-store-path {}))))))}))
 
 (defn asciicasts-endpoint [{:keys [db file-store exp-set executor png-gen]}]
-  ["" [["/a/" [[[:token ".json"] (asciicast-json-resource db file-store)]
-               [[:token ".png"] (asciicast-png-resource db file-store exp-set executor png-gen)]]]
+  ["" [["/a/" [[[:token ".json"] (asciicast-file-resource db file-store)]
+               [[:token ".png"] (asciicast-image-resource db file-store exp-set executor png-gen)]]]
        [true (yada/resource not-found-model)]]])
