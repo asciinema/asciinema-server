@@ -51,6 +51,10 @@ Packages:
 
     pkg_add asciinema
 
+### openSUSE
+
+    zypper in asciinema
+
 ### OS X
 
 Homebrew:
