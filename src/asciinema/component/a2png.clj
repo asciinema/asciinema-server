@@ -1,19 +1,15 @@
 (ns asciinema.component.a2png
   (:require [asciinema.boundary.png-generator :as png-generator]
             [asciinema.util.io :refer [cleanup-input-stream create-tmp-dir]]
+            [clojure.java.io :as io]
             [clojure.java
              [io :as io]
-             [shell :as shell]]))
+             [shell :as shell]]
+            [me.raynes.conch :as conch]))
 
 (defn- exec-a2png [bin-path in-url out-path {:keys [snapshot-at theme scale]}]
-  (let [{:keys [exit] :as result} (shell/sh bin-path
-                                            in-url
-                                            out-path
-                                            (str snapshot-at)
-                                            theme
-                                            (str scale))]
-    (when-not (zero? exit)
-      (throw (ex-info "a2png error" result)))))
+  (conch/let-programs [a2png bin-path]
+    (a2png in-url out-path (str snapshot-at) theme (str scale) {:timeout 30000})))
 
 (defrecord A2png [bin-path]
   png-generator/PngGenerator

@@ -21,7 +21,8 @@
                  [org.slf4j/slf4j-nop "1.7.21"]
                  [duct/hikaricp-component "0.1.0"]
                  [org.postgresql/postgresql "9.4.1211"]
-                 [duct/ragtime-component "0.1.4"]]
+                 [duct/ragtime-component "0.1.4"]
+                 [me.raynes/conch "0.8.0"]]
   :plugins [[lein-environ "1.0.3"]]
   :main ^:skip-aot asciinema.main
   :target-path "target/%s/"
