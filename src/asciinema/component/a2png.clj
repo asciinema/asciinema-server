@@ -7,11 +7,11 @@
 
 (defn- exec-a2png [bin-path in-url out-path {:keys [snapshot-at theme scale]}]
   (let [{:keys [exit] :as result} (shell/sh bin-path
-                                            "-t" theme
-                                            "-s" (str scale)
                                             in-url
                                             out-path
-                                            (str snapshot-at))]
+                                            (str snapshot-at)
+                                            theme
+                                            (str scale))]
     (when-not (zero? exit)
       (throw (ex-info "a2png error" result)))))
 
