@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "oEmbed provider", needs_phantomjs_2_bin: true do
+describe "oEmbed provider" do
 
   let(:asciicast) { create(:asciicast) }
 

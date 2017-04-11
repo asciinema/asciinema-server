@@ -1,9 +1,12 @@
 class OembedController < ApplicationController
+  CELL_WIDTH = 7.22
+  CELL_HEIGHT = 16
+  BORDER_WIDTH = 12
 
   def show
     url = URI.parse(params[:url])
 
-    if url.path =~ %r{^/a/(\d+)$}
+    if url.path =~ %r{^/a/([^/]+)$}
       id = $1
       asciicast = AsciicastDecorator.new(Asciicast.find(id))
 
@@ -25,16 +28,18 @@ class OembedController < ApplicationController
   private
 
   def oembed_response(asciicast)
-    asciicast_image_generator.generate(asciicast) if asciicast.image_stale?
+    scale = AsciicastImageGenerator::PIXEL_DENSITY
+    image_width = scale * (CELL_WIDTH * asciicast.width + BORDER_WIDTH).floor
+    image_height = scale * (CELL_HEIGHT * asciicast.height + BORDER_WIDTH)
 
     width, height = size_smaller_than(
-      asciicast.image_width,
-      asciicast.image_height,
-      params[:maxwidth] || asciicast.image_width,
-      params[:maxheight] || asciicast.image_height
+      image_width,
+      image_height,
+      params[:maxwidth] || image_width,
+      params[:maxheight] || image_height
     )
 
-    oembed = {
+    {
       type: 'rich',
       version: 1.0,
       title: asciicast.title,
@@ -69,10 +74,6 @@ class OembedController < ApplicationController
       f = [fw, fh].min
       [(Rational(width) * f).to_i, (Rational(height) * f).to_i]
     end
-  end
-
-  def asciicast_image_generator
-    AsciicastImageGenerator.new(self)
   end
 
 end

@@ -1,1 +1,1 @@
-<%= link_to image_tag(asciicast.image_url, width: width, alt: asciicast.title), asciicast_url(asciicast), target: '_blank' %>
+<%= link_to image_tag(asciicast_url(asciicast, format: :png), width: width, alt: asciicast.title), asciicast_url(asciicast), target: '_blank' %>
