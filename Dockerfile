@@ -1,5 +1,6 @@
-FROM ubuntu:14.04
+FROM ubuntu:16.04
 MAINTAINER Bartosz Ptaszynski <foobarto@gmail.com>
+MAINTAINER Marcin Kulik <support@asciinema.org>
 
 # A quickstart:
 #
@@ -15,52 +16,44 @@ MAINTAINER Bartosz Ptaszynski <foobarto@gmail.com>
 #
 # Assuming you are running Docker Toolbox and VirtualBox: go to http://192.168.99.100:3000/ and enjoy.
 
-ENV RUBY_VERSION 2.1.7
 EXPOSE 3000
 
-# get ruby in the house
-RUN mkdir /app && \
+ARG DEBIAN_FRONTEND=noninteractive
+ARG NODE_VERSION=node_6.x
+ARG DISTRO=xenial
+
+RUN apt-get update && \
+    apt-get install -y wget software-properties-common apt-transport-https && \
+    add-apt-repository ppa:brightbox/ruby-ng && \
+    echo "deb https://deb.nodesource.com/$NODE_VERSION $DISTRO main" >/etc/apt/sources.list.d/nodesource.list && \
+    wget --quiet -O - https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - && \
     apt-get update && \
     apt-get install -y \
       autoconf \
       build-essential \
-      curl \
       git-core \
-      libcurl4-openssl-dev \
-      libffi-dev \
+      libfontconfig1 \
       libpq-dev \
-      libreadline-dev \
-      libsqlite3-dev \
-      libssl-dev \
       libtool \
       libxml2-dev \
       libxslt1-dev \
-      libyaml-dev \
+      nodejs \
       pkg-config \
-      postgresql \
-      python-software-properties \
+      ruby2.1 \
+      ruby2.1-dev \
       sendmail \
-      software-properties-common \
-      sqlite3 \
-      zlib1g-dev
+      ttf-bitstream-vera
 
-ENV PATH /usr/local/rbenv/bin:/usr/local/rbenv/plugins/ruby-build/bin:$PATH
+# autoconf, libtool and pkg-config for libtsm
 
-# install ruby
-RUN mkdir /usr/local/rbenv && \
-    git clone git://github.com/sstephenson/rbenv.git /usr/local/rbenv && \
-    git clone git://github.com/sstephenson/ruby-build.git /usr/local/rbenv/plugins/ruby-build && \
-    git clone https://github.com/sstephenson/rbenv-gem-rehash.git /usr/local/rbenv/plugins/rbenv-gem-rehash && \
-    rbenv install $RUBY_VERSION && \
-    rbenv global $RUBY_VERSION && \
-    rbenv rehash
+RUN gem install bundler
 
-# get asciinema dependencies
-RUN curl --silent --location https://deb.nodesource.com/setup_4.x | sudo bash - && \
-    add-apt-repository ppa:tanguy-patte/phantomjs && \
-    apt-get update && \
-    apt-get install -y phantomjs nodejs && \
-    rbenv exec gem install bundler
+ARG PHANTOMJS_VERSION=2.1.1
+
+RUN wget --quiet -O /opt/phantomjs.tar.bz2 https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-$PHANTOMJS_VERSION-linux-x86_64.tar.bz2 && \
+    tar xjf /opt/phantomjs.tar.bz2 -C /opt && \
+    rm /opt/phantomjs.tar.bz2 && \
+    ln -sf /opt/phantomjs-$PHANTOMJS_VERSION-linux-x86_64/bin/phantomjs /usr/local/bin
 
 # get libtsm
 RUN git clone git://people.freedesktop.org/~dvdhrm/libtsm /tmp/libtsm && \
@@ -69,16 +62,14 @@ RUN git clone git://people.freedesktop.org/~dvdhrm/libtsm /tmp/libtsm && \
     test -f ./configure || NOCONFIGURE=1 ./autogen.sh && \
     ./configure --prefix=/usr/local && \
     make && \
-    sudo make install && \
-    sudo ldconfig
+    make install && \
+    ldconfig
 
 # install asciinema
 ADD . /app
 WORKDIR /app
 
-RUN rbenv local $RUBY_VERSION && \
-    cd /app/src && \
-    eval "$(rbenv init -)" && \
+RUN cd /app/src && \
     make && \
     cd /app && \
     rm -f log/* && \
@@ -99,7 +90,6 @@ ENV RAILS_ENV "development"
 # for ex. asciinema.example.com
 ENV HOST "localhost:3000"
 
-ENTRYPOINT ["rbenv", "exec"]
 CMD ["bundle", "exec", "rails", "server"]
 # bundle exec rake db:setup
 # bundle exec sidekiq  OR ruby start_sidekiq.rb (to start sidekiq with sendmail)

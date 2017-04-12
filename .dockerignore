@@ -1,1 +1,6 @@
 .git
+.stuff/*
+tmp/*
+log/*
+target
+uploads/*
