@@ -63,7 +63,8 @@ RUN git clone git://people.freedesktop.org/~dvdhrm/libtsm /tmp/libtsm && \
     ./configure --prefix=/usr/local && \
     make && \
     make install && \
-    ldconfig
+    ldconfig && \
+    rm -rf /tmp/libtsm
 
 # install asciinema
 ADD . /app
