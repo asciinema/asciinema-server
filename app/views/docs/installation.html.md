@@ -9,6 +9,18 @@ be installed with pip (Python 3 required):
 
     sudo pip3 install asciinema
 
+## Docker image
+
+asciinema Docker image is based on Ubuntu 16.04 and has the latest version of
+asciinema recorder pre-installed.
+
+    docker pull asciinema/asciinema
+
+When running it don't forget to allocate a pseudo-TTY (`-t`), keep STDIN open
+(`-i`) and mount config directory volume (`-v`):
+
+    docker run --rm -ti -v "$HOME/.config/asciinema":/root/.config/asciinema asciinema/asciinema
+
 ## Native packages
 
 ### Arch Linux
