@@ -1,140 +1,116 @@
-# asciinema
+# asciinema.org
 
-FIXME: description
+[![Build Status](https://travis-ci.org/asciinema/asciinema.org.svg?branch=master)](https://travis-ci.org/asciinema/asciinema.org)
+[![Code Climate](https://codeclimate.com/github/asciinema/asciinema.org/badges/gpa.svg)](https://codeclimate.com/github/asciinema/asciinema.org)
+[![Coverage Status](https://coveralls.io/repos/asciinema/asciinema.org/badge.svg)](https://coveralls.io/r/asciinema/asciinema.org)
 
-## Developing
+Record and share your terminal sessions, the right way.
 
-### Setup
+asciinema is a free and open source solution for recording terminal sessions
+and sharing them on the web.
 
-When you first clone this repository, run:
+This is the source code of asciinema.org website. You can find asciinema's
+terminal recorder at
+[asciinema/asciinema](https://github.com/asciinema/asciinema) and asciinema
+player at
+[asciinema/asciinema-player](https://github.com/asciinema/asciinema-player).
 
-```sh
-lein setup
+## Setup instructions
+
+Below you'll find setup instructions in case you want to contribute, play with
+it on your local machine, or setup your own instance for private use or for
+your organization.
+
+### Quickstart Using Docker Compose
+
+Required:
+  - [Docker](https://docs.docker.com/engine/getstarted/step_one/#step-1-get-docker)
+  - [docker-compose 1.5+](https://docs.docker.com/compose/install/)
+```bash
+$ wget https://raw.githubusercontent.com/asciinema/asciinema.org/master/docker-compose.yml
+$ docker-compose up -d asciinema
+$ docker-compose run --rm db_init
+
 ```
 
-This will create files for local configuration, and prep your system
-for the project.
+You can override the address/port that is sent in email with login token by passing HOST="host:port" environment variable when starting the web server.
 
-### Environment
+Assuming you are running Docker Toolbox and VirtualBox: go to http://192.168.99.100:3000/ and enjoy.
 
-To begin developing, start with a REPL.
+### Manual setup
 
-```sh
-lein repl
+#### 1. Install dependencies
+
+asciinema.org site is a Ruby on Rails application. You need to have following
+dependencies installed:
+
+* Ruby 2.0+ (Ruby 2.1 is recommended)
+
+* bundler gem  
+  `gem install bundler`
+
+* PostgreSQL 8+ with libpq development headers  
+  `sudo apt-get install postgresql libpq-dev` on Debian/Ubuntu
+
+* asciinema's libtsm fork (`asciinema` branch)  
+  See [here](https://github.com/asciinema/libtsm/blob/asciinema/README) for installation instructions.
+  If you don't install it now the setup script (point 4 below) will try to
+  install it for you anyway.
+
+* phantomjs 2.0+  
+  `sudo add-apt-repository ppa:tanguy-patte/phantomjs && sudo apt-get update && sudo apt-get install phantomjs`
+
+#### 2. Get the source code
+
+Clone git repository:
+
+```bash
+$ git clone git://github.com/asciinema/asciinema.org.git
+$ cd asciinema.org
 ```
 
-Then load the development environment.
+#### 3. Prepare database config file
 
-```clojure
-user=> (dev)
-:loaded
+Copy *config/database.yml.example* to *config/database.yml*. Then set
+database/user/password to whatever you prefer.
+
+If database specified in database.yml doesn't exist then the following setup
+task will create it (make sure database user is allowed to create new
+databases).
+
+#### 4. Setup the app
+
+Following script will install gem dependencies and setup database:
+
+```bash
+$ ./script/setup
 ```
 
-Run `go` to initiate and start the system.
+#### 5. Run Rails server
 
-```clojure
-dev=> (go)
-:started
+```bash
+$ bundle exec rails server
 ```
 
-By default this creates a web server at <http://localhost:3000>.
+#### 6. Run the background job processor
 
-When you make changes to your source files, use `reset` to reload any
-modified files and reset the server.
+The background job processor is needed for asciicast pre-processing and
+thumbnail generation.
 
-```clojure
-dev=> (reset)
-:reloading (...)
-:resumed
+```bash
+$ bundle exec sidekiq
 ```
 
-### Testing
+## Contributing
 
-Testing is fastest through the REPL, as you avoid environment startup
-time.
+If you want to contribute to this project check out
+[Contributing](http://asciinema.org/contributing) page.
 
-```clojure
-dev=> (test)
-...
-```
+## Authors
 
-But you can also run tests through Leiningen.
+Developed with passion by [Marcin Kulik](http://ku1ik.com) and great open
+source [contributors](https://github.com/asciinema/asciinema.org/contributors)
 
-```sh
-lein test
-```
+## Copyright
 
-### Migrations
-
-Migrations are handled by [ragtime][]. Migration files are stored in
-the `resources/migrations` directory, and are applied in alphanumeric
-order.
-
-To update the database to the latest migration, open the REPL and run:
-
-```clojure
-dev=> (migrate)
-Applying 20150815144312-create-users
-Applying 20150815145033-create-posts
-```
-
-To rollback the last migration, run:
-
-```clojure
-dev=> (rollback)
-Rolling back 20150815145033-create-posts
-```
-
-Note that the system needs to be setup with `(init)` or `(go)` before
-migrations can be applied.
-
-[ragtime]: https://github.com/weavejester/ragtime
-
-### Generators
-
-This project has several generator functions to help you create files.
-
-To create a new endpoint:
-
-```clojure
-dev=> (gen/endpoint "bar")
-Creating file src/foo/endpoint/bar.clj
-Creating file test/foo/endpoint/bar_test.clj
-Creating directory resources/foo/endpoint/bar
-nil
-```
-
-To create a new component:
-
-```clojure
-dev=> (gen/component "baz")
-Creating file src/foo/component/baz.clj
-Creating file test/foo/component/baz_test.clj
-nil
-```
-
-To create a new boundary:
-
-```clojure
-dev=> (gen/boundary "quz" foo.component.baz.Baz)
-Creating file src/foo/boundary/quz.clj
-Creating file test/foo/boundary/quz_test.clj
-nil
-```
-
-To create a new SQL migration:
-
-```clojure
-dev=> (gen/sql-migration "create-users")
-Creating file resources/foo/migrations/20160519143643-create-users.up.sql
-Creating file resources/foo/migrations/20160519143643-create-users.down.sql
-nil
-```
-
-## Deploying
-
-FIXME: steps to deploy
-
-## Legal
-
-Copyright © 2017 FIXME
+Copyright &copy; 2011-2016 Marcin Kulik. See LICENSE.txt for details.
