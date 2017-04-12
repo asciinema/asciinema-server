@@ -1,0 +1,34 @@
+{:components
+ {:http #var asciinema.component.yada-listener/yada-listener
+  :db   #var asciinema.component.db/hikaricp
+  :ragtime #var duct.component.ragtime/ragtime
+  :file-store #var asciinema.component.s3-file-store/s3-file-store
+  :exp-set #var asciinema.component.redis-client/redis-client
+  :png-gen #var asciinema.component.a2png/a2png
+  :executor #var asciinema.component.fixed-thread-executor/fixed-thread-executor}
+ :endpoints
+ {:asciicasts #var asciinema.endpoint.asciicasts/asciicasts-endpoint}
+ :dependencies
+ {:http {:app :asciicasts}
+  :ragtime [:db]
+  :asciicasts [:db :file-store :exp-set :executor :png-gen]}
+ :config
+ {:http
+  {:port http-port}
+  :db
+  {:uri db-uri}
+  :ragtime
+  {:resource-path "asciinema/migrations"}
+  :file-store
+  {:cred {:access-key s3-access-key
+          :secret-key s3-secret-key}
+   :bucket s3-bucket
+   :path-prefix "uploads/"}
+  :exp-set
+  {:host redis-host
+   :port redis-port}
+  :png-gen
+  {:bin-path a2png-bin-path}
+  :executor
+  {:threads 2
+   :queue-length 16}}}

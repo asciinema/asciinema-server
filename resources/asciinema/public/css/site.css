@@ -1,0 +1,103 @@
+.error-page body {
+    background: #eee;
+}
+
+.error-page h1 {
+    margin: 15% 0 0 0;
+    text-align: center;
+    font-size: 42px;
+    color: #900;
+}
+
+.error-page h2 {
+    text-align: center;
+    font-size: 32px;
+    font-weight: normal;
+    color: #333;
+}
+
+.welcome body {
+    background: #eee;
+    color: #333;
+    font-family: Helvetica, Arial, sans-serif;
+    max-width: 700px;
+    padding: 15px;
+    margin: auto;
+}
+
+.welcome p {
+    line-height: 1.4em;
+}
+
+.welcome code {
+    font-family: Menlo, DejaVu Sans Mono, Lucida Console, monospace;
+    font-size: 12px;
+    background: #ddd;
+    color: #111;
+}
+
+.welcome h1 {
+    text-align: center;
+    font-size: 36px;
+    font-weight: lighter;
+    margin: 40px 0 30px 0;
+}
+
+.welcome h1 .outer {
+    border: solid 4px #555;
+    padding: 3px;
+    display: inline-block;
+}
+
+.welcome h1 .inner {
+    border: solid 2px #555;
+    padding: 0 3px;
+    display: inline-block;
+    font-weight: normal;
+    color: #444;
+}
+
+.welcome .project-name {
+    font-weight: bold;
+}
+
+.welcome .profiles {
+    margin-top: 30px;
+}
+
+.welcome .profiles code {
+    font-size: 11px;
+}
+
+.welcome .profiles h2 {
+    font-weight: normal;
+    font-size: 23px;
+    margin-bottom: 0;
+    color: #333;
+}
+
+.welcome .profiles dl {
+    margin: 0 10px;
+}
+
+.welcome .profiles dt {
+    font-weight: normal;
+    font-size: 19px;
+    margin: 18px 0 5px 0;
+}
+
+.welcome .profiles dd {
+    font-size: 14px;
+    margin: 8px 0 8px 0;
+}
+
+.example body {
+    background: #eee;
+}
+
+.example h1 {
+    margin: 15% 0 0 0;
+    text-align: center;
+    font-size: 36px;
+    font-weight: normal;
+}
