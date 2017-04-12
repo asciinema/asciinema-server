@@ -77,8 +77,10 @@ Nix:
 
 ### No package for your operating system?
 
-If you use other operating system and you can build a native package
-for it then don't hesitate, do it and let us know.
+If you use other operating system and you can build a native package for it then
+don't hesitate, do it and let us know. We have [Github
+issue](https://github.com/asciinema/asciinema/issues/116) where we track new
+releases and packaging progress.
 
 ## Running latest version from master
 
