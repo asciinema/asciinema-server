@@ -56,9 +56,9 @@ RUN wget --quiet -O /opt/phantomjs.tar.bz2 https://bitbucket.org/ariya/phantomjs
     ln -sf /opt/phantomjs-$PHANTOMJS_VERSION-linux-x86_64/bin/phantomjs /usr/local/bin
 
 # get libtsm
-RUN git clone git://people.freedesktop.org/~dvdhrm/libtsm /tmp/libtsm && \
+RUN git clone https://github.com/asciinema/libtsm.git /tmp/libtsm && \
     cd /tmp/libtsm && \
-    git checkout libtsm-3 && \
+    git checkout asciinema && \
     test -f ./configure || NOCONFIGURE=1 ./autogen.sh && \
     ./configure --prefix=/usr/local && \
     make && \
