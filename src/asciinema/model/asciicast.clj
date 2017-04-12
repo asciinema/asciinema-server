@@ -1,6 +1,6 @@
 (ns asciinema.model.asciicast
-  (:require[pandect.algo.sha1 :as sha1]
-           [clojure.string :as str]))
+  (:require [pandect.algo.sha1 :as sha1]
+            [clojure.string :as str]))
 
 (defn json-store-path [{:keys [id file stdout_frames]}]
   (cond
