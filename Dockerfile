@@ -67,14 +67,17 @@ RUN git clone https://github.com/asciinema/libtsm.git /tmp/libtsm && \
     rm -rf /tmp/libtsm
 
 # install asciinema
-ADD . /app
+RUN mkdir /app
 WORKDIR /app
 
-RUN cd /app/src && \
-    make && \
-    cd /app && \
-    rm -f log/* && \
-    bundle install && \
+ADD Gemfile* /app/
+RUN bundle install
+
+ADD . /app
+
+RUN cd src && make
+
+RUN rm -f log/* && \
     mkdir -p tmp && \
     ln -s /app/vendor/assets/javascripts/asciinema-player.js /app/a2png/ && \
     ln -s /app/vendor/assets/stylesheets/asciinema-player.css /app/a2png/ && \
