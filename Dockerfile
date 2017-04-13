@@ -93,14 +93,16 @@ WORKDIR /app
 ADD Gemfile* /app/
 RUN bundle install --deployment --without development test
 
-ADD a2png/project.clj /app/a2png/
+COPY a2png/project.clj /app/a2png/
 RUN cd a2png && lein deps
+
+COPY a2png /app/a2png
+RUN cd a2png && lein cljsbuild once main && lein cljsbuild once page
 
 ADD . /app
 
 RUN cd src && make
 RUN bundle exec rake assets:precompile
-RUN cd a2png && lein cljsbuild once main && lein cljsbuild once page
 
 # configure Nginx
 
