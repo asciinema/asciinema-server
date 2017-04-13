@@ -9,11 +9,11 @@ Record and share your terminal sessions, the right way.
 asciinema is a free and open source solution for recording terminal sessions
 and sharing them on the web.
 
-This is the source code of asciinema.org website. You can find asciinema's
-terminal recorder at
-[asciinema/asciinema](https://github.com/asciinema/asciinema) and asciinema
-player at
-[asciinema/asciinema-player](https://github.com/asciinema/asciinema-player).
+This is the source code of asciinema.org web app. You can find asciinema's
+terminal recorder
+at [asciinema/asciinema](https://github.com/asciinema/asciinema) and asciinema
+player
+at [asciinema/asciinema-player](https://github.com/asciinema/asciinema-player).
 
 ## Setup instructions
 
