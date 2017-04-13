@@ -101,6 +101,9 @@ RUN cd a2png && lein cljsbuild once main && lein cljsbuild once page
 
 ADD . /app
 
+ENV DATABASE_URL "postgresql://postgres:mypass@postgres/asciinema"
+ENV REDIS_URL "redis://redis:6379"
+
 RUN cd src && make
 RUN bundle exec rake assets:precompile
 
@@ -114,9 +117,6 @@ RUN mkdir -p /var/log/supervisor
 COPY docker/supervisor/asciinema.conf /etc/supervisor/conf.d/asciinema.conf
 
 VOLUME ["/app/config", "/app/log", "/app/uploads"]
-
-ENV DATABASE_URL "postgresql://postgres:mypass@postgres/asciinema"
-ENV REDIS_URL "redis://redis:6379"
 
 ENV HOST "localhost:3000"
 
