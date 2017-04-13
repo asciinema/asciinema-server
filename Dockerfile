@@ -16,8 +16,6 @@ MAINTAINER Marcin Kulik <support@asciinema.org>
 #
 # Assuming you are running Docker Toolbox and VirtualBox: go to http://192.168.99.100:3000/ and enjoy.
 
-EXPOSE 3000
-
 ARG DEBIAN_FRONTEND=noninteractive
 ARG NODE_VERSION=node_6.x
 ARG DISTRO=xenial
@@ -37,11 +35,13 @@ RUN apt-get update && \
       libtool \
       libxml2-dev \
       libxslt1-dev \
+      nginx \
       nodejs \
       pkg-config \
       ruby2.1 \
       ruby2.1-dev \
       sendmail \
+      supervisor \
       ttf-bitstream-vera
 
 # autoconf, libtool and pkg-config for libtsm
@@ -102,6 +102,15 @@ RUN cd src && make
 
 RUN cd a2png && lein cljsbuild once main && lein cljsbuild once page
 
+# configure Nginx
+
+COPY docker/nginx/asciinema.conf /etc/nginx/sites-available/default
+
+# configure Supervisor
+
+RUN mkdir -p /var/log/supervisor
+COPY docker/supervisor/asciinema.conf /etc/supervisor/conf.d/asciinema.conf
+
 VOLUME ["/app/config", "/app/log", "/app/uploads"]
 
 # 172.17.42.1 is the docker0 address
@@ -113,6 +122,8 @@ ENV RAILS_ENV "development"
 # for ex. asciinema.example.com
 ENV HOST "localhost:3000"
 
-CMD ["bundle", "exec", "rails", "server"]
+CMD ["/usr/bin/supervisord"]
 # bundle exec rake db:setup
 # bundle exec sidekiq  OR ruby start_sidekiq.rb (to start sidekiq with sendmail)
+
+EXPOSE 80
