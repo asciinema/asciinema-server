@@ -1,10 +1,14 @@
 .git
-.stuff/*
+.stuff
+.bundle
 tmp/*
 log/*
 target
 uploads/*
+coverage
 Dockerfile
 a2png/main.js
 a2png/page/page.js
 a2png/target
+config/asciinema.yml
+config/database.yml
