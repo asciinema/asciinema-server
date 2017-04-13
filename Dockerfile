@@ -95,7 +95,7 @@ ENV RAILS_ENV "production"
 RUN mkdir -p /app/tmp /app/log
 WORKDIR /app
 
-ADD Gemfile* /app/
+COPY Gemfile* /app/
 RUN bundle install --deployment --without development test
 
 COPY a2png/project.clj /app/a2png/
@@ -104,7 +104,7 @@ RUN cd a2png && lein deps
 COPY a2png /app/a2png
 RUN cd a2png && lein cljsbuild once main && lein cljsbuild once page
 
-ADD . /app
+COPY . /app
 
 ENV DATABASE_URL "postgresql://postgres:mypass@postgres/asciinema"
 ENV REDIS_URL "redis://redis:6379"
