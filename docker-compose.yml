@@ -1,21 +1,24 @@
 version: '2'
 
 # Quickstart:
-# docker-compose up -d asciinema
-# docker-compose run --rm db_init
+#   docker-compose run --rm -b_init
+#   docker-compose up -d web
 
 # To cleanup:
-# docker-compose stop && docker-compose rm
+#   docker-compose stop && docker-compose rm
 
 services:
   postgres:
     image: postgres
-    container_name: postgres
+    container_name: asciinema_postgres
+
   redis:
     image: redis
-    container_name: redis
+    container_name: asciinema_redis
+
   sidekiq:
     image: asciinema/asciinema.org
+    container_name: asciinema_worker
     links:
       - redis
       - postgres
@@ -27,9 +30,9 @@ services:
     volumes:
       - /tmp/asciinema/uploads:/app/uploads
 
-  asciinema:
+  web:
     image: asciinema/asciinema.org
-    container_name: asciinema
+    container_name: asciinema_web
     links:
       - redis
       - postgres
@@ -40,16 +43,14 @@ services:
       REDIS_URL: "redis://redis:6379"
       HOST: "localhost:3000" # replace with actual hostname/ip.... ${HOSTNAME} doesn't seem to work..
     ports:
-      - "3000:3000"
+      - "3000:80"
     volumes:
       - /tmp/asciinema/uploads:/app/uploads
 
   db_init:
     image: asciinema/asciinema.org
     links:
-      - redis
       - postgres
     environment:
       DATABASE_URL: "postgresql://postgres:mypass@postgres/asciinema"
-      REDIS_URL: "redis://redis:6379"
     command: "bundle exec rake db:setup"

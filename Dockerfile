@@ -1,105 +1,132 @@
-FROM ubuntu:14.04
+FROM ubuntu:16.04
 MAINTAINER Bartosz Ptaszynski <foobarto@gmail.com>
+MAINTAINER Marcin Kulik <support@asciinema.org>
 
 # A quickstart:
 #
 #     docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=mypass --name=postgres postgres
 #     docker run -d -p 6379:6379 --name=redis redis
-#     docker run --rm -e DATABASE_URL="postgresql://postgres:mypass@172.17.42.1/asciinema" foobarto/asciinema.org bundle exec rake db:setup
+#     docker run --rm -e DATABASE_URL="postgresql://postgres:mypass@postgres/asciinema" asciinema/asciinema.org bundle exec rake db:setup
 #     # starting sidekiq using the provided start_sidekiq.rb file will also start sendmail service if you don't want to use SMTP
 #     # otherwise start sidekiq by starting: bundle exec sidekiq
-#     docker run -d -e DATABASE_URL="postgresql://postgres:mypass@172.17.42.1/asciinema" foobarto/asciinema.org ruby start_sidekiq.rb
-#     docker run -d -e DATABASE_URL="postgresql://postgres:mypass@172.17.42.1/asciinema" -p 3000:3000 foobarto/asciinema.org
+#     docker run -d -e DATABASE_URL="postgresql://postgres:mypass@postgres/asciinema" asciinema/asciinema.org ruby start_sidekiq.rb
+#     docker run -d -e DATABASE_URL="postgresql://postgres:mypass@postgres/asciinema" -p 3000:80 asciinema/asciinema.org
 #
 # You can override the address/port that is sent in email with login token by passing HOST="host:port" environment variable when starting the web server.
-#
-# Assuming you are running Docker Toolbox and VirtualBox: go to http://192.168.99.100:3000/ and enjoy.
 
-ENV RUBY_VERSION 2.1.7
-EXPOSE 3000
+ARG DEBIAN_FRONTEND=noninteractive
+ARG NODE_VERSION=node_6.x
+ARG DISTRO=xenial
 
-# get ruby in the house
-RUN mkdir /app && \
+RUN apt-get update && \
+    apt-get install -y wget software-properties-common apt-transport-https && \
+    add-apt-repository ppa:brightbox/ruby-ng && \
+    echo "deb https://deb.nodesource.com/$NODE_VERSION $DISTRO main" >/etc/apt/sources.list.d/nodesource.list && \
+    wget --quiet -O - https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - && \
     apt-get update && \
     apt-get install -y \
       autoconf \
       build-essential \
-      curl \
       git-core \
-      libcurl4-openssl-dev \
-      libffi-dev \
+      imagemagick \
+      libfontconfig1 \
       libpq-dev \
-      libreadline-dev \
-      libsqlite3-dev \
-      libssl-dev \
       libtool \
       libxml2-dev \
       libxslt1-dev \
-      libyaml-dev \
+      nginx \
+      nodejs \
       pkg-config \
-      postgresql \
-      python-software-properties \
+      ruby2.1 \
+      ruby2.1-dev \
       sendmail \
-      software-properties-common \
-      sqlite3 \
-      zlib1g-dev
+      supervisor \
+      ttf-bitstream-vera
 
-ENV PATH /usr/local/rbenv/bin:/usr/local/rbenv/plugins/ruby-build/bin:$PATH
+# Packages required for:
+#   autoconf, libtool and pkg-config for libtsm
+#   libfontconfig1 for PhantomJS
+#   ttf-bitstream-vera for a2png
+#   imagemagick (identify) for PNG generator (Ruby)
 
-# install ruby
-RUN mkdir /usr/local/rbenv && \
-    git clone git://github.com/sstephenson/rbenv.git /usr/local/rbenv && \
-    git clone git://github.com/sstephenson/ruby-build.git /usr/local/rbenv/plugins/ruby-build && \
-    git clone https://github.com/sstephenson/rbenv-gem-rehash.git /usr/local/rbenv/plugins/rbenv-gem-rehash && \
-    rbenv install $RUBY_VERSION && \
-    rbenv global $RUBY_VERSION && \
-    rbenv rehash
+# install Bundler
 
-# get asciinema dependencies
-RUN curl --silent --location https://deb.nodesource.com/setup_4.x | sudo bash - && \
-    add-apt-repository ppa:tanguy-patte/phantomjs && \
-    apt-get update && \
-    apt-get install -y phantomjs nodejs && \
-    rbenv exec gem install bundler
+RUN gem install bundler
 
-# get libtsm
-RUN git clone git://people.freedesktop.org/~dvdhrm/libtsm /tmp/libtsm && \
+# install PhantomJS
+
+ARG PHANTOMJS_VERSION=2.1.1
+
+RUN wget --quiet -O /opt/phantomjs.tar.bz2 https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-$PHANTOMJS_VERSION-linux-x86_64.tar.bz2 && \
+    tar xjf /opt/phantomjs.tar.bz2 -C /opt && \
+    rm /opt/phantomjs.tar.bz2 && \
+    ln -sf /opt/phantomjs-$PHANTOMJS_VERSION-linux-x86_64/bin/phantomjs /usr/local/bin
+
+# install libtsm
+
+RUN git clone https://github.com/asciinema/libtsm.git /tmp/libtsm && \
     cd /tmp/libtsm && \
-    git checkout libtsm-3 && \
+    git checkout asciinema && \
     test -f ./configure || NOCONFIGURE=1 ./autogen.sh && \
     ./configure --prefix=/usr/local && \
     make && \
-    sudo make install && \
-    sudo ldconfig
+    make install && \
+    ldconfig && \
+    rm -rf /tmp/libtsm
+
+# install JDK
+
+RUN wget --quiet -O /opt/jdk-8u111-linux-x64.tar.gz --no-check-certificate --no-cookies --header 'Cookie: oraclelicense=accept-securebackup-cookie' http://download.oracle.com/otn-pub/java/jdk/8u111-b14/jdk-8u111-linux-x64.tar.gz && \
+    tar xzf /opt/jdk-8u111-linux-x64.tar.gz -C /opt && \
+    rm /opt/jdk-8u111-linux-x64.tar.gz && \
+    update-alternatives --install /usr/bin/java java /opt/jdk1.8.0_111/bin/java 1000
+
+# install leiningen
+
+RUN wget --quiet -O /usr/local/bin/lein https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein && \
+    chmod a+x /usr/local/bin/lein
+
+ARG LEIN_ROOT=yes
 
 # install asciinema
-ADD . /app
+
+ENV RAILS_ENV "production"
+
+RUN mkdir -p /app/tmp /app/log
 WORKDIR /app
 
-RUN rbenv local $RUBY_VERSION && \
-    cd /app/src && \
-    eval "$(rbenv init -)" && \
-    make && \
-    cd /app && \
-    rm -f log/* && \
-    bundle install && \
-    mkdir -p tmp && \
-    ln -s /app/vendor/assets/javascripts/asciinema-player.js /app/a2png/ && \
-    ln -s /app/vendor/assets/stylesheets/asciinema-player.css /app/a2png/ && \
-    touch tmp/restart.txt
+COPY Gemfile* /app/
+RUN bundle install --deployment --without development test
 
-VOLUME ["/app/config", "/app/log", "/app/uploads"]
+COPY a2png/project.clj /app/a2png/
+RUN cd a2png && lein deps
 
-# 172.17.42.1 is the docker0 address
-ENV DATABASE_URL "postgresql://postgres:mypass@172.17.42.1/asciinema"
-ENV REDIS_URL "redis://172.17.42.1:6379"
-ENV RAILS_ENV "development"
-# when using Docker Toolbox/Virtualbox this is going to be your address
-# set to whatever FQDN/address you want asciinema to advertise itself as
-# for ex. asciinema.example.com
+COPY a2png /app/a2png
+RUN cd a2png && lein cljsbuild once main && lein cljsbuild once page
+
+COPY . /app
+
+ENV DATABASE_URL "postgresql://postgres:mypass@postgres/asciinema"
+ENV REDIS_URL "redis://redis:6379"
+
+RUN cd src && make
+RUN bundle exec rake assets:precompile
+
+# configure Nginx
+
+COPY docker/nginx/asciinema.conf /etc/nginx/sites-available/default
+
+# configure Supervisor
+
+RUN mkdir -p /var/log/supervisor
+COPY docker/supervisor/asciinema.conf /etc/supervisor/conf.d/asciinema.conf
+
+VOLUME ["/app/log", "/app/uploads"]
+
 ENV HOST "localhost:3000"
 
-ENTRYPOINT ["rbenv", "exec"]
-CMD ["bundle", "exec", "rails", "server"]
+CMD ["/usr/bin/supervisord"]
 # bundle exec rake db:setup
 # bundle exec sidekiq  OR ruby start_sidekiq.rb (to start sidekiq with sendmail)
+
+EXPOSE 80

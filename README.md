@@ -24,18 +24,20 @@ your organization.
 ### Quickstart Using Docker Compose
 
 Required:
-  - [Docker](https://docs.docker.com/engine/getstarted/step_one/#step-1-get-docker)
-  - [docker-compose 1.5+](https://docs.docker.com/compose/install/)
+
+- [Docker](https://docs.docker.com/engine/getstarted/step_one/#step-1-get-docker)
+- [docker-compose 1.5+](https://docs.docker.com/compose/install/)
+
 ```bash
 $ wget https://raw.githubusercontent.com/asciinema/asciinema.org/master/docker-compose.yml
-$ docker-compose up -d asciinema
 $ docker-compose run --rm db_init
+$ docker-compose up -d web
 
 ```
 
 You can override the address/port that is sent in email with login token by passing HOST="host:port" environment variable when starting the web server.
 
-Assuming you are running Docker Toolbox and VirtualBox: go to http://192.168.99.100:3000/ and enjoy.
+Assuming you are running Docker Toolbox and VirtualBox: go to http://your-docker-host:3000/ and enjoy.
 
 ### Manual setup
 
