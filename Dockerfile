@@ -46,7 +46,11 @@ RUN apt-get update && \
 
 # autoconf, libtool and pkg-config for libtsm
 
+# install Bundler
+
 RUN gem install bundler
+
+# install PhantomJS
 
 ARG PHANTOMJS_VERSION=2.1.1
 
@@ -55,7 +59,8 @@ RUN wget --quiet -O /opt/phantomjs.tar.bz2 https://bitbucket.org/ariya/phantomjs
     rm /opt/phantomjs.tar.bz2 && \
     ln -sf /opt/phantomjs-$PHANTOMJS_VERSION-linux-x86_64/bin/phantomjs /usr/local/bin
 
-# get libtsm
+# install libtsm
+
 RUN git clone https://github.com/asciinema/libtsm.git /tmp/libtsm && \
     cd /tmp/libtsm && \
     git checkout asciinema && \
