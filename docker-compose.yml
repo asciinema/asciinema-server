@@ -11,9 +11,11 @@ services:
   postgres:
     image: postgres
     container_name: postgres
+
   redis:
     image: redis
     container_name: redis
+
   sidekiq:
     image: asciinema/asciinema.org
     links:
