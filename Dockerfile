@@ -116,7 +116,7 @@ COPY docker/nginx/asciinema.conf /etc/nginx/sites-available/default
 RUN mkdir -p /var/log/supervisor
 COPY docker/supervisor/asciinema.conf /etc/supervisor/conf.d/asciinema.conf
 
-VOLUME ["/app/config", "/app/log", "/app/uploads"]
+VOLUME ["/app/log", "/app/uploads"]
 
 ENV HOST "localhost:3000"
 
