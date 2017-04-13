@@ -49,9 +49,7 @@ services:
   db_init:
     image: asciinema/asciinema.org
     links:
-      - redis
       - postgres
     environment:
       DATABASE_URL: "postgresql://postgres:mypass@postgres/asciinema"
-      REDIS_URL: "redis://redis:6379"
     command: "bundle exec rake db:setup"
