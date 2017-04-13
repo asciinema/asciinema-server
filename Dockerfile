@@ -7,9 +7,7 @@ MAINTAINER Marcin Kulik <support@asciinema.org>
 #     docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=mypass --name=postgres postgres
 #     docker run -d -p 6379:6379 --name=redis redis
 #     docker run --rm -e DATABASE_URL="postgresql://postgres:mypass@postgres/asciinema" asciinema/asciinema.org bundle exec rake db:setup
-#     # starting sidekiq using the provided start_sidekiq.rb file will also start sendmail service if you don't want to use SMTP
-#     # otherwise start sidekiq by starting: bundle exec sidekiq
-#     docker run -d -e DATABASE_URL="postgresql://postgres:mypass@postgres/asciinema" asciinema/asciinema.org ruby start_sidekiq.rb
+#     docker run -d -e DATABASE_URL="postgresql://postgres:mypass@postgres/asciinema" asciinema/asciinema.org bundle exec sidekiq
 #     docker run -d -e DATABASE_URL="postgresql://postgres:mypass@postgres/asciinema" -p 3000:80 asciinema/asciinema.org
 #
 # You can override the address/port that is sent in email with login token by passing HOST="host:port" environment variable when starting the web server.
@@ -39,7 +37,6 @@ RUN apt-get update && \
       pkg-config \
       ruby2.1 \
       ruby2.1-dev \
-      sendmail \
       supervisor \
       ttf-bitstream-vera \
       tzdata
@@ -112,6 +109,7 @@ ENV REDIS_URL "redis://redis:6379"
 
 RUN cd src && make
 RUN bundle exec rake assets:precompile
+COPY docker/asciinema.yml /app/config/asciinema.yml
 
 # configure Nginx
 
@@ -128,6 +126,6 @@ ENV HOST "localhost:3000"
 
 CMD ["/usr/bin/supervisord"]
 # bundle exec rake db:setup
-# bundle exec sidekiq  OR ruby start_sidekiq.rb (to start sidekiq with sendmail)
+# bundle exec sidekiq
 
 EXPOSE 80

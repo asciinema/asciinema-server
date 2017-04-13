@@ -22,13 +22,21 @@ services:
     links:
       - redis
       - postgres
+      - smtp
     environment:
       DATABASE_URL: "postgresql://postgres:mypass@postgres/asciinema"
       REDIS_URL: "redis://redis:6379"
       HOST: "localhost:3000"
-    command: "ruby start_sidekiq.rb"
+    command: "bundle exec sidekiq"
     volumes:
       - /tmp/asciinema/uploads:/app/uploads
+
+  smtp:
+    image: namshi/smtp
+    container_name: asciinema_smtp
+    environment:
+      MAILNAME: "localhost"
+      # see https://github.com/namshi/docker-smtp for more SMTP configuration options
 
   web:
     image: asciinema/asciinema.org
@@ -36,6 +44,7 @@ services:
     links:
       - redis
       - postgres
+      - smtp
     depends_on:
       - sidekiq
     environment:
