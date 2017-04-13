@@ -1,8 +1,8 @@
 version: '2'
 
 # Quickstart:
+#   docker-compose run --rm -b_init
 #   docker-compose up -d web
-#   docker-compose run --rm db_init
 
 # To cleanup:
 #   docker-compose stop && docker-compose rm

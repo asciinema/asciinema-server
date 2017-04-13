@@ -30,8 +30,8 @@ Required:
 
 ```bash
 $ wget https://raw.githubusercontent.com/asciinema/asciinema.org/master/docker-compose.yml
-$ docker-compose up -d web
 $ docker-compose run --rm db_init
+$ docker-compose up -d web
 
 ```
 
