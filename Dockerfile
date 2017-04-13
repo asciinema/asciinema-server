@@ -66,20 +66,36 @@ RUN git clone https://github.com/asciinema/libtsm.git /tmp/libtsm && \
     ldconfig && \
     rm -rf /tmp/libtsm
 
+# install JDK
+
+RUN wget --quiet -O /opt/jdk-8u111-linux-x64.tar.gz --no-check-certificate --no-cookies --header 'Cookie: oraclelicense=accept-securebackup-cookie' http://download.oracle.com/otn-pub/java/jdk/8u111-b14/jdk-8u111-linux-x64.tar.gz && \
+    tar xzf /opt/jdk-8u111-linux-x64.tar.gz -C /opt && \
+    rm /opt/jdk-8u111-linux-x64.tar.gz && \
+    update-alternatives --install /usr/bin/java java /opt/jdk1.8.0_111/bin/java 1000
+
+# install leiningen
+
+RUN wget --quiet -O /usr/local/bin/lein https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein && \
+    chmod a+x /usr/local/bin/lein
+
+ARG LEIN_ROOT=yes
+
 # install asciinema
-RUN mkdir /app
+
+RUN mkdir -p /app/tmp /app/log
 WORKDIR /app
 
 ADD Gemfile* /app/
 RUN bundle install
 
+ADD a2png/project.clj /app/a2png/
+RUN cd a2png && lein deps
+
 ADD . /app
 
 RUN cd src && make
 
-RUN mkdir -p tmp log && \
-    ln -s /app/vendor/assets/javascripts/asciinema-player.js /app/a2png/ && \
-    ln -s /app/vendor/assets/stylesheets/asciinema-player.css /app/a2png/
+RUN cd a2png && lein cljsbuild once main && lein cljsbuild once page
 
 VOLUME ["/app/config", "/app/log", "/app/uploads"]
 

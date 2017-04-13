@@ -4,3 +4,7 @@ tmp/*
 log/*
 target
 uploads/*
+Dockerfile
+a2png/main.js
+a2png/page/page.js
+a2png/target
