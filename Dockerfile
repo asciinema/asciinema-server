@@ -42,7 +42,10 @@ RUN apt-get update && \
       supervisor \
       ttf-bitstream-vera
 
-# autoconf, libtool and pkg-config for libtsm
+# Packages required for:
+#   autoconf, libtool and pkg-config for libtsm
+#   libfontconfig1 for PhantomJS
+#   ttf-bitstream-vera for a2png
 
 # install Bundler
 
