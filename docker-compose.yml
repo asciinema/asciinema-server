@@ -42,7 +42,7 @@ services:
       REDIS_URL: "redis://redis:6379"
       HOST: "localhost:3000" # replace with actual hostname/ip.... ${HOSTNAME} doesn't seem to work..
     ports:
-      - "3000:3000"
+      - "3000:80"
     volumes:
       - /tmp/asciinema/uploads:/app/uploads
 
