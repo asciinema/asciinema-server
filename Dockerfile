@@ -87,11 +87,13 @@ ARG LEIN_ROOT=yes
 
 # install asciinema
 
+ENV RAILS_ENV "production"
+
 RUN mkdir -p /app/tmp /app/log
 WORKDIR /app
 
 ADD Gemfile* /app/
-RUN bundle install
+RUN bundle install --deployment --without development test
 
 ADD a2png/project.clj /app/a2png/
 RUN cd a2png && lein deps
@@ -99,7 +101,7 @@ RUN cd a2png && lein deps
 ADD . /app
 
 RUN cd src && make
-
+RUN bundle exec rake assets:precompile
 RUN cd a2png && lein cljsbuild once main && lein cljsbuild once page
 
 # configure Nginx
@@ -116,7 +118,6 @@ VOLUME ["/app/config", "/app/log", "/app/uploads"]
 # 172.17.42.1 is the docker0 address
 ENV DATABASE_URL "postgresql://postgres:mypass@172.17.42.1/asciinema"
 ENV REDIS_URL "redis://172.17.42.1:6379"
-ENV RAILS_ENV "development"
 # when using Docker Toolbox/Virtualbox this is going to be your address
 # set to whatever FQDN/address you want asciinema to advertise itself as
 # for ex. asciinema.example.com
