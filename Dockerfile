@@ -96,8 +96,13 @@ WORKDIR /app
 COPY Gemfile* /app/
 RUN bundle install --deployment --without development test
 
+# build a2png
+
 COPY a2png/project.clj /app/a2png/
 RUN cd a2png && lein deps
+
+COPY a2png/package.json /app/a2png/
+RUN cd a2png && npm install
 
 COPY a2png /app/a2png
 RUN cd a2png && lein cljsbuild once main && lein cljsbuild once page
