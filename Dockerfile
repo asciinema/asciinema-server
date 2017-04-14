@@ -4,11 +4,11 @@ MAINTAINER Marcin Kulik <support@asciinema.org>
 
 # A quickstart:
 #
-#     docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=mypass --name=postgres postgres
+#     docker run -d -p 5432:5432 -e POSTGRES_USER=asciinema -e POSTGRES_PASSWORD=sekrit --name=postgres postgres
 #     docker run -d -p 6379:6379 --name=redis redis
-#     docker run --rm -e DATABASE_URL="postgresql://postgres:mypass@postgres/asciinema" asciinema/asciinema.org bundle exec rake db:setup
-#     docker run -d -e DATABASE_URL="postgresql://postgres:mypass@postgres/asciinema" asciinema/asciinema.org bundle exec sidekiq
-#     docker run -d -e DATABASE_URL="postgresql://postgres:mypass@postgres/asciinema" -p 3000:80 asciinema/asciinema.org
+#     docker run --rm -e DATABASE_URL="postgresql://asciinema:sekrit@postgres/asciinema" asciinema/asciinema.org bundle exec rake db:setup
+#     docker run -d -e DATABASE_URL="postgresql://asciinema:sekrit@postgres/asciinema" asciinema/asciinema.org bundle exec sidekiq
+#     docker run -d -e DATABASE_URL="postgresql://asciinema:sekrit@postgres/asciinema" -p 3000:80 asciinema/asciinema.org
 #
 # You can override the address/port that is sent in email with login token by passing HOST="host:port" environment variable when starting the web server.
 
@@ -104,7 +104,7 @@ RUN cd a2png && lein cljsbuild once main && lein cljsbuild once page
 
 COPY . /app
 
-ENV DATABASE_URL "postgresql://postgres:mypass@postgres/asciinema"
+ENV DATABASE_URL "postgresql://asciinema:sekrit@postgres/asciinema"
 ENV REDIS_URL "redis://redis:6379"
 
 RUN cd src && make

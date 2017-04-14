@@ -11,6 +11,11 @@ services:
   postgres:
     image: postgres
     container_name: asciinema_postgres
+    environment:
+      POSTGRES_USER: "asciinema"
+      POSTGRES_PASSWORD: "sekrit"
+      # see https://hub.docker.com/_/postgres/ for more configuration options
+      # for this image
 
   redis:
     image: redis
@@ -24,7 +29,7 @@ services:
       - postgres
       - smtp
     environment:
-      DATABASE_URL: "postgresql://postgres:mypass@postgres/asciinema"
+      DATABASE_URL: "postgresql://asciinema:sekrit@postgres/asciinema"
       REDIS_URL: "redis://redis:6379"
       HOST: "localhost:3000"
     command: "bundle exec sidekiq"
@@ -37,6 +42,7 @@ services:
     environment:
       MAILNAME: "localhost"
       # see https://github.com/namshi/docker-smtp for more SMTP configuration options
+      # for this image
 
   web:
     image: asciinema/asciinema.org
@@ -48,7 +54,7 @@ services:
     depends_on:
       - sidekiq
     environment:
-      DATABASE_URL: "postgresql://postgres:mypass@postgres/asciinema"
+      DATABASE_URL: "postgresql://asciinema:sekrit@postgres/asciinema"
       REDIS_URL: "redis://redis:6379"
       HOST: "localhost:3000" # replace with actual hostname/ip.... ${HOSTNAME} doesn't seem to work..
     ports:
@@ -61,5 +67,5 @@ services:
     links:
       - postgres
     environment:
-      DATABASE_URL: "postgresql://postgres:mypass@postgres/asciinema"
+      DATABASE_URL: "postgresql://asciinema:sekrit@postgres/asciinema"
     command: "bundle exec rake db:setup"
