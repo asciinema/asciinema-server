@@ -107,13 +107,23 @@ RUN cd a2png && npm install
 COPY a2png /app/a2png
 RUN cd a2png && lein cljsbuild once main && lein cljsbuild once page
 
+# copy the rest of the source code
+
 COPY . /app
 
 ENV DATABASE_URL "postgresql://asciinema:sekrit@postgres/asciinema"
 ENV REDIS_URL "redis://redis:6379"
 
+# compile terminal.c
+
 RUN cd src && make
+
+# compile assets
+
 RUN bundle exec rake assets:precompile
+
+# install smtp configuration
+
 COPY docker/asciinema.yml /app/config/asciinema.yml
 
 # configure Nginx
