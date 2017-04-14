@@ -20,6 +20,8 @@ services:
   redis:
     image: redis
     container_name: asciinema_redis
+    # see https://hub.docker.com/_/redis/ for more configuration options
+    # for this image
 
   sidekiq:
     image: asciinema/asciinema.org
