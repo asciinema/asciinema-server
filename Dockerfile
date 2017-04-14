@@ -41,7 +41,8 @@ RUN apt-get update && \
       ruby2.1-dev \
       sendmail \
       supervisor \
-      ttf-bitstream-vera
+      ttf-bitstream-vera \
+      tzdata
 
 # Packages required for:
 #   autoconf, libtool and pkg-config for libtsm
