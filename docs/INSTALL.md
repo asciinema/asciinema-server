@@ -1,86 +1,61 @@
 # asciinema web app install guide
 
-## Quickstart Using Docker Compose
+The only officially supported installation procedure of asciinema web app
+is [Docker](https://www.docker.com/) based. You must have SSH access to a
+64-bit Linux server with Docker support.
 
-Required:
+If you really, really want to install everything manually then look
+at [Dockerfile](../Dockerfile) and [docker-compose.yml](../docker-compose.yml)
+to see what's required by the app.
 
-- [Docker](https://docs.docker.com/engine/getstarted/step_one/#step-1-get-docker)
-- [docker-compose 1.5+](https://docs.docker.com/compose/install/)
+## Hmm, why Docker?
 
-```bash
-$ wget https://raw.githubusercontent.com/asciinema/asciinema.org/master/docker-compose.yml
-$ docker-compose run --rm db_init
-$ docker-compose up -d web
+Hosting non-trivial web applications is complicated. Setting this one up
+requires installation of fair number of system packages and build tools,
+configuring monitoring of several processes, as well as configuring Nginx. Also,
+you need PostgreSQL, Redis, and SMTP server.
 
-```
+With Docker, you get the battle tested configuration (similar to what's running
+on asciinema.org), in a stable container, along with all required services
+preconfigured.
 
-You can override the address/port that is sent in email with login token by passing HOST="host:port" environment variable when starting the web server.
+It also makes upgrading to new versions much easier.
 
-Assuming you are running Docker Toolbox and VirtualBox: go to http://your-docker-host:3000/ and enjoy.
+## Hardware Requirements
 
-## Manual setup
+- modern single core CPU, dual core recommended
+- 1 GB RAM minimum (with swap)
+- 64 bit Linux compatible with Docker
+- 10 GB disk space minimum
 
-### 1. Install dependencies
+## Service Requirements
 
-asciinema.org site is a Ruby on Rails application. You need to have following
-dependencies installed:
+asciinema web app requires the following services:
 
-* Ruby 2.0+ (Ruby 2.1 is recommended)
+- [Postgres 9.5+](http://www.postgresql.org/download/)
+- [Redis 2.6+](http://redis.io/download)
+- SMTP server
 
-* bundler gem  
-  `gem install bundler`
+If you go with the provided [docker-compose.yml](../docker-compose.yml) file you
+don't need to worry about these - they're included and already configured to
+work with this app.
 
-* PostgreSQL 8+ with libpq development headers  
-  `sudo apt-get install postgresql libpq-dev` on Debian/Ubuntu
+## Installation
 
-* asciinema's libtsm fork (`asciinema` branch)  
-  See [here](https://github.com/asciinema/libtsm/blob/asciinema/README) for installation instructions.
-  If you don't install it now the setup script (point 4 below) will try to
-  install it for you anyway.
+This guide assumes you already
+have [Docker engine](https://docs.docker.com/engine/)
+and [docker-compose](https://docs.docker.com/compose/) running on the
+installation host.
 
-* phantomjs 2.0+  
-  `sudo add-apt-repository ppa:tanguy-patte/phantomjs && sudo apt-get update && sudo apt-get install phantomjs`
+You don't have to use docker-compose to use asciinema web app Docker image. Feel
+free to inspect docker-compose.yml file and run required services manually with
+`docker run ...`. However, for the sake of simplicity and to miminize
+configuration issues the rest of this guide is based on the provided/suggested
+docker-compose configuration.
 
-### 2. Get the source code
+### TODO
 
-Clone git repository:
-
-```bash
-$ git clone git://github.com/asciinema/asciinema.org.git
-$ cd asciinema.org
-```
-
-### 3. Prepare database config file
-
-Copy *config/database.yml.example* to *config/database.yml*. Then set
-database/user/password to whatever you prefer.
-
-If database specified in database.yml doesn't exist then the following setup
-task will create it (make sure database user is allowed to create new
-databases).
-
-### 4. Setup the app
-
-Following script will install gem dependencies and setup database:
-
-```bash
-$ ./script/setup
-```
-
-### 5. Run Rails server
-
-```bash
-$ bundle exec rails server
-```
-
-### 6. Run the background job processor
-
-The background job processor is needed for asciicast pre-processing and
-thumbnail generation.
-
-```bash
-$ bundle exec sidekiq
-```
+...
 
 ## Using asciinema recorder with your instance
 
