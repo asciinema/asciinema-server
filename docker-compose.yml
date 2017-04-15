@@ -14,14 +14,24 @@ services:
     environment:
       POSTGRES_USER: "asciinema"
       POSTGRES_PASSWORD: "sekrit"
-      # see https://hub.docker.com/_/postgres/ for more configuration options
-      # for this image
+
+    ### Uncomment to enable DB persistence
+    # volumes:
+    #   - ./postgres:/var/lib/postgresql/data
+
+    ### See https://hub.docker.com/_/postgres/ for more
+    ### configuration options for this image.
 
   redis:
     image: redis
     container_name: asciinema_redis
-    # see https://hub.docker.com/_/redis/ for more configuration options
-    # for this image
+
+    ### Uncomment to enable Redis persistence
+    # volumes:
+    #   - ./redis:/data
+
+    ### See https://hub.docker.com/_/redis/ for more
+    ### configuration options for this image.
 
   sidekiq:
     image: asciinema/asciinema.org
