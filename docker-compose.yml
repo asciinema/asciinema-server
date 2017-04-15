@@ -1,7 +1,7 @@
 version: '2'
 
 # Quickstart:
-#   docker-compose run --rm -b_init
+#   docker-compose run --rm db_init
 #   docker-compose up -d web
 
 # To cleanup:
@@ -67,7 +67,11 @@ services:
   db_init:
     image: asciinema/asciinema.org
     links:
+      - redis
       - postgres
     environment:
       DATABASE_URL: "postgresql://asciinema:sekrit@postgres/asciinema"
+      REDIS_URL: "redis://redis:6379"
     command: "bundle exec rake db:setup"
+    volumes:
+      - /tmp/asciinema/uploads:/app/uploads
