@@ -11,6 +11,7 @@ services:
   postgres:
     image: postgres
     container_name: asciinema_postgres
+    restart: unless-stopped
 
     ### Uncomment to enable DB persistence
     # volumes:
@@ -22,6 +23,7 @@ services:
   redis:
     image: redis
     container_name: asciinema_redis
+    restart: unless-stopped
 
     ### Uncomment to enable Redis persistence
     # volumes:
@@ -34,6 +36,7 @@ services:
     build: .
     image: asciinema/asciinema.org
     container_name: asciinema_worker
+    restart: unless-stopped
     links:
       - redis
       - postgres
@@ -46,6 +49,7 @@ services:
   smtp:
     image: namshi/smtp
     container_name: asciinema_smtp
+    restart: unless-stopped
     env_file: .env.production
 
     ### See https://github.com/namshi/docker-smtp for more SMTP configuration
@@ -55,6 +59,7 @@ services:
     build: .
     image: asciinema/asciinema.org
     container_name: asciinema_web
+    restart: unless-stopped
     links:
       - redis
       - postgres
