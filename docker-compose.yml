@@ -11,9 +11,6 @@ services:
   postgres:
     image: postgres
     container_name: asciinema_postgres
-    environment:
-      POSTGRES_USER: "asciinema"
-      POSTGRES_PASSWORD: "sekrit"
 
     ### Uncomment to enable DB persistence
     # volumes:
