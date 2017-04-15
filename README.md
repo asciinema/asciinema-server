@@ -112,6 +112,13 @@ If you decide to contribute with the code then please
 read [CONTRIBUTING.md](CONTRIBUTING.md), which covers submitting bugs,
 requesting new features, preparing your code for a pull request, etc.
 
+## Security
+
+We're serious about the security of this web app and the user data it manages.
+If you find anything that looks like a potential vulnerability please
+read on
+[how to report a security issue](CONTRIBUTING.md#reporting-security-issues).
+
 ## Authors
 
 asciinema is developed by [Marcin Kulik](http://ku1ik.com) with the help of
