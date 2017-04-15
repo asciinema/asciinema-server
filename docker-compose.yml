@@ -40,10 +40,7 @@ services:
       - redis
       - postgres
       - smtp
-    environment:
-      DATABASE_URL: "postgresql://asciinema:sekrit@postgres/asciinema"
-      REDIS_URL: "redis://redis:6379"
-      HOST: "localhost:3000"
+    env_file: .env.production
     command: "bundle exec sidekiq"
     volumes:
       - /tmp/asciinema/uploads:/app/uploads
@@ -51,10 +48,10 @@ services:
   smtp:
     image: namshi/smtp
     container_name: asciinema_smtp
-    environment:
-      MAILNAME: "localhost"
-      # see https://github.com/namshi/docker-smtp for more SMTP configuration options
-      # for this image
+    env_file: .env.production
+
+    ### See https://github.com/namshi/docker-smtp for more SMTP configuration
+    ### options for this image.
 
   web:
     image: asciinema/asciinema.org
@@ -65,10 +62,7 @@ services:
       - smtp
     depends_on:
       - sidekiq
-    environment:
-      DATABASE_URL: "postgresql://asciinema:sekrit@postgres/asciinema"
-      REDIS_URL: "redis://redis:6379"
-      HOST: "localhost:3000" # replace with actual hostname/ip.... ${HOSTNAME} doesn't seem to work..
+    env_file: .env.production
     ports:
       - "3000:80"
     volumes:
@@ -79,9 +73,7 @@ services:
     links:
       - redis
       - postgres
-    environment:
-      DATABASE_URL: "postgresql://asciinema:sekrit@postgres/asciinema"
-      REDIS_URL: "redis://redis:6379"
+    env_file: .env.production
     command: "bundle exec rake db:setup"
     volumes:
       - /tmp/asciinema/uploads:/app/uploads

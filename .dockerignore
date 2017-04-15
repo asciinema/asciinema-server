@@ -7,6 +7,7 @@ target
 uploads/*
 coverage
 Dockerfile
+docker-compose.yml
 a2png/main.js
 a2png/page/page.js
 a2png/target
@@ -14,3 +15,5 @@ a2png/node_modules
 a2png/target
 config/asciinema.yml
 config/database.yml
+.env
+.env.*

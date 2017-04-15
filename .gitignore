@@ -22,6 +22,7 @@ public/uploads/*
 /coverage
 .rbx
 .env
+.env.production
 
 /target
 /classes
