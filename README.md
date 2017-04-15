@@ -1,18 +1,18 @@
-# asciinema.org
+# asciinema web app
 
 [![Build Status](https://travis-ci.org/asciinema/asciinema.org.svg?branch=master)](https://travis-ci.org/asciinema/asciinema.org)
 [![Code Climate](https://codeclimate.com/github/asciinema/asciinema.org/badges/gpa.svg)](https://codeclimate.com/github/asciinema/asciinema.org)
 [![Coverage Status](https://coveralls.io/repos/asciinema/asciinema.org/badge.svg)](https://coveralls.io/r/asciinema/asciinema.org)
 
-Record and share your terminal sessions, the right way.
-
 asciinema is a free and open source solution for recording terminal sessions
 and sharing them on the web.
 
-This is the source code of asciinema.org web app. You can find asciinema's
-terminal recorder
-at [asciinema/asciinema](https://github.com/asciinema/asciinema) and asciinema
-player
+This repository contains the source code of asciinema hosting web app, which
+runs at [asciinema.org](https://asciinema.org).
+
+You can find the source code of asciinema terminal recorder
+at [asciinema/asciinema](https://github.com/asciinema/asciinema), and the source
+code of asciinema web player
 at [asciinema/asciinema-player](https://github.com/asciinema/asciinema-player).
 
 ## Setup instructions
@@ -105,14 +105,22 @@ $ bundle exec sidekiq
 
 ## Contributing
 
-If you want to contribute to this project check out
-[Contributing](http://asciinema.org/contributing) page.
+Check out our [Contributing](http://asciinema.org/contributing) page, which
+describes multiple ways you can help this project.
+
+If you decide to contribute with the code then please
+read [CONTRIBUTING.md](CONTRIBUTING.md), which covers submitting bugs,
+requesting new features, preparing your code for a pull request, etc.
 
 ## Authors
 
-Developed with passion by [Marcin Kulik](http://ku1ik.com) and great open
-source [contributors](https://github.com/asciinema/asciinema.org/contributors)
+asciinema is developed by [Marcin Kulik](http://ku1ik.com) with the help of
+many great open source contributors.
+
+For a complete list of the many individuals that contributed to the project,
+please refer to
+[GitHub's list of contributors](https://github.com/asciinema/asciinema.org/contributors).
 
 ## Copyright
 
-Copyright &copy; 2011-2016 Marcin Kulik. See LICENSE.txt for details.
+Copyright &copy; 2011-2017 Marcin Kulik. See LICENSE.txt for details.
