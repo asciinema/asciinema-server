@@ -60,5 +60,5 @@
           (assoc :status 302)
           (update :headers assoc "location" url)))))
 
-(defn s3-file-store [{:keys [cred bucket path-prefix]}]
-  (->S3FileStore cred bucket path-prefix))
+(defn s3-file-store [{:keys [s3-cred s3-bucket path]}]
+  (->S3FileStore s3-cred s3-bucket path))

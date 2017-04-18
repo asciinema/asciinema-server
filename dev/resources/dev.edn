@@ -1,12 +1,9 @@
 {:components
- {:file-store #var asciinema.component.local-file-store/local-file-store
-  :exp-set #var asciinema.component.mem-expiring-set/mem-expiring-set}
+ {:exp-set #var asciinema.component.mem-expiring-set/mem-expiring-set}
  :config
  {:http
   {:port 4000}
   :db
   {:uri "jdbc:postgresql://localhost:15432/asciinema_development?user=vagrant"}
-  :file-store
-  {:path "uploads/"}
   :png-gen
   {:bin-path "a2png/a2png.sh"}}}
