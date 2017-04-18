@@ -8,7 +8,7 @@ RSpec.describe Notifications, :type => :mailer do
     it "renders the headers" do
       expect(mail.subject).to eq("Login request")
       expect(mail.to).to eq(["foo@example.com"])
-      expect(mail.from).to eq(["hello@asciinema.org"])
+      expect(mail.from).to eq(["hello@localhost"])
     end
 
     it "renders the body" do
