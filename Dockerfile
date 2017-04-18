@@ -127,8 +127,6 @@ COPY docker/supervisor/asciinema.conf /etc/supervisor/conf.d/asciinema.conf
 
 VOLUME ["/app/log", "/app/uploads"]
 
-ENV HOST "localhost:3000"
-
 CMD ["/usr/bin/supervisord"]
 # bundle exec rake db:setup
 # bundle exec sidekiq
