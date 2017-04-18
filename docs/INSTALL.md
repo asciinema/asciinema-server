@@ -122,6 +122,20 @@ Create database schema and seed it with initial data:
 
     docker-compose run --rm web bundle exec rake db:setup
 
+### Create containers
+
+The final step is to create the containers:
+
+    docker-compose up -d
+
+Check the status of newly created containers:
+
+    docker ps -f 'name=asciinema_'
+
+You should see `asciinema_web`, `asciinema_postgres` and a few others listed.
+
+Point your browser to `BASE_URL` and enjoy your own asciinema hosting site!
+
 ## Using asciinema recorder with your instance
 
 Once you have your instance running, point asciinema recorder to it by setting
