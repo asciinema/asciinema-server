@@ -110,7 +110,7 @@ RUN lein uberjar
 
 COPY . /app
 
-ENV DATABASE_URL "postgresql://postgres@postgres/postgres"
+ENV DATABASE_URL "postgresql://postgres/postgres?user=postgres"
 ENV REDIS_URL "redis://redis:6379"
 
 # compile terminal.c
