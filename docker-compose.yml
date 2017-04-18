@@ -71,14 +71,3 @@ services:
       - "3000:80"
     volumes:
       - /tmp/asciinema/uploads:/app/uploads
-
-  db_init:
-    build: .
-    image: asciinema/asciinema.org
-    links:
-      - redis
-      - postgres
-    env_file: .env.production
-    command: "bundle exec rake db:setup"
-    volumes:
-      - /tmp/asciinema/uploads:/app/uploads

@@ -53,9 +53,57 @@ free to inspect docker-compose.yml file and run required services manually with
 configuration issues the rest of this guide is based on the provided/suggested
 docker-compose configuration.
 
-### TODO
+### Clone the repository
 
-...
+    git clone --recursive https://github.com/asciinema/asciinema.org.git
+
+### Edit config file
+
+You need to fill in the `.env.production` file:
+
+    cp .env.production.sample .env.production
+    nano .env.production
+
+There are several variables which have to be set, like `BASE_URL` and
+`SECRET_KEY_BASE`. The rest is optional, and most likely used when you want to
+use your own SMTP, PostgreSQL or Redis server.
+
+#### Basic settings
+
+Set `BASE_URL` to the URL your users are supposed to reach this instance.
+Example: `http://asciinema.example.com`.
+
+Set `SECRET_KEY_BASE` to long random string. Run `docker-compose run --rm web
+bundle exec rake secret` to obtain one.
+
+#### SMTP settings
+
+The app uses linked `namshi/smtp` container, which by default runs in "SMTP
+Server" mode. Set `MAILNAME` to the outgoing mail hostname, for example, use the
+same hostname as in `BASE_URL`.
+
+You can configure it to act as GMail relay, Amazon SES relay or generic SMTP
+relay. See
+[namshi/docker-smtp README](https://github.com/namshi/docker-smtp/blob/master/README.md)
+for details.
+
+For example, to send emails through GMail add `GMAIL_USER` and `GMAIL_PASSWORD`
+(most likely
+[App Password](https://support.google.com/accounts/answer/185833?hl=en))
+variables to the config file.
+
+#### Database settings
+
+`DATABASE_URL` and `REDIS_URL` point to linked `postgres` and `redis` containers
+by default. You can set these so they point to your existing services. Look at
+"Service Requirements" above for minimum versions supported.
+
+### Initialize the database
+
+Now, once you have the config file ready, create database schema and seed it
+with initial data:
+
+    docker-compose run --rm web bundle exec rake db:setup
 
 ## Using asciinema recorder with your instance
 
