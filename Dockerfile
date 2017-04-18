@@ -97,6 +97,15 @@ RUN cd a2png && npm install
 COPY a2png /app/a2png
 RUN cd a2png && lein cljsbuild once main && lein cljsbuild once page
 
+# build uberjar
+
+COPY project.clj /app/
+RUN lein deps
+
+COPY src /app/src
+COPY resources /app/resources
+RUN lein uberjar
+
 # copy the rest of the source code
 
 COPY . /app
