@@ -67,7 +67,7 @@ module Asciinema
       )
     end
 
-    config.action_mailer.default_url_options = { protocol: CFG.scheme, host: CFG.host }
+    config.action_mailer.default_url_options = { protocol: CFG.scheme, host: CFG.hostname_with_port }
 
     if CFG.smtp_settings
       config.action_mailer.smtp_settings = CFG.smtp_settings

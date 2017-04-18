@@ -1,7 +1,10 @@
+require 'uri'
+
 module Asciinema
   class Configuration
     include Virtus.model
 
+    attribute :base_url,                       String, default: 'http://localhost:3000'
     attribute :bugsnag_api_key,                String
     attribute :aws_access_key_id,              String
     attribute :aws_secret_access_key,          String
@@ -10,8 +13,6 @@ module Asciinema
     attribute :carrierwave_storage_dir_prefix, String, default: 'uploads/'
     attribute :google_analytics_id,            String
     attribute :home_asciicast_id,              Integer
-    attribute :scheme,                         String, default: 'http'
-    attribute :host,                           String, default: 'localhost:3000'
     attribute :secret_key_base,                String
     attribute :admin_ids,                      Array[Integer]
     attribute :smtp_settings,                  Hash
@@ -23,6 +24,21 @@ module Asciinema
       else
         Asciicast.non_private.order(:id).first
       end
+    end
+
+    def scheme
+      URI.parse(base_url).scheme
+    end
+
+    def hostname_with_port
+      uri = URI.parse(base_url)
+      hwp = uri.hostname
+
+      if uri.port != uri.default_port
+        hwp = "#{hwp}:#{uri.port}"
+      end
+
+      hwp
     end
 
     def ssl?
