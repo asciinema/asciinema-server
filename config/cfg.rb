@@ -4,10 +4,9 @@ module Asciinema
 
     attribute :bugsnag_api_key,                String
     attribute :aws_access_key_id,              String
-    attribute :aws_bucket,                     String
-    attribute :aws_region,                     String
     attribute :aws_secret_access_key,          String
-    attribute :carrierwave_storage,            String, default: 'file'
+    attribute :s3_bucket,                      String
+    attribute :s3_region,                      String
     attribute :carrierwave_storage_dir_prefix, String, default: 'uploads/'
     attribute :google_analytics_id,            String
     attribute :home_asciicast_id,              Integer
