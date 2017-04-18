@@ -12,7 +12,7 @@ module Asciinema
     attribute :s3_region,                      String
     attribute :carrierwave_storage_dir_prefix, String, default: 'uploads/'
     attribute :google_analytics_id,            String
-    attribute :home_asciicast_id,              Integer
+    attribute :home_asciicast_id,              String
     attribute :secret_key_base,                String
     attribute :admin_ids,                      Array[Integer]
     attribute :smtp_settings,                  Hash
@@ -20,7 +20,7 @@ module Asciinema
 
     def home_asciicast
       if home_asciicast_id
-        Asciicast.find(home_asciicast_id)
+        Asciicast.find_by_id_or_secret_token!(home_asciicast_id)
       else
         Asciicast.non_private.order(:id).first
       end
