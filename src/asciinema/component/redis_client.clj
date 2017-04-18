@@ -5,12 +5,12 @@
             [com.stuartsierra.component :as component]
             [taoensso.carmine :as car]))
 
-(defrecord RedisClient [host port]
+(defrecord RedisClient [uri]
   component/Lifecycle
   (start [component]
     (if (:listener component)
       component
-      (let [conn {:pool {} :spec {:host host :port port}}]
+      (let [conn {:pool {} :spec {:uri uri}}]
         (assoc component :conn conn))))
   (stop [component]
     (if (:conn component)
@@ -24,5 +24,5 @@
   (contains? [this value]
     (car/as-bool (car/wcar (:conn this) (car/exists value)))))
 
-(defn redis-client [{:keys [host port]}]
-  (->RedisClient host port))
+(defn redis-client [{:keys [uri]}]
+  (->RedisClient uri))

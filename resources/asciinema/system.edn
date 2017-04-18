@@ -25,8 +25,7 @@
    :bucket s3-bucket
    :path-prefix "uploads/"}
   :exp-set
-  {:host redis-host
-   :port redis-port}
+  {:uri redis-url}
   :png-gen
   {:bin-path a2png-bin-path}
   :executor
