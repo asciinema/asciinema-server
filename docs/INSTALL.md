@@ -48,7 +48,7 @@ and [docker-compose](https://docs.docker.com/compose/) running on the
 installation host.
 
 You don't have to use docker-compose to use asciinema web app Docker image. Feel
-free to inspect docker-compose.yml file and run required services manually with
+free to inspect `docker-compose.yml` file and run required services manually with
 `docker run ...`. However, for the sake of simplicity and to miminize
 configuration issues the rest of this guide is based on the provided/suggested
 docker-compose configuration.
@@ -59,7 +59,8 @@ docker-compose configuration.
 
 ### Edit config file
 
-You need to fill in the `.env.production` file:
+You need to create `.env.production` config file. The easiest is to use
+provided [.env.production.sample](../.env.production.sample) as a template:
 
     cp .env.production.sample .env.production
     nano .env.production
@@ -70,7 +71,7 @@ use your own SMTP, PostgreSQL or Redis server.
 
 #### Basic settings
 
-Set `BASE_URL` to the URL your users are supposed to reach this instance.
+Set `BASE_URL` to the URL your users are supposed to reach this instance at.
 Example: `http://asciinema.example.com`.
 
 Set `SECRET_KEY_BASE` to long random string. Run `docker-compose run --rm web
