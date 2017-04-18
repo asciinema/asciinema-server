@@ -16,7 +16,7 @@ module Asciinema
     attribute :secret_key_base,                String
     attribute :admin_ids,                      Array[Integer]
     attribute :smtp_settings,                  Hash
-    attribute :from_email,                     String, default: "asciinema <hello@asciinema.org>"
+    attribute :smtp_from_address,              String
 
     def home_asciicast
       if home_asciicast_id
@@ -28,6 +28,10 @@ module Asciinema
 
     def scheme
       URI.parse(base_url).scheme
+    end
+
+    def hostname
+      URI.parse(base_url).hostname
     end
 
     def hostname_with_port
@@ -45,6 +49,9 @@ module Asciinema
       scheme == 'https'
     end
 
+    def smtp_from_address
+      super || "asciinema <hello@#{hostname}>"
+    end
   end
 end
 

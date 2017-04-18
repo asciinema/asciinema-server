@@ -1,5 +1,5 @@
 class Notifications < ActionMailer::Base
-  default from: CFG.from_email
+  default from: CFG.smtp_from_address
 
   def self.delay_login_request(user_id, token)
     delay.login_request(user_id, token)
