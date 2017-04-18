@@ -111,8 +111,14 @@ they're mapped inside repository's `volumes` directory.
 
 ### Initialize the database
 
-Now, once you have the config file ready, create database schema and seed it
-with initial data:
+You have the config file ready and the data volumes mapped. It's time to set up
+the database.
+
+Start PostgreSQL container (skip this if you use existing PostgreSQL server):
+
+    docker-compose up -d postgres
+
+Create database schema and seed it with initial data:
 
     docker-compose run --rm web bundle exec rake db:setup
 
