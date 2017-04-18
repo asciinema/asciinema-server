@@ -1,4 +1,5 @@
 .git
+.gitignore
 .stuff
 .bundle
 tmp/*
@@ -6,6 +7,7 @@ log/*
 target
 uploads/*
 coverage
+volumes
 Dockerfile
 docker-compose.yml
 a2png/main.js

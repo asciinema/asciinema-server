@@ -1,22 +1,12 @@
 version: '2'
 
-# Quickstart:
-#   docker-compose run --rm db_init
-#   docker-compose up -d web
-
-# To cleanup:
-#   docker-compose stop && docker-compose rm
-
 services:
   postgres:
     image: postgres
     container_name: asciinema_postgres
     restart: unless-stopped
-
-    ### Uncomment to enable DB persistence
-    # volumes:
-    #   - ./postgres:/var/lib/postgresql/data
-
+    volumes:
+      - ./volumes/postgres:/var/lib/postgresql/data
     ### See https://hub.docker.com/_/postgres/ for more
     ### configuration options for this image.
 
@@ -24,11 +14,8 @@ services:
     image: redis
     container_name: asciinema_redis
     restart: unless-stopped
-
-    ### Uncomment to enable Redis persistence
-    # volumes:
-    #   - ./redis:/data
-
+    volumes:
+      - ./volumes/redis:/data
     ### See https://hub.docker.com/_/redis/ for more
     ### configuration options for this image.
 
@@ -44,14 +31,14 @@ services:
     env_file: .env.production
     command: "bundle exec sidekiq"
     volumes:
-      - /tmp/asciinema/uploads:/app/uploads
+      - ./uploads:/app/uploads
+      - ./log:/app/log
 
   smtp:
     image: namshi/smtp
     container_name: asciinema_smtp
     restart: unless-stopped
     env_file: .env.production
-
     ### See https://github.com/namshi/docker-smtp for more SMTP configuration
     ### options for this image.
 
@@ -70,4 +57,5 @@ services:
     ports:
       - "3000:80"
     volumes:
-      - /tmp/asciinema/uploads:/app/uploads
+      - ./uploads:/app/uploads
+      - ./log:/app/log

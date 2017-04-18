@@ -99,6 +99,16 @@ variables to the config file.
 by default. You can set these so they point to your existing services. Look at
 "Service Requirements" above for minimum versions supported.
 
+### Specify volume mappings
+
+The container has two volumes, for user uploads and for application logs. The
+default `docker-compose.yml` maps them to the repository's `uploads` and `log`
+directories, you may wish to put them somewhere else.
+
+Likewise, the PostgreSQL and Redis images have data volumes that you may wish to
+map somewhere where you know how to find them and back them up. By default
+they're mapped inside repository's `volumes` directory.
+
 ### Initialize the database
 
 Now, once you have the config file ready, create database schema and seed it
