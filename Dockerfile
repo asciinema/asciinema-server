@@ -134,6 +134,11 @@ COPY docker/nginx/asciinema.conf /etc/nginx/sites-available/default
 RUN mkdir -p /var/log/supervisor
 COPY docker/supervisor/asciinema.conf /etc/supervisor/conf.d/asciinema.conf
 
+# add start script for Clojure app
+
+COPY docker/start.sh /app/start.sh
+RUN chmod a+x /app/start.sh
+
 VOLUME ["/app/log", "/app/uploads"]
 
 CMD ["/usr/bin/supervisord"]
