@@ -27,7 +27,7 @@
 
 (defn -main [& args]
   (binding [y/*exception-notifier* (create-exception-notifier)]
-    (let [bindings {'http-port (Integer/parseInt (:port env "3000"))
+    (let [bindings {'http-port (Integer/parseInt (:port env "4000"))
                     'db-uri (:database-url env)
                     's3-bucket (:s3-bucket env)
                     's3-access-key (:s3-access-key env)
