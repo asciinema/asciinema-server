@@ -2,7 +2,6 @@ module Asciinema
   class Configuration
     include Virtus.model
 
-    attribute :add_this_profile_id,            String
     attribute :bugsnag_api_key,                String
     attribute :aws_access_key_id,              String
     attribute :aws_bucket,                     String
