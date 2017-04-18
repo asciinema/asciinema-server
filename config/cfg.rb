@@ -14,7 +14,7 @@ module Asciinema
     attribute :home_asciicast_id,              Integer
     attribute :scheme,                         String, default: 'http'
     attribute :host,                           String, default: 'localhost:3000'
-    attribute :secret_token,                   String, default: '21deaa1a1228e119434aa783ecb4af21be7513ff1f5b8c1d8894241e5fc70ad395db72c8c1b0508a0ebb994ed88a8d73f6c84e44f7a4bc554a40d77f9844d2f4'
+    attribute :secret_key_base,                String
     attribute :admin_ids,                      Array[Integer]
     attribute :smtp_settings,                  Hash
     attribute :from_email,                     String, default: "asciinema <hello@asciinema.org>"
