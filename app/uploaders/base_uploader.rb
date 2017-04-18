@@ -51,7 +51,7 @@ class BaseUploader < CarrierWave::Uploader::Base
   # end
 
   def absolute_url
-    if CFG.carrierwave_storage == 'file'
+    if url && url[0] == '/'
       path
     else
       url
