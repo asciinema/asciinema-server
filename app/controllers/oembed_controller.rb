@@ -28,7 +28,7 @@ class OembedController < ApplicationController
   private
 
   def oembed_response(asciicast)
-    scale = AsciicastImageGenerator::PIXEL_DENSITY
+    scale = 2 # pixel density
     image_width = scale * (CELL_WIDTH * asciicast.width + BORDER_WIDTH).floor
     image_height = scale * (CELL_HEIGHT * asciicast.height + BORDER_WIDTH)
 

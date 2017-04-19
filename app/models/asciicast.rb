@@ -136,14 +136,6 @@ class Asciicast < ActiveRecord::Base
     theme_name && Theme.for_name(theme_name)
   end
 
-  def image_filename
-    "#{image_hash}.png"
-  end
-
-  def image_stale?
-    !image.file || (image.file.filename != image_filename)
-  end
-
   def owner?(user)
     user && self.user == user
   end

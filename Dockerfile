@@ -16,7 +16,6 @@ RUN apt-get update && \
       autoconf \
       build-essential \
       git-core \
-      imagemagick \
       libfontconfig1 \
       libpq-dev \
       libtool \
@@ -35,7 +34,6 @@ RUN apt-get update && \
 #   autoconf, libtool and pkg-config for libtsm
 #   libfontconfig1 for PhantomJS
 #   ttf-bitstream-vera for a2png
-#   imagemagick (identify) for PNG generator (Ruby)
 
 # install Bundler
 

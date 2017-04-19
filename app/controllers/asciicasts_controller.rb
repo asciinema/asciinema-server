@@ -30,11 +30,6 @@ class AsciicastsController < ApplicationController
       format.json do
         serve_file(asciicast.data, !!params[:dl])
       end
-
-      format.png do
-        asciicast_image_generator.generate(asciicast) if asciicast.image_stale?
-        serve_file(asciicast.image)
-      end
     end
   end
 
@@ -86,10 +81,6 @@ class AsciicastsController < ApplicationController
 
   def asciicast_updater
     AsciicastUpdater.new
-  end
-
-  def asciicast_image_generator
-    AsciicastImageGenerator.new(self)
   end
 
   def serve_file(uploader, as_attachment = false)
