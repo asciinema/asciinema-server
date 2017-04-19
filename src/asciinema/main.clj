@@ -27,13 +27,12 @@
 
 (defn -main [& args]
   (binding [y/*exception-notifier* (create-exception-notifier)]
-    (let [bindings {'http-port (Integer/parseInt (:port env "3000"))
+    (let [bindings {'http-port (Integer/parseInt (:port env "4000"))
                     'db-uri (:database-url env)
                     's3-bucket (:s3-bucket env)
                     's3-access-key (:s3-access-key env)
                     's3-secret-key (:s3-secret-key env)
-                    'redis-host (:redis-host env "localhost")
-                    'redis-port (Integer/parseInt (:redis-port env "6379"))
+                    'redis-url (:redis-url env "redis://localhost")
                     'a2png-bin-path (:a2png-bin-path env "a2png/a2png.sh")}
           system (->> (load-system [(io/resource "asciinema/system.edn")] bindings)
                       (component/start))]

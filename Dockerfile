@@ -97,11 +97,20 @@ RUN cd a2png && npm install
 COPY a2png /app/a2png
 RUN cd a2png && lein cljsbuild once main && lein cljsbuild once page
 
+# build uberjar
+
+COPY project.clj /app/
+RUN lein deps
+
+COPY src /app/src
+COPY resources /app/resources
+RUN lein uberjar
+
 # copy the rest of the source code
 
 COPY . /app
 
-ENV DATABASE_URL "postgresql://postgres@postgres/postgres"
+ENV DATABASE_URL "postgresql://postgres/postgres?user=postgres"
 ENV REDIS_URL "redis://redis:6379"
 
 # compile terminal.c
@@ -124,6 +133,11 @@ COPY docker/nginx/asciinema.conf /etc/nginx/sites-available/default
 
 RUN mkdir -p /var/log/supervisor
 COPY docker/supervisor/asciinema.conf /etc/supervisor/conf.d/asciinema.conf
+
+# add start script for Clojure app
+
+COPY docker/start.sh /app/start.sh
+RUN chmod a+x /app/start.sh
 
 VOLUME ["/app/log", "/app/uploads"]
 

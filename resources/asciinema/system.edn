@@ -2,7 +2,7 @@
  {:http #var asciinema.component.yada-listener/yada-listener
   :db   #var asciinema.component.db/hikaricp
   :ragtime #var duct.component.ragtime/ragtime
-  :file-store #var asciinema.component.s3-file-store/s3-file-store
+  :file-store #var asciinema.component.auto-file-store/auto-file-store
   :exp-set #var asciinema.component.redis-client/redis-client
   :png-gen #var asciinema.component.a2png/a2png
   :executor #var asciinema.component.fixed-thread-executor/fixed-thread-executor}
@@ -20,13 +20,12 @@
   :ragtime
   {:resource-path "asciinema/migrations"}
   :file-store
-  {:cred {:access-key s3-access-key
-          :secret-key s3-secret-key}
-   :bucket s3-bucket
-   :path-prefix "uploads/"}
+  {:path "uploads/"
+   :s3-bucket s3-bucket
+   :s3-cred {:access-key s3-access-key
+             :secret-key s3-secret-key}}
   :exp-set
-  {:host redis-host
-   :port redis-port}
+  {:uri redis-url}
   :png-gen
   {:bin-path a2png-bin-path}
   :executor
