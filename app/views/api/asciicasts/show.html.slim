@@ -19,6 +19,14 @@ javascript:
       if (e.data == 'asciicast:play' || e.data[0] == 'asciicast:play') {
         player.play();
       }
+
+      // reveal.js support
+
+      if (e.data == 'slide:start') {
+        player.play();
+      } else if (e.data == 'slide:stop') {
+        player.pause();
+      }
     }
 
     window.addEventListener("message", onMessage, false);
