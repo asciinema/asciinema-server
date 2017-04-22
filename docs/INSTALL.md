@@ -143,3 +143,7 @@ API URL in `~/.config/asciinema/config` file as follows:
 
     [api]
     url = https://your.asciinema.host
+
+Alternatively, you can set `ASCIINEMA_API_URL` environment variable:
+
+    ASCIINEMA_API_URL=https://your.asciinema.host asciinema rec
