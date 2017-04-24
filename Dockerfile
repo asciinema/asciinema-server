@@ -82,7 +82,7 @@ RUN mkdir -p /app/tmp /app/log
 WORKDIR /app
 
 COPY Gemfile* /app/
-RUN bundle install --deployment --without development test
+RUN bundle install --deployment --without development test --jobs 10 --retry 5
 
 # build a2png
 
