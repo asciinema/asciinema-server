@@ -87,7 +87,7 @@ MacPorts:
 
 Nix:
 
-    nix-env -i go1.4-asciinema
+    nix-env -i asciinema
 
 ### Ubuntu
 
