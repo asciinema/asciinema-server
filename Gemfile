@@ -17,7 +17,7 @@ gem 'simple_form_bootstrap3', '~> 0.2.6'
 gem 'sidekiq',              '~> 3.2.2'
 gem 'thin',                 '~> 1.5.0'
 gem 'open4',                '~> 1.3.0'
-gem 'redcarpet',            '~> 2.2.2'
+gem 'redcarpet',            '~> 3.4.0'
 gem 'slim',                 '~> 2.0.0'
 gem 'dotenv-rails',         '~> 0.8'
 gem 'sinatra',              '~> 1.4.3', :require => false
