@@ -39,3 +39,4 @@ pom.xml.asc
 /dev/src/local.clj
 
 /volumes
+/.m2

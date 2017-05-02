@@ -2,6 +2,7 @@
 .gitignore
 .stuff
 .bundle
+.m2
 tmp/*
 log/*
 target

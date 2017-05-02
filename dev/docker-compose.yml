@@ -1,0 +1,36 @@
+version: '3'
+
+volumes:
+  bundle:
+  m2:
+
+services:
+  postgres:
+    image: postgres
+    container_name: asciinema_dev_postgres
+
+  redis:
+    image: redis
+    container_name: asciinema_dev_redis
+
+  smtp:
+    image: namshi/smtp
+    container_name: asciinema_dev_smtp
+
+  web:
+    build: .
+    image: asciinema/asciinema.org
+    container_name: asciinema_dev_web
+    command: /bin/bash
+    links:
+      - redis
+      - postgres
+      - smtp
+    env_file: .env.development
+    ports:
+      - 3000:3000
+      - 4000:4000
+    volumes:
+      - bundle:/bundle:cached
+      - m2:/root/.m2:cached
+      - ../:/app:cached
