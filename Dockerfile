@@ -134,6 +134,7 @@ COPY docker/supervisor/asciinema.conf /etc/supervisor/conf.d/asciinema.conf
 
 # add start script for Clojure app
 
+ENV A2PNG_BIN_PATH "/app/a2png/a2png.sh"
 COPY docker/start.sh /app/start.sh
 RUN chmod a+x /app/start.sh
 
