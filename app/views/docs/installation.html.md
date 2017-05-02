@@ -7,7 +7,7 @@ There are several ways to get asciinema recorder:
 - [Installing via Pip](#installing-via-pip)
 - [Installing on Linux](#installing-on-linux)
 - [Installing on Linux as snap](#installing-on-linux-as-snap) (universal Linux package)
-- [Installing on macOs](#installing-on-macos)
+- [Installing on macOS](#installing-on-macos)
 - [Installing on FreeBSD](#installing-on-freebsd)
 - [Installing on OpenBSD](#installing-on-openbsd)
 - [Running in Docker container](#running-in-docker-container)
