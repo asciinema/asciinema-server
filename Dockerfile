@@ -145,3 +145,5 @@ CMD ["/usr/bin/supervisord"]
 # bundle exec sidekiq
 
 EXPOSE 80
+EXPOSE 3000
+EXPOSE 4000
