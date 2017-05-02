@@ -1,4 +1,6 @@
 {:components
  {:mem-expiring-set #var asciinema.component.mem-expiring-set/mem-expiring-set}
  :config
- {:a2png {:bin-path "a2png/a2png.sh"}}}
+ {:a2png {:bin-path "a2png/a2png.sh"}}
+ :dependencies
+ {:asciicasts {:exp-set :mem-expiring-set}}}
