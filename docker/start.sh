@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-export DATABASE_URL=jdbc:${DATABASE_URL}
 export S3_ACCESS_KEY=${AWS_ACCESS_KEY_ID}
 export S3_SECRET_KEY=${AWS_SECRET_ACCESS_KEY}
 

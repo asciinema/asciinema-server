@@ -1,9 +1,4 @@
 {:components
  {:mem-expiring-set #var asciinema.component.mem-expiring-set/mem-expiring-set}
  :config
- {:http
-  {:port 4000}
-  :db
-  {:uri "jdbc:postgresql://localhost:15432/asciinema_development?user=vagrant"}
-  :a2png
-  {:bin-path "a2png/a2png.sh"}}}
+ {:a2png {:bin-path "a2png/a2png.sh"}}}

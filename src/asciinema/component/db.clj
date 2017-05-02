@@ -3,7 +3,8 @@
             [asciinema.boundary.user-database :refer :all]
             [clojure.java.jdbc :as jdbc]
             [clj-time.coerce :as timec]
-            [duct.component.hikaricp :as hikaricp]))
+            [duct.component.hikaricp :as hikaricp]
+            [clojure.string :as str]))
 
 (extend-protocol jdbc/ISQLValue
   org.joda.time.DateTime
@@ -47,4 +48,12 @@
 
 ;; constructor
 
-(def hikaricp hikaricp/hikaricp)
+(defn- fix-uri [uri]
+  (when uri
+    (if (str/starts-with? uri "jdbc:")
+      uri
+      (str "jdbc:" uri))))
+
+(defn hikaricp [opts]
+  (let [opts (update opts :uri fix-uri)]
+    (hikaricp/hikaricp opts)))

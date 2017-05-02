@@ -8,14 +8,19 @@
             [duct.generate :as gen]
             [duct.util.repl :refer [setup test cljs-repl migrate rollback]]
             [duct.util.system :refer [load-system]]
+            [environ.core :refer [env]]
             [reloaded.repl :refer [system init start stop go reset]]
             [asciinema.boundary.file-store :as file-store]
             [asciinema.boundary.asciicast-database :as asciicast-database]
             [asciinema.component.local-file-store :refer [->LocalFileStore]]
             [asciinema.component.s3-file-store :refer [->S3FileStore]]))
 
+(def default-db-uri "jdbc:postgresql://localhost/asciinema_development?user=asciinema")
+
 (defn new-system []
-  (load-system (keep io/resource ["asciinema/system.edn" "dev.edn" "local.edn"])))
+  (let [bindings {'http-port (Integer/parseInt (:port env "4000"))
+                  'db-uri (:database-url env default-db-uri)}]
+    (load-system (keep io/resource ["asciinema/system.edn" "dev.edn" "local.edn"]) bindings)))
 
 (when (io/resource "local.clj")
   (load "local"))
