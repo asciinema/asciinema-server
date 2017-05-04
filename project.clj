@@ -31,6 +31,8 @@
   {:dev  [:project/dev  :profiles/dev]
    :test [:project/test :profiles/test]
    :uberjar {:aot :all}
+   :repl {:repl-options {:host "0.0.0.0"
+                         :port 44444}}
    :profiles/dev  {}
    :profiles/test {}
    :project/dev   {:dependencies [[duct/generate "0.8.2"]
@@ -42,6 +44,5 @@
                                   [kerodon "0.8.0"]]
                    :source-paths   ["dev/src"]
                    :resource-paths ["dev/resources"]
-                   :repl-options {:init-ns user}
-                   :env {:port "3000"}}
+                   :repl-options {:init-ns user}}
    :project/test  {}})

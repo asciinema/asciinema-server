@@ -19,7 +19,10 @@
 
 (defn new-system []
   (let [bindings {'http-port (Integer/parseInt (:port env "4000"))
-                  'db-uri (:database-url env default-db-uri)}]
+                  'db-uri (:database-url env default-db-uri)
+                  's3-bucket (:s3-bucket env)
+                  's3-access-key (:s3-access-key env)
+                  's3-secret-key (:s3-secret-key env)}]
     (load-system (keep io/resource ["asciinema/system.edn" "dev.edn" "local.edn"]) bindings)))
 
 (when (io/resource "local.clj")

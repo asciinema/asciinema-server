@@ -30,7 +30,9 @@ services:
     ports:
       - 3000:3000
       - 4000:4000
+      - 44444:44444
     volumes:
+      - ../uploads:/app/uploads
       - bundle:/bundle:cached
       - m2:/root/.m2:cached
       - ../:/app:cached
