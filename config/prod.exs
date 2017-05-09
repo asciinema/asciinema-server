@@ -14,8 +14,7 @@ use Mix.Config
 config :asciinema, Asciinema.Endpoint,
   http: [port: {:system, "PORT"}],
   url: [scheme: "https", host: "asciinema.org", port: 443],
-  cache_static_manifest: "priv/static/manifest.json",
-  secret_key_base: System.get_env("SECRET_KEY_BASE")
+  cache_static_manifest: "priv/static/manifest.json"
 
 # Do not print debug messages in production
 config :logger, level: :info
