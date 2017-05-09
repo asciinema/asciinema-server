@@ -12,7 +12,7 @@ config :asciinema,
 # Configures the endpoint
 config :asciinema, Asciinema.Endpoint,
   url: [host: "localhost"],
-  secret_key_base: System.get_env("SECRET_KEY_BASE") || "60BnXnzGGwwiZj91YA9XYKF9BCiM7lQ/1um8VXcWWLSdUp9OcPZV6YnQv7eFTYSY",
+  secret_key_base: System.get_env("SECRET_KEY_BASE"),
   render_errors: [view: Asciinema.ErrorView, accepts: ~w(html json)],
   pubsub: [name: Asciinema.PubSub,
            adapter: Phoenix.PubSub.PG2]
