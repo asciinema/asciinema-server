@@ -10,11 +10,15 @@ RUN apt-get update && \
     apt-get install -y wget software-properties-common apt-transport-https && \
     add-apt-repository ppa:brightbox/ruby-ng && \
     echo "deb https://deb.nodesource.com/$NODE_VERSION $DISTRO main" >/etc/apt/sources.list.d/nodesource.list && \
+    echo "deb https://packages.erlang-solutions.com/ubuntu $DISTRO contrib" >/etc/apt/sources.list.d/esl.list && \
     wget --quiet -O - https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - && \
+    wget --quiet -O - https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc | apt-key add - && \
     apt-get update && \
     apt-get install -y \
       autoconf \
       build-essential \
+      elixir \
+      esl-erlang \
       git-core \
       libfontconfig1 \
       libpq-dev \
@@ -35,9 +39,15 @@ RUN apt-get update && \
 #   libfontconfig1 for PhantomJS
 #   ttf-bitstream-vera for a2png
 
-# install Bundler
+# install Bundler and SASS
 
-RUN gem install bundler
+RUN gem install bundler sass
+
+# install Hex and Rebar
+
+ENV LANG=C.UTF-8
+
+RUN mix local.hex --force && mix local.rebar --force
 
 # install PhantomJS
 
@@ -77,9 +87,12 @@ ARG LEIN_ROOT=yes
 # install asciinema
 
 ENV RAILS_ENV "production"
+ENV MIX_ENV "prod"
 
 RUN mkdir -p /app/tmp /app/log
 WORKDIR /app
+
+# install gems
 
 COPY Gemfile* /app/
 RUN bundle install --deployment --without development test --jobs 10 --retry 5
@@ -104,6 +117,16 @@ COPY src /app/src
 COPY resources /app/resources
 RUN lein uberjar
 
+# install hex packages
+
+COPY mix.* /app/
+RUN mix deps.get --only prod
+
+# install brunch & co
+
+COPY package.json /app/
+RUN npm install
+
 # copy the rest of the source code
 
 COPY . /app
@@ -115,9 +138,17 @@ ENV REDIS_URL "redis://redis:6379"
 
 RUN cd src && make
 
-# compile assets
+# compile assets with assets pipeline
 
 RUN bundle exec rake assets:precompile
+
+# compile assets with brunch and generate digest file
+
+RUN node_modules/brunch/bin/brunch build --production && mix phoenix.digest
+
+# compile Elixir app
+
+RUN mix compile
 
 # install smtp configuration
 
@@ -147,3 +178,4 @@ CMD ["/usr/bin/supervisord"]
 EXPOSE 80
 EXPOSE 3000
 EXPOSE 4000
+EXPOSE 5000
