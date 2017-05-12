@@ -24,6 +24,7 @@ pom.xml.asc
 *.class
 /.lein-*
 /.nrepl-port
+/.nrepl-history
 /.dir-locals.el
 /profiles.clj
 /dev/resources/local.edn
