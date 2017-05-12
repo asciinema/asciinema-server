@@ -50,9 +50,12 @@
 
 (defn- fix-uri [uri]
   (when uri
-    (if (str/starts-with? uri "jdbc:")
-      uri
-      (str "jdbc:" uri))))
+    (let [[_ user _ pass] (re-find #"://([^:@]+)(:([^@]+))?@" uri)]
+      (cond-> uri
+        (not (str/starts-with? uri "jdbc:")) (->> (str "jdbc:"))
+        (str/includes? uri "@") (str/replace #"://[^@]+@" "://")
+        user (str "?user=" user)
+        pass (str "&password=" pass)))))
 
 (defn hikaricp [opts]
   (let [opts (update opts :uri fix-uri)]
