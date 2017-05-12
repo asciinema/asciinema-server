@@ -56,6 +56,7 @@ services:
     env_file: .env.production
     ports:
       - "3000:80"
+      - "5000:5000"
     volumes:
       - ./uploads:/app/uploads
       - ./log:/app/log
