@@ -21,9 +21,6 @@ Rails.application.routes.draw do
     resources :asciicasts
   end
 
-  get "/docs" => "docs#show", :page => 'getting-started', :as => :docs_index
-  get "/docs/:page" => "docs#show", :as => :docs
-
   resource :login, only: [:new, :create] do
     get :sent
   end

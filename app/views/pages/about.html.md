@@ -16,7 +16,7 @@ asciinema project is built of several sub-projects:
 * javascript player ([source code](https://github.com/asciinema/asciinema-player))
 
 If technical details interest you then read more about
-[how it works](<%= docs_path('how-it-works') %>).
+[how it works](/docs/how-it-works).
 
 ## Contributing
 
