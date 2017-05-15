@@ -41,5 +41,7 @@ defmodule Asciinema.Endpoint do
     key_digest: :sha,
     serializer: Poison
 
+  plug Asciinema.TrailingFormat
+
   plug Asciinema.Router
 end

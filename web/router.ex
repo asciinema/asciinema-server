@@ -10,12 +10,21 @@ defmodule Asciinema.Router do
     plug Asciinema.Auth
   end
 
-  pipeline :api do
-    plug :accepts, ["json"]
+  pipeline :asciicast_animation do
+    plug :accepts, ["html"]
+  end
+
+  scope "/", Asciinema do
+    pipe_through :asciicast_animation
+
+    # rewritten by TrailingFormat from /a/123.gif to /a/123/gif
+    get "/a/:id/gif", AsciicastAnimationController, :show
   end
 
   scope "/", Asciinema do
     pipe_through :browser # Use the default browser stack
+
+    get "/a/:id", AsciicastController, :show
 
     get "/docs", DocController, :index
     get "/docs/:topic", DocController, :show
