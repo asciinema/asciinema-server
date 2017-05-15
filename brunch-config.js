@@ -34,7 +34,8 @@ exports.config = {
           "web/static/css/users.sass",
           "web/static/css/preview.sass",
           "web/static/css/player.sass",
-          "web/static/css/contributing.sass"
+          "web/static/css/contributing.sass",
+          "web/static/css/simple-layout.sass",
         ]
       }
     },
