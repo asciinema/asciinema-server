@@ -27,8 +27,10 @@ Worry not, you have several options. You can:
 * record with `asciinema rec -c "/bin/bash -l"` or,
 * add the following setting to your `$HOME/.config/asciinema/config` file:
 
-    [record]
-    command = /bin/bash -l
+```
+[record]
+command = /bin/bash -l
+```
 
 ## Why my shell prompt/theme isn't working during recording?
 
