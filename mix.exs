@@ -21,6 +21,7 @@ defmodule Asciinema.Mixfile do
      applications: [
        :bugsnag,
        :cowboy,
+       :ex_aws,
        :gettext,
        :logger,
        :phoenix,
@@ -42,6 +43,7 @@ defmodule Asciinema.Mixfile do
   defp deps do
     [
       {:cowboy, "~> 1.0"},
+      {:ex_aws, "~> 1.0"},
       {:gettext, "~> 0.11"},
       {:phoenix, "~> 1.2.1"},
       {:phoenix_ecto, "~> 3.0"},

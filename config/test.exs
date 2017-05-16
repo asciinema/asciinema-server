@@ -17,3 +17,6 @@ config :asciinema, Asciinema.Repo,
   database: "asciinema_test",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
+
+config :asciinema, :file_store, Asciinema.FileStore.Local
+config :asciinema, Asciinema.FileStore.Local, path: "uploads/test/"
