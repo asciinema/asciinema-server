@@ -50,7 +50,7 @@ defmodule Asciinema.Mixfile do
       {:phoenix_markdown, "~> 0.1"},
       {:phoenix_pubsub, "~> 1.0"},
       {:plug_rails_cookie_session_store, "~> 0.1"},
-      {:plugsnag, "~> 1.2.0"},
+      {:plugsnag, "~> 1.3.0"},
       {:poison, "~> 2.2"},
       {:postgrex, ">= 0.0.0"},
     ]
