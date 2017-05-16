@@ -10,6 +10,17 @@ defmodule Asciinema.Router do
     plug Asciinema.Auth
   end
 
+  pipeline :asciicast_file do
+    plug :accepts, ["json"]
+  end
+
+  scope "/", Asciinema do
+    pipe_through :asciicast_file
+
+    # rewritten by TrailingFormat from /a/123.json to /a/123/json
+    get "/a/:id/json", AsciicastFileController, :show
+  end
+
   pipeline :asciicast_animation do
     plug :accepts, ["html"]
   end

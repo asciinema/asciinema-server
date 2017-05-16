@@ -28,6 +28,22 @@ config :phoenix, :template_engines,
 config :bugsnag, api_key: System.get_env("BUGSNAG_API_KEY")
 config :bugsnag, release_stage: Mix.env
 
+if System.get_env("S3_BUCKET") do
+  config :asciinema, :file_store, Asciinema.FileStore.S3
+
+  config :asciinema, Asciinema.FileStore.S3,
+    region: System.get_env("S3_REGION"),
+    bucket: System.get_env("S3_BUCKET"),
+    path: "uploads/"
+
+  config :ex_aws,
+    access_key_id: [{:system, "AWS_ACCESS_KEY_ID"}, :instance_role],
+    secret_access_key: [{:system, "AWS_SECRET_ACCESS_KEY"}, :instance_role]
+else
+  config :asciinema, :file_store, Asciinema.FileStore.Local
+  config :asciinema, Asciinema.FileStore.Local, path: "uploads/"
+end
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env}.exs"
