@@ -21,6 +21,17 @@ defmodule Asciinema.Router do
     get "/a/:id/json", AsciicastFileController, :show
   end
 
+  pipeline :asciicast_image do
+    plug :accepts, ["png"]
+  end
+
+  scope "/", Asciinema do
+    pipe_through :asciicast_image
+
+    # rewritten by TrailingFormat from /a/123.png to /a/123/png
+    get "/a/:id/png", AsciicastImageController, :show
+  end
+
   pipeline :asciicast_animation do
     plug :accepts, ["html"]
   end

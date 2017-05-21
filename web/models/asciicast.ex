@@ -9,6 +9,7 @@ defmodule Asciinema.Asciicast do
     field :stdout_frames, :string
     field :private, :boolean
     field :secret_token, :string
+    field :duration, :float
   end
 
   def by_id_or_secret_token(thing) do

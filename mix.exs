@@ -19,6 +19,7 @@ defmodule Asciinema.Mixfile do
   def application do
     [mod: {Asciinema, []},
      applications: [
+       :briefly,
        :bugsnag,
        :cowboy,
        :ex_aws,
@@ -29,6 +30,8 @@ defmodule Asciinema.Mixfile do
        :phoenix_html,
        :phoenix_pubsub,
        :plug_rails_cookie_session_store,
+       :poolboy,
+       :porcelain,
        :postgrex,
      ]]
   end
@@ -42,6 +45,7 @@ defmodule Asciinema.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:briefly, "~> 0.3"},
       {:cowboy, "~> 1.0"},
       {:ex_aws, "~> 1.0"},
       {:gettext, "~> 0.11"},
@@ -54,6 +58,8 @@ defmodule Asciinema.Mixfile do
       {:plug_rails_cookie_session_store, "~> 0.1"},
       {:plugsnag, "~> 1.3.0"},
       {:poison, "~> 2.2"},
+      {:poolboy, "~> 1.5"},
+      {:porcelain, "~> 2.0"},
       {:postgrex, ">= 0.0.0"},
     ]
   end

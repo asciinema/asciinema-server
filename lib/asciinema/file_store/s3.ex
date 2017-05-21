@@ -1,6 +1,7 @@
 defmodule Asciinema.FileStore.S3 do
   @behaviour Asciinema.FileStore
   import Phoenix.Controller, only: [redirect: 2]
+  alias ExAws.S3
 
   def serve_file(conn, path, nil) do
     do_serve_file(conn, path)
@@ -16,6 +17,17 @@ defmodule Asciinema.FileStore.S3 do
 
     conn
     |> redirect(external: url)
+  end
+
+  def open(path) do
+    response = S3.get_object(bucket(), base_path() <> path) |> ExAws.request(region: region())
+
+    case response do
+      {:ok, %{body: body}} ->
+        File.open(body, [:ram, :binary, :read])
+      {:error, reason} ->
+        {:error, reason}
+    end
   end
 
   defp config do
