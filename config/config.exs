@@ -45,9 +45,9 @@ else
 end
 
 config :asciinema, :png_generator, Asciinema.PngGenerator.A2png
-config :asciinema, Asciinema.PngGenerator.A2png, bin_path: "./a2png/a2png.sh"
-
-config :porcelain, goon_warn_if_missing: false
+config :asciinema, Asciinema.PngGenerator.A2png,
+  bin_path: System.get_env("A2PNG_BIN_PATH") || "./a2png/a2png.sh",
+  pool_size: String.to_integer(System.get_env("A2PNG_POOL_SIZE") || "2")
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
