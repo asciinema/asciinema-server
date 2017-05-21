@@ -19,6 +19,10 @@ defmodule Asciinema.FileStore.Local do
     |> halt
   end
 
+  def open(path) do
+    File.open(base_path() <> path, [:binary, :read])
+  end
+
   defp config do
     Application.get_env(:asciinema, Asciinema.FileStore.Local)
   end
