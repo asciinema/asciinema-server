@@ -14,7 +14,7 @@ defmodule Asciinema do
       supervisor(Asciinema.Endpoint, []),
       # Start your own worker by calling: Asciinema.Worker.start_link(arg1, arg2, arg3)
       # worker(Asciinema.Worker, [arg1, arg2, arg3]),
-      :poolboy.child_spec(:worker, poolboy_config(), []),
+      :poolboy.child_spec(:worker, Asciinema.PngGenerator.A2png.poolboy_config(), []),
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
@@ -28,12 +28,5 @@ defmodule Asciinema do
   def config_change(changed, _new, removed) do
     Asciinema.Endpoint.config_change(changed, removed)
     :ok
-  end
-
-  defp poolboy_config do
-    [{:name, {:local, :worker}},
-     {:worker_module, Asciinema.PngGenerator.A2png},
-     {:size, 2},
-     {:max_overflow, 0}]
   end
 end
