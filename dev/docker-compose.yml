@@ -42,3 +42,4 @@ services:
       - build:/app/_build:cached
       - m2:/root/.m2:cached
       - ../:/app:cached
+      - /tmp/asciinema-web:/tmp
