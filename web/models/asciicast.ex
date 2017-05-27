@@ -1,5 +1,10 @@
 defmodule Asciinema.Asciicast do
   use Asciinema.Web, :model
+  alias Asciinema.{User, Asciicast}
+  alias Asciinema.PngGenerator.PngParams
+
+  @default_png_scale 2
+  @default_theme "asciinema"
 
   schema "asciicasts" do
     field :version, :integer
@@ -10,6 +15,10 @@ defmodule Asciinema.Asciicast do
     field :private, :boolean
     field :secret_token, :string
     field :duration, :float
+    field :theme_name, :string
+    field :snapshot_at, :float
+
+    belongs_to :user, User
   end
 
   def by_id_or_secret_token(thing) do
@@ -30,5 +39,19 @@ defmodule Asciinema.Asciicast do
   end
   def json_store_path(%__MODULE__{id: id, stdout_frames: stdout_frames}) when is_binary(stdout_frames) do
     "asciicast/stdout_frames/#{id}/#{stdout_frames}"
+  end
+
+  def snapshot_at(%Asciicast{snapshot_at: snapshot_at, duration: duration}) do
+    snapshot_at || duration / 2
+  end
+
+  def theme_name(%Asciicast{theme_name: a_theme_name}, %User{theme_name: u_theme_name}) do
+    a_theme_name || u_theme_name || @default_theme
+  end
+
+  def png_params(%Asciicast{} = asciicast, %User{} = user) do
+    %PngParams{snapshot_at: snapshot_at(asciicast),
+               theme: theme_name(asciicast, user),
+               scale: @default_png_scale}
   end
 end
