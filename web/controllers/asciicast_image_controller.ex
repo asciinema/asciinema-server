@@ -5,8 +5,10 @@ defmodule Asciinema.AsciicastImageController do
 
   def show(conn, %{"id" => id} = _params) do
     asciicast = Repo.one!(Asciicast.by_id_or_secret_token(id))
+    user = Repo.preload(asciicast, :user).user
+    png_params = Asciicast.png_params(asciicast, user)
 
-    case PngGenerator.generate(asciicast) do
+    case PngGenerator.generate(asciicast, png_params) do
       {:ok, png_path} ->
         conn
         |> put_resp_header("content-type", MIME.path(png_path))
