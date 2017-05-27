@@ -33,6 +33,7 @@ services:
     volumes:
       - ./uploads:/app/uploads
       - ./log:/app/log
+      - /tmp/asciinema-web:/tmp
 
   smtp:
     image: namshi/smtp
@@ -60,3 +61,4 @@ services:
     volumes:
       - ./uploads:/app/uploads
       - ./log:/app/log
+      - /tmp/asciinema-web:/tmp
