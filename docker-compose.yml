@@ -62,3 +62,4 @@ services:
       - ./uploads:/app/uploads
       - ./log:/app/log
       - /tmp/asciinema-web:/tmp
+      - ./volumes/cache:/cache
