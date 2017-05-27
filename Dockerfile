@@ -117,6 +117,39 @@ COPY src /app/src
 COPY resources /app/resources
 RUN lein uberjar
 
+# service URLs
+
+ENV DATABASE_URL "postgresql://postgres@postgres/postgres"
+ENV REDIS_URL "redis://redis:6379"
+
+# compile terminal.c
+
+RUN mkdir -p /app/bin
+COPY src/Makefile /app/src/
+COPY src/terminal.c /app/src/
+RUN cd src && make
+
+# add Ruby source files
+
+COPY config/*.rb /app/config/
+COPY config/*.yml /app/config/
+COPY config/environments /app/config/environments
+COPY config/initializers /app/config/initializers
+COPY config/locales /app/config/locales
+COPY db /app/db
+COPY lib/*.rb /app/lib/
+COPY lib/authentication /app/lib/authentication
+COPY lib/tasks /app/lib/tasks
+COPY public /app/public
+COPY vendor /app/vendor
+COPY config.ru /app/
+COPY Rakefile /app/
+COPY app /app/app
+
+# compile assets with assets pipeline
+
+RUN bundle exec rake assets:precompile
+
 # install hex packages
 
 COPY mix.* /app/
@@ -127,24 +160,20 @@ RUN mix deps.get --only prod
 COPY package.json /app/
 RUN npm install
 
-# copy the rest of the source code
-
-COPY . /app
-
-ENV DATABASE_URL "postgresql://postgres@postgres/postgres"
-ENV REDIS_URL "redis://redis:6379"
-
-# compile terminal.c
-
-RUN cd src && make
-
-# compile assets with assets pipeline
-
-RUN bundle exec rake assets:precompile
-
 # compile assets with brunch and generate digest file
 
+COPY brunch-config.js /app/
+COPY web/static /app/web/static
 RUN node_modules/brunch/bin/brunch build --production && mix phoenix.digest
+
+# add Elixir source files
+
+COPY config/*.exs /app/config/
+COPY lib/*.ex /app/lib
+COPY lib/asciinema /app/lib/asciinema
+COPY priv/gettext /app/priv/gettext
+COPY priv/repo /app/priv/repo
+COPY web /app/web
 
 # compile Elixir app
 
