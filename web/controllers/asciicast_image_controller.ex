@@ -3,6 +3,8 @@ defmodule Asciinema.AsciicastImageController do
   alias Asciinema.{Repo, Asciicast, PngGenerator}
   alias Plug.MIME
 
+  @max_age 604800 # 7 days
+
   def show(conn, %{"id" => id} = _params) do
     asciicast = Repo.one!(Asciicast.by_id_or_secret_token(id))
     user = Repo.preload(asciicast, :user).user
@@ -12,6 +14,7 @@ defmodule Asciinema.AsciicastImageController do
       {:ok, png_path} ->
         conn
         |> put_resp_header("content-type", MIME.path(png_path))
+        |> put_resp_header("cache-control", "public, max-age=#{@max_age}")
         |> send_file(200, png_path)
         |> halt
       {:error, :busy} ->
