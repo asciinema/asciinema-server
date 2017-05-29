@@ -71,6 +71,8 @@ defmodule Asciinema.PngGenerator.A2png do
          {:ok, %{status: 0}} <- Porcelain.Process.await(process, @a2png_timeout) do
       {:ok, png_path}
     else
+      {:ok, %Porcelain.Result{} = result} ->
+        {:error, result}
       otherwise ->
         otherwise
     end
