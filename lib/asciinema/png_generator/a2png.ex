@@ -67,7 +67,7 @@ defmodule Asciinema.PngGenerator.A2png do
 
     with {:ok, file} <- file_store().open(path),
          {:ok, _} <- :file.copy(file, json_path),
-         process <- Porcelain.spawn(bin_path(), args),
+         process <- Porcelain.spawn(bin_path(), args, err: :string),
          {:ok, %{status: 0}} <- Porcelain.Process.await(process, @a2png_timeout) do
       {:ok, png_path}
     else
