@@ -25,7 +25,7 @@
   "phoenix_pubsub": {:hex, :phoenix_pubsub, "1.0.1", "c10ddf6237007c804bf2b8f3c4d5b99009b42eca3a0dfac04ea2d8001186056a", [:mix], [], "hexpm"},
   "plug": {:hex, :plug, "1.3.5", "7503bfcd7091df2a9761ef8cecea666d1f2cc454cbbaf0afa0b6e259203b7031", [:mix], [{:cowboy, "~> 1.0.1 or ~> 1.1", [hex: :cowboy, repo: "hexpm", optional: true]}, {:mime, "~> 1.0", [hex: :mime, repo: "hexpm", optional: false]}], "hexpm"},
   "plug_rails_cookie_session_store": {:hex, :plug_rails_cookie_session_store, "0.1.0", "8d87967eb2d4d25837e1b5778265aebf8ac797291d6ff65dbd828c4ffa7f0955", [:mix], [{:cowboy, "~> 1.0", [hex: :cowboy, repo: "hexpm", optional: true]}, {:plug, ">= 0.9.0", [hex: :plug, repo: "hexpm", optional: false]}], "hexpm"},
-  "plugsnag": {:hex, :plugsnag, "1.3.0", "eb974813360c979993205dcbde9a79fd02e3bd38ebe3870f5089e57a14ebaedb", [:mix], [{:bugsnag, "~> 1.3", [hex: :bugsnag, repo: "hexpm", optional: false]}, {:plug, "~> 1.0", [hex: :plug, repo: "hexpm", optional: false]}], "hexpm"},
+  "plugsnag": {:git, "https://github.com/sickill/plugsnag.git", "a5d8dcc370f52cec9fcf21acb42e2b293b003b37", []},
   "poison": {:hex, :poison, "2.2.0", "4763b69a8a77bd77d26f477d196428b741261a761257ff1cf92753a0d4d24a63", [:mix], [], "hexpm"},
   "poolboy": {:hex, :poolboy, "1.5.1", "6b46163901cfd0a1b43d692657ed9d7e599853b3b21b95ae5ae0a777cf9b6ca8", [:rebar], [], "hexpm"},
   "porcelain": {:hex, :porcelain, "2.0.3", "2d77b17d1f21fed875b8c5ecba72a01533db2013bd2e5e62c6d286c029150fdc", [:mix], [], "hexpm"},

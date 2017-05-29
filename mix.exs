@@ -56,7 +56,7 @@ defmodule Asciinema.Mixfile do
       {:phoenix_markdown, "~> 0.1"},
       {:phoenix_pubsub, "~> 1.0"},
       {:plug_rails_cookie_session_store, "~> 0.1"},
-      {:plugsnag, "~> 1.3.0"},
+      {:plugsnag, "~> 1.3.0", github: "sickill/plugsnag"},
       {:poison, "~> 2.2"},
       {:poolboy, "~> 1.5"},
       {:porcelain, "~> 2.0"},

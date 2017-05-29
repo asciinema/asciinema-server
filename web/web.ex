@@ -60,7 +60,6 @@ defmodule Asciinema.Web do
   def router do
     quote do
       use Phoenix.Router
-      use Asciinema.PlugsnagFilter
       use Plugsnag
     end
   end
