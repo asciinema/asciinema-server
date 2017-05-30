@@ -198,7 +198,7 @@ ENV A2PNG_BIN_PATH "/app/a2png/a2png.sh"
 COPY docker/start.sh /app/start.sh
 RUN chmod a+x /app/start.sh
 
-VOLUME ["/app/log", "/app/uploads"]
+VOLUME ["/app/log", "/app/uploads", "/cache"]
 
 CMD ["/usr/bin/supervisord"]
 # bundle exec rake db:setup
