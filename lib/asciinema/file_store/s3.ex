@@ -19,12 +19,16 @@ defmodule Asciinema.FileStore.S3 do
     |> redirect(external: url)
   end
 
-  def open(path) do
+  def open(path, function \\ nil) do
     response = S3.get_object(bucket(), base_path() <> path) |> ExAws.request(region: region())
 
     case response do
       {:ok, %{body: body}} ->
-        File.open(body, [:ram, :binary, :read])
+        if function do
+          File.open(body, [:ram, :binary, :read], function)
+        else
+          File.open(body, [:ram, :binary, :read])
+        end
       {:error, reason} ->
         {:error, reason}
     end
