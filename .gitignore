@@ -13,23 +13,6 @@
 /public/uploads/*
 /uploads/*
 
-## Clojure app
-
-/target
-/classes
-/checkouts
-pom.xml
-pom.xml.asc
-*.jar
-*.class
-/.lein-*
-/.nrepl-port
-/.nrepl-history
-/.dir-locals.el
-/profiles.clj
-/dev/resources/local.edn
-/dev/src/local.clj
-
 ## Elixir app
 
 # App artifacts
