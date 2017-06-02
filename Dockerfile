@@ -1,6 +1,4 @@
 FROM ubuntu:16.04
-MAINTAINER Bartosz Ptaszynski <foobarto@gmail.com>
-MAINTAINER Marcin Kulik <support@asciinema.org>
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG NODE_VERSION=node_6.x
