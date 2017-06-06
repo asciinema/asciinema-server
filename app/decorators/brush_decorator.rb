@@ -14,12 +14,12 @@ class BrushDecorator < ApplicationDecorator
 
     if Brush.rgb_color?(model.fg)
       r, g, b = model.fg
-      attrs['color'] = "rgb(#{r},#{b},#{g})"
+      attrs['color'] = "rgb(#{r},#{g},#{b})"
     end
 
     if Brush.rgb_color?(model.bg)
       r, g, b = model.bg
-      attrs['background-color'] = "rgb(#{r},#{b},#{g})"
+      attrs['background-color'] = "rgb(#{r},#{g},#{b})"
     end
 
     if !attrs.empty?
