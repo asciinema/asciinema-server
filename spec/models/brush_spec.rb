@@ -60,6 +60,10 @@ describe Brush do
       expect(Brush.new(bg: 0, inverse: true, blink: true).fg).to eq(8)
       expect(Brush.new(inverse: true, blink: true).fg).to eq(0)
     end
+
+    it 'supports rgb color' do
+      expect(Brush.new(fg: [229, 222, 19]).fg).to eq([229, 222, 19])
+    end
   end
 
   describe '#bg' do

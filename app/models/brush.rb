@@ -48,6 +48,14 @@ class Brush
     attributes.slice(*ALLOWED_ATTRIBUTES)
   end
 
+  def self.rgb_color?(col)
+    col.is_a?(Enumerable)
+  end
+
+  def self.simple_color?(col)
+    col.is_a?(Fixnum)
+  end
+
   protected
 
   attr_reader :attributes
@@ -65,10 +73,8 @@ class Brush
   def calculate_code(attr_name, strong)
     code = attributes[attr_name]
 
-    if code
-      if code < 8 && strong
-        code += 8
-      end
+    if Brush.simple_color?(code) && code < 8 && strong
+      code += 8
     end
 
     code
