@@ -13,19 +13,16 @@ RUN apt-get update && \
     wget --quiet -O - https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc | apt-key add - && \
     apt-get update && \
     apt-get install -y \
-      autoconf \
       build-essential \
       elixir \
       esl-erlang \
       git-core \
       libfontconfig1 \
       libpq-dev \
-      libtool \
       libxml2-dev \
       libxslt1-dev \
       nginx \
       nodejs \
-      pkg-config \
       ruby2.1 \
       ruby2.1-dev \
       supervisor \
@@ -33,7 +30,6 @@ RUN apt-get update && \
       tzdata
 
 # Packages required for:
-#   autoconf, libtool and pkg-config for libtsm
 #   libfontconfig1 for PhantomJS
 #   ttf-bitstream-vera for a2png
 
@@ -55,18 +51,6 @@ RUN wget --quiet -O /opt/phantomjs.tar.bz2 https://bitbucket.org/ariya/phantomjs
     tar xjf /opt/phantomjs.tar.bz2 -C /opt && \
     rm /opt/phantomjs.tar.bz2 && \
     ln -sf /opt/phantomjs-$PHANTOMJS_VERSION-linux-x86_64/bin/phantomjs /usr/local/bin
-
-# install libtsm
-
-RUN git clone https://github.com/asciinema/libtsm.git /tmp/libtsm && \
-    cd /tmp/libtsm && \
-    git checkout asciinema && \
-    test -f ./configure || NOCONFIGURE=1 ./autogen.sh && \
-    ./configure --prefix=/usr/local && \
-    make && \
-    make install && \
-    ldconfig && \
-    rm -rf /tmp/libtsm
 
 # install JDK
 
@@ -106,17 +90,18 @@ RUN cd a2png && npm install
 COPY a2png /app/a2png
 RUN cd a2png && lein cljsbuild once main && lein cljsbuild once page
 
+# build vt
+
+COPY vt/project.clj /app/vt/
+RUN cd vt && lein deps
+
+COPY vt /app/vt
+RUN cd vt && lein cljsbuild once main
+
 # service URLs
 
 ENV DATABASE_URL "postgresql://postgres@postgres/postgres"
 ENV REDIS_URL "redis://redis:6379"
-
-# compile terminal.c
-
-RUN mkdir -p /app/bin
-COPY src/Makefile /app/src/
-COPY src/terminal.c /app/src/
-RUN cd src && make
 
 # add Ruby source files
 
@@ -134,6 +119,7 @@ COPY vendor /app/vendor
 COPY config.ru /app/
 COPY Rakefile /app/
 COPY app /app/app
+COPY resources/welcome.json /app/resources/welcome.json
 
 # compile assets with assets pipeline
 

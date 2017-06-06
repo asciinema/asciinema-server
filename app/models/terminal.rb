@@ -2,29 +2,27 @@ require 'open3'
 
 class Terminal
 
-  BINARY_PATH = (Rails.root + "bin" + "terminal").to_s
+  SCRIPT_PATH = (Rails.root + "vt" + "main.js").to_s
 
   def initialize(width, height)
-    @process = Process.new("#{BINARY_PATH} #{width} #{height}")
+    @process = Process.new("node #{SCRIPT_PATH}")
+    send_cmd("new", { width: width, height: height })
   end
 
   def feed(data)
-    process.write("d\n#{data.bytesize}\n")
-    process.write(data)
+    send_cmd("feed-str", { str: data })
   end
 
-  def snapshot
-    process.write("p\n")
-    lines = Yajl::Parser.new.parse(process.read_line)
+  def screen
+    send_cmd("dump-screen")
+    screen = read_result
+    lines = screen.fetch("lines")
+    cursor = screen.fetch("cursor")
 
-    Snapshot.build(lines)
-  end
-
-  def cursor
-    process.write("c\n")
-    c = Yajl::Parser.new.parse(process.read_line)
-
-    Cursor.new(c['x'], c['y'], c['visible'])
+    {
+      snapshot: Snapshot.build(lines),
+      cursor: Cursor.new(cursor['x'], cursor['y'], cursor['visible'])
+    }
   end
 
   def release
@@ -32,6 +30,15 @@ class Terminal
   end
 
   private
+
+  def send_cmd(cmd, data = {})
+    json = data.merge({ cmd: cmd }).to_json
+    process.write("#{json}\n")
+  end
+
+  def read_result()
+    Yajl::Parser.new.parse(process.read_line).fetch("result")
+  end
 
   attr_reader :process
 

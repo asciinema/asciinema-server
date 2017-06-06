@@ -8,12 +8,7 @@ class FakeTerminal
     @data << data
   end
 
-  def snapshot
-    @data
+  def screen
+    { snapshot: @data, cursor: @data.size }
   end
-
-  def cursor
-    @data.size
-  end
-
 end

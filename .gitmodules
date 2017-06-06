@@ -1,3 +1,6 @@
 [submodule "a2png"]
 	path = a2png
 	url = https://github.com/asciinema/a2png
+[submodule "vt"]
+	path = vt
+	url = https://github.com/asciinema/vt.git
