@@ -10,13 +10,14 @@ class Film
       terminal.feed(data)
     end
 
-    terminal.snapshot
+    terminal.screen[:snapshot]
   end
 
   def frames
     frames = stdout.lazy.map do |delay, data|
       terminal.feed(data)
-      [delay, Frame.new(terminal.snapshot, terminal.cursor)]
+      screen = terminal.screen
+      [delay, Frame.new(screen[:snapshot], screen[:cursor])]
     end
 
     FrameDiffList.new(frames)
