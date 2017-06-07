@@ -3,6 +3,12 @@ defmodule Asciinema.FileStore.S3 do
   import Phoenix.Controller, only: [redirect: 2]
   alias ExAws.S3
 
+  def put_file(dst_path, src_local_path, content_type) do
+    body = File.read!(src_local_path)
+    opts = [{:content_type, content_type}]
+    make_request(S3.put_object(bucket(), base_path() <> dst_path, body, opts))
+  end
+
   def serve_file(conn, path, nil) do
     do_serve_file(conn, path)
   end
@@ -21,6 +27,7 @@ defmodule Asciinema.FileStore.S3 do
 
   def open(path, function \\ nil) do
     response = S3.get_object(bucket(), base_path() <> path) |> ExAws.request(region: region())
+    # TODO: use make_request
 
     case response do
       {:ok, %{body: body}} ->
@@ -31,6 +38,12 @@ defmodule Asciinema.FileStore.S3 do
         end
       {:error, reason} ->
         {:error, reason}
+    end
+  end
+
+  defp make_request(request) do
+    with {:ok, _} <- ExAws.request(request, region: region()) do
+      :ok
     end
   end
 
