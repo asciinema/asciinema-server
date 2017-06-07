@@ -61,6 +61,11 @@ end
 defmodule Asciinema.Router.Helpers.Extra do
   alias Asciinema.Router.Helpers, as: H
 
+  def asciicast_file_download_path(conn, asciicast) do
+    H.asciicast_file_path(conn, :show, asciicast)
+    |> String.replace_suffix("/json", ".json")
+  end
+
   def asciicast_file_download_url(conn, asciicast) do
     H.asciicast_file_url(conn, :show, asciicast)
     |> String.replace_suffix("/json", ".json")

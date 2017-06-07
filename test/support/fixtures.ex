@@ -1,5 +1,5 @@
 defmodule Asciinema.Fixtures do
-  alias Asciinema.{Repo, Asciicast, User}
+  alias Asciinema.{Repo, Asciicasts, User}
 
   def fixture(:upload) do
     %Plug.Upload{path: "resources/welcome.json",
@@ -16,13 +16,7 @@ defmodule Asciinema.Fixtures do
   def fixture(:asciicast) do
     user = fixture(:user)
     upload = fixture(:upload)
-    attrs = %{version: 1,
-              duration: 123,
-              terminal_columns: 80,
-              terminal_lines: 24,
-              file: upload.filename,
-              secret_token: "v3ry-sekr1t",
-              user_id: user.id}
-    Repo.insert!(Asciicast.changeset(%Asciicast{}, attrs))
+    {:ok, asciicast} = Asciicasts.create_asciicast(user, upload)
+    asciicast
   end
 end
