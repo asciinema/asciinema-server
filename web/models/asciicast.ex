@@ -9,6 +9,8 @@ defmodule Asciinema.Asciicast do
   schema "asciicasts" do
     field :version, :integer
     field :file, :string
+    field :terminal_columns, :integer
+    field :terminal_lines, :integer
     field :stdout_data, :string
     field :stdout_timing, :string
     field :stdout_frames, :string
@@ -18,7 +20,15 @@ defmodule Asciinema.Asciicast do
     field :theme_name, :string
     field :snapshot_at, :float
 
+    timestamps(inserted_at: :created_at)
+
     belongs_to :user, User
+  end
+
+  def changeset(struct, params \\ %{}) do
+    struct
+    |> cast(params, [:user_id, :version, :file, :duration, :terminal_columns, :terminal_lines, :secret_token])
+    |> validate_required([:user_id, :version, :duration, :terminal_columns, :terminal_lines, :secret_token])
   end
 
   def by_id_or_secret_token(thing) do

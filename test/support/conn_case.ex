@@ -26,6 +26,8 @@ defmodule Asciinema.ConnCase do
       import Ecto.Query
 
       import Asciinema.Router.Helpers
+      import Asciinema.Router.Helpers.Extra
+      import Asciinema.Fixtures
 
       # The default endpoint for testing
       @endpoint Asciinema.Endpoint

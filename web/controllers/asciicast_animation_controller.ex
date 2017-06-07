@@ -7,6 +7,6 @@ defmodule Asciinema.AsciicastAnimationController do
 
     conn
     |> put_layout("simple.html")
-    |> render("show.html", asciicast: asciicast)
+    |> render("show.html", file_url: asciicast_file_download_url(conn, asciicast))
   end
 end

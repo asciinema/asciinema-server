@@ -10,7 +10,9 @@ defmodule Asciinema.User do
     field :theme_name, :string
     field :asciicasts_private_by_default, :boolean, default: true
 
-    timestamps()
+    timestamps(inserted_at: :created_at)
+
+    has_many :asciicasts, Asciinema.Asciicast
   end
 
   @doc """
@@ -19,6 +21,6 @@ defmodule Asciinema.User do
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, [:email, :name, :username, :temporary_username, :auth_token, :theme_name, :asciicasts_private_by_default])
-    |> validate_required([:email, :name, :username, :temporary_username, :auth_token, :theme_name, :asciicasts_private_by_default])
+    |> validate_required([:auth_token])
   end
 end

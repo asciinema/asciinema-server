@@ -6,9 +6,9 @@
   yourself. Once you have it installed run the following command in your
   terminal: </p>
 
-<pre><code>asciicast2gif <%= asciicast_file_url(@conn, @asciicast) %> demo.gif</code> </pre>
+<pre><code>asciicast2gif <%= @file_url %> demo.gif</code> </pre>
 
 <p> If you have <a href="https://www.docker.com/">Docker</a> installed then just
   run this command: </p>
 
-<pre><code>docker run --rm -v $PWD:/data asciinema/asciicast2gif <%= asciicast_file_url(@conn, @asciicast) %> demo.gif</code></pre>
+<pre><code>docker run --rm -v $PWD:/data asciinema/asciicast2gif <%= @file_url %> demo.gif</code></pre>

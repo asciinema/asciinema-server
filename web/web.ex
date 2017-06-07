@@ -36,6 +36,7 @@ defmodule Asciinema.Web do
       import Ecto.Query
 
       import Asciinema.Router.Helpers
+      import Asciinema.Router.Helpers.Extra
       import Asciinema.Gettext
     end
   end
@@ -51,6 +52,7 @@ defmodule Asciinema.Web do
       use Phoenix.HTML
 
       import Asciinema.Router.Helpers
+      import Asciinema.Router.Helpers.Extra
       import Asciinema.ErrorHelpers
       import Asciinema.Gettext
       import Asciinema.UserView
