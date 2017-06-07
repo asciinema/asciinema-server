@@ -8,7 +8,6 @@ class Asciicast < ActiveRecord::Base
   mount_uploader :stdout_timing, StdoutTimingUploader
   mount_uploader :stdout_frames, StdoutFramesUploader
   mount_uploader :file, AsciicastUploader
-  mount_uploader :image, ImageUploader
 
   serialize :snapshot, ActiveSupportJsonProxy
 
@@ -149,12 +148,6 @@ class Asciicast < ActiveRecord::Base
     else
       Stdout::SingleFile.new(file.absolute_url)
     end
-  end
-
-  def image_hash
-    version = 2 # version of screenshot, increment to force regeneration
-    input = "#{version}/#{id}/#{snapshot_at}"
-    Digest::SHA1.hexdigest(input)
   end
 
   def generate_secret_token

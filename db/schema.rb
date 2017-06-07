@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170215120234) do
+ActiveRecord::Schema.define(version: 20170607190249) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -56,9 +56,6 @@ ActiveRecord::Schema.define(version: 20170215120234) do
     t.float    "snapshot_at"
     t.integer  "version",                          null: false
     t.string   "file"
-    t.string   "image"
-    t.integer  "image_width"
-    t.integer  "image_height"
     t.string   "secret_token",                     null: false
     t.boolean  "private",          default: false, null: false
   end

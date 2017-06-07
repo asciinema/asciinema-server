@@ -47,8 +47,7 @@ module AsciicastsHelper
   def embed_html_link(asciicast)
     img_src = asciicast_url(asciicast, format: :png)
     url = asciicast_url(asciicast)
-    width = %{width="#{asciicast.image_width}"} if asciicast.image_width
-    %(<a href="#{url}" target="_blank"><img src="#{img_src}" #{width}/></a>)
+    %(<a href="#{url}" target="_blank"><img src="#{img_src}" /></a>)
   end
 
   def embed_markdown_link(asciicast)

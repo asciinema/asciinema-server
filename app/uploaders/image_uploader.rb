@@ -1,2 +1,0 @@
-class ImageUploader < BaseUploader
-end
