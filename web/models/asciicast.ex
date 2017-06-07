@@ -17,6 +17,7 @@ defmodule Asciinema.Asciicast do
     field :private, :boolean
     field :secret_token, :string
     field :duration, :float
+    field :title, :string
     field :theme_name, :string
     field :snapshot_at, :float
 
@@ -25,10 +26,29 @@ defmodule Asciinema.Asciicast do
     belongs_to :user, User
   end
 
-  def changeset(struct, params \\ %{}) do
+  def changeset(struct, attrs \\ %{}) do
     struct
-    |> cast(params, [:user_id, :version, :file, :duration, :terminal_columns, :terminal_lines, :secret_token])
+    |> cast(attrs, [:title])
+  end
+
+  def create_changeset(struct, attrs) do
+    struct
+    |> changeset(attrs)
+    |> cast(attrs, [:user_id, :version, :file, :duration, :terminal_columns, :terminal_lines])
+    |> generate_secret_token
     |> validate_required([:user_id, :version, :duration, :terminal_columns, :terminal_lines, :secret_token])
+  end
+
+  defp generate_secret_token(changeset) do
+    put_change(changeset, :secret_token, random_token(25))
+  end
+
+  defp random_token(length) do
+    length
+    |> :crypto.strong_rand_bytes
+    |> Base.url_encode64
+    |> String.replace(~r/[_=-]/, "")
+    |> binary_part(0, length)
   end
 
   def by_id_or_secret_token(thing) do

@@ -2,10 +2,12 @@ defmodule Asciinema.Asciicasts do
   alias Asciinema.{Repo, Asciicast, FileStore}
 
   def create_asciicast(user, %Plug.Upload{path: path, filename: filename} = upload) do
+    asciicast = %Asciicast{user_id: user.id, file: filename}
+
     with {:ok, json} <- File.read(path),
          {:ok, attrs} <- Poison.decode(json),
          {:ok, attrs} <- extract_attrs(attrs),
-         changeset = Asciicast.changeset(%Asciicast{user_id: user.id, file: filename}, attrs),
+         changeset = Asciicast.create_changeset(asciicast, attrs),
          {:ok, %Asciicast{} = asciicast} <- Repo.insert(changeset) do
       put_file(asciicast, upload)
       {:ok, asciicast}
@@ -17,7 +19,7 @@ defmodule Asciinema.Asciicasts do
               duration: attrs["duration"],
               terminal_columns: attrs["width"],
               terminal_lines: attrs["height"],
-              secret_token: "v3ry-sekr1t"} # TODO: move to changeset
+              title: attrs["title"]}
     {:ok, attrs}
   end
 
