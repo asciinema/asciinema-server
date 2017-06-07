@@ -71,6 +71,11 @@ defmodule Asciinema.Router.Helpers.Extra do
     |> String.replace_suffix("/json", ".json")
   end
 
+  def asciicast_image_download_path(conn, asciicast) do
+    H.asciicast_image_path(conn, :show, asciicast)
+    |> String.replace_suffix("/png", ".png")
+  end
+
   def asciicast_animation_download_path(conn, asciicast) do
     H.asciicast_animation_path(conn, :show, asciicast)
     |> String.replace_suffix("/gif", ".gif")
