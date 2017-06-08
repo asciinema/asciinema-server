@@ -5,7 +5,7 @@ describe AsciicastProcessor do
   let(:processor) { described_class.new }
 
   describe '#process' do
-    let(:asciicast) { double('asciicast') }
+    let(:asciicast) { double('asciicast', version: 0) }
     let(:snapshot_updater) { double('snapshot_updater', :update => nil) }
     let(:frames_file_updater) { double('frames_file_updater', :update => nil) }
 
