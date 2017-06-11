@@ -12,8 +12,6 @@ class Asciicast < ActiveRecord::Base
   serialize :snapshot, ActiveSupportJsonProxy
 
   belongs_to :user
-  has_many :comments, -> { order(:created_at) }, dependent: :destroy
-  has_many :likes, dependent: :destroy
 
   validates :user, :duration, presence: true
   validates :stdout_data, :stdout_timing, presence: true, unless: :file

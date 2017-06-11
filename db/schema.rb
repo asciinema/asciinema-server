@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170607190249) do
+ActiveRecord::Schema.define(version: 20170611171826) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -45,9 +45,7 @@ ActiveRecord::Schema.define(version: 20170607190249) do
     t.string   "stdout_timing"
     t.text     "description"
     t.boolean  "featured",         default: false
-    t.integer  "likes_count",      default: 0,     null: false
     t.text     "snapshot"
-    t.integer  "comments_count",   default: 0,     null: false
     t.boolean  "time_compression", default: true,  null: false
     t.integer  "views_count",      default: 0,     null: false
     t.string   "stdout_frames"
@@ -62,23 +60,10 @@ ActiveRecord::Schema.define(version: 20170607190249) do
 
   add_index "asciicasts", ["created_at"], name: "index_asciicasts_on_created_at", using: :btree
   add_index "asciicasts", ["featured"], name: "index_asciicasts_on_featured", using: :btree
-  add_index "asciicasts", ["likes_count"], name: "index_asciicasts_on_likes_count", using: :btree
   add_index "asciicasts", ["private"], name: "index_asciicasts_on_private", using: :btree
   add_index "asciicasts", ["secret_token"], name: "index_asciicasts_on_secret_token", unique: true, using: :btree
   add_index "asciicasts", ["user_id"], name: "index_asciicasts_on_user_id", using: :btree
   add_index "asciicasts", ["views_count"], name: "index_asciicasts_on_views_count", using: :btree
-
-  create_table "comments", force: true do |t|
-    t.text     "body",         null: false
-    t.integer  "user_id",      null: false
-    t.integer  "asciicast_id", null: false
-    t.datetime "created_at",   null: false
-    t.datetime "updated_at",   null: false
-  end
-
-  add_index "comments", ["asciicast_id", "created_at"], name: "index_comments_on_asciicast_id_and_created_at", using: :btree
-  add_index "comments", ["asciicast_id"], name: "index_comments_on_asciicast_id", using: :btree
-  add_index "comments", ["user_id"], name: "index_comments_on_user_id", using: :btree
 
   create_table "expiring_tokens", force: true do |t|
     t.integer  "user_id",    null: false
@@ -90,17 +75,6 @@ ActiveRecord::Schema.define(version: 20170607190249) do
 
   add_index "expiring_tokens", ["used_at", "expires_at", "token"], name: "index_expiring_tokens_on_used_at_and_expires_at_and_token", using: :btree
   add_index "expiring_tokens", ["user_id"], name: "index_expiring_tokens_on_user_id", using: :btree
-
-  create_table "likes", force: true do |t|
-    t.integer  "asciicast_id", null: false
-    t.integer  "user_id",      null: false
-    t.datetime "created_at",   null: false
-    t.datetime "updated_at",   null: false
-  end
-
-  add_index "likes", ["asciicast_id"], name: "index_likes_on_asciicast_id", using: :btree
-  add_index "likes", ["user_id", "asciicast_id"], name: "index_likes_on_user_id_and_asciicast_id", using: :btree
-  add_index "likes", ["user_id"], name: "index_likes_on_user_id", using: :btree
 
   create_table "users", force: true do |t|
     t.string   "provider"
@@ -126,12 +100,6 @@ ActiveRecord::Schema.define(version: 20170607190249) do
 
   add_foreign_key "asciicasts", "users", name: "asciicasts_user_id_fk"
 
-  add_foreign_key "comments", "asciicasts", name: "comments_asciicast_id_fk"
-  add_foreign_key "comments", "users", name: "comments_user_id_fk"
-
   add_foreign_key "expiring_tokens", "users", name: "expiring_tokens_user_id_fk"
-
-  add_foreign_key "likes", "asciicasts", name: "likes_asciicast_id_fk"
-  add_foreign_key "likes", "users", name: "likes_user_id_fk"
 
 end
