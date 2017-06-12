@@ -33,6 +33,8 @@ defmodule Asciinema.Mixfile do
        :poolboy,
        :porcelain,
        :postgrex,
+       :timex,
+       :timex_ecto,
      ]]
   end
 
@@ -61,6 +63,8 @@ defmodule Asciinema.Mixfile do
       {:poolboy, "~> 1.5"},
       {:porcelain, "~> 2.0"},
       {:postgrex, ">= 0.0.0"},
+      {:timex, "~> 3.0"},
+      {:timex_ecto, "~> 3.0"},
     ]
   end
 

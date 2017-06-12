@@ -52,6 +52,10 @@ defmodule Asciinema.Router do
     get "/docs/:topic", DocController, :show
   end
 
+  scope "/api", Asciinema.Api, as: :api do
+    post "/asciicasts", AsciicastController, :create
+  end
+
   # Other scopes may use custom stacks.
   # scope "/api", Asciinema do
   #   pipe_through :api

@@ -1,12 +1,12 @@
 defmodule Asciinema.AsciicastImageController do
   use Asciinema.Web, :controller
-  alias Asciinema.{Repo, Asciicast, PngGenerator}
+  alias Asciinema.{Asciicasts, Asciicast, PngGenerator}
   alias Plug.MIME
 
   @max_age 604800 # 7 days
 
   def show(conn, %{"id" => id} = _params) do
-    asciicast = Repo.one!(Asciicast.by_id_or_secret_token(id))
+    asciicast = Asciicasts.get_asciicast!(id)
     user = Repo.preload(asciicast, :user).user
     png_params = Asciicast.png_params(asciicast, user)
 

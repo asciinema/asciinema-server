@@ -1,9 +1,9 @@
 defmodule Asciinema.AsciicastFileController do
   use Asciinema.Web, :controller
-  alias Asciinema.{Repo, Asciicast}
+  alias Asciinema.{Asciicasts, Asciicast}
 
   def show(conn, %{"id" => id} = params) do
-    asciicast = Repo.one!(Asciicast.by_id_or_secret_token(id))
+    asciicast = Asciicasts.get_asciicast!(id)
     path = Asciicast.json_store_path(asciicast)
     filename = download_filename(asciicast, params)
 
