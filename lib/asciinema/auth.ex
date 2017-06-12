@@ -18,8 +18,7 @@ defmodule Asciinema.Auth do
          [username, password] <- String.split(username_password, ":") do
       {username, password}
     else
-      _ ->
-        nil
+      _ -> nil
     end
   end
 end

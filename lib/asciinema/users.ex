@@ -39,8 +39,7 @@ defmodule Asciinema.Users do
            {:ok, %ApiToken{}} <- Repo.insert(api_token_changeset) do
         user
       else
-        _otherwise ->
-          Repo.rollback(nil)
+        _otherwise -> Repo.rollback(nil)
       end
     end)
 
@@ -52,6 +51,8 @@ defmodule Asciinema.Users do
   end
 
   def revoke_api_token!(api_token) do
-    Repo.update!(ApiToken.revoke_changeset(api_token))
+    api_token
+    |> ApiToken.revoke_changeset
+    |> Repo.update!
   end
 end
