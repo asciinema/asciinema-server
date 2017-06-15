@@ -24,6 +24,7 @@ defmodule Asciinema.Asciicast do
     field :command, :string
     field :shell, :string
     field :uname, :string
+    field :user_agent, :string
 
     timestamps(inserted_at: :created_at)
 
@@ -55,11 +56,27 @@ defmodule Asciinema.Asciicast do
     put_change(changeset, :secret_token, Crypto.random_token(25))
   end
 
-  def json_store_path(%__MODULE__{id: id, file: file}) when is_binary(file) do
-    "asciicast/file/#{id}/#{file}"
+  def json_store_path(%Asciicast{file: v} = asciicast) when is_binary(v) do
+    file_store_path(asciicast, :file)
   end
-  def json_store_path(%__MODULE__{id: id, stdout_frames: stdout_frames}) when is_binary(stdout_frames) do
-    "asciicast/stdout_frames/#{id}/#{stdout_frames}"
+  def json_store_path(%Asciicast{stdout_frames: v} = asciicast) when is_binary(v) do
+    file_store_path(asciicast, :stdout_frames)
+  end
+
+  def file_store_path(%Asciicast{id: id, file: fname}, :file) do
+    file_store_path(:file, id, fname)
+  end
+  def file_store_path(%Asciicast{id: id, stdout_frames: fname}, :stdout_frames) do
+    file_store_path(:stdout_frames, id, fname)
+  end
+  def file_store_path(%Asciicast{id: id, stdout_data: fname}, :stdout_data) do
+    file_store_path(:stdout_data, id, fname)
+  end
+  def file_store_path(%Asciicast{id: id, stdout_timing: fname}, :stdout_timing) do
+    file_store_path(:stdout_timing, id, fname)
+  end
+  def file_store_path(type, id, fname) when is_binary(fname) do
+    "asciicast/#{type}/#{id}/#{fname}"
   end
 
   def snapshot_at(%Asciicast{snapshot_at: snapshot_at, duration: duration}) do

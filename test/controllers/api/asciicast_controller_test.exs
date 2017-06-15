@@ -17,6 +17,20 @@ defmodule Asciinema.Api.AsciicastControllerTest do
   @asciicast_url ~r|^http://localhost:4001/a/[a-zA-Z0-9]{25}|
 
   describe ".create" do
+    @tag token: nil
+    test "separate files (pre-v1 params), v0.9.7 client", %{conn: conn} do
+      asciicast = %{"meta" => fixture(:upload, %{path: "0.9.7/meta.json",
+                                                 content_type: "application/json"}),
+                    "stdout" => fixture(:upload, %{path: "0.9.7/stdout",
+                                                   content_type: "application/octet-stream"}),
+                    "stdout_timing" => fixture(:upload, %{path: "0.9.7/stdout.time",
+                                                          content_type: "application/octet-stream"})}
+
+      conn = post conn, api_asciicast_path(conn, :create), %{"asciicast" => asciicast}
+      assert text_response(conn, 201) =~ @asciicast_url
+      assert List.first(get_resp_header(conn, "location")) =~ @asciicast_url
+    end
+
     test "json file, v1 format", %{conn: conn} do
       upload = fixture(:upload, %{path: "1/asciicast.json"})
       conn = post conn, api_asciicast_path(conn, :create), %{"asciicast" => upload}

@@ -21,4 +21,12 @@ defmodule Asciinema.Auth do
       _ -> nil
     end
   end
+
+  def put_basic_auth(conn, nil, nil) do
+    conn
+  end
+  def put_basic_auth(conn, username, password) do
+    auth = Base.encode64("#{username}:#{password}")
+    Conn.put_req_header(conn, "authorization", "Basic " <> auth)
+  end
 end

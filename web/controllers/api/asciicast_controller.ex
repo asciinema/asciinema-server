@@ -1,14 +1,25 @@
 defmodule Asciinema.Api.AsciicastController do
   use Asciinema.Web, :controller
-  import Asciinema.Auth, only: [get_basic_auth: 1]
+  import Asciinema.Auth, only: [get_basic_auth: 1, put_basic_auth: 3]
   alias Asciinema.{Asciicasts, Users, User}
 
+  plug :parse_v0_params
   plug :authenticate
 
   def create(conn, %{"asciicast" => %Plug.Upload{} = upload}) do
-    user = conn.assigns.current_user
+    do_create(conn, upload)
+  end
+  def create(conn, %{"asciicast" => %{"meta" => %{},
+                                      "stdout" => %Plug.Upload{},
+                                      "stdout_timing" => %Plug.Upload{}} = asciicast_params}) do
+    do_create(conn, asciicast_params)
+  end
 
-    case Asciicasts.create_asciicast(user, upload) do
+  defp do_create(conn, params) do
+    user = conn.assigns.current_user
+    user_agent = conn |> get_req_header("user-agent") |> List.first
+
+    case Asciicasts.create_asciicast(user, params, user_agent) do
       {:ok, asciicast} ->
         url = asciicast_url(conn, :show, asciicast)
         conn
@@ -28,6 +39,36 @@ defmodule Asciinema.Api.AsciicastController do
         |> put_status(:unprocessable_entity)
         |> render("error.json", changeset: changeset)
     end
+  end
+
+  defp parse_v0_params(%Plug.Conn{params: %{"asciicast" => %{"meta" => %Plug.Upload{path: meta_path}}}} = conn, _) do
+    with {:ok, json} <- File.read(meta_path),
+         {:ok, attrs} <- Poison.decode(json),
+         {:ok, meta} <- extract_v0_attrs(attrs) do
+      conn
+      |> put_param(["asciicast", "meta"], meta)
+      |> put_basic_auth(attrs["username"], attrs["user_token"])
+    else
+      {:error, :invalid} ->
+        send_resp(conn, 400, "")
+    end
+  end
+  defp parse_v0_params(conn, _), do: conn
+
+  defp put_param(%Plug.Conn{params: params} = conn, path, value) do
+    params = put_in(params, path, value)
+    %{conn | params: params}
+  end
+
+  defp extract_v0_attrs(attrs) do
+    attrs = Map.merge(
+      Map.take(attrs, ["command", "duration", "shell", "title", "uname"]),
+      %{"terminal_columns" => get_in(attrs, ["term", "columns"]),
+        "terminal_lines" => get_in(attrs, ["term", "lines"]),
+        "terminal_type" => get_in(attrs, ["term", "type"])}
+    )
+
+    {:ok, attrs}
   end
 
   defp authenticate(conn, _opts) do
