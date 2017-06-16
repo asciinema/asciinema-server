@@ -20,19 +20,10 @@ module Api
 
     def show
       @asciicast = Asciicast.find_by_id_or_secret_token!(params[:id])
-
-      respond_with(asciicast) do |format|
-        format.html do
-          allow_iframe_requests
-          render locals: {
-            page: BareAsciicastPagePresenter.build(asciicast, params)
-          }, layout: 'bare'
-        end
-
-        format.json do
-          render json: asciicast, v0: params[:v0]
-        end
-      end
+      allow_iframe_requests
+      render locals: {
+               page: BareAsciicastPagePresenter.build(asciicast, params)
+             }, layout: 'bare'
     end
 
     private
