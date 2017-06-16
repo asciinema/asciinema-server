@@ -2,7 +2,7 @@ defmodule Asciinema.AsciicastsTest do
   use Asciinema.DataCase
   alias Asciinema.{Asciicasts, Asciicast}
 
-  describe "create_asciicast/2" do
+  describe "create_asciicast/3" do
     test "json file, v0 format with uname" do
       user = fixture(:user)
       params = %{"meta" => %{"command" => "/bin/bash",
