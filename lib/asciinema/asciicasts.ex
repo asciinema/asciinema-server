@@ -50,9 +50,10 @@ defmodule Asciinema.Asciicasts do
 
   def create_asciicast(user, %{"meta" => attrs,
                                "stdout" => %Plug.Upload{filename: d_filename} = data,
-                               "stdout_timing" => %Plug.Upload{filename: t_filename} = timing}, _user_agent) do
+                               "stdout_timing" => %Plug.Upload{filename: t_filename} = timing}, user_agent) do
     attrs = Map.put(attrs, "version", 0)
     asciicast = %Asciicast{user_id: user.id,
+                           user_agent: unless(attrs["uname"], do: user_agent),
                            stdout_data: d_filename,
                            stdout_timing: t_filename,
                            private: user.asciicasts_private_by_default}
