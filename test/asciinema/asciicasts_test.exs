@@ -1,6 +1,6 @@
 defmodule Asciinema.AsciicastsTest do
   use Asciinema.DataCase
-  alias Asciinema.Asciicasts
+  alias Asciinema.{Asciicasts, Asciicast}
 
   describe "create_asciicast/2" do
     test "json file, v0 format with uname" do
@@ -20,19 +20,19 @@ defmodule Asciinema.AsciicastsTest do
 
       {:ok, asciicast} = Asciicasts.create_asciicast(user, params, "a/user/agent")
 
-      assert asciicast.version == 0
-      assert asciicast.file == nil
-      assert asciicast.stdout_data == "stdout"
-      assert asciicast.stdout_timing == "stdout.time"
-      assert asciicast.command == "/bin/bash"
-      assert asciicast.duration == 11.146430015564
-      assert asciicast.shell == "/bin/zsh"
-      assert asciicast.terminal_type == "screen-256color"
-      assert asciicast.terminal_columns == 96
-      assert asciicast.terminal_lines == 26
-      assert asciicast.title == "bashing :)"
-      assert asciicast.uname == "Linux 3.9.9-302.fc19.x86_64 #1 SMP Sat Jul 6 13:41:07 UTC 2013 x86_64"
-      assert asciicast.user_agent == nil
+      assert %Asciicast{version: 0,
+                        file: nil,
+                        stdout_data: "stdout",
+                        stdout_timing: "stdout.time",
+                        command: "/bin/bash",
+                        duration: 11.146430015564,
+                        shell: "/bin/zsh",
+                        terminal_type: "screen-256color",
+                        terminal_columns: 96,
+                        terminal_lines: 26,
+                        title: "bashing :)",
+                        uname: "Linux 3.9.9-302.fc19.x86_64 #1 SMP Sat Jul 6 13:41:07 UTC 2013 x86_64",
+                        user_agent: nil} = asciicast
     end
 
     test "json file, v0 format without uname" do
@@ -51,19 +51,19 @@ defmodule Asciinema.AsciicastsTest do
 
       {:ok, asciicast} = Asciicasts.create_asciicast(user, params, "a/user/agent")
 
-      assert asciicast.version == 0
-      assert asciicast.file == nil
-      assert asciicast.stdout_data == "stdout"
-      assert asciicast.stdout_timing == "stdout.time"
-      assert asciicast.command == "/bin/bash"
-      assert asciicast.duration == 11.146430015564
-      assert asciicast.shell == "/bin/zsh"
-      assert asciicast.terminal_type == "screen-256color"
-      assert asciicast.terminal_columns == 96
-      assert asciicast.terminal_lines == 26
-      assert asciicast.title == "bashing :)"
-      assert asciicast.uname == nil
-      assert asciicast.user_agent == "a/user/agent"
+      assert %Asciicast{version: 0,
+                        file: nil,
+                        stdout_data: "stdout",
+                        stdout_timing: "stdout.time",
+                        command: "/bin/bash",
+                        duration: 11.146430015564,
+                        shell: "/bin/zsh",
+                        terminal_type: "screen-256color",
+                        terminal_columns: 96,
+                        terminal_lines: 26,
+                        title: "bashing :)",
+                        uname: nil,
+                        user_agent: "a/user/agent"} = asciicast
     end
 
     test "json file, v1 format" do
@@ -72,19 +72,19 @@ defmodule Asciinema.AsciicastsTest do
 
       {:ok, asciicast} = Asciicasts.create_asciicast(user, upload, "a/user/agent")
 
-      assert asciicast.version == 1
-      assert asciicast.file == "asciicast.json"
-      assert asciicast.stdout_data == nil
-      assert asciicast.stdout_timing == nil
-      assert asciicast.command == "/bin/bash"
-      assert asciicast.duration == 11.146430015564
-      assert asciicast.shell == "/bin/zsh"
-      assert asciicast.terminal_type == "screen-256color"
-      assert asciicast.terminal_columns == 96
-      assert asciicast.terminal_lines == 26
-      assert asciicast.title == "bashing :)"
-      assert asciicast.uname == nil
-      assert asciicast.user_agent == "a/user/agent"
+      assert %Asciicast{version: 1,
+                        file: "asciicast.json",
+                        stdout_data: nil,
+                        stdout_timing: nil,
+                        command: "/bin/bash",
+                        duration: 11.146430015564,
+                        shell: "/bin/zsh",
+                        terminal_type: "screen-256color",
+                        terminal_columns: 96,
+                        terminal_lines: 26,
+                        title: "bashing :)",
+                        uname: nil,
+                        user_agent: "a/user/agent"} = asciicast
     end
 
     test "json file, v1 format (missing required data)" do
