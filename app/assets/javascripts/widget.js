@@ -36,7 +36,6 @@
     }
 
     var apiHost = apiHostFromScript(script);
-    var apiUrl = apiHost + '/api';
 
     var asciicastId = script.id.split('-')[1];
 
@@ -52,7 +51,7 @@
     insertAfter(script, container);
 
     var iframe = document.createElement('iframe');
-    iframe.src = apiUrl + "/asciicasts/" + asciicastId + params(container, script);
+    iframe.src = apiHost + "/a/" + asciicastId + '/embed' + params(container, script);
     iframe.id = "asciicast-iframe-" + asciicastId;
     iframe.name = "asciicast-iframe-" + asciicastId;
     iframe.scrolling = "no";

@@ -1,11 +1,6 @@
 module Api
   class AsciicastsController < BaseController
-
-    before_filter :ensure_authenticated!, only: :create
-
-    respond_to :html, only: [:show]
-
-    attr_reader :asciicast
+    before_filter :ensure_authenticated!
 
     def create
       asciicast = asciicast_creator.create(asciicast_attributes)
@@ -18,14 +13,6 @@ module Api
       render text: e.message, status: 400
     end
 
-    def show
-      @asciicast = Asciicast.find_by_id_or_secret_token!(params[:id])
-      allow_iframe_requests
-      render locals: {
-               page: BareAsciicastPagePresenter.build(asciicast, params)
-             }, layout: 'bare'
-    end
-
     private
 
     def asciicast_attributes
@@ -35,10 +22,5 @@ module Api
     def asciicast_creator
       AsciicastCreator.new
     end
-
-    def allow_iframe_requests
-      response.headers.delete('X-Frame-Options')
-    end
-
   end
 end

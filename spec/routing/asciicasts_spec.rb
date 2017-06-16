@@ -11,10 +11,10 @@ describe "asciicasts routing" do
   end
 
   # legacy route, kept for backwards compatibility with old embeds
-  it 'routes /a/1/raw to api/asciicasts#show' do
+  it 'routes /a/1/raw to asciicasts#embed' do
     expect(get: '/a/1/raw').to route_to(
-      controller: 'api/asciicasts',
-      action:     'show',
+      controller: 'asciicasts',
+      action:     'embed',
       id:         '1',
     )
   end

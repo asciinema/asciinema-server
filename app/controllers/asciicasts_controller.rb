@@ -33,6 +33,15 @@ class AsciicastsController < ApplicationController
     end
   end
 
+  def embed
+    asciicast = Asciicast.find_by_id_or_secret_token!(params[:id])
+    allow_iframe_requests
+
+    render locals: {
+             page: BareAsciicastPagePresenter.build(asciicast, params)
+           }, layout: 'embed'
+  end
+
   def example
     render layout: 'example'
   end
@@ -97,5 +106,9 @@ class AsciicastsController < ApplicationController
     else
       redirect_to url
     end
+  end
+
+  def allow_iframe_requests
+    response.headers.delete('X-Frame-Options')
   end
 end

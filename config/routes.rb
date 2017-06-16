@@ -7,7 +7,8 @@ Rails.application.routes.draw do
 
   resources :asciicasts, path: 'a' do
     member do
-      get '/raw' => 'api/asciicasts#show'
+      get '/raw' => 'asciicasts#embed' # legacy route, probably no longer used anywhere
+      get :embed
       get :example
     end
   end
@@ -18,7 +19,7 @@ Rails.application.routes.draw do
   get "/oembed" => "oembed#show", as: :oembed
 
   namespace :api do
-    resources :asciicasts
+    resources :asciicasts, only: [:create]
   end
 
   resource :login, only: [:new, :create] do

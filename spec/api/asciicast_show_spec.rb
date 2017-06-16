@@ -37,7 +37,7 @@ describe "Asciicast retrieval" do
     include Capybara::RSpecMatchers
 
     before do
-      get "/api/asciicasts/#{asciicast.to_param}", format: 'html'
+      get "/a/#{asciicast.to_param}/embed", format: 'html'
     end
 
     it_behaves_like "asciicast iframe response"
