@@ -49,6 +49,10 @@ config :asciinema, Asciinema.PngGenerator.A2png,
   bin_path: System.get_env("A2PNG_BIN_PATH") || "./a2png/a2png.sh",
   pool_size: String.to_integer(System.get_env("A2PNG_POOL_SIZE") || "2")
 
+config :asciinema, :redis_url, System.get_env("REDIS_URL") || "redis://redis:6379"
+
+config :asciinema, :poster_generator, Asciinema.Asciicasts.PosterGenerator.Sidekiq
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env}.exs"

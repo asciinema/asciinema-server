@@ -1,6 +1,7 @@
 defmodule Asciinema.Asciicasts do
   import Ecto.Query, warn: false
   alias Asciinema.{Repo, Asciicast, FileStore}
+  alias Asciinema.Asciicasts.PosterGenerator
 
   def get_asciicast!(id) when is_integer(id) do
     Repo.get!(Asciicast, id)
@@ -93,7 +94,7 @@ defmodule Asciinema.Asciicasts do
     :ok = FileStore.put_file(file_store_path, tmp_file_path, content_type)
   end
 
-  defp generate_poster(_asciicast) do
-    # TODO
+  defp generate_poster(asciicast) do
+    PosterGenerator.generate(asciicast)
   end
 end
