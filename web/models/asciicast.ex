@@ -70,7 +70,7 @@ defmodule Asciinema.Asciicast do
     file_store_path(:stdout_frames, id, fname)
   end
   def file_store_path(%Asciicast{id: id, stdout_data: fname}, :stdout_data) do
-    file_store_path(:stdout_data, id, fname)
+    file_store_path(:stdout, id, fname)
   end
   def file_store_path(%Asciicast{id: id, stdout_timing: fname}, :stdout_timing) do
     file_store_path(:stdout_timing, id, fname)
