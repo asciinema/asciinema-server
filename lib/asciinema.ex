@@ -6,6 +6,8 @@ defmodule Asciinema do
   def start(_type, _args) do
     import Supervisor.Spec
 
+    redis_url = Application.get_env(:asciinema, :redis_url)
+
     # Define workers and child supervisors to be supervised
     children = [
       # Start the Ecto repository
@@ -15,6 +17,7 @@ defmodule Asciinema do
       # Start your own worker by calling: Asciinema.Worker.start_link(arg1, arg2, arg3)
       # worker(Asciinema.Worker, [arg1, arg2, arg3]),
       :poolboy.child_spec(:worker, Asciinema.PngGenerator.A2png.poolboy_config(), []),
+      worker(Redix, [redis_url, [name: :redix]])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html

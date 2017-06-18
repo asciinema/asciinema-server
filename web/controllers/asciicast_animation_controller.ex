@@ -1,9 +1,9 @@
 defmodule Asciinema.AsciicastAnimationController do
   use Asciinema.Web, :controller
-  alias Asciinema.{Repo, Asciicast}
+  alias Asciinema.Asciicasts
 
   def show(conn, %{"id" => id}) do
-    asciicast = Repo.one!(Asciicast.by_id_or_secret_token(id))
+    asciicast = Asciicasts.get_asciicast!(id)
 
     conn
     |> put_layout("simple.html")

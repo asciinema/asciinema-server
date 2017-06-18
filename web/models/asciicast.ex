@@ -11,6 +11,7 @@ defmodule Asciinema.Asciicast do
     field :file, :string
     field :terminal_columns, :integer
     field :terminal_lines, :integer
+    field :terminal_type, :string
     field :stdout_data, :string
     field :stdout_timing, :string
     field :stdout_frames, :string
@@ -20,55 +21,62 @@ defmodule Asciinema.Asciicast do
     field :title, :string
     field :theme_name, :string
     field :snapshot_at, :float
+    field :command, :string
+    field :shell, :string
+    field :uname, :string
+    field :user_agent, :string
 
     timestamps(inserted_at: :created_at)
 
     belongs_to :user, User
   end
 
-  def changeset(struct, attrs \\ %{}) do
-    struct
-    |> cast(attrs, [:title])
+  defimpl Phoenix.Param, for: Asciicast do
+    def to_param(%Asciicast{private: false, id: id}) do
+      Integer.to_string(id)
+    end
+    def to_param(%Asciicast{private: true, secret_token: secret_token}) do
+      secret_token
+    end
   end
 
   def create_changeset(struct, attrs) do
     struct
-    |> changeset(attrs)
-    |> cast(attrs, [:user_id, :version, :file, :duration, :terminal_columns, :terminal_lines])
+    |> cast(attrs, [:version, :file, :duration, :terminal_columns, :terminal_lines, :terminal_type, :command, :shell, :title, :uname])
+    |> validate_required([:user_id, :private, :version, :duration, :terminal_columns, :terminal_lines])
     |> generate_secret_token
-    |> validate_required([:user_id, :version, :duration, :terminal_columns, :terminal_lines, :secret_token])
+  end
+
+  def update_changeset(struct, attrs) do
+    struct
+    |> cast(attrs, [:title, :theme_name, :snapshot_at])
   end
 
   defp generate_secret_token(changeset) do
-    put_change(changeset, :secret_token, random_token(25))
+    put_change(changeset, :secret_token, Crypto.random_token(25))
   end
 
-  defp random_token(length) do
-    length
-    |> :crypto.strong_rand_bytes
-    |> Base.url_encode64
-    |> String.replace(~r/[_=-]/, "")
-    |> binary_part(0, length)
+  def json_store_path(%Asciicast{file: v} = asciicast) when is_binary(v) do
+    file_store_path(asciicast, :file)
+  end
+  def json_store_path(%Asciicast{stdout_frames: v} = asciicast) when is_binary(v) do
+    file_store_path(asciicast, :stdout_frames)
   end
 
-  def by_id_or_secret_token(thing) do
-    if String.length(thing) == 25 do
-      from a in __MODULE__, where: a.secret_token == ^thing
-    else
-      case Integer.parse(thing) do
-        {id, ""} ->
-          from a in __MODULE__, where: a.private == false and a.id == ^id
-        :error ->
-          from a in __MODULE__, where: a.id == -1 # TODO fixme
-      end
-    end
+  def file_store_path(%Asciicast{id: id, file: fname}, :file) do
+    file_store_path(:file, id, fname)
   end
-
-  def json_store_path(%__MODULE__{id: id, file: file}) when is_binary(file) do
-    "asciicast/file/#{id}/#{file}"
+  def file_store_path(%Asciicast{id: id, stdout_frames: fname}, :stdout_frames) do
+    file_store_path(:stdout_frames, id, fname)
   end
-  def json_store_path(%__MODULE__{id: id, stdout_frames: stdout_frames}) when is_binary(stdout_frames) do
-    "asciicast/stdout_frames/#{id}/#{stdout_frames}"
+  def file_store_path(%Asciicast{id: id, stdout_data: fname}, :stdout_data) do
+    file_store_path(:stdout_data, id, fname)
+  end
+  def file_store_path(%Asciicast{id: id, stdout_timing: fname}, :stdout_timing) do
+    file_store_path(:stdout_timing, id, fname)
+  end
+  def file_store_path(type, id, fname) when is_binary(fname) do
+    "asciicast/#{type}/#{id}/#{fname}"
   end
 
   def snapshot_at(%Asciicast{snapshot_at: snapshot_at, duration: duration}) do
