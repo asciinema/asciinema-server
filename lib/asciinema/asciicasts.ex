@@ -29,45 +29,53 @@ defmodule Asciinema.Asciicasts do
                            file: filename,
                            private: user.asciicasts_private_by_default}
 
-    {_, result} = Repo.transaction(fn ->
-      with {:ok, json} <- File.read(path),
-           {:ok, attrs} <- Poison.decode(json),
-           {:ok, attrs} <- extract_attrs(attrs),
-           changeset = Asciicast.create_changeset(asciicast, attrs),
-           {:ok, %Asciicast{} = asciicast} <- Repo.insert(changeset) do
-        save_file(asciicast, :file, upload)
-        generate_poster(asciicast)
-        {:ok, asciicast}
-      else
-        {:error, :invalid} ->
-          {:error, :parse_error}
-        otherwise ->
-          otherwise
-      end
-    end)
+    files = [{:file, upload}]
 
-    result
+    with {:ok, json} <- File.read(path),
+         {:ok, attrs} <- Poison.decode(json),
+         {:ok, attrs} <- extract_attrs(attrs),
+         changeset = Asciicast.create_changeset(asciicast, attrs),
+         {:ok, %Asciicast{} = asciicast} <- do_create_asciicast(changeset, files) do
+      generate_poster(asciicast)
+      {:ok, asciicast}
+    else
+      {:error, :invalid} ->
+        {:error, :parse_error}
+      otherwise ->
+        otherwise
+    end
   end
 
   def create_asciicast(user, %{"meta" => attrs,
-                               "stdout" => %Plug.Upload{filename: d_filename} = data,
-                               "stdout_timing" => %Plug.Upload{filename: t_filename} = timing}, user_agent) do
-    attrs = Map.put(attrs, "version", 0)
+                               "stdout" => %Plug.Upload{} = data,
+                               "stdout_timing" => %Plug.Upload{} = timing}, user_agent) do
     asciicast = %Asciicast{user_id: user.id,
                            user_agent: unless(attrs["uname"], do: user_agent),
-                           stdout_data: d_filename,
-                           stdout_timing: t_filename,
+                           stdout_data: data.filename,
+                           stdout_timing: timing.filename,
                            private: user.asciicasts_private_by_default}
 
+    attrs = Map.put(attrs, "version", 0)
     changeset = Asciicast.create_changeset(asciicast, attrs)
-    {_, result} = Repo.transaction(fn ->
-      with {:ok, %Asciicast{} = asciicast} <- Repo.insert(changeset) do
-        save_file(asciicast, :stdout_data, data)
-        save_file(asciicast, :stdout_timing, timing)
+    files = [{:stdout_data, data}, {:stdout_timing, timing}]
+
+    case do_create_asciicast(changeset, files) do
+      {:ok, %Asciicast{} = asciicast} ->
         generate_poster(asciicast)
         {:ok, asciicast}
-      else
-        otherwise -> otherwise
+      otherwise ->
+        otherwise
+    end
+  end
+
+  defp do_create_asciicast(changeset, files) do
+    {_, result} = Repo.transaction(fn ->
+      case Repo.insert(changeset) do
+        {:ok, %Asciicast{} = asciicast} ->
+          Enum.each(files, fn {type, upload} -> save_file(asciicast, type, upload) end)
+          {:ok, asciicast}
+        otherwise ->
+          otherwise
       end
     end)
 
