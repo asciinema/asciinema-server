@@ -14,6 +14,7 @@ defmodule Asciinema.Auth do
 
   def get_basic_auth(conn) do
     with ["Basic " <> auth] <- Conn.get_req_header(conn, "authorization"),
+         auth = String.replace(auth, ~r/^%/, ""), # workaround for 1.3.0-1.4.0 client bug
          {:ok, username_password} <- Base.decode64(auth),
          [username, password] <- String.split(username_password, ":") do
       {username, password}
