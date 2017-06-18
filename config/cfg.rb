@@ -4,7 +4,9 @@ module Asciinema
   class Configuration
     include Virtus.model
 
-    attribute :base_url,                       String, default: 'http://localhost:3000'
+    attribute :url_scheme,                     String, default: "http"
+    attribute :url_host,                       String, default: "localhost"
+    attribute :url_port,                       Integer, default: 3000
     attribute :bugsnag_api_key,                String
     attribute :aws_access_key_id,              String
     attribute :aws_secret_access_key,          String
@@ -28,31 +30,12 @@ module Asciinema
       end
     end
 
-    def scheme
-      URI.parse(base_url).scheme
-    end
-
-    def hostname
-      URI.parse(base_url).hostname
-    end
-
-    def hostname_with_port
-      uri = URI.parse(base_url)
-      hwp = uri.hostname
-
-      if uri.port != uri.default_port
-        hwp = "#{hwp}:#{uri.port}"
-      end
-
-      hwp
-    end
-
     def ssl?
-      scheme == 'https'
+      url_scheme == 'https'
     end
 
     def smtp_from_address
-      super || "asciinema <hello@#{hostname}>"
+      super || "asciinema <hello@#{url_host}>"
     end
   end
 end

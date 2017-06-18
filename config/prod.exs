@@ -13,7 +13,9 @@ use Mix.Config
 # which you typically run after static files are built.
 config :asciinema, Asciinema.Endpoint,
   http: [port: {:system, "PORT"}],
-  url: [scheme: "https", host: "asciinema.org", port: 443],
+  url: [scheme: System.get_env("URL_SCHEME") || "https",
+        host: System.get_env("URL_HOST") || "asciinema.org",
+        port: String.to_integer(System.get_env("URL_PORT") || "443")],
   cache_static_manifest: "priv/static/manifest.json"
 
 # Do not print debug messages in production
