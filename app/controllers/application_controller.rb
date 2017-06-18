@@ -36,7 +36,7 @@ class ApplicationController < ActionController::Base
   end
 
   def store_location
-    session[:return_to] = request.env['REQUEST_URI']
+    session[:return_to] = request.env['REQUEST_URI'] || request.original_fullpath
   end
 
   def get_stored_location
