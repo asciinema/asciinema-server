@@ -18,10 +18,6 @@ Rails.application.routes.draw do
 
   get "/oembed" => "oembed#show", as: :oembed
 
-  namespace :api do
-    resources :asciicasts, only: [:create]
-  end
-
   resource :login, only: [:new, :create] do
     get :sent
   end
