@@ -14,6 +14,12 @@ defmodule Asciinema.Auth do
     assign(conn, :current_user, user)
   end
 
+  def login(conn, %User{id: id} = user) do
+    conn
+    |> put_session(@user_key, id)
+    |> assign(:current_user, user)
+  end
+
   def get_basic_auth(conn) do
     with ["Basic " <> auth] <- get_req_header(conn, "authorization"),
          auth = String.replace(auth, ~r/^%/, ""), # workaround for 1.3.0-1.4.0 client bug
