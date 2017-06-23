@@ -20,7 +20,7 @@ defmodule Asciinema.SessionController do
 
   defp login(conn, logging_user) do
     case {conn.assigns.current_user, logging_user} do
-      {nil, %User{username: nil}} ->
+      {nil, %User{email: nil}} ->
         conn
         |> Auth.login(logging_user)
         |> put_rails_flash(:notice, "Welcome! Setting username and email will help you with logging in later.")
@@ -30,19 +30,19 @@ defmodule Asciinema.SessionController do
         |> Auth.login(logging_user)
         |> put_rails_flash(:notice, "Welcome back!")
         |> redirect_to_profile
-      {%User{id: id, username: nil}, %User{id: id}} ->
+      {%User{id: id, email: nil}, %User{id: id}} ->
         conn
         |> put_rails_flash(:notice, "Setting username and email will help you with logging in later.")
         |> redirect_to_edit_profile
-      {%User{username: nil}, %User{username: nil}} ->
+      {%User{email: nil}, %User{email: nil}} ->
         conn
         |> put_rails_flash(:notice, "WATCHA GONNA DO") # TODO
         |> redirect(to: "/")
-      {%User{username: nil}, %User{}} ->
+      {%User{email: nil}, %User{}} ->
         conn
         |> put_rails_flash(:notice, "WATCHA GONNA DO") # TODO
         |> redirect(to: "/")
-      {%User{}, %User{username: nil}} ->
+      {%User{}, %User{email: nil}} ->
         conn
         |> put_rails_flash(:notice, "Recorder token has been added to your account.")
         |> redirect_to_profile
