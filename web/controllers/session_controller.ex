@@ -53,7 +53,7 @@ defmodule Asciinema.SessionController do
         |> redirect_to_profile
       {%User{}, %User{}} ->
         conn
-        |> put_rails_flash(:alert, "You're already logged in as a different user.")
+        |> put_rails_flash(:alert, "This recorder token belongs to a different user.")
         |> redirect_to_profile
         # TODO offer merging
     end
