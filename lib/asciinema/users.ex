@@ -1,5 +1,6 @@
 defmodule Asciinema.Users do
   import Ecto.Query, warn: false
+  import Ecto, only: [assoc: 2]
   alias Asciinema.{Repo, User, ApiToken}
 
   def authenticate(api_token) do
@@ -54,5 +55,18 @@ defmodule Asciinema.Users do
     api_token
     |> ApiToken.revoke_changeset
     |> Repo.update!
+  end
+
+  def merge!(dst_user, src_user) do
+    Repo.transaction(fn ->
+      asciicasts_q = from(assoc(src_user, :asciicasts))
+      Repo.update_all(asciicasts_q, set: [user_id: dst_user.id, updated_at: Timex.now])
+      api_tokens_q = from(assoc(src_user, :api_tokens))
+      Repo.update_all(api_tokens_q, set: [user_id: dst_user.id, updated_at: Timex.now])
+      expiring_tokens_q = from(assoc(src_user, :expiring_tokens))
+      Repo.delete_all(expiring_tokens_q)
+      Repo.delete!(src_user)
+      dst_user
+    end)
   end
 end

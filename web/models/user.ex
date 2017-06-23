@@ -14,6 +14,8 @@ defmodule Asciinema.User do
     timestamps(inserted_at: :created_at)
 
     has_many :asciicasts, Asciinema.Asciicast
+    has_many :api_tokens, Asciinema.ApiToken
+    has_many :expiring_tokens, Asciinema.ExpiringToken
   end
 
   @doc """

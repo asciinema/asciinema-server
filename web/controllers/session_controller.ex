@@ -42,11 +42,11 @@ defmodule Asciinema.SessionController do
         conn
         |> put_rails_flash(:notice, "WATCHA GONNA DO") # TODO
         |> redirect(to: "/")
-      {%User{}, %User{email: nil}} ->
+      {%User{} = u1, %User{email: nil} = u2} ->
+        Users.merge!(u1, u2)
         conn
         |> put_rails_flash(:notice, "Recorder token has been added to your account.")
         |> redirect_to_profile
-        # TODO auto-merge users
       {%User{id: id}, %User{id: id}} ->
         conn
         |> put_rails_flash(:notice, "You're already logged in.")
