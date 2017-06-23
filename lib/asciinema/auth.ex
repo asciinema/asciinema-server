@@ -3,6 +3,7 @@ defmodule Asciinema.Auth do
   alias Asciinema.{Repo, User}
 
   @user_key "warden.user.user.key"
+  @one_year_in_secs 31557600
 
   def init(opts) do
     opts
@@ -17,9 +18,10 @@ defmodule Asciinema.Auth do
     assign(conn, :current_user, user)
   end
 
-  def login(conn, %User{id: id} = user) do
+  def login(conn, %User{id: id, auth_token: auth_token} = user) do
     conn
     |> put_session(@user_key, id)
+    |> put_resp_cookie("auth_token", auth_token, max_age: @one_year_in_secs)
     |> assign(:current_user, user)
   end
 
