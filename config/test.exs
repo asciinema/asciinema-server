@@ -4,6 +4,7 @@ use Mix.Config
 # you can enable the server option below.
 config :asciinema, Asciinema.Endpoint,
   http: [port: 4001],
+  secret_key_base: "ssecretkeybasesecretkeybasesecretkeybasesecretkeybaseecretkeybase",
   server: false
 
 # Print only warnings and errors during test

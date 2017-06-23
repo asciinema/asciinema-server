@@ -11,9 +11,10 @@ defmodule Asciinema.Fixtures do
                  content_type: "application/json"}
   end
 
-  def fixture(:user, _attrs) do
-    attrs = %{username: "test",
-              auth_token: "authy-auth-auth"}
+  def fixture(:user, attrs) do
+    attrs = Map.merge(%{username: "test",
+                        email: "test@example.com",
+                        auth_token: "authy-auth-auth"}, attrs)
     Repo.insert!(User.changeset(%User{}, attrs))
   end
 

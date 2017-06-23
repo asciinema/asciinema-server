@@ -8,6 +8,9 @@ defmodule Asciinema.Auth do
     opts
   end
 
+  def call(%Plug.Conn{assigns: %{current_user: %User{}}} = conn, _opts) do
+    conn
+  end
   def call(conn, _opts) do
     user_id = get_session(conn, @user_key)
     user = user_id && Repo.get(User, user_id)
