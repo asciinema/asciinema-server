@@ -50,6 +50,8 @@ defmodule Asciinema.Router do
 
     get "/docs", DocController, :index
     get "/docs/:topic", DocController, :show
+
+    get "/connect/:api_token", SessionController, :create
   end
 
   scope "/api", Asciinema.Api, as: :api do
@@ -64,6 +66,10 @@ end
 
 defmodule Asciinema.Router.Helpers.Extra do
   alias Asciinema.Router.Helpers, as: H
+
+  def user_path(_conn, :edit) do
+    "/user/edit"
+  end
 
   def asciicast_file_download_path(conn, asciicast) do
     H.asciicast_file_path(conn, :show, asciicast)

@@ -8,10 +8,19 @@ defmodule Asciinema.Auth do
     opts
   end
 
+  def call(%Plug.Conn{assigns: %{current_user: %User{}}} = conn, _opts) do
+    conn
+  end
   def call(conn, _opts) do
     user_id = get_session(conn, @user_key)
     user = user_id && Repo.get(User, user_id)
     assign(conn, :current_user, user)
+  end
+
+  def login(conn, %User{id: id} = user) do
+    conn
+    |> put_session(@user_key, id)
+    |> assign(:current_user, user)
   end
 
   def get_basic_auth(conn) do
