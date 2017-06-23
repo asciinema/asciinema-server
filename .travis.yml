@@ -1,4 +1,5 @@
 language: ruby
+dist: trusty
 bundler_args: --jobs 4 --retry 3 --without development
 before_install:
   - "export DISPLAY=:99.0"
