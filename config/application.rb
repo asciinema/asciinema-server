@@ -59,12 +59,6 @@ module Asciinema
         store: true,
         action: "unauthenticated_user"
       )
-      manager.scope_defaults(
-        :api,
-        strategies: [:api_token],
-        store: false,
-        action: "unauthenticated_api"
-      )
     end
 
     config.action_mailer.default_url_options = {
