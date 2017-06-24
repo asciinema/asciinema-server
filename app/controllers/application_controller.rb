@@ -17,10 +17,6 @@ class ApplicationController < ActionController::Base
     redirect_to new_login_path, notice: "Please log in to proceed"
   end
 
-  def unauthenticated_api
-    render json: "Unauthenticated", status: 401
-  end
-
   private
 
   def warden_strategies
