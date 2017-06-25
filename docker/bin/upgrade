@@ -3,4 +3,4 @@
 set -e
 
 bundle exec rake db:migrate
-bundle exec rake db:seed
+mix run priv/repo/seeds.exs

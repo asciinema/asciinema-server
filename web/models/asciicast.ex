@@ -49,7 +49,7 @@ defmodule Asciinema.Asciicast do
 
   def update_changeset(struct, attrs) do
     struct
-    |> cast(attrs, [:title, :theme_name, :snapshot_at])
+    |> cast(attrs, [:title, :theme_name, :private, :snapshot_at])
   end
 
   defp generate_secret_token(changeset) do
