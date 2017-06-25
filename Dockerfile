@@ -167,7 +167,10 @@ COPY docker/nginx/asciinema.conf /etc/nginx/sites-available/default
 RUN mkdir -p /var/log/supervisor
 COPY docker/supervisor/asciinema.conf /etc/supervisor/conf.d/asciinema.conf
 
-# add start script for Clojure app
+# add setup script
+
+COPY docker/bin /app/docker/bin
+ENV PATH "/app/docker/bin:${PATH}"
 
 ENV A2PNG_BIN_PATH "/app/a2png/a2png.sh"
 

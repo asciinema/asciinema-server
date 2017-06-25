@@ -120,7 +120,7 @@ Start PostgreSQL container (skip this if you use existing PostgreSQL server):
 
 Create database schema and seed it with initial data:
 
-    docker-compose run --rm web bundle exec rake db:setup
+    docker-compose run --rm web setup
 
 ### Create containers
 
