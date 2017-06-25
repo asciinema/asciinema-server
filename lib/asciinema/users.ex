@@ -1,7 +1,31 @@
 defmodule Asciinema.Users do
   import Ecto.Query, warn: false
   import Ecto, only: [assoc: 2]
-  alias Asciinema.{Repo, User, ApiToken}
+  alias Asciinema.{Repo, User, ApiToken, Asciicasts, Asciicast}
+
+  def create_asciinema_user!() do
+    user =
+      Repo.get_by(User, username: "asciinema") ||
+      Repo.insert!(%User{username: "asciinema",
+                         name: "asciinema",
+                         email: "support@asciinema.org"})
+
+    if Repo.count(assoc(user, :asciicasts)) == 0 do
+      upload = %Plug.Upload{path: "resources/welcome.json",
+                            filename: "asciicast.json",
+                            content_type: "application/json"}
+
+      Repo.transaction(fn ->
+        {:ok, asciicast} = Asciicasts.create_asciicast(user, upload, nil)
+
+        asciicast
+        |> Asciicast.update_changeset(%{private: false, snapshot_at: 76.2})
+        |> Repo.update!
+      end)
+    end
+
+    :ok
+  end
 
   def authenticate(api_token) do
     q = from u in User,
