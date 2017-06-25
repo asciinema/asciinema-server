@@ -57,6 +57,11 @@ docker-compose configuration.
 
     git clone --recursive https://github.com/asciinema/asciinema.org.git
 
+It's recommended to checkout a new branch, to keep any customizations separate
+from master branch and make upgrading safer:
+
+    git checkout -b example
+
 ### Edit config file
 
 You need to create `.env.production` config file. The easiest is to use
@@ -135,6 +140,25 @@ Check the status of newly created containers:
 You should see `asciinema_web`, `asciinema_postgres` and a few others listed.
 
 Point your browser to `BASE_URL` and enjoy your own asciinema hosting site!
+
+## Upgrading
+
+Stop all containers:
+
+    docker-compose stop
+
+Pull latest code from upstream and merge it into your branch:
+
+    git fetch origin
+    git merge origin/master
+
+Upgrade database:
+
+    docker-compose run --rm web upgrade
+
+Start new containers:
+
+    docker-compose up -d
 
 ## Using asciinema recorder with your instance
 
