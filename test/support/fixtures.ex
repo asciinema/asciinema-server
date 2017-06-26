@@ -13,9 +13,10 @@ defmodule Asciinema.Fixtures do
 
   def fixture(:user, attrs) do
     attrs = Map.merge(%{username: "test",
-                        email: "test@example.com",
-                        auth_token: "authy-auth-auth"}, attrs)
-    Repo.insert!(User.changeset(%User{}, attrs))
+                        email: "test@example.com"}, attrs)
+    %User{}
+    |> User.create_changeset(attrs)
+    |> Repo.insert!
   end
 
   def fixture(:asciicast, _attrs) do

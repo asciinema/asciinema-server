@@ -4,11 +4,18 @@ defmodule Asciinema.Users do
   alias Asciinema.{Repo, User, ApiToken, Asciicasts, Asciicast}
 
   def create_asciinema_user!() do
-    user =
-      Repo.get_by(User, username: "asciinema") ||
-      Repo.insert!(%User{username: "asciinema",
-                         name: "asciinema",
-                         email: "support@asciinema.org"})
+    attrs = %{username: "asciinema",
+              name: "asciinema",
+              email: "support@asciinema.org"}
+
+    user = case Repo.get_by(User, username: "asciinema") do
+             nil ->
+               %User{}
+               |> User.create_changeset(attrs)
+               |> Repo.insert!
+             user ->
+               user
+           end
 
     if Repo.count(assoc(user, :asciicasts)) == 0 do
       upload = %Plug.Upload{path: "resources/welcome.json",

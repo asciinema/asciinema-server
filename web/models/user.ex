@@ -18,13 +18,16 @@ defmodule Asciinema.User do
     has_many :expiring_tokens, Asciinema.ExpiringToken
   end
 
-  @doc """
-  Builds a changeset based on the `struct` and `params`.
-  """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:email, :name, :username, :auth_token, :theme_name, :asciicasts_private_by_default])
-    |> validate_required([:auth_token])
+    |> cast(params, [:email, :name, :username, :theme_name, :asciicasts_private_by_default])
+  end
+
+  def create_changeset(struct, attrs) do
+    struct
+    |> changeset(attrs)
+    |> validate_required(~w(username email)a)
+    |> generate_auth_token
   end
 
   def temporary_changeset(temporary_username) do
