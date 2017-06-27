@@ -4,10 +4,10 @@ defmodule Asciinema.SessionController do
   alias Asciinema.{Auth, Users, User}
 
   def create(conn, %{"api_token" => api_token}) do
-    case Users.authenticate(api_token) do
+    case Users.get_user_with_api_token(api_token) do
       {:ok, user} ->
         login(conn, user)
-      {:error, :token_not_found} ->
+      {:error, :token_invalid} ->
         conn
         |> put_rails_flash(:alert, "Invalid token. Make sure you pasted the URL correctly.")
         |> redirect(to: "/")

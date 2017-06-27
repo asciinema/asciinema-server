@@ -9,7 +9,7 @@ defmodule Asciinema.SessionControllerTest do
   @other_tmp_user_token "2eafaa20-80c8-47fc-b014-74072027edae"
 
   setup %{conn: conn} do
-    %User{} = Users.get_user_with_api_token("revoked", @revoked_token)
+    {:ok, %User{}} = Users.get_user_with_api_token(@revoked_token, "revoked")
     @revoked_token |> Users.get_api_token! |> Users.revoke_api_token!
 
     regular_user = fixture(:user)
@@ -18,9 +18,9 @@ defmodule Asciinema.SessionControllerTest do
     other_regular_user = fixture(:user, %{username: "other", email: "other@example.com"})
     ApiToken.create_changeset(other_regular_user, @other_regular_user_token) |> Repo.insert!
 
-    %User{} = tmp_user = Users.get_user_with_api_token("tmp", @tmp_user_token)
+    {:ok, %User{} = tmp_user} = Users.get_user_with_api_token(@tmp_user_token, "tmp")
 
-    %User{} = Users.get_user_with_api_token("other_tmp", @other_tmp_user_token)
+    {:ok, %User{}} = Users.get_user_with_api_token(@other_tmp_user_token, "other_tmp")
 
     {:ok, conn: conn, regular_user: regular_user, tmp_user: tmp_user}
   end

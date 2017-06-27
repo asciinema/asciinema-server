@@ -84,7 +84,7 @@ defmodule Asciinema.Api.AsciicastControllerTest do
     end
 
     test "existing user (API token)", %{conn: conn, token: token} do
-      Users.create_user_with_api_token("test", token)
+      {:ok, _} = Users.create_user_with_api_token(token, "test")
       upload = fixture(:upload, %{path: "1/asciicast.json"})
       conn = post conn, api_asciicast_path(conn, :create), %{"asciicast" => upload}
       assert text_response(conn, 201) =~ @asciicast_url
@@ -99,7 +99,7 @@ defmodule Asciinema.Api.AsciicastControllerTest do
     end
 
     test "authentication with revoked token", %{conn: conn, token: token} do
-      Users.get_user_with_api_token("test", token) # force registration of the token
+      Users.get_user_with_api_token(token, "test") # force registration of the token
       token |> Users.get_api_token! |> Users.revoke_api_token!
       upload = fixture(:upload, %{path: "1/asciicast.json"})
       conn = post conn, api_asciicast_path(conn, :create), %{"asciicast" => upload}

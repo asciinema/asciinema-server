@@ -73,7 +73,7 @@ defmodule Asciinema.Api.AsciicastController do
 
   defp authenticate(conn, _opts) do
     with {username, api_token} <- get_basic_auth(conn),
-         %User{} = user <- Users.get_user_with_api_token(username, api_token) do
+         {:ok, %User{} = user} <- Users.get_user_with_api_token(api_token, username) do
       assign(conn, :current_user, user)
     else
       _otherwise ->

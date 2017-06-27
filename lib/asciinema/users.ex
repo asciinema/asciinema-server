@@ -51,27 +51,32 @@ defmodule Asciinema.Users do
     end
   end
 
-  def get_user_with_api_token(username, api_token) do
+  def get_user_with_api_token(api_token, tmp_username \\ nil) do
     case authenticate(api_token) do
-      {:ok, %User{} = user} ->
-        user
-      {:error, :token_revoked} ->
-        nil
+      {:ok, %User{}} = res ->
+        res
+      {:error, :token_revoked} = res ->
+        res
       {:error, :token_not_found} ->
-        create_user_with_api_token(username, api_token)
+        create_user_with_api_token(api_token, tmp_username)
     end
   end
 
-  def create_user_with_api_token(username, api_token) do
-    user_changeset = User.temporary_changeset(username)
+  def create_user_with_api_token(api_token, tmp_username) do
+    user_changeset = User.temporary_changeset(tmp_username)
 
     {_, result} = Repo.transaction(fn ->
       with {:ok, %User{} = user} <- Repo.insert(user_changeset),
            api_token_changeset = ApiToken.create_changeset(user, api_token),
            {:ok, %ApiToken{}} <- Repo.insert(api_token_changeset) do
-        user
+        {:ok, user}
       else
-        _otherwise -> Repo.rollback(nil)
+        {:error, %Ecto.Changeset{}} ->
+          {:error, :token_invalid}
+        {:error, _} = err ->
+          Repo.rollback(err)
+        result ->
+          Repo.rollback({:error, result})
       end
     end)
 
