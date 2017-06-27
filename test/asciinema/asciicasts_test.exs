@@ -108,4 +108,13 @@ defmodule Asciinema.AsciicastsTest do
       assert {:error, :parse_error} = Asciicasts.create_asciicast(user, upload)
     end
   end
+
+  describe "stdout_stream/2" do
+    test "with gzipped files" do
+      stream = Asciicasts.stdout_stream("spec/fixtures/0.9.9/stdout.time",
+                                        "spec/fixtures/0.9.9/stdout")
+      assert :ok == Stream.run(stream)
+      assert [{1.234567, "foobar"}, {0.123456, "baz"}] == Enum.take(stream, 2)
+    end
+  end
 end

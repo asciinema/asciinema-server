@@ -105,4 +105,36 @@ defmodule Asciinema.Asciicasts do
   defp generate_poster(asciicast) do
     PosterGenerator.generate(asciicast)
   end
+
+  def stdout_stream(stdout_timing_path, stdout_data_path) do
+    Stream.resource(
+      fn ->
+        {File.open!(stdout_timing_path, [:read, :compressed]),
+         File.open!(stdout_data_path, [:read, :compressed])}
+      end,
+      fn {timing_file, data_file} = files ->
+        case IO.read(timing_file, :line) do
+          line when is_binary(line) ->
+            {delay, count} = parse_line(line)
+            case IO.read(data_file, count) do
+              text when is_binary(text) ->
+                {[{delay, text}], files}
+              otherwise ->
+                {:error, otherwise}
+            end
+          _ ->
+            {:halt, files}
+        end
+      end,
+      fn {timing_file, data_file} ->
+        File.close(timing_file)
+        File.close(data_file)
+      end
+    )
+  end
+
+  defp parse_line(line) do
+    [delay_s, bytes_s] = line |> String.trim_trailing |> String.split(" ")
+    {String.to_float(delay_s), String.to_integer(bytes_s)}
+  end
 end
