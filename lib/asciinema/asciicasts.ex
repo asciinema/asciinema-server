@@ -68,20 +68,6 @@ defmodule Asciinema.Asciicasts do
     end
   end
 
-  defp do_create_asciicast(changeset, files) do
-    {_, result} = Repo.transaction(fn ->
-      case Repo.insert(changeset) do
-        {:ok, %Asciicast{} = asciicast} ->
-          Enum.each(files, fn {type, upload} -> save_file(asciicast, type, upload) end)
-          {:ok, asciicast}
-        otherwise ->
-          otherwise
-      end
-    end)
-
-    result
-  end
-
   defp extract_attrs(%{"version" => 1} = attrs) do
     attrs = %{version: attrs["version"],
               duration: attrs["duration"],
@@ -95,6 +81,20 @@ defmodule Asciinema.Asciicasts do
   end
   defp extract_attrs(_attrs) do
     {:error, :unknown_format}
+  end
+
+  defp do_create_asciicast(changeset, files) do
+    {_, result} = Repo.transaction(fn ->
+      case Repo.insert(changeset) do
+        {:ok, %Asciicast{} = asciicast} ->
+          Enum.each(files, fn {type, upload} -> save_file(asciicast, type, upload) end)
+          {:ok, asciicast}
+        otherwise ->
+          otherwise
+      end
+    end)
+
+    result
   end
 
   defp save_file(asciicast, type, %{path: tmp_file_path, content_type: content_type}) do
