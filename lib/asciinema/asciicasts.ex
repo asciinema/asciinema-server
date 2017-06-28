@@ -109,24 +109,8 @@ defmodule Asciinema.Asciicasts do
   def stdout_stream(stdout_timing_path, stdout_data_path) do
     Stream.resource(
       fn -> open_stream_files(stdout_timing_path, stdout_data_path) end,
-      fn {timing_file, data_file} = files ->
-        case IO.read(timing_file, :line) do
-          line when is_binary(line) ->
-            {delay, count} = parse_line(line)
-            case IO.read(data_file, count) do
-              text when is_binary(text) ->
-                {[{delay, text}], files}
-              otherwise ->
-                {:error, otherwise}
-            end
-          _ ->
-            {:halt, files}
-        end
-      end,
-      fn {timing_file, data_file} ->
-        File.close(timing_file)
-        File.close(data_file)
-      end
+      &generate_stream_elem/1,
+      &close_stream_files/1
     )
   end
 
@@ -148,6 +132,26 @@ defmodule Asciinema.Asciicasts do
       _ ->
         File.open!(path, [:read])
     end
+  end
+
+  defp generate_stream_elem({timing_file, data_file} = files) do
+    case IO.read(timing_file, :line) do
+      line when is_binary(line) ->
+        {delay, count} = parse_line(line)
+        case IO.read(data_file, count) do
+          text when is_binary(text) ->
+            {[{delay, text}], files}
+          otherwise ->
+            {:error, otherwise}
+        end
+      _ ->
+        {:halt, files}
+    end
+  end
+
+  defp close_stream_files({timing_file, data_file}) do
+    File.close(timing_file)
+    File.close(data_file)
   end
 
   defp parse_line(line) do
