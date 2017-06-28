@@ -116,5 +116,12 @@ defmodule Asciinema.AsciicastsTest do
       assert :ok == Stream.run(stream)
       assert [{1.234567, "foobar"}, {0.123456, "baz"}] == Enum.take(stream, 2)
     end
+
+    test "with bzipped files" do
+      stream = Asciicasts.stdout_stream("spec/fixtures/0.9.8/stdout.time",
+                                        "spec/fixtures/0.9.8/stdout")
+      assert :ok == Stream.run(stream)
+      assert [{1.234567, "foobar"}, {0.123456, "baz"}] == Enum.take(stream, 2)
+    end
   end
 end

@@ -108,10 +108,7 @@ defmodule Asciinema.Asciicasts do
 
   def stdout_stream(stdout_timing_path, stdout_data_path) do
     Stream.resource(
-      fn ->
-        {File.open!(stdout_timing_path, [:read, :compressed]),
-         File.open!(stdout_data_path, [:read, :compressed])}
-      end,
+      fn -> open_stream_files(stdout_timing_path, stdout_data_path) end,
       fn {timing_file, data_file} = files ->
         case IO.read(timing_file, :line) do
           line when is_binary(line) ->
@@ -131,6 +128,26 @@ defmodule Asciinema.Asciicasts do
         File.close(data_file)
       end
     )
+  end
+
+  defp open_stream_files(stdout_timing_path, stdout_data_path) do
+    {open_stream_file(stdout_timing_path),
+     open_stream_file(stdout_data_path)}
+  end
+
+  defp open_stream_file(path) do
+    header = File.open!(path, [:read], fn file -> IO.binread(file, 2) end)
+
+    case header do
+      <<0x1f,0x8b>> -> # gzip
+        File.open!(path, [:read, :compressed])
+      <<0x42,0x5a>> -> # bzip
+        {:ok, tmp_path} = Briefly.create()
+        {_, 0} = System.cmd("sh", ["-c", "bzip2 -d -k -c #{path} >#{tmp_path}"])
+        File.open!(tmp_path, [:read])
+      _ ->
+        File.open!(path, [:read])
+    end
   end
 
   defp parse_line(line) do
