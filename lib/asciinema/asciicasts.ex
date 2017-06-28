@@ -106,6 +106,18 @@ defmodule Asciinema.Asciicasts do
     PosterGenerator.generate(asciicast)
   end
 
+  def stdout_stream(asciicast_file_path) do
+    asciicast =
+      asciicast_file_path
+      |> File.read!
+      |> Poison.decode!
+
+    1 = asciicast["version"]
+
+    asciicast
+    |> Map.get("stdout")
+    |> Enum.map(&List.to_tuple/1)
+  end
   def stdout_stream(stdout_timing_path, stdout_data_path) do
     Stream.resource(
       fn -> open_stream_files(stdout_timing_path, stdout_data_path) end,
