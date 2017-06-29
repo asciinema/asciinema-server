@@ -117,7 +117,7 @@ asciinema recorder pre-installed.
 When running it don't forget to allocate a pseudo-TTY (`-t`), keep STDIN open
 (`-i`) and mount config directory volume (`-v`):
 
-    docker run --rm -ti -v "$HOME/.config/asciinema":/root/.config/asciinema asciinema/asciinema
+    docker run --rm -ti -w /asciinema -v "$(pwd -P):/asciinema" -v "$HOME/.config/asciinema":/root/.config/asciinema asciinema/asciinema
 
 ## Running from source
 {: #running-from-source}
