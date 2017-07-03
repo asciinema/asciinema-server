@@ -139,4 +139,12 @@ defmodule Asciinema.AsciicastsTest do
       assert [{1.234567, "xxżó"}, {0.123456, "łć"}, {2.0, "xx"}] == Enum.take(stream, 3)
     end
   end
+
+  describe "generate_snapshot/2" do
+    test "returns list of screen lines" do
+      stdout_stream = [{1.0, "a"}, {0.5, "b"}, {2.0, "c"}]
+      snapshot = Asciicasts.generate_snapshot(stdout_stream, 4, 2, 2.5)
+      assert snapshot == [[["ab  ", %{}]], [["    ", %{}]]]
+    end
+  end
 end

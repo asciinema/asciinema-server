@@ -1,6 +1,6 @@
 defmodule Asciinema.Asciicasts do
   import Ecto.Query, warn: false
-  alias Asciinema.{Repo, Asciicast, FileStore, StringUtils}
+  alias Asciinema.{Repo, Asciicast, FileStore, StringUtils, Vt}
   alias Asciinema.Asciicasts.PosterGenerator
 
   def get_asciicast!(id) when is_integer(id) do
@@ -171,5 +171,27 @@ defmodule Asciinema.Asciicasts do
   defp parse_line(line) do
     [delay_s, bytes_s] = line |> String.trim_trailing |> String.split(" ")
     {String.to_float(delay_s), String.to_integer(bytes_s)}
+  end
+
+  def generate_snapshot(stdout_stream, width, height, secs) do
+    frames =
+      stdout_stream
+      |> Stream.scan(&to_absolute_time/2)
+      |> Stream.take_while(&frame_before_or_at?(&1, secs))
+
+    {:ok, %{"lines" => lines}} = Vt.with_vt(width, height, fn vt ->
+      Enum.each(frames, fn {_, text} -> Vt.feed(vt, text) end)
+      Vt.dump_screen(vt)
+    end)
+
+    lines
+  end
+
+  defp to_absolute_time({curr_time, data}, {prev_time, _}) do
+    {prev_time + curr_time, data}
+  end
+
+  defp frame_before_or_at?({time, _}, secs) do
+    time <= secs
   end
 end
