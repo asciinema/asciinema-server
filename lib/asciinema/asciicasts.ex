@@ -106,7 +106,7 @@ defmodule Asciinema.Asciicasts do
     PosterGenerator.generate(asciicast)
   end
 
-  def stdout_stream(asciicast_file_path) do
+  def stdout_stream(asciicast_file_path) when is_binary(asciicast_file_path) do
     asciicast =
       asciicast_file_path
       |> File.read!
@@ -118,7 +118,7 @@ defmodule Asciinema.Asciicasts do
     |> Map.get("stdout")
     |> Enum.map(&List.to_tuple/1)
   end
-  def stdout_stream(stdout_timing_path, stdout_data_path) do
+  def stdout_stream({stdout_timing_path, stdout_data_path}) do
     Stream.resource(
       fn -> open_stream_files(stdout_timing_path, stdout_data_path) end,
       &generate_stream_elem/1,

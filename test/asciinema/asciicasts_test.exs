@@ -119,22 +119,22 @@ defmodule Asciinema.AsciicastsTest do
 
   describe "stdout_stream/2" do
     test "with gzipped files" do
-      stream = Asciicasts.stdout_stream("spec/fixtures/0.9.9/stdout.time",
-                                        "spec/fixtures/0.9.9/stdout")
+      stream = Asciicasts.stdout_stream({"spec/fixtures/0.9.9/stdout.time",
+                                         "spec/fixtures/0.9.9/stdout"})
       assert :ok == Stream.run(stream)
       assert [{1.234567, "foobar"}, {0.123456, "baz"}] == Enum.take(stream, 2)
     end
 
     test "with bzipped files" do
-      stream = Asciicasts.stdout_stream("spec/fixtures/0.9.8/stdout.time",
-                                        "spec/fixtures/0.9.8/stdout")
+      stream = Asciicasts.stdout_stream({"spec/fixtures/0.9.8/stdout.time",
+                                         "spec/fixtures/0.9.8/stdout"})
       assert :ok == Stream.run(stream)
       assert [{1.234567, "foobar"}, {0.123456, "baz"}] == Enum.take(stream, 2)
     end
 
     test "with bzipped files (utf-8 sequence split between frames)" do
-      stream = Asciicasts.stdout_stream("spec/fixtures/0.9.8/stdout-split.time",
-                                        "spec/fixtures/0.9.8/stdout-split")
+      stream = Asciicasts.stdout_stream({"spec/fixtures/0.9.8/stdout-split.time",
+                                         "spec/fixtures/0.9.8/stdout-split"})
       assert :ok == Stream.run(stream)
       assert [{1.234567, "xxżó"}, {0.123456, "łć"}, {2.0, "xx"}] == Enum.take(stream, 3)
     end
