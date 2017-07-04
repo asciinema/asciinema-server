@@ -1,6 +1,6 @@
 defmodule Asciinema.Asciicasts do
   import Ecto.Query, warn: false
-  alias Asciinema.{Repo, Asciicast, FileStore}
+  alias Asciinema.{Repo, Asciicast, FileStore, StringUtils}
   alias Asciinema.Asciicasts.PosterGenerator
 
   def get_asciicast!(id) when is_integer(id) do
@@ -128,7 +128,8 @@ defmodule Asciinema.Asciicasts do
 
   defp open_stream_files(stdout_timing_path, stdout_data_path) do
     {open_stream_file(stdout_timing_path),
-     open_stream_file(stdout_data_path)}
+     open_stream_file(stdout_data_path),
+     ""}
   end
 
   defp open_stream_file(path) do
@@ -146,13 +147,14 @@ defmodule Asciinema.Asciicasts do
     end
   end
 
-  defp generate_stream_elem({timing_file, data_file} = files) do
+  defp generate_stream_elem({timing_file, data_file, invalid_str} = files) do
     case IO.read(timing_file, :line) do
       line when is_binary(line) ->
         {delay, count} = parse_line(line)
-        case IO.read(data_file, count) do
+        case IO.binread(data_file, count) do
           text when is_binary(text) ->
-            {[{delay, text}], files}
+            {valid_str, invalid_str} = StringUtils.valid_part(invalid_str, text)
+            {[{delay, valid_str}], {timing_file, data_file, invalid_str}}
           otherwise ->
             {:error, otherwise}
         end
@@ -161,7 +163,7 @@ defmodule Asciinema.Asciicasts do
     end
   end
 
-  defp close_stream_files({timing_file, data_file}) do
+  defp close_stream_files({timing_file, data_file, _}) do
     File.close(timing_file)
     File.close(data_file)
   end
