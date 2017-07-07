@@ -65,7 +65,7 @@ defmodule Asciinema.PngGenerator.A2png do
       Integer.to_string(png_params.scale)
     ]
 
-    {:ok, {:ok, _}} = file_store().open(path, &(:file.copy(&1, json_path)))
+    :ok = file_store().download_file(path, json_path)
     process = Porcelain.spawn(bin_path(), args, err: :string)
 
     case Porcelain.Process.await(process, @a2png_timeout) do

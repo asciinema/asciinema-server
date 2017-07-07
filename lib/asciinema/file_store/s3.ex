@@ -25,7 +25,7 @@ defmodule Asciinema.FileStore.S3 do
     |> redirect(external: url)
   end
 
-  def open(path, function \\ nil) do
+  def open_file(path, function \\ nil) do
     response = S3.get_object(bucket(), base_path() <> path) |> ExAws.request(region: region())
     # TODO: use make_request
 

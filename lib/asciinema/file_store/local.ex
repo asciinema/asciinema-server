@@ -29,10 +29,10 @@ defmodule Asciinema.FileStore.Local do
     |> halt
   end
 
-  def open(path) do
+  def open_file(path) do
     File.open(base_path() <> path, [:binary, :read])
   end
-  def open(path, function) do
+  def open_file(path, function) do
     File.open(base_path() <> path, [:binary, :read], function)
   end
 
