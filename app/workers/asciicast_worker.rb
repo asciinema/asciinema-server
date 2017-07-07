@@ -4,7 +4,10 @@ class AsciicastWorker
 
   def perform(asciicast_id)
     asciicast = Asciicast.find(asciicast_id)
-    AsciicastProcessor.new.process(asciicast)
+
+    if asciicast.version == 0
+      AsciicastFramesFileUpdater.new.update(asciicast)
+    end
 
   rescue ActiveRecord::RecordNotFound
     # oh well...

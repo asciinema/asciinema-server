@@ -10,4 +10,6 @@
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
 
+Application.put_env(:asciinema, :snapshot_updater, Asciinema.Asciicasts.SnapshotUpdater.Sync)
+
 Asciinema.Users.create_asciinema_user!()

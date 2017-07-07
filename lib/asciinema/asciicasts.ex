@@ -1,7 +1,7 @@
 defmodule Asciinema.Asciicasts do
   import Ecto.Query, warn: false
   alias Asciinema.{Repo, Asciicast, FileStore, StringUtils, Vt}
-  alias Asciinema.Asciicasts.PosterGenerator
+  alias Asciinema.Asciicasts.{SnapshotUpdater, FramesGenerator}
 
   def get_asciicast!(id) when is_integer(id) do
     Repo.get!(Asciicast, id)
@@ -36,7 +36,7 @@ defmodule Asciinema.Asciicasts do
          attrs = Map.merge(attrs, overrides),
          changeset = Asciicast.create_changeset(asciicast, attrs),
          {:ok, %Asciicast{} = asciicast} <- do_create_asciicast(changeset, files) do
-      generate_poster(asciicast)
+      :ok = SnapshotUpdater.update_snapshot(asciicast)
       {:ok, asciicast}
     else
       {:error, :invalid} ->
@@ -62,7 +62,8 @@ defmodule Asciinema.Asciicasts do
 
     case do_create_asciicast(changeset, files) do
       {:ok, %Asciicast{} = asciicast} ->
-        generate_poster(asciicast)
+        :ok = FramesGenerator.generate_frames(asciicast)
+        :ok = SnapshotUpdater.update_snapshot(asciicast)
         {:ok, asciicast}
       otherwise ->
         otherwise
@@ -115,10 +116,6 @@ defmodule Asciinema.Asciicasts do
   defp save_file(asciicast, type, %{path: tmp_file_path, content_type: content_type}) do
     file_store_path = Asciicast.file_store_path(asciicast, type)
     :ok = FileStore.put_file(file_store_path, tmp_file_path, content_type)
-  end
-
-  defp generate_poster(asciicast) do
-    PosterGenerator.generate(asciicast)
   end
 
   def stdout_stream(%Asciicast{version: 0} = asciicast) do
