@@ -25,8 +25,6 @@ defmodule Asciinema.VtTest do
   end
 
   test "Vt" do
-    {:ok, _pid} = Vt.Pool.start_link()
-
     result = Vt.with_vt(8, 3, fn vt ->
       :ok = Vt.feed(vt, "foobar\r\n")
       :ok = Vt.feed(vt, "baz")

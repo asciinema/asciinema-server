@@ -21,6 +21,7 @@ defmodule Asciinema.Asciicast do
     field :title, :string
     field :theme_name, :string
     field :snapshot_at, :float
+    field :snapshot, Asciinema.Ecto.Type.JsonArray
     field :command, :string
     field :shell, :string
     field :uname, :string
@@ -58,6 +59,10 @@ defmodule Asciinema.Asciicast do
     struct
     |> changeset(attrs)
     |> cast(attrs, [:theme_name])
+  end
+
+  def snapshot_changeset(struct, snapshot) do
+    cast(struct, %{snapshot: snapshot}, [:snapshot])
   end
 
   defp generate_secret_token(changeset) do

@@ -121,6 +121,22 @@ defmodule Asciinema.Asciicasts do
     PosterGenerator.generate(asciicast)
   end
 
+  def stdout_stream(%Asciicast{version: 0} = asciicast) do
+    {:ok, tmp_dir_path} = Briefly.create(directory: true)
+    local_timing_path = tmp_dir_path <> "/timing"
+    local_data_path = tmp_dir_path <> "/data"
+    store_timing_path = Asciicast.file_store_path(asciicast, :stdout_timing)
+    store_data_path = Asciicast.file_store_path(asciicast, :stdout_data)
+    :ok = FileStore.download_file(store_timing_path, local_timing_path)
+    :ok = FileStore.download_file(store_data_path, local_data_path)
+    stdout_stream({local_timing_path, local_data_path})
+  end
+  def stdout_stream(%Asciicast{version: 1} = asciicast) do
+    {:ok, local_path} = Briefly.create()
+    store_path = Asciicast.file_store_path(asciicast, :file)
+    :ok = FileStore.download_file(store_path, local_path)
+    stdout_stream(local_path)
+  end
   def stdout_stream(asciicast_file_path) when is_binary(asciicast_file_path) do
     asciicast =
       asciicast_file_path
@@ -186,6 +202,12 @@ defmodule Asciinema.Asciicasts do
   defp parse_line(line) do
     [delay_s, bytes_s] = line |> String.trim_trailing |> String.split(" ")
     {String.to_float(delay_s), String.to_integer(bytes_s)}
+  end
+
+  def update_snapshot(%Asciicast{terminal_columns: w, terminal_lines: h} = asciicast) do
+    secs = Asciicast.snapshot_at(asciicast)
+    snapshot = asciicast |> stdout_stream |> generate_snapshot(w, h, secs)
+    asciicast |> Asciicast.snapshot_changeset(snapshot) |> Repo.update
   end
 
   def generate_snapshot(stdout_stream, width, height, secs) do

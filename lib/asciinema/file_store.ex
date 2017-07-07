@@ -12,6 +12,21 @@ defmodule Asciinema.FileStore do
   @callback open(path :: String.t, function :: (File.io_device -> res)) :: {:ok, res} | {:error, File.posix} when res: var
 
   def put_file(dst_path, src_local_path, content_type) do
-    Application.get_env(:asciinema, :file_store).put_file(dst_path, src_local_path, content_type)
+    instance().put_file(dst_path, src_local_path, content_type)
+  end
+
+  def open_file(path, f) do
+    instance().open(path, f)
+  end
+
+  def download_file(store_path, local_path) do
+    case open_file(store_path, &(:file.copy(&1, local_path))) do
+      {:ok, {:ok, _}} -> :ok
+      otherwise -> otherwise
+    end
+  end
+
+  defp instance do
+    Application.get_env(:asciinema, :file_store)
   end
 end
