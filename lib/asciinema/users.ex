@@ -1,7 +1,7 @@
 defmodule Asciinema.Users do
   import Ecto.Query, warn: false
   import Ecto, only: [assoc: 2]
-  alias Asciinema.{Repo, User, ApiToken, Asciicasts, Asciicast}
+  alias Asciinema.{Repo, User, ApiToken, Asciicasts}
 
   def create_asciinema_user!() do
     attrs = %{username: "asciinema",
@@ -22,13 +22,7 @@ defmodule Asciinema.Users do
                             filename: "asciicast.json",
                             content_type: "application/json"}
 
-      Repo.transaction(fn ->
-        {:ok, asciicast} = Asciicasts.create_asciicast(user, upload, nil)
-
-        asciicast
-        |> Asciicast.update_changeset(%{private: false, snapshot_at: 76.2})
-        |> Repo.update!
-      end)
+      {:ok, _} = Asciicasts.create_asciicast(user, upload, %{private: false, snapshot_at: 76.2})
     end
 
     :ok

@@ -17,6 +17,8 @@ defmodule Asciinema do
       # Start your own worker by calling: Asciinema.Worker.start_link(arg1, arg2, arg3)
       # worker(Asciinema.Worker, [arg1, arg2, arg3]),
       :poolboy.child_spec(:worker, Asciinema.PngGenerator.A2png.poolboy_config(), []),
+      supervisor(Asciinema.Vt.Pool, []),
+      supervisor(Exq, []),
       worker(Redix, [redis_url, [name: :redix]])
     ]
 

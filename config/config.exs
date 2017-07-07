@@ -51,7 +51,19 @@ config :asciinema, Asciinema.PngGenerator.A2png,
 
 config :asciinema, :redis_url, System.get_env("REDIS_URL") || "redis://redis:6379"
 
-config :asciinema, :poster_generator, Asciinema.Asciicasts.PosterGenerator.Sidekiq
+config :asciinema, :snapshot_updater, Asciinema.Asciicasts.SnapshotUpdater.Exq
+config :asciinema, :frames_generator, Asciinema.Asciicasts.FramesGenerator.Sidekiq
+
+config :exq,
+  name: Exq,
+  start_on_application: false,
+  url: System.get_env("REDIS_URL") || "redis://redis:6379",
+  namespace: "exq",
+  concurrency: 10,
+  queues: ["default"],
+  scheduler_enable: true,
+  max_retries: 25,
+  shutdown_timeout: 5000
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

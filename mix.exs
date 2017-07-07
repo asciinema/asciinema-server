@@ -36,6 +36,7 @@ defmodule Asciinema.Mixfile do
        :redix,
        :timex,
        :timex_ecto,
+       :exq,
      ]]
   end
 
@@ -51,6 +52,7 @@ defmodule Asciinema.Mixfile do
       {:briefly, "~> 0.3"},
       {:cowboy, "~> 1.0"},
       {:ex_aws, "~> 1.0"},
+      {:exq, "~> 0.9.0"},
       {:gettext, "~> 0.11"},
       {:phoenix, "~> 1.2.1"},
       {:phoenix_ecto, "~> 3.0"},
