@@ -32,6 +32,7 @@ services:
     ports:
       - 3000:3000
       - 4000:4000
+      - 4040:4040
     volumes:
       - ../uploads:/app/uploads:cached
       - ../deps:/app/deps:cached

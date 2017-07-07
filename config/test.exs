@@ -25,3 +25,5 @@ config :asciinema, Asciinema.FileStore.Local, path: "uploads/test/"
 
 config :asciinema, :snapshot_updater, Asciinema.Asciicasts.SnapshotUpdater.Sync
 config :asciinema, :frames_generator, Asciinema.Asciicasts.FramesGenerator.Noop
+
+config :exq_ui, server: false
