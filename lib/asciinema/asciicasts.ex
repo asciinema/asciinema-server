@@ -215,7 +215,7 @@ defmodule Asciinema.Asciicasts do
 
     {:ok, %{"lines" => lines}} = Vt.with_vt(width, height, fn vt ->
       Enum.each(frames, fn {_, text} -> Vt.feed(vt, text) end)
-      Vt.dump_screen(vt)
+      Vt.dump_screen(vt, 30_000)
     end)
 
     lines
