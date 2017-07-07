@@ -40,16 +40,24 @@ defmodule Asciinema.Asciicast do
     end
   end
 
+  def changeset(struct, attrs) do
+    struct
+    |> cast(attrs, [:title, :private, :snapshot_at])
+    |> validate_required([:private])
+  end
+
   def create_changeset(struct, attrs) do
     struct
-    |> cast(attrs, [:version, :file, :duration, :terminal_columns, :terminal_lines, :terminal_type, :command, :shell, :title, :uname])
-    |> validate_required([:user_id, :private, :version, :duration, :terminal_columns, :terminal_lines])
+    |> changeset(attrs)
+    |> cast(attrs, [:version, :file, :duration, :terminal_columns, :terminal_lines, :terminal_type, :command, :shell, :uname, :user_agent])
+    |> validate_required([:user_id, :version, :duration, :terminal_columns, :terminal_lines])
     |> generate_secret_token
   end
 
   def update_changeset(struct, attrs) do
     struct
-    |> cast(attrs, [:title, :theme_name, :private, :snapshot_at])
+    |> changeset(attrs)
+    |> cast(attrs, [:theme_name])
   end
 
   defp generate_secret_token(changeset) do

@@ -5,12 +5,13 @@ defmodule Asciinema.AsciicastsTest do
   describe "create_asciicast/3" do
     test "json file, v0 format with uname" do
       user = fixture(:user)
-      params = %{"meta" => %{"command" => "/bin/bash",
+      params = %{"meta" => %{"version" => 0,
+                             "command" => "/bin/bash",
                              "duration" => 11.146430015564,
                              "shell" => "/bin/zsh",
-                             "terminal_columns" => 96,
-                             "terminal_lines" => 26,
-                             "terminal_type" => "screen-256color",
+                             "term" => %{"columns" => 96,
+                                         "lines" => 26,
+                                         "type" => "screen-256color"},
                              "title" => "bashing :)",
                              "uname" => "Linux 3.9.9-302.fc19.x86_64 #1 SMP Sat Jul 6 13:41:07 UTC 2013 x86_64"},
                  "stdout" => fixture(:upload, %{path: "0.9.7/stdout",
@@ -18,7 +19,7 @@ defmodule Asciinema.AsciicastsTest do
                  "stdout_timing" => fixture(:upload, %{path: "0.9.7/stdout.time",
                                                        content_type: "application/octet-stream"})}
 
-      {:ok, asciicast} = Asciicasts.create_asciicast(user, params, "a/user/agent")
+      {:ok, asciicast} = Asciicasts.create_asciicast(user, params, %{user_agent: "a/user/agent"})
 
       assert %Asciicast{version: 0,
                         file: nil,
@@ -37,19 +38,20 @@ defmodule Asciinema.AsciicastsTest do
 
     test "json file, v0 format without uname" do
       user = fixture(:user)
-      params = %{"meta" => %{"command" => "/bin/bash",
+      params = %{"meta" => %{"version" => 0,
+                             "command" => "/bin/bash",
                              "duration" => 11.146430015564,
                              "shell" => "/bin/zsh",
-                             "terminal_columns" => 96,
-                             "terminal_lines" => 26,
-                             "terminal_type" => "screen-256color",
+                             "term" => %{"columns" => 96,
+                                         "lines" => 26,
+                                         "type" => "screen-256color"},
                              "title" => "bashing :)"},
                  "stdout" => fixture(:upload, %{path: "0.9.8/stdout",
                                                 content_type: "application/octet-stream"}),
                  "stdout_timing" => fixture(:upload, %{path: "0.9.8/stdout.time",
                                                        content_type: "application/octet-stream"})}
 
-      {:ok, asciicast} = Asciicasts.create_asciicast(user, params, "a/user/agent")
+      {:ok, asciicast} = Asciicasts.create_asciicast(user, params, %{user_agent: "a/user/agent"})
 
       assert %Asciicast{version: 0,
                         file: nil,
@@ -70,7 +72,7 @@ defmodule Asciinema.AsciicastsTest do
       user = fixture(:user)
       upload = fixture(:upload, %{path: "1/asciicast.json"})
 
-      {:ok, asciicast} = Asciicasts.create_asciicast(user, upload, "a/user/agent")
+      {:ok, asciicast} = Asciicasts.create_asciicast(user, upload, %{user_agent: "a/user/agent"})
 
       assert %Asciicast{version: 1,
                         file: "asciicast.json",

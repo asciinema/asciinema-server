@@ -19,7 +19,7 @@ defmodule Asciinema.Api.AsciicastController do
     user = conn.assigns.current_user
     user_agent = conn |> get_req_header("user-agent") |> List.first
 
-    case Asciicasts.create_asciicast(user, params, user_agent) do
+    case Asciicasts.create_asciicast(user, params, %{user_agent: user_agent}) do
       {:ok, asciicast} ->
         url = asciicast_url(conn, :show, asciicast)
         conn
@@ -43,10 +43,9 @@ defmodule Asciinema.Api.AsciicastController do
 
   defp parse_v0_params(%Plug.Conn{params: %{"asciicast" => %{"meta" => %Plug.Upload{path: meta_path}}}} = conn, _) do
     with {:ok, json} <- File.read(meta_path),
-         {:ok, attrs} <- Poison.decode(json),
-         {:ok, meta} <- extract_v0_attrs(attrs) do
+         {:ok, attrs} <- Poison.decode(json) do
       conn
-      |> put_param(["asciicast", "meta"], meta)
+      |> put_param(["asciicast", "meta"], Map.put(attrs, "version", 0))
       |> put_basic_auth(attrs["username"], attrs["user_token"])
     else
       {:error, :invalid} ->
@@ -58,17 +57,6 @@ defmodule Asciinema.Api.AsciicastController do
   defp put_param(%Plug.Conn{params: params} = conn, path, value) do
     params = put_in(params, path, value)
     %{conn | params: params}
-  end
-
-  defp extract_v0_attrs(attrs) do
-    attrs = Map.merge(
-      Map.take(attrs, ["command", "duration", "shell", "title", "uname"]),
-      %{"terminal_columns" => get_in(attrs, ["term", "columns"]),
-        "terminal_lines" => get_in(attrs, ["term", "lines"]),
-        "terminal_type" => get_in(attrs, ["term", "type"])}
-    )
-
-    {:ok, attrs}
   end
 
   defp authenticate(conn, _opts) do

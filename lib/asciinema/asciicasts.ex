@@ -21,11 +21,10 @@ defmodule Asciinema.Asciicasts do
     Repo.one!(q)
   end
 
-  def create_asciicast(user, params, user_agent \\ nil)
+  def create_asciicast(user, params, overrides \\ %{})
 
-  def create_asciicast(user, %Plug.Upload{path: path, filename: filename} = upload, user_agent) do
+  def create_asciicast(user, %Plug.Upload{path: path, filename: filename} = upload, overrides) do
     asciicast = %Asciicast{user_id: user.id,
-                           user_agent: user_agent,
                            file: filename,
                            private: user.asciicasts_private_by_default}
 
@@ -34,6 +33,7 @@ defmodule Asciinema.Asciicasts do
     with {:ok, json} <- File.read(path),
          {:ok, attrs} <- Poison.decode(json),
          {:ok, attrs} <- extract_attrs(attrs),
+         attrs = Map.merge(attrs, overrides),
          changeset = Asciicast.create_changeset(asciicast, attrs),
          {:ok, %Asciicast{} = asciicast} <- do_create_asciicast(changeset, files) do
       generate_poster(asciicast)
@@ -46,16 +46,17 @@ defmodule Asciinema.Asciicasts do
     end
   end
 
-  def create_asciicast(user, %{"meta" => attrs,
+  def create_asciicast(user, %{"meta" => meta,
                                "stdout" => %Plug.Upload{} = data,
-                               "stdout_timing" => %Plug.Upload{} = timing}, user_agent) do
+                               "stdout_timing" => %Plug.Upload{} = timing}, overrides) do
     asciicast = %Asciicast{user_id: user.id,
-                           user_agent: unless(attrs["uname"], do: user_agent),
                            stdout_data: data.filename,
                            stdout_timing: timing.filename,
                            private: user.asciicasts_private_by_default}
 
-    attrs = Map.put(attrs, "version", 0)
+    {:ok, attrs} = extract_attrs(meta)
+    attrs = Map.merge(attrs, overrides)
+    attrs = if attrs[:uname], do: Map.drop(attrs, [:user_agent]), else: attrs
     changeset = Asciicast.create_changeset(asciicast, attrs)
     files = [{:stdout_data, data}, {:stdout_timing, timing}]
 
@@ -68,15 +69,29 @@ defmodule Asciinema.Asciicasts do
     end
   end
 
-  defp extract_attrs(%{"version" => 1} = attrs) do
-    attrs = %{version: attrs["version"],
+  defp extract_attrs(%{"version" => 0} = attrs) do
+    attrs = %{version: 0,
+              terminal_columns: get_in(attrs, ["term", "columns"]),
+              terminal_lines: get_in(attrs, ["term", "lines"]),
+              terminal_type: get_in(attrs, ["term", "type"]),
+              command: attrs["command"],
               duration: attrs["duration"],
+              title: attrs["title"],
+              shell: attrs["shell"],
+              uname: attrs["uname"]}
+
+    {:ok, attrs}
+  end
+  defp extract_attrs(%{"version" => 1} = attrs) do
+    attrs = %{version: 1,
               terminal_columns: attrs["width"],
               terminal_lines: attrs["height"],
               terminal_type: get_in(attrs, ["env", "TERM"]),
               command: attrs["command"],
-              shell: get_in(attrs, ["env", "SHELL"]),
-              title: attrs["title"]}
+              duration: attrs["duration"],
+              title: attrs["title"],
+              shell: get_in(attrs, ["env", "SHELL"])}
+
     {:ok, attrs}
   end
   defp extract_attrs(_attrs) do
