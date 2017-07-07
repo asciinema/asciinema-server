@@ -6,7 +6,11 @@ defmodule Asciinema.FileStore.S3 do
   def put_file(dst_path, src_local_path, content_type) do
     body = File.read!(src_local_path)
     opts = [{:content_type, content_type}]
-    make_request(S3.put_object(bucket(), base_path() <> dst_path, body, opts))
+
+    case make_request(S3.put_object(bucket(), base_path() <> dst_path, body, opts)) do
+      {:ok, _} -> :ok
+      otherwise -> otherwise
+    end
   end
 
   def serve_file(conn, path, nil) do
@@ -26,8 +30,7 @@ defmodule Asciinema.FileStore.S3 do
   end
 
   def open_file(path, function \\ nil) do
-    response = S3.get_object(bucket(), base_path() <> path) |> ExAws.request(region: region())
-    # TODO: use make_request
+    response = S3.get_object(bucket(), base_path() <> path) |> make_request
 
     case response do
       {:ok, %{body: body}} ->
@@ -42,9 +45,7 @@ defmodule Asciinema.FileStore.S3 do
   end
 
   defp make_request(request) do
-    with {:ok, _} <- ExAws.request(request, region: region()) do
-      :ok
-    end
+    ExAws.request(request, region: region())
   end
 
   defp config do
