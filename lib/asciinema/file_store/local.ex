@@ -1,5 +1,5 @@
 defmodule Asciinema.FileStore.Local do
-  @behaviour Asciinema.FileStore
+  use Asciinema.FileStore
   import Plug.Conn
   alias Plug.MIME
 
@@ -32,12 +32,15 @@ defmodule Asciinema.FileStore.Local do
   def open_file(path) do
     File.open(base_path() <> path, [:binary, :read])
   end
+  def open_file(path, nil) do
+    open_file(path)
+  end
   def open_file(path, function) do
     File.open(base_path() <> path, [:binary, :read], function)
   end
 
   defp config do
-    Application.get_env(:asciinema, Asciinema.FileStore.Local)
+    Application.get_env(:asciinema, __MODULE__)
   end
 
   defp base_path do

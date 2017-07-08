@@ -1,5 +1,5 @@
 defmodule Asciinema.FileStore.S3 do
-  @behaviour Asciinema.FileStore
+  use Asciinema.FileStore
   import Phoenix.Controller, only: [redirect: 2]
   alias ExAws.S3
 
@@ -49,7 +49,7 @@ defmodule Asciinema.FileStore.S3 do
   end
 
   defp config do
-    Application.get_env(:asciinema, Asciinema.FileStore.S3)
+    Application.get_env(:asciinema, __MODULE__)
   end
 
   defp region do
