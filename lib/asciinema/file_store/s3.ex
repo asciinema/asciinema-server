@@ -3,9 +3,16 @@ defmodule Asciinema.FileStore.S3 do
   import Phoenix.Controller, only: [redirect: 2]
   alias ExAws.S3
 
-  def put_file(dst_path, src_local_path, content_type) do
-    body = File.read!(src_local_path)
-    opts = [{:content_type, content_type}]
+  def put_file(dst_path, src_local_path, content_type, compress \\ false) do
+    {body, opts} = if compress do
+      body = File.read!(src_local_path) |> :zlib.gzip
+      opts = [{:content_type, content_type}, {:content_encoding, "gzip"}]
+      {body, opts}
+    else
+      body = File.read!(src_local_path)
+      opts = [{:content_type, content_type}]
+      {body, opts}
+    end
 
     case make_request(S3.put_object(bucket(), base_path() <> dst_path, body, opts)) do
       {:ok, _} -> :ok
@@ -33,7 +40,13 @@ defmodule Asciinema.FileStore.S3 do
     response = S3.get_object(bucket(), base_path() <> path) |> make_request
 
     case response do
-      {:ok, %{body: body}} ->
+      {:ok, %{headers: headers, body: body}} ->
+        body =
+          case List.keyfind(headers, "Content-Encoding", 0) do
+            {"Content-Encoding", "gzip"} -> :zlib.gunzip(body)
+            _ -> body
+          end
+
         if function do
           File.open(body, [:ram, :binary, :read], function)
         else

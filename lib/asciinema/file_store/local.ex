@@ -3,7 +3,7 @@ defmodule Asciinema.FileStore.Local do
   import Plug.Conn
   alias Plug.MIME
 
-  def put_file(dst_path, src_local_path, _content_type) do
+  def put_file(dst_path, src_local_path, _content_type, _compress \\ false) do
     full_dst_path = base_path() <> dst_path
     parent_dir = Path.dirname(full_dst_path)
 

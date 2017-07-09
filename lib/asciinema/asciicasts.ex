@@ -28,7 +28,7 @@ defmodule Asciinema.Asciicasts do
                            file: filename,
                            private: user.asciicasts_private_by_default}
 
-    files = [{:file, upload}]
+    files = [{:file, upload, true}]
 
     with {:ok, json} <- File.read(path),
          {:ok, attrs} <- Poison.decode(json),
@@ -58,7 +58,7 @@ defmodule Asciinema.Asciicasts do
     attrs = Map.merge(attrs, overrides)
     attrs = if attrs[:uname], do: Map.drop(attrs, [:user_agent]), else: attrs
     changeset = Asciicast.create_changeset(asciicast, attrs)
-    files = [{:stdout_data, data}, {:stdout_timing, timing}]
+    files = [{:stdout_data, data, false}, {:stdout_timing, timing, false}]
 
     case do_create_asciicast(changeset, files) do
       {:ok, %Asciicast{} = asciicast} ->
@@ -103,7 +103,7 @@ defmodule Asciinema.Asciicasts do
     {_, result} = Repo.transaction(fn ->
       case Repo.insert(changeset) do
         {:ok, %Asciicast{} = asciicast} ->
-          Enum.each(files, fn {type, upload} -> save_file(asciicast, type, upload) end)
+          Enum.each(files, &save_file(asciicast, &1))
           {:ok, asciicast}
         otherwise ->
           otherwise
@@ -113,9 +113,9 @@ defmodule Asciinema.Asciicasts do
     result
   end
 
-  defp save_file(asciicast, type, %{path: tmp_file_path, content_type: content_type}) do
+  defp save_file(asciicast, {type, %{path: tmp_path, content_type: content_type}, compress}) do
     file_store_path = Asciicast.file_store_path(asciicast, type)
-    :ok = FileStore.put_file(file_store_path, tmp_file_path, content_type)
+    :ok = FileStore.put_file(file_store_path, tmp_path, content_type, compress)
   end
 
   def stdout_stream(%Asciicast{version: 0} = asciicast) do
