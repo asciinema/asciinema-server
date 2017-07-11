@@ -14,9 +14,8 @@ defmodule Asciinema.FileStore.S3 do
       {body, opts}
     end
 
-    case make_request(S3.put_object(bucket(), base_path() <> dst_path, body, opts)) do
-      {:ok, _} -> :ok
-      otherwise -> otherwise
+    with {:ok, _} <- make_request(S3.put_object(bucket(), base_path() <> dst_path, body, opts)) do
+      :ok
     end
   end
 

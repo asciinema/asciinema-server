@@ -6,8 +6,6 @@ defmodule Asciinema.FileStore.Cached do
     with :ok <- remote_store().put_file(dst_path, src_local_path, content_type, compress),
          :ok <- cache_store().put_file(dst_path, src_local_path, content_type, compress) do
       :ok
-    else
-      otherwise -> otherwise
     end
   end
 
@@ -25,8 +23,6 @@ defmodule Asciinema.FileStore.Cached do
              :ok <- cache_store().put_file(path, tmp_path, MIME.path(path)),
              :ok <- File.rm(tmp_path) do
           cache_store().open_file(path, function)
-        else
-          otherwise -> otherwise
         end
       otherwise ->
         otherwise

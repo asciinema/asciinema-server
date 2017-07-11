@@ -19,9 +19,8 @@ defmodule Asciinema.FileStore do
       @behaviour Asciinema.FileStore
 
       def download_file(store_path, local_path) do
-        case open_file(store_path, &(:file.copy(&1, local_path))) do
-          {:ok, {:ok, _}} -> :ok
-          otherwise -> otherwise
+        with {:ok, {:ok, _}} <- open_file(store_path, &(:file.copy(&1, local_path))) do
+          :ok
         end
       end
     end
