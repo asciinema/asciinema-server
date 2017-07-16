@@ -2,6 +2,8 @@ defmodule Asciinema.User do
   use Asciinema.Web, :model
   alias Asciinema.User
 
+  @valid_email_re ~r/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i
+
   schema "users" do
     field :username, :string
     field :temporary_username, :string
@@ -21,6 +23,7 @@ defmodule Asciinema.User do
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, [:email, :name, :username, :theme_name, :asciicasts_private_by_default])
+    |> validate_format(:email, @valid_email_re)
   end
 
   def create_changeset(struct, attrs) do
