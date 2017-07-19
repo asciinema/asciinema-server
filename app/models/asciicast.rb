@@ -110,7 +110,7 @@ class Asciicast < ActiveRecord::Base
   end
 
   def ready?
-    data_url && snapshot
+    !!data_url
   end
 
   def download_filename
