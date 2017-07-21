@@ -51,6 +51,7 @@ defmodule Asciinema.Mixfile do
   defp deps do
     [
       {:briefly, "~> 0.3"},
+      {:bugsnag, "~> 1.5.0"},
       {:cowboy, "~> 1.0"},
       {:ex_aws, "~> 1.0"},
       {:exq, "~> 0.9.0"},
