@@ -32,7 +32,7 @@
             </ul>
           </li>
         <% else %>
-          <li><a href="/login/new" id="log-in">Log in</a></li>
+          <li><a href="/login/new" id="log-in">Log in / Sign up</a></li>
         <% end %>
       </ul>
     </div>
