@@ -25,9 +25,8 @@ config :logger, :console,
 config :phoenix, :template_engines,
   md: PhoenixMarkdown.Engine
 
-config :bugsnag, api_key: System.get_env("BUGSNAG_API_KEY")
 config :bugsnag, release_stage: Mix.env
-config :bugsnag, use_logger: true
+config :bugsnag, notify_release_stages: ["prod"]
 
 if System.get_env("S3_BUCKET") do
   config :asciinema, :file_store, Asciinema.FileStore.Cached
