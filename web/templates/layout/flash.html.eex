@@ -1,4 +1,7 @@
-<!--
-<p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
-<p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>
--->
+<%= if message = get_flash(@conn, :info) do %>
+  <section class="flash notice"><div class="container"><%= message %></div></section>
+<% end %>
+
+<%= if message = get_flash(@conn, :error) do %>
+  <section class="flash alert"><div class="container"><%= message %></div></section>
+<% end %>
