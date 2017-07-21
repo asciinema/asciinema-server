@@ -27,6 +27,7 @@ config :phoenix, :template_engines,
 
 config :bugsnag, api_key: System.get_env("BUGSNAG_API_KEY")
 config :bugsnag, release_stage: Mix.env
+config :bugsnag, use_logger: true
 
 if System.get_env("S3_BUCKET") do
   config :asciinema, :file_store, Asciinema.FileStore.Cached
