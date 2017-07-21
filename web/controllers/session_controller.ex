@@ -64,10 +64,6 @@ defmodule Asciinema.SessionController do
     end
   end
 
-  defp put_rails_flash(conn, key, value) do
-    put_session(conn, :flash, %{discard: [], flashes: %{key => value}})
-  end
-
   defp redirect_to_profile(conn) do
     redirect(conn, to: profile_path(conn.assigns.current_user))
   end
