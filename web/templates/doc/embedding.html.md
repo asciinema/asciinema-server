@@ -147,6 +147,16 @@ author). The available themes are:
 * solarized-light
 * monokai
 
+### cols
+
+The `cols` option allows overriding width (in characters) of the emulated
+terminal. By default the recorded terminal's width is used.
+
+### rows
+
+The `rows` option allows overriding height (in lines) of the emulated terminal.
+By default the recorded terminal's height is used.
+
 ## oEmbed / Open Graph / Twitter Card
 
 asciinema supports [oEmbed](http://oembed.com/), [Open Graph](http://ogp.me/)
