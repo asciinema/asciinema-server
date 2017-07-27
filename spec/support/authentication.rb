@@ -17,16 +17,6 @@ module Asciinema
         controller.current_user = nil
       end
     end
-
-    module FeatureHelpers
-      def login_as(user)
-        visit new_login_path
-        fill_in :email, with: user.email
-        click_button 'Log in'
-        visit "/login/#{user.expiring_tokens.last.token}"
-        click_button "Log in"
-      end
-    end
   end
 end
 
@@ -36,5 +26,4 @@ RSpec.configure do |config|
   end
 
   config.include Asciinema::Test::ControllerHelpers, type: :controller
-  config.include Asciinema::Test::FeatureHelpers, type: :feature
 end

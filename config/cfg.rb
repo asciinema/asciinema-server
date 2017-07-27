@@ -19,8 +19,6 @@ module Asciinema
     attribute :session_encryption_salt,        String, default: 'encrypted cookie'
     attribute :session_signing_salt,           String, default: 'signed encrypted cookie'
     attribute :admin_ids,                      Array[Integer]
-    attribute :smtp_settings,                  Hash
-    attribute :smtp_from_address,              String
 
     def home_asciicast
       if home_asciicast_id
@@ -32,10 +30,6 @@ module Asciinema
 
     def ssl?
       url_scheme == 'https'
-    end
-
-    def smtp_from_address
-      super || "asciinema <hello@#{url_host}>"
     end
   end
 end

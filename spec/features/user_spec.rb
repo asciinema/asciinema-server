@@ -13,20 +13,4 @@ feature "User's profile" do
     expect(page).to have_selector('.asciicast-list .play-button')
   end
 
-  scenario 'Updating profile', js: true, unstable: true do
-    login_as user
-
-    within 'header' do
-      click_on user.username
-      click_on 'Settings'
-    end
-
-    fill_in 'Username', with: 'batman'
-    click_on 'Save'
-
-    within 'header' do
-      expect(page).to have_content('batman')
-    end
-  end
-
 end
