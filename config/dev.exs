@@ -43,3 +43,6 @@ config :asciinema, Asciinema.Repo,
   database: "asciinema_development",
   hostname: "localhost",
   pool_size: 10
+
+config :asciinema, Asciinema.Mailer,
+  adapter: Bamboo.LocalAdapter

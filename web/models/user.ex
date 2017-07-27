@@ -12,6 +12,7 @@ defmodule Asciinema.User do
     field :auth_token, :string
     field :theme_name, :string
     field :asciicasts_private_by_default, :boolean, default: true
+    field :last_login_at, Timex.Ecto.DateTime
 
     timestamps(inserted_at: :created_at)
 
@@ -29,8 +30,18 @@ defmodule Asciinema.User do
   def create_changeset(struct, attrs) do
     struct
     |> changeset(attrs)
-    |> validate_required(~w(username email)a)
     |> generate_auth_token
+  end
+
+  def signup_changeset(attrs) do
+    %User{}
+    |> create_changeset(attrs)
+    |> cast(attrs, [:email])
+    |> validate_required([:email])
+  end
+
+  def login_changeset(user) do
+    change(user, %{last_login_at: Timex.now()})
   end
 
   def temporary_changeset(temporary_username) do

@@ -1,0 +1,8 @@
+Welcome,
+
+Click the following link to create your account at asciinema.org:
+
+<%= @signup_url %>
+
+
+If you did not initiate this request, just ignore this email. The request will expire shortly.

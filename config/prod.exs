@@ -63,3 +63,9 @@ config :asciinema, Asciinema.Repo,
   url: System.get_env("DATABASE_URL"),
   pool_size: String.to_integer(System.get_env("POOL_SIZE") || "20"),
   ssl: false
+
+config :asciinema, Asciinema.Mailer,
+  deliver_later_strategy: Asciinema.BambooExqStrategy,
+  adapter: Bamboo.SMTPAdapter,
+  server: "smtp",
+  port: 25

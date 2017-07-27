@@ -19,6 +19,8 @@ defmodule Asciinema.Mixfile do
   def application do
     [mod: {Asciinema, []},
      applications: [
+       :bamboo,
+       :bamboo_smtp,
        :briefly,
        :bugsnag,
        :cowboy,
@@ -50,6 +52,8 @@ defmodule Asciinema.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:bamboo, "~> 0.8"},
+      {:bamboo_smtp, "~> 1.4.0"},
       {:briefly, "~> 0.3"},
       {:bugsnag, "~> 1.5.0"},
       {:cowboy, "~> 1.0"},

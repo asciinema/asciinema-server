@@ -27,3 +27,6 @@ config :asciinema, :snapshot_updater, Asciinema.Asciicasts.SnapshotUpdater.Sync
 config :asciinema, :frames_generator, Asciinema.Asciicasts.FramesGenerator.Noop
 
 config :exq_ui, server: false
+
+config :asciinema, Asciinema.Mailer,
+  adapter: Bamboo.TestAdapter

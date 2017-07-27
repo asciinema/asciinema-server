@@ -51,7 +51,13 @@ defmodule Asciinema.Router do
     get "/docs", DocController, :index
     get "/docs/:topic", DocController, :show
 
-    get "/connect/:api_token", SessionController, :create
+    resources "/login", LoginController, only: [:new, :create], singleton: true
+    get "/login/sent", LoginController, :sent, as: :login
+
+    resources "/users", UserController, as: :users, only: [:new, :create]
+
+    resources "/session", SessionController, only: [:new, :create], singleton: true
+    get "/connect/:api_token", SessionController, :create, as: :connect
   end
 
   scope "/api", Asciinema.Api, as: :api do
