@@ -26,7 +26,7 @@ config :phoenix, :template_engines,
   md: PhoenixMarkdown.Engine
 
 config :bugsnag, release_stage: Mix.env
-config :bugsnag, notify_release_stages: ["prod"]
+config :bugsnag, notify_release_stages: [:prod]
 
 if System.get_env("S3_BUCKET") do
   config :asciinema, :file_store, Asciinema.FileStore.Cached
