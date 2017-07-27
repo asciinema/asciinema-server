@@ -23,6 +23,8 @@ class PlaybackOptions
   attribute :t,         Time
   attribute :v0,        Boolean, default: false
   attribute :poster,    String
+  attribute :cols,      Integer
+  attribute :rows,      Integer
 
   def autoplay()
     ap = super

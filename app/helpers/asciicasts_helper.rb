@@ -11,8 +11,8 @@ module AsciicastsHelper
     opts = {
       id: 'player',
       src: asciicast.url,
-      cols: asciicast.width,
-      rows: asciicast.height,
+      cols: options.cols || asciicast.width,
+      rows: options.rows || asciicast.height,
       poster: options.poster || base64_poster(asciicast),
       speed: options.speed,
       autoplay: options.autoplay,
