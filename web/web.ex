@@ -38,6 +38,7 @@ defmodule Asciinema.Web do
       import Asciinema.Router.Helpers
       import Asciinema.Router.Helpers.Extra
       import Asciinema.Gettext
+      import Asciinema.Rails.Flash
     end
   end
 
@@ -55,7 +56,6 @@ defmodule Asciinema.Web do
       import Asciinema.Router.Helpers.Extra
       import Asciinema.ErrorHelpers
       import Asciinema.Gettext
-      import Asciinema.UserView
     end
   end
 

@@ -18,14 +18,7 @@ Rails.application.routes.draw do
 
   get "/oembed" => "oembed#show", as: :oembed
 
-  resource :login, only: [:new, :create] do
-    get :sent
-  end
-
-  get "/login" => redirect("/login/new")
-
-  get "/login/:token" => "sessions#new", as: :login_token
-  post "/login/:token" => "sessions#create"
+  get "/login/new" => redirect("/not-gonna-happen"), as: :new_login # define new_login_path
   get "/logout" => "sessions#destroy"
 
   resources :api_tokens, only: [:create, :destroy]

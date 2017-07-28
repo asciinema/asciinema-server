@@ -1,4 +1,5 @@
 defmodule Asciinema.UserView do
+  use Asciinema.Web, :view
   alias Asciinema.{Gravatar, User}
 
   def avatar_url(user) do

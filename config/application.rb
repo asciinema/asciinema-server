@@ -60,15 +60,5 @@ module Asciinema
         action: "unauthenticated_user"
       )
     end
-
-    config.action_mailer.default_url_options = {
-      protocol: CFG.url_scheme,
-      host: CFG.url_host,
-      port: CFG.url_port
-    }
-
-    if CFG.smtp_settings
-      config.action_mailer.smtp_settings = CFG.smtp_settings
-    end
   end
 end

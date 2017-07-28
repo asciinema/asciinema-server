@@ -66,7 +66,7 @@ config :exq,
   url: System.get_env("REDIS_URL") || "redis://redis:6379",
   namespace: "exq",
   concurrency: 10,
-  queues: ["default"],
+  queues: ["default", "emails"],
   scheduler_enable: true,
   max_retries: 25,
   shutdown_timeout: 5000

@@ -19,3 +19,7 @@ import "phoenix_html"
 // paths "./socket" or full ones "web/static/js/socket".
 
 // import socket from "./socket"
+
+$(function() {
+  $('input[data-behavior=focus]:first').focus().select();
+});

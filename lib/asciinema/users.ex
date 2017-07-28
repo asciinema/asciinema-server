@@ -1,7 +1,7 @@
 defmodule Asciinema.Users do
   import Ecto.Query, warn: false
   import Ecto, only: [assoc: 2]
-  alias Asciinema.{Repo, User, ApiToken, Asciicasts}
+  alias Asciinema.{Repo, User, ApiToken, Asciicasts, Email, Mailer, Auth}
 
   def create_asciinema_user!() do
     attrs = %{username: "asciinema",
@@ -26,6 +26,107 @@ defmodule Asciinema.Users do
     end
 
     :ok
+  end
+
+  def send_login_email(email_or_username) do
+    with {:ok, %User{} = user} <- lookup_user(email_or_username) do
+      do_send_login_email(user)
+    end
+  end
+
+  defp lookup_user(email_or_username) do
+    if String.contains?(email_or_username, "@") do
+      lookup_user_by_email(email_or_username)
+    else
+      lookup_user_by_username(email_or_username)
+    end
+  end
+
+  defp lookup_user_by_email(email) do
+    case Repo.get_by(User, email: email) do
+      %User{} = user ->
+        {:ok, user}
+      nil ->
+        case User.signup_changeset(%{email: email}) do
+          %{errors: [{:email, _}]} ->
+            {:error, :email_invalid}
+          %{errors: []} ->
+            {:ok, %User{email: email}}
+        end
+    end
+  end
+
+  defp lookup_user_by_username(username) do
+    case Repo.get_by(User, username: username) do
+      %User{} = user ->
+        {:ok, user}
+      nil ->
+        {:error, :user_not_found}
+    end
+  end
+
+  defp do_send_login_email(%User{email: nil}) do
+    {:error, :email_missing}
+  end
+  defp do_send_login_email(%User{id: nil, email: email}) do
+    url = signup_url(email)
+    Email.signup_email(email, url) |> Mailer.deliver_later
+    {:ok, url}
+  end
+  defp do_send_login_email(%User{} = user) do
+    url = login_url(user)
+    Email.login_email(user.email, url) |> Mailer.deliver_later
+    {:ok, url}
+  end
+
+  defp signup_url(email) do
+    token = Phoenix.Token.sign(Asciinema.Endpoint, "signup", email)
+    Asciinema.Router.Helpers.users_url(Asciinema.Endpoint, :new, t: token)
+  end
+
+  defp login_url(%User{id: id, last_login_at: last_login_at}) do
+    last_login_at = last_login_at && Timex.to_unix(last_login_at)
+    token = Phoenix.Token.sign(Asciinema.Endpoint, "login", {id, last_login_at})
+    Asciinema.Router.Helpers.session_url(Asciinema.Endpoint, :new, t: token)
+  end
+
+  @login_token_max_age 15 * 60 # 15 minutes
+
+  alias Phoenix.Token
+  alias Asciinema.Endpoint
+
+  def verify_signup_token(token) do
+    with {:ok, email} <- Token.verify(Endpoint, "signup", token, max_age: @login_token_max_age),
+         {:ok, %User{} = user} <- User.signup_changeset(%{email: email}) |> Repo.insert do
+      {:ok, user}
+    else
+      {:error, :invalid} ->
+        {:error, :token_invalid}
+      {:error, %Ecto.Changeset{}} ->
+        {:error, :email_taken}
+      {:error, _} ->
+        {:error, :token_expired}
+    end
+  end
+
+  def verify_login_token(token) do
+    with {:ok, {user_id, last_login_at}} <- Token.verify(Endpoint, "login", token, max_age: @login_token_max_age),
+         %User{} = user <- Repo.get(User, user_id),
+         ^last_login_at <- user.last_login_at && Timex.to_unix(user.last_login_at) do
+      {:ok, user}
+    else
+      {:error, :invalid} ->
+        {:error, :token_invalid}
+      nil ->
+        {:error, :user_not_found}
+      _ ->
+        {:error, :token_expired}
+    end
+  end
+
+  def log_in(conn, %User{} = user) do
+    user = user |> User.login_changeset |> Repo.update!
+    Auth.login(conn, user)
   end
 
   def authenticate(api_token) do

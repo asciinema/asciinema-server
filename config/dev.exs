@@ -44,5 +44,8 @@ config :asciinema, Asciinema.Repo,
   hostname: "localhost",
   pool_size: 10
 
+config :asciinema, Asciinema.Mailer,
+  adapter: Bamboo.LocalAdapter
+
 # Import custom config.
 import_config "custom*.exs"

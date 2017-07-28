@@ -3,16 +3,16 @@ defmodule Asciinema.UserTest do
 
   alias Asciinema.User
 
-  @valid_attrs %{email: "test@example.com", username: "test"}
+  @valid_attrs %{email: "test@example.com"}
   @invalid_attrs %{}
 
-  test "changeset with valid attributes" do
-    changeset = User.create_changeset(%User{}, @valid_attrs)
+  test "signup changeset with valid attributes" do
+    changeset = User.signup_changeset(@valid_attrs)
     assert changeset.valid?
   end
 
-  test "changeset with invalid attributes" do
-    changeset = User.create_changeset(%User{}, @invalid_attrs)
+  test "signup changeset with invalid attributes" do
+    changeset = User.signup_changeset(@invalid_attrs)
     refute changeset.valid?
   end
 end

@@ -1,0 +1,43 @@
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <h1><span class="glyphicon glyphicon-user"></span> Log in</h1>
+      <br>
+
+      <%= form_for @conn, login_path(@conn, :create), [as: :login, class: "form-inline login-form"], fn f -> %>
+        <div class="form-group">
+          <%= text_input f, :email, class: "form-control email", "data-behavior": "focus", placeholder: "Email address or username" %>
+        </div>
+
+        <button class="btn btn-primary" type="submit">Log in</button>
+      <% end %>
+
+      <%= if error = assigns[:error] do %>
+        <br>
+        <p class="text-danger"><%= error %></p>
+      <% end %>
+
+      <br><br>
+    </div>
+
+    <div class="col-md-6">
+      <h2><span class="glyphicon glyphicon-info-sign"></span> First time here?</h1>
+
+      <p>We use email-based, passwordless login process. Enter your email
+        address and you'll receive a one-time login link. After you click it
+        you'll get in, and you'll be able to pick your username.</p>
+
+      <h2><span class="glyphicon glyphicon-info-sign"></span> Coming back?</h1>
+
+      <p>If you already have an account then enter either your username, or the
+        email address you used for the first time here. We'll send you an email
+        with a one-time login link.</p>
+
+    </div>
+  </div>
+</div>
