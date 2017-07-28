@@ -69,3 +69,6 @@ config :asciinema, Asciinema.Mailer,
   adapter: Bamboo.SMTPAdapter,
   server: "smtp",
   port: 25
+
+# Import custom config.
+import_config "custom*.exs"

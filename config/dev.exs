@@ -46,3 +46,6 @@ config :asciinema, Asciinema.Repo,
 
 config :asciinema, Asciinema.Mailer,
   adapter: Bamboo.LocalAdapter
+
+# Import custom config.
+import_config "custom*.exs"
