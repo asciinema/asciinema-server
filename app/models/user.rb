@@ -6,7 +6,6 @@ class User < ActiveRecord::Base
 
   has_many :api_tokens, :dependent => :destroy
   has_many :asciicasts, :dependent => :destroy
-  has_many :expiring_tokens, dependent: :destroy
 
   validates :email, presence: true, on: :update
   validates :email, format: { with: /.+@.+\..+/i }, uniqueness: true, if: :email
@@ -100,10 +99,6 @@ class User < ActiveRecord::Base
 
   def admin?
     CFG.admin_ids.include?(id)
-  end
-
-  def first_login?
-    expiring_tokens.count == 1
   end
 
   def new_asciicast_private?

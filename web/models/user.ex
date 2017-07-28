@@ -18,7 +18,6 @@ defmodule Asciinema.User do
 
     has_many :asciicasts, Asciinema.Asciicast
     has_many :api_tokens, Asciinema.ApiToken
-    has_many :expiring_tokens, Asciinema.ExpiringToken
   end
 
   def changeset(struct, params \\ %{}) do

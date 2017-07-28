@@ -194,8 +194,6 @@ defmodule Asciinema.Users do
       Repo.update_all(asciicasts_q, set: [user_id: dst_user.id, updated_at: Timex.now])
       api_tokens_q = from(assoc(src_user, :api_tokens))
       Repo.update_all(api_tokens_q, set: [user_id: dst_user.id, updated_at: Timex.now])
-      expiring_tokens_q = from(assoc(src_user, :expiring_tokens))
-      Repo.delete_all(expiring_tokens_q)
       Repo.delete!(src_user)
       dst_user
     end)

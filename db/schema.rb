@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170721130539) do
+ActiveRecord::Schema.define(version: 20170728221839) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -65,17 +65,6 @@ ActiveRecord::Schema.define(version: 20170721130539) do
   add_index "asciicasts", ["user_id"], name: "index_asciicasts_on_user_id", using: :btree
   add_index "asciicasts", ["views_count"], name: "index_asciicasts_on_views_count", using: :btree
 
-  create_table "expiring_tokens", force: true do |t|
-    t.integer  "user_id",    null: false
-    t.string   "token",      null: false
-    t.datetime "expires_at", null: false
-    t.datetime "created_at"
-    t.datetime "used_at"
-  end
-
-  add_index "expiring_tokens", ["used_at", "expires_at", "token"], name: "index_expiring_tokens_on_used_at_and_expires_at_and_token", using: :btree
-  add_index "expiring_tokens", ["user_id"], name: "index_expiring_tokens_on_user_id", using: :btree
-
   create_table "users", force: true do |t|
     t.string   "provider"
     t.string   "uid"
@@ -100,7 +89,5 @@ ActiveRecord::Schema.define(version: 20170721130539) do
   add_foreign_key "api_tokens", "users", name: "api_tokens_user_id_fk"
 
   add_foreign_key "asciicasts", "users", name: "asciicasts_user_id_fk"
-
-  add_foreign_key "expiring_tokens", "users", name: "expiring_tokens_user_id_fk"
 
 end
