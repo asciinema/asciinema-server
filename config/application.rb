@@ -48,9 +48,6 @@ module Asciinema
       rewrite /%7E(.+)/i, '/~$1'
     end
 
-    config.middleware.use 'MetadataParser'
-    config.middleware.use 'ApiTokenRegistrator'
-
     config.middleware.use 'Warden::Manager' do |manager|
       manager.failure_app = ApplicationController
       manager.scope_defaults(
