@@ -1,5 +1,5 @@
 defmodule Asciinema.AsciicastImageControllerTest do
-  use Asciinema.ConnCase
+  use AsciinemaWeb.ConnCase
 
   @tag :a2png
 

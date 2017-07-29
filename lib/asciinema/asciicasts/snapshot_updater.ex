@@ -1,5 +1,5 @@
 defmodule Asciinema.Asciicasts.SnapshotUpdater do
-  alias Asciinema.Asciicast
+  alias Asciinema.Asciicasts.Asciicast
 
   @doc "Generates poster for given asciicast"
   @callback update_snapshot(asciicast :: %Asciicast{}) :: :ok | {:error, term}

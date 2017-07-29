@@ -1,0 +1,1 @@
+<%= render @view_module, "wrapper.html", Map.merge(assigns, %{layout: {AsciinemaWeb.LayoutView, "app.html"}, topic_template: @view_template}) %>

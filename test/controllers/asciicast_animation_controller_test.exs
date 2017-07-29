@@ -1,5 +1,5 @@
 defmodule Asciinema.AsciicastAnimationControllerTest do
-  use Asciinema.ConnCase
+  use AsciinemaWeb.ConnCase
 
   test "shows GIF generation instructions", %{conn: conn} do
     asciicast = fixture(:asciicast)

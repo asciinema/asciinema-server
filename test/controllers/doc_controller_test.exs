@@ -1,5 +1,5 @@
 defmodule Asciinema.DocControllerTest do
-  use Asciinema.ConnCase
+  use AsciinemaWeb.ConnCase
 
   test "GET /docs", %{conn: conn} do
     conn = get conn, "/docs"

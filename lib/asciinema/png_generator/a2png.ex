@@ -1,7 +1,7 @@
 defmodule Asciinema.PngGenerator.A2png do
   @behaviour Asciinema.PngGenerator
   use GenServer
-  alias Asciinema.Asciicast
+  alias Asciinema.Asciicasts.Asciicast
   alias Asciinema.PngGenerator.PngParams
 
   @pool_name :worker

@@ -1,4 +1,4 @@
-defmodule Asciinema.ChannelCase do
+defmodule AsciinemaWeb.ChannelCase do
   @moduledoc """
   This module defines the test case to be used by
   channel tests.
@@ -27,7 +27,7 @@ defmodule Asciinema.ChannelCase do
 
 
       # The default endpoint for testing
-      @endpoint Asciinema.Endpoint
+      @endpoint AsciinemaWeb.Endpoint
     end
   end
 

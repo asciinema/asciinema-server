@@ -1,4 +1,4 @@
-defmodule Asciinema.ConnCase do
+defmodule AsciinemaWeb.ConnCase do
   @moduledoc """
   This module defines the test case to be used by
   tests that require setting up a connection.
@@ -25,12 +25,12 @@ defmodule Asciinema.ConnCase do
       import Ecto.Changeset
       import Ecto.Query
 
-      import Asciinema.Router.Helpers
-      import Asciinema.Router.Helpers.Extra
+      import AsciinemaWeb.Router.Helpers
+      import AsciinemaWeb.Router.Helpers.Extra
       import Asciinema.Fixtures
 
       # The default endpoint for testing
-      @endpoint Asciinema.Endpoint
+      @endpoint AsciinemaWeb.Endpoint
     end
   end
 
