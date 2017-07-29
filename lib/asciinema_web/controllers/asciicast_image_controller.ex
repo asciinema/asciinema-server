@@ -2,7 +2,6 @@ defmodule AsciinemaWeb.AsciicastImageController do
   use AsciinemaWeb, :controller
   alias Asciinema.{Asciicasts, PngGenerator}
   alias Asciinema.Asciicasts.Asciicast
-  alias Plug.MIME
 
   @max_age 604800 # 7 days
 
@@ -14,7 +13,7 @@ defmodule AsciinemaWeb.AsciicastImageController do
     case PngGenerator.generate(asciicast, png_params) do
       {:ok, png_path} ->
         conn
-        |> put_resp_header("content-type", MIME.path(png_path))
+        |> put_resp_header("content-type", MIME.from_path(png_path))
         |> put_resp_header("cache-control", "public, max-age=#{@max_age}")
         |> send_file(200, png_path)
         |> halt
