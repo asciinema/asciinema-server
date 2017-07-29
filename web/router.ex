@@ -10,6 +10,17 @@ defmodule Asciinema.Router do
     plug Asciinema.Auth
   end
 
+  pipeline :asciicast_embed_script do
+    plug :accepts, ["js"]
+  end
+
+  scope "/", Asciinema do
+    pipe_through :asciicast_embed_script
+
+    # rewritten by TrailingFormat from /a/123.js to /a/123/js
+    get "/a/:id/js", AsciicastEmbedController, :show
+  end
+
   pipeline :asciicast_file do
     plug :accepts, ["json"]
   end
