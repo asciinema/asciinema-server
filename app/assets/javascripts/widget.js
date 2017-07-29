@@ -1,1 +1,1 @@
-../../../web/static/assets/js/embed.js
+../../../assets/static/js/embed.js
