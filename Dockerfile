@@ -132,23 +132,23 @@ RUN mix deps.get --only prod
 
 # install brunch & co
 
-COPY package.json /app/
-RUN npm install
+COPY assets/package.json /app/assets/
+RUN cd assets && npm install
 
 # compile assets with brunch and generate digest file
 
-COPY brunch-config.js /app/
-COPY web/static /app/web/static
-RUN node_modules/brunch/bin/brunch build --production && mix phoenix.digest
+COPY assets /app/assets
+RUN cd assets && node_modules/brunch/bin/brunch build --production
+RUN mix phoenix.digest
 
 # add Elixir source files
 
 COPY config/*.exs /app/config/
 COPY lib/*.ex /app/lib
 COPY lib/asciinema /app/lib/asciinema
+COPY lib/asciinema_web /app/lib/asciinema_web
 COPY priv/gettext /app/priv/gettext
 COPY priv/repo /app/priv/repo
-COPY web /app/web
 
 # compile Elixir app
 
