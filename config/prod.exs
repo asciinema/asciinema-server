@@ -16,7 +16,7 @@ config :asciinema, Asciinema.Endpoint,
   url: [scheme: System.get_env("URL_SCHEME") || "https",
         host: System.get_env("URL_HOST") || "asciinema.org",
         port: String.to_integer(System.get_env("URL_PORT") || "443")],
-  cache_static_manifest: "priv/static/manifest.json"
+  cache_static_manifest: "priv/static/cache_manifest.json"
 
 # Do not print debug messages in production
 config :logger, level: :info
