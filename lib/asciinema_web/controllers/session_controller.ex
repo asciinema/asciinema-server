@@ -1,9 +1,9 @@
 defmodule AsciinemaWeb.SessionController do
   use AsciinemaWeb, :controller
   import AsciinemaWeb.UserView, only: [profile_path: 1]
-  alias Asciinema.Users
+  alias Asciinema.Accounts
   alias AsciinemaWeb.Auth
-  alias Asciinema.Users.User
+  alias Asciinema.Accounts.User
 
   def new(conn, %{"t" => login_token}) do
     conn
@@ -15,7 +15,7 @@ defmodule AsciinemaWeb.SessionController do
   end
 
   def create(conn, %{"api_token" => api_token}) do
-    case Users.get_user_with_api_token(api_token) do
+    case Accounts.get_user_with_api_token(api_token) do
       {:ok, user} ->
         login_via_api_token(conn, user)
       {:error, :token_invalid} ->
@@ -33,7 +33,7 @@ defmodule AsciinemaWeb.SessionController do
     login_token = get_session(conn, :login_token)
     conn = delete_session(conn, :login_token)
 
-    case Users.verify_login_token(login_token) do
+    case Accounts.verify_login_token(login_token) do
       {:ok, user} ->
         conn
         |> Auth.log_in(user)
@@ -73,18 +73,18 @@ defmodule AsciinemaWeb.SessionController do
         |> put_rails_flash(:notice, "Setting username and email will help you with logging in later.")
         |> redirect_to_edit_profile
       {%User{email: nil}, %User{email: nil}} ->
-        Users.merge!(current_user, logging_user)
+        Accounts.merge!(current_user, logging_user)
         conn
         |> put_rails_flash(:notice, "Setting username and email will help you with logging in later.")
         |> redirect_to_edit_profile
       {%User{email: nil}, %User{}} ->
-        Users.merge!(logging_user, current_user)
+        Accounts.merge!(logging_user, current_user)
         conn
         |> Auth.log_in(logging_user)
         |> put_rails_flash(:notice, "Recorder token has been added to your account.")
         |> redirect_to_profile
       {%User{}, %User{email: nil}} ->
-        Users.merge!(current_user, logging_user)
+        Accounts.merge!(current_user, logging_user)
         conn
         |> put_rails_flash(:notice, "Recorder token has been added to your account.")
         |> redirect_to_profile

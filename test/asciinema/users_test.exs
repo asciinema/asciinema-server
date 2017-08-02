@@ -1,11 +1,11 @@
-defmodule Asciinema.UsersTest do
+defmodule Asciinema.AccountsTest do
   import Asciinema.Fixtures
   use Asciinema.DataCase
   use Bamboo.Test
   alias Asciinema.Email
 
   describe "send_login_email/1" do
-    import Asciinema.Users, only: [send_login_email: 1]
+    import Asciinema.Accounts, only: [send_login_email: 1]
 
     test "existing user, by email" do
       user = fixture(:user)

@@ -1,7 +1,7 @@
-defmodule Asciinema.Users.User do
+defmodule Asciinema.Accounts.User do
   use Ecto.Schema
   import Ecto.Changeset
-  alias Asciinema.Users.User
+  alias Asciinema.Accounts.User
 
   @valid_email_re ~r/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i
 
@@ -18,7 +18,7 @@ defmodule Asciinema.Users.User do
     timestamps(inserted_at: :created_at)
 
     has_many :asciicasts, Asciinema.Asciicasts.Asciicast
-    has_many :api_tokens, Asciinema.Users.ApiToken
+    has_many :api_tokens, Asciinema.Accounts.ApiToken
   end
 
   def changeset(struct, params \\ %{}) do

@@ -1,7 +1,7 @@
-defmodule Asciinema.Users.ApiToken do
+defmodule Asciinema.Accounts.ApiToken do
   use Ecto.Schema
   import Ecto.Changeset
-  alias Asciinema.Users.{ApiToken, User}
+  alias Asciinema.Accounts.{ApiToken, User}
 
   schema "api_tokens" do
     field :token, :string

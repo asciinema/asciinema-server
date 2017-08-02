@@ -1,7 +1,7 @@
-defmodule Asciinema.Users do
+defmodule Asciinema.Accounts do
   import Ecto.Query, warn: false
   import Ecto, only: [assoc: 2]
-  alias Asciinema.Users.{User, ApiToken}
+  alias Asciinema.Accounts.{User, ApiToken}
   alias Asciinema.{Repo, Asciicasts, Email, Mailer}
 
   def create_asciinema_user!() do

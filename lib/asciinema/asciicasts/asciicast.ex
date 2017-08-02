@@ -1,7 +1,7 @@
 defmodule Asciinema.Asciicasts.Asciicast do
   use Ecto.Schema
   import Ecto.Changeset
-  alias Asciinema.Users.User
+  alias Asciinema.Accounts.User
   alias Asciinema.Asciicasts.Asciicast
   alias Asciinema.PngGenerator.PngParams
 

@@ -1,8 +1,8 @@
 defmodule AsciinemaWeb.Api.AsciicastController do
   use AsciinemaWeb, :controller
   import AsciinemaWeb.Auth, only: [get_basic_auth: 1, put_basic_auth: 3]
-  alias Asciinema.{Asciicasts, Users}
-  alias Asciinema.Users.User
+  alias Asciinema.{Asciicasts, Accounts}
+  alias Asciinema.Accounts.User
 
   plug :parse_v0_params
   plug :authenticate
@@ -62,7 +62,7 @@ defmodule AsciinemaWeb.Api.AsciicastController do
 
   defp authenticate(conn, _opts) do
     with {username, api_token} <- get_basic_auth(conn),
-         {:ok, %User{} = user} <- Users.get_user_with_api_token(api_token, username) do
+         {:ok, %User{} = user} <- Accounts.get_user_with_api_token(api_token, username) do
       assign(conn, :current_user, user)
     else
       _otherwise ->

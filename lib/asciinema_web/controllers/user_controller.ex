@@ -1,6 +1,6 @@
 defmodule AsciinemaWeb.UserController do
   use AsciinemaWeb, :controller
-  alias Asciinema.Users
+  alias Asciinema.Accounts
   alias AsciinemaWeb.Auth
 
   def new(conn, %{"t" => signup_token}) do
@@ -16,7 +16,7 @@ defmodule AsciinemaWeb.UserController do
     signup_token = get_session(conn, :signup_token)
     conn = delete_session(conn, :signup_token)
 
-    case Users.verify_signup_token(signup_token) do
+    case Accounts.verify_signup_token(signup_token) do
       {:ok, user} ->
         conn
         |> Auth.log_in(user)

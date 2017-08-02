@@ -1,7 +1,7 @@
 defmodule Asciinema.SessionControllerTest do
   use AsciinemaWeb.ConnCase
-  alias Asciinema.Users
-  alias Asciinema.Users.{User, ApiToken}
+  alias Asciinema.Accounts
+  alias Asciinema.Accounts.{User, ApiToken}
 
   @revoked_token "eb927b31-9ca3-4a6a-8a0c-dfba318e2e84"
   @regular_user_token "c4ecd96a-9a16-464d-be6a-bc1f3c50c4ae"
@@ -10,8 +10,8 @@ defmodule Asciinema.SessionControllerTest do
   @other_tmp_user_token "2eafaa20-80c8-47fc-b014-74072027edae"
 
   setup %{conn: conn} do
-    {:ok, %User{}} = Users.get_user_with_api_token(@revoked_token, "revoked")
-    @revoked_token |> Users.get_api_token! |> Users.revoke_api_token!
+    {:ok, %User{}} = Accounts.get_user_with_api_token(@revoked_token, "revoked")
+    @revoked_token |> Accounts.get_api_token! |> Accounts.revoke_api_token!
 
     regular_user = fixture(:user)
     ApiToken.create_changeset(regular_user, @regular_user_token) |> Repo.insert!
@@ -19,9 +19,9 @@ defmodule Asciinema.SessionControllerTest do
     other_regular_user = fixture(:user, %{username: "other", email: "other@example.com"})
     ApiToken.create_changeset(other_regular_user, @other_regular_user_token) |> Repo.insert!
 
-    {:ok, %User{} = tmp_user} = Users.get_user_with_api_token(@tmp_user_token, "tmp")
+    {:ok, %User{} = tmp_user} = Accounts.get_user_with_api_token(@tmp_user_token, "tmp")
 
-    {:ok, %User{}} = Users.get_user_with_api_token(@other_tmp_user_token, "other_tmp")
+    {:ok, %User{}} = Accounts.get_user_with_api_token(@other_tmp_user_token, "other_tmp")
 
     {:ok, conn: conn, regular_user: regular_user, tmp_user: tmp_user}
   end

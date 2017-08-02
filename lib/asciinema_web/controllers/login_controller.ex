@@ -1,6 +1,6 @@
 defmodule AsciinemaWeb.LoginController do
   use AsciinemaWeb, :controller
-  alias Asciinema.Users
+  alias Asciinema.Accounts
 
   def new(conn, _params) do
     render(conn, "new.html")
@@ -9,7 +9,7 @@ defmodule AsciinemaWeb.LoginController do
   def create(conn, %{"login" => %{"email" => email_or_username}}) do
     email_or_username = String.trim(email_or_username)
 
-    case Users.send_login_email(email_or_username) do
+    case Accounts.send_login_email(email_or_username) do
       {:ok, _url} ->
         redirect(conn, to: login_path(conn, :sent))
       {:error, :user_not_found} ->

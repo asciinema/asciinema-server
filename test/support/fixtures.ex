@@ -1,6 +1,6 @@
 defmodule Asciinema.Fixtures do
   alias Asciinema.{Repo, Asciicasts}
-  alias Asciinema.Users.User
+  alias Asciinema.Accounts.User
 
   def fixture(what, attrs \\ %{})
 

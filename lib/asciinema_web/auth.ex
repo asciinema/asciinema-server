@@ -1,6 +1,6 @@
 defmodule AsciinemaWeb.Auth do
   import Plug.Conn
-  alias Asciinema.Users.User
+  alias Asciinema.Accounts.User
   alias Asciinema.Repo
 
   @user_key "warden.user.user.key"
