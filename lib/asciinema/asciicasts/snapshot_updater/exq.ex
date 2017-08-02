@@ -1,5 +1,6 @@
 defmodule Asciinema.Asciicasts.SnapshotUpdater.Exq do
-  alias Asciinema.{Repo, Asciicasts, Asciicast}
+  alias Asciinema.{Repo, Asciicasts}
+  alias Asciinema.Asciicasts.Asciicast
 
   def update_snapshot(%Asciicast{id: id}) do
     {:ok, _jid} = Exq.enqueue(Exq, "default", __MODULE__, [id])

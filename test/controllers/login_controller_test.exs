@@ -1,5 +1,5 @@
 defmodule Asciinema.LoginControllerTest do
-  use Asciinema.ConnCase
+  use AsciinemaWeb.ConnCase
 
   test "with valid email", %{conn: conn} do
     conn = post conn, "/login", %{login: %{email: "new@example.com"}}

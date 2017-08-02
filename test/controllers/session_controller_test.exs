@@ -1,6 +1,7 @@
 defmodule Asciinema.SessionControllerTest do
-  use Asciinema.ConnCase
-  alias Asciinema.{Users, User, ApiToken}
+  use AsciinemaWeb.ConnCase
+  alias Asciinema.Users
+  alias Asciinema.Users.{User, ApiToken}
 
   @revoked_token "eb927b31-9ca3-4a6a-8a0c-dfba318e2e84"
   @regular_user_token "c4ecd96a-9a16-464d-be6a-bc1f3c50c4ae"

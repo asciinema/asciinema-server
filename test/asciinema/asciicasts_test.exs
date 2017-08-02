@@ -1,6 +1,7 @@
 defmodule Asciinema.AsciicastsTest do
   use Asciinema.DataCase
-  alias Asciinema.{Asciicasts, Asciicast}
+  alias Asciinema.Asciicasts
+  alias Asciinema.Asciicasts.Asciicast
 
   describe "create_asciicast/3" do
     test "json file, v0 format with uname" do

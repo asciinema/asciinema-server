@@ -1,5 +1,5 @@
 defmodule Asciinema.AsciicastFileControllerTest do
-  use Asciinema.ConnCase
+  use AsciinemaWeb.ConnCase
 
   test "renders asciicast file", %{conn: conn} do
     asciicast = fixture(:asciicast)

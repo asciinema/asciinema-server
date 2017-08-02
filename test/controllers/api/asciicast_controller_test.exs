@@ -1,5 +1,5 @@
 defmodule Asciinema.Api.AsciicastControllerTest do
-  use Asciinema.ConnCase
+  use AsciinemaWeb.ConnCase
   alias Asciinema.Users
 
   setup %{conn: conn} = context do

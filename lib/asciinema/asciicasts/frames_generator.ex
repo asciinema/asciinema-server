@@ -1,5 +1,5 @@
 defmodule Asciinema.Asciicasts.FramesGenerator do
-  alias Asciinema.Asciicast
+  alias Asciinema.Asciicasts.Asciicast
 
   @doc "Generates frames file for given asciicast"
   @callback generate_frames(asciicast :: %Asciicast{}) :: :ok | {:error, term}

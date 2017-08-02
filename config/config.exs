@@ -10,10 +10,10 @@ config :asciinema,
   ecto_repos: [Asciinema.Repo]
 
 # Configures the endpoint
-config :asciinema, Asciinema.Endpoint,
+config :asciinema, AsciinemaWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: System.get_env("SECRET_KEY_BASE"),
-  render_errors: [view: Asciinema.ErrorView, accepts: ~w(html json)],
+  render_errors: [view: AsciinemaWeb.ErrorView, accepts: ~w(html json)],
   pubsub: [name: Asciinema.PubSub,
            adapter: Phoenix.PubSub.PG2]
 

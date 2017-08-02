@@ -1,5 +1,5 @@
 defmodule Asciinema.Email do
-  use Bamboo.Phoenix, view: Asciinema.EmailView
+  use Bamboo.Phoenix, view: AsciinemaWeb.EmailView
   import Bamboo.Email
 
   def signup_email(email_address, signup_url) do

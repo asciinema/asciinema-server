@@ -1,3 +1,3 @@
 defmodule Asciinema.PageViewTest do
-  use Asciinema.ConnCase, async: true
+  use AsciinemaWeb.ConnCase, async: true
 end

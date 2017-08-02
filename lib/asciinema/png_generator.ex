@@ -1,5 +1,5 @@
 defmodule Asciinema.PngGenerator do
-  alias Asciinema.Asciicast
+  alias Asciinema.Asciicasts.Asciicast
   alias Asciinema.PngGenerator.PngParams
 
   @doc "Generates PNG image from asciicast and returns path to it"

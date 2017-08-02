@@ -1,7 +1,6 @@
 defmodule Asciinema.FileStore.Local do
   use Asciinema.FileStore
   import Plug.Conn
-  alias Plug.MIME
 
   def put_file(dst_path, src_local_path, _content_type, _compress \\ false) do
     full_dst_path = base_path() <> dst_path
@@ -24,7 +23,7 @@ defmodule Asciinema.FileStore.Local do
 
   defp do_serve_file(conn, path) do
     conn
-    |> put_resp_header("content-type", MIME.path(path))
+    |> put_resp_header("content-type", MIME.from_path(path))
     |> send_file(200, base_path() <> path)
     |> halt
   end
