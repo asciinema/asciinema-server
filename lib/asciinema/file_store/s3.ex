@@ -38,21 +38,18 @@ defmodule Asciinema.FileStore.S3 do
   def open_file(path, function \\ nil) do
     response = bucket() |> S3.get_object(base_path() <> path) |> make_request
 
-    case response do
-      {:ok, %{headers: headers, body: body}} ->
-        body =
-          case List.keyfind(headers, "Content-Encoding", 0) do
-            {"Content-Encoding", "gzip"} -> :zlib.gunzip(body)
-            _ -> body
-          end
-
-        if function do
-          File.open(body, [:ram, :binary, :read], function)
-        else
-          File.open(body, [:ram, :binary, :read])
+    with {:ok, %{headers: headers, body: body}} <- response do
+      body =
+        case List.keyfind(headers, "Content-Encoding", 0) do
+          {"Content-Encoding", "gzip"} -> :zlib.gunzip(body)
+          _ -> body
         end
-      {:error, reason} ->
-        {:error, reason}
+
+      if function do
+        File.open(body, [:ram, :binary, :read], function)
+      else
+        File.open(body, [:ram, :binary, :read])
+      end
     end
   end
 
