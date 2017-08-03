@@ -3,6 +3,7 @@ defmodule Asciinema.AccountsTest do
   use Asciinema.DataCase
   use Bamboo.Test
   alias Asciinema.Email
+  alias Asciinema.Accounts.User
 
   describe "send_login_email/1" do
     import Asciinema.Accounts, only: [send_login_email: 1]
@@ -32,6 +33,20 @@ defmodule Asciinema.AccountsTest do
     test "non-existing user, by username" do
       assert send_login_email("idontexist") == {:error, :user_not_found}
       assert_no_emails_delivered()
+    end
+  end
+
+  describe "verify_signup_token/1" do
+    import Asciinema.Accounts, only: [verify_signup_token: 1, signup_url: 1]
+
+    test "invalid token" do
+      assert verify_signup_token("invalid") == {:error, :token_invalid}
+    end
+
+    test "valid token" do
+      token = "test@example.com" |> signup_url |> String.split("?t=") |> List.last
+      assert {:ok, %User{}} = verify_signup_token(token)
+      assert verify_signup_token(token) == {:error, :email_taken}
     end
   end
 end

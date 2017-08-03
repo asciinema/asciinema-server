@@ -80,12 +80,12 @@ defmodule Asciinema.Accounts do
     {:ok, url}
   end
 
-  defp signup_url(email) do
+  def signup_url(email) do
     token = Phoenix.Token.sign(AsciinemaWeb.Endpoint, "signup", email)
     AsciinemaWeb.Router.Helpers.users_url(AsciinemaWeb.Endpoint, :new, t: token)
   end
 
-  defp login_url(%User{id: id, last_login_at: last_login_at}) do
+  def login_url(%User{id: id, last_login_at: last_login_at}) do
     last_login_at = last_login_at && Timex.to_unix(last_login_at)
     token = Phoenix.Token.sign(AsciinemaWeb.Endpoint, "login", {id, last_login_at})
     AsciinemaWeb.Router.Helpers.session_url(AsciinemaWeb.Endpoint, :new, t: token)

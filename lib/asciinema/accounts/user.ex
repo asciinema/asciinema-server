@@ -38,6 +38,7 @@ defmodule Asciinema.Accounts.User do
     |> create_changeset(attrs)
     |> cast(attrs, [:email])
     |> validate_required([:email])
+    |> unique_constraint(:email, name: "index_users_on_email")
   end
 
   def login_changeset(user) do
