@@ -5,7 +5,7 @@ defmodule Asciinema.FileStore.S3 do
 
   def put_file(dst_path, src_local_path, content_type, compress \\ false) do
     {body, opts} = if compress do
-      body = File.read!(src_local_path) |> :zlib.gzip
+      body = src_local_path |> File.read! |> :zlib.gzip
       opts = [{:content_type, content_type}, {:content_encoding, "gzip"}]
       {body, opts}
     else
@@ -36,7 +36,7 @@ defmodule Asciinema.FileStore.S3 do
   end
 
   def open_file(path, function \\ nil) do
-    response = S3.get_object(bucket(), base_path() <> path) |> make_request
+    response = bucket() |> S3.get_object(base_path() <> path) |> make_request
 
     case response do
       {:ok, %{headers: headers, body: body}} ->

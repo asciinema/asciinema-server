@@ -164,9 +164,9 @@ defmodule Asciinema.Asciicasts do
     header = File.open!(path, [:read], fn file -> IO.binread(file, 2) end)
 
     case header do
-      <<0x1f,0x8b>> -> # gzip
+      <<0x1f, 0x8b>> -> # gzip
         File.open!(path, [:read, :compressed])
-      <<0x42,0x5a>> -> # bzip
+      <<0x42, 0x5a>> -> # bzip
         {:ok, tmp_path} = Briefly.create()
         {_, 0} = System.cmd("sh", ["-c", "bzip2 -d -k -c #{path} >#{tmp_path}"])
         File.open!(tmp_path, [:read])

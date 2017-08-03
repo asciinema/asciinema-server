@@ -3,7 +3,7 @@ defmodule AsciinemaWeb.AsciicastImageController do
   alias Asciinema.{Asciicasts, PngGenerator}
   alias Asciinema.Asciicasts.Asciicast
 
-  @max_age 604800 # 7 days
+  @max_age 604_800 # 7 days
 
   def show(conn, %{"id" => id} = _params) do
     asciicast = Asciicasts.get_asciicast!(id)

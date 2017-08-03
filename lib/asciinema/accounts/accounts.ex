@@ -98,7 +98,7 @@ defmodule Asciinema.Accounts do
 
   def verify_signup_token(token) do
     with {:ok, email} <- Token.verify(Endpoint, "signup", token, max_age: @login_token_max_age),
-         {:ok, %User{} = user} <- User.signup_changeset(%{email: email}) |> Repo.insert do
+         {:ok, %User{} = user} <- Repo.insert(User.signup_changeset(%{email: email})) do
       {:ok, user}
     else
       {:error, :invalid} ->

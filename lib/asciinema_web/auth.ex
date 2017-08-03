@@ -4,7 +4,7 @@ defmodule AsciinemaWeb.Auth do
   alias Asciinema.Repo
 
   @user_key "warden.user.user.key"
-  @one_year_in_secs 31557600
+  @one_year_in_secs 31_557_600
 
   def init(opts) do
     opts

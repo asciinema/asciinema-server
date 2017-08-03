@@ -89,22 +89,26 @@ defmodule AsciinemaWeb.Router.Helpers.Extra do
   end
 
   def asciicast_file_download_path(conn, asciicast) do
-    H.asciicast_file_path(conn, :show, asciicast)
+    conn
+    |> H.asciicast_file_path(:show, asciicast)
     |> String.replace_suffix("/json", ".json")
   end
 
   def asciicast_file_download_url(conn, asciicast) do
-    H.asciicast_file_url(conn, :show, asciicast)
+    conn
+    |> H.asciicast_file_url(:show, asciicast)
     |> String.replace_suffix("/json", ".json")
   end
 
   def asciicast_image_download_path(conn, asciicast) do
-    H.asciicast_image_path(conn, :show, asciicast)
+    conn
+    |> H.asciicast_image_path(:show, asciicast)
     |> String.replace_suffix("/png", ".png")
   end
 
   def asciicast_animation_download_path(conn, asciicast) do
-    H.asciicast_animation_path(conn, :show, asciicast)
+    conn
+    |> H.asciicast_animation_path(:show, asciicast)
     |> String.replace_suffix("/gif", ".gif")
   end
 end

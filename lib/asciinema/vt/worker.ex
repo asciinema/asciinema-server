@@ -65,7 +65,7 @@ defmodule Asciinema.Vt.Worker do
   end
 
   defp send_cmd(port, cmd, data \\ %{}) do
-    json = Map.put(data, :cmd, cmd) |> Poison.encode!
+    json = data |> Map.put(:cmd, cmd) |> Poison.encode!
     true = Port.command(port, "#{json}\n")
   end
 end

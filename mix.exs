@@ -57,6 +57,7 @@ defmodule Asciinema.Mixfile do
       {:briefly, "~> 0.3"},
       {:bugsnag, "~> 1.5.0"},
       {:cowboy, "~> 1.0"},
+      {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
       {:ex_aws, "~> 1.0"},
       {:exq, "~> 0.9.0"},
       {:exq_ui, "~> 0.9.0"},

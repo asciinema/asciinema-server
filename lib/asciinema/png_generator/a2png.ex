@@ -6,8 +6,8 @@ defmodule Asciinema.PngGenerator.A2png do
 
   @pool_name :worker
   @acquire_timeout 5000
-  @a2png_timeout 30000
-  @result_timeout 35000
+  @a2png_timeout 30_000
+  @result_timeout 35_000
 
   def generate(%Asciicast{} = asciicast, %PngParams{} = png_params) do
     {:ok, tmp_dir_path} = Briefly.create(directory: true)
