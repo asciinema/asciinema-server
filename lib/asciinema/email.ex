@@ -7,6 +7,7 @@ defmodule Asciinema.Email do
     |> to(email_address)
     |> subject("Welcome to #{instance_hostname()}")
     |> render("signup.text", signup_url: signup_url)
+    |> render("signup.html", signup_url: signup_url)
   end
 
   def login_email(email_address, login_url) do
@@ -14,12 +15,14 @@ defmodule Asciinema.Email do
     |> to(email_address)
     |> subject("Login request")
     |> render("login.text", login_url: login_url)
+    |> render("login.html", login_url: login_url)
   end
 
   defp base_email do
     new_email()
     |> from({"asciinema", from_address()})
     |> put_header("Reply-To", reply_to_address())
+    |> put_html_layout({AsciinemaWeb.LayoutView, "email.html"})
   end
 
   defp from_address do

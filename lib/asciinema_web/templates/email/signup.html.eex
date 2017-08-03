@@ -1,0 +1,10 @@
+<p>Welcome,</p>
+
+<p>Click the following link to create your account at asciinema.org:</p>
+
+<p><a href="<%= @signup_url %>"><%= @signup_url %></a></p>
+
+<p>
+  <br>
+  If you did not initiate this request, just ignore this email. The request will expire shortly.
+</p>
