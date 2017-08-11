@@ -128,7 +128,7 @@ RUN bundle exec rake assets:precompile
 # install hex packages
 
 COPY mix.* /app/
-RUN mix deps.get --only prod
+RUN mix deps.get --only prod && mix deps.compile
 
 # install brunch & co
 
