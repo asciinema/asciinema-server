@@ -119,6 +119,18 @@ When running it don't forget to allocate a pseudo-TTY (`-t`), keep STDIN open
 
     docker run --rm -ti -v "$HOME/.config/asciinema":/root/.config/asciinema asciinema/asciinema
 
+Default command run in a container is `asciinema rec`.
+
+There's not much software installed in this image though. In most cases you may
+want to install extra programs before recording. One option is to derive new
+image from this one (start your custom Dockerfile with `FROM
+asciinema/asciinema`). Another option is to start the container with `/bin/bash`
+as the command, install extra packages and manually start `asciinema rec`:
+
+    docker run --rm -ti -v "$HOME/.config/asciinema":/root/.config/asciinema asciinema/asciinema /bin/bash
+    root@6689517d99a1:~# apt-get install foobar
+    root@6689517d99a1:~# asciinema rec
+
 ## Running from source
 {: #running-from-source}
 
