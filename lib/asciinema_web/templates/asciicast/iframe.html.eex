@@ -1,0 +1,49 @@
+<div id="player"></div>
+
+<script>
+ var cols = 200;
+ var rows = 100;
+
+ var playerDiv = document.getElementById('player');
+
+ asciinema.player.js.CreatePlayer(playerDiv, [], {
+   width: cols,
+   height: rows
+   // TODO fontSize
+ });
+
+ var terminalPre = document.getElementsByClassName('asciinema-terminal')[0];
+ var controlBarDiv = document.getElementsByClassName('control-bar')[0];
+
+ var charW = terminalPre.clientWidth / cols;
+ var charH = terminalPre.clientHeight / rows;
+
+ var viewportW = document.body.offsetWidth;
+ var viewportH = Math.max(document.body.scrollHeight, document.body.offsetHeight);
+
+ var controlBarH = controlBarDiv.offsetHeight;
+
+ var terminalBorderColor = window.getComputedStyle(terminalPre).getPropertyValue('border-top-color');
+ var terminalBordersW = terminalPre.offsetWidth - terminalPre.clientWidth;
+ var terminalBordersH = terminalPre.offsetHeight - terminalPre.clientHeight;
+
+ var maxTerminalW = viewportW;
+ var maxTerminalH = viewportH - controlBarH;
+
+ var maxBorderlessTerminalW = maxTerminalW - terminalBordersW;
+ var maxBorderlessTerminalH = maxTerminalH - terminalBordersH;
+
+ cols = Math.floor(maxBorderlessTerminalW / charW);
+ rows = Math.floor(maxBorderlessTerminalH / charH);
+
+ asciinema.player.js.UnmountPlayer(playerDiv);
+
+ asciinema.player.js.CreatePlayer(playerDiv, '<%= @file_url %>', {
+   width: cols,
+   height: rows,
+   // TODO autoPlay, preload, loop, startAt, speed, poster, fontSize, theme, title, author, authorURL, authorImgURL
+ });
+
+ var wrapperDiv = document.getElementsByClassName('asciinema-player-wrapper')[0];
+ wrapperDiv.style.backgroundColor = terminalBorderColor;
+</script>

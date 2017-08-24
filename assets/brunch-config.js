@@ -2,7 +2,18 @@ exports.config = {
   // See http://brunch.io/#documentation for docs.
   files: {
     javascripts: {
-      joinTo: "js/app.js",
+      joinTo: {
+        "js/app.js": [
+          "vendor/js/jquery-2.2.4.min.js",
+          "vendor/js/bootstrap.js",
+          "js/app.js"
+        ],
+        "js/iframe.js": [
+          "vendor/js/es5-shim.min.js",
+          "vendor/js/console-shim-min.js",
+          "vendor/js/asciinema-player.js",
+        ]
+      }
 
       // To use a separate vendor.js bundle, specify two files path
       // http://brunch.io/docs/config#-files-
@@ -12,17 +23,14 @@ exports.config = {
       // }
       //
       // To change the order of concatenation of files, explicitly mention here
-      order: {
-        before: [
-          "vendor/js/jquery-2.2.4.min.js",
-          "vendor/js/bootstrap.js"
-        ]
-      }
+      // order: {
+      //   before: [
+      //   ]
+      // }
     },
     stylesheets: {
-      joinTo: "css/app.css",
-      order: {
-        before: [
+      joinTo: {
+        "css/app.css": [
           "vendor/css/bootstrap.css",
           "css/source-sans-pro.css",
           "css/base.sass",
@@ -33,11 +41,20 @@ exports.config = {
           "css/asciicasts.sass",
           "css/users.sass",
           "css/preview.sass",
-          "css/player.sass",
           "css/contributing.sass",
           "css/simple-layout.sass",
+        ],
+        "css/iframe.css": [
+          "css/source-sans-pro.css",
+          "css/powerline-symbols.css",
+          "vendor/css/asciinema-player.css",
+          "css/iframe.sass",
         ]
       }
+      // order: {
+      //   before: [
+      //   ]
+      // }
     },
     templates: {
       joinTo: "js/app.js"
