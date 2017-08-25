@@ -144,6 +144,18 @@ You should see `asciinema_web`, `asciinema_postgres` and a few others listed.
 
 Point your browser to `BASE_URL` and enjoy your own asciinema hosting site!
 
+## Using asciinema recorder with your instance
+
+Once you have your instance running, point asciinema recorder to it by setting
+API URL in `~/.config/asciinema/config` file as follows:
+
+    [api]
+    url = https://your.asciinema.host
+
+Alternatively, you can set `ASCIINEMA_API_URL` environment variable:
+
+    ASCIINEMA_API_URL=https://your.asciinema.host asciinema rec
+
 ## Upgrading
 
 Stop all containers:
@@ -162,15 +174,3 @@ Upgrade database:
 Start new containers:
 
     docker-compose up -d
-
-## Using asciinema recorder with your instance
-
-Once you have your instance running, point asciinema recorder to it by setting
-API URL in `~/.config/asciinema/config` file as follows:
-
-    [api]
-    url = https://your.asciinema.host
-
-Alternatively, you can set `ASCIINEMA_API_URL` environment variable:
-
-    ASCIINEMA_API_URL=https://your.asciinema.host asciinema rec
