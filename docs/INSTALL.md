@@ -70,17 +70,20 @@ provided [.env.production.sample](../.env.production.sample) as a template:
     cp .env.production.sample .env.production
     nano .env.production
 
-There are several variables which have to be set, like `BASE_URL` and
+There are several variables which have to be set, like `URL_HOST` and
 `SECRET_KEY_BASE`. The rest is optional, and most likely used when you want to
 use your own SMTP, PostgreSQL or Redis server.
 
 #### Basic settings
 
-Set `BASE_URL` to the URL your users are supposed to reach this instance at.
-Example: `http://asciinema.example.com`.
+Set `URL_SCHEME`, `URL_HOST` and `URL_PORT` to match the address the users are supposed to reach this instance at. For example:
+
+    URL_SCHEME=http
+    URL_HOST=asciinema.example.com
+    URL_PORT=80
 
 Set `SECRET_KEY_BASE` to long random string. Run `docker-compose run --rm web
-bundle exec rake secret` to obtain one.
+mix phx.gen.secret` to obtain one.
 
 #### SMTP settings
 
