@@ -60,7 +60,7 @@ docker-compose configuration.
 It's recommended to checkout a new branch, to keep any customizations separate
 from master branch and make upgrading safer:
 
-    git checkout -b example
+    git checkout -b my-company
 
 ### Edit config file
 
@@ -174,3 +174,40 @@ Upgrade database:
 Start new containers:
 
     docker-compose up -d
+
+## Customizations
+
+If the variables in `.env.production` file are not enough for your needs then
+you can easily edit source code and rebuild the image.
+
+Let's take [max upload size](https://github.com/asciinema/asciinema.org/blob/b2e918d1de84537159f0366be71541699c47297d/docker/nginx/asciinema.conf#L25) as an example. We'll change it to 32MB.
+
+Switch to a new branch (or the one you created in "Clone the repository" step
+earlier):
+
+    git checkout -b my-company
+
+Edit `docker/nginx/asciinema.conf` file, applying this change:
+
+```diff
+-client_max_body_size 16m
++client_max_body_size 32m
+```
+
+Now, stop `web` container:
+
+    docker-compose stop web
+
+Rebuild the image:
+
+    docker-compose build web
+
+Start new `web` container:
+
+    docker-compose up web -d
+    
+If all is good then commit your customization (so you can fetch and merge latest
+version in the future):
+
+    git add -A .
+    git commit -m "Increased upload size limit to 32MB"
