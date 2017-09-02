@@ -180,18 +180,33 @@ Start new containers:
 If the variables in `.env.production` file are not enough for your needs then
 you can easily edit source code and rebuild the image.
 
-Let's take [max upload size](https://github.com/asciinema/asciinema.org/blob/b2e918d1de84537159f0366be71541699c47297d/docker/nginx/asciinema.conf#L25) as an example. We'll change it to 32MB.
+Let's take max upload size as an example. We'll change it to 32MB. We need to
+edit 2 files.
 
 Switch to a new branch (or the one you created in "Clone the repository" step
 earlier):
 
     git checkout -b my-company
 
-Edit `docker/nginx/asciinema.conf` file, applying this change:
+First, edit `docker/nginx/asciinema.conf` file, applying this change:
 
 ```diff
 -client_max_body_size 16m
 +client_max_body_size 32m
+```
+
+Then, edit `lib/asciinema_web/endpoint.ex` file, applying this change:
+
+```diff
+-plug Plug.Parsers,
+-    parsers: [:urlencoded, :multipart, :json],
+-    pass: ["*/*"],
+-    json_decoder: Poison
++plug Plug.Parsers,
++    parsers: [:urlencoded, :multipart, :json],
++    pass: ["*/*"],
++    json_decoder: Poison,
++    length: 32_000_000
 ```
 
 Now, stop `web` container:
