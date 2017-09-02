@@ -13,7 +13,6 @@
  });
 
  var terminalPre = document.getElementsByClassName('asciinema-terminal')[0];
- var controlBarDiv = document.getElementsByClassName('control-bar')[0];
 
  var charW = terminalPre.clientWidth / cols;
  var charH = terminalPre.clientHeight / rows;
@@ -21,14 +20,12 @@
  var viewportW = document.body.offsetWidth;
  var viewportH = Math.max(document.body.scrollHeight, document.body.offsetHeight);
 
- var controlBarH = controlBarDiv.offsetHeight;
-
  var terminalBorderColor = window.getComputedStyle(terminalPre).getPropertyValue('border-top-color');
  var terminalBordersW = terminalPre.offsetWidth - terminalPre.clientWidth;
  var terminalBordersH = terminalPre.offsetHeight - terminalPre.clientHeight;
 
  var maxTerminalW = viewportW;
- var maxTerminalH = viewportH - controlBarH;
+ var maxTerminalH = viewportH;
 
  var maxBorderlessTerminalW = maxTerminalW - terminalBordersW;
  var maxBorderlessTerminalH = maxTerminalH - terminalBordersH;
