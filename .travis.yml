@@ -9,5 +9,5 @@ before_script:
   - phantomjs --version
 script: RSPEC_EXCLUDE_UNSTABLE=1 ./script/cibuild.sh
 rvm:
-  - 2.1.0
+  - 2.1.1
 sudo: false
