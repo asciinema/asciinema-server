@@ -12,7 +12,7 @@ your geekiness.
 asciinema project is built of several sub-projects:
 
 * command-line based terminal session recorder, `asciinema` ([source code](https://github.com/asciinema/asciinema))
-* asciinema.org - a website with an API ([source code](https://github.com/asciinema/asciinema.org))
+* asciinema.org - a website with an API ([source code](https://github.com/asciinema/asciinema-server))
 * javascript player ([source code](https://github.com/asciinema/asciinema-player))
 
 If technical details interest you then read more about
@@ -32,14 +32,14 @@ later. asciinema.org site had a first public release in March 2012 (as
 ascii.io then). The project was renamed to "asciinema" in September 2013.
 
 asciinema is actively developed with the help of great open
-source [contributors](https://github.com/asciinema/asciinema.org/contributors).
+source [contributors](https://github.com/asciinema/asciinema-server/contributors).
 
 ## Reporting bugs
 
 As the service is built of several parts there are separate bug trackers:
 
 * [github.com/asciinema/asciinema/issues](https://github.com/asciinema/asciinema/issues) - for recorder issues and ideas
-* [github.com/asciinema/asciinema.org/issues](https://github.com/asciinema/asciinema.org/issues) - for website/embedding issues and ideas
+* [github.com/asciinema/asciinema-server/issues](https://github.com/asciinema/asciinema-server/issues) - for website/embedding issues and ideas
 * [github.com/asciinema/asciinema-player/issues](https://github.com/asciinema/asciinema-player/issues) - for player issues and ideas
 
 Please only use them for reporting bugs and submitting feature requests.

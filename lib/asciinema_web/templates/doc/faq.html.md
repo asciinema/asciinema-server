@@ -66,7 +66,7 @@ asciicast's page.
 
 Yes, you can set up your own asciinema site. The source code of the app that
 runs asciinema.org is available
-[here](https://github.com/asciinema/asciinema.org).
+[here](https://github.com/asciinema/asciinema-server).
 
 When you have the site up and running you can easily tell asciinema client to
 use it by adding following setting to _~/.config/asciinema/config_ file:

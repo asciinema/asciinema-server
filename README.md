@@ -24,7 +24,7 @@ recordings are __private by default__ though).
 If you're not comfortable with uploading your terminal sessions to
 asciinema.org, or your company's policy prevents you from doing that, you can
 set up your own instance for private use. See
-our [asciinema web app install guide](https://github.com/asciinema/asciinema.org/blob/master/docs/INSTALL.md).
+our [asciinema web app install guide](https://github.com/asciinema/asciinema-server/blob/master/docs/INSTALL.md).
 
 Once you have your instance running, point asciinema recorder to it by setting
 API URL in `~/.config/asciinema/config` file as follows:
@@ -42,7 +42,7 @@ Check out our [Contributing](http://asciinema.org/contributing) page, which
 describes multiple ways you can help this project.
 
 If you decide to contribute with the code then please
-read [CONTRIBUTING.md](https://github.com/asciinema/asciinema.org/blob/master/CONTRIBUTING.md), which covers submitting bugs,
+read [CONTRIBUTING.md](https://github.com/asciinema/asciinema-server/blob/master/CONTRIBUTING.md), which covers submitting bugs,
 requesting new features, preparing your code for a pull request, etc.
 
 ## Security
@@ -50,7 +50,7 @@ requesting new features, preparing your code for a pull request, etc.
 We're serious about the security of this web app and the user data it manages.
 If you find anything that looks like a potential vulnerability please
 read on
-[how to report a security issue](https://github.com/asciinema/asciinema.org/blob/master/CONTRIBUTING.md#reporting-security-issues).
+[how to report a security issue](https://github.com/asciinema/asciinema-server/blob/master/CONTRIBUTING.md#reporting-security-issues).
 
 ## Authors
 
@@ -59,7 +59,7 @@ many great open source contributors.
 
 For a complete list of the many individuals that contributed to the project,
 please refer to
-[GitHub's list of contributors](https://github.com/asciinema/asciinema.org/contributors).
+[GitHub's list of contributors](https://github.com/asciinema/asciinema-server/contributors).
 
 ## Copyright
 

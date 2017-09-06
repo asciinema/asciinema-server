@@ -55,7 +55,7 @@ docker-compose configuration.
 
 ### Clone the repository
 
-    git clone --recursive https://github.com/asciinema/asciinema.org.git
+    git clone --recursive https://github.com/asciinema/asciinema-server.git
 
 It's recommended to checkout a new branch, to keep any customizations separate
 from master branch and make upgrading safer:
