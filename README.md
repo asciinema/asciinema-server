@@ -29,8 +29,10 @@ our [asciinema web app install guide](https://github.com/asciinema/asciinema-ser
 Once you have your instance running, point asciinema recorder to it by setting
 API URL in `~/.config/asciinema/config` file as follows:
 
-    [api]
-    url = https://your.asciinema.host
+```ini
+[api]
+url = https://your.asciinema.host
+```
 
 Alternatively, you can set `ASCIINEMA_API_URL` environment variable:
 
