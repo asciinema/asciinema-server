@@ -149,8 +149,10 @@ Point your browser to `BASE_URL` and enjoy your own asciinema hosting site!
 Once you have your instance running, point asciinema recorder to it by setting
 API URL in `~/.config/asciinema/config` file as follows:
 
-    [api]
-    url = https://your.asciinema.host
+```ini
+[api]
+url = https://your.asciinema.host
+```
 
 Alternatively, you can set `ASCIINEMA_API_URL` environment variable:
 
