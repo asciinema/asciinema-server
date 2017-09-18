@@ -15,10 +15,6 @@ services:
     image: redis
     container_name: asciinema_dev_redis
 
-  smtp:
-    image: namshi/smtp
-    container_name: asciinema_dev_smtp
-
   web:
     build: .
     image: asciinema/asciinema.org
@@ -27,7 +23,6 @@ services:
     links:
       - redis
       - postgres
-      - smtp
     env_file: .env.development
     ports:
       - 3000:3000
