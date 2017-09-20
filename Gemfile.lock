@@ -367,6 +367,3 @@ DEPENDENCIES
   unicorn-worker-killer (~> 0.4.2)
   virtus (~> 1.0.1)
   yajl-ruby (~> 1.1.0)
-
-BUNDLED WITH
-   1.15.3
