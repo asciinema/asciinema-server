@@ -19,6 +19,7 @@ services:
     build: .
     image: asciinema/asciinema.org
     container_name: asciinema_dev_web
+    entrypoint: env -u MIX_ENV -u RAILS_ENV
     command: /bin/bash
     links:
       - redis

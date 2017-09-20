@@ -11,6 +11,10 @@ config :asciinema, AsciinemaWeb.Endpoint,
 config :logger, level: :warn
 
 # Configure your database
+if db_url = System.get_env("TEST_DATABASE_URL") do
+  System.put_env("DATABASE_URL", db_url)
+end
+
 config :asciinema, Asciinema.Repo,
   adapter: Ecto.Adapters.Postgres,
   username: "postgres",
@@ -24,6 +28,11 @@ config :asciinema, Asciinema.FileStore.Local, path: "uploads/test/"
 
 config :asciinema, :snapshot_updater, Asciinema.Asciicasts.SnapshotUpdater.Sync
 config :asciinema, :frames_generator, Asciinema.Asciicasts.FramesGenerator.Noop
+
+config :exq,
+  url: System.get_env("TEST_REDIS_URL") ||
+       System.get_env("REDIS_URL") ||
+       "redis://redis:6379"
 
 config :exq_ui, server: false
 

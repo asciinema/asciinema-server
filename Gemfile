@@ -31,6 +31,7 @@ gem 'rack-rewrite',         '~> 1.5.0'
 gem 'oj',                   '~> 2.17.4'
 gem 'oj_mimic_json',        '~> 1.0'
 gem 'foreigner',            '~> 1.7'
+gem 'rails-default-database'
 
 group :development do
   gem 'quiet_assets',   '~> 1.0.1'
