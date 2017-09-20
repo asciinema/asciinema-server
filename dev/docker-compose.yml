@@ -33,7 +33,7 @@ services:
       - ../uploads:/app/uploads:cached
       - ../deps:/app/deps:cached
       - bundle:/bundle:cached
-      - node_modules:/app/node_modules:cached
+      - node_modules:/app/assets/node_modules:cached
       - build:/app/_build:cached
       - m2:/root/.m2:cached
       - ../:/app:cached
