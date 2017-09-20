@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170803171814) do
+ActiveRecord::Schema.define(version: 20170920124120) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -19,8 +19,8 @@ ActiveRecord::Schema.define(version: 20170803171814) do
   create_table "api_tokens", force: true do |t|
     t.integer  "user_id",    null: false
     t.string   "token",      null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.datetime "revoked_at"
   end
 
@@ -37,8 +37,8 @@ ActiveRecord::Schema.define(version: 20170803171814) do
     t.string   "command"
     t.string   "shell"
     t.string   "uname"
-    t.datetime "created_at",                       null: false
-    t.datetime "updated_at",                       null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.string   "stdin_data"
     t.string   "stdin_timing"
     t.string   "stdout_data"
@@ -51,11 +51,11 @@ ActiveRecord::Schema.define(version: 20170803171814) do
     t.string   "stdout_frames"
     t.string   "user_agent"
     t.string   "theme_name"
+    t.string   "secret_token",                     null: false
+    t.boolean  "private",          default: false, null: false
     t.float    "snapshot_at"
     t.integer  "version",                          null: false
     t.string   "file"
-    t.string   "secret_token",                     null: false
-    t.boolean  "private",          default: false, null: false
   end
 
   add_index "asciicasts", ["created_at"], name: "index_asciicasts_on_created_at", using: :btree
@@ -70,8 +70,8 @@ ActiveRecord::Schema.define(version: 20170803171814) do
     t.string   "uid"
     t.string   "email"
     t.string   "name"
-    t.datetime "created_at",                                   null: false
-    t.datetime "updated_at",                                   null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.string   "username"
     t.string   "auth_token"
     t.string   "theme_name"
