@@ -2,5 +2,5 @@
 
 set -e
 
-bundle exec rake db:migrate
+mix ecto.migrate
 mix run priv/repo/seeds.exs
