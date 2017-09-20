@@ -5,6 +5,7 @@ volumes:
   m2:
   node_modules:
   build:
+  deps:
 
 services:
   postgres:
@@ -31,10 +32,10 @@ services:
       - 4040:4040
     volumes:
       - ../uploads:/app/uploads:cached
-      - ../deps:/app/deps:cached
       - bundle:/bundle:cached
       - node_modules:/app/assets/node_modules:cached
       - build:/app/_build:cached
+      - deps:/app/deps:cached
       - m2:/root/.m2:cached
       - ../:/app:cached
       - /tmp/asciinema-web:/tmp
