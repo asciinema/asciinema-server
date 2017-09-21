@@ -118,7 +118,6 @@ COPY vendor /app/vendor
 COPY config.ru /app/
 COPY Rakefile /app/
 COPY app /app/app
-COPY resources/welcome.json /app/resources/welcome.json
 
 # compile assets with assets pipeline
 
@@ -148,6 +147,7 @@ COPY lib/asciinema /app/lib/asciinema
 COPY lib/asciinema_web /app/lib/asciinema_web
 COPY priv/gettext /app/priv/gettext
 COPY priv/repo /app/priv/repo
+COPY priv/welcome.json /app/priv/welcome.json
 
 # compile Elixir app
 
