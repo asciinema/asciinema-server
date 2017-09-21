@@ -1,6 +1,7 @@
 language: elixir
 elixir: '1.4.2'
 otp_release: '19.3'
+before_install: gem install sass
 script: cd assets && npm install && node_modules/brunch/bin/brunch build && cd .. && mix test
 services:
   - postgresql
