@@ -26,7 +26,7 @@ config :asciinema, Asciinema.Repo,
 config :asciinema, :file_store, Asciinema.FileStore.Local
 config :asciinema, Asciinema.FileStore.Local, path: "uploads/test/"
 
-config :asciinema, :snapshot_updater, Asciinema.Asciicasts.SnapshotUpdater.Sync
+config :asciinema, :snapshot_updater, Asciinema.Asciicasts.SnapshotUpdater.Noop
 config :asciinema, :frames_generator, Asciinema.Asciicasts.FramesGenerator.Noop
 
 config :exq,
