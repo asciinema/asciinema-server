@@ -110,7 +110,6 @@ COPY config/*.yml /app/config/
 COPY config/environments /app/config/environments
 COPY config/initializers /app/config/initializers
 COPY config/locales /app/config/locales
-COPY db /app/db
 COPY lib/*.rb /app/lib/
 COPY lib/authentication /app/lib/authentication
 COPY lib/tasks /app/lib/tasks
