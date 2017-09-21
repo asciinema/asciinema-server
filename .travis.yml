@@ -2,7 +2,7 @@ language: elixir
 elixir: '1.4.2'
 otp_release: '19.3'
 env:
-  - REDIS_URL=redis://localhost:6379
+  - MIX_ENV=test
 cache:
   directories:
     - assets/node_modules
