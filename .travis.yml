@@ -1,8 +1,11 @@
 language: elixir
 elixir: '1.4.2'
 otp_release: '19.3'
+services:
+  - postgresql
+  - redis-server
 env:
-  - MIX_ENV=test
+  - REDIS_URL=redis://localhost:6379
 cache:
   directories:
     - assets/node_modules
