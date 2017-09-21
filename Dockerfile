@@ -14,8 +14,8 @@ RUN apt-get update && \
     apt-get update && \
     apt-get install -y \
       build-essential \
-      elixir \
-      esl-erlang \
+      elixir=1.4.2-1 \
+      esl-erlang=1:19.3.6 \
       git-core \
       libfontconfig1 \
       libpq-dev \
