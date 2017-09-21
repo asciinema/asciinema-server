@@ -1,1 +1,0 @@
-class StdinTimingUploader < CompressedFileUploader; end

@@ -2,8 +2,6 @@ class Asciicast < ActiveRecord::Base
 
   ORDER_MODES = { date: 'created_at', popularity: 'views_count' }
 
-  mount_uploader :stdin_data,    StdinDataUploader
-  mount_uploader :stdin_timing,  StdinTimingUploader
   mount_uploader :stdout_data,   StdoutDataUploader
   mount_uploader :stdout_timing, StdoutTimingUploader
   mount_uploader :stdout_frames, StdoutFramesUploader
