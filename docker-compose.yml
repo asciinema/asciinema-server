@@ -21,7 +21,7 @@ services:
 
   sidekiq:
     build: .
-    image: asciinema/asciinema-server:develop
+    image: asciinema/asciinema-server:latest
     container_name: asciinema_worker
     restart: unless-stopped
     links:
@@ -45,7 +45,7 @@ services:
 
   web:
     build: .
-    image: asciinema/asciinema-server:develop
+    image: asciinema/asciinema-server:latest
     container_name: asciinema_web
     restart: unless-stopped
     links:
