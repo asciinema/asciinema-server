@@ -1,3 +1,5 @@
+_Note: This is guide for `development` branch. [See the version for latest stable release](https://github.com/asciinema/asciinema-server/blob/master/docs/INSTALL.md)._
+
 # asciinema web app install guide
 
 The only officially supported installation procedure of asciinema web app
@@ -56,11 +58,13 @@ docker-compose configuration.
 ### Clone the repository
 
     git clone --recursive https://github.com/asciinema/asciinema-server.git
+    cd asciinema-server
+    git checkout master
 
-It's recommended to checkout a new branch, to keep any customizations separate
+It's recommended to create a new branch, to keep any customizations separate
 from master branch and make upgrading safer:
 
-    git checkout -b my-company
+    git checkout -b my-company master
 
 ### Edit config file
 
