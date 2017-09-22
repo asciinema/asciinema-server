@@ -1,6 +1,6 @@
 # asciinema web app
 
-[![Build Status](https://travis-ci.org/asciinema/asciinema-server.svg?branch=develop)](https://travis-ci.org/asciinema/asciinema.org)
+[![Build Status](https://travis-ci.org/asciinema/asciinema-server.svg?branch=master)](https://travis-ci.org/asciinema/asciinema.org)
 [![Code Climate](https://codeclimate.com/github/asciinema/asciinema.org/badges/gpa.svg)](https://codeclimate.com/github/asciinema/asciinema.org)
 [![Coverage Status](https://coveralls.io/repos/asciinema/asciinema.org/badge.svg)](https://coveralls.io/r/asciinema/asciinema.org)
 
