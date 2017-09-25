@@ -74,7 +74,7 @@ defmodule Asciinema.Api.AsciicastControllerTest do
     test "json file, unsupported version number", %{conn: conn} do
       upload = fixture(:upload, %{path: "5/asciicast.json"})
       conn = post conn, api_asciicast_path(conn, :create), %{"asciicast" => upload}
-      assert text_response(conn, 415) =~ ~r|not supported|
+      assert text_response(conn, 422) =~ ~r|not supported|
     end
 
     test "non-json file", %{conn: conn} do

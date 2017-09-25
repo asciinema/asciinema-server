@@ -101,14 +101,14 @@ defmodule Asciinema.AsciicastsTest do
       user = fixture(:user)
       upload = fixture(:upload, %{path: "5/asciicast.json"})
 
-      assert {:error, :unknown_format} = Asciicasts.create_asciicast(user, upload)
+      assert {:error, {:unsupported_format, 5}} = Asciicasts.create_asciicast(user, upload)
     end
 
     test "non-json file" do
       user = fixture(:user)
       upload = fixture(:upload, %{path: "new-logo-bars.png"})
 
-      assert {:error, :parse_error} = Asciicasts.create_asciicast(user, upload)
+      assert {:error, :unknown_format} = Asciicasts.create_asciicast(user, upload)
     end
   end
 

@@ -23,26 +23,19 @@ defmodule Asciinema.Asciicasts do
 
   def create_asciicast(user, params, overrides \\ %{})
 
-  def create_asciicast(user, %Plug.Upload{path: path, filename: filename} = upload, overrides) do
+  def create_asciicast(user, %Plug.Upload{filename: filename} = upload, overrides) do
     asciicast = %Asciicast{user_id: user.id,
                            file: filename,
                            private: user.asciicasts_private_by_default}
 
     files = [{:file, upload, true}]
 
-    with {:ok, json} <- File.read(path),
-         {:ok, attrs} <- Poison.decode(json),
-         {:ok, attrs} <- extract_attrs(attrs),
+    with {:ok, attrs} <- extract_metadata(upload),
          attrs = Map.merge(attrs, overrides),
          changeset = Asciicast.create_changeset(asciicast, attrs),
          {:ok, %Asciicast{} = asciicast} <- do_create_asciicast(changeset, files) do
       :ok = SnapshotUpdater.update_snapshot(asciicast)
       {:ok, asciicast}
-    else
-      {:error, :invalid} ->
-        {:error, :parse_error}
-      otherwise ->
-        otherwise
     end
   end
 
@@ -54,7 +47,7 @@ defmodule Asciinema.Asciicasts do
                            stdout_timing: timing.filename,
                            private: user.asciicasts_private_by_default}
 
-    {:ok, attrs} = extract_attrs(meta)
+    {:ok, attrs} = extract_metadata(meta)
     attrs = Map.merge(attrs, overrides)
     attrs = if attrs[:uname], do: Map.drop(attrs, [:user_agent]), else: attrs
     changeset = Asciicast.create_changeset(asciicast, attrs)
@@ -70,7 +63,7 @@ defmodule Asciinema.Asciicasts do
     end
   end
 
-  defp extract_attrs(%{"version" => 0} = attrs) do
+  defp extract_metadata(%{"version" => 0} = attrs) do
     attrs = %{version: 0,
               terminal_columns: get_in(attrs, ["term", "columns"]),
               terminal_lines: get_in(attrs, ["term", "lines"]),
@@ -83,20 +76,25 @@ defmodule Asciinema.Asciicasts do
 
     {:ok, attrs}
   end
-  defp extract_attrs(%{"version" => 1} = attrs) do
-    attrs = %{version: 1,
-              terminal_columns: attrs["width"],
-              terminal_lines: attrs["height"],
-              terminal_type: get_in(attrs, ["env", "TERM"]),
-              command: attrs["command"],
-              duration: attrs["duration"],
-              title: attrs["title"],
-              shell: get_in(attrs, ["env", "SHELL"])}
+  defp extract_metadata(%Plug.Upload{path: path}) do
+    with {:ok, json} <- File.read(path),
+         {:ok, %{"version" => 1} = attrs} <- Poison.decode(json) do
+      attrs = %{version: 1,
+                terminal_columns: attrs["width"],
+                terminal_lines: attrs["height"],
+                terminal_type: get_in(attrs, ["env", "TERM"]),
+                command: attrs["command"],
+                duration: attrs["duration"],
+                title: attrs["title"],
+                shell: get_in(attrs, ["env", "SHELL"])}
 
-    {:ok, attrs}
-  end
-  defp extract_attrs(_attrs) do
-    {:error, :unknown_format}
+      {:ok, attrs}
+    else
+      {:error, :invalid} ->
+        {:error, :unknown_format}
+      {:ok, %{"version" => version}} ->
+        {:error, {:unsupported_format, version}}
+    end
   end
 
   defp do_create_asciicast(changeset, files) do
