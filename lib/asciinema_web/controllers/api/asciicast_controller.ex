@@ -12,8 +12,8 @@ defmodule AsciinemaWeb.Api.AsciicastController do
   end
   def create(conn, %{"asciicast" => %{"meta" => %{},
                                       "stdout" => %Plug.Upload{},
-                                      "stdout_timing" => %Plug.Upload{}} = asciicast_params}) do
-    do_create(conn, asciicast_params)
+                                      "stdout_timing" => %Plug.Upload{}} = params}) do
+    do_create(conn, params)
   end
 
   defp do_create(conn, params) do
