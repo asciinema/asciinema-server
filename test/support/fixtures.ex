@@ -21,7 +21,7 @@ defmodule Asciinema.Fixtures do
     filename = Path.basename(path)
     %Plug.Upload{path: "spec/fixtures/#{path}",
                  filename: filename,
-                 content_type: "application/json"} # TODO change
+                 content_type: "application/octet-stream"}
   end
 
   def fixture(:user, attrs) do
