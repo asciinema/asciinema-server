@@ -11,8 +11,12 @@ defmodule AsciinemaWeb.AsciicastFileController do
     file_store().serve_file(conn, path, filename)
   end
 
-  defp download_filename(%Asciicast{id: id}, %{"dl" => _}) do
-    "asciicast-#{id}.json"
+  defp download_filename(%Asciicast{version: version, id: id}, %{"dl" => _}) do
+    case version do
+      0 -> "#{id}.json"
+      1 -> "#{id}.json"
+      2 -> "#{id}.cast"
+    end
   end
   defp download_filename(_asciicast, _params) do
     nil
