@@ -169,6 +169,12 @@ defmodule Asciinema.AsciicastsTest do
       assert :ok == Stream.run(stream)
       assert [{1.234567, "foo bar"}, {5.678987, "baz qux"}] == Enum.take(stream, 2)
     end
+
+    test "with asciicast v2 file" do
+      stream = Asciicasts.stdout_stream("spec/fixtures/2/full.cast")
+      assert :ok == Stream.run(stream)
+      assert [{1.234567, "foo bar"}, {5.678987, "baz qux"}] == Enum.take(stream, 2)
+    end
   end
 
   describe "stdout_stream/2" do

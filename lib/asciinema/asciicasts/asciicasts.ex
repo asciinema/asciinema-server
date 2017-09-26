@@ -174,23 +174,42 @@ defmodule Asciinema.Asciicasts do
     :ok = FileStore.download_file(store_data_path, local_data_path)
     stdout_stream({local_timing_path, local_data_path})
   end
-  def stdout_stream(%Asciicast{version: 1} = asciicast) do
+  def stdout_stream(%Asciicast{} = asciicast) do
     {:ok, local_path} = Briefly.create()
     store_path = Asciicast.file_store_path(asciicast, :file)
     :ok = FileStore.download_file(store_path, local_path)
     stdout_stream(local_path)
   end
   def stdout_stream(asciicast_file_path) when is_binary(asciicast_file_path) do
-    asciicast =
+    first_two_lines =
       asciicast_file_path
-      |> File.read!
-      |> Poison.decode!
+      |> File.stream!([], :line)
+      |> Stream.take(2)
+      |> Enum.to_list
 
-    1 = asciicast["version"]
+    case first_two_lines do
+      ["{" <> _ = header, "[" <> _] ->
+        2 = Poison.decode!(header)["version"]
 
-    asciicast
-    |> Map.get("stdout")
-    |> Enum.map(&List.to_tuple/1)
+        asciicast_file_path
+        |> File.stream!([], :line)
+        |> Stream.drop(1)
+        |> Stream.map(&Poison.decode!/1)
+        |> Stream.filter(fn [_, type, _] -> type == "o" end)
+        |> Stream.map(fn [t, _, s] -> {t, s} end)
+
+      ["{" <> _, _] ->
+        asciicast =
+          asciicast_file_path
+          |> File.read!
+          |> Poison.decode!
+
+        1 = asciicast["version"]
+
+        asciicast
+        |> Map.get("stdout")
+        |> Enum.map(&List.to_tuple/1)
+    end
   end
   def stdout_stream({stdout_timing_path, stdout_data_path}) do
     Stream.resource(
