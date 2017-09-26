@@ -76,24 +76,72 @@ defmodule Asciinema.Asciicasts do
 
     {:ok, attrs}
   end
-  defp extract_metadata(%Plug.Upload{path: path}) do
-    with {:ok, json} <- File.read(path),
-         {:ok, %{"version" => 1} = attrs} <- Poison.decode(json) do
-      attrs = %{version: 1,
-                terminal_columns: attrs["width"],
-                terminal_lines: attrs["height"],
-                terminal_type: get_in(attrs, ["env", "TERM"]),
-                command: attrs["command"],
-                duration: attrs["duration"],
-                title: attrs["title"],
-                shell: get_in(attrs, ["env", "SHELL"])}
 
-      {:ok, attrs}
+  defp extract_metadata(%Plug.Upload{path: path}) do
+    case extract_v2_metadata(path) do
+      {:error, :unknown_format} -> extract_v1_metadata(path)
+      result -> result
+    end
+  end
+
+  defp extract_v1_metadata(path) do
+    with {:ok, json} <- File.read(path),
+         {:ok, %{"version" => 1} = attrs} <- decode_json(json) do
+      metadata = %{version: 1,
+                   terminal_columns: attrs["width"],
+                   terminal_lines: attrs["height"],
+                   terminal_type: get_in(attrs, ["env", "TERM"]),
+                   command: attrs["command"],
+                   duration: attrs["duration"],
+                   title: attrs["title"],
+                   shell: get_in(attrs, ["env", "SHELL"])}
+      {:ok, metadata}
     else
-      {:error, :invalid} ->
-        {:error, :unknown_format}
       {:ok, %{"version" => version}} ->
         {:error, {:unsupported_format, version}}
+      {:error, :invalid} ->
+        {:error, :unknown_format}
+    end
+  end
+
+  defp extract_v2_metadata(path) do
+    with {:ok, line} <- File.open(path, fn f -> IO.read(f, :line) end),
+         {:ok, %{"version" => 2} = header} <- decode_json(line) do
+      metadata = %{version: 2,
+                   terminal_columns: header["width"],
+                   terminal_lines: header["height"],
+                   terminal_type: get_in(header, ["env", "TERM"]),
+                   command: header["command"],
+                   duration: get_duration(path),
+                   recorded_at: header["timestamp"] && Timex.from_unix(header["timestamp"]),
+                   title: header["title"],
+                   theme_fg: get_in(header, ["theme", "fg"]),
+                   theme_bg: get_in(header, ["theme", "bg"]),
+                   theme_palette: get_in(header, ["theme", "palette"]),
+                   shell: get_in(header, ["env", "SHELL"])}
+      {:ok, metadata}
+    else
+      {:ok, %{"version" => version}} ->
+        {:error, {:unsupported_format, version}}
+      {:error, :invalid} ->
+        {:error, :unknown_format}
+    end
+  end
+
+  defp get_duration(path) do
+    path
+    |> File.stream!([], :line)
+    |> Stream.reject(fn line -> line == "\n" end)
+    |> Enum.reduce(fn line, _prev_line -> line end)
+    |> Poison.decode!
+    |> List.first
+  end
+
+  defp decode_json(json) do
+    case Poison.decode(json) do
+      {:ok, thing} -> {:ok, thing}
+      {:error, :invalid} -> {:error, :invalid}
+      {:error, {:invalid, _}} -> {:error, :invalid}
     end
   end
 

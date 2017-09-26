@@ -104,6 +104,57 @@ defmodule Asciinema.AsciicastsTest do
       assert {:error, {:unsupported_format, 5}} = Asciicasts.create_asciicast(user, upload)
     end
 
+    test "json file, v2 format, minimal" do
+      user = fixture(:user)
+      upload = fixture(:upload, %{path: "2/minimal.cast"})
+
+      {:ok, asciicast} = Asciicasts.create_asciicast(user, upload, %{user_agent: "a/user/agent"})
+
+      assert %Asciicast{version: 2,
+                        terminal_columns: 96,
+                        terminal_lines: 26,
+                        duration: 3.456789,
+                        file: "minimal.cast",
+                        stdout_data: nil,
+                        stdout_timing: nil,
+                        command: nil,
+                        recorded_at: nil,
+                        shell: nil,
+                        terminal_type: nil,
+                        title: nil,
+                        theme_fg: nil,
+                        theme_bg: nil,
+                        theme_palette: nil,
+                        uname: nil,
+                        user_agent: "a/user/agent"} = asciicast
+    end
+
+    test "json file, v2 format, full" do
+      user = fixture(:user)
+      upload = fixture(:upload, %{path: "2/full.cast"})
+      recorded_at = Timex.from_unix(1506410422)
+
+      {:ok, asciicast} = Asciicasts.create_asciicast(user, upload, %{user_agent: "a/user/agent"})
+
+      assert %Asciicast{version: 2,
+                        terminal_columns: 96,
+                        terminal_lines: 26,
+                        duration: 3.456789,
+                        file: "full.cast",
+                        stdout_data: nil,
+                        stdout_timing: nil,
+                        command: "/bin/bash -l",
+                        recorded_at: ^recorded_at,
+                        shell: "/bin/zsh",
+                        terminal_type: "screen-256color",
+                        title: "bashing :)",
+                        theme_fg: "#aaaaaa",
+                        theme_bg: "#bbbbbb",
+                        theme_palette: "#151515:#ac4142:#7e8e50:#e5b567:#6c99bb:#9f4e85:#7dd6cf:#d0d0d0:#505050:#ac4142:#7e8e50:#e5b567:#6c99bb:#9f4e85:#7dd6cf:#f5f5f5",
+                        uname: nil,
+                        user_agent: "a/user/agent"} = asciicast
+    end
+
     test "non-json file" do
       user = fixture(:user)
       upload = fixture(:upload, %{path: "new-logo-bars.png"})

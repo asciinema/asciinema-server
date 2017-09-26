@@ -22,12 +22,16 @@ defmodule Asciinema.Asciicasts.Asciicast do
     field :duration, :float
     field :title, :string
     field :theme_name, :string
+    field :theme_fg, :string
+    field :theme_bg, :string
+    field :theme_palette, :string
     field :snapshot_at, :float
     field :snapshot, Asciinema.Ecto.Type.JsonArray
     field :command, :string
     field :shell, :string
     field :uname, :string
     field :user_agent, :string
+    field :recorded_at, Timex.Ecto.DateTime
 
     timestamps(inserted_at: :created_at)
 
@@ -52,7 +56,7 @@ defmodule Asciinema.Asciicasts.Asciicast do
   def create_changeset(struct, attrs) do
     struct
     |> changeset(attrs)
-    |> cast(attrs, [:version, :file, :duration, :terminal_columns, :terminal_lines, :terminal_type, :command, :shell, :uname, :user_agent])
+    |> cast(attrs, [:version, :file, :duration, :terminal_columns, :terminal_lines, :terminal_type, :command, :shell, :uname, :user_agent, :recorded_at, :theme_fg, :theme_bg, :theme_palette])
     |> validate_required([:user_id, :version, :duration, :terminal_columns, :terminal_lines])
     |> generate_secret_token
   end
