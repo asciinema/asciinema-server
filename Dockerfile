@@ -1,3 +1,17 @@
+FROM clojure:alpine
+
+RUN mkdir /app
+WORKDIR /app
+
+# build vt
+
+COPY vt/project.clj /app/vt/
+RUN cd vt && lein deps
+
+COPY vt/src /app/vt/src
+COPY vt/resources /app/vt/resources
+RUN cd vt && lein cljsbuild once main
+
 FROM ubuntu:16.04
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -90,13 +104,10 @@ RUN cd a2png && npm install
 COPY a2png /app/a2png
 RUN cd a2png && lein cljsbuild once main && lein cljsbuild once page
 
-# build vt
+# copy compiled vt
 
-COPY vt/project.clj /app/vt/
-RUN cd vt && lein deps
-
-COPY vt /app/vt
-RUN cd vt && lein cljsbuild once main
+COPY --from=0 /app/vt/main.js /app/vt/
+COPY vt/liner.js /app/vt/
 
 # service URLs
 
