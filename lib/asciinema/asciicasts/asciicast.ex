@@ -32,6 +32,7 @@ defmodule Asciinema.Asciicasts.Asciicast do
     field :uname, :string
     field :user_agent, :string
     field :recorded_at, Timex.Ecto.DateTime
+    field :idle_time_limit, :float
 
     timestamps(inserted_at: :created_at)
 
@@ -56,7 +57,7 @@ defmodule Asciinema.Asciicasts.Asciicast do
   def create_changeset(struct, attrs) do
     struct
     |> changeset(attrs)
-    |> cast(attrs, [:version, :file, :duration, :terminal_columns, :terminal_lines, :terminal_type, :command, :shell, :uname, :user_agent, :recorded_at, :theme_fg, :theme_bg, :theme_palette])
+    |> cast(attrs, [:version, :file, :duration, :terminal_columns, :terminal_lines, :terminal_type, :command, :shell, :uname, :user_agent, :recorded_at, :theme_fg, :theme_bg, :theme_palette, :idle_time_limit])
     |> validate_required([:user_id, :version, :duration, :terminal_columns, :terminal_lines])
     |> generate_secret_token
   end

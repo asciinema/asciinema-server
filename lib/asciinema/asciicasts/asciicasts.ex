@@ -118,6 +118,7 @@ defmodule Asciinema.Asciicasts do
                    theme_fg: get_in(header, ["theme", "fg"]),
                    theme_bg: get_in(header, ["theme", "bg"]),
                    theme_palette: get_in(header, ["theme", "palette"]),
+                   idle_time_limit: header["idle_time_limit"],
                    shell: get_in(header, ["env", "SHELL"])}
       {:ok, metadata}
     else

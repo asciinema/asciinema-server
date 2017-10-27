@@ -125,6 +125,7 @@ defmodule Asciinema.AsciicastsTest do
                         theme_fg: nil,
                         theme_bg: nil,
                         theme_palette: nil,
+                        idle_time_limit: nil,
                         uname: nil,
                         user_agent: "a/user/agent"} = asciicast
     end
@@ -151,6 +152,7 @@ defmodule Asciinema.AsciicastsTest do
                         theme_fg: "#aaaaaa",
                         theme_bg: "#bbbbbb",
                         theme_palette: "#151515:#ac4142:#7e8e50:#e5b567:#6c99bb:#9f4e85:#7dd6cf:#d0d0d0:#505050:#ac4142:#7e8e50:#e5b567:#6c99bb:#9f4e85:#7dd6cf:#f5f5f5",
+                        idle_time_limit: 2.5,
                         uname: nil,
                         user_agent: "a/user/agent"} = asciicast
     end
