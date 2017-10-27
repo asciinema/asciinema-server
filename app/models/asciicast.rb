@@ -112,7 +112,11 @@ class Asciicast < ActiveRecord::Base
   end
 
   def download_filename
-    "asciicast-#{id}.json"
+    if version == 1
+      "#{id}.json"
+    elsif version == 2
+      "#{id}.cast"
+    end
   end
 
   def stdout

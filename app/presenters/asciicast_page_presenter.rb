@@ -117,8 +117,8 @@ class AsciicastPagePresenter
     asciicast.featured?
   end
 
-  def can_replay_in_terminal?
-    asciicast.version > 0
+  def asciicast_version
+    asciicast.version
   end
 
   private

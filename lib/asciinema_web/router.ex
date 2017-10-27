@@ -28,8 +28,9 @@ defmodule AsciinemaWeb.Router do
   scope "/", AsciinemaWeb do
     pipe_through :asciicast_file
 
-    # rewritten by TrailingFormat from /a/123.json to /a/123/json
-    get "/a/:id/json", AsciicastFileController, :show
+    # rewritten by TrailingFormat from /a/123.cast to /a/123/cast
+    get "/a/:id/cast", AsciicastFileController, :show
+    get "/a/:id/json", AsciicastFileController, :show, as: :asciicast_legacy_file
   end
 
   pipeline :asciicast_image do
@@ -92,13 +93,20 @@ defmodule AsciinemaWeb.Router.Helpers.Extra do
   def asciicast_file_download_path(conn, asciicast) do
     conn
     |> H.asciicast_file_path(:show, asciicast)
-    |> String.replace_suffix("/json", ".json")
+    |> fix_ext(asciicast.version)
   end
 
   def asciicast_file_download_url(conn, asciicast) do
     conn
     |> H.asciicast_file_url(:show, asciicast)
-    |> String.replace_suffix("/json", ".json")
+    |> fix_ext(asciicast.version)
+  end
+
+  defp fix_ext(url, version) when version in [0, 1] do
+    String.replace_suffix(url, "/cast", ".json")
+  end
+  defp fix_ext(url, 2) do
+    String.replace_suffix(url, "/cast", ".cast")
   end
 
   def asciicast_image_download_path(conn, asciicast) do

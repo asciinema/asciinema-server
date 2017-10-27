@@ -79,10 +79,11 @@
               span.glyphicon.glyphicon-share-alt
               ' 
               a href="#" id="share-link" data-toggle="modal" data-target="#share-modal" Share
-            li
-              span.glyphicon.glyphicon-download
-              ' 
-              a href="#" id="download-link" data-toggle="modal" data-target="#download-modal" Download
+            - if page.asciicast_download_filename
+              li
+                span.glyphicon.glyphicon-download
+                '
+                a href="#" id="download-link" data-toggle="modal" data-target="#download-modal" Download
 
   - if page.show_description?
     section.odd.description
