@@ -12,6 +12,15 @@ COPY vt/src /app/vt/src
 COPY vt/resources /app/vt/resources
 RUN cd vt && lein cljsbuild once main
 
+# build a2png
+
+COPY a2png/project.clj /app/a2png/
+RUN cd a2png && lein deps
+
+COPY a2png/src /app/a2png/src
+COPY a2png/asciinema-player /app/a2png/asciinema-player
+RUN cd a2png && lein cljsbuild once main && lein cljsbuild once page
+
 FROM ubuntu:16.04
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -93,21 +102,20 @@ WORKDIR /app
 COPY Gemfile* /app/
 RUN bundle install --deployment --without development test --jobs 10 --retry 5
 
-# build a2png
-
-COPY a2png/project.clj /app/a2png/
-RUN cd a2png && lein deps
-
-COPY a2png/package.json /app/a2png/
-RUN cd a2png && npm install
-
-COPY a2png /app/a2png
-RUN cd a2png && lein cljsbuild once main && lein cljsbuild once page
-
 # copy compiled vt
 
 COPY --from=0 /app/vt/main.js /app/vt/
 COPY vt/liner.js /app/vt/
+
+# copy compiled a2png
+
+COPY --from=0 /app/a2png/main.js /app/a2png/
+COPY --from=0 /app/a2png/page/page.js /app/a2png/page/
+COPY a2png/a2png.sh /app/a2png/
+COPY a2png/a2png.js /app/a2png/
+
+COPY a2png/package.json /app/a2png/
+RUN cd a2png && npm install
 
 # service URLs
 
