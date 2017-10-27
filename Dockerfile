@@ -75,20 +75,6 @@ RUN wget --quiet -O /opt/phantomjs.tar.bz2 https://bitbucket.org/ariya/phantomjs
     rm /opt/phantomjs.tar.bz2 && \
     ln -sf /opt/phantomjs-$PHANTOMJS_VERSION-linux-x86_64/bin/phantomjs /usr/local/bin
 
-# install JDK
-
-RUN wget --quiet -O /opt/jdk-8u131-linux-x64.tar.gz --no-check-certificate --no-cookies --header 'Cookie: oraclelicense=accept-securebackup-cookie' http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-linux-x64.tar.gz && \
-    tar xzf /opt/jdk-8u131-linux-x64.tar.gz -C /opt && \
-    rm /opt/jdk-8u131-linux-x64.tar.gz && \
-    update-alternatives --install /usr/bin/java java /opt/jdk1.8.0_131/bin/java 1000
-
-# install leiningen
-
-RUN wget --quiet -O /usr/local/bin/lein https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein && \
-    chmod a+x /usr/local/bin/lein
-
-ARG LEIN_ROOT=yes
-
 # install asciinema
 
 ENV RAILS_ENV "production"
