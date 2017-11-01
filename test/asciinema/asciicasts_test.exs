@@ -4,7 +4,7 @@ defmodule Asciinema.AsciicastsTest do
   alias Asciinema.Asciicasts.Asciicast
 
   describe "create_asciicast/3" do
-    test "json file, v0 format with uname" do
+    test "pre-v1 payload with uname" do
       user = fixture(:user)
       params = %{"meta" => %{"version" => 0,
                              "command" => "/bin/bash",
@@ -22,12 +22,12 @@ defmodule Asciinema.AsciicastsTest do
 
       {:ok, asciicast} = Asciicasts.create_asciicast(user, params, %{user_agent: "a/user/agent"})
 
-      assert %Asciicast{version: 0,
-                        file: nil,
-                        stdout_data: "stdout",
-                        stdout_timing: "stdout.time",
+      assert %Asciicast{version: 2,
+                        file: "0.cast",
+                        stdout_data: nil,
+                        stdout_timing: nil,
                         command: "/bin/bash",
-                        duration: 11.146430015564,
+                        duration: 3.7037009999999997,
                         shell: "/bin/zsh",
                         terminal_type: "screen-256color",
                         terminal_columns: 96,
@@ -37,7 +37,7 @@ defmodule Asciinema.AsciicastsTest do
                         user_agent: nil} = asciicast
     end
 
-    test "json file, v0 format without uname" do
+    test "pre-v1 payload without uname" do
       user = fixture(:user)
       params = %{"meta" => %{"version" => 0,
                              "command" => "/bin/bash",
@@ -54,12 +54,12 @@ defmodule Asciinema.AsciicastsTest do
 
       {:ok, asciicast} = Asciicasts.create_asciicast(user, params, %{user_agent: "a/user/agent"})
 
-      assert %Asciicast{version: 0,
-                        file: nil,
-                        stdout_data: "stdout",
-                        stdout_timing: "stdout.time",
+      assert %Asciicast{version: 2,
+                        file: "0.cast",
+                        stdout_data: nil,
+                        stdout_timing: nil,
                         command: "/bin/bash",
-                        duration: 11.146430015564,
+                        duration: 3.7037009999999997,
                         shell: "/bin/zsh",
                         terminal_type: "screen-256color",
                         terminal_columns: 96,
@@ -67,6 +67,28 @@ defmodule Asciinema.AsciicastsTest do
                         title: "bashing :)",
                         uname: nil,
                         user_agent: "a/user/agent"} = asciicast
+    end
+
+    test "pre-v1 payload, utf-8 sequence split between frames" do
+      user = fixture(:user)
+      params = %{"meta" => %{"version" => 0,
+                             "command" => "/bin/bash",
+                             "duration" => 11.146430015564,
+                             "shell" => "/bin/zsh",
+                             "term" => %{"columns" => 96,
+                                         "lines" => 26,
+                                         "type" => "screen-256color"},
+                             "title" => "bashing :)"},
+                 "stdout" => fixture(:upload, %{path: "0.9.8/stdout-split",
+                                                content_type: "application/octet-stream"}),
+                 "stdout_timing" => fixture(:upload, %{path: "0.9.8/stdout-split.time",
+                                                       content_type: "application/octet-stream"})}
+
+      {:ok, asciicast} = Asciicasts.create_asciicast(user, params, %{user_agent: "a/user/agent"})
+      stream = Asciicasts.stdout_stream(asciicast)
+
+      assert :ok == Stream.run(stream)
+      assert [{1.234567, "xxżó"}, {1.358023, "łć"}, {3.358023, "xx"}] == Enum.take(stream, 3)
     end
 
     test "json file, v1 format" do
@@ -104,7 +126,7 @@ defmodule Asciinema.AsciicastsTest do
       assert {:error, {:unsupported_format, 5}} = Asciicasts.create_asciicast(user, upload)
     end
 
-    test "json file, v2 format, minimal" do
+    test "cast file, v2 format, minimal" do
       user = fixture(:user)
       upload = fixture(:upload, %{path: "2/minimal.cast"})
 
@@ -130,7 +152,7 @@ defmodule Asciinema.AsciicastsTest do
                         user_agent: "a/user/agent"} = asciicast
     end
 
-    test "json file, v2 format, full" do
+    test "cast file, v2 format, full" do
       user = fixture(:user)
       upload = fixture(:upload, %{path: "2/full.cast"})
       recorded_at = Timex.from_unix(1506410422)
@@ -157,7 +179,7 @@ defmodule Asciinema.AsciicastsTest do
                         user_agent: "a/user/agent"} = asciicast
     end
 
-    test "non-json file" do
+    test "unknown file format" do
       user = fixture(:user)
       upload = fixture(:upload, %{path: "new-logo-bars.png"})
 
@@ -169,7 +191,7 @@ defmodule Asciinema.AsciicastsTest do
     test "with asciicast v1 file" do
       stream = Asciicasts.stdout_stream("spec/fixtures/1/asciicast.json")
       assert :ok == Stream.run(stream)
-      assert [{1.234567, "foo bar"}, {5.678987, "baz qux"}] == Enum.take(stream, 2)
+      assert [{1.234567, "foo bar"}, {6.913554, "baz qux"}] == Enum.take(stream, 2)
     end
 
     test "with asciicast v2 file" do
@@ -184,28 +206,28 @@ defmodule Asciinema.AsciicastsTest do
       stream = Asciicasts.stdout_stream({"spec/fixtures/0.9.9/stdout.time",
                                          "spec/fixtures/0.9.9/stdout"})
       assert :ok == Stream.run(stream)
-      assert [{1.234567, "foobar"}, {0.123456, "baz"}] == Enum.take(stream, 2)
+      assert [{1.234567, "foobar"}, {1.358023, "baz"}] == Enum.take(stream, 2)
     end
 
     test "with bzipped files" do
       stream = Asciicasts.stdout_stream({"spec/fixtures/0.9.8/stdout.time",
                                          "spec/fixtures/0.9.8/stdout"})
       assert :ok == Stream.run(stream)
-      assert [{1.234567, "foobar"}, {0.123456, "baz"}] == Enum.take(stream, 2)
+      assert [{1.234567, "foobar"}, {1.358023, "baz"}] == Enum.take(stream, 2)
     end
 
     test "with bzipped files (utf-8 sequence split between frames)" do
       stream = Asciicasts.stdout_stream({"spec/fixtures/0.9.8/stdout-split.time",
                                          "spec/fixtures/0.9.8/stdout-split"})
       assert :ok == Stream.run(stream)
-      assert [{1.234567, "xxżó"}, {0.123456, "łć"}, {2.0, "xx"}] == Enum.take(stream, 3)
+      assert [{1.234567, "xxżó"}, {1.358023, "łć"}, {3.358023, "xx"}] == Enum.take(stream, 3)
     end
   end
 
   describe "generate_snapshot/2" do
     @tag :vt
     test "returns list of screen lines" do
-      stdout_stream = [{1.0, "a"}, {0.5, "b"}, {2.0, "c"}]
+      stdout_stream = [{1.0, "a"}, {2.4, "b"}, {2.6, "c"}]
       snapshot = Asciicasts.generate_snapshot(stdout_stream, 4, 2, 2.5)
       assert snapshot == [[["ab  ", %{}]], [["    ", %{}]]]
     end

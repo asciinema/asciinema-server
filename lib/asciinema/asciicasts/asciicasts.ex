@@ -1,7 +1,7 @@
 defmodule Asciinema.Asciicasts do
   import Ecto.Query, warn: false
   alias Asciinema.{Repo, FileStore, StringUtils, Vt}
-  alias Asciinema.Asciicasts.{Asciicast, SnapshotUpdater, FramesGenerator}
+  alias Asciinema.Asciicasts.{Asciicast, SnapshotUpdater}
 
   def get_asciicast!(id) when is_integer(id) do
     Repo.get!(Asciicast, id)
@@ -42,25 +42,47 @@ defmodule Asciinema.Asciicasts do
   def create_asciicast(user, %{"meta" => meta,
                                "stdout" => %Plug.Upload{} = data,
                                "stdout_timing" => %Plug.Upload{} = timing}, overrides) do
-    asciicast = %Asciicast{user_id: user.id,
-                           stdout_data: data.filename,
-                           stdout_timing: timing.filename,
-                           private: user.asciicasts_private_by_default}
-
     {:ok, attrs} = extract_metadata(meta)
-    attrs = Map.merge(attrs, overrides)
-    attrs = if attrs[:uname], do: Map.drop(attrs, [:user_agent]), else: attrs
-    changeset = Asciicast.create_changeset(asciicast, attrs)
-    files = [{:stdout_data, data, false}, {:stdout_timing, timing, false}]
 
-    case do_create_asciicast(changeset, files) do
-      {:ok, %Asciicast{} = asciicast} ->
-        :ok = FramesGenerator.generate_frames(asciicast)
-        :ok = SnapshotUpdater.update_snapshot(asciicast)
-        {:ok, asciicast}
-      otherwise ->
-        otherwise
+    header = %{version: 2,
+               width: attrs[:terminal_columns],
+               height: attrs[:terminal_lines],
+               title: attrs[:title],
+               command: attrs[:command],
+               env: %{"SHELL" => attrs[:shell],
+                      "TERM" => attrs[:terminal_type]}}
+
+    header =
+      header
+      |> Enum.filter(fn {_k, v} -> v end)
+      |> Enum.into(%{})
+
+    overrides = if uname = attrs[:uname] do
+      overrides
+      |> Map.put(:uname, uname)
+      |> Map.drop([:user_agent])
+    else
+      Map.put(overrides, :uname, uname)
     end
+
+    {:ok, tmp_path} = Briefly.create()
+
+    File.open!(tmp_path, [:write, :utf8], fn f ->
+      :ok = IO.write(f, "#{Poison.encode!(header, pretty: false)}\n")
+
+      {timing.path, data.path}
+      |> stdout_stream
+      |> Enum.each(fn {t, s} ->
+        event = [t, "o", s]
+        :ok = IO.write(f, "#{Poison.encode!(event, pretty: false)}\n")
+      end)
+    end)
+
+    upload = %Plug.Upload{path: tmp_path,
+                          filename: "0.cast",
+                          content_type: "application/octet-stream"}
+
+    create_asciicast(user, upload, overrides)
   end
 
   defp extract_metadata(%{"version" => 0} = attrs) do
@@ -210,6 +232,7 @@ defmodule Asciinema.Asciicasts do
         asciicast
         |> Map.get("stdout")
         |> Enum.map(&List.to_tuple/1)
+        |> Stream.scan(&to_absolute_time/2)
     end
   end
   def stdout_stream({stdout_timing_path, stdout_data_path}) do
@@ -218,6 +241,7 @@ defmodule Asciinema.Asciicasts do
       &generate_stream_elem/1,
       &close_stream_files/1
     )
+    |> Stream.scan(&to_absolute_time/2)
   end
 
   defp open_stream_files(stdout_timing_path, stdout_data_path) do
@@ -274,10 +298,7 @@ defmodule Asciinema.Asciicasts do
   end
 
   def generate_snapshot(stdout_stream, width, height, secs) do
-    frames =
-      stdout_stream
-      |> Stream.scan(&to_absolute_time/2)
-      |> Stream.take_while(&frame_before_or_at?(&1, secs))
+    frames = Stream.take_while(stdout_stream, &frame_before_or_at?(&1, secs))
 
     {:ok, %{"lines" => lines}} = Vt.with_vt(width, height, fn vt ->
       Enum.each(frames, fn {_, text} -> Vt.feed(vt, text) end)

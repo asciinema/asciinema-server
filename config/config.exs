@@ -55,10 +55,7 @@ config :asciinema, Asciinema.PngGenerator.A2png,
   bin_path: System.get_env("A2PNG_BIN_PATH") || "./a2png/a2png.sh",
   pool_size: String.to_integer(System.get_env("A2PNG_POOL_SIZE") || "2")
 
-config :asciinema, :redis_url, System.get_env("REDIS_URL") || "redis://redis:6379"
-
 config :asciinema, :snapshot_updater, Asciinema.Asciicasts.SnapshotUpdater.Exq
-config :asciinema, :frames_generator, Asciinema.Asciicasts.FramesGenerator.Sidekiq
 
 config :exq,
   name: Exq,
