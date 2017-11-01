@@ -95,10 +95,11 @@ COPY vt/liner.js /app/vt/
 
 # copy compiled a2png
 
-COPY --from=0 /app/a2png/main.js /app/a2png/
-COPY --from=0 /app/a2png/page/page.js /app/a2png/page/
 COPY a2png/a2png.sh /app/a2png/
 COPY a2png/a2png.js /app/a2png/
+COPY a2png/page /app/a2png/page
+COPY --from=0 /app/a2png/main.js /app/a2png/
+COPY --from=0 /app/a2png/page/page.js /app/a2png/page/
 
 COPY a2png/package.json /app/a2png/
 RUN cd a2png && npm install
