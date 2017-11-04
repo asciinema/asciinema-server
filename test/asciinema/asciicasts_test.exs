@@ -207,6 +207,14 @@ defmodule Asciinema.AsciicastsTest do
               {3.734567, "baz qux"},
               {6.234567, "żółć jaźń"}] == Enum.take(stream, 3)
     end
+
+    test "with asciicast v2 file, with blank lines" do
+      stream = Asciicasts.stdout_stream("spec/fixtures/2/with-blank-lines.cast")
+      assert :ok == Stream.run(stream)
+      assert [{1.234567, "foo bar"},
+              {5.678987, "baz qux"},
+              {8.456789, "żółć jaźń"}] == Enum.to_list(stream)
+    end
   end
 
   describe "stdout_stream/2" do

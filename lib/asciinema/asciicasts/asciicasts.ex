@@ -215,6 +215,7 @@ defmodule Asciinema.Asciicasts do
         asciicast_file_path
         |> File.stream!([], :line)
         |> Stream.drop(1)
+        |> Stream.reject(fn line -> line == "\n" end)
         |> Stream.map(&Poison.decode!/1)
         |> Stream.filter(fn [_, type, _] -> type == "o" end)
         |> Stream.map(fn [t, _, s] -> {t, s} end)
