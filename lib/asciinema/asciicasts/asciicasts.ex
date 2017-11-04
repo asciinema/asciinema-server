@@ -134,7 +134,7 @@ defmodule Asciinema.Asciicasts do
                    terminal_lines: header["height"],
                    terminal_type: get_in(header, ["env", "TERM"]),
                    command: header["command"],
-                   duration: get_duration(path),
+                   duration: get_v2_duration(path),
                    recorded_at: header["timestamp"] && Timex.from_unix(header["timestamp"]),
                    title: header["title"],
                    theme_fg: get_in(header, ["theme", "fg"]),
@@ -151,13 +151,10 @@ defmodule Asciinema.Asciicasts do
     end
   end
 
-  defp get_duration(path) do
+  defp get_v2_duration(path) do
     path
-    |> File.stream!([], :line)
-    |> Stream.reject(fn line -> line == "\n" end)
-    |> Enum.reduce(fn line, _prev_line -> line end)
-    |> Poison.decode!
-    |> List.first
+    |> stdout_stream
+    |> Enum.reduce(fn {t, _}, _prev_t -> t end)
   end
 
   defp decode_json(json) do
@@ -211,8 +208,9 @@ defmodule Asciinema.Asciicasts do
       |> Enum.to_list
 
     case first_two_lines do
-      ["{" <> _ = header, "[" <> _] ->
-        2 = Poison.decode!(header)["version"]
+      ["{" <> _ = header_line, "[" <> _] ->
+        header = Poison.decode!(header_line)
+        2 = header["version"]
 
         asciicast_file_path
         |> File.stream!([], :line)
@@ -220,6 +218,9 @@ defmodule Asciinema.Asciicasts do
         |> Stream.map(&Poison.decode!/1)
         |> Stream.filter(fn [_, type, _] -> type == "o" end)
         |> Stream.map(fn [t, _, s] -> {t, s} end)
+        |> to_relative_time
+        |> cap_relative_time(header["idle_time_limit"])
+        |> to_absolute_time
 
       ["{" <> _, _] ->
         asciicast =
@@ -232,16 +233,17 @@ defmodule Asciinema.Asciicasts do
         asciicast
         |> Map.get("stdout")
         |> Enum.map(&List.to_tuple/1)
-        |> Stream.scan(&to_absolute_time/2)
+        |> to_absolute_time
     end
   end
   def stdout_stream({stdout_timing_path, stdout_data_path}) do
-    Stream.resource(
+    stream = Stream.resource(
       fn -> open_stream_files(stdout_timing_path, stdout_data_path) end,
       &generate_stream_elem/1,
       &close_stream_files/1
     )
-    |> Stream.scan(&to_absolute_time/2)
+
+    to_absolute_time(stream)
   end
 
   defp open_stream_files(stdout_timing_path, stdout_data_path) do
@@ -308,8 +310,28 @@ defmodule Asciinema.Asciicasts do
     lines
   end
 
+  defp to_absolute_time(stream) do
+    Stream.scan(stream, &to_absolute_time/2)
+  end
   defp to_absolute_time({curr_time, data}, {prev_time, _}) do
     {prev_time + curr_time, data}
+  end
+
+  defp to_relative_time(stream) do
+    Stream.transform(stream, 0, &to_relative_time/2)
+  end
+  defp to_relative_time({t, s}, prev_time) do
+    {[{t - prev_time, s}], t}
+  end
+
+  defp cap_relative_time({_, _} = frame, nil) do
+    frame
+  end
+  defp cap_relative_time({t, s}, time_limit) do
+    {min(t, time_limit), s}
+  end
+  defp cap_relative_time(stream, time_limit) do
+    Stream.map(stream, &cap_relative_time(&1, time_limit))
   end
 
   defp frame_before_or_at?({time, _}, secs) do

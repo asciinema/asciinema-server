@@ -162,7 +162,7 @@ defmodule Asciinema.AsciicastsTest do
       assert %Asciicast{version: 2,
                         terminal_columns: 96,
                         terminal_lines: 26,
-                        duration: 8.456789,
+                        duration: 6.234567,
                         file: "full.cast",
                         stdout_data: nil,
                         stdout_timing: nil,
@@ -195,9 +195,17 @@ defmodule Asciinema.AsciicastsTest do
     end
 
     test "with asciicast v2 file" do
-      stream = Asciicasts.stdout_stream("spec/fixtures/2/full.cast")
+      stream = Asciicasts.stdout_stream("spec/fixtures/2/minimal.cast")
       assert :ok == Stream.run(stream)
       assert [{1.234567, "foo bar"}, {5.678987, "baz qux"}] == Enum.take(stream, 2)
+    end
+
+    test "with asciicast v2 file, with idle_time_limit" do
+      stream = Asciicasts.stdout_stream("spec/fixtures/2/full.cast")
+      assert :ok == Stream.run(stream)
+      assert [{1.234567, "foo bar"},
+              {3.734567, "baz qux"},
+              {6.234567, "żółć jaźń"}] == Enum.take(stream, 3)
     end
   end
 
