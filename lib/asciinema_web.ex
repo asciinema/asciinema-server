@@ -52,7 +52,6 @@ defmodule AsciinemaWeb do
   def router do
     quote do
       use Phoenix.Router
-      use Plugsnag
     end
   end
 

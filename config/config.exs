@@ -25,8 +25,13 @@ config :logger, :console,
 config :phoenix, :template_engines,
   md: PhoenixMarkdown.Engine
 
-config :bugsnag, release_stage: Mix.env
-config :bugsnag, notify_release_stages: [:prod]
+config :sentry,
+  dsn: "https://public:secret@sentry.io/1",
+  environment_name: Mix.env,
+  enable_source_code_context: true,
+  root_source_code_path: File.cwd!,
+  included_environments: [:prod],
+  in_app_module_whitelist: [Asciinema]
 
 if System.get_env("S3_BUCKET") do
   config :asciinema, :file_store, Asciinema.FileStore.Cached
@@ -66,7 +71,9 @@ config :exq,
   queues: ["default", "emails", "rails"],
   scheduler_enable: true,
   max_retries: 25,
-  shutdown_timeout: 5000
+  shutdown_timeout: 5000,
+  middleware: [Exq.Middleware.Stats, Exq.Middleware.Job, Exq.Middleware.Manager,
+               Exq.Middleware.Logger, Asciinema.Exq.Middleware.Sentry]
 
 config :exq_ui,
   web_port: 4040,
