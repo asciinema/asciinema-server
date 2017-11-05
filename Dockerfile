@@ -42,8 +42,8 @@ RUN apt-get update && \
     apt-get update && \
     apt-get install -y \
       build-essential \
-      elixir=1.4.2-1 \
-      esl-erlang=1:19.3.6 \
+      elixir=1.5.2-1 \
+      esl-erlang=1:20.1 \
       git-core \
       libfontconfig1 \
       libpng16-16 \
