@@ -160,8 +160,8 @@ defmodule Asciinema.Asciicasts do
   defp decode_json(json) do
     case Poison.decode(json) do
       {:ok, thing} -> {:ok, thing}
-      {:error, :invalid} -> {:error, :invalid}
-      {:error, {:invalid, _}} -> {:error, :invalid}
+      {:error, :invalid, _} -> {:error, :invalid}
+      {:error, {:invalid, _, _}} -> {:error, :invalid}
     end
   end
 
