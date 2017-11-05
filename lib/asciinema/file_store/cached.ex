@@ -1,6 +1,5 @@
 defmodule Asciinema.FileStore.Cached do
   use Asciinema.FileStore
-  alias Plug.MIME
 
   def put_file(dst_path, src_local_path, content_type, compress \\ false) do
     with :ok <- remote_store().put_file(dst_path, src_local_path, content_type, compress),
@@ -20,7 +19,7 @@ defmodule Asciinema.FileStore.Cached do
       {:error, :enoent} ->
         with {:ok, tmp_path} <- Briefly.create(),
              :ok <- remote_store().download_file(path, tmp_path),
-             :ok <- cache_store().put_file(path, tmp_path, MIME.path(path)),
+             :ok <- cache_store().put_file(path, tmp_path, MIME.from_path(path)),
              :ok <- File.rm(tmp_path) do
           cache_store().open_file(path, function)
         end

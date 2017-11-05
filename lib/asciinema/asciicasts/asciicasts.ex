@@ -1,7 +1,7 @@
 defmodule Asciinema.Asciicasts do
   import Ecto.Query, warn: false
   alias Asciinema.{Repo, FileStore, StringUtils, Vt}
-  alias Asciinema.Asciicasts.{Asciicast, SnapshotUpdater, FramesGenerator}
+  alias Asciinema.Asciicasts.{Asciicast, SnapshotUpdater}
 
   def get_asciicast!(id) when is_integer(id) do
     Repo.get!(Asciicast, id)
@@ -23,54 +23,69 @@ defmodule Asciinema.Asciicasts do
 
   def create_asciicast(user, params, overrides \\ %{})
 
-  def create_asciicast(user, %Plug.Upload{path: path, filename: filename} = upload, overrides) do
+  def create_asciicast(user, %Plug.Upload{filename: filename} = upload, overrides) do
     asciicast = %Asciicast{user_id: user.id,
                            file: filename,
                            private: user.asciicasts_private_by_default}
 
     files = [{:file, upload, true}]
 
-    with {:ok, json} <- File.read(path),
-         {:ok, attrs} <- Poison.decode(json),
-         {:ok, attrs} <- extract_attrs(attrs),
+    with {:ok, attrs} <- extract_metadata(upload),
          attrs = Map.merge(attrs, overrides),
          changeset = Asciicast.create_changeset(asciicast, attrs),
          {:ok, %Asciicast{} = asciicast} <- do_create_asciicast(changeset, files) do
       :ok = SnapshotUpdater.update_snapshot(asciicast)
       {:ok, asciicast}
-    else
-      {:error, :invalid} ->
-        {:error, :parse_error}
-      otherwise ->
-        otherwise
     end
   end
 
   def create_asciicast(user, %{"meta" => meta,
                                "stdout" => %Plug.Upload{} = data,
                                "stdout_timing" => %Plug.Upload{} = timing}, overrides) do
-    asciicast = %Asciicast{user_id: user.id,
-                           stdout_data: data.filename,
-                           stdout_timing: timing.filename,
-                           private: user.asciicasts_private_by_default}
+    {:ok, attrs} = extract_metadata(meta)
 
-    {:ok, attrs} = extract_attrs(meta)
-    attrs = Map.merge(attrs, overrides)
-    attrs = if attrs[:uname], do: Map.drop(attrs, [:user_agent]), else: attrs
-    changeset = Asciicast.create_changeset(asciicast, attrs)
-    files = [{:stdout_data, data, false}, {:stdout_timing, timing, false}]
+    header = %{version: 2,
+               width: attrs[:terminal_columns],
+               height: attrs[:terminal_lines],
+               title: attrs[:title],
+               command: attrs[:command],
+               env: %{"SHELL" => attrs[:shell],
+                      "TERM" => attrs[:terminal_type]}}
 
-    case do_create_asciicast(changeset, files) do
-      {:ok, %Asciicast{} = asciicast} ->
-        :ok = FramesGenerator.generate_frames(asciicast)
-        :ok = SnapshotUpdater.update_snapshot(asciicast)
-        {:ok, asciicast}
-      otherwise ->
-        otherwise
+    header =
+      header
+      |> Enum.filter(fn {_k, v} -> v end)
+      |> Enum.into(%{})
+
+    overrides = if uname = attrs[:uname] do
+      overrides
+      |> Map.put(:uname, uname)
+      |> Map.drop([:user_agent])
+    else
+      Map.put(overrides, :uname, uname)
     end
+
+    {:ok, tmp_path} = Briefly.create()
+
+    File.open!(tmp_path, [:write, :utf8], fn f ->
+      :ok = IO.write(f, "#{Poison.encode!(header, pretty: false)}\n")
+
+      {timing.path, data.path}
+      |> stdout_stream
+      |> Enum.each(fn {t, s} ->
+        event = [t, "o", s]
+        :ok = IO.write(f, "#{Poison.encode!(event, pretty: false)}\n")
+      end)
+    end)
+
+    upload = %Plug.Upload{path: tmp_path,
+                          filename: "0.cast",
+                          content_type: "application/octet-stream"}
+
+    create_asciicast(user, upload, overrides)
   end
 
-  defp extract_attrs(%{"version" => 0} = attrs) do
+  defp extract_metadata(%{"version" => 0} = attrs) do
     attrs = %{version: 0,
               terminal_columns: get_in(attrs, ["term", "columns"]),
               terminal_lines: get_in(attrs, ["term", "lines"]),
@@ -83,20 +98,71 @@ defmodule Asciinema.Asciicasts do
 
     {:ok, attrs}
   end
-  defp extract_attrs(%{"version" => 1} = attrs) do
-    attrs = %{version: 1,
-              terminal_columns: attrs["width"],
-              terminal_lines: attrs["height"],
-              terminal_type: get_in(attrs, ["env", "TERM"]),
-              command: attrs["command"],
-              duration: attrs["duration"],
-              title: attrs["title"],
-              shell: get_in(attrs, ["env", "SHELL"])}
 
-    {:ok, attrs}
+  defp extract_metadata(%Plug.Upload{path: path}) do
+    case extract_v2_metadata(path) do
+      {:error, :unknown_format} -> extract_v1_metadata(path)
+      result -> result
+    end
   end
-  defp extract_attrs(_attrs) do
-    {:error, :unknown_format}
+
+  defp extract_v1_metadata(path) do
+    with {:ok, json} <- File.read(path),
+         {:ok, %{"version" => 1} = attrs} <- decode_json(json) do
+      metadata = %{version: 1,
+                   terminal_columns: attrs["width"],
+                   terminal_lines: attrs["height"],
+                   terminal_type: get_in(attrs, ["env", "TERM"]),
+                   command: attrs["command"],
+                   duration: attrs["duration"],
+                   title: attrs["title"],
+                   shell: get_in(attrs, ["env", "SHELL"])}
+      {:ok, metadata}
+    else
+      {:ok, %{"version" => version}} ->
+        {:error, {:unsupported_format, version}}
+      {:error, :invalid} ->
+        {:error, :unknown_format}
+    end
+  end
+
+  defp extract_v2_metadata(path) do
+    with {:ok, line} <- File.open(path, fn f -> IO.read(f, :line) end),
+         {:ok, %{"version" => 2} = header} <- decode_json(line) do
+      metadata = %{version: 2,
+                   terminal_columns: header["width"],
+                   terminal_lines: header["height"],
+                   terminal_type: get_in(header, ["env", "TERM"]),
+                   command: header["command"],
+                   duration: get_v2_duration(path),
+                   recorded_at: header["timestamp"] && Timex.from_unix(header["timestamp"]),
+                   title: header["title"],
+                   theme_fg: get_in(header, ["theme", "fg"]),
+                   theme_bg: get_in(header, ["theme", "bg"]),
+                   theme_palette: get_in(header, ["theme", "palette"]),
+                   idle_time_limit: header["idle_time_limit"],
+                   shell: get_in(header, ["env", "SHELL"])}
+      {:ok, metadata}
+    else
+      {:ok, %{"version" => version}} ->
+        {:error, {:unsupported_format, version}}
+      {:error, :invalid} ->
+        {:error, :unknown_format}
+    end
+  end
+
+  defp get_v2_duration(path) do
+    path
+    |> stdout_stream
+    |> Enum.reduce(fn {t, _}, _prev_t -> t end)
+  end
+
+  defp decode_json(json) do
+    case Poison.decode(json) do
+      {:ok, thing} -> {:ok, thing}
+      {:error, :invalid} -> {:error, :invalid}
+      {:error, {:invalid, _}} -> {:error, :invalid}
+    end
   end
 
   defp do_create_asciicast(changeset, files) do
@@ -128,30 +194,57 @@ defmodule Asciinema.Asciicasts do
     :ok = FileStore.download_file(store_data_path, local_data_path)
     stdout_stream({local_timing_path, local_data_path})
   end
-  def stdout_stream(%Asciicast{version: 1} = asciicast) do
+  def stdout_stream(%Asciicast{} = asciicast) do
     {:ok, local_path} = Briefly.create()
     store_path = Asciicast.file_store_path(asciicast, :file)
     :ok = FileStore.download_file(store_path, local_path)
     stdout_stream(local_path)
   end
   def stdout_stream(asciicast_file_path) when is_binary(asciicast_file_path) do
-    asciicast =
+    first_two_lines =
       asciicast_file_path
-      |> File.read!
-      |> Poison.decode!
+      |> File.stream!([], :line)
+      |> Stream.take(2)
+      |> Enum.to_list
 
-    1 = asciicast["version"]
+    case first_two_lines do
+      ["{" <> _ = header_line, "[" <> _] ->
+        header = Poison.decode!(header_line)
+        2 = header["version"]
 
-    asciicast
-    |> Map.get("stdout")
-    |> Enum.map(&List.to_tuple/1)
+        asciicast_file_path
+        |> File.stream!([], :line)
+        |> Stream.drop(1)
+        |> Stream.reject(fn line -> line == "\n" end)
+        |> Stream.map(&Poison.decode!/1)
+        |> Stream.filter(fn [_, type, _] -> type == "o" end)
+        |> Stream.map(fn [t, _, s] -> {t, s} end)
+        |> to_relative_time
+        |> cap_relative_time(header["idle_time_limit"])
+        |> to_absolute_time
+
+      ["{" <> _, _] ->
+        asciicast =
+          asciicast_file_path
+          |> File.read!
+          |> Poison.decode!
+
+        1 = asciicast["version"]
+
+        asciicast
+        |> Map.get("stdout")
+        |> Enum.map(&List.to_tuple/1)
+        |> to_absolute_time
+    end
   end
   def stdout_stream({stdout_timing_path, stdout_data_path}) do
-    Stream.resource(
+    stream = Stream.resource(
       fn -> open_stream_files(stdout_timing_path, stdout_data_path) end,
       &generate_stream_elem/1,
       &close_stream_files/1
     )
+
+    to_absolute_time(stream)
   end
 
   defp open_stream_files(stdout_timing_path, stdout_data_path) do
@@ -208,10 +301,7 @@ defmodule Asciinema.Asciicasts do
   end
 
   def generate_snapshot(stdout_stream, width, height, secs) do
-    frames =
-      stdout_stream
-      |> Stream.scan(&to_absolute_time/2)
-      |> Stream.take_while(&frame_before_or_at?(&1, secs))
+    frames = Stream.take_while(stdout_stream, &frame_before_or_at?(&1, secs))
 
     {:ok, %{"lines" => lines}} = Vt.with_vt(width, height, fn vt ->
       Enum.each(frames, fn {_, text} -> Vt.feed(vt, text) end)
@@ -221,8 +311,28 @@ defmodule Asciinema.Asciicasts do
     lines
   end
 
+  defp to_absolute_time(stream) do
+    Stream.scan(stream, &to_absolute_time/2)
+  end
   defp to_absolute_time({curr_time, data}, {prev_time, _}) do
     {prev_time + curr_time, data}
+  end
+
+  defp to_relative_time(stream) do
+    Stream.transform(stream, 0, &to_relative_time/2)
+  end
+  defp to_relative_time({t, s}, prev_time) do
+    {[{t - prev_time, s}], t}
+  end
+
+  defp cap_relative_time({_, _} = frame, nil) do
+    frame
+  end
+  defp cap_relative_time({t, s}, time_limit) do
+    {min(t, time_limit), s}
+  end
+  defp cap_relative_time(stream, time_limit) do
+    Stream.map(stream, &cap_relative_time(&1, time_limit))
   end
 
   defp frame_before_or_at?({time, _}, secs) do

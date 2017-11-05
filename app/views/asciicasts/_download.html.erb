@@ -7,29 +7,27 @@
       </div>
       <div class="modal-body">
         <p>
-          <% if page.can_replay_in_terminal? %>
-            You can download this recording in <a href="https://github.com/asciinema/asciinema/blob/master/doc/asciicast-v1.md">asciicast format</a>, as a .json file.
-          <% else %>
-            You can download this recording as a .json file.
+          <% if page.asciicast_version == 1 %>
+            You can download this recording in <a href="https://github.com/asciinema/asciinema/blob/master/doc/asciicast-v1.md">asciicast v1 format</a>, as a .json file.
+          <% elsif page.asciicast_version == 2 %>
+            You can download this recording in <a href="https://github.com/asciinema/asciinema/blob/develop/doc/asciicast-v2.md">asciicast v2 format</a>, as a .cast file.
           <% end %>
         </p>
 
-        <a href="<%= asciicast_url(format: :json, dl: true) %>" class="btn btn-primary" download="<%= page.asciicast_download_filename %>" rel="nofollow">Download</a>
+        <a href="<%= asciicast_url(format: :cast, dl: true) %>" class="btn btn-primary" download="<%= page.asciicast_download_filename %>" rel="nofollow">Download</a>
 
-        <% if page.can_replay_in_terminal? %>
-          <h2>Replay in terminal</h2>
-          <p>
-            You can replay this recording in your terminal with <code>asciinema play</code> command:
-          </p>
+        <h2>Replay in terminal</h2>
+        <p>
+          You can replay this recording in your terminal with <code>asciinema play</code> command:
+        </p>
 
-          <pre><code>asciinema play <%= page.asciicast_download_filename %></code></pre>
+        <pre><code>asciinema play <%= page.asciicast_download_filename %></code></pre>
 
-          <p>
-            If you don't have asciinema cli installed then <a href="https://asciinema.org/docs/installation">see installation instructions</a>.
-          </p>
+        <p>
+          If you don't have asciinema cli installed then <a href="https://asciinema.org/docs/installation">see installation instructions</a>.
+        </p>
 
-          <hr>
-        <% end %>
+        <hr>
 
         <h2>Use with stand-alone player on your website</h2>
 

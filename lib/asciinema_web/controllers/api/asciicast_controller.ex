@@ -12,8 +12,8 @@ defmodule AsciinemaWeb.Api.AsciicastController do
   end
   def create(conn, %{"asciicast" => %{"meta" => %{},
                                       "stdout" => %Plug.Upload{},
-                                      "stdout_timing" => %Plug.Upload{}} = asciicast_params}) do
-    do_create(conn, asciicast_params)
+                                      "stdout_timing" => %Plug.Upload{}} = params}) do
+    do_create(conn, params)
   end
 
   defp do_create(conn, params) do
@@ -27,14 +27,14 @@ defmodule AsciinemaWeb.Api.AsciicastController do
         |> put_status(:created)
         |> put_resp_header("location", url)
         |> text(url)
-      {:error, :parse_error} ->
+      {:error, :unknown_format} ->
         conn
         |> put_status(:bad_request)
         |> text("This doesn't look like a valid asciicast file")
-      {:error, :unknown_format} ->
+      {:error, {:unsupported_format, version}} ->
         conn
-        |> put_status(:unsupported_media_type)
-        |> text("Format not supported")
+        |> put_status(:unprocessable_entity)
+        |> text("asciicast v#{version} format is not supported by this server")
       {:error, %Ecto.Changeset{} = changeset} ->
         conn
         |> put_status(:unprocessable_entity)

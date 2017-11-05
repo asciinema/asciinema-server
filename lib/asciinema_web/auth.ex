@@ -16,6 +16,13 @@ defmodule AsciinemaWeb.Auth do
   def call(conn, _opts) do
     user_id = get_session(conn, @user_key)
     user = user_id && Repo.get(User, user_id)
+
+    if user do
+      Sentry.Context.set_user_context(%{id: user.id,
+                                        username: user.username,
+                                        email: user.email})
+    end
+
     assign(conn, :current_user, user)
   end
 

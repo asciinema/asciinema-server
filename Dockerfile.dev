@@ -1,26 +1,3 @@
-FROM clojure:alpine
-
-RUN mkdir /app
-WORKDIR /app
-
-# build vt
-
-COPY vt/project.clj /app/vt/
-RUN cd vt && lein deps
-
-COPY vt/src /app/vt/src
-COPY vt/resources /app/vt/resources
-RUN cd vt && lein cljsbuild once main
-
-# build a2png
-
-COPY a2png/project.clj /app/a2png/
-RUN cd a2png && lein deps
-
-COPY a2png/src /app/a2png/src
-COPY a2png/asciinema-player /app/a2png/asciinema-player
-RUN cd a2png && lein cljsbuild once main && lein cljsbuild once page
-
 FROM ubuntu:16.04
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -75,6 +52,20 @@ RUN wget --quiet -O /opt/phantomjs.tar.bz2 https://bitbucket.org/ariya/phantomjs
     rm /opt/phantomjs.tar.bz2 && \
     ln -sf /opt/phantomjs-$PHANTOMJS_VERSION-linux-x86_64/bin/phantomjs /usr/local/bin
 
+# install JDK
+
+RUN wget --quiet -O /opt/jdk-8u131-linux-x64.tar.gz --no-check-certificate --no-cookies --header 'Cookie: oraclelicense=accept-securebackup-cookie' http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-linux-x64.tar.gz && \
+    tar xzf /opt/jdk-8u131-linux-x64.tar.gz -C /opt && \
+    rm /opt/jdk-8u131-linux-x64.tar.gz && \
+    update-alternatives --install /usr/bin/java java /opt/jdk1.8.0_131/bin/java 1000
+
+# install leiningen
+
+RUN wget --quiet -O /usr/local/bin/lein https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein && \
+    chmod a+x /usr/local/bin/lein
+
+ARG LEIN_ROOT=yes
+
 # install asciinema
 
 ENV RAILS_ENV "production"
@@ -88,21 +79,24 @@ WORKDIR /app
 COPY Gemfile* /app/
 RUN bundle install --deployment --without development test --jobs 10 --retry 5
 
-# copy compiled vt
+# build a2png
 
-COPY --from=0 /app/vt/main.js /app/vt/
-COPY vt/liner.js /app/vt/
-
-# copy compiled a2png
-
-COPY a2png/a2png.sh /app/a2png/
-COPY a2png/a2png.js /app/a2png/
-COPY a2png/page /app/a2png/page
-COPY --from=0 /app/a2png/main.js /app/a2png/
-COPY --from=0 /app/a2png/page/page.js /app/a2png/page/
+COPY a2png/project.clj /app/a2png/
+RUN cd a2png && lein deps
 
 COPY a2png/package.json /app/a2png/
 RUN cd a2png && npm install
+
+COPY a2png /app/a2png
+RUN cd a2png && lein cljsbuild once main && lein cljsbuild once page
+
+# build vt
+
+COPY vt/project.clj /app/vt/
+RUN cd vt && lein deps
+
+COPY vt /app/vt
+RUN cd vt && lein cljsbuild once main
 
 # service URLs
 

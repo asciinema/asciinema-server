@@ -69,5 +69,11 @@ config :asciinema, Asciinema.Mailer,
   server: "smtp",
   port: 25
 
+if dsn = System.get_env("SENTRY_DSN") do
+  config :sentry, dsn: dsn
+else
+  config :sentry, included_environments: []
+end
+
 # Import custom config.
 import_config "custom*.exs"

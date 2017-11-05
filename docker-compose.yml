@@ -19,22 +19,6 @@ services:
     ### See https://hub.docker.com/_/redis/ for more
     ### configuration options for this image.
 
-  sidekiq:
-    build: .
-    image: asciinema/asciinema-server:latest
-    container_name: asciinema_worker
-    restart: unless-stopped
-    links:
-      - redis
-      - postgres
-      - smtp
-    env_file: .env.production
-    command: "bundle exec sidekiq"
-    volumes:
-      - ./uploads:/app/uploads
-      - ./log:/app/log
-      - /tmp/asciinema-web:/tmp
-
   smtp:
     image: namshi/smtp
     container_name: asciinema_smtp
@@ -52,8 +36,6 @@ services:
       - redis
       - postgres
       - smtp
-    depends_on:
-      - sidekiq
     env_file: .env.production
     ports:
       - "3000:80"

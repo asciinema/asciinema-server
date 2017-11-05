@@ -17,8 +17,10 @@ services:
     container_name: asciinema_dev_redis
 
   web:
-    build: .
-    image: asciinema/asciinema.org
+    build:
+      context: ..
+      dockerfile: Dockerfile.dev
+    image: asciinema/asciinema-server:develop
     container_name: asciinema_dev_web
     entrypoint: env -u MIX_ENV -u RAILS_ENV
     command: /bin/bash

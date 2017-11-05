@@ -25,8 +25,13 @@ config :logger, :console,
 config :phoenix, :template_engines,
   md: PhoenixMarkdown.Engine
 
-config :bugsnag, release_stage: Mix.env
-config :bugsnag, notify_release_stages: [:prod]
+config :sentry,
+  dsn: "https://public:secret@sentry.io/1",
+  environment_name: Mix.env,
+  enable_source_code_context: true,
+  root_source_code_path: File.cwd!,
+  included_environments: [:prod],
+  in_app_module_whitelist: [Asciinema]
 
 if System.get_env("S3_BUCKET") do
   config :asciinema, :file_store, Asciinema.FileStore.Cached
@@ -55,10 +60,7 @@ config :asciinema, Asciinema.PngGenerator.A2png,
   bin_path: System.get_env("A2PNG_BIN_PATH") || "./a2png/a2png.sh",
   pool_size: String.to_integer(System.get_env("A2PNG_POOL_SIZE") || "2")
 
-config :asciinema, :redis_url, System.get_env("REDIS_URL") || "redis://redis:6379"
-
 config :asciinema, :snapshot_updater, Asciinema.Asciicasts.SnapshotUpdater.Exq
-config :asciinema, :frames_generator, Asciinema.Asciicasts.FramesGenerator.Sidekiq
 
 config :exq,
   name: Exq,
@@ -66,10 +68,12 @@ config :exq,
   url: System.get_env("REDIS_URL") || "redis://redis:6379",
   namespace: "exq",
   concurrency: 10,
-  queues: ["default", "emails"],
+  queues: ["default", "emails", "rails"],
   scheduler_enable: true,
   max_retries: 25,
-  shutdown_timeout: 5000
+  shutdown_timeout: 5000,
+  middleware: [Exq.Middleware.Stats, Exq.Middleware.Job, Exq.Middleware.Manager,
+               Exq.Middleware.Logger, Asciinema.Exq.Middleware.Sentry]
 
 config :exq_ui,
   web_port: 4040,
