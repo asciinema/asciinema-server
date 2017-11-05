@@ -23,6 +23,11 @@ RUN cd a2png && lein cljsbuild once main && lein cljsbuild once page
 
 FROM ubuntu:16.04
 
+COPY script/install_pngquant.sh /tmp/
+RUN bash /tmp/install_pngquant.sh
+
+FROM ubuntu:16.04
+
 ARG DEBIAN_FRONTEND=noninteractive
 ARG NODE_VERSION=node_6.x
 ARG DISTRO=xenial
@@ -41,6 +46,7 @@ RUN apt-get update && \
       esl-erlang=1:19.3.6 \
       git-core \
       libfontconfig1 \
+      libpng16-16 \
       libpq-dev \
       libxml2-dev \
       libxslt1-dev \
@@ -55,6 +61,7 @@ RUN apt-get update && \
 # Packages required for:
 #   libfontconfig1 for PhantomJS
 #   ttf-bitstream-vera for a2png
+#   libpng16-16 for pngquant
 
 # install Bundler and SASS
 
@@ -177,7 +184,9 @@ COPY docker/supervisor/asciinema.conf /etc/supervisor/conf.d/asciinema.conf
 COPY docker/bin /app/docker/bin
 ENV PATH "/app/docker/bin:${PATH}"
 
+# a2png
 ENV A2PNG_BIN_PATH "/app/a2png/a2png.sh"
+COPY --from=1 /usr/local/bin/pngquant /usr/local/bin/
 
 VOLUME ["/app/log", "/app/uploads", "/cache"]
 
