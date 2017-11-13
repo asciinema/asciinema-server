@@ -7,6 +7,7 @@ defmodule AsciinemaWeb.AsciicastController do
 
     conn
     |> put_layout("iframe.html")
+    |> delete_resp_header("x-frame-options")
     |> render("iframe.html", file_url: asciicast_file_download_url(conn, asciicast))
   end
 end
