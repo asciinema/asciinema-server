@@ -130,6 +130,7 @@ COPY public /app/public
 COPY vendor /app/vendor
 COPY config.ru /app/
 COPY Rakefile /app/
+COPY script/rails /app/script/rails
 COPY app /app/app
 
 # compile assets with assets pipeline
