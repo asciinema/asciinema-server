@@ -22,7 +22,6 @@ gem 'slim',                 '~> 2.0.0'
 gem 'dotenv-rails',         '~> 0.8'
 gem 'sinatra',              '~> 1.4.3', :require => false
 gem 'active_model_serializers', '~> 0.8.1'
-gem 'yajl-ruby',            '~> 1.1.0', :require => 'yajl'
 gem 'virtus',               '~> 1.0.1'
 gem 'rails_warden',         '~> 0.5.8'
 gem 'pundit',               '~> 0.3.0'
