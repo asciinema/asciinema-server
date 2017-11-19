@@ -162,6 +162,7 @@ COPY lib/asciinema_web /app/lib/asciinema_web
 COPY priv/gettext /app/priv/gettext
 COPY priv/repo /app/priv/repo
 COPY priv/welcome.json /app/priv/welcome.json
+COPY .iex.exs /app/.iex.exs
 
 # compile Elixir app
 
