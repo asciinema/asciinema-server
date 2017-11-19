@@ -1,7 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rails',                '4.1.14.2'
-gem 'actionpack',           '4.1.14.2'
+gem 'rails',                '4.1.13'
 
 gem 'sass-rails'
 gem 'uglifier'
