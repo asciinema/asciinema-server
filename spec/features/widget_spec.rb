@@ -16,7 +16,7 @@ class TestWidgetController < ActionController::Base
       <html>
         <head></head>
         <body>
-          <script type="text/javascript" src="#{src}" id="#{id}" async></script>
+          <script src="#{src}" id="#{id}" async></script>
         </body>
       </html>
 EOS

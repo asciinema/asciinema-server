@@ -56,13 +56,13 @@ link on asciicast page.
 
 It looks like this:
 
-    <script type="text/javascript" src="https://asciinema.org/a/14.js" id="asciicast-14" async></script>
+    <script src="https://asciinema.org/a/14.js" id="asciicast-14" async></script>
 
 The player shows up right at the place where the script is pasted. Let's look
 at the following markup:
 
     <p>This is some text.</p>
-    <script type="text/javascript" src="https://asciinema.org/a/14.js" id="asciicast-14" async></script>
+    <scriptsrc="https://asciinema.org/a/14.js" id="asciicast-14" async></script>
     <p>This is some other text.</p>
 
 The player is displayed between the two paragraphs, as a `div` element with
@@ -76,7 +76,7 @@ tag.
 For example, to make the embedded player auto start playback when loaded and use
 big font, use the following script:
 
-    <script type="text/javascript" src="https://asciinema.org/a/14.js" id="asciicast-14" async data-autoplay="true" data-size="big"></script>
+    <script src="https://asciinema.org/a/14.js" id="asciicast-14" async data-autoplay="true" data-size="big"></script>
 
 ## Customizing the playback
 
