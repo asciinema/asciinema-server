@@ -80,8 +80,12 @@ defmodule Asciinema.Accounts do
     {:ok, url}
   end
 
+  def signup_token(email) do
+    Phoenix.Token.sign(AsciinemaWeb.Endpoint, "signup", email)
+  end
+
   def signup_url(email) do
-    token = Phoenix.Token.sign(AsciinemaWeb.Endpoint, "signup", email)
+    token = signup_token(email)
     AsciinemaWeb.Router.Helpers.users_url(AsciinemaWeb.Endpoint, :new, t: token)
   end
 
