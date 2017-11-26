@@ -127,7 +127,7 @@ defmodule Asciinema.Asciicasts do
   end
 
   defp extract_v2_metadata(path) do
-    with {:ok, line} <- File.open(path, fn f -> IO.read(f, :line) end),
+    with {:ok, line} when is_binary(line) <- File.open(path, fn f -> IO.read(f, :line) end),
          {:ok, %{"version" => 2} = header} <- decode_json(line) do
       metadata = %{version: 2,
                    terminal_columns: header["width"],
@@ -144,6 +144,8 @@ defmodule Asciinema.Asciicasts do
                    shell: get_in(header, ["env", "SHELL"])}
       {:ok, metadata}
     else
+      {:ok, :eof} ->
+        {:error, :unknown_format}
       {:ok, %{"version" => version}} ->
         {:error, {:unsupported_format, version}}
       {:error, :invalid} ->
