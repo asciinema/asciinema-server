@@ -1,4 +1,4 @@
-defmodule Asciinema.SessionControllerTest do
+defmodule Asciinema.ApiTokenControllerTest do
   use AsciinemaWeb.ConnCase
   alias Asciinema.Accounts
   alias Asciinema.Accounts.{User, ApiToken}
@@ -101,5 +101,4 @@ defmodule Asciinema.SessionControllerTest do
   defp login_as(conn, user) do
     assign(conn, :current_user, user)
   end
-
 end
