@@ -49,10 +49,4 @@ defmodule Asciinema.SessionControllerTest do
     assert redirected_to(conn, 302) == "/login/new"
     assert get_flash(conn, :error) =~ ~r/removed/i
   end
-
-  defp get_rails_flash(conn, key) do
-    conn
-    |> get_session(:flash)
-    |> get_in([:flashes, key])
-  end
 end

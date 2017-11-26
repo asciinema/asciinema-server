@@ -92,12 +92,6 @@ defmodule Asciinema.ApiTokenControllerTest do
     assert get_rails_flash(conn, :alert)
   end
 
-  defp get_rails_flash(conn, key) do
-    conn
-    |> get_session(:flash)
-    |> get_in([:flashes, key])
-  end
-
   defp login_as(conn, user) do
     assign(conn, :current_user, user)
   end
