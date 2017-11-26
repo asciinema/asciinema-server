@@ -89,9 +89,13 @@ defmodule Asciinema.Accounts do
     AsciinemaWeb.Router.Helpers.users_url(AsciinemaWeb.Endpoint, :new, t: token)
   end
 
-  def login_url(%User{id: id, last_login_at: last_login_at}) do
+  def login_token(%User{id: id, last_login_at: last_login_at}) do
     last_login_at = last_login_at && Timex.to_unix(last_login_at)
-    token = Phoenix.Token.sign(AsciinemaWeb.Endpoint, "login", {id, last_login_at})
+    Phoenix.Token.sign(AsciinemaWeb.Endpoint, "login", {id, last_login_at})
+  end
+
+  def login_url(%User{} = user) do
+    token = login_token(user)
     AsciinemaWeb.Router.Helpers.session_url(AsciinemaWeb.Endpoint, :new, t: token)
   end
 
