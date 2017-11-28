@@ -6,7 +6,7 @@ defmodule Asciinema.ErrorViewTest do
 
   test "renders 404.html" do
     assert render_to_string(AsciinemaWeb.ErrorView, "404.html", []) =~
-           "not found"
+           "Not Found"
   end
 
   test "render 500.html" do
