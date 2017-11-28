@@ -1,6 +1,7 @@
 defmodule AsciinemaWeb.Router do
   use AsciinemaWeb, :router
   use Plug.ErrorHandler
+  defp handle_errors(_conn, %{reason: %Ecto.NoResultsError{}}), do: nil
   use Sentry.Plug
 
   pipeline :browser do
