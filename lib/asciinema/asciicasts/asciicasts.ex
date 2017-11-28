@@ -14,7 +14,7 @@ defmodule Asciinema.Asciicasts do
         {id, ""} ->
           from a in Asciicast, where: a.private == false and a.id == ^id
         _ ->
-          from a in Asciicast, where: a.id == -1 # TODO fixme
+          from a in Asciicast, where: false
       end
     end
 
