@@ -40,11 +40,11 @@ defmodule AsciinemaWeb.SessionController do
   end
 
   defp redirect_to_profile(conn) do
-    path = case conn.assigns.current_user do
-             %User{username: nil} -> "/username/new"
-             %User{} = user -> profile_path(user)
-           end
-
-    redirect(conn, to: path)
+    case conn.assigns.current_user do
+      %User{username: nil} ->
+        redirect(conn, to: "/username/new")
+      %User{} = user ->
+        redirect_back_or(conn, to: profile_path(user))
+    end
   end
 end

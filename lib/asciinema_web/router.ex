@@ -74,7 +74,7 @@ defmodule AsciinemaWeb.Router do
     resources "/users", UserController, as: :users, only: [:new, :create]
 
     resources "/session", SessionController, only: [:new, :create], singleton: true
-    get "/connect/:api_token", ApiTokenController, :create, as: :connect
+    get "/connect/:api_token", ApiTokenController, :show, as: :connect
   end
 
   scope "/api", AsciinemaWeb.Api, as: :api do

@@ -14,8 +14,8 @@ defmodule Asciinema.Accounts.ApiToken do
 
   @uuid4 ~r/\A[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}\z/
 
-  def create_changeset(%User{id: user_id}, token) do
-    %ApiToken{user_id: user_id}
+  def create_changeset(%ApiToken{} = api_token, token) do
+    api_token
     |> change(%{token: token})
     |> validate_format(:token, @uuid4)
   end
