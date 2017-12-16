@@ -1,5 +1,8 @@
 defmodule AsciinemaWeb.Auth do
   import Plug.Conn
+  import Phoenix.Controller, only: [put_flash: 3, redirect: 2]
+  import AsciinemaWeb.Plug.ReturnTo
+  alias Plug.Conn
   alias Asciinema.Accounts.User
   alias Asciinema.Repo
 
@@ -10,7 +13,7 @@ defmodule AsciinemaWeb.Auth do
     opts
   end
 
-  def call(%Plug.Conn{assigns: %{current_user: %User{}}} = conn, _opts) do
+  def call(%Conn{assigns: %{current_user: %User{}}} = conn, _opts) do
     conn
   end
   def call(conn, _opts) do
@@ -24,6 +27,19 @@ defmodule AsciinemaWeb.Auth do
     end
 
     assign(conn, :current_user, user)
+  end
+
+  def require_current_user(%Conn{assigns: %{current_user: %User{}}} = conn, _) do
+    conn
+  end
+  def require_current_user(conn, opts) do
+    msg = Keyword.get(opts, :flash, "Please log in first.")
+
+    conn
+    |> save_return_path
+    |> put_flash(:info, msg)
+    |> redirect(to: "/login/new")
+    |> halt
   end
 
   def log_in(conn, %User{} = user) do
