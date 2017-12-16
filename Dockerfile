@@ -194,6 +194,8 @@ VOLUME ["/app/log", "/app/uploads", "/cache"]
 
 CMD ["/usr/bin/supervisord"]
 
+ENV PORT 4000
+
 EXPOSE 80
 EXPOSE 3000
 EXPOSE 4000
