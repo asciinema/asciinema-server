@@ -1,6 +1,5 @@
 defmodule AsciinemaWeb.SessionController do
   use AsciinemaWeb, :controller
-  import AsciinemaWeb.UserView, only: [profile_path: 1]
   alias Asciinema.Accounts
   alias AsciinemaWeb.Auth
   alias Asciinema.Accounts.User

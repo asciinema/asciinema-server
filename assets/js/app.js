@@ -20,6 +20,8 @@
 
 // import socket from "./socket"
 
+import "phoenix_html";
+
 $(function() {
   $('input[data-behavior=focus]:first').focus().select();
 });

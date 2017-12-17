@@ -14,6 +14,12 @@ defmodule AsciinemaWeb.ErrorHelpers do
     end
   end
 
+  def error_class(form, field) do
+    if form.errors[field] do
+      "has-error"
+    end
+  end
+
   @doc """
   Translates an error message using gettext.
   """

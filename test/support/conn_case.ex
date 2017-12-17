@@ -37,6 +37,10 @@ defmodule AsciinemaWeb.ConnCase do
         |> get_session(:flash)
         |> get_in([:flashes, key])
       end
+
+      def log_in(conn, user) do
+        assign(conn, :current_user, user)
+      end
     end
   end
 

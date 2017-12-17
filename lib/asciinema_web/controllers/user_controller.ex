@@ -3,6 +3,8 @@ defmodule AsciinemaWeb.UserController do
   alias Asciinema.Accounts
   alias AsciinemaWeb.Auth
 
+  plug :require_current_user when action in [:edit, :update]
+
   def new(conn, %{"t" => signup_token}) do
     conn
     |> put_session(:signup_token, signup_token)
@@ -35,5 +37,32 @@ defmodule AsciinemaWeb.UserController do
         |> put_flash(:error, "You already signed up with this email.")
         |> redirect(to: login_path(conn, :new))
     end
+  end
+
+  def edit(conn, _params) do
+    user = conn.assigns.current_user
+    changeset = Accounts.change_user(user)
+    render_edit_form(conn, user, changeset)
+  end
+
+  def update(conn, %{"user" => user_params}) do
+    user = conn.assigns.current_user
+
+    case Accounts.update_user(user, user_params) do
+      {:ok, user} ->
+        conn
+        |> put_rails_flash(:info, "Account settings saved.")
+        |> redirect(to: profile_path(conn, user))
+      {:error, %Ecto.Changeset{} = changeset} ->
+        render_edit_form(conn, user, changeset)
+    end
+  end
+
+  defp render_edit_form(conn, user, changeset) do
+    api_tokens = Accounts.list_api_tokens(user)
+
+    render(conn, "edit.html",
+      changeset: changeset,
+      api_tokens: api_tokens)
   end
 end

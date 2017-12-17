@@ -6,7 +6,8 @@ exports.config = {
         "js/app.js": [
           "vendor/js/jquery-2.2.4.min.js",
           "vendor/js/bootstrap.js",
-          "js/app.js"
+          "js/app.js",
+          /^node_modules\/phoenix_html/
         ],
         "js/iframe.js": [
           "vendor/js/es5-shim.min.js",
