@@ -71,6 +71,7 @@ defmodule AsciinemaWeb.Router do
     resources "/login", LoginController, only: [:new, :create], singleton: true
     get "/login/sent", LoginController, :sent, as: :login
 
+    resources "/user", UserController, as: :user, only: [:edit, :update], singleton: true
     resources "/users", UserController, as: :users, only: [:new, :create]
 
     resources "/session", SessionController, only: [:new, :create], singleton: true
@@ -90,8 +91,18 @@ end
 defmodule AsciinemaWeb.Router.Helpers.Extra do
   alias AsciinemaWeb.Router.Helpers, as: H
 
-  def user_path(_conn, :edit) do
-    "/user/edit"
+  def profile_path(_conn, user) do
+    profile_path(user)
+  end
+  def profile_path(%Plug.Conn{} = conn) do
+    profile_path(conn.assigns.current_user)
+  end
+  def profile_path(%{id: id, username: username}) do
+    if username do
+      "/~#{username}"
+    else
+      "/u/#{id}"
+    end
   end
 
   def asciicast_file_download_path(conn, asciicast) do

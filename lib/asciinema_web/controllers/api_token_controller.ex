@@ -1,6 +1,5 @@
 defmodule AsciinemaWeb.ApiTokenController do
   use AsciinemaWeb, :controller
-  import AsciinemaWeb.UserView, only: [profile_path: 1]
   alias Asciinema.Accounts
   alias Asciinema.Accounts.User
 

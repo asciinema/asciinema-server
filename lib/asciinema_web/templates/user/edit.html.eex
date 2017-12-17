@@ -1,0 +1,95 @@
+<div class="container edit-page">
+  <div class="row">
+    <div class="col-md-9">
+      <%= form_for @changeset, user_path(@conn, :update), [class: "simple_form form-horizontal", novalidate: "novalidate", role: "form"], fn f -> %>
+        <legend>Account settings</legend>
+
+        <div class="form-group string optional user_username <%= error_class(f, :username) %>">
+          <%= label f, :username, class: "string optional control-label col-sm-3 col-md-3 col-lg-2 control-label" %>
+          <div class="col-sm-9 col-md-9 col-lg-10">
+            <%= text_input f, :username, class: "string optional form-control" %>
+            <%= error_tag f, :username %>
+          </div>
+        </div>
+
+        <div class="form-group email required user_email <%= error_class(f, :email) %>">
+          <%= label f, :email, class: "email required control-label col-sm-3 col-md-3 col-lg-2 control-label" %>
+          <div class="col-sm-9 col-md-9 col-lg-10">
+            <%= email_input f, :email, class: "string email required form-control" %>
+            <%= error_tag f, :email %>
+          </div>
+        </div>
+
+        <div class="form-group string optional user_name <%= error_class(f, :name) %>">
+          <%= label f, :name, "Full name", class: "string optional control-label col-sm-3 col-md-3 col-lg-2 control-label" %>
+          <div class="col-sm-9 col-md-9 col-lg-10">
+            <%= text_input f, :name, class: "string optional form-control" %>
+            <%= error_tag f, :name %>
+          </div>
+        </div>
+
+        <div class="form-group select optional user_theme_name">
+          <%= label f, :theme_name, "Terminal theme", class: "select optional control-label col-sm-3 col-md-3 col-lg-2 control-label" %>
+          <div class="col-sm-9 col-md-9 col-lg-10">
+            <%= select f, :theme_name, theme_options(), class: "select optional form-control", prompt: "Default (asciinema)" %>
+            <p class="help-block">Applies to all your asciicasts unless custom theme chosen for a specific asciicast</p>
+          </div>
+        </div>
+
+        <div class="form-group radio_buttons optional user_asciicasts_private_by_default">
+          <%= label f, :asciicasts_private_by_default, "Asciicast visibility", class: "radio_buttons optional control-label col-sm-3 col-md-3 col-lg-2 control-label" %>
+          <div class="col-sm-9 col-md-9 col-lg-10">
+            <label class="radio">
+              <%= radio_button f, :asciicasts_private_by_default, false, class: "radio_buttons optional" %>public
+            </label>
+            <label class="radio">
+              <%= radio_button f, :asciicasts_private_by_default, true, class: "radio_buttons optional" %>private
+            </label>
+            <p class="help-block">Applies to all *new* asciicasts</p>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="col-sm-offset-3 col-sm-9 col-md-offset-3 col-md-9 col-lg-offset-2 col-lg-10">
+            <%= submit "Save", class: "btn btn-primary" %>
+            <%= link "Cancel", to: profile_path(@conn), class: "btn" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12">
+      <legend>Recorder tokens</legend>
+
+      <%= if present?(@api_tokens) do %>
+        <p>
+          The following recorder tokens have been associated with your account:
+        </p>
+
+        <ul>
+          <%= for t <- active_tokens(@api_tokens) do %>
+            <li><code><%= t.token %></code> registered <%= time_ago_tag(t.created_at) %> - <%= link "Revoke", to: "/api_tokens/#{t.id}", method: "delete" %></li>
+          <% end %>
+        </ul>
+
+        <ul>
+          <%= for t <- revoked_tokens(@api_tokens) do %>
+            <li class="revoked-token"><code><%= t.token %></code> registered <%= time_ago_tag(t.created_at) %>, revoked <%= time_ago_tag(t.revoked_at) %>
+          <% end %>
+        </ul>
+      <% else %>
+        <p>
+          If you want your recordings to be assigned to your profile
+          you have to register your local recorder token.
+        </p>
+
+        <p>
+          There is currently no recorder token associated with your account.
+          Run <code>asciinema auth</code> in your terminal to register one.
+        </p>
+      <% end %>
+    </div>
+  </div>
+</div>

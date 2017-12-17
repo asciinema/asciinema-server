@@ -1,6 +1,6 @@
 defmodule AsciinemaWeb.LayoutView do
   use AsciinemaWeb, :view
-  import AsciinemaWeb.UserView, only: [avatar_url: 1, profile_path: 1]
+  import AsciinemaWeb.UserView, only: [avatar_url: 1]
 
   def page_title(conn) do
     case conn.assigns[:page_title] do
