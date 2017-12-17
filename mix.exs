@@ -53,11 +53,12 @@ defmodule Asciinema.Mixfile do
   defp deps do
     [
       {:bamboo, "~> 0.8"},
-      {:bamboo_smtp, "~> 1.4.0"},
+      {:bamboo_smtp, "~> 1.4"},
       {:briefly, "~> 0.3"},
       {:cowboy, "~> 1.0"},
       {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
       {:ex_aws, "~> 1.0"},
+      {:ex_machina, "~> 2.1", only: :test},
       {:exq, "~> 0.9.0"},
       {:exq_ui, "~> 0.9.0"},
       {:gettext, "~> 0.11"},
@@ -68,7 +69,7 @@ defmodule Asciinema.Mixfile do
       {:phoenix_markdown, "~> 0.1"},
       {:phoenix_pubsub, "~> 1.0"},
       {:plug_rails_cookie_session_store, "~> 0.1"},
-      {:poison, "~> 2.2"},
+      {:poison, "~> 3.1"},
       {:poolboy, "~> 1.5"},
       {:porcelain, "~> 2.0"},
       {:postgrex, ">= 0.0.0"},

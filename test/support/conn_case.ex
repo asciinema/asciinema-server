@@ -31,6 +31,12 @@ defmodule AsciinemaWeb.ConnCase do
 
       # The default endpoint for testing
       @endpoint AsciinemaWeb.Endpoint
+
+      defp get_rails_flash(conn, key) do
+        conn
+        |> get_session(:flash)
+        |> get_in([:flashes, key])
+      end
     end
   end
 

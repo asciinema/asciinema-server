@@ -91,7 +91,7 @@ mix phx.gen.secret` to obtain one.
 
 The app uses linked `namshi/smtp` container, which by default runs in "SMTP
 Server" mode. Set `MAILNAME` to the outgoing mail hostname, for example, use the
-same hostname as in `BASE_URL`.
+same hostname as in `URL_HOST`.
 
 You can configure it to act as GMail relay, Amazon SES relay or generic SMTP
 relay. See
@@ -144,7 +144,7 @@ Check the status of newly created containers:
 
 You should see `asciinema_web`, `asciinema_postgres` and a few others listed.
 
-Point your browser to `BASE_URL` and enjoy your own asciinema hosting site!
+Point your browser to `URL_HOST:URL_PORT` and enjoy your own asciinema hosting site!
 
 ## Using asciinema recorder with your instance
 

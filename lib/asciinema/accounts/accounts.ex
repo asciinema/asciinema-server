@@ -1,6 +1,6 @@
 defmodule Asciinema.Accounts do
   import Ecto.Query, warn: false
-  import Ecto, only: [assoc: 2]
+  import Ecto, only: [assoc: 2, build_assoc: 2]
   alias Asciinema.Accounts.{User, ApiToken}
   alias Asciinema.{Repo, Asciicasts, Email, Mailer}
 
@@ -80,14 +80,22 @@ defmodule Asciinema.Accounts do
     {:ok, url}
   end
 
+  def signup_token(email) do
+    Phoenix.Token.sign(AsciinemaWeb.Endpoint, "signup", email)
+  end
+
   def signup_url(email) do
-    token = Phoenix.Token.sign(AsciinemaWeb.Endpoint, "signup", email)
+    token = signup_token(email)
     AsciinemaWeb.Router.Helpers.users_url(AsciinemaWeb.Endpoint, :new, t: token)
   end
 
-  def login_url(%User{id: id, last_login_at: last_login_at}) do
+  def login_token(%User{id: id, last_login_at: last_login_at}) do
     last_login_at = last_login_at && Timex.to_unix(last_login_at)
-    token = Phoenix.Token.sign(AsciinemaWeb.Endpoint, "login", {id, last_login_at})
+    Phoenix.Token.sign(AsciinemaWeb.Endpoint, "login", {id, last_login_at})
+  end
+
+  def login_url(%User{} = user) do
+    token = login_token(user)
     AsciinemaWeb.Router.Helpers.session_url(AsciinemaWeb.Endpoint, :new, t: token)
   end
 
@@ -125,53 +133,72 @@ defmodule Asciinema.Accounts do
     end
   end
 
-  def authenticate(api_token) do
-    q = from u in User,
-      join: at in ApiToken,
-      on: at.user_id == u.id,
-      select: {u, at.revoked_at},
-      where: at.token == ^api_token
-
-    case Repo.one(q) do
-      nil ->
-        {:error, :token_not_found}
-      {%User{} = user, nil} ->
+  def get_user_with_api_token(token, tmp_username \\ nil) do
+    case get_api_token(token) do
+      {:ok, %ApiToken{user: user}} ->
         {:ok, user}
-      {%User{}, _} ->
-        {:error, :token_revoked}
-    end
-  end
-
-  def get_user_with_api_token(api_token, tmp_username \\ nil) do
-    case authenticate(api_token) do
-      {:ok, %User{}} = res ->
-        res
       {:error, :token_revoked} = res ->
         res
       {:error, :token_not_found} ->
-        create_user_with_api_token(api_token, tmp_username)
+        create_user_with_api_token(token, tmp_username)
     end
   end
 
-  def create_user_with_api_token(api_token, tmp_username) do
+  def create_user_with_api_token(token, tmp_username) do
     user_changeset = User.temporary_changeset(tmp_username)
 
-    {_, result} = Repo.transaction(fn ->
+    Repo.transaction(fn ->
       with {:ok, %User{} = user} <- Repo.insert(user_changeset),
-           api_token_changeset = ApiToken.create_changeset(user, api_token),
-           {:ok, %ApiToken{}} <- Repo.insert(api_token_changeset) do
-        {:ok, user}
+           {:ok, %ApiToken{}} <- create_api_token(user, token) do
+        user
       else
         {:error, %Ecto.Changeset{}} ->
-          {:error, :token_invalid}
-        {:error, _} = err ->
-          Repo.rollback(err)
+          Repo.rollback(:token_invalid)
+        {:error, reason} ->
+          Repo.rollback(reason)
         result ->
-          Repo.rollback({:error, result})
+          Repo.rollback(result)
       end
     end)
+  end
 
-    result
+  def create_api_token(%User{} = user, token) do
+    result =
+      user
+      |> build_assoc(:api_tokens)
+      |> ApiToken.create_changeset(token)
+      |> Repo.insert
+
+    case result do
+      {:ok, api_token} ->
+        {:ok, %{api_token | user: user}}
+      {:error, %Ecto.Changeset{}} ->
+        {:error, :token_invalid}
+    end
+  end
+
+  def get_or_create_api_token(token, user) do
+    with {:ok, token} <- get_api_token(token) do
+      {:ok, token}
+    else
+      {:error, :token_not_found} ->
+        create_api_token(user, token)
+      otherwise ->
+        otherwise
+    end
+  end
+
+  def get_api_token(token) do
+    api_token =
+      ApiToken
+      |> Repo.get_by(token: token)
+      |> Repo.preload(:user)
+
+    case api_token do
+      nil -> {:error, :token_not_found}
+      %ApiToken{revoked_at: nil} -> {:ok, api_token}
+      %ApiToken{} -> {:error, :token_revoked}
+    end
   end
 
   def get_api_token!(token) do

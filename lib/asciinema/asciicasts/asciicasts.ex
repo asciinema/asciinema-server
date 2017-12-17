@@ -14,7 +14,7 @@ defmodule Asciinema.Asciicasts do
         {id, ""} ->
           from a in Asciicast, where: a.private == false and a.id == ^id
         _ ->
-          from a in Asciicast, where: a.id == -1 # TODO fixme
+          from a in Asciicast, where: false
       end
     end
 
@@ -127,7 +127,7 @@ defmodule Asciinema.Asciicasts do
   end
 
   defp extract_v2_metadata(path) do
-    with {:ok, line} <- File.open(path, fn f -> IO.read(f, :line) end),
+    with {:ok, line} when is_binary(line) <- File.open(path, fn f -> IO.read(f, :line) end),
          {:ok, %{"version" => 2} = header} <- decode_json(line) do
       metadata = %{version: 2,
                    terminal_columns: header["width"],
@@ -144,6 +144,8 @@ defmodule Asciinema.Asciicasts do
                    shell: get_in(header, ["env", "SHELL"])}
       {:ok, metadata}
     else
+      {:ok, :eof} ->
+        {:error, :unknown_format}
       {:ok, %{"version" => version}} ->
         {:error, {:unsupported_format, version}}
       {:error, :invalid} ->
@@ -160,8 +162,8 @@ defmodule Asciinema.Asciicasts do
   defp decode_json(json) do
     case Poison.decode(json) do
       {:ok, thing} -> {:ok, thing}
-      {:error, :invalid} -> {:error, :invalid}
-      {:error, {:invalid, _}} -> {:error, :invalid}
+      {:error, :invalid, _} -> {:error, :invalid}
+      {:error, {:invalid, _, _}} -> {:error, :invalid}
     end
   end
 

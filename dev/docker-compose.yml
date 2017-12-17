@@ -11,6 +11,8 @@ services:
   postgres:
     image: postgres
     container_name: asciinema_dev_postgres
+    ports:
+      - 2345:5432
 
   redis:
     image: redis
@@ -22,16 +24,14 @@ services:
       dockerfile: Dockerfile.dev
     image: asciinema/asciinema-server:develop
     container_name: asciinema_dev_web
-    entrypoint: env -u MIX_ENV -u RAILS_ENV
+    entrypoint: env -u MIX_ENV -u RAILS_ENV -u PORT
     command: /bin/bash
     links:
       - redis
       - postgres
     env_file: .env.development
     ports:
-      - 3000:3000
-      - 4000:4000
-      - 4040:4040
+      - 4000:80
     volumes:
       - ../uploads:/app/uploads:cached
       - bundle:/bundle:cached

@@ -124,13 +124,6 @@ class Asciicast < ActiveRecord::Base
     @stdout = Stdout::Buffered.new(get_stdout)
   end
 
-  def with_terminal
-    terminal = Terminal.new(terminal_columns, terminal_lines)
-    yield(terminal)
-  ensure
-    terminal.release if terminal
-  end
-
   def theme
     theme_name && Theme.for_name(theme_name)
   end

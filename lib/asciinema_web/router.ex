@@ -1,6 +1,8 @@
 defmodule AsciinemaWeb.Router do
   use AsciinemaWeb, :router
   use Plug.ErrorHandler
+  defp handle_errors(_conn, %{reason: %Ecto.NoResultsError{}}), do: nil
+  defp handle_errors(_conn, %{reason: %Phoenix.NotAcceptableError{}}), do: nil
   use Sentry.Plug
 
   pipeline :browser do
@@ -72,7 +74,7 @@ defmodule AsciinemaWeb.Router do
     resources "/users", UserController, as: :users, only: [:new, :create]
 
     resources "/session", SessionController, only: [:new, :create], singleton: true
-    get "/connect/:api_token", SessionController, :create, as: :connect
+    get "/connect/:api_token", ApiTokenController, :show, as: :connect
   end
 
   scope "/api", AsciinemaWeb.Api, as: :api do
