@@ -48,6 +48,7 @@ defmodule AsciinemaWeb do
       import AsciinemaWeb.Router.Helpers.Extra
       import AsciinemaWeb.ErrorHelpers
       import AsciinemaWeb.Gettext
+      import AsciinemaWeb.ApplicationView
     end
   end
 

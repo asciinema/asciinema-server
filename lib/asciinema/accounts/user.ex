@@ -4,6 +4,8 @@ defmodule Asciinema.Accounts.User do
   alias Asciinema.Accounts.User
 
   @valid_email_re ~r/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i
+  @valid_username_re ~r/^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]$/
+  @valid_theme_names ["asciinema", "tango", "solarized-dark", "solarized-light", "monokai"]
 
   schema "users" do
     field :username, :string
@@ -25,6 +27,9 @@ defmodule Asciinema.Accounts.User do
     struct
     |> cast(params, [:email, :name, :username, :theme_name, :asciicasts_private_by_default])
     |> validate_format(:email, @valid_email_re)
+    |> validate_format(:username, @valid_username_re)
+    |> validate_length(:username, min: 2, max: 16)
+    |> validate_inclusion(:theme_name, @valid_theme_names)
   end
 
   def create_changeset(struct, attrs) do
@@ -39,6 +44,12 @@ defmodule Asciinema.Accounts.User do
     |> cast(attrs, [:email])
     |> validate_required([:email])
     |> unique_constraint(:email, name: "index_users_on_email")
+  end
+
+  def update_changeset(%User{} = user, attrs) do
+    user
+    |> changeset(attrs)
+    |> validate_required([:username, :email])
   end
 
   def login_changeset(user) do

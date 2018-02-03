@@ -29,6 +29,16 @@ defmodule Asciinema.Accounts do
     :ok
   end
 
+  def change_user(user) do
+    User.changeset(user)
+  end
+
+  def update_user(user, params) do
+    user
+    |> User.update_changeset(params)
+    |> Repo.update
+  end
+
   def send_login_email(email_or_username) do
     with {:ok, %User{} = user} <- lookup_user(email_or_username) do
       do_send_login_email(user)
@@ -220,5 +230,11 @@ defmodule Asciinema.Accounts do
       Repo.delete!(src_user)
       dst_user
     end)
+  end
+
+  def list_api_tokens(%User{} = user) do
+    user
+    |> assoc(:api_tokens)
+    |> Repo.all
   end
 end

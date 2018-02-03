@@ -1,6 +1,5 @@
 defmodule AsciinemaWeb.UserView do
   use AsciinemaWeb, :view
-  alias Asciinema.Accounts.User
   alias Asciinema.Gravatar
 
   def avatar_url(user) do
@@ -9,15 +8,29 @@ defmodule AsciinemaWeb.UserView do
     Gravatar.gravatar_url(email)
   end
 
-  def profile_path(%User{id: id, username: username}) do
-    if username do
-      "/~#{username}"
-    else
-      "/u/#{id}"
-    end
-  end
-
   defp user_username(user) do
     user.username || user.temporary_username || "user:#{user.id}"
+  end
+
+  def theme_options do
+    [
+      {"asciinema", "asciinema"},
+      {"Tango", "tango"},
+      {"Solarized Dark", "solarized-dark"},
+      {"Solarized Light", "solarized-light"},
+      {"Monokai", "monokai"},
+    ]
+  end
+
+  def active_tokens(api_tokens) do
+    api_tokens
+    |> Enum.reject(&(&1.revoked_at))
+    |> Enum.sort_by(&(- Timex.to_unix(&1.created_at)))
+  end
+
+  def revoked_tokens(api_tokens) do
+    api_tokens
+    |> Enum.filter(&(&1.revoked_at))
+    |> Enum.sort_by(&(- Timex.to_unix(&1.created_at)))
   end
 end
