@@ -57,7 +57,6 @@ group :test do
   gem 'guard-rspec'
   gem 'rb-inotify', require: RUBY_PLATFORM.include?('linux') && 'rb-inotify'
   gem 'shoulda-matchers'
-  gem 'coveralls',          require: false
   gem 'rspec-activemodel-mocks'
   gem 'chunky_png'
 end

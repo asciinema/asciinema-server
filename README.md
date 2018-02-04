@@ -2,7 +2,6 @@
 
 [![Build Status](https://travis-ci.org/asciinema/asciinema-server.svg?branch=develop)](https://travis-ci.org/asciinema/asciinema.org)
 [![Code Climate](https://codeclimate.com/github/asciinema/asciinema.org/badges/gpa.svg)](https://codeclimate.com/github/asciinema/asciinema.org)
-[![Coverage Status](https://coveralls.io/repos/asciinema/asciinema.org/badge.svg)](https://coveralls.io/r/asciinema/asciinema.org)
 
 asciinema is a free and open source solution for recording terminal sessions
 and sharing them on the web.
