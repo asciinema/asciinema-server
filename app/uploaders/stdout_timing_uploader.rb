@@ -1,1 +1,0 @@
-class StdoutTimingUploader < CompressedFileUploader; end

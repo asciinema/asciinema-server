@@ -43,12 +43,6 @@ describe Asciicast do
     end
   end
 
-  describe '.generate_secret_token' do
-    subject { Asciicast.generate_secret_token }
-
-    it { should match(/^[a-z0-9]{25}$/) }
-  end
-
   describe '.for_category_ordered' do
     subject { described_class.for_category_ordered(category, order) }
 
@@ -117,36 +111,6 @@ describe Asciicast do
       end
 
       it { should eq('sekrit') }
-    end
-  end
-
-  describe '#stdout' do
-    context 'for single-file, JSON asciicast' do
-      let(:asciicast) { create(:asciicast) }
-
-      subject { asciicast.stdout.to_a }
-
-      it 'is enumerable with [delay, data] pair as every item' do
-        expect(subject).to eq([
-          [1.234567, "foo bar"],
-          [5.678987, "baz qux"],
-          [3.456789, "żółć jaźń"],
-        ])
-      end
-    end
-
-    context 'for multi-file, legacy asciicast' do
-      let(:asciicast) { create(:legacy_asciicast) }
-
-      subject { asciicast.stdout.to_a }
-
-      it 'is enumerable with [delay, data] pair as every item' do
-        expect(subject).to eq([
-          [1.234567, "foobar"],
-          [0.123456, "baz"],
-          [2.345678, "qux"],
-        ])
-      end
     end
   end
 
