@@ -60,7 +60,7 @@ correctly display color changes, cursor movement and printing text at proper
 places on the screen.
 
 The player comes with its own terminal emulator based on
-[Paul Williams' parser for ANSI-compatible video terminals](http://vt100.net/emu/dec_ansi_parser).
+[Paul Williams' parser for ANSI-compatible video terminals](https://vt100.net/emu/dec_ansi_parser).
 It covers only the display part of the emulation as this is what the player is
 about (input is handled by your terminal+shell at the time of recording anyway)
 and its handling of escape sequences is fully compatible with most modern
