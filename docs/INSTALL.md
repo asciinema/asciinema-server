@@ -89,6 +89,34 @@ Set `URL_SCHEME`, `URL_HOST` and `URL_PORT` to match the address the users are s
 Set `SECRET_KEY_BASE` to long random string. Run `docker-compose run --rm web
 mix phx.gen.secret` to obtain one.
 
+#### HTTPS settings
+
+To enable HTTPS (in addition to HTTP), make the following changes.
+
+In the repository root, create a directory named `certs`.
+Copy your SSL/TLS certificate and private key into this directory.
+
+In `.env.production`, set
+
+    URL_SCHEME=https
+    URL_PORT=443
+
+In `docker-compose.yml`, uncomment these two lines (they are marked in the file):
+
+    - "443:443"
+    - ./certs:/app/priv/certs
+
+In `docker/nginx/asciinema.conf`, uncomment this section:
+
+    listen 443 ssl;
+    ssl_certificate     /app/priv/certs/<my-cert>.crt;
+    ssl_certificate_key /app/priv/certs/<my-cert>.key;
+
+Make sure to substitute the proper filenames for your certificate and private key files.
+
+If you encounter problems, it may be helpful to run `docker exec -it asciinema_web bash`
+to enter a shell in the container, and then inspect the web server logs in `/var/log/nginx`.
+
 #### SMTP settings
 
 The app uses linked `namshi/smtp` container, which by default runs in "SMTP
