@@ -38,7 +38,7 @@ services:
       - smtp
     env_file: .env.production
     ports:
-      - "3000:80"
+      - "80:80"
       # - "4040:4040"
     volumes:
       - ./uploads:/app/uploads
