@@ -1,50 +1,60 @@
 # Configuration file
 
-asciinema uses a config file to keep API token and user settings. In most cases
-the location of this file is `$HOME/.config/asciinema/config`.
+You can configure asciinema by creating config file at
+`$HOME/.config/asciinema/config`.
 
-*NOTE! When you first run `asciinema`, local API token is generated (UUID) and
-saved in the file (unless the file already exists).*
+Configuration is split into sections (`[api]`, `[record]`, `[play]`). Here's a
+list of all available options for each section:
 
-The auto-generated, minimal config file looks like this:
+```ini
+[api]
 
-    [api]
-    token = <your-api-token-here>
+; API server URL, default: https://asciinema.org
+; If you run your own instance of asciinema-server then set its address here
+; It can also be overriden by setting ASCIINEMA_API_URL environment variable
+url = https://asciinema.example.com
 
-There are several options you can set in this file. Here's a config with all
-available options set:
+[record]
 
-    [api]
-    token = <your-api-token-here>
-    url = https://asciinema.example.com
+; Command to record, default: $SHELL
+command = /bin/bash -l
 
-    [record]
-    command = /bin/bash -l
-    maxwait = 2
-    yes = true
-    quiet = true
+; Enable stdin (keyboard) recording, default: no
+stdin = yes
 
-    [play]
-    maxwait = 1
+; List of environment variables to capture, default: SHELL,TERM
+env = SHELL,TERM,USER
 
-The options in `[api]` section are related to API location and authentication.
-To tell asciinema recorder to use your own asciinema site instance rather than
-the default one (asciinema.org), you can set `url` option. API URL can also be
-passed via `ASCIINEMA_API_URL` environment variable.
+; Limit recorded terminal inactivity to max n seconds, default: off
+idle_time_limit = 2
 
-The options in `[record]` and `[play]` sections have the same meaning as the
-options you pass to `asciinema rec`/`asciinema play` command (see
-[Usage](/docs/usage)). If you happen to often use either `-c`, `-w` or `-y` with
-these commands then consider saving it as a default in the config file.
+; Answer "yes" to all interactive prompts, default: no
+yes = true
 
-## Configuration file locations
+; Be quiet, suppress all notices/warnings, default: no
+quiet = true
 
-In fact, the following locations are checked for the presence of the config
-file (in the given order):
+[play]
 
-* `$ASCIINEMA_CONFIG_HOME/config` - if you have set `$ASCIINEMA_CONFIG_HOME`
-* `$XDG_CONFIG_HOME/asciinema/config` - on Linux, `$XDG_CONFIG_HOME` usually points to `$HOME/.config/`
-* `$HOME/.config/asciinema/config` - in most cases it's here
-* `$HOME/.asciinema/config` - created by asciinema versions prior to 1.1
+; Playback speed (can be fractional), default: 1
+speed = 2
 
-The first found is used.
+; Limit replayed terminal inactivity to max n seconds, default: off
+idle_time_limit = 1
+```
+
+A very minimal config file could look like that:
+
+```ini
+[record]
+idle_time_limit = 2
+```
+
+Config directory location can be changed by setting `$ASCIINEMA_CONFIG_HOME`
+environment variable.
+
+If `$XDG_CONFIG_HOME` is set on Linux then asciinema uses
+`$XDG_CONFIG_HOME/asciinema` instead of `$HOME/.config/asciinema`.
+
+> asciinema versions prior to 1.1 used `$HOME/.asciinema`. If you have it
+> there you should `mv $HOME/.asciinema $HOME/.config/asciinema`.
