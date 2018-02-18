@@ -40,4 +40,4 @@ services:
       - deps:/app/deps:cached
       - m2:/root/.m2:cached
       - ../:/app:cached
-      - /tmp/asciinema-web:/tmp
+      - /tmp/asciinema-web:/tmp:cached
