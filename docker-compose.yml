@@ -27,26 +27,55 @@ services:
     ### See https://github.com/namshi/docker-smtp for more SMTP configuration
     ### options for this image.
 
-  web:
+  nginx:
+    image: nginx:alpine
+    container_name: asciinema_nginx
+    restart: unless-stopped
+    links:
+      - phoenix
+      - rails
+    ports:
+      - "3000:80"
+      ### Uncomment for HTTPS:
+      # - "443:443"
+    volumes:
+      - ./docker/nginx/asciinema.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./volumes/cache:/cache
+      ### Uncomment for HTTPS (make sure to add your cert and private key to ./certs):
+      #  - ./certs:/app/priv/certs
+    ### See https://hub.docker.com/_/nginx/ for more configuration options for
+    ### this image.
+
+  phoenix:
     build: .
     image: asciinema/asciinema-server:develop
-    container_name: asciinema_web
+    command: mix phx.server
+    container_name: asciinema_phoenix
     restart: unless-stopped
     links:
       - redis
       - postgres
       - smtp
     env_file: .env.production
-    ports:
-      - "80:80"
-      ### Uncomment for HTTPS:
-      # - "443:443"
-      ### Uncomment for access to ExqUI (for debugging):
-      # - "4040:4040"
+    ### Uncomment for access to ExqUI (for debugging):
+    # ports:
+    #   - "4040:4040"
+    volumes:
+      - ./uploads:/app/uploads
+      - /tmp/asciinema-web:/tmp
+
+  rails:
+    build: .
+    image: asciinema/asciinema-server:develop
+    command: bundle exec unicorn -c config/unicorn.rb
+    container_name: asciinema_rails
+    restart: unless-stopped
+    links:
+      - redis
+      - postgres
+    env_file: .env.production
     volumes:
       - ./uploads:/app/uploads
       - ./log:/app/log
       - /tmp/asciinema-web:/tmp
-      - ./volumes/cache:/cache
-      ### Uncomment for HTTPS (make sure to add your cert and private key to ./certs):
-      #  - ./certs:/app/priv/certs
+      - ./volumes/tmp:/app/tmp

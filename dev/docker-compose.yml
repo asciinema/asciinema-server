@@ -6,6 +6,7 @@ volumes:
   node_modules:
   build:
   deps:
+  cache:
 
 services:
   postgres:
@@ -18,20 +19,56 @@ services:
     image: redis
     container_name: asciinema_dev_redis
 
-  web:
+  nginx:
+    image: nginx:alpine
+    container_name: asciinema_dev_nginx
+    links:
+      - phoenix
+      - rails
+    ports:
+      - "3000:80"
+    volumes:
+      - ../docker/nginx/asciinema.conf:/etc/nginx/conf.d/default.conf:ro
+      - cache:/cache
+
+  phoenix:
     build:
       context: ..
       dockerfile: Dockerfile.dev
-    image: asciinema/asciinema-server:develop
-    container_name: asciinema_dev_web
+    image: asciinema/asciinema-server:local
+    container_name: asciinema_dev_phoenix
     entrypoint: env -u MIX_ENV -u RAILS_ENV -u PORT
-    command: /bin/bash
+    command: mix phx.server
     links:
       - redis
       - postgres
     env_file: .env.development
     ports:
-      - 4000:80
+      - 4000:4000
+    volumes:
+      - ../uploads:/app/uploads:cached
+      - bundle:/bundle:cached
+      - node_modules:/app/assets/node_modules:cached
+      - build:/app/_build:cached
+      - deps:/app/deps:cached
+      - m2:/root/.m2:cached
+      - ../:/app:cached
+      - /tmp/asciinema-web:/tmp:cached
+
+  rails:
+    build:
+      context: ..
+      dockerfile: Dockerfile.dev
+    image: asciinema/asciinema-server:local
+    container_name: asciinema_dev_rails
+    entrypoint: env -u MIX_ENV -u RAILS_ENV -u PORT
+    command: bundle exec unicorn -c config/unicorn.rb
+    links:
+      - redis
+      - postgres
+    env_file: .env.development
+    ports:
+      - 3001:3000
     volumes:
       - ../uploads:/app/uploads:cached
       - bundle:/bundle:cached

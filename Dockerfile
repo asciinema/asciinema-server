@@ -50,11 +50,9 @@ RUN apt-get update && \
       libpq-dev \
       libxml2-dev \
       libxslt1-dev \
-      nginx \
       nodejs \
       ruby2.1 \
       ruby2.1-dev \
-      supervisor \
       ttf-bitstream-vera \
       tzdata
 
@@ -152,6 +150,7 @@ RUN cd assets && npm install
 COPY assets /app/assets
 RUN cd assets && node_modules/brunch/bin/brunch build --production
 RUN mix phoenix.digest
+RUN cp -r public/assets priv/static/
 
 # add Elixir source files
 
@@ -172,15 +171,6 @@ RUN mix compile
 
 COPY docker/asciinema.yml /app/config/asciinema.yml
 
-# configure Nginx
-
-COPY docker/nginx/asciinema.conf /etc/nginx/sites-available/default
-
-# configure Supervisor
-
-RUN mkdir -p /var/log/supervisor
-COPY docker/supervisor/asciinema.conf /etc/supervisor/conf.d/asciinema.conf
-
 # add setup script
 
 COPY docker/bin /app/docker/bin
@@ -192,7 +182,7 @@ COPY --from=1 /usr/local/bin/pngquant /usr/local/bin/
 
 VOLUME ["/app/log", "/app/uploads", "/cache"]
 
-CMD ["/usr/bin/supervisord"]
+CMD ["mix", "phx.server"]
 
 ENV PORT 4000
 
