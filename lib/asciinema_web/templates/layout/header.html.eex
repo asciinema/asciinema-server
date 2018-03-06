@@ -14,7 +14,7 @@
 
     <div class="collapse navbar-collapse navbar-ex1-collapse">
       <ul class="nav navbar-nav">
-        <li><a href="/browse/featured">Browse</a></li>
+        <li><a href="/browse/featured">Explore</a></li>
         <li><a href="<%= doc_path(@conn, :index) %>">Docs</a></li>
         <li><a href="http://blog.asciinema.org">Blog</a></li>
       </ul>

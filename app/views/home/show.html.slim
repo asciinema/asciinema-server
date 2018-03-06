@@ -66,11 +66,11 @@
           .asciicast-list
             = render 'asciicasts/previews', asciicasts: page.featured_asciicasts, per_row: 3, no_created_at: true
           p
-            a href=category_path(:featured) class="btn btn-success" Browse featured asciicasts
+            a href=category_path(:featured) class="btn btn-success" Explore featured asciicasts
       .row
         .col-md-12
           h1 Latest public asciicasts
           .asciicast-list
             = render 'asciicasts/previews', asciicasts: page.latest_asciicasts, per_row: 3
           p
-            a href=browse_path class="btn btn-success" Browse all asciicasts
+            a href=browse_path class="btn btn-success" Explore all asciicasts

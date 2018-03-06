@@ -8,7 +8,7 @@ feature "Homepage", :js => true do
   scenario 'Visiting' do
     visit root_path
 
-    expect(page).to have_link('Browse')
+    expect(page).to have_link('Explore')
     expect(page).to have_link('Docs')
     expect(page).to have_button('Start Recording')
     expect(page).to have_content(/Featured asciicasts/i)
