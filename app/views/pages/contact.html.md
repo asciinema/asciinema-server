@@ -4,9 +4,12 @@
 
 ## IRC
 
-There's [#asciinema](irc://freenode/asciinema) channel on Freenode. Join us
-there and say "Hi". If you're looking for general help this is probably the
-best way to go.
+There's __#asciinema__ channel on freenode network. Join us there with your
+favourite IRC client or [use KiwiIRC web
+client](https://kiwiirc.com/nextclient/irc.freenode.net/#asciinema) (no
+registration required).
+
+If you're looking for general help this is probably the best way to go.
 
 ## Twitter
 
