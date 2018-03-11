@@ -29,7 +29,7 @@ RUN bash /tmp/install_pngquant.sh
 FROM ubuntu:16.04
 
 ARG DEBIAN_FRONTEND=noninteractive
-ARG NODE_VERSION=node_6.x
+ARG NODE_VERSION=node_8.x
 ARG DISTRO=xenial
 
 RUN apt-get update && \
