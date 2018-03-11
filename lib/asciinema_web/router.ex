@@ -14,55 +14,20 @@ defmodule AsciinemaWeb.Router do
     plug AsciinemaWeb.Auth
   end
 
-  pipeline :asciicast_embed_script do
-    plug :accepts, ["js"]
+  pipeline :asciicast do
+    plug :accepts, ["html", "js", "json", "cast", "png", "gif"]
+    plug :put_secure_browser_headers
   end
 
   scope "/", AsciinemaWeb do
-    pipe_through :asciicast_embed_script
+    pipe_through :asciicast
 
-    # rewritten by TrailingFormat from /a/123.js to /a/123/js
-    get "/a/:id/js", AsciicastEmbedController, :show
-  end
-
-  pipeline :asciicast_file do
-    plug :accepts, ["json"]
-  end
-
-  scope "/", AsciinemaWeb do
-    pipe_through :asciicast_file
-
-    # rewritten by TrailingFormat from /a/123.cast to /a/123/cast
-    get "/a/:id/cast", AsciicastFileController, :show
-    get "/a/:id/json", AsciicastFileController, :show, as: :asciicast_legacy_file
-  end
-
-  pipeline :asciicast_image do
-    plug :accepts, ["png"]
-  end
-
-  scope "/", AsciinemaWeb do
-    pipe_through :asciicast_image
-
-    # rewritten by TrailingFormat from /a/123.png to /a/123/png
-    get "/a/:id/png", AsciicastImageController, :show
-  end
-
-  pipeline :asciicast_animation do
-    plug :accepts, ["html"]
-  end
-
-  scope "/", AsciinemaWeb do
-    pipe_through :asciicast_animation
-
-    # rewritten by TrailingFormat from /a/123.gif to /a/123/gif
-    get "/a/:id/gif", AsciicastAnimationController, :show
+    get "/a/:id", AsciicastController, :show
   end
 
   scope "/", AsciinemaWeb do
     pipe_through :browser # Use the default browser stack
 
-    get "/a/:id", AsciicastController, :show
     get "/a/:id/iframe", AsciicastController, :iframe
 
     get "/docs", DocController, :index
@@ -105,34 +70,27 @@ defmodule AsciinemaWeb.Router.Helpers.Extra do
     end
   end
 
-  def asciicast_file_download_path(conn, asciicast) do
-    conn
-    |> H.asciicast_file_path(:show, asciicast)
-    |> fix_ext(asciicast.version)
+  def asciicast_file_path(conn, asciicast) do
+    H.asciicast_path(conn, :show, asciicast) <> "." <> ext(asciicast)
   end
 
-  def asciicast_file_download_url(conn, asciicast) do
-    conn
-    |> H.asciicast_file_url(:show, asciicast)
-    |> fix_ext(asciicast.version)
+  def asciicast_file_url(conn, asciicast) do
+    H.asciicast_url(conn, :show, asciicast) <> "." <> ext(asciicast)
   end
 
-  defp fix_ext(url, version) when version in [0, 1] do
-    String.replace_suffix(url, "/cast", ".json")
-  end
-  defp fix_ext(url, 2) do
-    String.replace_suffix(url, "/cast", ".cast")
-  end
-
-  def asciicast_image_download_path(conn, asciicast) do
-    conn
-    |> H.asciicast_image_path(:show, asciicast)
-    |> String.replace_suffix("/png", ".png")
+  defp ext(asciicast) do
+    case asciicast.version do
+      0 -> "json"
+      1 -> "json"
+      _ -> "cast"
+    end
   end
 
-  def asciicast_animation_download_path(conn, asciicast) do
-    conn
-    |> H.asciicast_animation_path(:show, asciicast)
-    |> String.replace_suffix("/gif", ".gif")
+  def asciicast_image_path(conn, asciicast) do
+    H.asciicast_path(conn, :show, asciicast) <> ".png"
+  end
+
+  def asciicast_animation_path(conn, asciicast) do
+    H.asciicast_path(conn, :show, asciicast) <> ".gif"
   end
 end

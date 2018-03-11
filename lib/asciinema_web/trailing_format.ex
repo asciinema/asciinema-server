@@ -1,28 +1,18 @@
 defmodule AsciinemaWeb.TrailingFormat do
-  @known_extensions ["js", "json", "cast", "png", "gif"]
+  @known_exts ["js", "json", "cast", "png", "gif"]
 
   def init(opts), do: opts
 
   def call(conn, _opts) do
-    case conn.path_info do
-      [] ->
-        conn
-      path_info ->
-        %{conn | path_info: rewrite_path_info(path_info)}
+    with [last | segments] <- Enum.reverse(conn.path_info),
+         last_split = Enum.reverse(String.split(last, ".")),
+         [format | rest] when format in @known_exts <- last_split do
+      last = rest |> Enum.reverse |> Enum.join(".")
+      path_info = Enum.reverse([last | segments])
+      params = Map.put(conn.params, "_format", format)
+      %{conn | path_info: path_info, params: params}
+    else
+      _ -> conn
     end
-  end
-
-  defp rewrite_path_info(path_info) do
-    path_info
-    |> List.last
-    |> String.split(".")
-    |> Enum.reverse
-    |> case do
-         [format | fragments] when format in @known_extensions ->
-           id = fragments |> Enum.reverse |> Enum.join(".")
-           path_info |> List.replace_at(-1, id) |> List.insert_at(-1, format)
-         _ ->
-           path_info
-       end
   end
 end
