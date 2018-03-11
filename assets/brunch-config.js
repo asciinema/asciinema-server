@@ -9,6 +9,10 @@ exports.config = {
           "js/app.js",
           /^node_modules\/phoenix_html/
         ],
+        "js/app2.js": [
+          "js/app2.js",
+          /^node_modules\/(bootstrap|phoenix_html|)/
+        ],
         "js/iframe.js": [
           "vendor/js/es5-shim.min.js",
           "vendor/js/console-shim-min.js",
@@ -44,6 +48,9 @@ exports.config = {
           "css/preview.sass",
           "css/contributing.sass",
           "css/simple-layout.sass",
+        ],
+        "css/app2.css": [
+          "css/app2.scss"
         ],
         "css/iframe.css": [
           "css/source-sans-pro.css",
@@ -83,16 +90,29 @@ exports.config = {
     babel: {
       // Do not use ES6 compiler in vendor code
       ignore: [/vendor/]
+    },
+    sass: {
+      options: {
+        includePaths: ["node_modules/bootstrap/scss"], // for sass-brunch to @import files
+        precision: 8 // minimum precision required by bootstrap
+      }
     }
   },
 
   modules: {
     autoRequire: {
-      "js/app.js": ["js/app"]
+      "js/app.js": ["js/app"],
+      "js/app2.js": ["js/app2"]
     }
   },
 
   npm: {
-    enabled: true
+    enabled: true,
+    globals: {
+      // Bootstrap JavaScript requires both '$', 'jQuery'
+      $: 'jquery',
+      jQuery: 'jquery',
+      bootstrap: 'bootstrap' // require Bootstrap JavaScript globally too
+    }
   }
 };
