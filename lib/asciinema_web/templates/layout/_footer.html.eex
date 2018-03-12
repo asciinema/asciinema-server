@@ -1,0 +1,43 @@
+<footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-4 col-xs-4">
+        <ul class="links">
+          <li><a href="/about">About</a></li>
+          <li><a href="/contributing">Contributing</a></li>
+          <li><a href="/tos">Terms of Service</a></li>
+          <li><a href="/privacy">Privacy Policy</a></li>
+          <li><a href="/contact">Contact</a></li>
+        </ul>
+      </div>
+
+      <div class="col-md-4 col-xs-4 text-center">
+        <span>
+          Sponsored by
+          <br/>
+          <a class="brightbox-logo" href="http://brightbox.com/" rel="nofollow">
+            <img src="<%= static_path(@conn, "/images/brightbox.png") %>" />
+          </a>
+        </span>
+      </div>
+
+      <div class="col-md-4 col-xs-4">
+        <ul class="links float-right">
+          <li>
+            <b>irc:</b> <a href="https://kiwiirc.com/nextclient/irc.freenode.net/#asciinema">#asciinema on freenode</a>
+          </li>
+          <li>
+              <b>matrix:</b> <a href="https://matrix.to/#/#asciinema:matrix.org">#asciinema:matrix.org</a>
+          </li>
+
+          <li>
+            <b>twitter:</b> <a href="https://twitter.com/asciinema" title="Follow @asciinema on Twitter">@asciinema</a>
+          </li>
+          <li>
+            <b>e-mail:</b> support at this domain
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</footer>

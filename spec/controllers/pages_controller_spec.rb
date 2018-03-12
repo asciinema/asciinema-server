@@ -4,11 +4,11 @@ describe PagesController do
 
   describe '#show' do
     before do
-      get :show, page: :privacy, use_route: :privacy
+      get :show, page: :tos, use_route: :tos
     end
 
     it 'renders template with a given name' do
-      should render_template(:privacy)
+      should render_template(:tos)
     end
   end
 

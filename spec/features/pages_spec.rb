@@ -18,14 +18,6 @@ feature "Static pages" do
     end
   end
 
-  scenario 'Visiting "privacy policy" page' do
-    visit privacy_path
-
-    within('.main') do
-      expect(page).to have_content(/Privacy Policy/i)
-    end
-  end
-
   scenario 'Visiting "contributing" page' do
     visit contributing_path
 
