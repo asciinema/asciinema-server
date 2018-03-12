@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title><%= page_title @conn %></title>
+    <link rel="stylesheet" href="<%= static_path(@conn, "/css/app2.css") %>">
+    <link rel="shortcut icon" href="<%= static_path(@conn, "/images/favicon.png") %>">
+    <!-- google analytics -->
+    <!-- content for head (twitter, open graph tags) -->
+  </head>
+
+  <body class="l-app <%= body_class(@conn) %>">
+    <%= render "_header.html", conn: @conn, current_user: @current_user %>
+
+    <main role="main" class="container">
+      <%= render @view_module, @view_template, assigns %>
+    </main>
+
+    <%= render "_footer.html", conn: @conn %>
+
+    <script src="<%= static_path(@conn, "/js/app2.js") %>"></script>
+  </body>
+</html>
