@@ -135,7 +135,7 @@ RUN cd assets && npm install
 
 COPY assets /app/assets
 RUN cd assets && node_modules/brunch/bin/brunch build --production
-RUN mix phoenix.digest
+RUN mix phx.digest
 
 # add Elixir source files
 

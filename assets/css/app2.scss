@@ -2,7 +2,7 @@ $white: #fff;
 $navbar-dark-color: rgba($white, .85);
 $navbar-dark-hover-color: $white;
 
-@import "bootstrap";
+@import "~bootstrap/scss/bootstrap";
 
 
 .l-app {

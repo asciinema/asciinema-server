@@ -5,14 +5,14 @@ use Mix.Config
 #
 # The watchers configuration can be used to run external
 # watchers to your application. For example, we use it
-# with brunch.io to recompile .js and .css sources.
+# with webpack to recompile .js and .css sources.
 config :asciinema, AsciinemaWeb.Endpoint,
   http: [port: 4000],
   debug_errors: true,
   code_reloader: true,
   check_origin: false,
   secret_key_base: System.get_env("SECRET_KEY_BASE") || "60BnXnzGGwwiZj91YA9XYKF9BCiM7lQ/1um8VXcWWLSdUp9OcPZV6YnQv7eFTYSY",
-  watchers: [node: ["node_modules/brunch/bin/brunch", "watch", "--stdin",
+  watchers: [node: ["node_modules/webpack/bin/webpack.js", "--mode", "development", "--watch-stdin",
                     cd: Path.expand("../assets", __DIR__)]]
 
 

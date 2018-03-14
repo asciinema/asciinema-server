@@ -65,7 +65,7 @@ defmodule Asciinema.Mixfile do
       {:inflex, "~> 1.9"},
       {:phoenix, "~> 1.3.0"},
       {:phoenix_ecto, "~> 3.0"},
-      {:phoenix_html, "~> 2.10"},
+      {:phoenix_html, "~> 2.11"},
       {:phoenix_live_reload, "~> 1.0", only: :dev},
       {:phoenix_markdown, "~> 0.1"},
       {:phoenix_pubsub, "~> 1.0"},
