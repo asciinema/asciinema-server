@@ -126,15 +126,16 @@ RUN bundle exec rake assets:precompile
 COPY mix.* /app/
 RUN mix deps.get --only prod && mix deps.compile
 
-# install brunch & co
+# install webpack & co
 
 COPY assets/package.json /app/assets/
+COPY assets/package-lock.json /app/assets/
 RUN cd assets && npm install
 
-# compile assets with brunch and generate digest file
+# compile assets with webpack and generate digest file
 
 COPY assets /app/assets
-RUN cd assets && node_modules/brunch/bin/brunch build --production
+RUN cd assets && npm run deploy
 RUN mix phx.digest
 
 # add Elixir source files
