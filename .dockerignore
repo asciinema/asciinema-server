@@ -19,5 +19,6 @@ a2png/node_modules
 a2png/target
 config/asciinema.yml
 config/database.yml
+assets/node_modules
 .env
 .env.*

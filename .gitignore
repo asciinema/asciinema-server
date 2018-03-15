@@ -24,7 +24,7 @@
 erl_crash.dump
 
 # Static artifacts
-/node_modules
+/assets/node_modules
 
 # Since we are building assets from web/static,
 # we ignore priv/static. You may want to comment
