@@ -14,9 +14,6 @@ listen 3000, :tcp_nopush => true
 # nuke workers after 60 seconds
 timeout 60
 
-# feel free to point this anywhere accessible on the filesystem
-pid "#{ASCIINEMA_HOME}/tmp/unicorn.pid"
-
 preload_app true
 
 # Enable this flag to have unicorn test client connections by writing the
