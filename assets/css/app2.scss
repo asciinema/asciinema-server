@@ -58,4 +58,25 @@ $navbar-dark-hover-color: $white;
       font-size: 1.5rem;
     }
   }
+
+  .bitcoin-logo {
+    width: 32px;
+    margin-right: 10px;
+  }
+
+  #paypal-form {
+    .button {
+      margin-right: 15px;
+      vertical-align: middle;
+    }
+
+    span {
+      vertical-align: middle;
+      margin-right: 10px;
+
+      label {
+        margin-left: 0.2rem;
+      }
+    }
+  }
 }

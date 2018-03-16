@@ -1,5 +1,3 @@
-<% content_for(:title, 'Contact') %>
-
 # Contact
 
 ## IRC

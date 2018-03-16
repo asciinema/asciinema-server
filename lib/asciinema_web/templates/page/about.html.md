@@ -1,5 +1,3 @@
-<% content_for(:title, 'About asciinema') %>
-
 # About asciinema
 
 asciinema (formerly ascii.io) is a free and open source solution for
@@ -20,7 +18,7 @@ If technical details interest you then read more about
 
 ## Contributing
 
-Help the project by [contributing](<%= contributing_path %>) money or time.
+Help the project by [contributing](/contributing) money or time.
 
 ## A bit of history
 
