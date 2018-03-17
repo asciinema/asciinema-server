@@ -59,6 +59,8 @@ docker-compose configuration.
     cd asciinema-server
     git checkout master
 
+_If you missed this step then run `git submodule update --recursive --remote --init`_
+
 It's recommended to create a new branch, to keep any customizations separate
 from master branch and make upgrading safer:
 
