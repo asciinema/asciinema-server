@@ -28,7 +28,7 @@
 
     <div class="row asciicast-list">
       <div class="col">
-        <%= for asciicasts <- Enum.chunk(@asciicasts, 2, 2, []) do %>
+        <%= for asciicasts <- Enum.chunk(@page, 2, 2, []) do %>
           <div class="row">
             <%= for asciicast <- asciicasts do %>
               <div class="col-md-6">
@@ -39,5 +39,13 @@
         <% end %>
       </div>
     </div>
+
+    <%= if @page.total_pages > 1 do %>
+      <div class="row">
+        <div class="col">
+          <%= pagination_links @page, order: @order %>
+        </div>
+      </div>
+    <% end %>
   </div>
 </div>

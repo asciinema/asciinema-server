@@ -1,6 +1,7 @@
 defmodule AsciinemaWeb.AsciicastView do
   use AsciinemaWeb, :view
   import Phoenix.Controller, only: [action_name: 1]
+  import Scrivener.HTML
   alias AsciinemaWeb.UserView
 
   def active_link(title, active?, opts) do
