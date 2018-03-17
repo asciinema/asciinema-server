@@ -21,12 +21,12 @@ defmodule Asciinema.Asciicasts do
     Repo.one!(q)
   end
 
-  def list_asciicasts(category, order) do
+  def paginate_asciicasts(category, order, page \\ 0, page_size \\ 12) do
     from(Asciicast)
     |> filter(category)
     |> sort(order)
     |> preload(:user)
-    |> Repo.all
+    |> Repo.paginate(page: page, page_size: page_size)
   end
 
   defp filter(q, :featured), do: where(q, [a], a.featured == true)
