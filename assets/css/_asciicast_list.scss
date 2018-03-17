@@ -1,0 +1,24 @@
+.c-asciicast {
+  &.a-index, &.a-featured, &.a-all {
+    main {
+      .nav {
+        .nav-link.active {
+          font-weight: bold;
+        }
+      }
+
+      .sorting {
+        margin-top: 2rem;
+
+        span {
+          margin-right: 0.5rem;
+          font-size: 0.875rem;
+        }
+      }
+    }
+
+    .asciicast-list {
+      margin-top: 1rem;
+    }
+  }
+}

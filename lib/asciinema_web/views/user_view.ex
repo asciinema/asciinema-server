@@ -3,13 +3,17 @@ defmodule AsciinemaWeb.UserView do
   alias Asciinema.Gravatar
 
   def avatar_url(user) do
-    username = user_username(user)
+    username = username(user)
     email = user.email || "#{username}+#{user.id}@asciinema.org"
     Gravatar.gravatar_url(email)
   end
 
-  defp user_username(user) do
+  def username(user) do
     user.username || user.temporary_username || "user:#{user.id}"
+  end
+
+  def theme_name(user) do
+    user.theme_name
   end
 
   def theme_options do

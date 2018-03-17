@@ -1,6 +1,14 @@
 defmodule Asciinema.AsciicastControllerTest do
   use AsciinemaWeb.ConnCase
 
+  test "lists asciicasts", %{conn: conn} do
+    conn = get conn, asciicast_path(conn, :index)
+    assert html_response(conn, 200) =~ "Public asciicasts"
+
+    conn = get conn, asciicast_path(conn, :featured)
+    assert html_response(conn, 200) =~ "Featured asciicasts"
+  end
+
   test "shows asciicast file, v1 format", %{conn: conn} do
     asciicast = fixture(:asciicast_v1)
     width = asciicast.terminal_columns
