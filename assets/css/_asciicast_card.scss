@@ -1,0 +1,115 @@
+div.asciicast-card {
+  margin-bottom: 30px;
+  overflow: hidden;
+
+  .thumbnail-link {
+    display: block;
+    position: relative;
+    text-decoration: none;
+
+    .play-button {
+      display: none;
+      z-index: 1;
+      position: absolute;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      color: white;
+
+      .arrow {
+        display: block;
+        width: 100%;
+        height: 100%;
+        position: relative;
+
+        svg {
+          fill: white;
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          width: 4rem;
+          margin-left: -2rem;
+          margin-top: -2rem;
+        }
+      }
+    }
+
+    &:hover {
+      .play-button {
+        display: block;
+      }
+    }
+
+    &:active {
+      .play-button {
+        svg {
+          width: 5rem;
+          margin-left: -2.5rem;
+          margin-top: -2.5rem;
+        }
+      }
+    }
+  }
+
+  .thumbnail {
+    padding: 0;
+    background-color: #000;
+    border: 0;
+    border-radius: 3px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  .info {
+    background-color: #fff;
+    padding: 10px;
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border: 1px solid #eee;
+    border-bottom: 1px solid #ddd;
+    border-top-width: 0;
+
+    .author-avatar {
+      float: left;
+      width: 20px;
+      height: 20px;
+
+      img {
+        width: 100%;
+        height: 100%;
+      }
+    }
+
+    h3 {
+      margin: 0 0 6px 0;
+      font-size: 20px;
+
+      .duration {
+        float: right;
+        font-size: 14px;
+      }
+    }
+
+    small {
+      margin-left: 5px;
+      font-size: 14px;
+      color: #333;
+
+      abbr {
+        border-bottom: 0;
+      }
+    }
+  }
+
+  .special-label {
+    font-size: 12px;
+    background-color: rgb(255, 239, 198);
+    color: rgb(161, 136, 43);
+    margin-left: 6px;
+    padding: 2px 5px;
+    border-radius: 4px;
+    vertical-align: middle;
+    cursor: help;
+  }
+}

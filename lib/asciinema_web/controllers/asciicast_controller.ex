@@ -3,6 +3,28 @@ defmodule AsciinemaWeb.AsciicastController do
   alias Asciinema.{Asciicasts, PngGenerator}
   alias Asciinema.Asciicasts.Asciicast
 
+  plug :put_layout, "app2.html"
+
+  def index(conn, params) do
+    conn
+    |> assign(:page_title, "Public asciicasts")
+    |> do_index(params, :public)
+  end
+
+  def featured(conn, params) do
+    conn
+    |> assign(:page_title, "Featured asciicasts")
+    |> do_index(params, :featured)
+  end
+
+  def do_index(conn, params, category) do
+    order = if params["order"] == "popularity", do: :popularity, else: :date
+
+    render(conn, "index.html",
+      asciicasts: Asciicasts.list_asciicasts(category, order),
+      order: order)
+  end
+
   def show(conn, %{"id" => id} = _params) do
     asciicast = Asciicasts.get_asciicast!(id)
     do_show(conn, get_format(conn), asciicast)
