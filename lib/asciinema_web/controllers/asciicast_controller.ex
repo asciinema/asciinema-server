@@ -21,7 +21,7 @@ defmodule AsciinemaWeb.AsciicastController do
     order = if params["order"] == "popularity", do: :popularity, else: :date
 
     render(conn, "index.html",
-      asciicasts: Asciicasts.list_asciicasts(category, order),
+      page: Asciicasts.paginate_asciicasts(category, order, params["page"]),
       order: order)
   end
 
