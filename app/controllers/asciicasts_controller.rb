@@ -1,22 +1,11 @@
 class AsciicastsController < ApplicationController
 
-  before_filter :load_resource, except: [:index]
+  before_filter :load_resource
   before_filter :ensure_authenticated!, only: [:edit, :update, :destroy]
 
   respond_to :html, :json
 
   attr_reader :asciicast
-
-  def index
-    render locals: {
-      page: BrowsePagePresenter.build(
-        policy_scope(Asciicast),
-        params[:category],
-        params[:order],
-        params[:page]
-      )
-    }
-  end
 
   def show
     respond_to do |format|

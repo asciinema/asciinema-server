@@ -17,14 +17,6 @@ describe AsciicastsController do
 
   subject { response }
 
-  describe '#index' do
-    before do
-      get :index, category: 'featured', order: 'date', page: '2'
-    end
-
-    it { should be_success }
-  end
-
   describe '#show' do
     let(:view_counter) { double('view_counter', :increment => nil) }
 
