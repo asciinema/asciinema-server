@@ -89,21 +89,41 @@ defmodule AsciinemaWeb.AsciicastView do
   defp add_style(styles, _, _), do: styles
 
   def thumbnail(asciicast, width \\ 80, height \\ 15) do
-    lines = asciicast.snapshot || Enum.take(Stream.cycle([[]]), height)
-    y = Enum.count(lines) - height - count_trailing_blank_lines(lines)
+    lines = asciicast.snapshot || []
 
     lines
+    |> drop_trailing_blank_lines
+    |> fill_to_height(height)
+    |> take_last(height)
     |> adjust_colors
     |> split_chunks
-    |> crop(0, y, width, height)
+    |> crop_to_width(width)
     |> group_chunks
   end
 
-  def count_trailing_blank_lines(lines) do
+  def drop_trailing_blank_lines(lines) do
     lines
     |> Enum.reverse
-    |> Enum.take_while(&blank_line?/1)
-    |> Enum.count
+    |> Enum.drop_while(&blank_line?/1)
+    |> Enum.reverse
+  end
+
+  def fill_to_height(lines, height) do
+    if height - Enum.count(lines) > 0 do
+      enums = [lines, Stream.cycle([[]])]
+      enums
+      |> Stream.concat
+      |> Enum.take(height)
+    else
+      lines
+    end
+  end
+
+  def take_last(lines, height) do
+    lines
+    |> Enum.reverse
+    |> Enum.take(height)
+    |> Enum.reverse
   end
 
   def blank_line?(line) do
@@ -169,17 +189,12 @@ defmodule AsciinemaWeb.AsciicastView do
     |> Enum.map(&{&1, attrs})
   end
 
-  def crop(lines, x, y, width, height) do
-    lines
-    |> Enum.drop(y)
-    |> Enum.take(height)
-    |> Enum.map(&crop_line(&1, x, width))
+  def crop_to_width(lines, width) do
+    Enum.map(lines, &crop_line_to_width(&1, width))
   end
 
-  def crop_line(chunks, x, width) do
-    chunks
-    |> Enum.drop(x)
-    |> Enum.take(width)
+  def crop_line_to_width(chunks, width) do
+    Enum.take(chunks, width)
   end
 
   def group_chunks(lines) do
