@@ -1,29 +1,62 @@
-# Contact
+# Contact / Community
+
+## Forum
+
+[asciinema community forum](https://discourse.asciinema.org/) is a great place
+to discuss all things related to the project: questions and answers to common
+problems, usage tips, troubleshooting, cool new ideas, planning the future
+developments.
+
+If you're looking for general help this is probably the best way to go.
 
 ## IRC
 
-There's __#asciinema__ channel on freenode network. Join us there with your
-favourite IRC client or [use KiwiIRC web
-client](https://kiwiirc.com/nextclient/irc.freenode.net/#asciinema) (no
-registration required).
+Many of us hang out on freenode’s __#asciinema__ channel. Join us there!
 
-If you're looking for general help this is probably the best way to go.
+If you don’t have IRC client at hand you can [enter #asciinema channel with
+KiwiIRC web client](https://kiwiirc.com/nextclient/irc.freenode.net/#asciinema)
+(no registration required, just pick your nickname).
+
+If you’d like to talk to someone in real-time, or just want to hang out with us
+then IRC or Matrix are probably better than the forum (which is best for
+open-ended, async discussions).
+
+## Matrix
+
+We also have a [Matrix](https://matrix.org/) room:
+[#asciinema:matrix.org](https://matrix.to/#/#asciinema:matrix.org). We recommend
+Riot web client (click on big R icon). This Matrix room is bridged to the IRC
+channel, and the discussions are synced both ways (IRC <-> Matrix).
 
 ## Twitter
 
 Follow [@asciinema](https://twitter.com/asciinema) on Twitter to get updates on
 new releases, get some tips & tricks and find out about interesting recordings.
+
 Please don't report bugs via Twitter.
 
-## E-mail
+## Contacting admin of asciinema.org
 
-You can also reach asciinema team via e-mail. The address is `support at this
-domain`.
+If you'd like to reach out to the admin of this asciinema server then send email
+to `admin at this domain`.
 
-If you believe that you've found a security vulnerability, please report it by
-sending e-mail to the above address. The PGP key for it (1eb33a8760dec34b) below
-can be used to send encrypted mail or to verify responses received from that
-address.
+You may consider contacting the admin in the following cases:
+
+  * account access problems,
+  * reporting content published on this site,
+  * security vulnerability which may affect asciinema.org users.
+
+Otherwise please check out [FAQ](https://discourse.asciinema.org/c/faq) first,
+most likely it will answer your question.
+
+Also, please don't use this email for suggestions, feedback, and other matters
+not related to your account or content on asciinema.org - use forum for these.
+
+If you think it makes sense to encrypt the message then you can either use
+[keybase.io](https://keybase.io/asciinema) or encrypt the email with PGP.
+
+The PGP public key for the above email adress (fingerprint `1eb33a8760dec34b`)
+is following:
 
     -----BEGIN PGP PUBLIC KEY BLOCK-----
     Version: GnuPG v2
