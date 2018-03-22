@@ -30,6 +30,7 @@ defmodule AsciinemaWeb.Router do
 
     get "/browse", AsciicastController, :index
     get "/browse/featured", AsciicastController, :featured
+    get "/browse/public", AsciicastController, :public
     get "/a/:id/iframe", AsciicastController, :iframe
 
     get "/docs", DocController, :index

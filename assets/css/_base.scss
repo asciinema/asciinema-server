@@ -24,3 +24,14 @@ h1, h2, h3 {
     }
   }
 }
+
+section.top {
+  color: #fff;
+  background-color: #222;
+  padding: 25px 0;
+
+  h1 {
+    font-size: 2.5rem;
+    margin: 0;
+  }
+}

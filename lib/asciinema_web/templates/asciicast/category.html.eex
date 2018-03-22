@@ -1,0 +1,49 @@
+<section class="top">
+  <div class="container">
+    <h1><%= @category_title %></h1>
+  </div>
+</section>
+
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <div class="row">
+        <div class="col-md-6">
+        </div>
+
+        <div class="col-md-6 text-right">
+          <div class="sorting">
+            <span>Sort by </span>
+
+            <div class="btn-group btn-group-sm">
+              <%= active_link "date", @order == :date, to: "?order=date", class: "btn btn-light" %>
+              <%= active_link "popularity", @order == :popularity, to: "?order=popularity", class: "btn btn-light" %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row asciicast-list">
+        <div class="col">
+          <%= for asciicasts <- Enum.chunk(@page, 3, 3, []) do %>
+            <div class="row">
+              <%= for asciicast <- asciicasts do %>
+                <div class="col-md-4">
+                  <%= render "_card.html", conn: @conn, asciicast: asciicast %>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <%= if @page.total_pages > 1 do %>
+        <div class="row">
+          <div class="col">
+            <%= pagination_links @page, order: @order %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
