@@ -42,7 +42,7 @@ RUN apt-get update && \
     apt-get update && \
     apt-get install -y \
       build-essential \
-      elixir=1.5.2-1 \
+      elixir=1.6.3-1 \
       esl-erlang=1:20.1 \
       git-core \
       libfontconfig1 \
