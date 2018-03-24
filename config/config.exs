@@ -65,7 +65,7 @@ config :asciinema, :snapshot_updater, Asciinema.Asciicasts.SnapshotUpdater.Exq
 config :exq,
   name: Exq,
   start_on_application: false,
-  url: System.get_env("REDIS_URL") || "redis://redis:6379",
+  url: System.get_env("REDIS_URL") || "redis://localhost:6379",
   namespace: "exq",
   concurrency: 10,
   queues: ["default", "emails", "rails"],
