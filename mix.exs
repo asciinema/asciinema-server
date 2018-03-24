@@ -18,29 +18,7 @@ defmodule Asciinema.Mixfile do
   # Type `mix help compile.app` for more information.
   def application do
     [mod: {Asciinema.Application, []},
-     applications: [
-       :bamboo,
-       :bamboo_smtp,
-       :briefly,
-       :cowboy,
-       :ex_aws,
-       :gettext,
-       :logger,
-       :phoenix,
-       :phoenix_ecto,
-       :phoenix_html,
-       :phoenix_pubsub,
-       :plug_rails_cookie_session_store,
-       :poolboy,
-       :porcelain,
-       :postgrex,
-       :redix,
-       :sentry,
-       :timex,
-       :timex_ecto,
-       :exq,
-       :exq_ui,
-     ]]
+     extra_applications: [:logger]]
   end
 
   # Specifies which paths to compile per environment.
