@@ -31,7 +31,7 @@ config :asciinema, :snapshot_updater, Asciinema.Asciicasts.SnapshotUpdater.Noop
 config :exq,
   url: System.get_env("TEST_REDIS_URL") ||
        System.get_env("REDIS_URL") ||
-       "redis://redis:6379"
+       "redis://localhost:6379/1"
 
 config :exq_ui, server: false
 
