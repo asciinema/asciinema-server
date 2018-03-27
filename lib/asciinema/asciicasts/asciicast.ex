@@ -18,6 +18,7 @@ defmodule Asciinema.Asciicasts.Asciicast do
     field :stdout_timing, :string
     field :stdout_frames, :string
     field :private, :boolean
+    field :featured, :boolean
     field :secret_token, :string
     field :duration, :float
     field :title, :string

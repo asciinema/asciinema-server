@@ -17,15 +17,6 @@ FactoryGirl.define do
     shell "/bin/zsh"
     views_count 1
     file { fixture_file['1/asciicast.json', 'application/json'] }
-    stdout_frames { fixture_file['stdout.json', 'application/json'] }
     snapshot JSON.parse(File.read('spec/fixtures/snapshot.json'))
-  end
-
-  factory :legacy_asciicast, parent: :asciicast do
-    version 0
-    file nil
-    stdout_data { fixture_file['0.9.9/stdout', 'application/octet-stream'] }
-    stdout_timing { fixture_file['0.9.9/stdout.time', 'application/octet-stream'] }
-    uname 'Linux 3.9.9-302.fc19.x86_64 #1 SMP Sat Jul 6 13:41:07 UTC 2013 x86_64'
   end
 end

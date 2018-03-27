@@ -21,6 +21,21 @@ defmodule Asciinema.Asciicasts do
     Repo.one!(q)
   end
 
+  def paginate_asciicasts(category, order, page \\ 0, page_size \\ 12) do
+    from(Asciicast)
+    |> filter(category)
+    |> sort(order)
+    |> preload(:user)
+    |> Repo.paginate(page: page, page_size: page_size)
+  end
+
+  defp filter(q, :featured), do: where(q, [a], a.featured == true)
+  defp filter(q, :public), do: where(q, [a], a.private == false)
+  defp filter(q, :all), do: q
+
+  defp sort(q, :date), do: order_by(q, [desc: :id])
+  defp sort(q, :popularity), do: order_by(q, [desc: :views_count])
+
   def create_asciicast(user, params, overrides \\ %{})
 
   def create_asciicast(user, %Plug.Upload{filename: filename} = upload, overrides) do

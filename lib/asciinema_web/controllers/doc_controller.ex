@@ -2,7 +2,7 @@ defmodule AsciinemaWeb.DocController do
   use AsciinemaWeb, :controller
   alias AsciinemaWeb.{DocView, ErrorView}
 
-  @topics ["how-it-works", "getting-started", "installation", "usage", "config", "embedding", "faq"]
+  @topics ["how-it-works", "getting-started", "installation", "usage", "config", "embedding"]
 
   def index(conn, _params) do
     redirect conn, to: doc_path(conn, :show, :"getting-started")

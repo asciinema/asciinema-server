@@ -29,7 +29,7 @@ RUN bash /tmp/install_pngquant.sh
 FROM ubuntu:16.04
 
 ARG DEBIAN_FRONTEND=noninteractive
-ARG NODE_VERSION=node_6.x
+ARG NODE_VERSION=node_8.x
 ARG DISTRO=xenial
 
 RUN apt-get update && \
@@ -42,7 +42,7 @@ RUN apt-get update && \
     apt-get update && \
     apt-get install -y \
       build-essential \
-      elixir=1.5.2-1 \
+      elixir=1.6.3-1 \
       esl-erlang=1:20.1 \
       git-core \
       libfontconfig1 \
@@ -50,11 +50,9 @@ RUN apt-get update && \
       libpq-dev \
       libxml2-dev \
       libxslt1-dev \
-      nginx \
       nodejs \
       ruby2.1 \
       ruby2.1-dev \
-      supervisor \
       ttf-bitstream-vera \
       tzdata
 
@@ -142,16 +140,18 @@ RUN bundle exec rake assets:precompile
 COPY mix.* /app/
 RUN mix deps.get --only prod && mix deps.compile
 
-# install brunch & co
+# install webpack & co
 
 COPY assets/package.json /app/assets/
+COPY assets/package-lock.json /app/assets/
 RUN cd assets && npm install
 
-# compile assets with brunch and generate digest file
+# compile assets with webpack and generate digest file
 
 COPY assets /app/assets
-RUN cd assets && node_modules/brunch/bin/brunch build --production
-RUN mix phoenix.digest
+RUN cd assets && npm run deploy
+RUN mix phx.digest
+RUN cp -r public/assets priv/static/
 
 # add Elixir source files
 
@@ -172,15 +172,6 @@ RUN mix compile
 
 COPY docker/asciinema.yml /app/config/asciinema.yml
 
-# configure Nginx
-
-COPY docker/nginx/asciinema.conf /etc/nginx/sites-available/default
-
-# configure Supervisor
-
-RUN mkdir -p /var/log/supervisor
-COPY docker/supervisor/asciinema.conf /etc/supervisor/conf.d/asciinema.conf
-
 # add setup script
 
 COPY docker/bin /app/docker/bin
@@ -192,7 +183,7 @@ COPY --from=1 /usr/local/bin/pngquant /usr/local/bin/
 
 VOLUME ["/app/log", "/app/uploads", "/cache"]
 
-CMD ["/usr/bin/supervisord"]
+CMD ["mix", "phx.server"]
 
 ENV PORT 4000
 

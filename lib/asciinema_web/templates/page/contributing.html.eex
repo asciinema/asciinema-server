@@ -1,0 +1,210 @@
+<div class="container pages">
+  <div class="row about">
+    <div class="col-md-8">
+      <h1>Contributing to the project</h1>
+
+      <p>asciinema is open-source software and the service at asciinema.org is made available free of charge to anyone. A lot of effort is put in this project and it's developed exclusively in free time. If you find the service useful, you think it's a great idea or you believe in giving back to the open-source community please consider making a financial donation or putting your time to improve the project. </p>
+      <p>Supporting an open-source project feels great. And you can do it in many ways. Here is a list of a few things you can do to show your appreciation and help asciinema. </p>
+
+      <h2 id="donating">Donating</h2>
+
+      <p>While the service is free of charge for anyone it still requires servers, domains, SSL certificates, storage for backups and other resources to keep it running. </p>
+      <p>Consider a donation to help cover these costs. Be it once, be it regularly, be it a small or a big amount. Even if it's just enough for "a beer", your support helps running the service and motivates future developments. </p>
+      <p>You can choose from several options below to support asciinema financially. </p>
+
+      <h3>Bitcoin</h3>
+
+      <p>Bitcoin is a decentralized peer-to-peer electronic crypto-currency. Bitcoin is also a free way to send money overseas. If you would like to donate some bitcoins to the project use the following address (you can just click it if you use desktop bitcoin wallet). </p>
+      <p><img alt="Bitcoin logo" class="bitcoin-logo" src="<%= static_path(@conn, "/images/bitcoin-logo.png") %>"><a href="bitcoin:1GLaEx3cU5rzaMVhst1djCJvs5HK8PAsV4?amount=0.05&amp;label=asciinema%20donation">1GLaEx3cU5rzaMVhst1djCJvs5HK8PAsV4 </a></p>
+
+      <h3>Gratipay</h3>
+
+      <p>Gratipay is a way to give small weekly cash gifts to people you love and are inspired by. And it's great for supporting open-source authors and projects. To donate to asciinema via Gratipay, click on the button below. </p>
+      <script data-gratipay-username="sickill" data-gratipay-widget="button" src="//grtp.co/v1.js"></script>
+
+      <h3>PayPal</h3>
+
+      <p>You can also donate money to the project through asciinema's PayPal account. </p>
+      <p>If you click on the button below, you will be taken to the secure PayPal Web site. You don't need to have a PayPal account in order to make a donation. </p>
+
+      <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top" id="paypal-form">
+        <input name="cmd" value="_donations" type="hidden">
+        <input name="business" value="donations@asciinema.org" type="hidden">
+        <input name="lc" value="GB" type="hidden">
+        <input name="item_name" value="asciinema development" type="hidden">
+        <input name="bn" value="PP-DonationsBF:btn_donate_LG.gif:NonHosted" type="hidden">
+        <input class="button" src="https://www.paypalobjects.com/en_GB/i/btn/btn_donate_LG.gif" name="submit" alt="PayPal – The safer, easier way to pay online." type="image" border="0"><img alt="" src="https://www.paypalobjects.com/pl_PL/i/scr/pixel.gif" width="1" border="0" height="1"><span><input name="currency_code" value="USD" id="usd" checked="" type="radio"><label for="usd">USD</label></span><span><input name="currency_code" value="EUR" id="eur" type="radio"><label for="eur">EUR</label></span><span><input name="currency_code" value="PLN" id="pln" type="radio"><label for="pln">PLN</label></span></form>
+
+      <h2 id="packaging">Packaging</h2>
+
+      <p>If you use an operating system for which there's no native asciinema package and you know how to build one then don't hesitate, build it and let us know. </p>
+
+      <h2 id="bug-reporting">Bug reporting</h2>
+
+      <p>All your bug reports and feature ideas are highly appreciated as they help to improve the quality and functionality of asciinema for everyone. </p>
+      <p>As the service is built of several parts there are separate bug trackers: </p>
+
+      <ul>
+        <li><a href="https://github.com/asciinema/asciinema/issues">github.com/asciinema/asciinema/issues</a> - issues and ideas for the command line recorder, </li>
+        <li><a href="https://github.com/asciinema/asciinema-server/issues">github.com/asciinema/asciinema-server/issues</a> - issues and ideas for the website, </li>
+        <li><a href="https://github.com/asciinema/asciinema-player/issues">github.com/asciinema/asciinema-player/issues</a> - issues and ideas for the javascript player. </li>
+      </ul>
+
+      <p></p>
+
+      <h2 id="spreading">Spreading the word</h2>
+
+      <p>Finally, you can help spreading the word about the project by telling your friends about it. Tweet and blog about it or submit your recordings to Reddit. We're <a href="https://twitter.com/asciinema">@asciinema</a> on Twitter btw. </p>
+
+      <a class="resp-sharing-button__link" href="https://twitter.com/intent/tweet/?text=asciinema - Record and share your terminal sessions, the right way&amp;url=http://localhost:3000/" target="_blank">
+        <div class="resp-sharing-button resp-sharing-button--twitter resp-sharing-button--small">
+          <div class="resp-sharing-button__icon">
+            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1em" height="1em" viewBox="0 0 32 32">
+              <path d="M32 6.076c-1.177 0.522-2.443 0.875-3.771 1.034 1.355-0.813 2.396-2.099 2.887-3.632-1.269 0.752-2.674 1.299-4.169 1.593-1.198-1.276-2.904-2.073-4.792-2.073-3.626 0-6.565 2.939-6.565 6.565 0 0.515 0.058 1.016 0.17 1.496-5.456-0.274-10.294-2.888-13.532-6.86-0.565 0.97-0.889 2.097-0.889 3.301 0 2.278 1.159 4.287 2.921 5.465-1.076-0.034-2.088-0.329-2.974-0.821-0.001 0.027-0.001 0.055-0.001 0.083 0 3.181 2.263 5.834 5.266 6.437-0.551 0.15-1.131 0.23-1.73 0.23-0.423 0-0.834-0.041-1.235-0.118 0.835 2.608 3.26 4.506 6.133 4.559-2.247 1.761-5.078 2.81-8.154 2.81-0.53 0-1.052-0.031-1.566-0.092 2.905 1.863 6.356 2.95 10.064 2.95 12.076 0 18.679-10.004 18.679-18.68 0-0.285-0.006-0.568-0.019-0.849 1.283-0.926 2.396-2.082 3.276-3.398z"></path>
+            </svg>
+          </div>
+        </div>
+      </a>
+      <a class="resp-sharing-button__link" href="https://facebook.com/sharer/sharer.php?u=http://localhost:3000/" target="_blank">
+        <div class="resp-sharing-button resp-sharing-button--facebook resp-sharing-button--small">
+          <div class="resp-sharing-button__icon">
+            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1em" height="1em" viewBox="0 0 32 32">
+              <path d="M21 6c-2.761 0-5 2.239-5 5v3h-4v4h4v14h4v-14h4.5l1-4h-5.5v-3c0-0.552 0.448-1 1-1h5v-4h-5z"></path>
+            </svg>
+          </div>
+        </div>
+      </a>
+      <a class="resp-sharing-button__link" href="https://plus.google.com/share?url=http://localhost:3000/" target="_blank">
+        <div class="resp-sharing-button resp-sharing-button--google resp-sharing-button--small">
+          <div class="resp-sharing-button__icon">
+            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1em" height="1em" viewBox="0 0 32 32">
+              <path d="M17.471 2c0 0-6.28 0-8.373 0-3.754 0-7.287 2.844-7.287 6.138 0 3.366 2.559 6.083 6.378 6.083 0.266 0 0.524-0.005 0.776-0.024-0.248 0.475-0.425 1.009-0.425 1.564 0 0.936 0.503 1.694 1.14 2.313-0.481 0-0.945 0.014-1.452 0.014-4.649-0-8.228 2.961-8.228 6.032 0 3.024 3.923 4.916 8.573 4.916 5.301 0 8.228-3.008 8.228-6.032 0-2.425-0.715-3.877-2.928-5.442-0.757-0.536-2.204-1.839-2.204-2.604 0-0.897 0.256-1.34 1.607-2.395 1.385-1.082 2.365-2.603 2.365-4.372 0-2.106-0.938-4.159-2.699-4.837h2.655l1.874-1.355zM14.546 22.483c0.066 0.28 0.103 0.569 0.103 0.863 0 2.444-1.575 4.353-6.093 4.353-3.214 0-5.535-2.035-5.535-4.478 0-2.395 2.879-4.389 6.093-4.354 0.75 0.008 1.449 0.129 2.083 0.334 1.745 1.213 2.996 1.899 3.349 3.281zM9.401 13.368c-2.157-0.065-4.207-2.413-4.58-5.246s1.074-5.001 3.231-4.937c2.157 0.065 4.207 2.338 4.58 5.171s-1.075 5.077-3.231 5.012zM26 8v-6h-2v6h-6v2h6v6h2v-6h6v-2z"></path>
+            </svg>
+          </div>
+        </div>
+      </a>
+      <a class="resp-sharing-button__link" href="https://reddit.com/submit/?url=http://localhost:3000/&amp;title=asciinema - Record and share your terminal sessions, the right way" target="_blank">
+        <div class="resp-sharing-button resp-sharing-button--reddit resp-sharing-button--small">
+          <div class="resp-sharing-button__icon">
+            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1em" height="1em" viewBox="0 0 32 32">
+              <path d="M8 20c0-1.105 0.895-2 2-2s2 0.895 2 2c0 1.105-0.895 2-2 2s-2-0.895-2-2zM20 20c0-1.105 0.895-2 2-2s2 0.895 2 2c0 1.105-0.895 2-2 2s-2-0.895-2-2zM20.097 24.274c0.515-0.406 1.262-0.317 1.668 0.198s0.317 1.262-0.198 1.668c-1.434 1.13-3.619 1.86-5.567 1.86s-4.133-0.73-5.567-1.86c-0.515-0.406-0.604-1.153-0.198-1.668s1.153-0.604 1.668-0.198c0.826 0.651 2.46 1.351 4.097 1.351s3.271-0.7 4.097-1.351zM32 16c0-2.209-1.791-4-4-4-1.504 0-2.812 0.83-3.495 2.057-2.056-1.125-4.561-1.851-7.29-2.019l2.387-5.36 4.569 1.319c0.411 1.167 1.522 2.004 2.83 2.004 1.657 0 3-1.343 3-3s-1.343-3-3-3c-1.142 0-2.136 0.639-2.642 1.579l-5.091-1.47c-0.57-0.164-1.173 0.116-1.414 0.658l-3.243 7.282c-2.661 0.187-5.102 0.907-7.114 2.007-0.683-1.227-1.993-2.056-3.496-2.056-2.209 0-4 1.791-4 4 0 1.635 0.981 3.039 2.387 3.659-0.252 0.751-0.387 1.535-0.387 2.341 0 5.523 6.268 10 14 10s14-4.477 14-10c0-0.806-0.134-1.589-0.387-2.34 1.405-0.62 2.387-2.025 2.387-3.66zM27 5.875c0.621 0 1.125 0.504 1.125 1.125s-0.504 1.125-1.125 1.125-1.125-0.504-1.125-1.125 0.504-1.125 1.125-1.125zM2 16c0-1.103 0.897-2 2-2 0.797 0 1.487 0.469 1.808 1.145-1.045 0.793-1.911 1.707-2.552 2.711-0.735-0.296-1.256-1.016-1.256-1.856zM16 29.625c-6.42 0-11.625-3.414-11.625-7.625s5.205-7.625 11.625-7.625c6.42 0 11.625 3.414 11.625 7.625s-5.205 7.625-11.625 7.625zM28.744 17.856c-0.641-1.003-1.507-1.918-2.552-2.711 0.321-0.676 1.011-1.145 1.808-1.145 1.103 0 2 0.897 2 2 0 0.84-0.52 1.56-1.256 1.856z"></path>
+            </svg>
+          </div>
+        </div>
+      </a>
+
+      <style>
+       .resp-sharing-button {
+         display: inline-block;
+         border-radius: 5px;
+         border-width: 1px;
+         border-style: solid;
+         transition: background-color 125ms ease-out, border-color 125ms ease-out, opacity 250ms ease-out;
+         margin-right: 0.5em;
+         padding: 0.5em 0.75em;
+         font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+       }
+       
+       .resp-sharing-button a {
+         text-decoration: none;
+         color: #FFF;
+         display: block;
+       }
+       
+       .resp-sharing-button__icon {
+         display: inline-block;
+       }
+       
+       .resp-sharing-button__icon svg {
+         fill: #FFF;
+         width: 1em;
+         height: 1em;
+         margin-bottom: -0.1em;
+       }
+       
+       .resp-sharing-button__link {
+         text-decoration: none;
+         color: #FFF;
+       }
+       
+       .resp-sharing-button--large .resp-sharing-button__icon svg {
+         padding-right: 0.4em;
+       }
+       
+       .resp-sharing-button__wrapper {
+         display: inline-block;
+       }
+       
+       .resp-sharing-button--facebook {
+         background-color: #3b5998;
+         border-color: #3b5998;
+       }
+       
+       .resp-sharing-button--facebook:hover,
+       .resp-sharing-button--facebook:active {
+         background-color: #2d4373;
+         border-color: #2d4373;
+       }
+       
+       .resp-sharing-button--twitter {
+         background-color: #55acee;
+         border-color: #55acee;
+       }
+       
+       .resp-sharing-button--twitter:hover,
+       .resp-sharing-button--twitter:active {
+         background-color: #2795e9;
+         border-color: #2795e9;
+       }
+       
+       .resp-sharing-button--google {
+         background-color: #dd4b39;
+         border-color: #dd4b39;
+       }
+       
+       .resp-sharing-button--google:hover,
+       .resp-sharing-button--google:active {
+         background-color: #c23321;
+         border-color: #c23321;
+       }
+       
+       .resp-sharing-button--tumblr {
+         background-color: #35465C;
+         border-color: #35465C;
+       }
+       
+       .resp-sharing-button--tumblr:hover,
+       .resp-sharing-button--tumblr:active {
+         background-color: #222d3c;
+         border-color: #222d3c;
+       }
+       
+       .resp-sharing-button--reddit {
+         background-color: #5f99cf;
+         border-color: #5f99cf;
+       }
+       
+       .resp-sharing-button--reddit:hover,
+       .resp-sharing-button--reddit:active {
+         background-color: #3a80c1;
+         border-color: #3a80c1;
+       }
+       
+       .resp-sharing-button__link:hover {
+         text-decoration: none;
+       }
+      </style>
+    </div>
+
+    <div class="col-md-4">
+      <h2>Contribute by:</h2>
+
+      <ul class="nav flex-column">
+        <li class="nav-item"><a class="nav-link" href="#donating">Donating</a></li>
+        <li class="nav-item"><a class="nav-link" href="#packaging">Packaging</a></li>
+        <li class="nav-item"><a class="nav-link" href="#bug-reporting">Bug reporting</a></li>
+        <li class="nav-item"><a class="nav-link" href="#spreading">Spreading the word</a></li>
+      </ul>
+    </div>
+  </div>
+</div>

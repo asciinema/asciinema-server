@@ -30,11 +30,4 @@ Rails.application.routes.draw do
   end
 
   root 'home#show'
-
-  get '/about' => 'pages#show', page: :about, as: :about
-  get '/privacy' => 'pages#show', page: :privacy, as: :privacy
-  get '/tos' => 'pages#show', page: :tos, as: :tos
-  get '/contributing' => 'pages#show', page: :contributing, as: :contributing
-  get '/contact' => 'pages#show', page: :contact, as: :contact
-
 end

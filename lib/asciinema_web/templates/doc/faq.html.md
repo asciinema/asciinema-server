@@ -81,7 +81,6 @@ Alternatively, you can set `ASCIINEMA_API_URL` env variable:
 ## Can I edit/post-process the recorded asciicast?
 
 Yes, if you know how to deal with [ansi escape
-sequences](https://en.wikipedia.org/wiki/ANSI_escape_code). Asciicasts are
-self-contained JSON files which you can edit before uploading. Look at
-`stdout` attribute in [asciicast format doc](https://github.com/asciinema/asciinema/blob/master/doc/asciicast-v1.md)
-for inspiration.
+sequences](https://en.wikipedia.org/wiki/ANSI_escape_code). See documentation
+for [asciicast
+format](https://github.com/asciinema/asciinema/blob/master/doc/asciicast-v2.md).

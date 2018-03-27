@@ -7,5 +7,5 @@
   <%= topic_link @conn, @active_topic, :usage %>
   <%= topic_link @conn, @active_topic, :config %>
   <%= topic_link @conn, @active_topic, :embedding %>
-  <%= topic_link @conn, @active_topic, :faq %>
+  <li><a href="https://discourse.asciinema.org/c/faq">FAQ</a></li>
 </ul>

@@ -1,0 +1,47 @@
+<header>
+  <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+    <div class="container">
+      <a class="navbar-brand" href="/">
+        <img src="<%= static_path(@conn, "/images/logo-red.svg") %>">
+      </a>
+
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarNavDropdown">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="/browse/featured">Explore</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="<%= doc_path(@conn, :index) %>">Docs</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="http://blog.asciinema.org">Blog</a>
+          </li>
+        </ul>
+
+        <ul class="navbar-nav navbar-right session-info">
+          <%= if @current_user do %>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">
+
+                <img class="avatar" src="<%= avatar_url(@current_user) %>"><%= @current_user.username || @current_user.email %>
+              </a>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" href="<%= profile_path(@current_user) %>">Profile</a>
+                <a class="dropdown-item" href="/user/edit">Settings</a>
+                <a class="dropdown-item logout" href="/logout">Log out</a>
+              </div>
+            </li>
+          <% else %>
+            <li class="nav-item">
+              <a class="nav-link" href="/login/new" id="log-in">Log in / Sign up</a>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+  </nav>
+</header>

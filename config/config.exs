@@ -65,7 +65,7 @@ config :asciinema, :snapshot_updater, Asciinema.Asciicasts.SnapshotUpdater.Exq
 config :exq,
   name: Exq,
   start_on_application: false,
-  url: System.get_env("REDIS_URL") || "redis://redis:6379",
+  url: System.get_env("REDIS_URL") || "redis://localhost:6379",
   namespace: "exq",
   concurrency: 10,
   queues: ["default", "emails", "rails"],
@@ -79,6 +79,9 @@ config :exq_ui,
   web_port: 4040,
   web_namespace: "",
   server: true
+
+config :scrivener_html,
+  view_style: :bootstrap_v4
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

@@ -4,7 +4,7 @@ defmodule Asciinema.Mixfile do
   def project do
     [app: :asciinema,
      version: "0.0.1",
-     elixir: "~> 1.2",
+     elixir: "~> 1.6",
      elixirc_paths: elixirc_paths(Mix.env),
      compilers: [:phoenix, :gettext] ++ Mix.compilers,
      build_embedded: Mix.env == :prod,
@@ -18,29 +18,7 @@ defmodule Asciinema.Mixfile do
   # Type `mix help compile.app` for more information.
   def application do
     [mod: {Asciinema.Application, []},
-     applications: [
-       :bamboo,
-       :bamboo_smtp,
-       :briefly,
-       :cowboy,
-       :ex_aws,
-       :gettext,
-       :logger,
-       :phoenix,
-       :phoenix_ecto,
-       :phoenix_html,
-       :phoenix_pubsub,
-       :plug_rails_cookie_session_store,
-       :poolboy,
-       :porcelain,
-       :postgrex,
-       :redix,
-       :sentry,
-       :timex,
-       :timex_ecto,
-       :exq,
-       :exq_ui,
-     ]]
+     extra_applications: [:logger]]
   end
 
   # Specifies which paths to compile per environment.
@@ -62,9 +40,10 @@ defmodule Asciinema.Mixfile do
       {:exq, "~> 0.9.0"},
       {:exq_ui, "~> 0.9.0"},
       {:gettext, "~> 0.11"},
+      {:inflex, "~> 1.9"},
       {:phoenix, "~> 1.3.0"},
       {:phoenix_ecto, "~> 3.0"},
-      {:phoenix_html, "~> 2.10"},
+      {:phoenix_html, "~> 2.11"},
       {:phoenix_live_reload, "~> 1.0", only: :dev},
       {:phoenix_markdown, "~> 0.1"},
       {:phoenix_pubsub, "~> 1.0"},
@@ -74,6 +53,8 @@ defmodule Asciinema.Mixfile do
       {:porcelain, "~> 2.0"},
       {:postgrex, ">= 0.0.0"},
       {:redix, ">= 0.6.1"},
+      {:scrivener_ecto, "~> 1.0"},
+      {:scrivener_html, "~> 1.7"},
       {:sentry, "~> 6.0"},
       {:timex, "~> 3.0"},
       {:timex_ecto, "~> 3.0"},

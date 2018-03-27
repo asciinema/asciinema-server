@@ -8,4 +8,20 @@ defmodule AsciinemaWeb.LayoutView do
       title -> title <> " - asciinema" # TODO return safe string here?
     end
   end
+
+  def body_class(conn) do
+    action = Phoenix.Controller.action_name(conn)
+
+    controller =
+      conn
+      |> Phoenix.Controller.controller_module
+      |> Atom.to_string
+      |> String.replace(~r/(Elixir\.AsciinemaWeb\.)|(Controller)/, "")
+      |> String.replace(".", "")
+      |> Inflex.underscore
+      |> String.replace("_", " ")
+      |> Inflex.parameterize
+
+    "c-#{controller} a-#{action}"
+  end
 end

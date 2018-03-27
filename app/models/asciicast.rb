@@ -2,8 +2,6 @@ class Asciicast < ActiveRecord::Base
 
   ORDER_MODES = { date: 'created_at', popularity: 'views_count' }
 
-  mount_uploader :stdout_data,   StdoutDataUploader
-  mount_uploader :stdout_timing, StdoutTimingUploader
   mount_uploader :stdout_frames, StdoutFramesUploader
   mount_uploader :file, AsciicastUploader
 
@@ -11,12 +9,7 @@ class Asciicast < ActiveRecord::Base
 
   belongs_to :user
 
-  validates :user, :duration, presence: true
-  validates :stdout_data, :stdout_timing, presence: true, unless: :file
-  validates :file, presence: true, unless: :stdout_data
   validates :snapshot_at, numericality: { greater_than: 0, allow_blank: true }
-  validates :terminal_columns, presence: true, numericality: { greater_than: 0, less_than_or_equal_to: 1000 }
-  validates :terminal_lines, presence: true, numericality: { greater_than: 0, less_than_or_equal_to: 500 }
 
   scope :featured, -> { where(featured: true) }
   scope :by_date, -> { order("created_at DESC") }
@@ -119,11 +112,6 @@ class Asciicast < ActiveRecord::Base
     end
   end
 
-  def stdout
-    return @stdout if @stdout
-    @stdout = Stdout::Buffered.new(get_stdout)
-  end
-
   def theme
     theme_name && Theme.for_name(theme_name)
   end
@@ -133,15 +121,6 @@ class Asciicast < ActiveRecord::Base
   end
 
   private
-
-  def get_stdout
-    if version == 0
-      Stdout::MultiFile.new(stdout_data.decompressed_path,
-                            stdout_timing.decompressed_path)
-    else
-      Stdout::SingleFile.new(file.absolute_url)
-    end
-  end
 
   def generate_secret_token
     begin
