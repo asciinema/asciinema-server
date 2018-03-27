@@ -160,7 +160,7 @@ Start PostgreSQL container (skip this if you use existing PostgreSQL server):
 
 Create database schema and seed it with initial data:
 
-    docker-compose run --rm web setup
+    docker-compose run --rm phoenix setup
 
 ### Create containers
 
@@ -172,7 +172,7 @@ Check the status of newly created containers:
 
     docker ps -f 'name=asciinema_'
 
-You should see `asciinema_web`, `asciinema_postgres` and a few others listed.
+You should see `asciinema_phoenix`, `asciinema_postgres` and a few others listed.
 
 Point your browser to `URL_HOST:URL_PORT` and enjoy your own asciinema hosting site!
 
@@ -203,7 +203,7 @@ Pull latest code from upstream and merge it into your branch:
 
 Upgrade database:
 
-    docker-compose run --rm web upgrade
+    docker-compose run --rm phoenix upgrade
 
 Start new containers:
 
