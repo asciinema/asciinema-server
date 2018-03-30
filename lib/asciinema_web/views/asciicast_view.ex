@@ -216,4 +216,46 @@ defmodule AsciinemaWeb.AsciicastView do
 
     Enum.reverse([last_chunk | chunks])
   end
+
+  def render("show.svg", %{asciicast: asciicast}) do
+    cols = asciicast.terminal_columns
+    rows = asciicast.terminal_lines
+    lines = split_chunks(asciicast.snapshot)
+
+    {_, lines} =
+      lines
+      |> Enum.reduce({0, []}, fn line, {y, lines} ->
+        {_, line} = Enum.reduce(line, {0, []}, fn {text, attrs}, {x, chunks} ->
+          chunk = %{text: text, attrs: attrs, x: x, y: y}
+          {x + String.length(text), [chunk | chunks]}
+        end)
+
+        line = Enum.reverse(line)
+
+        {y + 1, [line | lines]}
+      end)
+
+    lines = Enum.reverse(lines)
+
+    render("_terminal.svg",
+      %{cols: cols,
+        rows: rows,
+        lines: lines,
+        theme_name: "monokai"})
+  end
+
+  def svg_class(%{} = attrs) do
+    attrs
+    |> Enum.to_list
+    |> Enum.reject(fn {attr, _} -> attr == "bg" end)
+    |> Enum.map(&class/1)
+    |> Enum.join(" ")
+  end
+
+  def svg_style(attrs) do
+    case attrs["fg"] do
+      [r, g, b] -> "fill:rgb(#{r},#{g},#{b})"
+      _ -> nil
+    end
+  end
 end

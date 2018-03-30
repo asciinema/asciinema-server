@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="width: <%= @cols + 2 %>ch; height: <%= (@rows + 1) * 1.4 %>em" font-family="Consolas, Menlo, 'Bitstream Vera Sans Mono', monospace, 'Powerline Symbols'" class="asciinema-theme-<%= @theme_name %>" font-size="14px">
+  <style>
+   <%= render "_theme_#{@theme_name}.css" %>
+   <%= render "_256_colors.css" %>
+   .background { fill: #282d35 }
+  </style>
+
+  <rect width="100%" height="100%" class="background"></rect>
+
+  <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="<%= 1.0 * 100 / (@cols + 2) %>%" y="<%= 0.5 * 100 / (@rows + 1) %>%" class="asciinema-terminal">
+    <text>
+      <%= for chunks <- @lines do %>
+        <%= for chunk <- chunks do %>
+          <tspan dy="1.0em" x="<%= 100 * chunk.x / (@cols + 2) %>%" y="<%= 100 * chunk.y / (@rows + 1) %>%" class="<%= svg_class(chunk.attrs) %>" style="<%= svg_style(chunk.attrs) %>"><%= chunk.text %></tspan>
+        <% end %>
+      <% end %>
+    </text>
+  </svg>
+</svg>

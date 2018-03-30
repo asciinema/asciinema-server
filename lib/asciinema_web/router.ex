@@ -15,7 +15,7 @@ defmodule AsciinemaWeb.Router do
   end
 
   pipeline :asciicast do
-    plug :accepts, ["html", "js", "json", "cast", "png", "gif"]
+    plug :accepts, ["html", "js", "json", "cast", "png", "gif", "svg"]
     plug :put_secure_browser_headers
   end
 
