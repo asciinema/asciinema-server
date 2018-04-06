@@ -6,7 +6,7 @@ defmodule AsciinemaWeb.AsciicastController do
   plug :put_layout, "app2.html"
   plug :clear_main_class
 
-  def index(conn, params) do
+  def index(conn, _params) do
     featured = Asciicasts.paginate_asciicasts(:featured, :date, 1, 6)
     public = Asciicasts.paginate_asciicasts(:public, :date, 1, 6)
 
