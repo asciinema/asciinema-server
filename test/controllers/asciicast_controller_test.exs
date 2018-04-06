@@ -2,21 +2,32 @@ defmodule Asciinema.AsciicastControllerTest do
   use AsciinemaWeb.ConnCase
   import Asciinema.Factory
 
-  test "lists asciicasts", %{conn: conn} do
+  test "index", %{conn: conn} do
     insert(:asciicast, private: false, title: "Good stuff")
     insert(:asciicast, featured: true, title: "Featured stuff")
 
     conn = get conn, asciicast_path(conn, :index)
-    assert html_response(conn, 200) =~ "Good stuff"
 
-    conn = get conn, asciicast_path(conn, :index, order: "popularity")
     assert html_response(conn, 200) =~ "Good stuff"
+    assert html_response(conn, 200) =~ "Featured stuff"
+  end
 
-    conn = get conn, asciicast_path(conn, :index, order: "date", page: "2")
-    refute html_response(conn, 200) =~ "Good stuff"
+  test "public", %{conn: conn} do
+    insert(:asciicast, private: false, title: "Good stuff")
+
+    conn = get conn, asciicast_path(conn, :public)
+
+    assert html_response(conn, 200) =~ "Good stuff"
+    refute html_response(conn, 200) =~ "Featured stuff"
+  end
+
+  test "featured", %{conn: conn} do
+    insert(:asciicast, featured: true, title: "Featured stuff")
 
     conn = get conn, asciicast_path(conn, :featured)
+
     assert html_response(conn, 200) =~ "Featured stuff"
+    refute html_response(conn, 200) =~ "Good stuff"
   end
 
   test "shows asciicast file, v1 format", %{conn: conn} do
