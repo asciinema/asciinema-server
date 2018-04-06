@@ -67,10 +67,3 @@
             = render 'asciicasts/previews', asciicasts: page.featured_asciicasts, per_row: 3, no_created_at: true
           p
             a href="/explore/featured" class="btn btn-success" Explore featured asciicasts
-      .row
-        .col-md-12
-          h1 Latest public asciicasts
-          .asciicast-list
-            = render 'asciicasts/previews', asciicasts: page.latest_asciicasts, per_row: 3
-          p
-            a href="/explore" class="btn btn-success" Explore all asciicasts
