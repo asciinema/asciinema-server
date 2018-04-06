@@ -62,8 +62,8 @@
     .container
       .row
         .col-md-12
-          h1 Featured asciicasts
+          h1 Watch best asciicasts
           .asciicast-list
             = render 'asciicasts/previews', asciicasts: page.featured_asciicasts, per_row: 3, no_created_at: true
           p
-            a href="/explore/featured" class="btn btn-success" Explore featured asciicasts
+            a href="/explore" class="btn btn-success" Explore all asciicasts
