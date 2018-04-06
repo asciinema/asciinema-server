@@ -11,7 +11,7 @@ feature "Homepage", :js => true do
     expect(page).to have_link('Explore')
     expect(page).to have_link('Docs')
     expect(page).to have_button('Start Recording')
-    expect(page).to have_content(/Featured asciicasts/i)
+    expect(page).to have_content(/Example sessions/i)
     expect(page).to have_link("the title")
   end
 
