@@ -1,3 +1,5 @@
+_Note: This is guide for `development` branch. [See the version for latest stable release](https://github.com/asciinema/asciinema-server/blob/master/docs/INSTALL.md)._
+
 # asciinema web app install guide
 
 The only officially supported installation procedure of asciinema web app
