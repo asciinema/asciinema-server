@@ -1,5 +1,3 @@
-_Note: This is guide for `development` branch. [See the version for latest stable release](https://github.com/asciinema/asciinema-server/blob/master/docs/INSTALL.md)._
-
 # asciinema web app install guide
 
 The only officially supported installation procedure of asciinema web app
@@ -51,7 +49,7 @@ installation host.
 
 You don't have to use docker-compose to use asciinema web app Docker image. Feel
 free to inspect `docker-compose.yml` file and run required services manually with
-`docker run ...`. However, for the sake of simplicity and to miminize
+`docker run ...`. However, for the sake of simplicity and to minimize
 configuration issues the rest of this guide is based on the provided/suggested
 docker-compose configuration.
 
@@ -86,7 +84,9 @@ Set `URL_SCHEME`, `URL_HOST` and `URL_PORT` to match the address the users are s
     URL_HOST=asciinema.example.com
     URL_PORT=80
 
-Set `SECRET_KEY_BASE` to long random string. Run `docker-compose run --rm web
+Ensure you set the nginx port in the docker-compose.yml file equal to what you specified for `URL_PORT`.
+
+Set `SECRET_KEY_BASE` to long random string. Run `docker-compose run --rm phoenix
 mix phx.gen.secret` to obtain one.
 
 #### HTTPS settings
@@ -243,18 +243,18 @@ Then, edit `lib/asciinema_web/endpoint.ex` file, applying this change:
 +    length: 32_000_000
 ```
 
-Now, stop `web` container:
+Now, stop `phoenix` container:
 
-    docker-compose stop web
+    docker-compose stop phoenix
 
 Rebuild the image:
 
-    docker-compose build web
+    docker-compose build phoenix
 
-Start new `web` container:
+Start new `phoenix` container:
 
-    docker-compose up web -d
-    
+    docker-compose up phoenix -d
+
 If all is good then commit your customization (so you can fetch and merge latest
 version in the future):
 
