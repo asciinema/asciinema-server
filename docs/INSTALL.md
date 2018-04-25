@@ -116,7 +116,7 @@ In `docker/nginx/asciinema.conf`, uncomment this section:
 
 Make sure to substitute the proper filenames for your certificate and private key files.
 
-If you encounter problems, it may be helpful to run `docker exec -it asciinema_web bash`
+If you encounter problems, it may be helpful to run `docker exec -it asciinema_phoenix bash`
 to enter a shell in the container, and then inspect the web server logs in `/var/log/nginx`.
 
 #### SMTP settings
