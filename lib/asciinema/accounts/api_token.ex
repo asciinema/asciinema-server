@@ -18,11 +18,13 @@ defmodule Asciinema.Accounts.ApiToken do
     api_token
     |> change(%{token: token})
     |> validate_format(:token, @uuid4)
+    |> unique_constraint(:token, name: "index_api_tokens_on_token")
   end
 
   def revoke_changeset(%ApiToken{revoked_at: nil} = api_token) do
     change(api_token, %{revoked_at: Timex.now()})
   end
+
   def revoke_changeset(%ApiToken{} = api_token) do
     change(api_token)
   end
