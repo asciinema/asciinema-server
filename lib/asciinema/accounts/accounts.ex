@@ -7,7 +7,7 @@ defmodule Asciinema.Accounts do
   def create_asciinema_user!() do
     attrs = %{username: "asciinema",
               name: "asciinema",
-              email: "support@asciinema.org"}
+              email: "admin@asciinema.org"}
 
     user = case Repo.get_by(User, username: "asciinema") do
              nil ->

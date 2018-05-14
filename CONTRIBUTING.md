@@ -36,14 +36,16 @@ freenode](https://kiwiirc.com/nextclient/irc.freenode.net/#asciinema).
 ## Asking for help
 
 Github issue tracker is not a support forum. If you need help then either [join
-#asciinema IRC channel on freenode](https://kiwiirc.com/nextclient/irc.freenode.net/#asciinema) or drop us an email at support@asciinema.org.
+#asciinema IRC channel on freenode](https://kiwiirc.com/nextclient/irc.freenode.net/#asciinema) or 
+ask a question on [asciinema community forum](https://discourse.asciinema.org/).
 
 ## Reporting security issues
 
-If you found a security issue in asciinema please contact us at support@asciinema.org.
-For the benefit of all asciinema users please **do not** publish details of the vulnerability in a Github issue.
+If you've found a security issue which may affect asciinema.org users please
+contact admin@asciinema.org. For the benefit of all asciinema.org users please
+**do not** publish details of the vulnerability in a Github issue.
 
-The PGP key below (1eb33a8760dec34b) can be used when sending encrypted email to or verifying responses from support@asciinema.org.
+The PGP key below (1eb33a8760dec34b) can be used when sending encrypted email to or verifying responses from admin@asciinema.org.
 
 ```
 -----BEGIN PGP PUBLIC KEY BLOCK-----
