@@ -12,7 +12,7 @@
       <div class="collapse navbar-collapse" id="navbarNavDropdown">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item">
-            <a class="nav-link" href="/browse">Explore</span></a>
+            <a class="nav-link" href="/explore">Explore</span></a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="<%= doc_path(@conn, :index) %>">Docs</a>
