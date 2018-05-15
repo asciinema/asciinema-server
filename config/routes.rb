@@ -21,8 +21,6 @@ Rails.application.routes.draw do
   get "/login/new" => redirect("/not-gonna-happen"), as: :new_login # define new_login_path
   get "/logout" => "sessions#destroy"
 
-  resources :api_tokens, only: [:destroy]
-
   resource :user
 
   resource :username do

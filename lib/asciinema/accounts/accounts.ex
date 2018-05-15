@@ -7,7 +7,7 @@ defmodule Asciinema.Accounts do
   def create_asciinema_user!() do
     attrs = %{username: "asciinema",
               name: "asciinema",
-              email: "support@asciinema.org"}
+              email: "admin@asciinema.org"}
 
     user = case Repo.get_by(User, username: "asciinema") do
              nil ->
@@ -209,6 +209,10 @@ defmodule Asciinema.Accounts do
       %ApiToken{revoked_at: nil} -> {:ok, api_token}
       %ApiToken{} -> {:error, :token_revoked}
     end
+  end
+
+  def get_api_token!(user, id) do
+    Repo.get!(assoc(user, :api_tokens), id)
   end
 
   def get_api_token!(token) do

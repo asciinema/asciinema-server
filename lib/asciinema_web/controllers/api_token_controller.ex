@@ -22,6 +22,15 @@ defmodule AsciinemaWeb.ApiTokenController do
     end
   end
 
+  def delete(conn, %{"id" => id}) do
+    api_token = Accounts.get_api_token!(conn.assigns.current_user, id)
+    Accounts.revoke_api_token!(api_token)
+
+    conn
+    |> put_flash(:info, "Token revoked.")
+    |> redirect(to: user_path(conn, :edit))
+  end
+
   defp maybe_merge_users(conn, api_token_user) do
     current_user = conn.assigns.current_user
 

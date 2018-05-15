@@ -70,7 +70,7 @@
 
         <ul>
           <%= for t <- active_tokens(@api_tokens) do %>
-            <li><code><%= t.token %></code> registered <%= time_tag(t.created_at) %> - <%= link "Revoke", to: "/api_tokens/#{t.id}", method: "delete" %></li>
+            <li><code><%= t.token %></code> registered <%= time_tag(t.created_at) %> - <%= link "Revoke", to: api_token_path(@conn, :delete, t), method: "delete", data: [confirm: "Are you sure?"] %></li>
           <% end %>
         </ul>
 

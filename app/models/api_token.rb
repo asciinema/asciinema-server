@@ -7,24 +7,4 @@ class ApiToken < ActiveRecord::Base
 
   scope :active, -> { where(revoked_at: nil) }
   scope :revoked, -> { where('revoked_at IS NOT NULL') }
-
-  def self.create_with_tmp_user!(token, username)
-    transaction do
-      ApiToken.create!(
-        token: token,
-        user: User.create!(temporary_username: username.presence),
-      )
-    end
-  end
-
-  def revoke!
-    update!(revoked_at: Time.now)
-  end
-
-  private
-
-  def taken?
-    user.confirmed?
-  end
-
 end

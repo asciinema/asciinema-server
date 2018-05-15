@@ -30,6 +30,7 @@ defmodule Asciinema.Accounts.User do
     |> validate_format(:username, @valid_username_re)
     |> validate_length(:username, min: 2, max: 16)
     |> validate_inclusion(:theme_name, @valid_theme_names)
+    |> unique_constraints
   end
 
   def create_changeset(struct, attrs) do
@@ -43,13 +44,20 @@ defmodule Asciinema.Accounts.User do
     |> create_changeset(attrs)
     |> cast(attrs, [:email])
     |> validate_required([:email])
-    |> unique_constraint(:email, name: "index_users_on_email")
+    |> unique_constraints
   end
 
   def update_changeset(%User{} = user, attrs) do
     user
     |> changeset(attrs)
     |> validate_required([:username, :email])
+    |> unique_constraints
+  end
+
+  def unique_constraints(changeset) do
+    changeset
+    |> unique_constraint(:username, name: "index_users_on_username")
+    |> unique_constraint(:email, name: "index_users_on_email")
   end
 
   def login_changeset(user) do
