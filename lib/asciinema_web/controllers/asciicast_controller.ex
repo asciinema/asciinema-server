@@ -20,14 +20,14 @@ defmodule AsciinemaWeb.AsciicastController do
   def featured(conn, params) do
     conn
     |> assign(:page_title, "Featured asciicasts")
-    |> assign(:category_title, "Watch featured asciicasts")
+    |> assign(:category_description, "...")
     |> do_index(params, :featured)
   end
 
   def public(conn, params) do
     conn
-    |> assign(:page_title, "All published asciicasts")
-    |> assign(:category_title, "Watch all published asciicasts")
+    |> assign(:page_title, "Published asciicasts")
+    |> assign(:category_description, "...")
     |> do_index(params, :public)
   end
 

@@ -1,6 +1,7 @@
 <section class="top">
   <div class="container">
-    <h1><%= @category_title %></h1>
+    <h1><%= @page_title %></h1>
+    <h2><%= @category_description %></h2>
   </div>
 </section>
 
