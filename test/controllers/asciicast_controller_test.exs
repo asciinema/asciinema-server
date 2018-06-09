@@ -3,19 +3,15 @@ defmodule Asciinema.AsciicastControllerTest do
   import Asciinema.Factory
 
   test "index", %{conn: conn} do
-    insert(:asciicast, private: false, title: "Good stuff")
-    insert(:asciicast, featured: true, title: "Featured stuff")
-
     conn = get conn, asciicast_path(conn, :index)
 
-    assert html_response(conn, 200) =~ "Good stuff"
-    assert html_response(conn, 200) =~ "Featured stuff"
+    assert redirected_to(conn, 302) =~ "/explore/featured"
   end
 
   test "public", %{conn: conn} do
     insert(:asciicast, private: false, title: "Good stuff")
 
-    conn = get conn, asciicast_path(conn, :public)
+    conn = get conn, asciicast_path(conn, :category, :public)
 
     assert html_response(conn, 200) =~ "Good stuff"
     refute html_response(conn, 200) =~ "Featured stuff"
@@ -24,7 +20,7 @@ defmodule Asciinema.AsciicastControllerTest do
   test "featured", %{conn: conn} do
     insert(:asciicast, featured: true, title: "Featured stuff")
 
-    conn = get conn, asciicast_path(conn, :featured)
+    conn = get conn, asciicast_path(conn, :category, :featured)
 
     assert html_response(conn, 200) =~ "Featured stuff"
     refute html_response(conn, 200) =~ "Good stuff"

@@ -1,15 +1,18 @@
-<section class="top">
-  <div class="container">
-    <h1><%= @page_title %></h1>
-    <h2><%= @category_description %></h2>
-  </div>
-</section>
-
 <div class="container">
   <div class="row">
-    <div class="col">
+    <div class="col-md-2">
+      <h2>Watch</h2>
+
+      <ul class="nav flex-column">
+        <%= nav_link("Featured", asciicast_path(@conn, :category, :featured), @category == :featured) %>
+        <%= nav_link("All Public", asciicast_path(@conn, :category, :public), @category == :public) %>
+      </ul>
+    </div>
+
+    <div class="col-md-10">
       <div class="row">
         <div class="col-md-6">
+          <h2><%= @page_title %></h2>
         </div>
 
         <div class="col-md-6 text-right">
@@ -26,10 +29,10 @@
 
       <div class="row asciicast-list">
         <div class="col">
-          <%= for asciicasts <- Enum.chunk(@page, 3, 3, []) do %>
+          <%= for asciicasts <- Enum.chunk(@page, 2, 2, []) do %>
             <div class="row">
               <%= for asciicast <- asciicasts do %>
-                <div class="col-md-4">
+                <div class="col-md-6">
                   <%= render "_card.html", conn: @conn, asciicast: asciicast %>
                 </div>
               <% end %>
