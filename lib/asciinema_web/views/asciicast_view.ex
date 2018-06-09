@@ -1,6 +1,5 @@
 defmodule AsciinemaWeb.AsciicastView do
   use AsciinemaWeb, :view
-  import Phoenix.Controller, only: [action_name: 1]
   import Scrivener.HTML
   alias AsciinemaWeb.UserView
 
@@ -15,9 +14,9 @@ defmodule AsciinemaWeb.AsciicastView do
     link(title, opts)
   end
 
-  def nav_link(title, path, conn, id) do
+  def nav_link(title, path, active?) do
     content_tag :li, class: "nav-item" do
-      active_link(title, action_name(conn) == id, to: path, class: "nav-link")
+      active_link(title, active?, to: path, class: "nav-link")
     end
   end
 

@@ -1,7 +1,11 @@
 .c-asciicast {
-  &.a-index, &.a-featured, &.a-all {
+  &.a-category {
     main {
       .nav {
+        .nav-link {
+          padding-left: 0.1em;
+        }
+
         .nav-link.active {
           font-weight: bold;
         }

@@ -36,21 +36,6 @@ describe HomePagePresenter do
     end
   end
 
-  describe '#latest_asciicasts' do
-    subject { presenter.latest_asciicasts }
-
-    let(:latest) { double('latest', decorate: decorated_latest) }
-    let(:decorated_latest) { double('decorated_latest') }
-
-    before do
-      allow(Asciicast).to receive(:homepage_latest) { latest }
-    end
-
-    it "returns decorated latest asciicasts" do
-      expect(subject).to be(decorated_latest)
-    end
-  end
-
   describe '#featured_asciicasts' do
     subject { presenter.featured_asciicasts }
 
