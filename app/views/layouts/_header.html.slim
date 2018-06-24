@@ -11,11 +11,15 @@ header.navbar.navbar-default[role="navigation"]
     .collapse.navbar-collapse.navbar-ex1-collapse
       ul.nav.navbar-nav
         li
-          = link_to "Explore", category_path(:featured)
+          = link_to "Watch", "/explore"
         li
-          = link_to "Docs", "/docs"
+          = link_to "Record", "/docs/getting-started"
+        li
+          = link_to "Docs", "/docs/how-it-works"
         li
           = link_to "Blog", 'http://blog.asciinema.org'
+        li
+          = link_to "About", "/about"
 
       ul.nav.navbar-nav.navbar-right.session-info
         - if current_user

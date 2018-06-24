@@ -2,7 +2,7 @@ class AsciicastPolicy < ApplicationPolicy
 
   class Scope < Scope
     def resolve
-      if user.admin?
+      if user.is_admin?
         scope.all
       else
         scope.non_private
@@ -11,7 +11,7 @@ class AsciicastPolicy < ApplicationPolicy
   end
 
   def permitted_attributes
-    if user.admin? || record.owner?(user)
+    if user.is_admin? || record.owner?(user)
       attrs = [:title, :description, :theme_name, :snapshot_at]
       attrs << :featured if change_featured?
       attrs << :private if change_visibility?
@@ -23,19 +23,19 @@ class AsciicastPolicy < ApplicationPolicy
   end
 
   def update?
-    user.admin? || record.owner?(user)
+    user.is_admin? || record.owner?(user)
   end
 
   def destroy?
-    user.admin? || record.owner?(user)
+    user.is_admin? || record.owner?(user)
   end
 
   def change_featured?
-    user.admin?
+    user.is_admin?
   end
 
   def change_visibility?
-    user.admin? || record.owner?(user)
+    user.is_admin? || record.owner?(user)
   end
 
 end

@@ -241,4 +241,14 @@ defmodule Asciinema.Accounts do
     |> assoc(:api_tokens)
     |> Repo.all
   end
+
+  def add_admins(emails) do
+    from(u in User, where: u.email in ^emails)
+    |> Repo.update_all(set: [is_admin: true])
+  end
+
+  def remove_admins(emails) do
+    from(u in User, where: u.email in ^emails)
+    |> Repo.update_all(set: [is_admin: false])
+  end
 end

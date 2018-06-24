@@ -8,6 +8,10 @@ h1, h2, h3 {
   font-family: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 }
 
+body, main {
+  background-color: #f7f7f7;
+}
+
 .c-page, .c-asciicast {
   main {
     h1, h2, h3 {
@@ -22,5 +26,16 @@ h1, h2, h3 {
     h2 {
       font-size: 1.5rem;
     }
+  }
+}
+
+section.top {
+  color: #fff;
+  background-color: #222;
+  padding: 25px 0;
+
+  h1 {
+    font-size: 2.5rem;
+    margin: 0;
   }
 }

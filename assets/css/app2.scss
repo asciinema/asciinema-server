@@ -3,6 +3,7 @@ $navbar-dark-color: rgba($white, .85);
 $navbar-dark-hover-color: $white;
 $link-color: #06989a;
 $pagination-active-bg: #06989a;
+$primary: #06989a;
 
 @import "~bootstrap/scss/bootstrap";
 @import "./_base.scss";
@@ -32,6 +33,16 @@ $pagination-active-bg: #06989a;
       label {
         margin-left: 0.2rem;
       }
+    }
+  }
+}
+
+.c-asciicast.a-index {
+  h2 {
+    font-weight: 600;
+
+    a {
+      color: #333333;
     }
   }
 }

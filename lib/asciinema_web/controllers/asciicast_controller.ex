@@ -4,25 +4,24 @@ defmodule AsciinemaWeb.AsciicastController do
   alias Asciinema.Asciicasts.Asciicast
 
   plug :put_layout, "app2.html"
+  plug :clear_main_class
 
-  def index(conn, params) do
-    conn
-    |> assign(:page_title, "Public asciicasts")
-    |> do_index(params, :public)
+  def index(conn, _params) do
+    redirect(conn, to: asciicast_path(conn, :category, :featured))
   end
 
-  def featured(conn, params) do
-    conn
-    |> assign(:page_title, "Featured asciicasts")
-    |> do_index(params, :featured)
-  end
-
-  def do_index(conn, params, category) do
+  def category(conn, %{"category" => c} = params) when c in ["featured", "public"] do
+    category = String.to_existing_atom(c)
     order = if params["order"] == "popularity", do: :popularity, else: :date
 
-    render(conn, "index.html",
+    assigns = [
+      page_title: String.capitalize("#{category} asciicasts"),
+      category: category,
       page: Asciicasts.paginate_asciicasts(category, order, params["page"]),
-      order: order)
+      order: order
+    ]
+
+    render(conn, "category.html", assigns)
   end
 
   def show(conn, %{"id" => id} = _params) do
@@ -96,5 +95,9 @@ defmodule AsciinemaWeb.AsciicastController do
 
   defp file_store do
     Application.get_env(:asciinema, :file_store)
+  end
+
+  defp clear_main_class(conn, _) do
+    assign(conn, :main_class, "")
   end
 end

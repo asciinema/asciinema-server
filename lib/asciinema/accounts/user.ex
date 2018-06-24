@@ -16,6 +16,7 @@ defmodule Asciinema.Accounts.User do
     field :theme_name, :string
     field :asciicasts_private_by_default, :boolean, default: true
     field :last_login_at, Timex.Ecto.DateTime
+    field :is_admin, :boolean
 
     timestamps(inserted_at: :created_at)
 

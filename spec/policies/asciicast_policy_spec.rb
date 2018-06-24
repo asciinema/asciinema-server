@@ -11,13 +11,13 @@ describe AsciicastPolicy do
     let!(:asciicast_2) { create(:asciicast, private: true) }
 
     context "when user is not admin" do
-      let(:user) { double(:user, admin?: false) }
+      let(:user) { double(:user, is_admin?: false) }
 
       it { should eq([asciicast_1]) }
     end
 
     context "when user is admin" do
-      let(:user) { double(:user, admin?: true) }
+      let(:user) { double(:user, is_admin?: true) }
 
       it { should eq([asciicast_1, asciicast_2]) }
     end
@@ -31,7 +31,7 @@ describe AsciicastPolicy do
     let(:asciicast) { Asciicast.new }
 
     context "when user is admin" do
-      let(:user) { stub_model(User, admin?: true) }
+      let(:user) { stub_model(User, is_admin?: true) }
 
       it "includes form fields + featured" do
         expect(subject).to eq([:title, :description, :theme_name, :snapshot_at, :featured, :private])
@@ -39,7 +39,7 @@ describe AsciicastPolicy do
     end
 
     context "when user isn't admin" do
-      let(:user) { stub_model(User, admin?: false) }
+      let(:user) { stub_model(User, is_admin?: false) }
 
       it "is empty" do
         expect(subject).to eq([])
@@ -61,12 +61,12 @@ describe AsciicastPolicy do
     end
 
     it "grants access if user is admin" do
-      user = stub_model(User, admin?: true)
+      user = stub_model(User, is_admin?: true)
       expect(subject).to permit(user, Asciicast.new)
     end
 
     it "grants access if user is creator of the asciicast" do
-      user = stub_model(User, admin?: false)
+      user = stub_model(User, is_admin?: false)
       expect(subject).to permit(user, Asciicast.new(user: user))
     end
 
@@ -81,12 +81,12 @@ describe AsciicastPolicy do
     end
 
     it "grants access if user is admin" do
-      user = stub_model(User, admin?: true)
+      user = stub_model(User, is_admin?: true)
       expect(subject).to permit(user, Asciicast.new)
     end
 
     it "grants access if user is creator of the asciicast" do
-      user = stub_model(User, admin?: false)
+      user = stub_model(User, is_admin?: false)
       expect(subject).to permit(user, Asciicast.new(user: user))
     end
 
@@ -101,12 +101,12 @@ describe AsciicastPolicy do
     end
 
     it "grants access if user is admin" do
-      user = stub_model(User, admin?: true)
+      user = stub_model(User, is_admin?: true)
       expect(subject).to permit(user, Asciicast.new)
     end
 
     it "denies access if user isn't admin" do
-      user = stub_model(User, admin?: false)
+      user = stub_model(User, is_admin?: false)
       expect(subject).not_to permit(user, Asciicast.new)
     end
   end
@@ -117,12 +117,12 @@ describe AsciicastPolicy do
     end
 
     it "grants access if user is admin" do
-      user = stub_model(User, admin?: true)
+      user = stub_model(User, is_admin?: true)
       expect(subject).to permit(user, Asciicast.new)
     end
 
     it "grants access if user is creator of the asciicast" do
-      user = stub_model(User, admin?: false)
+      user = stub_model(User, is_admin?: false)
       expect(subject).to permit(user, Asciicast.new(user: user))
     end
 

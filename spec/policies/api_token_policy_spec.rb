@@ -10,12 +10,12 @@ describe ApiTokenPolicy do
     end
 
     it "grants access if user is admin" do
-      user = stub_model(User, admin?: true)
+      user = stub_model(User, is_admin?: true)
       expect(subject).to permit(user, ApiToken.new)
     end
 
     it "grants access if user is the owner of the token" do
-      user = stub_model(User, admin?: false)
+      user = stub_model(User, is_admin?: false)
       expect(subject).to permit(user, ApiToken.new(user: user))
     end
 

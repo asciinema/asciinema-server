@@ -10,10 +10,6 @@ class HomePagePresenter
     @asciicast ||= get_asciicast
   end
 
-  def latest_asciicasts
-    Asciicast.homepage_latest.decorate
-  end
-
   def featured_asciicasts
     Asciicast.homepage_featured.decorate
   end

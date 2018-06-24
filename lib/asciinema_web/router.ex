@@ -28,8 +28,8 @@ defmodule AsciinemaWeb.Router do
   scope "/", AsciinemaWeb do
     pipe_through :browser # Use the default browser stack
 
-    get "/browse", AsciicastController, :index
-    get "/browse/featured", AsciicastController, :featured
+    get "/explore", AsciicastController, :index
+    get "/explore/:category", AsciicastController, :category
     get "/a/:id/iframe", AsciicastController, :iframe
 
     get "/docs", DocController, :index

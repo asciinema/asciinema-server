@@ -1,8 +1,5 @@
 Rails.application.routes.draw do
 
-  get "/browse" => "asciicasts#index", :as => :browse
-  get "/browse/:category" => "asciicasts#index", :as => :category
-
   get '/a/:id.js' => redirect(ActionController::Base.helpers.asset_path("widget.js"), status: 302)
 
   resources :asciicasts, path: 'a' do
