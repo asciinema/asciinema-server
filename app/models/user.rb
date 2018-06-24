@@ -97,10 +97,6 @@ class User < ActiveRecord::Base
       paginate(page, per_page)
   end
 
-  def admin?
-    CFG.admin_ids.include?(id)
-  end
-
   def new_asciicast_private?
     asciicasts_private_by_default?
   end

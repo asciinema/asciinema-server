@@ -18,7 +18,6 @@ module Asciinema
     attribute :secret_key_base,                String
     attribute :session_encryption_salt,        String, default: 'encrypted cookie'
     attribute :session_signing_salt,           String, default: 'signed encrypted cookie'
-    attribute :admin_ids,                      Array[Integer]
 
     def home_asciicast
       if home_asciicast_id
