@@ -159,6 +159,7 @@ COPY config/*.exs /app/config/
 COPY lib/*.ex /app/lib
 COPY lib/asciinema /app/lib/asciinema
 COPY lib/asciinema_web /app/lib/asciinema_web
+COPY lib/mix /app/lib/mix
 COPY priv/gettext /app/priv/gettext
 COPY priv/repo /app/priv/repo
 COPY priv/welcome.json /app/priv/welcome.json
