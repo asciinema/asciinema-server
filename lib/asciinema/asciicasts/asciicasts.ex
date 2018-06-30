@@ -1,4 +1,5 @@
 defmodule Asciinema.Asciicasts do
+  require Logger
   import Ecto.Query, warn: false
   alias Asciinema.{Repo, FileStore, StringUtils, Vt}
   alias Asciinema.Asciicasts.{Asciicast, SnapshotUpdater}
@@ -157,7 +158,8 @@ defmodule Asciinema.Asciicasts do
       {:ok, %{"version" => version}} ->
         {:error, {:unsupported_format, version}}
 
-      {:error, :invalid} ->
+      otherwise ->
+        Logger.warn("error extracting v1 metadata: #{inspect(otherwise)}")
         {:error, :unknown_format}
     end
   end
@@ -183,13 +185,11 @@ defmodule Asciinema.Asciicasts do
 
       {:ok, metadata}
     else
-      {:ok, :eof} ->
-        {:error, :unknown_format}
-
       {:ok, %{"version" => version}} ->
         {:error, {:unsupported_format, version}}
 
-      {:error, :invalid} ->
+      otherwise ->
+        Logger.warn("error extracting v2 metadata: #{inspect(otherwise)}")
         {:error, :unknown_format}
     end
   end
