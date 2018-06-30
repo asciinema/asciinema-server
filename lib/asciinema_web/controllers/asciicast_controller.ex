@@ -24,6 +24,10 @@ defmodule AsciinemaWeb.AsciicastController do
     render(conn, "category.html", assigns)
   end
 
+  def category(conn, _params) do
+    redirect(conn, to: asciicast_path(conn, :category, :featured))
+  end
+
   def show(conn, %{"id" => id} = _params) do
     asciicast = Asciicasts.get_asciicast!(id)
     do_show(conn, get_format(conn), asciicast)
