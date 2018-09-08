@@ -11,6 +11,7 @@ $primary: #06989a;
 @import "./_footer.scss";
 @import "./_asciicast_card.scss";
 @import "./_asciicast_list.scss";
+@import "./_user_profile.scss";
 @import "../vendor/css/asciinema-player.css";
 @import "./powerline-symbols.css";
 
@@ -45,4 +46,10 @@ $primary: #06989a;
       color: #333333;
     }
   }
+}
+
+section.cinema {
+  color: #fff;
+  background-color: #222;
+  padding: 25px 0;
 }

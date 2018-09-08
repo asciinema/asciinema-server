@@ -1,6 +1,8 @@
 defmodule AsciinemaWeb.UserController do
   use AsciinemaWeb, :controller
   alias Asciinema.Accounts
+  alias Asciinema.Authorization, as: Authz
+  alias Asciinema.Asciicasts
   alias AsciinemaWeb.Auth
 
   plug :require_current_user when action in [:edit, :update]
@@ -10,6 +12,7 @@ defmodule AsciinemaWeb.UserController do
     |> put_session(:signup_token, signup_token)
     |> redirect(to: users_path(conn, :new))
   end
+
   def new(conn, _params) do
     render(conn, "new.html")
   end
@@ -37,6 +40,43 @@ defmodule AsciinemaWeb.UserController do
         |> put_flash(:error, "You already signed up with this email.")
         |> redirect(to: login_path(conn, :new))
     end
+  end
+
+  def show(conn, params) do
+    current_user = conn.assigns.current_user
+
+    user =
+      case params do
+        %{"username" => username} ->
+          Accounts.find_user_by_username!(username)
+
+        %{"id" => id} ->
+          Accounts.get_user!(id)
+      end
+
+    user_is_self = !!(current_user && (current_user.id == user.id))
+
+    asciicasts =
+      case user_is_self do
+        true -> Accounts.asciicasts(user, :all)
+        false -> Accounts.asciicasts(user, :public)
+      end
+
+    asciicast_count = Asciicasts.count_asciicasts(asciicasts)
+    page = Asciicasts.paginate_asciicasts(asciicasts, :date, params["page"], 15)
+
+    conn
+    |> put_layout(:app2)
+    |> assign(:page_title, "#{user.username}'s profile")
+    |> assign(:main_class, "")
+    |> render(
+      "show.html",
+      user: user,
+      user_is_self: user_is_self,
+      asciicast_count: asciicast_count,
+      page: page,
+      show_edit_link: Authz.can?(current_user, :update, user)
+    )
   end
 
   def edit(conn, _params) do

@@ -31,10 +31,6 @@ class User < ActiveRecord::Base
     end
   end
 
-  def self.for_username!(username)
-    with_username.where(username: username).first!
-  end
-
   def self.for_auth_token(auth_token)
     where(auth_token: auth_token).first
   end

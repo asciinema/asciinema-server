@@ -9,7 +9,7 @@
         small = "Joined on #{page.user_joined_at}"
 
       - if page.show_settings?
-        p.actions = link_to 'Edit information', edit_user_path
+        p.actions = link_to 'Edit information', "/user/edit"
 
   .container
     h2 = page.asciicast_count_text(self)

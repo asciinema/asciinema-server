@@ -1,5 +1,6 @@
 defmodule AsciinemaWeb.UserView do
   use AsciinemaWeb, :view
+  import Scrivener.HTML
   alias Asciinema.Gravatar
 
   def avatar_url(user) do
@@ -10,6 +11,16 @@ defmodule AsciinemaWeb.UserView do
 
   def username(user) do
     user.username || user.temporary_username || "user:#{user.id}"
+  end
+
+  def display_name(user) do
+    if String.strip("#{user.name}") != "" do
+      user.name
+    end
+  end
+
+  def joined_at(user) do
+    Timex.format!(user.created_at, "{Mfull} {D}, {YYYY}")
   end
 
   def theme_name(user) do

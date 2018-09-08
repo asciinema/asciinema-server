@@ -8,6 +8,19 @@ h1, h2, h3 {
   font-family: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 }
 
+h2 {
+  font-size: 1.5rem;
+}
+
+pre {
+  background-color: #fff;
+  border-color: #ddd;
+  border-radius: 3px;
+  border: 1px solid #cccccc;
+  padding: 9.5px;
+  margin: 0 0 10px;
+}
+
 body, main {
   background-color: #f7f7f7;
 }
@@ -22,10 +35,6 @@ body, main {
     h1 {
       font-size: 2rem;
     }
-
-    h2 {
-      font-size: 1.5rem;
-    }
   }
 }
 
@@ -38,4 +47,9 @@ section.top {
     font-size: 2.5rem;
     margin: 0;
   }
+}
+
+ul.pagination {
+  margin-top: 1rem;
+  margin-bottom: 0;
 }

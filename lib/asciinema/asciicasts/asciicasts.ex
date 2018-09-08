@@ -25,12 +25,9 @@ defmodule Asciinema.Asciicasts do
     Repo.one!(q)
   end
 
-  def paginate_asciicasts(category, order, page \\ 0, page_size \\ 12) do
+  def category_asciicasts(category) do
     from(Asciicast)
     |> filter(category)
-    |> sort(order)
-    |> preload(:user)
-    |> Repo.paginate(page: page, page_size: page_size)
   end
 
   defp filter(q, :featured), do: where(q, [a], a.featured == true)
@@ -39,6 +36,17 @@ defmodule Asciinema.Asciicasts do
 
   defp sort(q, :date), do: order_by(q, desc: :id)
   defp sort(q, :popularity), do: order_by(q, desc: :views_count)
+
+  def paginate_asciicasts(q, order, page, page_size) do
+    from(q)
+    |> sort(order)
+    |> preload(:user)
+    |> Repo.paginate(page: page, page_size: page_size)
+  end
+
+  def count_asciicasts(q \\ Asciicast) do
+    Repo.count(q)
+  end
 
   def create_asciicast(user, params, overrides \\ %{})
 

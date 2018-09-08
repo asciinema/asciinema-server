@@ -85,30 +85,4 @@ describe UserDecorator do
     end
   end
 
-  describe '#full_name' do
-    subject { decorator.full_name }
-
-    let(:user) { double('user', username: 'sickill', name: name) }
-
-    context "when full name is present" do
-      let(:name) { 'Marcin Kulik' }
-
-      it { should eq('Marcin Kulik (sickill)') }
-    end
-
-    context "when fill name is missing" do
-      let(:name) { nil }
-
-      it { should eq('sickill') }
-    end
-  end
-
-  describe '#joined_at' do
-    subject { decorator.joined_at }
-
-    let(:user) { double('user', created_at: Time.parse('1970-01-01')) }
-
-    it { should eq('Jan 1, 1970') }
-  end
-
 end

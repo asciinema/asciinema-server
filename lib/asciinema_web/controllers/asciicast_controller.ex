@@ -14,10 +14,15 @@ defmodule AsciinemaWeb.AsciicastController do
     category = String.to_existing_atom(c)
     order = if params["order"] == "popularity", do: :popularity, else: :date
 
+    page =
+      category
+      |> Asciicasts.category_asciicasts()
+      |> Asciicasts.paginate_asciicasts(order, params["page"], 12)
+
     assigns = [
       page_title: String.capitalize("#{category} asciicasts"),
       category: category,
-      page: Asciicasts.paginate_asciicasts(category, order, params["page"]),
+      page: page,
       order: order
     ]
 
