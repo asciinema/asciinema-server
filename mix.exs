@@ -34,7 +34,7 @@ defmodule Asciinema.Mixfile do
       {:bamboo_smtp, "~> 1.4"},
       {:briefly, "~> 0.3"},
       {:cowboy, "~> 1.0"},
-      {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
+      {:credo, "~> 0.10.0", only: [:dev, :test], runtime: false},
       {:ex_aws, "~> 1.0"},
       {:ex_machina, "~> 2.1", only: :test},
       {:exq, "~> 0.9.0"},
