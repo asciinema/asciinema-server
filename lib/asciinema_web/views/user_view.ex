@@ -14,7 +14,7 @@ defmodule AsciinemaWeb.UserView do
   end
 
   def display_name(user) do
-    if String.strip("#{user.name}") != "" do
+    if String.trim("#{user.name}") != "" do
       user.name
     end
   end
