@@ -21,7 +21,7 @@ defmodule AsciinemaWeb.SessionController do
       {:ok, user} ->
         conn
         |> Auth.log_in(user)
-        |> put_rails_flash(:notice, "Welcome back!")
+        |> put_flash(:info, "Welcome back!")
         |> redirect_to_profile
       {:error, :token_invalid} ->
         conn
