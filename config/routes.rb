@@ -15,9 +15,5 @@ Rails.application.routes.draw do
 
   get "/oembed" => "oembed#show", as: :oembed
 
-  resource :username do
-    get :skip
-  end
-
   root 'home#show'
 end

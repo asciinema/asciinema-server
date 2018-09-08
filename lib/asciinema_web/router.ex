@@ -43,6 +43,9 @@ defmodule AsciinemaWeb.Router do
     get "/u/:id", UserController, :show
     get "/~:username", UserController, :show
 
+    resources "/username", UsernameController, only: [:new, :create], singleton: true
+    get "/username/skip", UsernameController, :skip, as: :username
+
     resources "/session", SessionController, only: [:new, :create, :delete], singleton: true
 
     get "/connect/:api_token", ApiTokenController, :show, as: :connect
@@ -68,6 +71,10 @@ end
 
 defmodule AsciinemaWeb.Router.Helpers.Extra do
   alias AsciinemaWeb.Router.Helpers, as: H
+
+  def root_url(conn) do
+    AsciinemaWeb.Endpoint.url()
+  end
 
   def profile_path(_conn, user) do
     profile_path(user)
