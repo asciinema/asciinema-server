@@ -34,7 +34,7 @@ header.navbar.navbar-default[role="navigation"]
               li
                 a href="/user/edit" Settings
               li
-                a.logout href=logout_path Log out
+                = link_to "Log out", "/session", class: "logout", method: :delete
         - else
           li
-            a#log-in href=new_login_path Log in / Sign up
+            a#log-in href="/login/new" Log in / Sign up

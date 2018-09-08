@@ -46,4 +46,11 @@ defmodule AsciinemaWeb.SessionController do
         redirect_back_or(conn, to: profile_path(user))
     end
   end
+
+  def delete(conn, _params) do
+    conn
+    |> Auth.log_out()
+    |> put_rails_flash(:notice, "See you later!")
+    |> redirect(to: "/")
+  end
 end

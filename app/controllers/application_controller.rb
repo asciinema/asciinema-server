@@ -14,7 +14,7 @@ class ApplicationController < ActionController::Base
 
   def unauthenticated_user
     store_location
-    redirect_to new_login_path, notice: "Please log in to proceed"
+    redirect_to "/login/new", notice: "Please log in to proceed"
   end
 
   private

@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 shared_examples_for 'guest user trying to modify' do
-  it { should redirect_to(new_login_path) }
+  it { should redirect_to("/login/new") }
   specify { expect(flash[:notice]).to match(/log in to proceed/) }
 end
 

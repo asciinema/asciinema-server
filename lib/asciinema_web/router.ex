@@ -43,7 +43,8 @@ defmodule AsciinemaWeb.Router do
     get "/u/:id", UserController, :show
     get "/~:username", UserController, :show
 
-    resources "/session", SessionController, only: [:new, :create], singleton: true
+    resources "/session", SessionController, only: [:new, :create, :delete], singleton: true
+
     get "/connect/:api_token", ApiTokenController, :show, as: :connect
 
     resources "/api_tokens", ApiTokenController, only: [:delete]

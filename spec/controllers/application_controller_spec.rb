@@ -47,7 +47,7 @@ describe FakesController do
       get :foo
 
       expect(flash[:notice]).to eq("Please log in to proceed")
-      should redirect_to(new_login_path)
+      should redirect_to("/login/new")
     end
   end
 
