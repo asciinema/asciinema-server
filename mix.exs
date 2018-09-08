@@ -55,7 +55,7 @@ defmodule Asciinema.Mixfile do
       {:redix, ">= 0.6.1"},
       {:scrivener_ecto, "~> 1.0"},
       {:scrivener_html, "~> 1.7"},
-      {:sentry, "~> 6.0"},
+      {:sentry, "~> 6.4"},
       {:timex, "~> 3.0"},
       {:timex_ecto, "~> 3.0"},
     ]
