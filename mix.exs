@@ -41,6 +41,7 @@ defmodule Asciinema.Mixfile do
       {:exq_ui, "~> 0.9.0"},
       {:gettext, "~> 0.11"},
       {:inflex, "~> 1.9"},
+      {:jason, "~> 1.1"},
       {:phoenix, "~> 1.3.4"},
       {:phoenix_ecto, "~> 3.4"},
       {:phoenix_html, "~> 2.12"},
