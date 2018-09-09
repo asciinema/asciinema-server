@@ -12,6 +12,7 @@ defmodule Asciinema.Factory do
   def asciicast_factory do
     %Asciicast{user: build(:user),
                version: 2,
+               file: "ascii.cast",
                duration: 123.45,
                terminal_columns: 80,
                terminal_lines: 24,
