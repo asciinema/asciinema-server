@@ -1,12 +1,15 @@
 defmodule AsciinemaWeb.AsciicastView do
   use AsciinemaWeb, :view
   import Scrivener.HTML
+  alias Asciinema.Asciicasts
+  alias Asciinema.FileStore
+  alias AsciinemaWeb.Router.Helpers.Extra, as: Routes
   alias AsciinemaWeb.UserView
 
   def player(asciicast, opts \\ []) do
     opts =
       Keyword.merge([
-        src: AsciinemaWeb.Router.Helpers.Extra.asciicast_file_url(AsciinemaWeb.Endpoint, asciicast),
+        src: file_url(asciicast),
         cols: asciicast.terminal_columns,
         rows: asciicast.terminal_lines,
         poster: base64_poster(asciicast),
@@ -14,6 +17,11 @@ defmodule AsciinemaWeb.AsciicastView do
       ], opts)
 
     content_tag :"asciinema-player", opts, do: []
+  end
+
+  defp file_url(asciicast) do
+    path = Asciicasts.asciicast_file_path(asciicast)
+    FileStore.url(path) || Routes.asciicast_file_url(asciicast)
   end
 
   defp base64_poster(asciicast) do

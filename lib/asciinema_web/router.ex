@@ -93,6 +93,10 @@ defmodule AsciinemaWeb.Router.Helpers.Extra do
     H.asciicast_path(conn, :show, asciicast) <> "." <> ext(asciicast)
   end
 
+  def asciicast_file_url(asciicast) do
+    asciicast_file_url(AsciinemaWeb.Endpoint, asciicast)
+  end
+
   def asciicast_file_url(conn, asciicast) do
     H.asciicast_url(conn, :show, asciicast) <> "." <> ext(asciicast)
   end

@@ -428,4 +428,8 @@ defmodule Asciinema.Asciicasts do
   defp frame_before_or_at?({time, _}, secs) do
     time <= secs
   end
+
+  def asciicast_file_path(asciicast) do
+    Asciicast.json_store_path(asciicast)
+  end
 end
