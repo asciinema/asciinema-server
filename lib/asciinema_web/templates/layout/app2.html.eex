@@ -21,6 +21,7 @@
 
     <%= render "_footer.html", conn: @conn %>
 
+    <script src="<%= static_path(@conn, "/js/asciinema-player.js") %>"></script>
     <script src="<%= static_path(@conn, "/js/app2.js") %>"></script>
   </body>
 </html>

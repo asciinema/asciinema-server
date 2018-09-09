@@ -105,8 +105,4 @@ defmodule AsciinemaWeb.AsciicastController do
   defp file_store do
     Application.get_env(:asciinema, :file_store)
   end
-
-  defp clear_main_class(conn, _) do
-    assign(conn, :main_class, "")
-  end
 end

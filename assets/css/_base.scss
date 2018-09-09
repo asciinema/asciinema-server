@@ -17,6 +17,30 @@ h2 {
   font-size: 1.5rem;
 }
 
+h3 {
+  font-size: 1.1rem;
+}
+
+code {
+  background-color: #f9f2f4;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+pre code {
+  background-color: inherit;
+  padding: 0;
+}
+
+kbd {
+  background-color: white;
+  color: black;
+  border: 1px solid #bbb;
+  padding: 0.1rem 0.2rem;
+  margin-left: 0.1rem;
+  margin-right: 0.1rem;
+}
+
 pre {
   background-color: #fff;
   border-color: #ddd;
@@ -41,6 +65,22 @@ body, main {
       font-size: 2rem;
     }
   }
+}
+
+section.cinema {
+  color: #fff;
+  background-color: #222;
+  padding: 25px 0;
+}
+
+section.odd, section.even {
+  padding: 1.4rem 0;
+}
+
+section.odd {
+  background-color: #fff;
+  border-top: 1px solid #e0e0e0;
+  border-bottom: 1px solid #e0e0e0;
 }
 
 section.top {

@@ -25,12 +25,35 @@ defmodule Asciinema.Asciicasts do
     Repo.one!(q)
   end
 
+  def get_homepage_asciicast do
+    if id = Application.get_env(:asciinema, :home_asciicast_id) do
+      Repo.get(Asciicast, id)
+    else
+      :public
+      |> category_asciicasts()
+      |> first()
+      |> Repo.one()
+    end
+  end
+
+  def list_homepage_asciicasts() do
+    year_ago = Timex.now() |> Timex.shift(years: -1)
+
+    :featured
+    |> category_asciicasts()
+    |> where([a], a.created_at > ^year_ago)
+    |> order_by(fragment("RANDOM()"))
+    |> limit(6)
+    |> preload(:user)
+    |> Repo.all()
+  end
+
   def category_asciicasts(category) do
     from(Asciicast)
     |> filter(category)
   end
 
-  defp filter(q, :featured), do: where(q, [a], a.featured == true)
+  defp filter(q, :featured), do: where(q, [a], a.featured == true and a.private == false)
   defp filter(q, :public), do: where(q, [a], a.private == false)
   defp filter(q, :all), do: q
 

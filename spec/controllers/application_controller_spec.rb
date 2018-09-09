@@ -52,11 +52,11 @@ describe FakesController do
   end
 
   context "when action raises Pundit::NotAuthorizedError" do
-    it "redirects to root_path" do
+    it "redirects to /" do
       get :bar
 
       expect(flash[:alert]).to_not be(nil)
-      should redirect_to(root_path)
+      should redirect_to("/")
     end
   end
 

@@ -62,6 +62,8 @@ config :asciinema, Asciinema.PngGenerator.A2png,
 
 config :asciinema, :snapshot_updater, Asciinema.Asciicasts.SnapshotUpdater.Exq
 
+config :asciinema, :home_asciicast_id, System.get_env("HOME_ASCIICAST_ID")
+
 config :exq,
   name: Exq,
   start_on_application: false,

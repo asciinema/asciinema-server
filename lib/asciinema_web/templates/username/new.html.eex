@@ -6,7 +6,7 @@
 
       <p>
         Every asciinema user gets a profile page at
-        <a href="#"><%= root_url(@conn) %>/~<strong>username</strong></a>.
+        <a href="#"><%= home_url(@conn, :show) %>~<strong>username</strong></a>.
       </p>
 
       <%= form_for @changeset, username_path(@conn, :create), [class: "username-form", method: :post], fn f -> %>

@@ -28,8 +28,11 @@ defmodule AsciinemaWeb.Router do
   scope "/", AsciinemaWeb do
     pipe_through :browser # Use the default browser stack
 
+    get "/", HomeController, :show
+
     get "/explore", AsciicastController, :index
     get "/explore/:category", AsciicastController, :category
+
     get "/a/:id/iframe", AsciicastController, :iframe
 
     get "/docs", DocController, :index
@@ -71,10 +74,6 @@ end
 
 defmodule AsciinemaWeb.Router.Helpers.Extra do
   alias AsciinemaWeb.Router.Helpers, as: H
-
-  def root_url(conn) do
-    AsciinemaWeb.Endpoint.url()
-  end
 
   def profile_path(_conn, user) do
     profile_path(user)

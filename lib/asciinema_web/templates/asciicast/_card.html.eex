@@ -32,7 +32,6 @@
       <% end %>
     </span>
 
-    <small>by <%= link author_username(@asciicast), to: author_profile_path(@asciicast) %> <%= time_ago_tag @asciicast.created_at %></small>
-    <!-- TODO hide timeago on front page -->
+    <small>by <%= link author_username(@asciicast), to: author_profile_path(@asciicast) %> <%= if !assigns[:no_created_at] do %><%= time_ago_tag @asciicast.created_at %><% end %></small>
   </div>
 </div>

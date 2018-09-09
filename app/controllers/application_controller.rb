@@ -53,7 +53,7 @@ class ApplicationController < ActionController::Base
     if request.xhr?
       render json: "Unauthorized", status: 403
     else
-      redirect_to(request.referrer || root_path, alert: "You can't do that.")
+      redirect_to(request.referrer || "/", alert: "You can't do that.")
     end
   end
 
