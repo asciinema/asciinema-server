@@ -41,11 +41,11 @@ defmodule Asciinema.Asciicasts.Asciicast do
   end
 
   defimpl Phoenix.Param, for: Asciicast do
-    def to_param(%Asciicast{private: false, id: id}) do
-      Integer.to_string(id)
-    end
     def to_param(%Asciicast{private: true, secret_token: secret_token}) do
       secret_token
+    end
+    def to_param(%Asciicast{id: id}) do
+      Integer.to_string(id)
     end
   end
 

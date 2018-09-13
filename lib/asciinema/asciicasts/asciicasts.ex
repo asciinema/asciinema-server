@@ -5,7 +5,9 @@ defmodule Asciinema.Asciicasts do
   alias Asciinema.Asciicasts.{Asciicast, SnapshotUpdater}
 
   def get_asciicast!(id) when is_integer(id) do
-    Repo.get!(Asciicast, id)
+    Asciicast
+    |> Repo.get!(id)
+    |> Repo.preload(:user)
   end
 
   def get_asciicast!(thing) when is_binary(thing) do
@@ -22,7 +24,9 @@ defmodule Asciinema.Asciicasts do
         end
       end
 
-    Repo.one!(q)
+    q
+    |> Repo.one!()
+    |> Repo.preload(:user)
   end
 
   def get_homepage_asciicast do

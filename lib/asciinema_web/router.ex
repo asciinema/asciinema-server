@@ -19,10 +19,21 @@ defmodule AsciinemaWeb.Router do
     plug :put_secure_browser_headers
   end
 
+  pipeline :oembed do
+    plug :accepts, ["json", "xml"]
+    plug :put_secure_browser_headers
+  end
+
   scope "/", AsciinemaWeb do
     pipe_through :asciicast
 
     get "/a/:id", AsciicastController, :show
+  end
+
+  scope "/", AsciinemaWeb do
+    pipe_through :oembed
+
+    get "/oembed", OembedController, :show
   end
 
   scope "/", AsciinemaWeb do
@@ -74,19 +85,26 @@ end
 
 defmodule AsciinemaWeb.Router.Helpers.Extra do
   alias AsciinemaWeb.Router.Helpers, as: H
+  alias AsciinemaWeb.Endpoint
 
   def profile_path(_conn, user) do
     profile_path(user)
   end
+
   def profile_path(%Plug.Conn{} = conn) do
     profile_path(conn.assigns.current_user)
   end
+
   def profile_path(%{id: id, username: username}) do
     if username do
       "/~#{username}"
     else
       "/u/#{id}"
     end
+  end
+
+  def profile_url(user) do
+    Endpoint.url() <> profile_path(user)
   end
 
   def asciicast_file_path(conn, asciicast) do
@@ -111,6 +129,10 @@ defmodule AsciinemaWeb.Router.Helpers.Extra do
 
   def asciicast_image_path(conn, asciicast) do
     H.asciicast_path(conn, :show, asciicast) <> ".png"
+  end
+
+  def asciicast_image_url(conn, asciicast) do
+    H.asciicast_url(conn, :show, asciicast) <> ".png"
   end
 
   def asciicast_animation_path(conn, asciicast) do
