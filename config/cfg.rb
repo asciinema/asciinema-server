@@ -14,18 +14,9 @@ module Asciinema
     attribute :s3_region,                      String
     attribute :carrierwave_storage_dir_prefix, String, default: 'uploads/'
     attribute :google_analytics_id,            String
-    attribute :home_asciicast_id,              String
     attribute :secret_key_base,                String
     attribute :session_encryption_salt,        String, default: 'encrypted cookie'
     attribute :session_signing_salt,           String, default: 'signed encrypted cookie'
-
-    def home_asciicast
-      if home_asciicast_id
-        Asciicast.find_by_id_or_secret_token!(home_asciicast_id)
-      else
-        Asciicast.non_private.order(:id).first
-      end
-    end
 
     def ssl?
       url_scheme == 'https'

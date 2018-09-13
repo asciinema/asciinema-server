@@ -31,10 +31,6 @@ class User < ActiveRecord::Base
     end
   end
 
-  def self.for_username!(username)
-    with_username.where(username: username).first!
-  end
-
   def self.for_auth_token(auth_token)
     where(auth_token: auth_token).first
   end
@@ -45,14 +41,6 @@ class User < ActiveRecord::Base
 
   def self.null
     new(temporary_username: 'anonymous')
-  end
-
-  def active_api_tokens
-    api_tokens.active
-  end
-
-  def revoked_api_tokens
-    api_tokens.revoked
   end
 
   def confirmed?

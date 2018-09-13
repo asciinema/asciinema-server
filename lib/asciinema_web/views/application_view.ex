@@ -23,4 +23,7 @@ defmodule AsciinemaWeb.ApplicationView do
       Timex.from_now(time)
     end
   end
+
+  def pluralize(1, thing), do: "1 #{thing}"
+  def pluralize(n, thing), do: "#{n} #{Inflex.pluralize(thing)}"
 end

@@ -13,9 +13,7 @@ class Asciicast < ActiveRecord::Base
 
   scope :featured, -> { where(featured: true) }
   scope :by_date, -> { order("created_at DESC") }
-  scope :by_random, -> { order("RANDOM()") }
   scope :non_private, -> { where(private: false) }
-  scope :homepage_featured, -> { non_private.featured.where("created_at > ?", 1.year.ago).by_random.limit(6).includes(:user) }
 
   before_create :generate_secret_token
 

@@ -15,14 +15,5 @@ Rails.application.routes.draw do
 
   get "/oembed" => "oembed#show", as: :oembed
 
-  get "/login/new" => redirect("/not-gonna-happen"), as: :new_login # define new_login_path
-  get "/logout" => "sessions#destroy"
-
-  resource :user
-
-  resource :username do
-    get :skip
-  end
-
   root 'home#show'
 end

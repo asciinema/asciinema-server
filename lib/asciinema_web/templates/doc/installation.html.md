@@ -4,7 +4,6 @@ There are several ways to get asciinema recorder:
 
 - [Installing via Pip](#installing-via-pip)
 - [Installing on Linux](#installing-on-linux)
-- [Installing on Linux as snap](#installing-on-linux-as-snap) (universal Linux package)
 - [Installing on macOS](#installing-on-macos)
 - [Installing on FreeBSD](#installing-on-freebsd)
 - [Installing on OpenBSD](#installing-on-openbsd)
@@ -65,15 +64,6 @@ For Fedora >= 22:
     sudo apt-add-repository ppa:zanchey/asciinema
     sudo apt-get update
     sudo apt-get install asciinema
-
-## Installing on Linux as snap
-{: #installing-on-linux-as-snap}
-
-Install asciinema in seconds on [Ubuntu and other snap supported Linux distributions](https://snapcraft.io/docs/core/install) with:
-
-    snap install asciinema --classic
-
-Installing a snap is very quick. Snaps contain all necessary dependencies required to run. The snap will get automatically updated when a new version is pushed to the store.
 
 ## Installing on macOS
 {: #installing-on-macos}

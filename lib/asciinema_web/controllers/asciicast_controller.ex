@@ -14,14 +14,23 @@ defmodule AsciinemaWeb.AsciicastController do
     category = String.to_existing_atom(c)
     order = if params["order"] == "popularity", do: :popularity, else: :date
 
+    page =
+      category
+      |> Asciicasts.category_asciicasts()
+      |> Asciicasts.paginate_asciicasts(order, params["page"], 12)
+
     assigns = [
       page_title: String.capitalize("#{category} asciicasts"),
       category: category,
-      page: Asciicasts.paginate_asciicasts(category, order, params["page"]),
+      page: page,
       order: order
     ]
 
     render(conn, "category.html", assigns)
+  end
+
+  def category(conn, _params) do
+    redirect(conn, to: asciicast_path(conn, :category, :featured))
   end
 
   def show(conn, %{"id" => id} = _params) do
@@ -95,9 +104,5 @@ defmodule AsciinemaWeb.AsciicastController do
 
   defp file_store do
     Application.get_env(:asciinema, :file_store)
-  end
-
-  defp clear_main_class(conn, _) do
-    assign(conn, :main_class, "")
   end
 end

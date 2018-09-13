@@ -69,5 +69,6 @@ module.exports = {
   plugins: [
     new ExtractTextPlugin('../css/[name].css'),
     new CopyWebpackPlugin([{ from: 'static/', to: '../' }])
-  ]
+  ],
+  stats: 'errors-only'
 };

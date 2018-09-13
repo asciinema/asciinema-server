@@ -6,4 +6,5 @@ import "phoenix_html";
 
 $(function() {
   $('input[data-behavior=focus]:first').focus().select();
+  $('[data-toggle="popover"]').popover({ html: true });
 });

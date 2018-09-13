@@ -1,0 +1,59 @@
+.c-home.a-show {
+  .cinema {
+    padding-top: 0px;
+    padding-bottom: 0px;
+    background-image: url("/images/home-bg.jpg");
+    background-position: 50%;
+
+    .row {
+      > div {
+        margin-top: 3rem;
+        margin-bottom: 3rem;
+      }
+
+      .player-wrapper {
+        .asciinema-player {
+          box-shadow: 0 0 16px 5px rgba(255, 255, 255, 0.3);
+        }
+      }
+
+      > div:first-child {
+        h1 {
+          margin-top: 0;
+          font-size: 2.5rem;
+        }
+
+        h2 {
+          line-height: 1.2;
+        }
+
+        h1, h2 {
+          text-shadow: black 3px 3px 5px;
+        }
+      }
+    }
+
+    h2 {
+      margin-top: 2rem;
+    }
+  }
+
+  .popover {
+    color: #333;
+    max-width: 1000px;
+    width: 480px;
+  }
+
+  .features {
+    h1 {
+      margin: 0 0 1.3rem 0;
+      text-align: center;
+    }
+  }
+
+  .about {
+    h3 {
+      margin-top: 10px;
+    }
+  }
+}

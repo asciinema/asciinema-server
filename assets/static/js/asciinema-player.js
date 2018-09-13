@@ -1,0 +1,1 @@
+../../vendor/js/asciinema-player.js

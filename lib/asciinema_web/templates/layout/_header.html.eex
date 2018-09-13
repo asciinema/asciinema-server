@@ -42,7 +42,7 @@
               <div class="dropdown-menu">
                 <a class="dropdown-item" href="<%= profile_path(@current_user) %>">Profile</a>
                 <a class="dropdown-item" href="/user/edit">Settings</a>
-                <a class="dropdown-item logout" href="/logout">Log out</a>
+                <%= link "Log out", to: session_path(@conn, :delete), class: "dropdown-item logout", method: :delete %>
               </div>
             </li>
           <% else %>

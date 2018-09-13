@@ -28,8 +28,11 @@ defmodule AsciinemaWeb.Router do
   scope "/", AsciinemaWeb do
     pipe_through :browser # Use the default browser stack
 
+    get "/", HomeController, :show
+
     get "/explore", AsciicastController, :index
     get "/explore/:category", AsciicastController, :category
+
     get "/a/:id/iframe", AsciicastController, :iframe
 
     get "/docs", DocController, :index
@@ -40,8 +43,14 @@ defmodule AsciinemaWeb.Router do
 
     resources "/user", UserController, as: :user, only: [:edit, :update], singleton: true
     resources "/users", UserController, as: :users, only: [:new, :create]
+    get "/u/:id", UserController, :show
+    get "/~:username", UserController, :show
 
-    resources "/session", SessionController, only: [:new, :create], singleton: true
+    resources "/username", UsernameController, only: [:new, :create], singleton: true
+    get "/username/skip", UsernameController, :skip, as: :username
+
+    resources "/session", SessionController, only: [:new, :create, :delete], singleton: true
+
     get "/connect/:api_token", ApiTokenController, :show, as: :connect
 
     resources "/api_tokens", ApiTokenController, only: [:delete]
@@ -82,6 +91,10 @@ defmodule AsciinemaWeb.Router.Helpers.Extra do
 
   def asciicast_file_path(conn, asciicast) do
     H.asciicast_path(conn, :show, asciicast) <> "." <> ext(asciicast)
+  end
+
+  def asciicast_file_url(asciicast) do
+    asciicast_file_url(AsciinemaWeb.Endpoint, asciicast)
   end
 
   def asciicast_file_url(conn, asciicast) do
