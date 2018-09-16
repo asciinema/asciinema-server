@@ -5,10 +5,10 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="<%= static_path(@conn, "/css/iframe.css") %>">
-    <script src="<%= static_path(@conn, "/js/iframe.js") %>"></script>
   </head>
 
   <body class="iframe">
+    <script src="<%= static_path(@conn, "/js/asciinema-player.js") %>"></script>
     <%= render @view_module, @view_template, assigns %>
   </body>
 </html>
