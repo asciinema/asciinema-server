@@ -90,6 +90,15 @@ defmodule AsciinemaWeb.AsciicastController do
     |> render("iframe.html", file_url: asciicast_file_url(conn, asciicast))
   end
 
+  def example(conn, %{"id" => id}) do
+    asciicast = Asciicasts.get_asciicast!(id)
+    home_asciicast = Asciicasts.get_homepage_asciicast()
+
+    conn
+    |> put_layout("example.html")
+    |> render("example.html", asciicast: asciicast, home_asciicast: home_asciicast)
+  end
+
   defp download_filename(%Asciicast{version: version, id: id}, %{"dl" => _}) do
     case version do
       0 -> "#{id}.json"

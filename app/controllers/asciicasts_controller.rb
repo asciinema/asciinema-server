@@ -31,10 +31,6 @@ class AsciicastsController < ApplicationController
            }, layout: 'embed'
   end
 
-  def example
-    render layout: 'example'
-  end
-
   def edit
     authorize asciicast
   end

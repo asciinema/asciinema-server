@@ -19,6 +19,12 @@ defmodule AsciinemaWeb.AsciicastView do
     content_tag :"asciinema-player", opts, do: []
   end
 
+  def embed_script(asciicast) do
+    src = asciicast_script_url(AsciinemaWeb.Endpoint, asciicast)
+    id = "asciicast-#{Phoenix.Param.to_param(asciicast)}"
+    content_tag(:script, [src: src, id: id, async: "async"], do: [])
+  end
+
   defp file_url(asciicast) do
     path = Asciicasts.asciicast_file_path(asciicast)
     FileStore.url(path) || Routes.asciicast_file_url(asciicast)
