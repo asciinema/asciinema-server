@@ -2,33 +2,10 @@
 @import "../vendor/css/asciinema-player.css";
 @import "./powerline-symbols.css";
 
-html {
-  padding: 0;
-  margin: 0;
-  height: 100%;
-}
-
 body.iframe {
   background-color: transparent;
   padding: 0;
   margin: 0;
-  height: 100%;
-
-  .asciinema-player-wrapper {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-
-    .asciinema-player {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-    }
-  }
 
   .powered {
     margin: 4px 0 0 0;

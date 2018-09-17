@@ -1,0 +1,34 @@
+<%= player @asciicast, @playback_options %>
+
+<p class="powered">
+  Recorded with <a href="<%= home_url(@conn, :show) %>" target="_top">asciinema</a>
+</p>
+
+<script>
+  var player = document.getElementById('player');
+
+  player.addEventListener('attached', function() {
+    var target = parent.postMessage ? parent : (parent.document.postMessage ? parent.document : undefined);
+    if (typeof target != "undefined" && window !== window.parent) {
+      var w = player.getElementsByClassName('asciinema-player')[0].offsetWidth;
+      var h = Math.max(document.body.scrollHeight, document.body.offsetHeight);
+      target.postMessage(['asciicast:size', { width: w, height: h }], '*');
+    }
+
+    function onMessage(e) {
+      if (e.data == 'asciicast:play' || e.data[0] == 'asciicast:play') {
+        player.play();
+      }
+
+      // reveal.js support
+
+      if (e.data == 'slide:start') {
+        player.play();
+      } else if (e.data == 'slide:stop') {
+        player.pause();
+      }
+    }
+
+    window.addEventListener("message", onMessage, false);
+  });
+</script>

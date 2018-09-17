@@ -6,17 +6,27 @@ defmodule AsciinemaWeb.AsciicastView do
   alias AsciinemaWeb.Router.Helpers.Extra, as: Routes
   alias AsciinemaWeb.UserView
 
-  def player(asciicast, opts \\ []) do
+  def player(src, opts \\ [])
+
+  def player(src, opts) when is_binary(src) do
+    opts = Keyword.merge([id: "player", src: src, preload: true], opts)
+    content_tag :"asciinema-player", opts, do: []
+  end
+
+  def player(asciicast, opts) do
     opts =
       Keyword.merge([
-        src: file_url(asciicast),
         cols: asciicast.terminal_columns,
         rows: asciicast.terminal_lines,
+        theme: theme_name(asciicast),
         poster: base64_poster(asciicast),
-        preload: "true",
+        title: title(asciicast),
+        author: author_username(asciicast),
+        "author-url": author_profile_url(asciicast),
+        "author-img-url": author_avatar_url(asciicast)
       ], opts)
 
-    content_tag :"asciinema-player", opts, do: []
+    player(file_url(asciicast), opts)
   end
 
   def embed_script(asciicast) do
@@ -61,10 +71,13 @@ defmodule AsciinemaWeb.AsciicastView do
     cond do
       present?(asciicast.title) ->
         asciicast.title
+
       present?(asciicast.command) && asciicast.command != asciicast.shell ->
         asciicast.command
+
       asciicast.private ->
         "untitled"
+
       true ->
         "asciicast:#{asciicast.id}"
     end
@@ -93,6 +106,10 @@ defmodule AsciinemaWeb.AsciicastView do
 
   def author_profile_path(asciicast) do
     profile_path(asciicast.user)
+  end
+
+  def author_profile_url(asciicast) do
+    profile_url(asciicast.user)
   end
 
   def class(%{} = attrs) do

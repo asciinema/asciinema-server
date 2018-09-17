@@ -45,6 +45,7 @@ defmodule AsciinemaWeb.Router do
     get "/explore/:category", AsciicastController, :category
 
     get "/a/:id/iframe", AsciicastController, :iframe
+    get "/a/:id/embed", AsciicastController, :embed
     get "/a/:id/example", AsciicastController, :example
 
     get "/docs", DocController, :index

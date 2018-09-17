@@ -62,4 +62,10 @@ defmodule Asciinema.AsciicastControllerTest do
     assert response(conn, 200)
     assert response_content_type(conn, :js)
   end
+
+  test "shows embed html (used in iframe)", %{conn: conn} do
+    asciicast = fixture(:asciicast)
+    conn = get conn, asciicast_path(conn, :embed, asciicast)
+    assert html_response(conn, 200) =~ ~r/<asciinema-player /
+  end
 end

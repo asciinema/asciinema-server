@@ -90,6 +90,19 @@ defmodule AsciinemaWeb.AsciicastController do
     |> render("iframe.html", file_url: asciicast_file_url(conn, asciicast))
   end
 
+  def embed(conn, %{"id" => id} = params) do
+    asciicast = Asciicasts.get_asciicast!(id)
+    opts = Asciicasts.PlaybackOpts.parse(params)
+
+    conn
+    |> put_layout("embed.html")
+    |> delete_resp_header("x-frame-options")
+    |> render("embed.html",
+      asciicast: asciicast,
+      playback_options: opts
+    )
+  end
+
   def example(conn, %{"id" => id}) do
     asciicast = Asciicasts.get_asciicast!(id)
     home_asciicast = Asciicasts.get_homepage_asciicast()

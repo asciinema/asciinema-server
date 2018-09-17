@@ -30,14 +30,17 @@ defmodule Asciinema.Asciicasts do
   end
 
   def get_homepage_asciicast do
-    if id = Application.get_env(:asciinema, :home_asciicast_id) do
-      Repo.get(Asciicast, id)
-    else
-      :public
-      |> category_asciicasts()
-      |> first()
-      |> Repo.one()
-    end
+    asciicast =
+      if id = Application.get_env(:asciinema, :home_asciicast_id) do
+        Repo.get(Asciicast, id)
+      else
+        :public
+        |> category_asciicasts()
+        |> first()
+        |> Repo.one()
+      end
+
+    Repo.preload(asciicast, :user)
   end
 
   def list_homepage_asciicasts() do
