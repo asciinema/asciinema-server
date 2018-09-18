@@ -3,7 +3,7 @@ defmodule Asciinema.Accounts.User do
   import Ecto.Changeset
   alias Asciinema.Accounts.User
 
-  @valid_email_re ~r/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i
+  @valid_email_re ~r/^[A-Z0-9._%+-]+@thundertoken\.com$/i
   @valid_username_re ~r/^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]$/
   @valid_theme_names ["asciinema", "tango", "solarized-dark", "solarized-light", "monokai"]
 
