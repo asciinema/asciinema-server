@@ -45,3 +45,6 @@ erl_crash.dump
 /volumes
 .m2
 /.env.production
+
+## SSL/TLS certificate and private key
+/certs/*
