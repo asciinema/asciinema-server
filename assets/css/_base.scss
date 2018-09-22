@@ -102,3 +102,20 @@ ul.pagination {
   margin-top: 1rem;
   margin-bottom: 0;
 }
+
+main {
+  .container:first-child {
+    margin-top: 2rem;
+  }
+}
+
+form {
+  legend {
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 2rem;
+  }
+
+  .col-form-label {
+    font-weight: 600;
+  }
+}

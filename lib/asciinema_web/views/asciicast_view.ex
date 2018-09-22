@@ -5,6 +5,7 @@ defmodule AsciinemaWeb.AsciicastView do
   alias Asciinema.FileStore
   alias AsciinemaWeb.Router.Helpers.Extra, as: Routes
   alias AsciinemaWeb.UserView
+  import UserView, only: [theme_options: 0]
 
   def player(src, opts \\ [])
 
@@ -93,7 +94,11 @@ defmodule AsciinemaWeb.AsciicastView do
   end
 
   def theme_name(asciicast) do
-    asciicast.theme_name || UserView.theme_name(asciicast.user) || "asciinema"
+    asciicast.theme_name || default_theme_name(asciicast)
+  end
+
+  def default_theme_name(asciicast) do
+    UserView.theme_name(asciicast.user) || "asciinema"
   end
 
   def author_username(asciicast) do

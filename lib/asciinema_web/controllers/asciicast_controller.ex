@@ -5,6 +5,9 @@ defmodule AsciinemaWeb.AsciicastController do
 
   plug :put_layout, "app2.html"
   plug :clear_main_class
+  plug :load_asciicast when action in [:show, :edit, :update, :delete]
+  plug :require_current_user when action in [:edit, :update, :delete]
+  plug :authorize, :asciicast when action in [:edit, :update, :delete]
 
   def index(conn, _params) do
     redirect(conn, to: asciicast_path(conn, :category, :featured))
@@ -33,9 +36,12 @@ defmodule AsciinemaWeb.AsciicastController do
     redirect(conn, to: asciicast_path(conn, :category, :featured))
   end
 
-  def show(conn, %{"id" => id} = _params) do
-    asciicast = Asciicasts.get_asciicast!(id)
-    do_show(conn, get_format(conn), asciicast)
+  def show(conn, _params) do
+    do_show(conn, get_format(conn), conn.assigns.asciicast)
+  end
+
+  def do_show(conn, "html", _asciicast) do
+    render(conn, "show.html")
   end
 
   def do_show(conn, format, asciicast) when format in ["json", "cast"] do
@@ -79,6 +85,41 @@ defmodule AsciinemaWeb.AsciicastController do
     conn
     |> put_layout("simple.html")
     |> render("gif.html", file_url: asciicast_file_url(conn, asciicast))
+  end
+
+  def edit(conn, _params) do
+    changeset = Asciicasts.change_asciicast(conn.assigns.asciicast)
+    render(conn, "edit.html", changeset: changeset)
+  end
+
+  def update(conn, %{"asciicast" => asciicast_params}) do
+    asciicast = conn.assigns.asciicast
+
+    case Asciicasts.update_asciicast(asciicast, asciicast_params) do
+      {:ok, asciicast} ->
+        conn
+        |> put_flash(:info, "Asciicast updated.")
+        |> redirect(to: asciicast_path(conn, :show, asciicast))
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        render(conn, "edit.html", changeset: changeset)
+    end
+  end
+
+  def delete(conn, _params) do
+    asciicast = conn.assigns.asciicast
+
+    case Asciicasts.delete_asciicast(asciicast) do
+      {:ok, _asciicast} ->
+        conn
+        |> put_flash(:info, "Asciicast deleted.")
+        |> redirect(to: profile_path(conn, conn.assigns.current_user))
+
+      {:error, _reason} ->
+        conn
+        |> put_flash(:error, "Oops, couldn't remove this asciicast.")
+        |> redirect(to: asciicast_path(conn, :show, asciicast))
+    end
   end
 
   def iframe(conn, %{"id" => id}) do
@@ -126,5 +167,9 @@ defmodule AsciinemaWeb.AsciicastController do
 
   defp file_store do
     Application.get_env(:asciinema, :file_store)
+  end
+
+  defp load_asciicast(conn, _) do
+    assign(conn, :asciicast, Asciicasts.get_asciicast!(conn.params["id"]))
   end
 end

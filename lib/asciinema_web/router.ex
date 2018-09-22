@@ -16,8 +16,23 @@ defmodule AsciinemaWeb.Router do
 
   pipeline :asciicast do
     plug :accepts, ["html", "js", "json", "cast", "png", "gif"]
+    plug :format_specific_plugs
     plug :put_secure_browser_headers
   end
+
+  defp format_specific_plugs(conn, []) do
+    format_specific_plugs(conn, Phoenix.Controller.get_format(conn))
+  end
+
+  defp format_specific_plugs(conn, "html") do
+    conn
+    |> fetch_session([])
+    |> fetch_flash([])
+    |> protect_from_forgery([])
+    |> AsciinemaWeb.Auth.call([])
+  end
+
+  defp format_specific_plugs(conn, _other), do: conn
 
   pipeline :oembed do
     plug :accepts, ["json", "xml"]
@@ -27,7 +42,7 @@ defmodule AsciinemaWeb.Router do
   scope "/", AsciinemaWeb do
     pipe_through :asciicast
 
-    get "/a/:id", AsciicastController, :show
+    resources "/a", AsciicastController, only: [:show, :edit, :update, :delete]
   end
 
   scope "/", AsciinemaWeb do

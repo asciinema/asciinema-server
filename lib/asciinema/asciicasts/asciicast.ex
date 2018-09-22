@@ -22,6 +22,7 @@ defmodule Asciinema.Asciicasts.Asciicast do
     field :secret_token, :string
     field :duration, :float
     field :title, :string
+    field :description, :string
     field :theme_name, :string
     field :theme_fg, :string
     field :theme_bg, :string
@@ -49,7 +50,7 @@ defmodule Asciinema.Asciicasts.Asciicast do
     end
   end
 
-  def changeset(struct, attrs) do
+  defp changeset(struct, attrs) do
     struct
     |> cast(attrs, [:title, :private, :snapshot_at])
     |> validate_required([:private])
@@ -66,7 +67,7 @@ defmodule Asciinema.Asciicasts.Asciicast do
   def update_changeset(struct, attrs) do
     struct
     |> changeset(attrs)
-    |> cast(attrs, [:theme_name])
+    |> cast(attrs, [:description, :theme_name])
   end
 
   def snapshot_changeset(struct, snapshot) do
