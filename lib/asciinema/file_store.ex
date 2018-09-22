@@ -17,6 +17,9 @@ defmodule Asciinema.FileStore do
   @doc "Downloads file from given path in store to local path"
   @callback download_file(path :: String.t, local_path :: String.t) :: :ok | {:error, term}
 
+  @doc "Deletes file"
+  @callback delete_file(path :: String.t) :: :ok | {:error, term}
+
   defmacro __using__(_) do
     quote do
       @behaviour Asciinema.FileStore
@@ -45,6 +48,10 @@ defmodule Asciinema.FileStore do
 
   def download_file(store_path, local_path) do
     instance().download_file(store_path, local_path)
+  end
+
+  def delete_file(path) do
+    instance().delete_file(path)
   end
 
   defp instance do

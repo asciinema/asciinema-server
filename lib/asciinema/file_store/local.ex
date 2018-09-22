@@ -42,6 +42,10 @@ defmodule Asciinema.FileStore.Local do
     File.open(base_path() <> path, [:binary, :read], function)
   end
 
+  def delete_file(path) do
+    File.rm(base_path() <> path)
+  end
+
   defp config do
     Application.get_env(:asciinema, __MODULE__)
   end
