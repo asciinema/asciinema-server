@@ -17,7 +17,7 @@ defmodule Asciinema.UserControllerTest do
 
       conn = post conn, "/users"
       assert redirected_to(conn, 302) == "/username/new"
-      assert get_rails_flash(conn, :notice) =~ ~r/welcome/i
+      assert get_flash(conn, :info) =~ ~r/welcome/i
     end
 
     test "failed sign-up due to email taken", %{conn: conn} do
@@ -106,7 +106,7 @@ defmodule Asciinema.UserControllerTest do
       conn = log_in(conn, user)
       conn = put conn, "/user", %{user: %{name: "Rick"}}
       location = List.first(get_resp_header(conn, "location"))
-      assert get_rails_flash(conn, :notice) =~ ~r/saved/i
+      assert get_flash(conn, :info) =~ ~r/saved/i
       assert response(conn, 302)
       assert location == "/~#{user.username}"
     end
