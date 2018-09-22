@@ -3,6 +3,7 @@ defmodule Asciinema.Asciicasts do
   import Ecto.Query, warn: false
   alias Asciinema.{Repo, FileStore, StringUtils, Vt}
   alias Asciinema.Asciicasts.{Asciicast, SnapshotUpdater}
+  alias Ecto.Changeset
 
   def get_asciicast!(id) when is_integer(id) do
     Asciicast
@@ -384,6 +385,22 @@ defmodule Asciinema.Asciicasts do
   defp parse_line(line) do
     [delay_s, bytes_s] = line |> String.trim_trailing() |> String.split(" ")
     {String.to_float(delay_s), String.to_integer(bytes_s)}
+  end
+
+  def change_asciicast(asciicast, attrs \\ %{}) do
+    Asciicast.update_changeset(asciicast, attrs)
+  end
+
+  def update_asciicast(asciicast, attrs \\ %{}) do
+    changeset = Asciicast.update_changeset(asciicast, attrs)
+
+    with {:ok, asciicast} <- Repo.update(changeset) do
+      if Changeset.get_change(changeset, :snapshot_at) do
+        update_snapshot(asciicast)
+      else
+        {:ok, asciicast}
+      end
+    end
   end
 
   def delete_asciicast(asciicast) do
