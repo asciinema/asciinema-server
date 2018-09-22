@@ -1,0 +1,9 @@
+<section class="cinema">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6">
+        <%= player @asciicast %>
+      </div>
+    </div>
+  </div>
+</section>
