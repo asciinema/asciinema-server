@@ -386,6 +386,23 @@ defmodule Asciinema.Asciicasts do
     {String.to_float(delay_s), String.to_integer(bytes_s)}
   end
 
+  def delete_asciicast(asciicast) do
+    with {:ok, asciicast} <- Repo.delete(asciicast) do
+      delete_files(asciicast)
+      {:ok, asciicast}
+    end
+  end
+
+  defp delete_files(asciicast) do
+    for f <- [:file, :stdout_data, :stdout_timing, :stdout_frames] do
+      if path = Asciicast.file_store_path(asciicast, f) do
+        :ok = FileStore.delete_file(path)
+      end
+    end
+
+    :ok
+  end
+
   def update_snapshot(%Asciicast{terminal_columns: w, terminal_lines: h} = asciicast) do
     secs = Asciicast.snapshot_at(asciicast)
     snapshot = asciicast |> stdout_stream |> generate_snapshot(w, h, secs)

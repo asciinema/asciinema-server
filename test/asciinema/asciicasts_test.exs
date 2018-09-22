@@ -1,5 +1,6 @@
 defmodule Asciinema.AsciicastsTest do
   use Asciinema.DataCase
+  import Asciinema.Factory
   alias Asciinema.Asciicasts
   alias Asciinema.Asciicasts.Asciicast
 
@@ -184,6 +185,21 @@ defmodule Asciinema.AsciicastsTest do
       upload = fixture(:upload, %{path: "new-logo-bars.png"})
 
       assert {:error, :unknown_format} = Asciicasts.create_asciicast(user, upload)
+    end
+  end
+
+  describe "delete_asciicast/1" do
+    test "v0" do
+      asciicast = insert(:asciicast_v0) |> with_files()
+      assert {:ok, _asciicast} = Asciicasts.delete_asciicast(asciicast)
+    end
+
+    test "v1/v2" do
+      asciicast = insert(:asciicast_v1) |> with_file()
+      assert {:ok, _asciicast} = Asciicasts.delete_asciicast(asciicast)
+
+      asciicast = insert(:asciicast_v2) |> with_file()
+      assert {:ok, _asciicast} = Asciicasts.delete_asciicast(asciicast)
     end
   end
 
