@@ -119,3 +119,14 @@ form {
     font-weight: 600;
   }
 }
+
+.special-label {
+  font-size: 12px;
+  background-color: rgb(255, 239, 198);
+  color: rgb(161, 136, 43);
+  margin-left: 6px;
+  padding: 2px 5px;
+  border-radius: 4px;
+  vertical-align: middle;
+  cursor: help;
+}
