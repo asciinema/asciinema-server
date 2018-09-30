@@ -51,7 +51,6 @@ defmodule Asciinema.Mixfile do
       {:plug_rails_cookie_session_store, "~> 0.1"},
       {:poison, "~> 3.1"},
       {:poolboy, "~> 1.5"},
-      {:porcelain, "~> 2.0"},
       {:postgrex, ">= 0.0.0"},
       {:redix, ">= 0.6.1"},
       {:scrivener_ecto, "~> 1.0"},

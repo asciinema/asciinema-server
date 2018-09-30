@@ -74,6 +74,7 @@ defmodule AsciinemaWeb.AsciicastController do
         |> put_resp_header("cache-control", "public, max-age=#{@png_max_age}")
         |> send_file(200, png_path)
         |> halt
+
       {:error, :busy} ->
         conn
         |> put_resp_header("retry-after", "5")
