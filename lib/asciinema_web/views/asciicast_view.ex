@@ -11,6 +11,7 @@ defmodule AsciinemaWeb.AsciicastView do
 
   def player(src, opts) when is_binary(src) do
     opts = Keyword.merge([id: "player", src: src, preload: true], opts)
+    opts = Ext.Keyword.rename(opts, t: :"start-at", size: :"font-size")
     content_tag :"asciinema-player", opts, do: []
   end
 
