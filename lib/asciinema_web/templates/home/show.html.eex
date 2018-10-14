@@ -10,7 +10,7 @@
         </h2>
 
         <p>&nbsp; </p>
-        <p><button class="btn btn-success" data-content="<p>Install asciinema with:</p>
+        <p><button class="btn btn-info" data-content="<p>Install asciinema with:</p>
 
 <pre><code>brew install asciinema
 </code></pre>
@@ -93,7 +93,7 @@
           <% end %>
         </div>
 
-        <p><a class="btn btn-success" href="/explore">Explore more</a></p>
+        <p><a class="btn btn-info" href="/explore">Explore more</a></p>
       </div>
     </div>
   </div>
