@@ -20,3 +20,8 @@
 
 <!-- application/x-asciicast -->
 <link rel="alternate" type="<%= alternate_link_type(@asciicast) %>" href="<%= asciicast_file_url(@asciicast) %>">
+
+<%= if @asciicast.private do %>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="origin">
+<% end %>
