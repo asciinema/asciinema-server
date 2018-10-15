@@ -39,8 +39,9 @@ defmodule AsciinemaWeb.AsciicastView do
   end
 
   defp file_url(asciicast) do
-    path = Asciicasts.asciicast_file_path(asciicast)
-    FileStore.url(path) || Routes.asciicast_file_url(asciicast)
+    if path = Asciicasts.asciicast_file_path(asciicast) do
+      FileStore.url(path) || Routes.asciicast_file_url(asciicast)
+    end
   end
 
   defp asciicast_oembed_url(asciicast, format) do

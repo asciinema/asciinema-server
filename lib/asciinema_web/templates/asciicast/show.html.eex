@@ -1,5 +1,20 @@
 <section class="cinema">
-  <%= player @asciicast, @playback_options %>
+  <%= if file_url(@asciicast) do %>
+    <%= player @asciicast, @playback_options %>
+  <% else %>
+    <div class="container">
+      <div class="processing-info">
+        <p>
+          This movie was recorded with quite old version of asciinema and needs
+          extra pre-processing. Just a few more seconds!
+        </p>
+
+        <p>
+          Feel free to contact <a href="mailto:admin@asciinema.org">admin@asciinema.org</a> if it takes more than a minute.
+        </p>
+      </div>
+    </div>
+  <% end %>
 </section>
 
 <section class="even info">
