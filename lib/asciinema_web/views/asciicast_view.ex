@@ -52,6 +52,52 @@ defmodule AsciinemaWeb.AsciicastView do
     "data:application/json;base64," <> encoded
   end
 
+  def description(asciicast) do
+    if desc = asciicast.description do
+      {:safe, HtmlSanitizeEx.basic_html(Earmark.as_html!(desc))}
+    end
+  end
+
+  def os_info(asciicast) do
+    os_from_user_agent(asciicast) || os_from_uname(asciicast)
+  end
+
+  defp os_from_user_agent(asciicast) do
+    if ua = asciicast.user_agent do
+      if match = Regex.run(~r{^asciinema/\d(\.\d+)+ [^/\s]+/[^/\s]+ (.+)$}, ua) do
+        [_, _, os] = match
+
+        os
+        |> String.replace("-", "/")
+        |> String.split("/")
+        |> List.first()
+        |> String.replace(~r/Darwin/i, "macOS")
+      end
+    end
+  end
+
+  defp os_from_uname(asciicast) do
+    if uname = asciicast.uname do
+      cond do
+        uname =~ ~r/Linux/i -> "Linux"
+        uname =~ ~r/Darwin/i -> "macOS"
+        true -> uname |> String.split(~r/[\s-]/) |> List.first()
+      end
+    end
+  end
+
+  def shell_info(asciicast) do
+    Path.basename("#{asciicast.shell}")
+  end
+
+  def term_info(asciicast) do
+    asciicast.terminal_type
+  end
+
+  def views_count(asciicast) do
+    asciicast.views_count
+  end
+
   def active_link(title, active?, opts) do
     opts = if active? do
       class = Keyword.get(opts, :class, "") <> " active"

@@ -40,8 +40,17 @@ defmodule AsciinemaWeb.AsciicastController do
     do_show(conn, get_format(conn), conn.assigns.asciicast)
   end
 
-  def do_show(conn, "html", _asciicast) do
-    render(conn, "show.html")
+  def do_show(conn, "html", asciicast) do
+    opts = Asciicasts.PlaybackOpts.parse(conn.params)
+
+    conn
+    |> count_view(asciicast)
+    |> render(
+      "show.html",
+      asciicast: asciicast,
+      playback_options: opts,
+      author_asciicasts: Asciicasts.other_public_asciicasts(asciicast)
+    )
   end
 
   def do_show(conn, format, asciicast) when format in ["json", "cast"] do
@@ -172,5 +181,18 @@ defmodule AsciinemaWeb.AsciicastController do
 
   defp load_asciicast(conn, _) do
     assign(conn, :asciicast, Asciicasts.get_asciicast!(conn.params["id"]))
+  end
+
+  defp count_view(conn, asciicast) do
+    key = "a#{asciicast.id}"
+
+    case conn.req_cookies[key] do
+      nil ->
+        Asciicasts.inc_views_count(asciicast)
+        put_resp_cookie(conn, key, "1", max_age: 3600*24)
+
+      _ ->
+        conn
+    end
   end
 end

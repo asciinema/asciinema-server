@@ -1,9 +1,107 @@
 <section class="cinema">
+  <%= player @asciicast, @playback_options %>
+</section>
+
+<section class="even info">
   <div class="container">
     <div class="row">
-      <div class="col-md-6">
-        <%= player @asciicast %>
+      <div class="col-md-8 col-xs-12">
+        <span class="author-avatar">
+          <%= link to: author_profile_path(@asciicast), title: author_username(@asciicast) do %>
+            <%= img_tag author_avatar_url(@asciicast), class: "avatar" %>
+          <% end %>
+        </span>
+
+        <h2>
+          <%= title(@asciicast) %>
+
+          <%= if @asciicast.private do %>
+            <%= render "_private_badge.html" %>
+          <% end %>
+
+          <%= if @asciicast.featured do %>
+            <%= render "_featured_badge.html" %>
+          <% end %>
+        </h2>
+
+        <small>by <%= link author_username(@asciicast), to: author_profile_path(@asciicast) %> <%= if !assigns[:no_created_at] do %><%= time_ago_tag @asciicast.created_at %><% end %></small>
+      </div>
+
+      <div class="col-md-4 col-xs-12 text-right actions">
+        <div class="dropdown actions-dropdown pull-right">
+          <%= link "Share", to: "#", class: "btn btn-sm btn-secondary", id: "share-link", "data-toggle": "modal", "data-target": "#share-modal" %>
+          <%= link "Download", to: "#", class: "btn btn-sm btn-secondary", id: "download-link", "data-toggle": "modal", "data-target": "#download-modal" %>
+
+          <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+            Settings
+          </button>
+
+          <div class="dropdown-menu">
+            <%= link "Edit", to: asciicast_path(@conn, :edit, @asciicast), class: "dropdown-item" %>
+            <%= link "Delete", to: asciicast_path(@conn, :delete, @asciicast), class: "dropdown-item text-danger", method: :delete, data: [confirm: "Are you sure you want to delete this?"] %>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </section>
+
+<section class="odd meta">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12 col-xs-12">
+        <img src="data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pgo8IS0tIEdlbmVyYXRvcjogQWRvYmUgSWxsdXN0cmF0b3IgMTYuMC4wLCBTVkcgRXhwb3J0IFBsdWctSW4gLiBTVkcgVmVyc2lvbjogNi4wMCBCdWlsZCAwKSAgLS0+CjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmVyc2lvbj0iMS4xIiBpZD0iQ2FwYV8xIiB4PSIwcHgiIHk9IjBweCIgd2lkdGg9IjUxMnB4IiBoZWlnaHQ9IjUxMnB4IiB2aWV3Qm94PSIwIDAgNDUuOTk5IDQ1Ljk5OSIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgNDUuOTk5IDQ1Ljk5OTsiIHhtbDpzcGFjZT0icHJlc2VydmUiPgo8Zz4KCTxnPgoJCTxwYXRoIGQ9Ik0zOS4yNjQsNi43MzZjLTguOTgyLTguOTgxLTIzLjU0NS04Ljk4Mi0zMi41MjgsMGMtOC45ODIsOC45ODItOC45ODEsMjMuNTQ1LDAsMzIuNTI4YzguOTgyLDguOTgsMjMuNTQ1LDguOTgxLDMyLjUyOCwwICAgIEM0OC4yNDUsMzAuMjgxLDQ4LjI0NCwxNS43MTksMzkuMjY0LDYuNzM2eiBNMjUuOTk5LDMzYzAsMS42NTctMS4zNDMsMy0zLDNzLTMtMS4zNDMtMy0zVjIxYzAtMS42NTcsMS4zNDMtMywzLTNzMywxLjM0MywzLDNWMzN6ICAgICBNMjIuOTQ2LDE1Ljg3MmMtMS43MjgsMC0yLjg4LTEuMjI0LTIuODQ0LTIuNzM1Yy0wLjAzNi0xLjU4NCwxLjExNi0yLjc3MSwyLjg3OS0yLjc3MWMxLjc2NCwwLDIuODgsMS4xODgsMi45MTcsMi43NzEgICAgQzI1Ljg5NywxNC42NDgsMjQuNzQ2LDE1Ljg3MiwyMi45NDYsMTUuODcyeiIgZmlsbD0iIzZjNzU3ZCIvPgoJPC9nPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+Cjwvc3ZnPgo=" />
+
+        <%= if os = os_info(@asciicast) do %>
+          <code>OS=<%= os %></code>
+        <% end %>
+
+        <%= if shell = shell_info(@asciicast) do %>
+          <code>SHELL=<%= shell %></code>
+        <% end %>
+
+        <%= if term = term_info(@asciicast) do %>
+          <code>TERM=<%= term %></code>
+        <% end %>
+
+        <code>VIEWS=<%= views_count(@asciicast) %></code>
+
+        <%= if desc = description(@asciicast) do %>
+          <hr/>
+
+          <div class="description">
+            <%= desc %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%= case @author_asciicasts do %>
+  <% [] -> %>
+  <% asciicasts -> %>
+    <section class="even">
+      <div class="container">
+        <div class="row other-asciicasts">
+          <div class="col-md-12">
+            <h2>More by <%= link author_username(@asciicast), to: author_profile_path(@asciicast) %></h2>
+
+            <div class="asciicast-list">
+              <div class="row">
+                <%= for asciicast <- asciicasts do %>
+                  <div class="col-md-4">
+                    <%= render AsciinemaWeb.AsciicastView, "_card.html", conn: @conn, asciicast: asciicast %>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+
+            <p>
+              <%= link "See all", to: author_profile_path(@asciicast), class: "btn btn-info" %>
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+<% end %>
