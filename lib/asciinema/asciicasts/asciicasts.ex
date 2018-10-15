@@ -56,6 +56,18 @@ defmodule Asciinema.Asciicasts do
     |> Repo.all()
   end
 
+  def other_public_asciicasts(asciicast, limit \\ 3) do
+    q =
+      from(
+        a in Asciicast,
+        where: a.id != ^asciicast.id and a.user_id == ^asciicast.user_id and a.private == false,
+        order_by: fragment("RANDOM()"),
+        limit: ^limit
+      )
+
+    Repo.all(q)
+  end
+
   def category_asciicasts(category) do
     from(Asciicast)
     |> filter(category)
@@ -472,5 +484,10 @@ defmodule Asciinema.Asciicasts do
 
   def asciicast_file_path(asciicast) do
     Asciicast.json_store_path(asciicast)
+  end
+
+  def inc_views_count(asciicast) do
+    from(a in Asciicast, where: a.id == ^asciicast.id)
+    |> Repo.update_all(inc: [views_count: 1])
   end
 end

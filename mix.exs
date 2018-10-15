@@ -40,6 +40,7 @@ defmodule Asciinema.Mixfile do
       {:exq, "~> 0.9.0"},
       {:exq_ui, "~> 0.9.0"},
       {:gettext, "~> 0.11"},
+      {:html_sanitize_ex, "~> 1.3"},
       {:inflex, "~> 1.9"},
       {:jason, "~> 1.1"},
       {:phoenix, "~> 1.3.4"},
