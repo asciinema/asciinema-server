@@ -3,6 +3,7 @@ defmodule AsciinemaWeb.AsciicastView do
   import Scrivener.HTML
   alias Asciinema.Asciicasts
   alias Asciinema.FileStore
+  alias AsciinemaWeb.Endpoint
   alias AsciinemaWeb.Router.Helpers.Extra, as: Routes
   alias AsciinemaWeb.UserView
   import UserView, only: [theme_options: 0]
@@ -32,7 +33,7 @@ defmodule AsciinemaWeb.AsciicastView do
   end
 
   def embed_script(asciicast) do
-    src = asciicast_script_url(AsciinemaWeb.Endpoint, asciicast)
+    src = asciicast_script_url(Endpoint, asciicast)
     id = "asciicast-#{Phoenix.Param.to_param(asciicast)}"
     content_tag(:script, [src: src, id: id, async: "async"], do: [])
   end
@@ -40,6 +41,42 @@ defmodule AsciinemaWeb.AsciicastView do
   defp file_url(asciicast) do
     path = Asciicasts.asciicast_file_path(asciicast)
     FileStore.url(path) || Routes.asciicast_file_url(asciicast)
+  end
+
+  defp asciicast_oembed_url(asciicast, format) do
+    oembed_url(
+      Endpoint,
+      :show,
+      url: asciicast_url(Endpoint, :show, asciicast),
+      format: format
+    )
+  end
+
+  defp short_text_description(asciicast) do
+    if asciicast.description do
+      asciicast.description
+      |> HtmlSanitizeEx.strip_tags()
+      |> String.replace(~r/[\r\n]+/, " ")
+      |> truncate(200)
+    else
+      "Recorded by #{author_username(asciicast)}"
+    end
+  end
+
+  defp truncate(text, length) do
+    if String.length(text) > length do
+      String.slice(text, 0, length - 3) <> "..."
+    else
+      text
+    end
+  end
+
+  defp alternate_link_type(asciicast) do
+    case asciicast.version do
+      1 -> "application/asciicast+json"
+      2 -> "application/x-asciicast"
+      _ -> nil
+    end
   end
 
   defp base64_poster(asciicast) do
