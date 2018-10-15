@@ -87,6 +87,10 @@ defmodule Asciinema.Asciicasts.Asciicast do
     file_store_path(asciicast, :stdout_frames)
   end
 
+  def json_store_path(_asciicast) do
+    nil
+  end
+
   def file_store_path(%Asciicast{id: id, file: fname}, :file) do
     file_store_path(:file, id, fname)
   end
