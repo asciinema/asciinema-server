@@ -7,8 +7,7 @@
     <title><%= page_title @conn %></title>
     <link rel="stylesheet" href="<%= static_path(@conn, "/css/app2.css") %>">
     <link rel="shortcut icon" href="<%= static_path(@conn, "/images/favicon.png") %>">
-    <!-- google analytics -->
-    <!-- content for head (twitter, open graph tags) -->
+    <%= render_existing @view_module, "meta." <> @view_template, assigns %>
   </head>
 
   <body class="l-app <%= body_class(@conn) %>">
