@@ -47,6 +47,7 @@ defmodule AsciinemaWeb.AsciicastController do
     |> count_view(asciicast)
     |> render(
       "show.html",
+      page_title: AsciinemaWeb.AsciicastView.title(asciicast),
       asciicast: asciicast,
       playback_options: opts,
       author_asciicasts: Asciicasts.other_public_asciicasts(asciicast)
