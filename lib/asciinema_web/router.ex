@@ -157,6 +157,6 @@ defmodule AsciinemaWeb.Router.Helpers.Extra do
   end
 
   def asciicast_script_url(conn, asciicast) do
-    H.asciicast_path(conn, :show, asciicast) <> ".js"
+    H.asciicast_url(conn, :show, asciicast) <> ".js"
   end
 end

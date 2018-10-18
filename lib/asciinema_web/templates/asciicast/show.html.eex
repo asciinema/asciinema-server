@@ -45,7 +45,10 @@
       <div class="col-md-4 col-xs-12 text-right actions">
         <div class="dropdown actions-dropdown pull-right">
           <%= link "Share", to: "#", class: "btn btn-sm btn-secondary", id: "share-link", "data-toggle": "modal", "data-target": "#share-modal" %>
-          <%= link "Download", to: "#", class: "btn btn-sm btn-secondary", id: "download-link", "data-toggle": "modal", "data-target": "#download-modal" %>
+
+          <%= if download_filename(@asciicast) do %>
+            <%= link "Download", to: "#", class: "btn btn-sm btn-secondary", id: "download-link", "data-toggle": "modal", "data-target": "#download-modal" %>
+          <% end %>
 
           <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
             Settings
@@ -119,4 +122,10 @@
         </div>
       </div>
     </section>
+<% end %>
+
+<%= render "_share_modal.html", conn: @conn, asciicast: @asciicast %>
+
+<%= if download_filename(@asciicast) do %>
+  <%= render "_download_modal.html", conn: @conn, asciicast: @asciicast %>
 <% end %>
