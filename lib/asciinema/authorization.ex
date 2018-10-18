@@ -11,6 +11,9 @@ defmodule Asciinema.Authorization do
       true
     end
 
+    def can?(_user, :make_featured, %Asciicast{}), do: false
+    def can?(_user, :make_not_featured, %Asciicast{}), do: false
+
     def can?(user, _action, %Asciicast{user_id: uid}) do
       user.id == uid
     end
