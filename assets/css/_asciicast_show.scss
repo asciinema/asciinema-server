@@ -41,3 +41,21 @@
     }
   }
 }
+
+.modal-dialog {
+  h2:first-child {
+    margin-top: 0;
+  }
+
+  input[type=text] {
+    width: 100%;
+    font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 14px;
+    color: #212529;
+    background-color: #f7f7f7;
+    border-radius: 3px;
+    border: 1px solid #e0e0e0;
+    margin-bottom: 8px;
+    padding: 9px;
+  }
+}

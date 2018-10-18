@@ -35,7 +35,7 @@ defmodule AsciinemaWeb.AsciicastView do
   def embed_script(asciicast) do
     src = asciicast_script_url(Endpoint, asciicast)
     id = "asciicast-#{Phoenix.Param.to_param(asciicast)}"
-    content_tag(:script, [src: src, id: id, async: "async"], do: [])
+    content_tag(:script, [src: src, id: id, async: true], do: [])
   end
 
   defp file_url(asciicast) do
@@ -76,6 +76,14 @@ defmodule AsciinemaWeb.AsciicastView do
     case asciicast.version do
       1 -> "application/asciicast+json"
       2 -> "application/x-asciicast"
+      _ -> nil
+    end
+  end
+
+  def download_filename(asciicast) do
+    case asciicast.version do
+      1 -> "#{asciicast.id}.json"
+      2 -> "#{asciicast.id}.cast"
       _ -> nil
     end
   end
