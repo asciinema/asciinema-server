@@ -50,14 +50,37 @@
             <%= link "Download", to: "#", class: "btn btn-sm btn-secondary", id: "download-link", "data-toggle": "modal", "data-target": "#download-modal" %>
           <% end %>
 
-          <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-            Settings
-          </button>
+          <%= if length(@actions) > 0 do %>
+            <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+              Settings
+            </button>
 
-          <div class="dropdown-menu">
-            <%= link "Edit", to: asciicast_path(@conn, :edit, @asciicast), class: "dropdown-item" %>
-            <%= link "Delete", to: asciicast_path(@conn, :delete, @asciicast), class: "dropdown-item text-danger", method: :delete, data: [confirm: "Are you sure you want to delete this?"] %>
-          </div>
+            <div class="dropdown-menu">
+              <%= if :edit in @actions do %>
+                <%= link "Edit", to: asciicast_path(@conn, :edit, @asciicast), class: "dropdown-item" %>
+              <% end %>
+
+              <%= if :make_featured in @actions do %>
+                <%= link "Make featured", to: asciicast_path(@conn, :update, @asciicast, asciicast: [featured: 1]), class: "dropdown-item", method: :put %>
+              <% end %>
+
+              <%= if :make_not_featured in @actions do %>
+                <%= link "Make not featured", to: asciicast_path(@conn, :update, @asciicast, asciicast: [featured: 0]), class: "dropdown-item", method: :put %>
+              <% end %>
+
+              <%= if :make_private in @actions do %>
+                <%= link "Make private", to: asciicast_path(@conn, :update, @asciicast, asciicast: [private: 1]), class: "dropdown-item", method: :put %>
+              <% end %>
+
+              <%= if :make_public in @actions do %>
+                <%= link "Make public", to: asciicast_path(@conn, :update, @asciicast, asciicast: [private: 0]), class: "dropdown-item", method: :put %>
+              <% end %>
+
+              <%= if :delete in @actions do %>
+                <%= link "Delete", to: asciicast_path(@conn, :delete, @asciicast), class: "dropdown-item text-danger", method: :delete, data: [confirm: "Are you sure you want to delete this?"] %>
+              <% end %>
+            </div>
+          <% end %>
         </div>
       </div>
     </div>

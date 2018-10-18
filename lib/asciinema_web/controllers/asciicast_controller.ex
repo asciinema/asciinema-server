@@ -41,15 +41,14 @@ defmodule AsciinemaWeb.AsciicastController do
   end
 
   def do_show(conn, "html", asciicast) do
-    opts = Asciicasts.PlaybackOpts.parse(conn.params)
-
     conn
     |> count_view(asciicast)
     |> render(
       "show.html",
       page_title: AsciinemaWeb.AsciicastView.title(asciicast),
       asciicast: asciicast,
-      playback_options: opts,
+      playback_options: Asciicasts.PlaybackOpts.parse(conn.params),
+      actions: asciicast_actions(asciicast, conn.assigns.current_user),
       author_asciicasts: Asciicasts.other_public_asciicasts(asciicast)
     )
   end
@@ -194,6 +193,28 @@ defmodule AsciinemaWeb.AsciicastController do
 
       _ ->
         conn
+    end
+  end
+
+  @actions [
+    :edit, :delete,
+    :make_private, :make_public,
+    :make_featured, :make_not_featured
+  ]
+
+  defp asciicast_actions(asciicast, user) do
+    @actions
+    |> Enum.filter(&action_applicable?(&1, asciicast))
+    |> Enum.filter(&Asciinema.Authorization.can?(user, &1, asciicast))
+  end
+
+  defp action_applicable?(action, asciicast) do
+    case action do
+      :make_private -> !asciicast.private
+      :make_public -> asciicast.private
+      :make_featured -> !asciicast.featured
+      :make_not_featured -> asciicast.featured
+      _ -> true
     end
   end
 end
