@@ -23,7 +23,6 @@ services:
     container_name: asciinema_dev_nginx
     links:
       - phoenix
-      - rails
     ports:
       - "3000:80"
     volumes:
@@ -36,7 +35,7 @@ services:
       dockerfile: Dockerfile.dev
     image: asciinema/asciinema-server:local
     container_name: asciinema_dev_phoenix
-    entrypoint: env -u MIX_ENV -u RAILS_ENV -u PORT
+    entrypoint: env -u MIX_ENV -u PORT
     command: mix phx.server
     links:
       - redis
