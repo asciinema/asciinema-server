@@ -49,7 +49,6 @@ defmodule Asciinema.Mixfile do
       {:phoenix_live_reload, "~> 1.1", only: :dev},
       {:phoenix_markdown, "~> 0.1"},
       {:phoenix_pubsub, "~> 1.1"},
-      {:plug_rails_cookie_session_store, "~> 0.1"},
       {:poison, "~> 3.1"},
       {:poolboy, "~> 1.5"},
       {:postgrex, ">= 0.0.0"},
