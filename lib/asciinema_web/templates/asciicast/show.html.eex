@@ -29,6 +29,11 @@
 
         <h2>
           <%= title(@asciicast) %>
+        </h2>
+
+        <small>
+          by <%= link author_username(@asciicast), to: author_profile_path(@asciicast) %>
+          <%= time_ago_tag @asciicast.created_at %>
 
           <%= if @asciicast.private do %>
             <%= render "_private_badge.html" %>
@@ -37,9 +42,7 @@
           <%= if @asciicast.featured do %>
             <%= render "_featured_badge.html" %>
           <% end %>
-        </h2>
-
-        <small>by <%= link author_username(@asciicast), to: author_profile_path(@asciicast) %> <%= if !assigns[:no_created_at] do %><%= time_ago_tag @asciicast.created_at %><% end %></small>
+        </small>
       </div>
 
       <div class="col-md-4 col-xs-12 text-right actions">
