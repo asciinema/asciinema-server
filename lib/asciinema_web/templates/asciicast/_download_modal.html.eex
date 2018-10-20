@@ -19,7 +19,7 @@
           <% end %>
         </p>
 
-        <a href="<%= asciicast_file_url(@asciicast) %>" class="btn btn-primary" download="<%= download_filename(@asciicast) %>" rel="nofollow">Download</a>
+        <a href="<%= asciicast_file_url(@asciicast) %>?dl=1" class="btn btn-primary" download="<%= download_filename(@asciicast) %>" rel="nofollow">Download</a>
 
         <h2>Replay in terminal</h2>
 
