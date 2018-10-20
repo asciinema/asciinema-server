@@ -99,7 +99,9 @@ defmodule AsciinemaWeb.AsciicastView do
   end
 
   def description(asciicast) do
-    if desc = asciicast.description do
+    desc = String.trim("#{asciicast.description}")
+
+    if present?(desc) do
       {:safe, HtmlSanitizeEx.basic_html(Earmark.as_html!(desc))}
     end
   end
