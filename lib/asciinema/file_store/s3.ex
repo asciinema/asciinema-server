@@ -60,6 +60,14 @@ defmodule Asciinema.FileStore.S3 do
     end
   end
 
+  def delete_file(path) do
+    req = S3.delete_object(bucket(), base_path() <> path)
+
+    with {:ok, _} <- make_request(req) do
+      :ok
+    end
+  end
+
   defp make_request(request) do
     ExAws.request(request, region: region())
   end

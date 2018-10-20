@@ -18,35 +18,3 @@ shared_examples_for "asciicast iframe response" do
     expect(response.body).to have_selector('body.iframe asciinema-player')
   end
 end
-
-describe "Asciicast retrieval" do
-
-  let(:asciicast) { create(:asciicast) }
-
-  context "when requested as js" do
-    before do
-      get "/a/#{asciicast.id}.js"
-    end
-
-    it "responds with status 302" do
-      expect(response.status).to eq(302)
-    end
-  end
-
-  context "when requested as html" do
-    include Capybara::RSpecMatchers
-
-    before do
-      get "/a/#{asciicast.to_param}/embed", format: 'html'
-    end
-
-    it_behaves_like "asciicast iframe response"
-
-    context "for private asciicast" do
-      let(:asciicast) { create(:asciicast, private: true) }
-
-      it_behaves_like "asciicast iframe response"
-    end
-  end
-
-end

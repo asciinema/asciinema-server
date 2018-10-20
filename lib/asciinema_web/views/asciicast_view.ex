@@ -3,25 +3,89 @@ defmodule AsciinemaWeb.AsciicastView do
   import Scrivener.HTML
   alias Asciinema.Asciicasts
   alias Asciinema.FileStore
+  alias AsciinemaWeb.Endpoint
   alias AsciinemaWeb.Router.Helpers.Extra, as: Routes
   alias AsciinemaWeb.UserView
+  import UserView, only: [theme_options: 0]
 
-  def player(asciicast, opts \\ []) do
-    opts =
-      Keyword.merge([
-        src: file_url(asciicast),
-        cols: asciicast.terminal_columns,
-        rows: asciicast.terminal_lines,
-        poster: base64_poster(asciicast),
-        preload: "true",
-      ], opts)
+  def player(src, opts \\ [])
 
+  def player(src, opts) when is_binary(src) do
+    opts = Keyword.merge([id: "player", src: src, preload: true], opts)
+    opts = Ext.Keyword.rename(opts, t: :"start-at", size: :"font-size")
     content_tag :"asciinema-player", opts, do: []
   end
 
+  def player(asciicast, opts) do
+    opts =
+      Keyword.merge([
+        cols: asciicast.terminal_columns,
+        rows: asciicast.terminal_lines,
+        theme: theme_name(asciicast),
+        poster: base64_poster(asciicast),
+        title: title(asciicast),
+        author: author_username(asciicast),
+        "author-url": author_profile_url(asciicast),
+        "author-img-url": author_avatar_url(asciicast)
+      ], opts)
+
+    player(file_url(asciicast), opts)
+  end
+
+  def embed_script(asciicast) do
+    src = asciicast_script_url(Endpoint, asciicast)
+    id = "asciicast-#{Phoenix.Param.to_param(asciicast)}"
+    content_tag(:script, [src: src, id: id, async: true], do: [])
+  end
+
   defp file_url(asciicast) do
-    path = Asciicasts.asciicast_file_path(asciicast)
-    FileStore.url(path) || Routes.asciicast_file_url(asciicast)
+    if path = Asciicasts.asciicast_file_path(asciicast) do
+      FileStore.url(path) || Routes.asciicast_file_url(asciicast)
+    end
+  end
+
+  defp asciicast_oembed_url(asciicast, format) do
+    oembed_url(
+      Endpoint,
+      :show,
+      url: asciicast_url(Endpoint, :show, asciicast),
+      format: format
+    )
+  end
+
+  defp short_text_description(asciicast) do
+    if asciicast.description do
+      asciicast.description
+      |> HtmlSanitizeEx.strip_tags()
+      |> String.replace(~r/[\r\n]+/, " ")
+      |> truncate(200)
+    else
+      "Recorded by #{author_username(asciicast)}"
+    end
+  end
+
+  defp truncate(text, length) do
+    if String.length(text) > length do
+      String.slice(text, 0, length - 3) <> "..."
+    else
+      text
+    end
+  end
+
+  defp alternate_link_type(asciicast) do
+    case asciicast.version do
+      1 -> "application/asciicast+json"
+      2 -> "application/x-asciicast"
+      _ -> nil
+    end
+  end
+
+  def download_filename(asciicast) do
+    case asciicast.version do
+      1 -> "#{asciicast.id}.json"
+      2 -> "#{asciicast.id}.cast"
+      _ -> nil
+    end
   end
 
   defp base64_poster(asciicast) do
@@ -32,6 +96,54 @@ defmodule AsciinemaWeb.AsciicastView do
       |> Base.encode64()
 
     "data:application/json;base64," <> encoded
+  end
+
+  def description(asciicast) do
+    desc = String.trim("#{asciicast.description}")
+
+    if present?(desc) do
+      {:safe, HtmlSanitizeEx.basic_html(Earmark.as_html!(desc))}
+    end
+  end
+
+  def os_info(asciicast) do
+    os_from_user_agent(asciicast) || os_from_uname(asciicast)
+  end
+
+  defp os_from_user_agent(asciicast) do
+    if ua = asciicast.user_agent do
+      if match = Regex.run(~r{^asciinema/\d(\.\d+)+ [^/\s]+/[^/\s]+ (.+)$}, ua) do
+        [_, _, os] = match
+
+        os
+        |> String.replace("-", "/")
+        |> String.split("/")
+        |> List.first()
+        |> String.replace(~r/Darwin/i, "macOS")
+      end
+    end
+  end
+
+  defp os_from_uname(asciicast) do
+    if uname = asciicast.uname do
+      cond do
+        uname =~ ~r/Linux/i -> "Linux"
+        uname =~ ~r/Darwin/i -> "macOS"
+        true -> uname |> String.split(~r/[\s-]/) |> List.first()
+      end
+    end
+  end
+
+  def shell_info(asciicast) do
+    Path.basename("#{asciicast.shell}")
+  end
+
+  def term_info(asciicast) do
+    asciicast.terminal_type
+  end
+
+  def views_count(asciicast) do
+    asciicast.views_count
   end
 
   def active_link(title, active?, opts) do
@@ -55,10 +167,13 @@ defmodule AsciinemaWeb.AsciicastView do
     cond do
       present?(asciicast.title) ->
         asciicast.title
+
       present?(asciicast.command) && asciicast.command != asciicast.shell ->
         asciicast.command
+
       asciicast.private ->
         "untitled"
+
       true ->
         "asciicast:#{asciicast.id}"
     end
@@ -74,7 +189,11 @@ defmodule AsciinemaWeb.AsciicastView do
   end
 
   def theme_name(asciicast) do
-    asciicast.theme_name || UserView.theme_name(asciicast.user) || "asciinema"
+    asciicast.theme_name || default_theme_name(asciicast)
+  end
+
+  def default_theme_name(asciicast) do
+    UserView.theme_name(asciicast.user) || "asciinema"
   end
 
   def author_username(asciicast) do
@@ -87,6 +206,10 @@ defmodule AsciinemaWeb.AsciicastView do
 
   def author_profile_path(asciicast) do
     profile_path(asciicast.user)
+  end
+
+  def author_profile_url(asciicast) do
+    profile_url(asciicast.user)
   end
 
   def class(%{} = attrs) do

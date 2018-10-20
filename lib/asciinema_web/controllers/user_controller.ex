@@ -25,7 +25,7 @@ defmodule AsciinemaWeb.UserController do
       {:ok, user} ->
         conn
         |> Auth.log_in(user)
-        |> put_rails_flash(:info, "Welcome to asciinema!")
+        |> put_flash(:info, "Welcome to asciinema!")
         |> redirect(to: "/username/new")
       {:error, :token_invalid} ->
         conn
@@ -91,7 +91,7 @@ defmodule AsciinemaWeb.UserController do
     case Accounts.update_user(user, user_params) do
       {:ok, user} ->
         conn
-        |> put_rails_flash(:info, "Account settings saved.")
+        |> put_flash(:info, "Account settings saved.")
         |> redirect(to: profile_path(conn, user))
       {:error, %Ecto.Changeset{} = changeset} ->
         render_edit_form(conn, user, changeset)

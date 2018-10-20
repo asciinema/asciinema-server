@@ -3,9 +3,12 @@ defmodule Asciinema.Asciicasts do
   import Ecto.Query, warn: false
   alias Asciinema.{Repo, FileStore, StringUtils, Vt}
   alias Asciinema.Asciicasts.{Asciicast, SnapshotUpdater}
+  alias Ecto.Changeset
 
   def get_asciicast!(id) when is_integer(id) do
-    Repo.get!(Asciicast, id)
+    Asciicast
+    |> Repo.get!(id)
+    |> Repo.preload(:user)
   end
 
   def get_asciicast!(thing) when is_binary(thing) do
@@ -22,18 +25,23 @@ defmodule Asciinema.Asciicasts do
         end
       end
 
-    Repo.one!(q)
+    q
+    |> Repo.one!()
+    |> Repo.preload(:user)
   end
 
   def get_homepage_asciicast do
-    if id = Application.get_env(:asciinema, :home_asciicast_id) do
-      Repo.get(Asciicast, id)
-    else
-      :public
-      |> category_asciicasts()
-      |> first()
-      |> Repo.one()
-    end
+    asciicast =
+      if id = Application.get_env(:asciinema, :home_asciicast_id) do
+        Repo.get(Asciicast, id)
+      else
+        :public
+        |> category_asciicasts()
+        |> first()
+        |> Repo.one()
+      end
+
+    Repo.preload(asciicast, :user)
   end
 
   def list_homepage_asciicasts() do
@@ -46,6 +54,19 @@ defmodule Asciinema.Asciicasts do
     |> limit(6)
     |> preload(:user)
     |> Repo.all()
+  end
+
+  def other_public_asciicasts(asciicast, limit \\ 3) do
+    q =
+      from(
+        a in Asciicast,
+        where: a.id != ^asciicast.id and a.user_id == ^asciicast.user_id and a.private == false,
+        order_by: fragment("RANDOM()"),
+        limit: ^limit,
+        preload: :user
+      )
+
+    Repo.all(q)
   end
 
   def category_asciicasts(category) do
@@ -379,6 +400,39 @@ defmodule Asciinema.Asciicasts do
     {String.to_float(delay_s), String.to_integer(bytes_s)}
   end
 
+  def change_asciicast(asciicast, attrs \\ %{}) do
+    Asciicast.update_changeset(asciicast, attrs)
+  end
+
+  def update_asciicast(asciicast, attrs \\ %{}) do
+    changeset = Asciicast.update_changeset(asciicast, attrs)
+
+    with {:ok, asciicast} <- Repo.update(changeset) do
+      if Changeset.get_change(changeset, :snapshot_at) do
+        update_snapshot(asciicast)
+      else
+        {:ok, asciicast}
+      end
+    end
+  end
+
+  def delete_asciicast(asciicast) do
+    with {:ok, asciicast} <- Repo.delete(asciicast) do
+      delete_files(asciicast)
+      {:ok, asciicast}
+    end
+  end
+
+  defp delete_files(asciicast) do
+    for f <- [:file, :stdout_data, :stdout_timing, :stdout_frames] do
+      if path = Asciicast.file_store_path(asciicast, f) do
+        :ok = FileStore.delete_file(path)
+      end
+    end
+
+    :ok
+  end
+
   def update_snapshot(%Asciicast{terminal_columns: w, terminal_lines: h} = asciicast) do
     secs = Asciicast.snapshot_at(asciicast)
     snapshot = asciicast |> stdout_stream |> generate_snapshot(w, h, secs)
@@ -431,5 +485,10 @@ defmodule Asciinema.Asciicasts do
 
   def asciicast_file_path(asciicast) do
     Asciicast.json_store_path(asciicast)
+  end
+
+  def inc_views_count(asciicast) do
+    from(a in Asciicast, where: a.id == ^asciicast.id)
+    |> Repo.update_all(inc: [views_count: 1])
   end
 end

@@ -40,6 +40,8 @@ erl_crash.dump
 /config/prod.secret.exs
 /config/custom.exs
 
+.iex-history
+
 ## Docker
 
 /volumes

@@ -32,25 +32,27 @@ defmodule Asciinema.Vt.Worker do
   def handle_call(:dump_screen, _from, port) do
     send_cmd(port, "dump-screen")
 
-    case read_stout_line(port) do
+    case read_stdout_line(port) do
       {:ok, line} ->
         result = line |> Poison.decode! |> Map.get("result")
         {:reply, {:ok, result}, port}
+
       {:error, reason} ->
         {:reply, {:error, reason}, port}
     end
   end
 
-  defp read_stout_line(port) do
-    read_stout_line(port, "")
+  defp read_stdout_line(port) do
+    read_stdout_line(port, "")
   end
-  defp read_stout_line(port, line) do
+
+  defp read_stdout_line(port, line) do
     receive do
       {^port, {:data, data}} ->
         if String.ends_with?(data, "\n") do
           {:ok, line <> String.trim_trailing(data)}
         else
-          read_stout_line(port, line <> data)
+          read_stdout_line(port, line <> data)
         end
     end
   end

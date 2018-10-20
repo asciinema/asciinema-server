@@ -57,6 +57,6 @@ defmodule Asciinema.SessionControllerTest do
     conn = delete conn, "/session"
 
     assert redirected_to(conn, 302) == "/"
-    assert get_rails_flash(conn, :notice) =~ ~r/see you/i
+    assert get_flash(conn, :info) =~ ~r/see you/i
   end
 end

@@ -6,7 +6,6 @@ Rails.application.routes.draw do
     member do
       get '/raw' => 'asciicasts#embed' # legacy route, probably no longer used anywhere
       get :embed
-      get :example
     end
   end
 

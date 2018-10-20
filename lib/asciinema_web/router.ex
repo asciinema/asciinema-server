@@ -16,13 +16,39 @@ defmodule AsciinemaWeb.Router do
 
   pipeline :asciicast do
     plug :accepts, ["html", "js", "json", "cast", "png", "gif"]
+    plug :format_specific_plugs
+    plug :put_secure_browser_headers
+  end
+
+  defp format_specific_plugs(conn, []) do
+    format_specific_plugs(conn, Phoenix.Controller.get_format(conn))
+  end
+
+  defp format_specific_plugs(conn, "html") do
+    conn
+    |> fetch_session([])
+    |> fetch_flash([])
+    |> protect_from_forgery([])
+    |> AsciinemaWeb.Auth.call([])
+  end
+
+  defp format_specific_plugs(conn, _other), do: conn
+
+  pipeline :oembed do
+    plug :accepts, ["json", "xml"]
     plug :put_secure_browser_headers
   end
 
   scope "/", AsciinemaWeb do
     pipe_through :asciicast
 
-    get "/a/:id", AsciicastController, :show
+    resources "/a", AsciicastController, only: [:show, :edit, :update, :delete]
+  end
+
+  scope "/", AsciinemaWeb do
+    pipe_through :oembed
+
+    get "/oembed", OembedController, :show
   end
 
   scope "/", AsciinemaWeb do
@@ -34,6 +60,8 @@ defmodule AsciinemaWeb.Router do
     get "/explore/:category", AsciicastController, :category
 
     get "/a/:id/iframe", AsciicastController, :iframe
+    get "/a/:id/embed", AsciicastController, :embed
+    get "/a/:id/example", AsciicastController, :example
 
     get "/docs", DocController, :index
     get "/docs/:topic", DocController, :show
@@ -74,19 +102,26 @@ end
 
 defmodule AsciinemaWeb.Router.Helpers.Extra do
   alias AsciinemaWeb.Router.Helpers, as: H
+  alias AsciinemaWeb.Endpoint
 
   def profile_path(_conn, user) do
     profile_path(user)
   end
+
   def profile_path(%Plug.Conn{} = conn) do
     profile_path(conn.assigns.current_user)
   end
+
   def profile_path(%{id: id, username: username}) do
     if username do
       "/~#{username}"
     else
       "/u/#{id}"
     end
+  end
+
+  def profile_url(user) do
+    Endpoint.url() <> profile_path(user)
   end
 
   def asciicast_file_path(conn, asciicast) do
@@ -113,7 +148,15 @@ defmodule AsciinemaWeb.Router.Helpers.Extra do
     H.asciicast_path(conn, :show, asciicast) <> ".png"
   end
 
+  def asciicast_image_url(conn, asciicast) do
+    H.asciicast_url(conn, :show, asciicast) <> ".png"
+  end
+
   def asciicast_animation_path(conn, asciicast) do
     H.asciicast_path(conn, :show, asciicast) <> ".gif"
+  end
+
+  def asciicast_script_url(conn, asciicast) do
+    H.asciicast_url(conn, :show, asciicast) <> ".js"
   end
 end

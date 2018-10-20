@@ -50,7 +50,7 @@ defmodule AsciinemaWeb.SessionController do
   def delete(conn, _params) do
     conn
     |> Auth.log_out()
-    |> put_rails_flash(:notice, "See you later!")
+    |> put_flash(:info, "See you later!")
     |> redirect(to: "/")
   end
 end

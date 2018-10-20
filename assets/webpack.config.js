@@ -6,6 +6,7 @@ module.exports = {
   entry: {
     app: './js/app.js',
     app2: './js/app2.js',
+    embed: './js/embed.js',
     iframe: './js/iframe.js'
   },
   output: {

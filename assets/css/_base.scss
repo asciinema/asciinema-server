@@ -42,10 +42,10 @@ kbd {
 }
 
 pre {
-  background-color: #fff;
+  background-color: #f7f7f7;
   border-color: #ddd;
   border-radius: 3px;
-  border: 1px solid #cccccc;
+  border: 1px solid #e0e0e0;
   padding: 9.5px;
   margin: 0 0 10px;
 }
@@ -101,4 +101,32 @@ section.top {
 ul.pagination {
   margin-top: 1rem;
   margin-bottom: 0;
+}
+
+main {
+  > .container:first-child {
+    margin-top: 2rem;
+  }
+}
+
+form {
+  legend {
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 2rem;
+  }
+
+  .col-form-label {
+    font-weight: 600;
+  }
+}
+
+.special-label {
+  font-size: 12px;
+  background-color: rgb(255, 239, 198);
+  color: rgb(161, 136, 43);
+  margin-left: 6px;
+  padding: 2px 5px;
+  border-radius: 4px;
+  vertical-align: middle;
+  cursor: help;
 }

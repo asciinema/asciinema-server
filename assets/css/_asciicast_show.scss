@@ -1,0 +1,61 @@
+.c-asciicast.a-show {
+  section.info {
+    small {
+      font-size: 14px;
+    }
+
+    .author-avatar {
+      display: block;
+      float: left;
+      width: 42px;
+      height: 42px;
+      margin-right: 10px;
+
+      img {
+        width: 100%;
+        height: 100%;
+      }
+    }
+
+    h2 {
+      margin: -0.1rem 0 0 0;
+      font-size: 1.4rem;
+      position: relative;
+    }
+
+    .actions {
+      .btn {
+        margin-left: 1rem;
+      }
+    }
+  }
+
+  section.meta {
+    img {
+      width: 16px;
+    }
+
+    code {
+      color: #212529;
+      background-color: #f7f7f7;
+    }
+  }
+}
+
+.modal-dialog {
+  h2:first-child {
+    margin-top: 0;
+  }
+
+  input[type=text] {
+    width: 100%;
+    font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 14px;
+    color: #212529;
+    background-color: #f7f7f7;
+    border-radius: 3px;
+    border: 1px solid #e0e0e0;
+    margin-bottom: 8px;
+    padding: 9px;
+  }
+}

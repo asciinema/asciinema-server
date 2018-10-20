@@ -32,6 +32,13 @@ defmodule Asciinema.FileStore.Cached do
     end
   end
 
+  def delete_file(path) do
+    with :ok <- cache_store().delete_file(path),
+         :ok <- remote_store().delete_file(path) do
+      :ok
+    end
+  end
+
   defp config do
     Application.get_env(:asciinema, __MODULE__)
   end

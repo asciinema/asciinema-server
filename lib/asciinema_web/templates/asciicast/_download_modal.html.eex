@@ -1,0 +1,58 @@
+<div class="modal fade" id="download-modal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Download this recording</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <p>
+          <%= case @asciicast.version do %>
+            <% 1 -> %>
+              You can download this recording in <a href="https://github.com/asciinema/asciinema/blob/master/doc/asciicast-v1.md">asciicast v1 format</a>, as a .json file.
+            <% 2 -> %>
+              You can download this recording in <a href="https://github.com/asciinema/asciinema/blob/develop/doc/asciicast-v2.md">asciicast v2 format</a>, as a .cast file.
+            <% _ -> %>
+          <% end %>
+        </p>
+
+        <a href="<%= asciicast_file_url(@asciicast) %>?dl=1" class="btn btn-primary" download="<%= download_filename(@asciicast) %>" rel="nofollow">Download</a>
+
+        <h2>Replay in terminal</h2>
+
+        <p>
+          You can replay this recording in your terminal with <code>asciinema play</code> command:
+        </p>
+
+        <pre><code>asciinema play <%= download_filename(@asciicast) %></code></pre>
+
+        <p>
+          If you don't have asciinema cli installed then <a href="<%= doc_path(@conn, :show, :installation) %>">see installation instructions</a>.
+        </p>
+
+        <h2>Use with stand-alone player on your website</h2>
+
+        <p>
+          Download asciinema player from <a href="https://github.com/asciinema/asciinema-player/releases">player's releases page</a>
+          (you only need <code>.js</code> and <code>.css</code> file), then use it like this:
+        </p>
+
+        <pre><code>&lt;html>
+&lt;head>
+  &lt;link rel="stylesheet" type="text/css" href="/asciinema-player.css" />
+&lt;/head>
+&lt;body>
+  &lt;asciinema-player src="/<%= download_filename(@asciicast) %>" cols="<%= @asciicast.terminal_columns %>" rows="<%= @asciicast.terminal_lines %>">&lt;/asciinema-player>
+  ...
+  &lt;script src="/asciinema-player.js">&lt;/script>
+&lt;/body>
+&lt;/html></code></pre>
+
+        <p>See <a href="https://github.com/asciinema/asciinema-player">asciinema player README</a> for full usage instructions.</p>
+      </div>
+    </div>
+  </div>
+</div>
