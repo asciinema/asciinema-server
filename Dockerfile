@@ -34,7 +34,6 @@ ARG DISTRO=xenial
 
 RUN apt-get update && \
     apt-get install -y wget software-properties-common apt-transport-https && \
-    add-apt-repository ppa:brightbox/ruby-ng && \
     echo "deb https://deb.nodesource.com/$NODE_VERSION $DISTRO main" >/etc/apt/sources.list.d/nodesource.list && \
     echo "deb https://packages.erlang-solutions.com/ubuntu $DISTRO contrib" >/etc/apt/sources.list.d/esl.list && \
     wget --quiet -O - https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - && \
@@ -44,15 +43,9 @@ RUN apt-get update && \
       build-essential \
       elixir=1.6.3-1 \
       esl-erlang=1:20.1 \
-      git-core \
       libfontconfig1 \
       libpng16-16 \
-      libpq-dev \
-      libxml2-dev \
-      libxslt1-dev \
       nodejs \
-      ruby2.1 \
-      ruby2.1-dev \
       ttf-bitstream-vera \
       tzdata
 
@@ -60,10 +53,6 @@ RUN apt-get update && \
 #   libfontconfig1 for PhantomJS
 #   ttf-bitstream-vera for a2png
 #   libpng16-16 for pngquant
-
-# install Bundler and SASS
-
-RUN gem install bundler sass
 
 # install Hex and Rebar
 
