@@ -101,6 +101,7 @@ COPY --from=0 /app/a2png/main.js /app/a2png/
 COPY --from=0 /app/a2png/page/page.js /app/a2png/page/
 
 COPY a2png/package.json /app/a2png/
+COPY a2png/package-lock.json /app/a2png/
 RUN cd a2png && npm install
 
 # service URLs
