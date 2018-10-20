@@ -17,7 +17,7 @@ defmodule Asciinema.UserControllerTest do
 
       conn = post conn, "/users"
       assert redirected_to(conn, 302) == "/username/new"
-      assert get_rails_flash(conn, :notice) =~ ~r/welcome/i
+      assert get_flash(conn, :info) =~ ~r/welcome/i
     end
 
     test "failed sign-up due to email taken", %{conn: conn} do
@@ -47,6 +47,47 @@ defmodule Asciinema.UserControllerTest do
     end
   end
 
+  describe "profile page" do
+    test "via ID based path", %{conn: conn} do
+      user = insert(:user, username: "dracula3000")
+      conn = log_in(conn, user)
+      conn = get conn, "/u/#{user.id}"
+      assert html_response(conn, 200) =~ "dracula3000"
+    end
+
+    test "via username based path", %{conn: conn} do
+      user = insert(:user, username: "dracula3000")
+      conn = log_in(conn, user)
+      conn = get conn, "/~dracula3000"
+      assert html_response(conn, 200) =~ "dracula3000"
+    end
+
+    test "asciicast visibility" do
+      user = insert(:user, username: "dracula3000")
+      insert(:asciicast, user: user, private: false, title: "Public stuff")
+      insert(:asciicast, user: user, private: true, title: "Private stuff")
+
+      # as guest
+
+      conn = get build_conn(), "/~dracula3000"
+
+      html = html_response(conn, 200)
+      assert html =~ "1 public"
+      assert html =~ "Public stuff"
+      refute html =~ "Private stuff"
+
+      # as himself
+
+      conn = log_in build_conn(), user
+
+      conn = get conn, "/~dracula3000"
+      html = html_response(conn, 200)
+      assert html =~ "2 asciicasts"
+      assert html =~ "Public stuff"
+      assert html =~ "Private stuff"
+    end
+  end
+
   describe "account editing" do
     test "requires logged in user", %{conn: conn} do
       conn = get conn, "/user/edit"
@@ -65,7 +106,7 @@ defmodule Asciinema.UserControllerTest do
       conn = log_in(conn, user)
       conn = put conn, "/user", %{user: %{name: "Rick"}}
       location = List.first(get_resp_header(conn, "location"))
-      assert get_rails_flash(conn, :notice) =~ ~r/saved/i
+      assert get_flash(conn, :info) =~ ~r/saved/i
       assert response(conn, 302)
       assert location == "/~#{user.username}"
     end

@@ -1,1 +1,0 @@
-../../../assets/static/js/embed.js

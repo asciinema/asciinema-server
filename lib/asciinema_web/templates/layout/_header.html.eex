@@ -12,13 +12,23 @@
       <div class="collapse navbar-collapse" id="navbarNavDropdown">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item">
-            <a class="nav-link" href="/browse/featured">Explore</span></a>
+            <a class="nav-link" href="/explore">Watch</span></a>
           </li>
+
           <li class="nav-item">
-            <a class="nav-link" href="<%= doc_path(@conn, :index) %>">Docs</a>
+            <a class="nav-link" href="<%= doc_path(@conn, :show, :"getting-started") %>">Record</a>
           </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="<%= doc_path(@conn, :show, :"how-it-works") %>">Docs</a>
+          </li>
+
           <li class="nav-item">
             <a class="nav-link" href="http://blog.asciinema.org">Blog</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="/about">About</a>
           </li>
         </ul>
 
@@ -32,7 +42,7 @@
               <div class="dropdown-menu">
                 <a class="dropdown-item" href="<%= profile_path(@current_user) %>">Profile</a>
                 <a class="dropdown-item" href="/user/edit">Settings</a>
-                <a class="dropdown-item logout" href="/logout">Log out</a>
+                <%= link "Log out", to: session_path(@conn, :delete), class: "dropdown-item logout", method: :delete %>
               </div>
             </li>
           <% else %>

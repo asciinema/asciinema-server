@@ -1,0 +1,15 @@
+<oembed>
+  <type>rich</type>
+  <version type="float">1.0</version>
+  <title><%= @title %></title>
+  <author-name><%= @author_name %></author-name>
+  <author-url><%= @author_url %></author-url>
+  <provider-name>asciinema</provider-name>
+  <provider-url><%= @provider_url %></provider-url>
+  <thumbnail-url><%= @thumbnail_url %></thumbnail-url>
+  <thumbnail-width type="integer"><%= @thumbnail_width %></thumbnail-width>
+  <thumbnail-height type="integer"><%= @thumbnail_height %></thumbnail-height>
+  <html><%= @html %></html>
+  <width type="integer"><%= @thumbnail_width %></width>
+  <height type="integer"><%= @thumbnail_height %></height>
+</oembed>

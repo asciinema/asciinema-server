@@ -27,9 +27,13 @@ defmodule AsciinemaWeb do
       import AsciinemaWeb.Router.Helpers
       import AsciinemaWeb.Router.Helpers.Extra
       import AsciinemaWeb.Gettext
-      import AsciinemaWeb.Rails.Flash
       import AsciinemaWeb.Auth, only: [require_current_user: 2]
       import AsciinemaWeb.Plug.ReturnTo
+      import AsciinemaWeb.Plug.Authz
+
+      defp clear_main_class(conn, _) do
+        assign(conn, :main_class, "")
+      end
     end
   end
 

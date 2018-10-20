@@ -1,5 +1,6 @@
 defmodule Asciinema.AsciicastsTest do
   use Asciinema.DataCase
+  import Asciinema.Factory
   alias Asciinema.Asciicasts
   alias Asciinema.Asciicasts.Asciicast
 
@@ -187,21 +188,36 @@ defmodule Asciinema.AsciicastsTest do
     end
   end
 
+  describe "delete_asciicast/1" do
+    test "v0" do
+      asciicast = insert(:asciicast_v0) |> with_files()
+      assert {:ok, _asciicast} = Asciicasts.delete_asciicast(asciicast)
+    end
+
+    test "v1/v2" do
+      asciicast = insert(:asciicast_v1) |> with_file()
+      assert {:ok, _asciicast} = Asciicasts.delete_asciicast(asciicast)
+
+      asciicast = insert(:asciicast_v2) |> with_file()
+      assert {:ok, _asciicast} = Asciicasts.delete_asciicast(asciicast)
+    end
+  end
+
   describe "stdout_stream/1" do
     test "with asciicast v1 file" do
-      stream = Asciicasts.stdout_stream("spec/fixtures/1/asciicast.json")
+      stream = Asciicasts.stdout_stream("test/fixtures/1/asciicast.json")
       assert :ok == Stream.run(stream)
       assert [{1.234567, "foo bar"}, {6.913554, "baz qux"}] == Enum.take(stream, 2)
     end
 
     test "with asciicast v2 file" do
-      stream = Asciicasts.stdout_stream("spec/fixtures/2/minimal.cast")
+      stream = Asciicasts.stdout_stream("test/fixtures/2/minimal.cast")
       assert :ok == Stream.run(stream)
       assert [{1.234567, "foo bar"}, {5.678987, "baz qux"}] == Enum.take(stream, 2)
     end
 
     test "with asciicast v2 file, with idle_time_limit" do
-      stream = Asciicasts.stdout_stream("spec/fixtures/2/full.cast")
+      stream = Asciicasts.stdout_stream("test/fixtures/2/full.cast")
       assert :ok == Stream.run(stream)
       assert [{1.234567, "foo bar"},
               {3.734567, "baz qux"},
@@ -209,7 +225,7 @@ defmodule Asciinema.AsciicastsTest do
     end
 
     test "with asciicast v2 file, with blank lines" do
-      stream = Asciicasts.stdout_stream("spec/fixtures/2/with-blank-lines.cast")
+      stream = Asciicasts.stdout_stream("test/fixtures/2/with-blank-lines.cast")
       assert :ok == Stream.run(stream)
       assert [{1.234567, "foo bar"},
               {5.678987, "baz qux"},
@@ -219,22 +235,22 @@ defmodule Asciinema.AsciicastsTest do
 
   describe "stdout_stream/2" do
     test "with gzipped files" do
-      stream = Asciicasts.stdout_stream({"spec/fixtures/0.9.9/stdout.time",
-                                         "spec/fixtures/0.9.9/stdout"})
+      stream = Asciicasts.stdout_stream({"test/fixtures/0.9.9/stdout.time",
+                                         "test/fixtures/0.9.9/stdout"})
       assert :ok == Stream.run(stream)
       assert [{1.234567, "foobar"}, {1.358023, "baz"}] == Enum.take(stream, 2)
     end
 
     test "with bzipped files" do
-      stream = Asciicasts.stdout_stream({"spec/fixtures/0.9.8/stdout.time",
-                                         "spec/fixtures/0.9.8/stdout"})
+      stream = Asciicasts.stdout_stream({"test/fixtures/0.9.8/stdout.time",
+                                         "test/fixtures/0.9.8/stdout"})
       assert :ok == Stream.run(stream)
       assert [{1.234567, "foobar"}, {1.358023, "baz"}] == Enum.take(stream, 2)
     end
 
     test "with bzipped files (utf-8 sequence split between frames)" do
-      stream = Asciicasts.stdout_stream({"spec/fixtures/0.9.8/stdout-split.time",
-                                         "spec/fixtures/0.9.8/stdout-split"})
+      stream = Asciicasts.stdout_stream({"test/fixtures/0.9.8/stdout-split.time",
+                                         "test/fixtures/0.9.8/stdout-split"})
       assert :ok == Stream.run(stream)
       assert [{1.234567, "xxżó"}, {1.358023, "łć"}, {3.358023, "xx"}] == Enum.take(stream, 3)
     end

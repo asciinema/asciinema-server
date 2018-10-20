@@ -62,13 +62,15 @@ config :asciinema, Asciinema.PngGenerator.A2png,
 
 config :asciinema, :snapshot_updater, Asciinema.Asciicasts.SnapshotUpdater.Exq
 
+config :asciinema, :home_asciicast_id, System.get_env("HOME_ASCIICAST_ID")
+
 config :exq,
   name: Exq,
   start_on_application: false,
   url: System.get_env("REDIS_URL") || "redis://localhost:6379",
   namespace: "exq",
   concurrency: 10,
-  queues: ["default", "emails", "rails"],
+  queues: ["default", "emails"],
   scheduler_enable: true,
   max_retries: 25,
   shutdown_timeout: 5000,

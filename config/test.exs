@@ -7,8 +7,8 @@ config :asciinema, AsciinemaWeb.Endpoint,
   secret_key_base: "ssecretkeybasesecretkeybasesecretkeybasesecretkeybaseecretkeybase",
   server: false
 
-# Print only warnings and errors during test
-config :logger, level: :warn
+# Print only errors during test
+config :logger, level: :error
 
 # Configure your database
 if db_url = System.get_env("TEST_DATABASE_URL") do

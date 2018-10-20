@@ -3,15 +3,22 @@ $navbar-dark-color: rgba($white, .85);
 $navbar-dark-hover-color: $white;
 $link-color: #06989a;
 $pagination-active-bg: #06989a;
+$primary: #06989a;
 
 @import "~bootstrap/scss/bootstrap";
 @import "./_base.scss";
 @import "./_header.scss";
 @import "./_footer.scss";
+@import "./_flash.scss";
+@import "./_home.scss";
 @import "./_asciicast_card.scss";
 @import "./_asciicast_list.scss";
-@import "../vendor/css/asciinema-player.css";
+@import "./_asciicast_show.scss";
+
+@import "./_user_profile.scss";
+@import "../css/asciinema-player.css";
 @import "./powerline-symbols.css";
+@import "./asciinema-player.css";
 
 .c-page {
   .bitcoin-logo {
@@ -33,5 +40,21 @@ $pagination-active-bg: #06989a;
         margin-left: 0.2rem;
       }
     }
+  }
+}
+
+.c-asciicast.a-index {
+  h2 {
+    font-weight: 600;
+
+    a {
+      color: #333333;
+    }
+  }
+}
+
+.c-username {
+  #user_username {
+    max-width: 200px;
   }
 }

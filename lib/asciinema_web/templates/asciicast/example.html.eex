@@ -1,0 +1,16 @@
+<p>
+  Science is the key to our future, and if you don't believe in science, then you're holding everybody back. -- Bill Nye
+</p>
+
+<%= embed_script @asciicast %>
+
+<p>
+  If the Earth gets hit by an asteroid, it's game over. It's control-alt-delete
+  for civilization. -- Bill Nye
+</p>
+
+<%= embed_script @home_asciicast %>
+
+<p>
+  You're dressed in a tuxedo, you wear a bow tie. A bow tie with a tuxedo is more formal than a straight tie with a tuxedo. -- Bill Nye
+</p>

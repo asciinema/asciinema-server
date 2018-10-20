@@ -1,7 +1,19 @@
 defmodule Asciinema.FileStore.S3 do
   use Asciinema.FileStore
   import Phoenix.Controller, only: [redirect: 2]
-  alias ExAws.S3
+  alias ExAws.{S3, Config}
+
+  def url(path) do
+    url(path, [])
+  end
+
+  def url(path, query_params) do
+    {:ok, url} =
+      Config.new(:s3, region: region())
+      |> S3.presigned_url(:get, bucket(), base_path() <> path, query_params: query_params)
+
+    url
+  end
 
   def put_file(dst_path, src_local_path, content_type, compress \\ false) do
     {body, opts} = if compress do
@@ -27,12 +39,7 @@ defmodule Asciinema.FileStore.S3 do
   end
 
   defp do_serve_file(conn, path, query_params \\ []) do
-    {:ok, url} =
-      ExAws.Config.new(:s3, region: region())
-      |> ExAws.S3.presigned_url(:get, bucket(), base_path() <> path, query_params: query_params)
-
-    conn
-    |> redirect(external: url)
+    redirect(conn, external: url(path, query_params))
   end
 
   def open_file(path, function \\ nil) do
@@ -50,6 +57,14 @@ defmodule Asciinema.FileStore.S3 do
       else
         File.open(body, [:ram, :binary, :read])
       end
+    end
+  end
+
+  def delete_file(path) do
+    req = S3.delete_object(bucket(), base_path() <> path)
+
+    with {:ok, _} <- make_request(req) do
+      :ok
     end
   end
 

@@ -51,7 +51,7 @@ installation host.
 
 You don't have to use docker-compose to use asciinema web app Docker image. Feel
 free to inspect `docker-compose.yml` file and run required services manually with
-`docker run ...`. However, for the sake of simplicity and to miminize
+`docker run ...`. However, for the sake of simplicity and to minimize
 configuration issues the rest of this guide is based on the provided/suggested
 docker-compose configuration.
 
@@ -86,7 +86,9 @@ Set `URL_SCHEME`, `URL_HOST` and `URL_PORT` to match the address the users are s
     URL_HOST=asciinema.example.com
     URL_PORT=80
 
-Set `SECRET_KEY_BASE` to long random string. Run `docker-compose run --rm web
+Ensure you set the nginx port in the docker-compose.yml file equal to what you specified for `URL_PORT`.
+
+Set `SECRET_KEY_BASE` to long random string. Run `docker-compose run --rm phoenix
 mix phx.gen.secret` to obtain one.
 
 #### HTTPS settings
@@ -114,7 +116,7 @@ In `docker/nginx/asciinema.conf`, uncomment this section:
 
 Make sure to substitute the proper filenames for your certificate and private key files.
 
-If you encounter problems, it may be helpful to run `docker exec -it asciinema_web bash`
+If you encounter problems, it may be helpful to run `docker exec -it asciinema_phoenix bash`
 to enter a shell in the container, and then inspect the web server logs in `/var/log/nginx`.
 
 #### SMTP settings
@@ -209,6 +211,32 @@ Start new containers:
 
     docker-compose up -d
 
+## Administrative tasks
+
+Site admin can do the following administrative tasks:
+
+- edit, delete any recording
+- make recording a featured one
+- make recording public/private
+
+There isn't a dedicated admin UI, all of the above actions are done through the
+gear dropdown available on asciicast's view page (below the player, on the
+right).
+
+### Making user an admin
+
+To make user an admin, run the following command with the email address of
+existing account:
+
+    docker-compose run --rm phoenix mix asciinema.admin.add email@example.com
+
+To remove admin bit from a user, run:
+
+    docker-compose run --rm phoenix mix asciinema.admin.rm email@example.com
+
+Both above commands allow passing multiple email adresses (as separate
+arguments).
+
 ## Customizations
 
 If the variables in `.env.production` file are not enough for your needs then
@@ -243,18 +271,18 @@ Then, edit `lib/asciinema_web/endpoint.ex` file, applying this change:
 +    length: 32_000_000
 ```
 
-Now, stop `web` container:
+Now, stop `phoenix` container:
 
-    docker-compose stop web
+    docker-compose stop phoenix
 
 Rebuild the image:
 
-    docker-compose build web
+    docker-compose build phoenix
 
-Start new `web` container:
+Start new `phoenix` container:
 
-    docker-compose up web -d
-    
+    docker-compose up phoenix -d
+
 If all is good then commit your customization (so you can fetch and merge latest
 version in the future):
 

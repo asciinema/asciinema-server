@@ -4,10 +4,12 @@ defmodule Asciinema.Accounts do
   alias Asciinema.Accounts.{User, ApiToken}
   alias Asciinema.{Repo, Asciicasts, Email, Mailer}
 
+  def get_user!(id), do: Repo.get!(User, id)
+
   def create_asciinema_user!() do
     attrs = %{username: "asciinema",
               name: "asciinema",
-              email: "support@asciinema.org"}
+              email: "admin@asciinema.org"}
 
     user = case Repo.get_by(User, username: "asciinema") do
              nil ->
@@ -66,6 +68,8 @@ defmodule Asciinema.Accounts do
         end
     end
   end
+
+  def find_user_by_username!(username), do: Repo.get_by!(User, username: username)
 
   defp lookup_user_by_username(username) do
     case Repo.get_by(User, username: username) do
@@ -211,6 +215,10 @@ defmodule Asciinema.Accounts do
     end
   end
 
+  def get_api_token!(user, id) do
+    Repo.get!(assoc(user, :api_tokens), id)
+  end
+
   def get_api_token!(token) do
     Repo.get_by!(ApiToken, token: token)
   end
@@ -236,5 +244,25 @@ defmodule Asciinema.Accounts do
     user
     |> assoc(:api_tokens)
     |> Repo.all
+  end
+
+  def asciicasts(user, visibility \\ :all) do
+    q = assoc(user, :asciicasts)
+
+    case visibility do
+      :all -> q
+      :private -> where(q, private: true)
+      :public -> where(q, private: false)
+    end
+  end
+
+  def add_admins(emails) do
+    from(u in User, where: u.email in ^emails)
+    |> Repo.update_all(set: [is_admin: true])
+  end
+
+  def remove_admins(emails) do
+    from(u in User, where: u.email in ^emails)
+    |> Repo.update_all(set: [is_admin: false])
   end
 end

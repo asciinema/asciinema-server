@@ -8,11 +8,7 @@
       </span>
     </div>
 
-    <div class="thumbnail asciinema-theme-<%= theme_name(@asciicast) %>">
-      <pre class="asciinema-terminal font-small"><%= for line <- thumbnail(@asciicast) do %><span class="line"><%= for {text, attrs} <- line do %><span class="<%= class(attrs) %>" style="<%= style(attrs) %>"><%= text %></span><% end %></span><% end %></pre>
-    </div>
-    <!-- The above <pre> has to be in one line, without extra spacing around for loops
-         in order to render terminal properly. -->
+    <%= render "_thumbnail.html", asciicast: @asciicast %>
   </a>
 
   <div class="info">
@@ -20,11 +16,11 @@
       <%= link title(@asciicast), to: asciicast_path(@conn, :show, @asciicast) %>
 
       <%= if @asciicast.private do %>
-        <span class="special-label" title="Private asciicasts are not listed on the site and are hidden from search engines. However they're visible to anyone you give the URL.">private</span>
+        <%= render "_private_badge.html" %>
       <% end %>
 
       <%= if @asciicast.featured do %>
-        <span class="special-label" title="This is a *featured* asciicast - it's listed on the homepage too.">featured</span>
+        <%= render "_featured_badge.html" %>
       <% end %>
 
       <span class="duration"><%= duration(@asciicast) %></span>
@@ -36,7 +32,6 @@
       <% end %>
     </span>
 
-    <small>by <%= link author_username(@asciicast), to: author_profile_path(@asciicast) %> <%= time_ago_tag @asciicast.created_at %></small>
-    <!-- TODO hide timeago on front page -->
+    <small>by <%= link author_username(@asciicast), to: author_profile_path(@asciicast) %> <%= if !assigns[:no_created_at] do %><%= time_ago_tag @asciicast.created_at %><% end %></small>
   </div>
 </div>

@@ -19,7 +19,7 @@ defmodule Asciinema.SessionControllerTest do
 
     conn = post conn, "/session"
     assert redirected_to(conn, 302) == "/~blazko"
-    assert get_rails_flash(conn, :notice) =~ ~r/welcome/i
+    assert get_flash(conn, :info) =~ ~r/welcome/i
   end
 
   test "failed log-in due to invalid token", %{conn: conn} do
@@ -48,5 +48,15 @@ defmodule Asciinema.SessionControllerTest do
     conn = post conn, "/session"
     assert redirected_to(conn, 302) == "/login/new"
     assert get_flash(conn, :error) =~ ~r/removed/i
+  end
+
+  test "logout", %{conn: conn} do
+    user = insert(:user)
+    conn = log_in(conn, user)
+
+    conn = delete conn, "/session"
+
+    assert redirected_to(conn, 302) == "/"
+    assert get_flash(conn, :info) =~ ~r/see you/i
   end
 end

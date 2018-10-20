@@ -5,7 +5,7 @@ defmodule AsciinemaWeb.LayoutView do
   def page_title(conn) do
     case conn.assigns[:page_title] do
       nil -> "asciinema - Record and share your terminal sessions, the right way"
-      title -> title <> " - asciinema" # TODO return safe string here?
+      title -> title <> " - asciinema"
     end
   end
 
@@ -23,5 +23,9 @@ defmodule AsciinemaWeb.LayoutView do
       |> Inflex.parameterize
 
     "c-#{controller} a-#{action}"
+  end
+
+  def main_class(conn) do
+    conn.assigns[:main_class] || "container"
   end
 end

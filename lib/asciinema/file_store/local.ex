@@ -2,6 +2,10 @@ defmodule Asciinema.FileStore.Local do
   use Asciinema.FileStore
   import Plug.Conn
 
+  def url(_path) do
+    nil
+  end
+
   def put_file(dst_path, src_local_path, _content_type, _compress \\ false) do
     full_dst_path = base_path() <> dst_path
     parent_dir = Path.dirname(full_dst_path)
@@ -36,6 +40,10 @@ defmodule Asciinema.FileStore.Local do
   end
   def open_file(path, function) do
     File.open(base_path() <> path, [:binary, :read], function)
+  end
+
+  def delete_file(path) do
+    File.rm(base_path() <> path)
   end
 
   defp config do

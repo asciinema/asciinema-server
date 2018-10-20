@@ -21,7 +21,7 @@ defmodule AsciinemaWeb.SessionController do
       {:ok, user} ->
         conn
         |> Auth.log_in(user)
-        |> put_rails_flash(:notice, "Welcome back!")
+        |> put_flash(:info, "Welcome back!")
         |> redirect_to_profile
       {:error, :token_invalid} ->
         conn
@@ -45,5 +45,12 @@ defmodule AsciinemaWeb.SessionController do
       %User{} = user ->
         redirect_back_or(conn, to: profile_path(user))
     end
+  end
+
+  def delete(conn, _params) do
+    conn
+    |> Auth.log_out()
+    |> put_flash(:info, "See you later!")
+    |> redirect(to: "/")
   end
 end

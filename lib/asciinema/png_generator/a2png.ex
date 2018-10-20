@@ -6,8 +6,8 @@ defmodule Asciinema.PngGenerator.A2png do
 
   @pool_name :worker
   @acquire_timeout 5000
-  @a2png_timeout 30_000
-  @result_timeout 35_000
+  @a2png_timeout_sec 30
+  @result_timeout (@a2png_timeout_sec * 2) * 1_000
 
   def generate(%Asciicast{} = asciicast, %PngParams{} = png_params) do
     {:ok, tmp_dir_path} = Briefly.create(directory: true)
@@ -66,15 +66,20 @@ defmodule Asciinema.PngGenerator.A2png do
     ]
 
     :ok = file_store().download_file(path, json_path)
-    process = Porcelain.spawn(bin_path(), args, err: :string)
 
-    case Porcelain.Process.await(process, @a2png_timeout) do
-      {:ok, %{status: 0}} ->
+    path = Path.expand(bin_path())
+    env = [{"A2PNG_TIMEOUT", "#{@a2png_timeout_sec}"}]
+    opts = [env: env, stderr_to_stdout: true]
+
+    case System.cmd(path, args, opts) do
+      {_, 0} ->
         {:ok, png_path}
-      {:ok, %Porcelain.Result{} = result} ->
+
+      {_, 124} ->
+        {:error, :busy}
+
+      result ->
         {:error, result}
-      otherwise ->
-        otherwise
     end
   end
 

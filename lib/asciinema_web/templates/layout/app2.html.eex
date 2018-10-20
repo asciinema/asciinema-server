@@ -7,19 +7,20 @@
     <title><%= page_title @conn %></title>
     <link rel="stylesheet" href="<%= static_path(@conn, "/css/app2.css") %>">
     <link rel="shortcut icon" href="<%= static_path(@conn, "/images/favicon.png") %>">
-    <!-- google analytics -->
-    <!-- content for head (twitter, open graph tags) -->
+    <%= render_existing @view_module, "meta." <> @view_template, assigns %>
   </head>
 
   <body class="l-app <%= body_class(@conn) %>">
     <%= render "_header.html", conn: @conn, current_user: @current_user %>
+    <%= render "_flash.html", conn: @conn %>
 
-    <main role="main" class="container">
+    <main role="main" class="<%= main_class(@conn) %>">
       <%= render @view_module, @view_template, assigns %>
     </main>
 
     <%= render "_footer.html", conn: @conn %>
 
+    <script src="<%= static_path(@conn, "/js/asciinema-player.js") %>"></script>
     <script src="<%= static_path(@conn, "/js/app2.js") %>"></script>
   </body>
 </html>

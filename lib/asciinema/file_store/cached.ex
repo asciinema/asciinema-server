@@ -1,6 +1,10 @@
 defmodule Asciinema.FileStore.Cached do
   use Asciinema.FileStore
 
+  def url(path) do
+    remote_store().url(path)
+  end
+
   def put_file(dst_path, src_local_path, content_type, compress \\ false) do
     with :ok <- remote_store().put_file(dst_path, src_local_path, content_type, compress),
          :ok <- cache_store().put_file(dst_path, src_local_path, content_type, compress) do
@@ -25,6 +29,13 @@ defmodule Asciinema.FileStore.Cached do
         end
       otherwise ->
         otherwise
+    end
+  end
+
+  def delete_file(path) do
+    with :ok <- cache_store().delete_file(path),
+         :ok <- remote_store().delete_file(path) do
+      :ok
     end
   end
 

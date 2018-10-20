@@ -14,9 +14,11 @@
 
     <div class="collapse navbar-collapse navbar-ex1-collapse">
       <ul class="nav navbar-nav">
-        <li><a href="/browse/featured">Explore</a></li>
-        <li><a href="<%= doc_path(@conn, :index) %>">Docs</a></li>
+        <li><a href="/explore">Watch</a></li>
+        <li><a href="<%= doc_path(@conn, :show, :"getting-started") %>">Record</a></li>
+        <li><a href="<%= doc_path(@conn, :show, :"how-it-works") %>">Docs</a></li>
         <li><a href="http://blog.asciinema.org">Blog</a></li>
+        <li><a href="/about">About</a></li>
       </ul>
 
       <ul class="nav navbar-nav navbar-right session-info">
@@ -28,7 +30,7 @@
             <ul class="dropdown-menu">
               <li><a href="<%= profile_path(@current_user) %>">Profile</a></li>
               <li><a href="/user/edit">Settings</a></li>
-              <li><a class="logout" href="/logout">Log out</a></li>
+              <li><%= link "Log out", to: session_path(@conn, :delete), class: "logout", method: :delete %></li>
             </ul>
           </li>
         <% else %>

@@ -1,0 +1,7 @@
+<%= if message = get_flash(@conn, :info) do %>
+  <section class="flash notice"><div class="container"><%= message %></div></section>
+<% end %>
+
+<%= if message = get_flash(@conn, :error) do %>
+  <section class="flash alert"><div class="container"><%= message %></div></section>
+<% end %>

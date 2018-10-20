@@ -30,7 +30,7 @@ defmodule Asciinema.Email do
   end
 
   defp reply_to_address do
-    System.get_env("SMTP_REPLY_TO_ADDRESS") || "support@asciinema.org"
+    System.get_env("SMTP_REPLY_TO_ADDRESS") || "admin@asciinema.org"
   end
 
   defp instance_hostname do

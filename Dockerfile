@@ -23,7 +23,7 @@ RUN cd a2png && lein cljsbuild once main && lein cljsbuild once page
 
 FROM ubuntu:16.04
 
-COPY script/install_pngquant.sh /tmp/
+COPY install_pngquant.sh /tmp/
 RUN bash /tmp/install_pngquant.sh
 
 FROM ubuntu:16.04
@@ -34,7 +34,6 @@ ARG DISTRO=xenial
 
 RUN apt-get update && \
     apt-get install -y wget software-properties-common apt-transport-https && \
-    add-apt-repository ppa:brightbox/ruby-ng && \
     echo "deb https://deb.nodesource.com/$NODE_VERSION $DISTRO main" >/etc/apt/sources.list.d/nodesource.list && \
     echo "deb https://packages.erlang-solutions.com/ubuntu $DISTRO contrib" >/etc/apt/sources.list.d/esl.list && \
     wget --quiet -O - https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - && \
@@ -44,15 +43,9 @@ RUN apt-get update && \
       build-essential \
       elixir=1.6.3-1 \
       esl-erlang=1:20.1 \
-      git-core \
       libfontconfig1 \
       libpng16-16 \
-      libpq-dev \
-      libxml2-dev \
-      libxslt1-dev \
       nodejs \
-      ruby2.1 \
-      ruby2.1-dev \
       ttf-bitstream-vera \
       tzdata
 
@@ -60,10 +53,6 @@ RUN apt-get update && \
 #   libfontconfig1 for PhantomJS
 #   ttf-bitstream-vera for a2png
 #   libpng16-16 for pngquant
-
-# install Bundler and SASS
-
-RUN gem install bundler sass
 
 # install Hex and Rebar
 
@@ -82,16 +71,10 @@ RUN wget --quiet -O /opt/phantomjs.tar.bz2 https://bitbucket.org/ariya/phantomjs
 
 # install asciinema
 
-ENV RAILS_ENV "production"
 ENV MIX_ENV "prod"
 
 RUN mkdir -p /app/tmp /app/log
 WORKDIR /app
-
-# install gems
-
-COPY Gemfile* /app/
-RUN bundle install --deployment --without development test --jobs 10 --retry 5
 
 # copy compiled vt
 
@@ -107,33 +90,13 @@ COPY --from=0 /app/a2png/main.js /app/a2png/
 COPY --from=0 /app/a2png/page/page.js /app/a2png/page/
 
 COPY a2png/package.json /app/a2png/
+COPY a2png/package-lock.json /app/a2png/
 RUN cd a2png && npm install
 
 # service URLs
 
 ENV DATABASE_URL "postgresql://postgres@postgres/postgres"
 ENV REDIS_URL "redis://redis:6379"
-
-# add Ruby source files
-
-COPY config/*.rb /app/config/
-COPY config/*.yml /app/config/
-COPY config/environments /app/config/environments
-COPY config/initializers /app/config/initializers
-COPY config/locales /app/config/locales
-COPY lib/*.rb /app/lib/
-COPY lib/authentication /app/lib/authentication
-COPY lib/tasks /app/lib/tasks
-COPY public /app/public
-COPY vendor /app/vendor
-COPY config.ru /app/
-COPY Rakefile /app/
-COPY script/rails /app/script/rails
-COPY app /app/app
-
-# compile assets with assets pipeline
-
-RUN bundle exec rake assets:precompile
 
 # install hex packages
 
@@ -151,26 +114,17 @@ RUN cd assets && npm install
 COPY assets /app/assets
 RUN cd assets && npm run deploy
 RUN mix phx.digest
-RUN cp -r public/assets priv/static/
 
 # add Elixir source files
 
-COPY config/*.exs /app/config/
-COPY lib/*.ex /app/lib
-COPY lib/asciinema /app/lib/asciinema
-COPY lib/asciinema_web /app/lib/asciinema_web
-COPY priv/gettext /app/priv/gettext
-COPY priv/repo /app/priv/repo
-COPY priv/welcome.json /app/priv/welcome.json
+COPY config/*.exs config/
+COPY lib lib/
+COPY priv priv/
 COPY .iex.exs /app/.iex.exs
 
 # compile Elixir app
 
 RUN mix compile
-
-# install smtp configuration
-
-COPY docker/asciinema.yml /app/config/asciinema.yml
 
 # add setup script
 
@@ -181,12 +135,10 @@ ENV PATH "/app/docker/bin:${PATH}"
 ENV A2PNG_BIN_PATH "/app/a2png/a2png.sh"
 COPY --from=1 /usr/local/bin/pngquant /usr/local/bin/
 
-VOLUME ["/app/log", "/app/uploads", "/cache"]
+VOLUME ["/app/uploads", "/cache"]
 
 CMD ["mix", "phx.server"]
 
 ENV PORT 4000
 
-EXPOSE 80
-EXPOSE 3000
 EXPOSE 4000

@@ -62,7 +62,7 @@ The player shows up right at the place where the script is pasted. Let's look
 at the following markup:
 
     <p>This is some text.</p>
-    <scriptsrc="https://asciinema.org/a/14.js" id="asciicast-14" async></script>
+    <script src="https://asciinema.org/a/14.js" id="asciicast-14" async></script>
     <p>This is some other text.</p>
 
 The player is displayed between the two paragraphs, as a `div` element with

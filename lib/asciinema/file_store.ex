@@ -1,4 +1,7 @@
 defmodule Asciinema.FileStore do
+  @doc "Returns direct download URL for given path"
+  @callback url(path :: String.t) :: String.t | nil
+
   @doc "Puts file at given path in store"
   @callback put_file(dst_path :: String.t, src_local_path :: String.t, content_type :: String.t, compress :: boolean) :: :ok | {:error, term}
 
@@ -14,6 +17,9 @@ defmodule Asciinema.FileStore do
   @doc "Downloads file from given path in store to local path"
   @callback download_file(path :: String.t, local_path :: String.t) :: :ok | {:error, term}
 
+  @doc "Deletes file"
+  @callback delete_file(path :: String.t) :: :ok | {:error, term}
+
   defmacro __using__(_) do
     quote do
       @behaviour Asciinema.FileStore
@@ -28,6 +34,10 @@ defmodule Asciinema.FileStore do
 
   # Shortcuts
 
+  def url(path) do
+    instance().url(path)
+  end
+
   def put_file(dst_path, src_local_path, content_type, compress \\ false) do
     instance().put_file(dst_path, src_local_path, content_type, compress)
   end
@@ -38,6 +48,10 @@ defmodule Asciinema.FileStore do
 
   def download_file(store_path, local_path) do
     instance().download_file(store_path, local_path)
+  end
+
+  def delete_file(path) do
+    instance().delete_file(path)
   end
 
   defp instance do

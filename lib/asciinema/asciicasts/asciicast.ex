@@ -22,6 +22,7 @@ defmodule Asciinema.Asciicasts.Asciicast do
     field :secret_token, :string
     field :duration, :float
     field :title, :string
+    field :description, :string
     field :theme_name, :string
     field :theme_fg, :string
     field :theme_bg, :string
@@ -34,6 +35,7 @@ defmodule Asciinema.Asciicasts.Asciicast do
     field :user_agent, :string
     field :recorded_at, Timex.Ecto.DateTime
     field :idle_time_limit, :float
+    field :views_count, :integer, default: 0
 
     timestamps(inserted_at: :created_at)
 
@@ -41,15 +43,15 @@ defmodule Asciinema.Asciicasts.Asciicast do
   end
 
   defimpl Phoenix.Param, for: Asciicast do
-    def to_param(%Asciicast{private: false, id: id}) do
-      Integer.to_string(id)
-    end
     def to_param(%Asciicast{private: true, secret_token: secret_token}) do
       secret_token
     end
+    def to_param(%Asciicast{id: id}) do
+      Integer.to_string(id)
+    end
   end
 
-  def changeset(struct, attrs) do
+  defp changeset(struct, attrs) do
     struct
     |> cast(attrs, [:title, :private, :snapshot_at])
     |> validate_required([:private])
@@ -66,7 +68,7 @@ defmodule Asciinema.Asciicasts.Asciicast do
   def update_changeset(struct, attrs) do
     struct
     |> changeset(attrs)
-    |> cast(attrs, [:theme_name])
+    |> cast(attrs, [:description, :theme_name])
   end
 
   def snapshot_changeset(struct, snapshot) do
@@ -80,24 +82,37 @@ defmodule Asciinema.Asciicasts.Asciicast do
   def json_store_path(%Asciicast{file: v} = asciicast) when is_binary(v) do
     file_store_path(asciicast, :file)
   end
+
   def json_store_path(%Asciicast{stdout_frames: v} = asciicast) when is_binary(v) do
     file_store_path(asciicast, :stdout_frames)
+  end
+
+  def json_store_path(_asciicast) do
+    nil
   end
 
   def file_store_path(%Asciicast{id: id, file: fname}, :file) do
     file_store_path(:file, id, fname)
   end
+
   def file_store_path(%Asciicast{id: id, stdout_frames: fname}, :stdout_frames) do
     file_store_path(:stdout_frames, id, fname)
   end
+
   def file_store_path(%Asciicast{id: id, stdout_data: fname}, :stdout_data) do
     file_store_path(:stdout, id, fname)
   end
+
   def file_store_path(%Asciicast{id: id, stdout_timing: fname}, :stdout_timing) do
     file_store_path(:stdout_timing, id, fname)
   end
+
   def file_store_path(type, id, fname) when is_binary(fname) do
     "asciicast/#{type}/#{id}/#{fname}"
+  end
+
+  def file_store_path(_type, _id, _fname) do
+    nil
   end
 
   def snapshot_at(%Asciicast{snapshot_at: snapshot_at, duration: duration}) do

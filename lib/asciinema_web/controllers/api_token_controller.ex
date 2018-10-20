@@ -13,13 +13,22 @@ defmodule AsciinemaWeb.ApiTokenController do
         |> redirect_to_profile
       {:error, :token_invalid} ->
         conn
-        |> put_rails_flash(:alert, "Invalid token. Make sure you pasted the URL correctly.")
+        |> put_flash(:error, "Invalid token. Make sure you pasted the URL correctly.")
         |> redirect(to: "/")
       {:error, :token_revoked} ->
         conn
-        |> put_rails_flash(:alert, "This token has been revoked.")
+        |> put_flash(:error, "This token has been revoked.")
         |> redirect(to: "/")
     end
+  end
+
+  def delete(conn, %{"id" => id}) do
+    api_token = Accounts.get_api_token!(conn.assigns.current_user, id)
+    Accounts.revoke_api_token!(api_token)
+
+    conn
+    |> put_flash(:info, "Token revoked.")
+    |> redirect(to: user_path(conn, :edit))
   end
 
   defp maybe_merge_users(conn, api_token_user) do
@@ -27,12 +36,12 @@ defmodule AsciinemaWeb.ApiTokenController do
 
     case {current_user, api_token_user} do
       {%User{id: id}, %User{id: id}} -> # api token was just created
-        put_rails_flash(conn, :notice, "Recorder token has been added to your account.")
+        put_flash(conn, :info, "Recorder token has been added to your account.")
       {%User{}, %User{email: nil, username: nil}} -> # api token belongs to tmp user
         Accounts.merge!(current_user, api_token_user)
-        put_rails_flash(conn, :notice, "Recorder token has been added to your account.")
+        put_flash(conn, :info, "Recorder token has been added to your account.")
       {%User{}, %User{}} -> # api token belongs to other regular user
-        put_rails_flash(conn, :alert, "This recorder token belongs to a different user.")
+        put_flash(conn, :error, "This recorder token belongs to a different user.")
     end
   end
 

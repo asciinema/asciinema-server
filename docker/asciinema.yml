@@ -1,3 +1,0 @@
-smtp_settings:
-  :address: "smtp"
-  :port: 25

@@ -1,4 +1,49 @@
 @import "./_source_sans_pro.css";
-@import "../vendor/css/asciinema-player.css";
-@import "./iframe.sass";
+@import "../css/asciinema-player.css";
 @import "./powerline-symbols.css";
+
+html {
+  padding: 0;
+  margin: 0;
+  height: 100%;
+}
+
+body.iframe {
+  background-color: transparent;
+  padding: 0;
+  margin: 0;
+  height: 100%;
+
+  .asciinema-player-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    .asciinema-player {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+  }
+
+  .powered {
+    margin: 4px 0 0 0;
+    text-align: right;
+    font-size: 12px;
+    font-family: "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+    a {
+      font-weight: 600;
+      color: #06989a;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}

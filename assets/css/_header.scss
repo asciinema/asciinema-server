@@ -1,5 +1,9 @@
 .l-app {
   header {
+    .navbar.bg-dark {
+      background-color: #000 !important;
+    }
+
     .navbar-brand {
       img {
         height: 24px;

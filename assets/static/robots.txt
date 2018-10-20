@@ -1,5 +1,15 @@
-# See http://www.robotstxt.org/robotstxt.html for documentation on how to use the robots.txt file
+# See http://www.robotstxt.org for documentation on how to use the robots.txt file
 #
 # To ban all spiders from the entire site uncomment the next two lines:
-# User-agent: *
+# User-Agent: *
 # Disallow: /
+
+User-Agent: *
+Disallow: /a/*.json
+Disallow: /a/*.png
+Disallow: /a/*.gif
+
+# Allow Twitterbot access to casts images
+User-Agent: Twitterbot
+Allow: /a/*.png
+Allow: /a/*.gif
