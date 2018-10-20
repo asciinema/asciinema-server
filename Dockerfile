@@ -23,7 +23,7 @@ RUN cd a2png && lein cljsbuild once main && lein cljsbuild once page
 
 FROM ubuntu:16.04
 
-COPY script/install_pngquant.sh /tmp/
+COPY install_pngquant.sh /tmp/
 RUN bash /tmp/install_pngquant.sh
 
 FROM ubuntu:16.04
@@ -82,16 +82,10 @@ RUN wget --quiet -O /opt/phantomjs.tar.bz2 https://bitbucket.org/ariya/phantomjs
 
 # install asciinema
 
-ENV RAILS_ENV "production"
 ENV MIX_ENV "prod"
 
 RUN mkdir -p /app/tmp /app/log
 WORKDIR /app
-
-# install gems
-
-COPY Gemfile* /app/
-RUN bundle install --deployment --without development test --jobs 10 --retry 5
 
 # copy compiled vt
 
@@ -114,28 +108,6 @@ RUN cd a2png && npm install
 ENV DATABASE_URL "postgresql://postgres@postgres/postgres"
 ENV REDIS_URL "redis://redis:6379"
 
-# add Ruby source files
-
-COPY config/*.rb /app/config/
-COPY config/*.yml /app/config/
-COPY config/environments /app/config/environments
-COPY config/initializers /app/config/initializers
-COPY config/locales /app/config/locales
-COPY lib/*.rb /app/lib/
-COPY lib/authentication /app/lib/authentication
-COPY lib/ext /app/lib/ext
-COPY lib/tasks /app/lib/tasks
-COPY public /app/public
-COPY vendor /app/vendor
-COPY config.ru /app/
-COPY Rakefile /app/
-COPY script/rails /app/script/rails
-COPY app /app/app
-
-# compile assets with assets pipeline
-
-RUN bundle exec rake assets:precompile
-
 # install hex packages
 
 COPY mix.* /app/
@@ -152,27 +124,17 @@ RUN cd assets && npm install
 COPY assets /app/assets
 RUN cd assets && npm run deploy
 RUN mix phx.digest
-RUN cp -r public/assets priv/static/
 
 # add Elixir source files
 
-COPY config/*.exs /app/config/
-COPY lib/*.ex /app/lib
-COPY lib/asciinema /app/lib/asciinema
-COPY lib/asciinema_web /app/lib/asciinema_web
-COPY lib/mix /app/lib/mix
-COPY priv/gettext /app/priv/gettext
-COPY priv/repo /app/priv/repo
-COPY priv/welcome.json /app/priv/welcome.json
+COPY config/*.exs config/
+COPY lib lib/
+COPY priv priv/
 COPY .iex.exs /app/.iex.exs
 
 # compile Elixir app
 
 RUN mix compile
-
-# install smtp configuration
-
-COPY docker/asciinema.yml /app/config/asciinema.yml
 
 # add setup script
 
@@ -183,12 +145,10 @@ ENV PATH "/app/docker/bin:${PATH}"
 ENV A2PNG_BIN_PATH "/app/a2png/a2png.sh"
 COPY --from=1 /usr/local/bin/pngquant /usr/local/bin/
 
-VOLUME ["/app/log", "/app/uploads", "/cache"]
+VOLUME ["/app/uploads", "/cache"]
 
 CMD ["mix", "phx.server"]
 
 ENV PORT 4000
 
-EXPOSE 80
-EXPOSE 3000
 EXPOSE 4000

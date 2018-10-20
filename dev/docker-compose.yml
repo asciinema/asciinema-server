@@ -1,7 +1,6 @@
 version: '3'
 
 volumes:
-  bundle:
   m2:
   node_modules:
   build:
@@ -47,31 +46,6 @@ services:
       - 4000:4000
     volumes:
       - ../uploads:/app/uploads:cached
-      - bundle:/bundle:cached
-      - node_modules:/app/assets/node_modules:cached
-      - build:/app/_build:cached
-      - deps:/app/deps:cached
-      - m2:/root/.m2:cached
-      - ../:/app:cached
-      - /tmp/asciinema-web:/tmp:cached
-
-  rails:
-    build:
-      context: ..
-      dockerfile: Dockerfile.dev
-    image: asciinema/asciinema-server:local
-    container_name: asciinema_dev_rails
-    entrypoint: env -u MIX_ENV -u RAILS_ENV -u PORT
-    command: bundle exec unicorn -c config/unicorn.rb
-    links:
-      - redis
-      - postgres
-    env_file: .env.development
-    ports:
-      - 3001:3000
-    volumes:
-      - ../uploads:/app/uploads:cached
-      - bundle:/bundle:cached
       - node_modules:/app/assets/node_modules:cached
       - build:/app/_build:cached
       - deps:/app/deps:cached

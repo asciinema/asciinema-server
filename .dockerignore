@@ -1,14 +1,9 @@
 .git
 .gitignore
 .stuff
-.bundle
 .m2
-tmp/*
-log/*
 target
 uploads/*
-public/uploads/*
-coverage
 volumes
 Dockerfile
 docker-compose.yml
@@ -17,8 +12,6 @@ a2png/page/page.js
 a2png/target
 a2png/node_modules
 a2png/target
-config/asciinema.yml
-config/database.yml
 assets/node_modules
 .env
 .env.*

@@ -11,7 +11,7 @@ defmodule Asciinema.Fixtures do
   def fixture(:upload_v1, attrs) do
     path = Map.get(attrs, :path) || "1/asciicast.json"
     filename = Path.basename(path)
-    %Plug.Upload{path: "spec/fixtures/#{path}",
+    %Plug.Upload{path: "test/fixtures/#{path}",
                  filename: filename,
                  content_type: "application/json"}
   end
@@ -19,7 +19,7 @@ defmodule Asciinema.Fixtures do
   def fixture(:upload_v2, attrs) do
     path = Map.get(attrs, :path) || "2/full.cast"
     filename = Path.basename(path)
-    %Plug.Upload{path: "spec/fixtures/#{path}",
+    %Plug.Upload{path: "test/fixtures/#{path}",
                  filename: filename,
                  content_type: "application/octet-stream"}
   end
