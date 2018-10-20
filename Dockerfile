@@ -123,6 +123,7 @@ COPY config/initializers /app/config/initializers
 COPY config/locales /app/config/locales
 COPY lib/*.rb /app/lib/
 COPY lib/authentication /app/lib/authentication
+COPY lib/ext /app/lib/ext
 COPY lib/tasks /app/lib/tasks
 COPY public /app/public
 COPY vendor /app/vendor
