@@ -62,7 +62,8 @@ defmodule Asciinema.Asciicasts do
         a in Asciicast,
         where: a.id != ^asciicast.id and a.user_id == ^asciicast.user_id and a.private == false,
         order_by: fragment("RANDOM()"),
-        limit: ^limit
+        limit: ^limit,
+        preload: :user
       )
 
     Repo.all(q)
