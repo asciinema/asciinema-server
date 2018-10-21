@@ -49,6 +49,13 @@ defmodule Asciinema.AsciicastControllerTest do
     assert response_content_type(conn, :png)
   end
 
+  test "shows SVG doc", %{conn: conn} do
+    asciicast = insert(:asciicast)
+    conn = get conn, asciicast_path(conn, :show, asciicast) <> ".svg"
+    assert response(conn, 200)
+    assert response_content_type(conn, :svg)
+  end
+
   test "shows GIF generation instructions", %{conn: conn} do
     asciicast = fixture(:asciicast)
     conn = get conn, asciicast_animation_path(conn, asciicast)
