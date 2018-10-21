@@ -431,8 +431,9 @@ defmodule AsciinemaWeb.AsciicastView do
   end
 
   def svg_text_class({"fg", fg}) when is_integer(fg), do: "c-#{fg}"
-  def svg_text_class({"bold", true}), do: "bright"
-  def svg_text_class({"underline", true}), do: "underline"
+  def svg_text_class({"bold", true}), do: "br"
+  def svg_text_class({"italic", true}), do: "it"
+  def svg_text_class({"underline", true}), do: "un"
   def svg_text_class(_), do: nil
 
   def svg_rect_class(%{"bg" => bg}) when is_integer(bg), do: "c-#{bg}"
