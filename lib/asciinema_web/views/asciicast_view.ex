@@ -298,14 +298,14 @@ defmodule AsciinemaWeb.AsciicastView do
   end
 
   def adjust_chunk_colors([text, attrs]) do
-    [text, adjust_attrs_colors(attrs)]
+    {text, adjust_attrs_colors(attrs)}
   end
 
   def adjust_attrs_colors(attrs) do
     attrs
-    |> adjust_fg
-    |> adjust_bg
-    |> invert_colors
+    |> adjust_fg()
+    |> adjust_bg()
+    |> invert_colors()
   end
 
   def adjust_fg(%{"bold" => true, "fg" => fg} = attrs)
@@ -336,9 +336,9 @@ defmodule AsciinemaWeb.AsciicastView do
     end)
   end
 
-  def split_chunk([text, attrs]) do
+  def split_chunk({text, attrs}) do
     text
-    |> String.codepoints
+    |> String.codepoints()
     |> Enum.map(&{&1, attrs})
   end
 
@@ -374,13 +374,12 @@ defmodule AsciinemaWeb.AsciicastView do
     cols = asciicast.terminal_columns
     rows = asciicast.terminal_lines
 
-    chunk_lines =
-      asciicast.snapshot
-      |> Enum.map(&chunks_to_tuples/1)
-      |> add_coords()
+    lines = adjust_colors(asciicast.snapshot)
+
+    chunk_lines = add_coords(lines)
 
     char_lines =
-      asciicast.snapshot
+      lines
       |> split_chunks()
       |> add_coords()
 
@@ -392,15 +391,6 @@ defmodule AsciinemaWeb.AsciicastView do
       char_lines: char_lines,
       theme_name: "monokai"
     )
-  end
-
-  defp chunks_to_tuples(chunks) do
-    for chunk <- chunks do
-      case chunk do
-        [text, attrs] -> {text, attrs}
-        _ -> chunk
-      end
-    end
   end
 
   defp add_coords(lines) do
