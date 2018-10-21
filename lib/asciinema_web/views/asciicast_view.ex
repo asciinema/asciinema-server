@@ -373,14 +373,43 @@ defmodule AsciinemaWeb.AsciicastView do
   def render("show.svg", %{asciicast: asciicast}) do
     cols = asciicast.terminal_columns
     rows = asciicast.terminal_lines
-    lines = split_chunks(asciicast.snapshot)
 
+    chunk_lines =
+      asciicast.snapshot
+      |> Enum.map(&chunks_to_tuples/1)
+      |> add_coords()
+
+    char_lines =
+      asciicast.snapshot
+      |> split_chunks()
+      |> add_coords()
+
+    render(
+      "_terminal.svg",
+      cols: cols,
+      rows: rows,
+      chunk_lines: chunk_lines,
+      char_lines: char_lines,
+      theme_name: "monokai"
+    )
+  end
+
+  defp chunks_to_tuples(chunks) do
+    for chunk <- chunks do
+      case chunk do
+        [text, attrs] -> {text, attrs}
+        _ -> chunk
+      end
+    end
+  end
+
+  defp add_coords(lines) do
     {_, lines} =
-      lines
-      |> Enum.reduce({0, []}, fn line, {y, lines} ->
+      Enum.reduce(lines, {0, []}, fn line, {y, lines} ->
         {_, line} = Enum.reduce(line, {0, []}, fn {text, attrs}, {x, chunks} ->
-          chunk = %{text: text, attrs: attrs, x: x, y: y}
-          {x + String.length(text), [chunk | chunks]}
+          width = String.length(text)
+          chunk = %{text: text, attrs: attrs, x: x, y: y, width: width}
+          {x + width, [chunk | chunks]}
         end)
 
         line = Enum.reverse(line)
@@ -388,27 +417,35 @@ defmodule AsciinemaWeb.AsciicastView do
         {y + 1, [line | lines]}
       end)
 
-    lines = Enum.reverse(lines)
-
-    render("_terminal.svg",
-      %{cols: cols,
-        rows: rows,
-        lines: lines,
-        theme_name: "monokai"})
+    Enum.reverse(lines)
   end
 
-  def svg_class(%{} = attrs) do
-    attrs
-    |> Enum.to_list
-    |> Enum.reject(fn {attr, _} -> attr == "bg" end)
-    |> Enum.map(&class/1)
-    |> Enum.join(" ")
+  def svg_text_class(%{} = attrs) do
+    if map_size(attrs) > 0 do
+      attrs
+      |> Enum.to_list
+      |> Enum.reject(fn {attr, _} -> attr == "bg" end)
+      |> Enum.map(&svg_text_class/1)
+      |> Enum.join(" ")
+    end
   end
+
+  def svg_text_class({"fg", fg}) when is_integer(fg), do: "c-#{fg}"
+  def svg_text_class({"bold", true}), do: "bright"
+  def svg_text_class({"underline", true}), do: "underline"
+  def svg_text_class(_), do: nil
+
+  def svg_rect_class(%{"bg" => bg}) when is_integer(bg), do: "c-#{bg}"
+  def svg_rect_class(_), do: nil
 
   def svg_style(attrs) do
     case attrs["fg"] do
       [r, g, b] -> "fill:rgb(#{r},#{g},#{b})"
       _ -> nil
     end
+  end
+
+  def percent(float) do
+    "#{Decimal.round(Decimal.new(float), 3)}%"
   end
 end
