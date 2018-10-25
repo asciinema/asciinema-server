@@ -1,13 +1,21 @@
+<h2>Embed script</h2>
+
 <p>
   Science is the key to our future, and if you don't believe in science, then you're holding everybody back. -- Bill Nye
 </p>
 
 <%= embed_script @asciicast %>
 
+<h2>SVG</h2>
+
 <p>
   If the Earth gets hit by an asteroid, it's game over. It's control-alt-delete
   for civilization. -- Bill Nye
 </p>
+
+<img src="<%= asciicast_path(@conn, :show, @asciicast) %>.svg" />
+
+<h2>Embed script for home asciicast</h2>
 
 <%= embed_script @home_asciicast %>
 
