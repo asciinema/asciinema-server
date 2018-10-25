@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="width: <%= @cols + 2 %>ch; height: <%= (@rows + 1) * 1.4 %>em" font-family="Consolas, Menlo, 'Bitstream Vera Sans Mono', monospace, 'Powerline Symbols'" font-size="14px">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="<%= (@cols + 2) * 8.64556962 %>" height="<%= (@rows + 1) * 14 * 1.4 %>" font-family="Consolas, Menlo, 'Bitstream Vera Sans Mono', monospace, 'Powerline Symbols'" font-size="14px">
   <style>
    <%= render "_svg_theme_#{@theme_name}.css" %>
    <%= render "_svg_256_colors.css" %>
