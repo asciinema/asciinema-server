@@ -389,7 +389,7 @@ defmodule AsciinemaWeb.AsciicastView do
       rows: rows,
       chunk_lines: chunk_lines,
       char_lines: char_lines,
-      theme_name: "monokai"
+      theme_name: theme_name(asciicast)
     )
   end
 
