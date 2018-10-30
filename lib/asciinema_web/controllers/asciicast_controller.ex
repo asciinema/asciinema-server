@@ -70,6 +70,10 @@ defmodule AsciinemaWeb.AsciicastController do
     |> send_file(200, path)
   end
 
+  def do_show(conn, "svg", asciicast) do
+    render(conn, "show.svg", asciicast: asciicast)
+  end
+
   @png_max_age 604_800 # 7 days
 
   def do_show(conn, "png", asciicast) do

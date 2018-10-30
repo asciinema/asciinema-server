@@ -298,14 +298,14 @@ defmodule AsciinemaWeb.AsciicastView do
   end
 
   def adjust_chunk_colors([text, attrs]) do
-    [text, adjust_attrs_colors(attrs)]
+    {text, adjust_attrs_colors(attrs)}
   end
 
   def adjust_attrs_colors(attrs) do
     attrs
-    |> adjust_fg
-    |> adjust_bg
-    |> invert_colors
+    |> adjust_fg()
+    |> adjust_bg()
+    |> invert_colors()
   end
 
   def adjust_fg(%{"bold" => true, "fg" => fg} = attrs)
@@ -336,9 +336,9 @@ defmodule AsciinemaWeb.AsciicastView do
     end)
   end
 
-  def split_chunk([text, attrs]) do
+  def split_chunk({text, attrs}) do
     text
-    |> String.codepoints
+    |> String.codepoints()
     |> Enum.map(&{&1, attrs})
   end
 
@@ -368,5 +368,75 @@ defmodule AsciinemaWeb.AsciicastView do
     )
 
     Enum.reverse([last_chunk | chunks])
+  end
+
+  def render("show.svg", %{asciicast: asciicast}) do
+    cols = asciicast.terminal_columns
+    rows = asciicast.terminal_lines
+
+    lines = adjust_colors(asciicast.snapshot)
+
+    chunk_lines = add_coords(lines)
+
+    char_lines =
+      lines
+      |> split_chunks()
+      |> add_coords()
+
+    render(
+      "_terminal.svg",
+      cols: cols,
+      rows: rows,
+      chunk_lines: chunk_lines,
+      char_lines: char_lines,
+      theme_name: theme_name(asciicast)
+    )
+  end
+
+  defp add_coords(lines) do
+    {_, lines} =
+      Enum.reduce(lines, {0, []}, fn line, {y, lines} ->
+        {_, line} = Enum.reduce(line, {0, []}, fn {text, attrs}, {x, chunks} ->
+          width = String.length(text)
+          chunk = %{text: text, attrs: attrs, x: x, y: y, width: width}
+          {x + width, [chunk | chunks]}
+        end)
+
+        line = Enum.reverse(line)
+
+        {y + 1, [line | lines]}
+      end)
+
+    Enum.reverse(lines)
+  end
+
+  def svg_text_class(%{} = attrs) do
+    if map_size(attrs) > 0 do
+      attrs
+      |> Enum.to_list
+      |> Enum.reject(fn {attr, _} -> attr == "bg" end)
+      |> Enum.map(&svg_text_class/1)
+      |> Enum.join(" ")
+    end
+  end
+
+  def svg_text_class({"fg", fg}) when is_integer(fg), do: "c-#{fg}"
+  def svg_text_class({"bold", true}), do: "br"
+  def svg_text_class({"italic", true}), do: "it"
+  def svg_text_class({"underline", true}), do: "un"
+  def svg_text_class(_), do: nil
+
+  def svg_rect_class(%{"bg" => bg}) when is_integer(bg), do: "c-#{bg}"
+  def svg_rect_class(_), do: nil
+
+  def svg_style(attrs) do
+    case attrs["fg"] do
+      [r, g, b] -> "fill:rgb(#{r},#{g},#{b})"
+      _ -> nil
+    end
+  end
+
+  def percent(float) do
+    "#{Decimal.round(Decimal.new(float), 3)}%"
   end
 end

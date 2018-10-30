@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="<%= (@cols + 2) * 8.433333333 %>" height="<%= (@rows + 1) * 14 * 1.4 %>" font-family="Consolas, Menlo, 'Bitstream Vera Sans Mono', monospace, 'Powerline Symbols'" font-size="14px">
+  <style>
+   <%= render "_svg_theme_#{@theme_name}.css" %>
+   <%= render "_svg_256_colors.css" %>
+   .br { font-weight: bold }
+   .it { font-style: italic }
+   .un { text-decoration: underline }
+  </style>
+
+  <rect width="100%" height="100%" class="default-bg-fill"></rect>
+
+  <svg x="<%= percent(1.0 * 100 / (@cols + 2)) %>" y="<%= percent(0.5 * 100 / (@rows + 1)) %>" class="default-text-fill">
+    <g style="shape-rendering: optimizeSpeed">
+    <%= for chunks <- @chunk_lines do %><%= for chunk <- chunks do %><%= if c = svg_rect_class(chunk.attrs) do %><rect x="<%= percent(100 * chunk.x / (@cols + 2)) %>" y="<%= percent(100 * chunk.y / (@rows + 1)) %>" width="<%= percent(100 * chunk.width / (@cols + 2)) %>" height="<%= percent(102 / (@rows + 1)) %>" class="<%= c %>"></rect>
+<% end %><% end %><% end %>
+    </g>
+
+    <text>
+      <%= for chunks <- @char_lines do %><%= for chunk <- chunks do %><%= if String.trim(chunk.text) != "" do %><tspan dy="1.0em" x="<%= percent(100 * chunk.x / (@cols + 2)) %>" y="<%= percent(100 * chunk.y / (@rows + 1)) %>"<%= if c = svg_text_class(chunk.attrs) do %> class="<%= c %>"<% end %><%= if s = svg_style(chunk.attrs) do %> style="<%= s %>"<% end %>><%= chunk.text %></tspan>
+<% end %><% end %><% end %>
+    </text>
+
+    <g transform="translate(-50 -50)">
+      <svg x="50%" y="50%" width="100" height="100">
+        <%= render "_logo.svg" %>
+      </svg>
+    </g>
+  </svg>
+</svg>
