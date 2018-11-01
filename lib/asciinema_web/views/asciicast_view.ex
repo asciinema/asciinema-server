@@ -411,12 +411,15 @@ defmodule AsciinemaWeb.AsciicastView do
   end
 
   def svg_text_class(%{} = attrs) do
-    if map_size(attrs) > 0 do
+    classes =
       attrs
-      |> Enum.to_list
       |> Enum.reject(fn {attr, _} -> attr == "bg" end)
       |> Enum.map(&svg_text_class/1)
-      |> Enum.join(" ")
+      |> Enum.filter(& &1)
+
+    case classes do
+      [] -> nil
+      _ -> Enum.join(classes, " ")
     end
   end
 
