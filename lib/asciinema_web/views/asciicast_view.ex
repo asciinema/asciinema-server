@@ -429,6 +429,9 @@ defmodule AsciinemaWeb.AsciicastView do
   def svg_text_class({"underline", true}), do: "un"
   def svg_text_class(_), do: nil
 
+  def svg_rect_style(%{"bg" => [r, g, b]}), do: "fill:rgb(#{r},#{g},#{b})"
+  def svg_rect_style(_), do: nil
+
   def svg_rect_class(%{"bg" => bg}) when is_integer(bg), do: "c-#{bg}"
   def svg_rect_class(_), do: nil
 
