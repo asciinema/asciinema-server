@@ -35,7 +35,7 @@ defmodule AsciinemaWeb.Endpoint do
   # Set :encryption_salt if you would also like to encrypt it.
   plug Plug.Session,
     store: :cookie,
-    key: "_vic_key",
+    key: "_asciinema_key",
     signing_salt: "qJL+3s0T"
 
   plug AsciinemaWeb.TrailingFormat
