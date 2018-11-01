@@ -429,17 +429,27 @@ defmodule AsciinemaWeb.AsciicastView do
   def svg_text_class({"underline", true}), do: "un"
   def svg_text_class(_), do: nil
 
-  def svg_rect_style(%{"bg" => [r, g, b]}), do: "fill:rgb(#{r},#{g},#{b})"
+  def svg_rect_style(%{"bg" => [_r, _g, _b] = c}), do: "fill:#{hex(c)}"
   def svg_rect_style(_), do: nil
 
   def svg_rect_class(%{"bg" => bg}) when is_integer(bg), do: "c-#{bg}"
   def svg_rect_class(_), do: nil
 
-  def svg_style(attrs) do
+  def svg_text_style(attrs) do
     case attrs["fg"] do
-      [r, g, b] -> "fill:rgb(#{r},#{g},#{b})"
+      [_r, _g, _b] = c -> "fill:#{hex(c)}"
       _ -> nil
     end
+  end
+
+  defp hex([r, g, b]) do
+    "##{hex(r)}#{hex(g)}#{hex(b)}"
+  end
+
+  defp hex(int) do
+    int
+    |> Integer.to_string(16)
+    |> String.pad_leading(2, "0")
   end
 
   def percent(float) do

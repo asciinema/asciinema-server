@@ -17,7 +17,7 @@
     </g>
 
     <text>
-      <%= for chunks <- @char_lines do %><%= for chunk <- chunks do %><%= if String.trim(chunk.text) != "" do %><tspan dy="1.0em" x="<%= percent(100 * chunk.x / (@cols + 2)) %>" y="<%= percent(100 * chunk.y / (@rows + 1)) %>"<%= if c = svg_text_class(chunk.attrs) do %> class="<%= c %>"<% end %><%= if s = svg_style(chunk.attrs) do %> style="<%= s %>"<% end %>><%= safe_to_string(html_escape(chunk.text)) %></tspan>
+      <%= for chunks <- @char_lines do %><%= for chunk <- chunks do %><%= if String.trim(chunk.text) != "" do %><tspan dy="1.0em" x="<%= percent(100 * chunk.x / (@cols + 2)) %>" y="<%= percent(100 * chunk.y / (@rows + 1)) %>"<%= if c = svg_text_class(chunk.attrs) do %> class="<%= c %>"<% end %><%= if s = svg_text_style(chunk.attrs) do %> style="<%= s %>"<% end %>><%= safe_to_string(html_escape(chunk.text)) %></tspan>
 <% end %><% end %><% end %>
     </text>
 
