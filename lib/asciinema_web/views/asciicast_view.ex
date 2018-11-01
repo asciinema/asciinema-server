@@ -376,38 +376,43 @@ defmodule AsciinemaWeb.AsciicastView do
 
     lines = adjust_colors(asciicast.snapshot)
 
-    chunk_lines = add_coords(lines)
+    bg_lines = add_coords(lines)
 
-    char_lines =
+    text_lines =
       lines
       |> split_chunks()
       |> add_coords()
+      |> remove_blank_chunks()
 
     render(
       "_terminal.svg",
       cols: cols,
       rows: rows,
-      chunk_lines: chunk_lines,
-      char_lines: char_lines,
+      bg_lines: bg_lines,
+      text_lines: text_lines,
       theme_name: theme_name(asciicast)
     )
   end
 
   defp add_coords(lines) do
-    {_, lines} =
-      Enum.reduce(lines, {0, []}, fn line, {y, lines} ->
-        {_, line} = Enum.reduce(line, {0, []}, fn {text, attrs}, {x, chunks} ->
-          width = String.length(text)
-          chunk = %{text: text, attrs: attrs, x: x, y: y, width: width}
-          {x + width, [chunk | chunks]}
-        end)
-
-        line = Enum.reverse(line)
-
-        {y + 1, [line | lines]}
+    for {chunks, y} <- Enum.with_index(lines) do
+      {_, chunks} = Enum.reduce(chunks, {0, []}, fn {text, attrs}, {x, chunks} ->
+        width = String.length(text)
+        chunk = %{text: text, attrs: attrs, x: x, width: width}
+        {x + width, [chunk | chunks]}
       end)
 
-    Enum.reverse(lines)
+      chunks = Enum.reverse(chunks)
+
+      %{y: y, chunks: chunks}
+    end
+  end
+
+  defp remove_blank_chunks(lines) do
+    for line <- lines do
+      chunks = Enum.reject(line.chunks, & String.trim(&1.text) == "")
+      %{line | chunks: chunks}
+    end
   end
 
   def svg_text_class(%{} = attrs) do
