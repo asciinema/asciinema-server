@@ -370,7 +370,7 @@ defmodule AsciinemaWeb.AsciicastView do
     Enum.reverse([last_chunk | chunks])
   end
 
-  def render("show.svg", %{asciicast: asciicast}) do
+  def render("show.svg", %{asciicast: asciicast} = params) do
     cols = asciicast.terminal_columns
     rows = asciicast.terminal_lines
 
@@ -390,6 +390,7 @@ defmodule AsciinemaWeb.AsciicastView do
       rows: rows,
       bg_lines: bg_lines,
       text_lines: text_lines,
+      font_family: params[:font_family],
       theme_name: theme_name(asciicast)
     )
   end

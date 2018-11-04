@@ -55,10 +55,10 @@ else
   config :asciinema, Asciinema.FileStore.Local, path: "uploads/"
 end
 
-config :asciinema, :png_generator, Asciinema.PngGenerator.A2png
-config :asciinema, Asciinema.PngGenerator.A2png,
-  bin_path: System.get_env("A2PNG_BIN_PATH") || "./a2png/a2png.sh",
-  pool_size: String.to_integer(System.get_env("A2PNG_POOL_SIZE") || "2")
+config :asciinema, :png_generator, Asciinema.PngGenerator.Rsvg
+config :asciinema, Asciinema.PngGenerator.Rsvg,
+  pool_size: String.to_integer(System.get_env("RSVG_POOL_SIZE") || "2"),
+  font_family: System.get_env("RSVG_FONT_FAMILY") || "monospace"
 
 config :asciinema, :snapshot_updater, Asciinema.Asciicasts.SnapshotUpdater.Exq
 

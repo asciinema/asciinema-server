@@ -12,15 +12,6 @@ COPY vt/src /app/vt/src
 COPY vt/resources /app/vt/resources
 RUN cd vt && lein cljsbuild once main
 
-# build a2png
-
-COPY a2png/project.clj /app/a2png/
-RUN cd a2png && lein deps
-
-COPY a2png/src /app/a2png/src
-COPY a2png/asciinema-player /app/a2png/asciinema-player
-RUN cd a2png && lein cljsbuild once main && lein cljsbuild once page
-
 FROM alpine:3.8
 
 RUN apk update && \
@@ -30,6 +21,9 @@ RUN apk update && \
   elixir \
   erlang-xmerl \
   build-base \
+  librsvg \
+  ttf-dejavu \
+  pngquant \
   nodejs \
   npm
 
@@ -60,31 +54,21 @@ RUN mix compile
 COPY --from=0 /app/vt/main.js vt/
 COPY vt/liner.js vt/
 
-# copy compiled a2png
-
-COPY a2png/a2png.sh a2png/
-COPY a2png/a2png.js a2png/
-COPY a2png/page a2png/page
-COPY --from=0 /app/a2png/main.js a2png/
-COPY --from=0 /app/a2png/page/page.js a2png/page/
-
-COPY a2png/package.json a2png/
-COPY a2png/package-lock.json a2png/
-RUN cd a2png && npm install
-ENV A2PNG_BIN_PATH "/app/a2png/a2png.sh"
-
-# service URLs
-
-ENV DATABASE_URL "postgresql://postgres@postgres/postgres"
-ENV REDIS_URL "redis://redis:6379"
-
 # add setup & upgrade scripts
 
 COPY docker/bin docker/bin
-ENV PATH "/app/docker/bin:${PATH}"
 COPY .iex.exs ./
 
-VOLUME ["/app/uploads"]
-CMD ["mix", "phx.server"]
+# env
+
 ENV PORT 4000
+ENV DATABASE_URL "postgresql://postgres@postgres/postgres"
+ENV REDIS_URL "redis://redis:6379"
+ENV RSVG_FONT_FAMILY "Dejavu Sans Mono"
+ENV PATH "/app/docker/bin:${PATH}"
+
+VOLUME ["/app/uploads"]
+
+CMD ["mix", "phx.server"]
+
 EXPOSE 4000

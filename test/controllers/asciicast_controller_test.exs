@@ -41,7 +41,7 @@ defmodule Asciinema.AsciicastControllerTest do
     assert response(conn, 200)
   end
 
-  @tag :a2png
+  @tag :rsvg
   test "shows png preview", %{conn: conn} do
     asciicast = fixture(:asciicast)
     conn = get conn, asciicast_image_path(conn, asciicast)
