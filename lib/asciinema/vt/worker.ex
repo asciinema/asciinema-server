@@ -1,8 +1,6 @@
 defmodule Asciinema.Vt.Worker do
   use GenServer
 
-  @vt_script_path "vt/main.js"
-
   # Client API
 
   def start_link(_) do
@@ -25,7 +23,7 @@ defmodule Asciinema.Vt.Worker do
 
   def init(_) do
     path = System.find_executable("node")
-    port = Port.open({:spawn_executable, path}, [:binary, args: [@vt_script_path]])
+    port = Port.open({:spawn_executable, path}, [:binary, args: [vt_script_path()]])
     {:ok, port}
   end
 
@@ -69,5 +67,9 @@ defmodule Asciinema.Vt.Worker do
   defp send_cmd(port, cmd, data \\ %{}) do
     json = data |> Map.put(:cmd, cmd) |> Poison.encode!
     true = Port.command(port, "#{json}\n")
+  end
+
+  defp vt_script_path do
+    Path.join(:code.priv_dir(:asciinema), "vt/main.js")
   end
 end

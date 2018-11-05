@@ -1,9 +1,9 @@
-FROM clojure:alpine
+## VT building image
+
+FROM clojure:alpine AS vt
 
 RUN mkdir /app
 WORKDIR /app
-
-# build vt
 
 COPY vt/project.clj /app/vt/
 RUN cd vt && lein deps
@@ -12,26 +12,22 @@ COPY vt/src /app/vt/src
 COPY vt/resources /app/vt/resources
 RUN cd vt && lein cljsbuild once main
 
-FROM alpine:3.8
+## Release building image
+
+FROM elixir:1.6.6-alpine AS builder
+
+ARG MIX_ENV=prod
+
+WORKDIR /opt/app
 
 RUN apk update && \
+  apk upgrade --no-cache && \
   apk add --no-cache \
-  ca-certificates \
-  bash \
-  elixir \
-  erlang-xmerl \
-  build-base \
-  librsvg \
-  ttf-dejavu \
-  pngquant \
-  nodejs \
-  npm
-
-RUN mix local.hex --force && mix local.rebar --force
-
-WORKDIR /app
-
-ENV MIX_ENV "prod"
+    nodejs \
+    npm \
+    build-base && \
+  mix local.rebar --force && \
+  mix local.hex --force
 
 COPY assets/package.json assets/
 COPY assets/package-lock.json assets/
@@ -49,26 +45,45 @@ COPY lib lib/
 COPY priv priv/
 RUN mix compile
 
-# copy compiled vt
+COPY --from=vt /app/vt/main.js priv/vt/
+COPY vt/liner.js priv/vt/
 
-COPY --from=0 /app/vt/main.js vt/
-COPY vt/liner.js vt/
+COPY rel rel/
 
-# add setup & upgrade scripts
+RUN \
+  mkdir -p /opt/built && \
+  mix release --verbose && \
+  cp _build/${MIX_ENV}/rel/asciinema/releases/0.0.1/asciinema.tar.gz /opt/built && \
+  cd /opt/built && \
+  tar -xzf asciinema.tar.gz && \
+  rm asciinema.tar.gz
 
-COPY docker/bin docker/bin
-COPY .iex.exs ./
+## Final image
 
-# env
+FROM alpine:3.8
+
+RUN apk update && \
+  apk add --no-cache \
+  bash \
+  librsvg \
+  ttf-dejavu \
+  pngquant \
+  nodejs
+
+WORKDIR /opt/app
+
+COPY --from=builder /opt/built .
+COPY config/custom.exs.sample /opt/app/etc/custom.exs
+COPY .iex.exs .
 
 ENV PORT 4000
 ENV DATABASE_URL "postgresql://postgres@postgres/postgres"
 ENV REDIS_URL "redis://redis:6379"
 ENV RSVG_FONT_FAMILY "Dejavu Sans Mono"
-ENV PATH "/app/docker/bin:${PATH}"
 
-VOLUME ["/app/uploads"]
+VOLUME /opt/app/uploads
+VOLUME /opt/app/cache
 
-CMD ["mix", "phx.server"]
+CMD trap 'exit' INT; /opt/app/bin/asciinema foreground
 
 EXPOSE 4000

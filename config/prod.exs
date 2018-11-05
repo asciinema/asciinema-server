@@ -13,10 +13,12 @@ use Mix.Config
 # which you typically run after static files are built.
 config :asciinema, AsciinemaWeb.Endpoint,
   http: [port: {:system, "PORT"}],
-  url: [scheme: System.get_env("URL_SCHEME") || "https",
-        host: System.get_env("URL_HOST") || "asciinema.org",
-        port: String.to_integer(System.get_env("URL_PORT") || "443")],
-  cache_static_manifest: "priv/static/cache_manifest.json"
+  url: [scheme: "https",
+        host: "asciinema.org",
+        port: 443],
+  cache_static_manifest: "priv/static/cache_manifest.json",
+  server: true,
+  root: "."
 
 # Do not print debug messages in production
 config :logger, level: :info
@@ -60,7 +62,7 @@ config :logger, level: :info
 
 config :asciinema, Asciinema.Repo,
   adapter: Ecto.Adapters.Postgres,
-  pool_size: String.to_integer(System.get_env("POOL_SIZE") || "20"),
+  pool_size: 20,
   ssl: false
 
 config :asciinema, Asciinema.Mailer,
@@ -68,12 +70,3 @@ config :asciinema, Asciinema.Mailer,
   adapter: Bamboo.SMTPAdapter,
   server: "smtp",
   port: 25
-
-if dsn = System.get_env("SENTRY_DSN") do
-  config :sentry, dsn: dsn
-else
-  config :sentry, included_environments: []
-end
-
-# Import custom config.
-import_config "custom*.exs"
