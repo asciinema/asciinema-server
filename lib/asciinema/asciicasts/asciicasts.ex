@@ -408,10 +408,9 @@ defmodule Asciinema.Asciicasts do
     changeset = Asciicast.update_changeset(asciicast, attrs)
 
     with {:ok, asciicast} <- Repo.update(changeset) do
-      if Changeset.get_change(changeset, :snapshot_at) do
-        update_snapshot(asciicast)
-      else
-        {:ok, asciicast}
+      case Changeset.get_change(changeset, :snapshot_at, :not_changed) do
+        :not_changed -> {:ok, asciicast}
+        _ -> update_snapshot(asciicast)
       end
     end
   end
