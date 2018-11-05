@@ -35,6 +35,7 @@ defmodule Asciinema.Mixfile do
       {:briefly, "~> 0.3"},
       {:cowboy, "~> 1.0"},
       {:credo, "~> 0.10.0", only: [:dev, :test], runtime: false},
+      {:earmark, "~> 1.2"},
       {:ex_aws, "~> 1.0"},
       {:ex_machina, "~> 2.1", only: :test},
       {:exq, "~> 0.9.0"},
