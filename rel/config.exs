@@ -57,7 +57,14 @@ end
 
 release :asciinema do
   set version: current_version(:asciinema)
+
   set applications: [
     :runtime_tools
+  ]
+
+  set commands: [
+    migrate: "rel/commands/migrate.sh",
+    seed: "rel/commands/seed.sh",
+    migrate_and_seed: "rel/commands/migrate_and_seed.sh"
   ]
 end
