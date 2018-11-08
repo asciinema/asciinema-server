@@ -70,6 +70,7 @@ defmodule Asciinema.Vt.Worker do
   end
 
   defp vt_script_path do
-    Path.join(:code.priv_dir(:asciinema), "vt/main.js")
+    Keyword.get(Application.get_env(:asciinema, __MODULE__, []), :vt_script_path) ||
+      Path.join(:code.priv_dir(:asciinema), "vt/main.js")
   end
 end
