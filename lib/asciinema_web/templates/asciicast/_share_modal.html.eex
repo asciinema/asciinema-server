@@ -27,13 +27,13 @@
         <p>
           <span>HTML:</span>
           <br>
-          <input data-behavior="auto-select" readonly="" value="<a href=&quot;<%= asciicast_url(@conn, :show, @asciicast) %>&quot; target=&quot;_blank&quot;><img src=&quot;<%= asciicast_image_url(@conn, @asciicast) %>&quot; /></a>" type="text">
+          <input data-behavior="auto-select" readonly="" value="<a href=&quot;<%= asciicast_url(@conn, :show, @asciicast) %>&quot; target=&quot;_blank&quot;><img src=&quot;<%= asciicast_url(@conn, :show, @asciicast) %>.svg&quot; /></a>" type="text">
         </p>
 
         <p>
           <span>Markdown:</span>
           <br>
-          <input data-behavior="auto-select" readonly="" value="[![asciicast](<%= asciicast_image_url(@conn, @asciicast) %>)](<%= asciicast_url(@conn, :show, @asciicast) %>)" type="text">
+          <input data-behavior="auto-select" readonly="" value="[![asciicast](<%= asciicast_url(@conn, :show, @asciicast) %>.svg)](<%= asciicast_url(@conn, :show, @asciicast) %>)" type="text">
         </p>
 
         <h2>Embed the player</h2>

@@ -46,5 +46,8 @@ config :asciinema, Asciinema.Repo,
 config :asciinema, Asciinema.Mailer,
   adapter: Bamboo.LocalAdapter
 
+config :asciinema, Asciinema.Vt.Worker,
+  vt_script_path: "vt/main.js"
+
 # Import custom config.
 import_config "custom*.exs"

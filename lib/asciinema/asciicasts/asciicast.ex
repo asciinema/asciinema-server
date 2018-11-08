@@ -3,9 +3,7 @@ defmodule Asciinema.Asciicasts.Asciicast do
   import Ecto.Changeset
   alias Asciinema.Accounts.User
   alias Asciinema.Asciicasts.Asciicast
-  alias Asciinema.PngGenerator.PngParams
 
-  @default_png_scale 2
   @default_theme "asciinema"
 
   schema "asciicasts" do
@@ -121,11 +119,5 @@ defmodule Asciinema.Asciicasts.Asciicast do
 
   def theme_name(%Asciicast{theme_name: a_theme_name}, %User{theme_name: u_theme_name}) do
     a_theme_name || u_theme_name || @default_theme
-  end
-
-  def png_params(%Asciicast{} = asciicast, %User{} = user) do
-    %PngParams{snapshot_at: snapshot_at(asciicast),
-               theme: theme_name(asciicast, user),
-               scale: @default_png_scale}
   end
 end

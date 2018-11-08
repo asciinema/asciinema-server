@@ -298,14 +298,14 @@ defmodule AsciinemaWeb.AsciicastView do
   end
 
   def adjust_chunk_colors([text, attrs]) do
-    [text, adjust_attrs_colors(attrs)]
+    {text, adjust_attrs_colors(attrs)}
   end
 
   def adjust_attrs_colors(attrs) do
     attrs
-    |> adjust_fg
-    |> adjust_bg
-    |> invert_colors
+    |> adjust_fg()
+    |> adjust_bg()
+    |> invert_colors()
   end
 
   def adjust_fg(%{"bold" => true, "fg" => fg} = attrs)
@@ -336,9 +336,9 @@ defmodule AsciinemaWeb.AsciicastView do
     end)
   end
 
-  def split_chunk([text, attrs]) do
+  def split_chunk({text, attrs}) do
     text
-    |> String.codepoints
+    |> String.codepoints()
     |> Enum.map(&{&1, attrs})
   end
 
@@ -368,5 +368,97 @@ defmodule AsciinemaWeb.AsciicastView do
     )
 
     Enum.reverse([last_chunk | chunks])
+  end
+
+  def render("show.svg", %{asciicast: asciicast} = params) do
+    cols = asciicast.terminal_columns
+    rows = asciicast.terminal_lines
+
+    lines = adjust_colors(asciicast.snapshot)
+
+    bg_lines = add_coords(lines)
+
+    text_lines =
+      lines
+      |> split_chunks()
+      |> add_coords()
+      |> remove_blank_chunks()
+
+    render(
+      "_terminal.svg",
+      cols: cols,
+      rows: rows,
+      bg_lines: bg_lines,
+      text_lines: text_lines,
+      font_family: params[:font_family],
+      theme_name: theme_name(asciicast)
+    )
+  end
+
+  defp add_coords(lines) do
+    for {chunks, y} <- Enum.with_index(lines) do
+      {_, chunks} = Enum.reduce(chunks, {0, []}, fn {text, attrs}, {x, chunks} ->
+        width = String.length(text)
+        chunk = %{text: text, attrs: attrs, x: x, width: width}
+        {x + width, [chunk | chunks]}
+      end)
+
+      chunks = Enum.reverse(chunks)
+
+      %{y: y, chunks: chunks}
+    end
+  end
+
+  defp remove_blank_chunks(lines) do
+    for line <- lines do
+      chunks = Enum.reject(line.chunks, & String.trim(&1.text) == "")
+      %{line | chunks: chunks}
+    end
+  end
+
+  def svg_text_class(%{} = attrs) do
+    classes =
+      attrs
+      |> Enum.reject(fn {attr, _} -> attr == "bg" end)
+      |> Enum.map(&svg_text_class/1)
+      |> Enum.filter(& &1)
+
+    case classes do
+      [] -> nil
+      _ -> Enum.join(classes, " ")
+    end
+  end
+
+  def svg_text_class({"fg", fg}) when is_integer(fg), do: "c-#{fg}"
+  def svg_text_class({"bold", true}), do: "br"
+  def svg_text_class({"italic", true}), do: "it"
+  def svg_text_class({"underline", true}), do: "un"
+  def svg_text_class(_), do: nil
+
+  def svg_rect_style(%{"bg" => [_r, _g, _b] = c}), do: "fill:#{hex(c)}"
+  def svg_rect_style(_), do: nil
+
+  def svg_rect_class(%{"bg" => bg}) when is_integer(bg), do: "c-#{bg}"
+  def svg_rect_class(_), do: nil
+
+  def svg_text_style(attrs) do
+    case attrs["fg"] do
+      [_r, _g, _b] = c -> "fill:#{hex(c)}"
+      _ -> nil
+    end
+  end
+
+  defp hex([r, g, b]) do
+    "##{hex(r)}#{hex(g)}#{hex(b)}"
+  end
+
+  defp hex(int) do
+    int
+    |> Integer.to_string(16)
+    |> String.pad_leading(2, "0")
+  end
+
+  def percent(float) do
+    "#{Decimal.round(Decimal.new(float), 3)}%"
   end
 end

@@ -70,13 +70,14 @@ defmodule AsciinemaWeb.AsciicastController do
     |> send_file(200, path)
   end
 
+  def do_show(conn, "svg", asciicast) do
+    render(conn, "show.svg", asciicast: asciicast)
+  end
+
   @png_max_age 604_800 # 7 days
 
   def do_show(conn, "png", asciicast) do
-    user = Repo.preload(asciicast, :user).user
-    png_params = Asciicast.png_params(asciicast, user)
-
-    case PngGenerator.generate(asciicast, png_params) do
+    case PngGenerator.generate(asciicast) do
       {:ok, png_path} ->
         conn
         |> put_resp_header("content-type", MIME.from_path(png_path))

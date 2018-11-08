@@ -1,5 +1,0 @@
-<% if page.asciicast_version == 1 %>
-  <link rel="alternate" type="application/asciicast+json" href="<%= asciicast_url(page.asciicast, format: :json) %>">
-<% elsif page.asciicast_version == 2 %>
-  <link rel="alternate" type="application/x-asciicast" href="<%= asciicast_url(page.asciicast, format: :cast) %>">
-<% end %>

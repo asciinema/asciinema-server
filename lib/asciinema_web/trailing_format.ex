@@ -1,5 +1,5 @@
 defmodule AsciinemaWeb.TrailingFormat do
-  @known_exts ["js", "json", "cast", "png", "gif", "xml"]
+  @known_exts ["js", "json", "cast", "svg", "png", "gif", "xml"]
 
   def init(opts), do: opts
 

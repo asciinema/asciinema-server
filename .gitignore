@@ -1,19 +1,6 @@
-## Rails app
-/.bundle
 /.vagrant
-/.rspec
 /.env
-/tmp/*
-/log/*
-/bin/*
-/config/database.yml
-/config/asciinema.yml
-/db/*.sqlite3
-/coverage
-/public/uploads/*
 /uploads/*
-
-## Elixir app
 
 # App artifacts
 /_build
@@ -26,7 +13,7 @@ erl_crash.dump
 # Static artifacts
 /assets/node_modules
 
-# Since we are building assets from web/static,
+# Since we are building assets from assets/,
 # we ignore priv/static. You may want to comment
 # this depending on your deployment strategy.
 /priv/static/

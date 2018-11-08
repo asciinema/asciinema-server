@@ -33,7 +33,6 @@ services:
     restart: unless-stopped
     links:
       - phoenix
-      - rails
     ports:
       - "3000:80"
       ### Uncomment for HTTPS:
@@ -62,20 +61,3 @@ services:
     #   - "4040:4040"
     volumes:
       - ./uploads:/app/uploads
-      - /tmp/asciinema-web:/tmp
-
-  rails:
-    build: .
-    image: asciinema/asciinema-server:latest
-    command: bundle exec unicorn -c config/unicorn.rb
-    container_name: asciinema_rails
-    restart: unless-stopped
-    links:
-      - redis
-      - postgres
-    env_file: .env.production
-    volumes:
-      - ./uploads:/app/uploads
-      - ./log:/app/log
-      - /tmp/asciinema-web:/tmp
-      - ./volumes/tmp:/app/tmp
