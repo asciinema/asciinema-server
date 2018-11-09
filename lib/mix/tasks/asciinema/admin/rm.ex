@@ -5,6 +5,6 @@ defmodule Mix.Tasks.Asciinema.Admin.Rm do
   def run(emails) do
     Mix.Ecto.ensure_started(Asciinema.Repo, [])
     Asciinema.Accounts.remove_admins(emails)
-    IO.puts "#{emails} removed from admin users list"
+    IO.puts "#{Enum.join(emails, ", ")} removed from admin users list"
   end
 end

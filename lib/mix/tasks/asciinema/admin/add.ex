@@ -5,6 +5,6 @@ defmodule Mix.Tasks.Asciinema.Admin.Add do
   def run(emails) do
     Mix.Ecto.ensure_started(Asciinema.Repo, [])
     Asciinema.Accounts.add_admins(emails)
-    IO.puts "#{emails} added to admin users list"
+    IO.puts "#{Enum.join(emails, ", ")} added to admin users list"
   end
 end
