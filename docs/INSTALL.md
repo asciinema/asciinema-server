@@ -228,11 +228,11 @@ right).
 To make user an admin, run the following command with the email address of
 existing account:
 
-    docker-compose run --rm phoenix mix asciinema.admin.add email@example.com
+    docker-compose run --rm phoenix asciinema admin_add email@example.com
 
 To remove admin bit from a user, run:
 
-    docker-compose run --rm phoenix mix asciinema.admin.rm email@example.com
+    docker-compose run --rm phoenix asciinema admin_rm email@example.com
 
 Both above commands allow passing multiple email adresses (as separate
 arguments).
