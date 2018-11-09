@@ -65,6 +65,7 @@ release :asciinema do
   set commands: [
     migrate: "rel/commands/migrate.sh",
     seed: "rel/commands/seed.sh",
-    migrate_and_seed: "rel/commands/migrate_and_seed.sh"
+    migrate_and_seed: "rel/commands/migrate_and_seed.sh",
+    gen_secret: "rel/commands/gen_secret.sh"
   ]
 end

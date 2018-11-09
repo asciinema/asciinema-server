@@ -89,7 +89,7 @@ Set `URL_SCHEME`, `URL_HOST` and `URL_PORT` to match the address the users are s
 Ensure you set the nginx port in the docker-compose.yml file equal to what you specified for `URL_PORT`.
 
 Set `SECRET_KEY_BASE` to long random string. Run `docker-compose run --rm phoenix
-mix phx.gen.secret` to obtain one.
+asciinema gen_secret` to obtain one.
 
 #### HTTPS settings
 
