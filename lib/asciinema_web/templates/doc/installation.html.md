@@ -85,11 +85,11 @@ For Fedora >= 22:
 
 ### Ports
 
-    cd /usr/ports/textproc/asciinema && make install
+    cd /usr/ports/textproc/py-asciinema && make install
 
 ### Packages
 
-    pkg install asciinema
+    pkg install py36-asciinema
 
 ## Installing on OpenBSD
 {: #installing-on-openbsd}
