@@ -146,18 +146,10 @@ defmodule Asciinema.Asciicasts do
         Map.put(overrides, :uname, uname)
       end
 
-    {:ok, tmp_path} = Briefly.create()
-
-    File.open!(tmp_path, [:write, :utf8], fn f ->
-      :ok = IO.write(f, "#{Poison.encode!(header, pretty: false)}\n")
-
+    tmp_path =
       {timing.path, data.path}
-      |> stdout_stream
-      |> Enum.each(fn {t, s} ->
-        event = [t, "o", s]
-        :ok = IO.write(f, "#{Poison.encode!(event, pretty: false)}\n")
-      end)
-    end)
+      |> stdout_stream()
+      |> write_v2_file(header)
 
     upload = %Plug.Upload{
       path: tmp_path,
@@ -489,5 +481,21 @@ defmodule Asciinema.Asciicasts do
   def inc_views_count(asciicast) do
     from(a in Asciicast, where: a.id == ^asciicast.id)
     |> Repo.update_all(inc: [views_count: 1])
+  end
+
+  def write_v2_file(stdout_stream, %{width: _, height: _} = header) do
+    {:ok, tmp_path} = Briefly.create()
+    header = Map.put(header, :version, 2)
+
+    File.open!(tmp_path, [:write, :utf8], fn f ->
+      :ok = IO.write(f, "#{Poison.encode!(header, pretty: false)}\n")
+
+      for {t, s} <- stdout_stream do
+        event = [t, "o", s]
+        :ok = IO.write(f, "#{Poison.encode!(event, pretty: false)}\n")
+      end
+    end)
+
+    tmp_path
   end
 end
