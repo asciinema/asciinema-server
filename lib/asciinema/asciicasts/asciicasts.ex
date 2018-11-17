@@ -273,6 +273,13 @@ defmodule Asciinema.Asciicasts do
     :ok = FileStore.put_file(file_store_path, tmp_path, content_type, compress)
   end
 
+  defp delete_file(asciicast, type) do
+    :ok =
+      asciicast
+      |> Asciicast.file_store_path(type)
+      |> FileStore.delete_file()
+  end
+
   def stdout_stream(%Asciicast{version: 0} = asciicast) do
     {:ok, tmp_dir_path} = Briefly.create(directory: true)
     local_timing_path = tmp_dir_path <> "/timing"
@@ -481,6 +488,58 @@ defmodule Asciinema.Asciicasts do
   def inc_views_count(asciicast) do
     from(a in Asciicast, where: a.id == ^asciicast.id)
     |> Repo.update_all(inc: [views_count: 1])
+  end
+
+  def upgrade do
+    from(a in Asciicast, where: a.version == 0)
+    |> Repo.all()
+    |> Enum.each(&upgrade/1)
+  end
+
+  def upgrade(%Asciicast{version: 0} = asciicast) do
+    Logger.info("upgrading asciicast ##{asciicast.id} from version 0 to version 2...")
+
+    header = v2_header(asciicast)
+
+    v2_path =
+      asciicast
+      |> stdout_stream()
+      |> write_v2_file(header)
+
+    upload = %Plug.Upload{path: v2_path, content_type: "application/octet-stream"}
+
+    changeset =
+      Changeset.change(
+        asciicast, version: 2, file: "0.cast", stdout_frames: nil
+      )
+
+    changeset
+    |> Changeset.apply_changes()
+    |> save_file({:file, upload, true})
+
+    {:ok, asciicast_v2} = Repo.update(changeset)
+
+    delete_file(asciicast, :stdout_frames)
+
+    {:ok, asciicast_v2}
+  end
+
+  def upgrade(%Asciicast{} = asciicast) do
+    {:ok, asciicast}
+  end
+
+  defp v2_header(asciicast) do
+    header = %{
+      width: asciicast.terminal_columns,
+      height: asciicast.terminal_lines,
+      timestamp: asciicast.created_at |> Timex.to_unix(),
+      duration: asciicast.duration,
+      title: asciicast.title,
+      command: asciicast.command,
+      env: %{"TERM" => asciicast.terminal_type, "SHELL" => asciicast.shell}
+    }
+
+    header |> Enum.filter(fn {_k, v} -> v end) |> Enum.into(%{})
   end
 
   def write_v2_file(stdout_stream, %{width: _, height: _} = header) do
