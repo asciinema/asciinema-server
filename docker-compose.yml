@@ -59,4 +59,4 @@ services:
     # ports:
     #   - "4040:4040"
     volumes:
-      - ./uploads:/app/uploads
+      - ./volumes/uploads:/opt/app/uploads
