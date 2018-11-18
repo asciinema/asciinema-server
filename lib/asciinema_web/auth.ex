@@ -32,6 +32,7 @@ defmodule AsciinemaWeb.Auth do
   def require_current_user(%Conn{assigns: %{current_user: %User{}}} = conn, _) do
     conn
   end
+
   def require_current_user(conn, opts) do
     msg = Keyword.get(opts, :flash, "Please log in first.")
 
@@ -40,6 +41,17 @@ defmodule AsciinemaWeb.Auth do
     |> put_flash(:info, msg)
     |> redirect(to: "/login/new")
     |> halt
+  end
+
+  def require_admin(%Conn{assigns: %{current_user: %User{is_admin: true}}} = conn, _) do
+    conn
+  end
+
+  def require_admin(conn, _) do
+    conn
+    |> put_flash(:error, "Access denied.")
+    |> redirect(to: "/")
+    |> halt()
   end
 
   def log_in(conn, %User{} = user) do

@@ -55,10 +55,7 @@ config :exq,
   middleware: [Exq.Middleware.Stats, Exq.Middleware.Job, Exq.Middleware.Manager,
                Exq.Middleware.Logger, Asciinema.Exq.Middleware.Sentry]
 
-config :exq_ui,
-  web_port: 4040,
-  web_namespace: "",
-  server: true
+config :exq_ui, server: false
 
 config :scrivener_html,
   view_style: :bootstrap_v4
