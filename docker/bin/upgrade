@@ -3,3 +3,4 @@
 set -e
 
 bin/asciinema migrate_and_seed
+bin/asciinema upgrade_data

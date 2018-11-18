@@ -28,6 +28,13 @@ defmodule Asciinema.ReleaseTasks do
     stop_services()
   end
 
+  def upgrade_data do
+    start_services()
+    IO.puts("Upgrading data...")
+    Asciinema.Asciicasts.upgrade()
+    stop_services()
+  end
+
   defp start_services do
     IO.puts("Starting dependencies..")
     # Start apps necessary for executing migrations
