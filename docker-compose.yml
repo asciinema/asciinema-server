@@ -48,7 +48,6 @@ services:
   phoenix:
     build: .
     image: asciinema/asciinema-server:develop
-    command: mix phx.server
     container_name: asciinema_phoenix
     restart: unless-stopped
     links:
