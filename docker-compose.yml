@@ -55,8 +55,5 @@ services:
       - postgres
       - smtp
     env_file: .env.production
-    ### Uncomment for access to ExqUI (for debugging):
-    # ports:
-    #   - "4040:4040"
     volumes:
       - ./volumes/uploads:/opt/app/uploads
