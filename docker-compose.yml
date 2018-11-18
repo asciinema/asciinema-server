@@ -2,7 +2,7 @@ version: '2'
 
 services:
   postgres:
-    image: postgres
+    image: postgres:10.6-alpine
     container_name: asciinema_postgres
     restart: unless-stopped
     volumes:
@@ -11,7 +11,7 @@ services:
     ### configuration options for this image.
 
   redis:
-    image: redis
+    image: redis:4.0-alpine
     container_name: asciinema_redis
     restart: unless-stopped
     volumes:
@@ -28,7 +28,7 @@ services:
     ### options for this image.
 
   nginx:
-    image: nginx:alpine
+    image: nginx:1.15-alpine
     container_name: asciinema_nginx
     restart: unless-stopped
     links:
