@@ -5,12 +5,11 @@ defmodule AsciinemaWeb.TrailingFormat do
 
   def call(conn, _opts) do
     with [last | segments] <- Enum.reverse(conn.path_info),
-         last_split = Enum.reverse(String.split(last, ".")),
-         [format | rest] when format in @known_exts <- last_split do
-      last = rest |> Enum.reverse |> Enum.join(".")
-      path_info = Enum.reverse([last | segments])
-      params = Map.put(conn.params, "_format", format)
-      %{conn | path_info: path_info, params: params}
+         [id, format] when format in @known_exts <- String.split(last, ".") do
+      path_info = Enum.reverse([id | segments])
+      params = Map.merge(conn.params, %{"id" => id, "_format" => format})
+      path_params = Map.put(conn.path_params, "id", id)
+      %{conn | path_info: path_info, params: params, path_params: path_params}
     else
       _ -> conn
     end

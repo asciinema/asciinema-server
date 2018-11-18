@@ -38,7 +38,5 @@ defmodule AsciinemaWeb.Endpoint do
     key: "_asciinema_key",
     signing_salt: "qJL+3s0T"
 
-  plug AsciinemaWeb.TrailingFormat
-
   plug AsciinemaWeb.Router
 end

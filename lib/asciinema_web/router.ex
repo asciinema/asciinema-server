@@ -15,6 +15,7 @@ defmodule AsciinemaWeb.Router do
   end
 
   pipeline :asciicast do
+    plug AsciinemaWeb.TrailingFormat
     plug :accepts, ["html", "js", "json", "cast", "svg", "png", "gif"]
     plug :format_specific_plugs
     plug :put_secure_browser_headers
