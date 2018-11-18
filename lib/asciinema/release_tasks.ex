@@ -4,7 +4,8 @@ defmodule Asciinema.ReleaseTasks do
     :ssl,
     :postgrex,
     :ecto,
-    :timex # for seeds
+    :briefly,
+    :timex
   ]
 
   @repos Application.get_env(:asciinema, :ecto_repos, [])
@@ -17,12 +18,14 @@ defmodule Asciinema.ReleaseTasks do
 
   def seed do
     start_services()
+    start_vt_pool()
     run_seeds()
     stop_services()
   end
 
   def migrate_and_seed do
     start_services()
+    start_vt_pool()
     run_migrations()
     run_seeds()
     stop_services()
@@ -30,6 +33,7 @@ defmodule Asciinema.ReleaseTasks do
 
   def upgrade_data do
     start_services()
+    start_vt_pool()
     IO.puts("Upgrading data...")
     Asciinema.Asciicasts.upgrade()
     stop_services()
@@ -48,6 +52,10 @@ defmodule Asciinema.ReleaseTasks do
   defp stop_services do
     IO.puts("Success!")
     :init.stop()
+  end
+
+  defp start_vt_pool do
+    Asciinema.Vt.Pool.start_link()
   end
 
   defp run_migrations do
