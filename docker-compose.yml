@@ -34,7 +34,7 @@ services:
     links:
       - phoenix
     ports:
-      - "3000:80"
+      - "80:80"
       ### Uncomment for HTTPS:
       # - "443:443"
     volumes:
