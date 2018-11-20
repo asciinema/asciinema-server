@@ -2,78 +2,121 @@ defmodule Asciinema.AsciicastControllerTest do
   use AsciinemaWeb.ConnCase
   import Asciinema.Factory
 
-  test "index", %{conn: conn} do
-    conn = get conn, asciicast_path(conn, :index)
+  describe "index" do
+    test "redirects to featured", %{conn: conn} do
+      conn = get conn, asciicast_path(conn, :index)
 
-    assert redirected_to(conn, 302) =~ "/explore/featured"
+      assert redirected_to(conn, 302) =~ "/explore/featured"
+    end
   end
 
-  test "public", %{conn: conn} do
-    insert(:asciicast, private: false, title: "Good stuff")
+  describe "public" do
+    test "lists public asciicasts", %{conn: conn} do
+      insert(:asciicast, private: false, title: "Good stuff")
 
-    conn = get conn, asciicast_path(conn, :category, :public)
+      conn = get conn, asciicast_path(conn, :category, :public)
 
-    assert html_response(conn, 200) =~ "Good stuff"
-    refute html_response(conn, 200) =~ "Featured stuff"
+      assert html_response(conn, 200) =~ "Good stuff"
+      refute html_response(conn, 200) =~ "Featured stuff"
+    end
   end
 
-  test "featured", %{conn: conn} do
-    insert(:asciicast, featured: true, title: "Featured stuff")
+  describe "featured" do
+    test "lists featured asciicasts", %{conn: conn} do
+      insert(:asciicast, featured: true, title: "Featured stuff")
 
-    conn = get conn, asciicast_path(conn, :category, :featured)
+      conn = get conn, asciicast_path(conn, :category, :featured)
 
-    assert html_response(conn, 200) =~ "Featured stuff"
-    refute html_response(conn, 200) =~ "Good stuff"
+      assert html_response(conn, 200) =~ "Featured stuff"
+      refute html_response(conn, 200) =~ "Good stuff"
+    end
   end
 
-  test "shows asciicast file, v1 format", %{conn: conn} do
-    asciicast = fixture(:asciicast_v1)
-    width = asciicast.terminal_columns
-    conn = get conn, asciicast_file_path(conn, asciicast)
-    assert %{"version" => 1,
-             "width" => ^width,
-             "stdout" => [_ | _]} = json_response(conn, 200)
-  end
+  describe "show" do
+    test "HTML", %{conn: conn} do
+      asciicast = insert(:asciicast, title: "Good stuff")
+      url = asciicast_path(conn, :show, asciicast)
 
-  test "shows asciicast file, v2 format", %{conn: conn} do
-    asciicast = fixture(:asciicast_v2)
-    conn = get conn, asciicast_file_path(conn, asciicast)
-    assert response(conn, 200)
-  end
+      conn_2 = get conn, url
+      assert html_response(conn_2, 200) =~ "Good stuff"
+      assert response_content_type(conn_2, :html)
 
-  @tag :rsvg
-  test "shows png preview", %{conn: conn} do
-    asciicast = fixture(:asciicast)
-    conn = get conn, asciicast_image_path(conn, asciicast)
-    assert response(conn, 200)
-    assert response_content_type(conn, :png)
-  end
+      conn_2 = conn |> put_req_header("accept", "*/*") |> get(url)
+      assert html_response(conn_2, 200) =~ "Good stuff"
+      assert response_content_type(conn_2, :html)
+    end
 
-  test "shows SVG doc", %{conn: conn} do
-    asciicast = insert(:asciicast)
-    conn = get conn, asciicast_path(conn, :show, asciicast) <> ".svg"
-    assert response(conn, 200)
-    assert response_content_type(conn, :svg)
-  end
+    test "asciicast file, v1 format", %{conn: conn} do
+      asciicast = fixture(:asciicast_v1)
+      width = asciicast.terminal_columns
+      conn = get conn, asciicast_file_path(conn, asciicast)
+      assert %{"version" => 1,
+               "width" => ^width,
+               "stdout" => [_ | _]} = json_response(conn, 200)
+    end
 
-  test "shows GIF generation instructions", %{conn: conn} do
-    asciicast = fixture(:asciicast)
-    conn = get conn, asciicast_animation_path(conn, asciicast)
-    assert html_response(conn, 200) =~ "GIF"
-    assert response_content_type(conn, :html)
-  end
+    test "asciicast file, v2 format", %{conn: conn} do
+      asciicast = fixture(:asciicast_v2)
+      conn = get conn, asciicast_file_path(conn, asciicast)
+      assert response(conn, 200)
+    end
 
-  test "shows embed js", %{conn: conn} do
-    asciicast = fixture(:asciicast)
-    conn = get conn, asciicast_path(conn, :show, asciicast) <> ".js"
-    assert response(conn, 200)
-    assert response_content_type(conn, :js)
-  end
+    @tag :rsvg
+    test "PNG", %{conn: conn} do
+      asciicast = insert(:asciicast)
+      url = asciicast_path(conn, :show, asciicast)
 
-  test "shows embed html (used in iframe)", %{conn: conn} do
-    asciicast = fixture(:asciicast)
-    conn = get conn, asciicast_path(conn, :embed, asciicast)
-    assert html_response(conn, 200) =~ ~r/<asciinema-player /
+      conn_2 = get conn, url <> ".png"
+      assert response(conn_2, 200)
+      assert response_content_type(conn_2, :png)
+
+      conn_2 = conn |> put_req_header("accept", "image/png") |> get(url)
+      assert response(conn_2, 200)
+      assert response_content_type(conn_2, :png)
+    end
+
+    test "SVG", %{conn: conn} do
+      asciicast = insert(:asciicast)
+      url = asciicast_path(conn, :show, asciicast)
+
+      conn_2 = get conn, url <> ".svg"
+      assert response(conn_2, 200)
+      assert response_content_type(conn_2, :svg)
+
+      conn_2 = conn |> put_req_header("accept", "image/svg+xml") |> get(url)
+      assert response(conn_2, 200)
+      assert response_content_type(conn_2, :svg)
+
+      conn_2 = conn |> put_req_header("accept", "image/*") |> get(url)
+      assert response(conn_2, 200)
+      assert response_content_type(conn_2, :svg)
+    end
+
+    test "HTML with GIF generation instructions", %{conn: conn} do
+      asciicast = insert(:asciicast)
+      conn = get conn, asciicast_animation_path(conn, asciicast)
+      assert html_response(conn, 200) =~ "GIF"
+      assert response_content_type(conn, :html)
+    end
+
+    test "embed JS", %{conn: conn} do
+      asciicast = insert(:asciicast)
+      url = asciicast_path(conn, :show, asciicast)
+
+      conn = get conn, url <> ".js"
+      assert response(conn, 200)
+      assert response_content_type(conn, :js)
+
+      conn_2 = conn |> put_req_header("accept", "application/javascript") |> get(url)
+      assert response(conn_2, 200)
+      assert response_content_type(conn_2, :js)
+    end
+
+    test "embed HTML (used in iframe)", %{conn: conn} do
+      asciicast = fixture(:asciicast)
+      conn = get conn, asciicast_path(conn, :embed, asciicast)
+      assert html_response(conn, 200) =~ ~r/<asciinema-player /
+    end
   end
 
   describe "editing" do
