@@ -25,7 +25,3 @@
   <meta name="robots" content="noindex, nofollow">
   <meta name="referrer" content="origin">
 <% end %>
-
-<%= if !file_url(@asciicast) do %>
-  <meta http-equiv="refresh" content="5">
-<% end %>
