@@ -94,7 +94,7 @@ defmodule Asciinema.AsciicastControllerTest do
 
     test "HTML with GIF generation instructions", %{conn: conn} do
       asciicast = insert(:asciicast)
-      conn = get conn, asciicast_animation_path(conn, asciicast)
+      conn = get conn, asciicast_path(conn, :show, asciicast) <> ".gif"
       assert html_response(conn, 200) =~ "GIF"
       assert response_content_type(conn, :html)
     end

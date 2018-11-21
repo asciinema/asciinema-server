@@ -156,20 +156,4 @@ defmodule AsciinemaWeb.Router.Helpers.Extra do
       _ -> "cast"
     end
   end
-
-  def asciicast_image_path(conn, asciicast) do
-    H.asciicast_path(conn, :show, asciicast) <> ".png"
-  end
-
-  def asciicast_image_url(conn, asciicast) do
-    H.asciicast_url(conn, :show, asciicast) <> ".png"
-  end
-
-  def asciicast_animation_path(conn, asciicast) do
-    H.asciicast_path(conn, :show, asciicast) <> ".gif"
-  end
-
-  def asciicast_script_url(conn, asciicast) do
-    H.asciicast_url(conn, :show, asciicast) <> ".js"
-  end
 end
