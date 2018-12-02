@@ -65,6 +65,13 @@ defmodule Asciinema.Api.AsciicastControllerTest do
       assert List.first(get_resp_header(conn, "location")) =~ @asciicast_url
     end
 
+    test "json file, v2 format", %{conn: conn} do
+      upload = fixture(:upload, %{path: "2/minimal.cast"})
+      conn = post conn, api_asciicast_path(conn, :create), %{"asciicast" => upload}
+      assert text_response(conn, 201) =~ @asciicast_url
+      assert List.first(get_resp_header(conn, "location")) =~ @asciicast_url
+    end
+
     test "json file, v1 format (missing required data)", %{conn: conn} do
       upload = fixture(:upload, %{path: "1/invalid.json"})
       conn = post conn, api_asciicast_path(conn, :create), %{"asciicast" => upload}
