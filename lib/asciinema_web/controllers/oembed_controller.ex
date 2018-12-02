@@ -13,7 +13,12 @@ defmodule AsciinemaWeb.OembedController do
 
       mw = if params["maxwidth"], do: String.to_integer(params["maxwidth"])
       mh = if params["maxheight"], do: String.to_integer(params["maxheight"])
-      format = params["format"] || get_format(conn)
+
+      format =
+        case params["format"] || get_format(conn) do
+          "xml" -> "xml"
+          _ -> "json"
+        end
 
       render(
         conn,
