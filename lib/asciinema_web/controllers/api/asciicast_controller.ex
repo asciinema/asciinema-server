@@ -4,6 +4,7 @@ defmodule AsciinemaWeb.Api.AsciicastController do
   alias Asciinema.{Asciicasts, Accounts}
   alias Asciinema.Accounts.User
 
+  plug :accepts, ~w(text json)
   plug :parse_v0_params
   plug :authenticate
 
@@ -27,7 +28,7 @@ defmodule AsciinemaWeb.Api.AsciicastController do
         conn
         |> put_status(:created)
         |> put_resp_header("location", url)
-        |> text(url)
+        |> render(:created, url: url)
 
       {:error, :unknown_format} ->
         conn
