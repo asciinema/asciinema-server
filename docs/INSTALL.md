@@ -277,7 +277,7 @@ Now, stop `phoenix` container:
 
 Rebuild the image:
 
-    docker-compose build phoenix
+    docker build -t asciinema/asciinema-server .
 
 Start new `phoenix` container:
 
