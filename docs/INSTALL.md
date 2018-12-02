@@ -192,20 +192,24 @@ Alternatively, you can set `ASCIINEMA_API_URL` environment variable:
 
 ## Upgrading
 
-Stop all containers:
+Pull latest Docker image:
 
-    docker-compose stop
+    docker pull asciinema/asciinema-server
 
-Pull latest code from upstream and merge it into your branch:
+Pull latest configs from upstream and merge it into your branch:
 
     git fetch origin
     git merge origin/master
+
+Upgrade containers:
+
+    docker-compose up --no-start phoenix
 
 Upgrade database:
 
     docker-compose run --rm phoenix upgrade
 
-Start new containers:
+Start containers:
 
     docker-compose up -d
 
