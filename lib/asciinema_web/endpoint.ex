@@ -9,7 +9,7 @@ defmodule AsciinemaWeb.Endpoint do
   # when deploying your static files in production.
   plug Plug.Static,
     at: "/", from: :asciinema, gzip: true,
-    only: ~w(css fonts images js assets favicon.ico robots.txt)
+    only: ~w(css fonts images js favicon.ico robots.txt)
 
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
@@ -37,8 +37,6 @@ defmodule AsciinemaWeb.Endpoint do
     store: :cookie,
     key: "_asciinema_key",
     signing_salt: "qJL+3s0T"
-
-  plug AsciinemaWeb.TrailingFormat
 
   plug AsciinemaWeb.Router
 end

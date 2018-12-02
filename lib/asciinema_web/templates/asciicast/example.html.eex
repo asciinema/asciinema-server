@@ -13,7 +13,7 @@
   for civilization. -- Bill Nye
 </p>
 
-<img src="<%= asciicast_path(@conn, :show, @asciicast) %>.svg" />
+<img src="<%= asciicast_path(@conn, :show, @asciicast) %>.svg" style="max-width: 100%" />
 
 <h2>Embed script for home asciicast</h2>
 

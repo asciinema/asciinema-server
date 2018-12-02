@@ -6,7 +6,7 @@
 <meta property="og:title" content="<%= title(@asciicast) %>" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="<%= asciicast_url(@conn, :show, @asciicast) %>" />
-<meta property="og:image" content="<%= asciicast_image_url(@conn, @asciicast) %>" />
+<meta property="og:image" content="<%= asciicast_url(@conn, :show, @asciicast) %>.png" />
 <meta property="og:description" content="<%= short_text_description(@asciicast) %>" />
 <meta property="og:site_name" content="asciinema.org" />
 
@@ -16,7 +16,7 @@
 <meta name="twitter:title" content="<%= title(@asciicast) %>" />
 <meta name="twitter:url" content="<%= asciicast_url(@conn, :show, @asciicast) %>" />
 <meta name="twitter:description" content="<%= short_text_description(@asciicast) %>" />
-<meta name="twitter:image" content="<%= asciicast_image_url(@conn, @asciicast) %>" />
+<meta name="twitter:image" content="<%= asciicast_url(@conn, :show, @asciicast) %>.png" />
 
 <!-- application/x-asciicast -->
 <link rel="alternate" type="<%= alternate_link_type(@asciicast) %>" href="<%= asciicast_file_url(@asciicast) %>">
@@ -24,8 +24,4 @@
 <%= if @asciicast.private do %>
   <meta name="robots" content="noindex, nofollow">
   <meta name="referrer" content="origin">
-<% end %>
-
-<%= if !file_url(@asciicast) do %>
-  <meta http-equiv="refresh" content="5">
 <% end %>

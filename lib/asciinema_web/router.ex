@@ -4,6 +4,7 @@ defmodule AsciinemaWeb.Router do
   defp handle_errors(_conn, %{reason: %Ecto.NoResultsError{}}), do: nil
   defp handle_errors(_conn, %{reason: %Phoenix.NotAcceptableError{}}), do: nil
   use Sentry.Plug
+  import AsciinemaWeb.Auth, only: [require_current_user: 2, require_admin: 2]
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -15,6 +16,7 @@ defmodule AsciinemaWeb.Router do
   end
 
   pipeline :asciicast do
+    plug AsciinemaWeb.TrailingFormat
     plug :accepts, ["html", "js", "json", "cast", "svg", "png", "gif"]
     plug :format_specific_plugs
     plug :put_secure_browser_headers
@@ -94,10 +96,21 @@ defmodule AsciinemaWeb.Router do
     post "/asciicasts", AsciicastController, :create
   end
 
-  # Other scopes may use custom stacks.
-  # scope "/api", Asciinema do
-  #   pipe_through :api
-  # end
+  pipeline :exq do
+    plug :accepts, ["html"]
+    plug :fetch_session
+    plug :fetch_flash
+    plug :put_secure_browser_headers
+    plug AsciinemaWeb.Auth
+    plug :require_current_user
+    plug :require_admin
+    plug ExqUi.RouterPlug, namespace: "admin/exq"
+  end
+
+  scope "/admin/exq", ExqUi do
+    pipe_through :exq
+    forward "/", RouterPlug.Router, :index
+  end
 end
 
 defmodule AsciinemaWeb.Router.Helpers.Extra do
@@ -142,21 +155,5 @@ defmodule AsciinemaWeb.Router.Helpers.Extra do
       1 -> "json"
       _ -> "cast"
     end
-  end
-
-  def asciicast_image_path(conn, asciicast) do
-    H.asciicast_path(conn, :show, asciicast) <> ".png"
-  end
-
-  def asciicast_image_url(conn, asciicast) do
-    H.asciicast_url(conn, :show, asciicast) <> ".png"
-  end
-
-  def asciicast_animation_path(conn, asciicast) do
-    H.asciicast_path(conn, :show, asciicast) <> ".gif"
-  end
-
-  def asciicast_script_url(conn, asciicast) do
-    H.asciicast_url(conn, :show, asciicast) <> ".js"
   end
 end

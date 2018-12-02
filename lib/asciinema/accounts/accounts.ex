@@ -21,9 +21,11 @@ defmodule Asciinema.Accounts do
            end
 
     if Repo.count(assoc(user, :asciicasts)) == 0 do
-      upload = %Plug.Upload{path: "priv/welcome.json",
-                            filename: "asciicast.json",
-                            content_type: "application/json"}
+      upload = %Plug.Upload{
+        path: Path.join(:code.priv_dir(:asciinema), "welcome.json"),
+        filename: "asciicast.json",
+        content_type: "application/json"
+      }
 
       {:ok, _} = Asciicasts.create_asciicast(user, upload, %{private: false, snapshot_at: 76.2})
     end

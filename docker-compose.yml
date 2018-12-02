@@ -2,7 +2,7 @@ version: '2'
 
 services:
   postgres:
-    image: postgres
+    image: postgres:10.6-alpine
     container_name: asciinema_postgres
     restart: unless-stopped
     volumes:
@@ -11,7 +11,7 @@ services:
     ### configuration options for this image.
 
   redis:
-    image: redis
+    image: redis:4.0-alpine
     container_name: asciinema_redis
     restart: unless-stopped
     volumes:
@@ -28,13 +28,13 @@ services:
     ### options for this image.
 
   nginx:
-    image: nginx:alpine
+    image: nginx:1.15-alpine
     container_name: asciinema_nginx
     restart: unless-stopped
     links:
       - phoenix
     ports:
-      - "3000:80"
+      - "80:80"
       ### Uncomment for HTTPS:
       # - "443:443"
     volumes:
@@ -48,7 +48,6 @@ services:
   phoenix:
     build: .
     image: asciinema/asciinema-server:latest
-    command: mix phx.server
     container_name: asciinema_phoenix
     restart: unless-stopped
     links:
@@ -56,8 +55,5 @@ services:
       - postgres
       - smtp
     env_file: .env.production
-    ### Uncomment for access to ExqUI (for debugging):
-    # ports:
-    #   - "4040:4040"
     volumes:
-      - ./uploads:/app/uploads
+      - ./volumes/uploads:/opt/app/uploads

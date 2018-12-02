@@ -39,7 +39,7 @@ defmodule Asciinema.Mixfile do
       {:earmark, "~> 1.2"},
       {:ex_aws, "~> 1.0"},
       {:ex_machina, "~> 2.1", only: :test},
-      {:exq, "~> 0.9.0"},
+      {:exq, "~> 0.12.2"},
       {:exq_ui, "~> 0.9.0"},
       {:gettext, "~> 0.11"},
       {:html_sanitize_ex, "~> 1.3"},

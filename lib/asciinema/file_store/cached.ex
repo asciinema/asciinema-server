@@ -20,6 +20,7 @@ defmodule Asciinema.FileStore.Cached do
     case cache_store().open_file(path, function) do
       {:ok, f} ->
         {:ok, f}
+
       {:error, :enoent} ->
         with {:ok, tmp_path} <- Briefly.create(),
              :ok <- remote_store().download_file(path, tmp_path),
@@ -33,7 +34,7 @@ defmodule Asciinema.FileStore.Cached do
   end
 
   def delete_file(path) do
-    with :ok <- cache_store().delete_file(path),
+    with result when result in [:ok, {:error, :enoent}] <- cache_store().delete_file(path),
          :ok <- remote_store().delete_file(path) do
       :ok
     end

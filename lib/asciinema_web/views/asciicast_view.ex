@@ -33,7 +33,7 @@ defmodule AsciinemaWeb.AsciicastView do
   end
 
   def embed_script(asciicast) do
-    src = asciicast_script_url(Endpoint, asciicast)
+    src = asciicast_url(Endpoint, :show, asciicast) <> ".js"
     id = "asciicast-#{Phoenix.Param.to_param(asciicast)}"
     content_tag(:script, [src: src, id: id, async: true], do: [])
   end
@@ -374,7 +374,7 @@ defmodule AsciinemaWeb.AsciicastView do
     cols = asciicast.terminal_columns
     rows = asciicast.terminal_lines
 
-    lines = adjust_colors(asciicast.snapshot)
+    lines = adjust_colors(asciicast.snapshot || [])
 
     bg_lines = add_coords(lines)
 

@@ -264,4 +264,35 @@ defmodule Asciinema.AsciicastsTest do
       assert snapshot == [[["ab  ", %{}]], [["    ", %{}]]]
     end
   end
+
+  describe "upgrade/1" do
+    test "keeps v1 and v2 intact" do
+      asciicast_v1 = insert(:asciicast_v1)
+      asciicast_v2 = insert(:asciicast_v2)
+
+      assert {:ok, ^asciicast_v1} = Asciicasts.upgrade(asciicast_v1)
+      assert {:ok, ^asciicast_v2} = Asciicasts.upgrade(asciicast_v2)
+    end
+
+    test "converts v0 file to v2 and deletes stdout_frames" do
+      asciicast = insert(:asciicast_v0) |> with_files()
+
+      stream_v0 =
+        asciicast
+        |> Asciicasts.stdout_stream()
+        |> Enum.to_list()
+
+      assert {:ok, asciicast} = Asciicasts.upgrade(asciicast)
+      assert asciicast.version == 2
+      assert asciicast.file != nil
+      assert asciicast.stdout_frames == nil
+
+      stream_v2 =
+        asciicast
+        |> Asciicasts.stdout_stream()
+        |> Enum.to_list()
+
+      assert stream_v0 == stream_v2
+    end
+  end
 end

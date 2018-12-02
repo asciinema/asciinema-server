@@ -35,7 +35,7 @@ defmodule AsciinemaWeb.OembedView do
       )
 
     asciicast_url = asciicast_url(Endpoint, :show, asciicast)
-    thumbnail_url = asciicast_image_url(Endpoint, asciicast)
+    thumbnail_url = asciicast_url <> ".png"
 
     %{
       type: "rich",
