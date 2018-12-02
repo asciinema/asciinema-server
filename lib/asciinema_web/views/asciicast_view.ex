@@ -374,7 +374,7 @@ defmodule AsciinemaWeb.AsciicastView do
     cols = asciicast.terminal_columns
     rows = asciicast.terminal_lines
 
-    lines = adjust_colors(asciicast.snapshot)
+    lines = adjust_colors(asciicast.snapshot || [])
 
     bg_lines = add_coords(lines)
 
