@@ -28,7 +28,7 @@ defmodule AsciinemaWeb.Api.AsciicastController do
         conn
         |> put_status(:created)
         |> put_resp_header("location", url)
-        |> render(:created, url: url)
+        |> render(:created, url: url, install_id: conn.assigns.install_id)
 
       {:error, :unknown_format} ->
         conn
@@ -69,7 +69,9 @@ defmodule AsciinemaWeb.Api.AsciicastController do
   defp authenticate(conn, _opts) do
     with {username, api_token} <- get_basic_auth(conn),
          {:ok, %User{} = user} <- Accounts.get_user_with_api_token(api_token, username) do
-      assign(conn, :current_user, user)
+      conn
+      |> assign(:install_id, api_token)
+      |> assign(:current_user, user)
     else
       _otherwise ->
         conn
