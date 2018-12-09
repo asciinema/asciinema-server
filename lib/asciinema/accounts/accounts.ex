@@ -43,6 +43,8 @@ defmodule Asciinema.Accounts do
     |> Repo.update
   end
 
+  def temporary_user?(user), do: user.email == nil
+
   def send_login_email(email_or_username) do
     with {:ok, %User{} = user} <- lookup_user(email_or_username) do
       do_send_login_email(user)
