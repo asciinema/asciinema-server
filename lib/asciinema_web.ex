@@ -79,4 +79,10 @@ defmodule AsciinemaWeb do
   defmacro __using__(which) when is_atom(which) do
     apply(__MODULE__, which, [])
   end
+
+  def instance_hostname do
+    AsciinemaWeb.Endpoint.url()
+    |> URI.parse()
+    |> Map.get(:host)
+  end
 end

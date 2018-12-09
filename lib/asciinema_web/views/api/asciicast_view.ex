@@ -17,17 +17,19 @@ defmodule AsciinemaWeb.Api.AsciicastView do
   end
 
   defp message(%{conn: conn, url: url, install_id: install_id}) do
+    hostname = AsciinemaWeb.instance_hostname()
+
     """
     View the recording at:
 
         #{url}
 
-    This installation of asciinema recorder hasn't been linked to any asciinema.org
+    This installation of asciinema recorder hasn't been linked to any #{hostname}
     account. All recordings from unknown installations are automatically archived
     7 days after upload.
 
     If you want to preserve all recordings made on this machine, connect this
-    installation with asciinema.org account by opening the following link:
+    installation with #{hostname} account by opening the following link:
 
         #{connect_url(conn, :show, install_id)}
     """
