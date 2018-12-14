@@ -44,3 +44,7 @@ if dsn = env.("SENTRY_DSN") do
 else
   config :sentry, included_environments: []
 end
+
+if gc_days = env.("ASCIICAST_GC_DAYS") do
+  config :asciinema, :asciicast_gc_days, String.to_integer(gc_days)
+end

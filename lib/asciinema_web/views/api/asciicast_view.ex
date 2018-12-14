@@ -23,14 +23,17 @@ defmodule AsciinemaWeb.Api.AsciicastView do
         #{url}
     """
 
-    if Asciinema.Accounts.temporary_user?(conn.assigns.current_user) do
+    is_tmp_user = Asciinema.Accounts.temporary_user?(conn.assigns.current_user)
+    gc_days = Asciinema.Asciicasts.gc_days()
+
+    if is_tmp_user && gc_days do
       hostname = AsciinemaWeb.instance_hostname()
 
       """
       #{message}
       This installation of asciinema recorder hasn't been linked to any #{hostname}
       account. All recordings from unknown installations are automatically archived
-      7 days after upload.
+      #{gc_days} days after upload.
 
       If you want to preserve all recordings made on this machine, connect this
       installation with #{hostname} account by opening the following link:

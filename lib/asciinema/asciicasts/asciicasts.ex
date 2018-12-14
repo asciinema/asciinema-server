@@ -557,4 +557,8 @@ defmodule Asciinema.Asciicasts do
 
     tmp_path
   end
+
+  def gc_days do
+    Application.get_env(:asciinema, :asciicast_gc_days)
+  end
 end
