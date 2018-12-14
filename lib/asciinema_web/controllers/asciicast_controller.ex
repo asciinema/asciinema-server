@@ -40,6 +40,12 @@ defmodule AsciinemaWeb.AsciicastController do
     do_show(conn, get_format(conn), conn.assigns.asciicast)
   end
 
+  def do_show(conn, "html", %{archived_at: dt}) when not is_nil(dt) do
+    conn
+    |> put_status(410)
+    |> render("archived.html")
+  end
+
   def do_show(conn, "html", asciicast) do
     conn
     |> count_view(asciicast)
@@ -51,6 +57,10 @@ defmodule AsciinemaWeb.AsciicastController do
       actions: asciicast_actions(asciicast, conn.assigns.current_user),
       author_asciicasts: Asciicasts.other_public_asciicasts(asciicast)
     )
+  end
+
+  def do_show(conn, format, %{archived_at: dt}) when not is_nil(dt) do
+    send_resp(conn, 410, "")
   end
 
   def do_show(conn, format, asciicast) when format in ["json", "cast"] do
