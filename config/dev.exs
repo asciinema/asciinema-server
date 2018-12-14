@@ -49,5 +49,9 @@ config :asciinema, Asciinema.Mailer,
 config :asciinema, Asciinema.Vt.Worker,
   vt_script_path: "vt/main.js"
 
+if gc_days = System.get_env("ASCIICAST_GC_DAYS") do
+  config :asciinema, :asciicast_gc_days, String.to_integer(gc_days)
+end
+
 # Import custom config.
 import_config "custom*.exs"

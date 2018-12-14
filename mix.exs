@@ -54,6 +54,7 @@ defmodule Asciinema.Mixfile do
       {:poison, "~> 3.1"},
       {:poolboy, "~> 1.5"},
       {:postgrex, ">= 0.0.0"},
+      {:quantum, "~> 2.3"},
       {:redix, ">= 0.6.1"},
       {:scrivener_ecto, "~> 1.0"},
       {:scrivener_html, "~> 1.7"},

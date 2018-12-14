@@ -3,6 +3,7 @@ defmodule Asciinema.Asciicasts do
   import Ecto.Query, warn: false
   alias Asciinema.{Repo, FileStore, StringUtils, Vt}
   alias Asciinema.Asciicasts.{Asciicast, SnapshotUpdater}
+  alias Asciinema.Accounts
   alias Ecto.Changeset
 
   def get_asciicast!(id) when is_integer(id) do
@@ -560,5 +561,24 @@ defmodule Asciinema.Asciicasts do
 
   def gc_days do
     Application.get_env(:asciinema, :asciicast_gc_days)
+  end
+
+  def gc do
+    if days = gc_days() do
+      Logger.info("archiving anonymous recordings...")
+      t = Timex.shift(Timex.now(), days: -days)
+      users_q = Accounts.temporary_users()
+
+      q =
+        from(
+          a in Asciicast,
+          join: u in ^users_q,
+          on: a.user_id == u.id,
+          where: is_nil(a.archived_at) and a.created_at < ^t
+        )
+
+      {count, _} = Repo.update_all(q, set: [archived_at: Timex.now()])
+      Logger.info("archived #{count} recordings")
+    end
   end
 end
