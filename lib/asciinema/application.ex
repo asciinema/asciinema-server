@@ -17,6 +17,7 @@ defmodule Asciinema.Application do
       :poolboy.child_spec(:worker, Asciinema.PngGenerator.Rsvg.poolboy_config(), []),
       supervisor(Asciinema.Vt.Pool, []),
       supervisor(Exq, []),
+      Asciinema.Scheduler
     ]
 
     :ok = :error_logger.add_report_handler(Sentry.Logger)

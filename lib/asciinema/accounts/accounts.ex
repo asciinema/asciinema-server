@@ -45,6 +45,10 @@ defmodule Asciinema.Accounts do
 
   def temporary_user?(user), do: user.email == nil
 
+  def temporary_users(q \\ User) do
+    from(u in q, where: is_nil(u.email))
+  end
+
   def send_login_email(email_or_username) do
     with {:ok, %User{} = user} <- lookup_user(email_or_username) do
       do_send_login_email(user)
