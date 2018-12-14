@@ -5,7 +5,7 @@ defmodule AsciinemaWeb.AsciicastController do
 
   plug :put_layout, "app2.html"
   plug :clear_main_class
-  plug :load_asciicast when action in [:show, :edit, :update, :delete]
+  plug :load_asciicast when action in [:show, :edit, :update, :delete, :example]
   plug :require_current_user when action in [:edit, :update, :delete]
   plug :authorize, :asciicast when action in [:edit, :update, :delete]
 
@@ -40,12 +40,6 @@ defmodule AsciinemaWeb.AsciicastController do
     do_show(conn, get_format(conn), conn.assigns.asciicast)
   end
 
-  def do_show(conn, "html", %{archived_at: dt}) when not is_nil(dt) do
-    conn
-    |> put_status(410)
-    |> render("archived.html")
-  end
-
   def do_show(conn, "html", asciicast) do
     conn
     |> count_view(asciicast)
@@ -57,10 +51,6 @@ defmodule AsciinemaWeb.AsciicastController do
       actions: asciicast_actions(asciicast, conn.assigns.current_user),
       author_asciicasts: Asciicasts.other_public_asciicasts(asciicast)
     )
-  end
-
-  def do_show(conn, format, %{archived_at: dt}) when not is_nil(dt) do
-    send_resp(conn, 410, "")
   end
 
   def do_show(conn, format, asciicast) when format in ["json", "cast"] do
@@ -165,13 +155,12 @@ defmodule AsciinemaWeb.AsciicastController do
     )
   end
 
-  def example(conn, %{"id" => id}) do
-    asciicast = Asciicasts.get_asciicast!(id)
+  def example(conn, _params) do
     home_asciicast = Asciicasts.get_homepage_asciicast()
 
     conn
     |> put_layout("example.html")
-    |> render("example.html", asciicast: asciicast, home_asciicast: home_asciicast)
+    |> render("example.html", home_asciicast: home_asciicast)
   end
 
   defp download_filename(%Asciicast{version: version, id: id}, %{"dl" => _}) do
@@ -191,7 +180,24 @@ defmodule AsciinemaWeb.AsciicastController do
   end
 
   defp load_asciicast(conn, _) do
-    assign(conn, :asciicast, Asciicasts.get_asciicast!(conn.params["id"]))
+    asciicast = Asciicasts.get_asciicast!(conn.params["id"])
+
+    if asciicast.archived_at do
+      case get_format(conn) do
+        "html" ->
+          conn
+          |> put_status(410)
+          |> render("archived.html")
+          |> halt()
+
+         _ ->
+          conn
+          |> send_resp(410, "")
+          |> halt()
+      end
+    else
+      assign(conn, :asciicast, asciicast)
+    end
   end
 
   defp count_view(conn, asciicast) do
