@@ -34,6 +34,7 @@ defmodule Asciinema.Asciicasts.Asciicast do
     field :recorded_at, Timex.Ecto.DateTime
     field :idle_time_limit, :float
     field :views_count, :integer, default: 0
+    field :archived_at, Timex.Ecto.DateTime
 
     timestamps(inserted_at: :created_at)
 
