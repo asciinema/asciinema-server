@@ -62,7 +62,7 @@ config :scrivener_html,
 
 config :asciinema, Asciinema.Scheduler,
   jobs: [
-    {"0 * * * *", {Asciinema.Asciicasts, :gc, []}}
+    {"0 * * * *", {Asciinema.GC, :run, []}}
   ]
 
 # Import environment specific config. This must remain at the bottom
