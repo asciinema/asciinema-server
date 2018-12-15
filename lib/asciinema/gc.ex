@@ -5,10 +5,10 @@ defmodule Asciinema.GC do
 
   def run do
     if days = Asciicasts.gc_days() do
-      Logger.info("archiving anonymous recordings...")
+      Logger.info("archiving unclaimed asciicasts...")
       dt = Timex.shift(Timex.now(), days: -days)
       count = Asciicasts.archive_asciicasts(Accounts.temporary_users(), dt)
-      Logger.info("archived #{count} recordings")
+      Logger.info("archived #{count} asciicasts")
     end
   end
 end
