@@ -32,8 +32,8 @@ defmodule AsciinemaWeb.Api.AsciicastView do
       """
       #{message}
       This installation of asciinema recorder hasn't been linked to any #{hostname}
-      account. All recordings from unknown installations are automatically archived
-      #{gc_days} days after upload.
+      account. All unclaimed recordings (from unknown installations like this one)
+      are automatically archived #{gc_days} days after upload.
 
       If you want to preserve all recordings made on this machine, connect this
       installation with #{hostname} account by opening the following link:
