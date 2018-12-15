@@ -49,6 +49,6 @@ if gc_days = env.("ASCIICAST_GC_DAYS") do
   config :asciinema, :asciicast_gc_days, String.to_integer(gc_days)
 end
 
-if env.("CRON") not in ["1", "true", "TRUE"] do
+if String.downcase("#{env.("CRON")}") in ["0", "false", "no"] do
   config :asciinema, Asciinema.Scheduler, jobs: []
 end
