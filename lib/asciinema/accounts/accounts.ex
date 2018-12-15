@@ -255,7 +255,7 @@ defmodule Asciinema.Accounts do
   end
 
   def asciicasts(user, visibility \\ :all) do
-    q = assoc(user, :asciicasts)
+    q = from(a in assoc(user, :asciicasts), where: is_nil(a.archived_at))
 
     case visibility do
       :all -> q

@@ -75,9 +75,17 @@ defmodule Asciinema.Asciicasts do
     |> filter(category)
   end
 
-  defp filter(q, :featured), do: where(q, [a], a.featured == true and a.private == false)
-  defp filter(q, :public), do: where(q, [a], a.private == false)
-  defp filter(q, :all), do: q
+  defp filter(q, :featured) do
+    where(q, [a], a.featured == true and a.private == false and is_nil(a.archived_at))
+  end
+
+  defp filter(q, :public) do
+    where(q, [a], a.private == false and is_nil(a.archived_at))
+  end
+
+  defp filter(q, :all) do
+    where(q, [a], is_nil(a.archived_at))
+  end
 
   defp sort(q, :date), do: order_by(q, desc: :id)
   defp sort(q, :popularity), do: order_by(q, desc: :views_count)
