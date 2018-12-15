@@ -5,8 +5,8 @@
 
       <%= if days = asciicast_gc_days() do %>
         <p>
-          All anonymous recordings are automatically archived
-          <%= days %> days after upload.
+          All unclaimed recordings (the ones not linked to any user account) are
+          automatically archived <%= days %> days after upload.
         </p>
       <% end %>
     </div>
