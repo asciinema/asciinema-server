@@ -3,7 +3,7 @@
 <footer>
   <div class="container">
     <div class="row">
-      <div class="col-md-4 col-xs-4">
+      <div class="col-md-4 col-xs-12">
         <ul class="links">
           <li><a href="/contributing">Contributing</a></li>
           <li><a href="/tos">Terms of Service</a></li>
@@ -12,7 +12,7 @@
         </ul>
       </div>
 
-      <div class="col-md-4 col-xs-4 text-center">
+      <div class="col-md-4 col-xs-12 text-center">
         <span>
           Sponsored by
           <br/>
@@ -22,7 +22,7 @@
         </span>
       </div>
 
-      <div class="col-md-4 col-xs-4">
+      <div class="col-md-4 col-xs-12">
         <ul class="links float-right">
           <li>
             <b>forum:</b> <a href="https://discourse.asciinema.org">discourse.asciinema.org</a>
