@@ -5,7 +5,7 @@ defmodule AsciinemaWeb.AsciicastController do
 
   plug :put_layout, "app2.html"
   plug :clear_main_class
-  plug :load_asciicast when action in [:show, :edit, :update, :delete, :example]
+  plug :load_asciicast when action in [:show, :edit, :update, :delete, :example, :iframe, :embed]
   plug :require_current_user when action in [:edit, :update, :delete]
   plug :authorize, :asciicast when action in [:edit, :update, :delete]
 
@@ -37,7 +37,13 @@ defmodule AsciinemaWeb.AsciicastController do
   end
 
   def show(conn, _params) do
-    do_show(conn, get_format(conn), conn.assigns.asciicast)
+    asciicast = conn.assigns.asciicast
+
+    if asciicast.archived_at do
+      render_archived(conn)
+    else
+      do_show(conn, get_format(conn), asciicast)
+    end
   end
 
   def do_show(conn, "html", asciicast) do
@@ -133,26 +139,22 @@ defmodule AsciinemaWeb.AsciicastController do
     end
   end
 
-  def iframe(conn, %{"id" => id}) do
-    asciicast = Asciicasts.get_asciicast!(id)
+  def iframe(conn, _params) do
+    url = asciicast_file_url(conn, conn.assigns.asciicast)
 
     conn
     |> put_layout("iframe.html")
     |> delete_resp_header("x-frame-options")
-    |> render("iframe.html", file_url: asciicast_file_url(conn, asciicast))
+    |> render_asciicast("iframe.html", file_url: url)
   end
 
-  def embed(conn, %{"id" => id} = params) do
-    asciicast = Asciicasts.get_asciicast!(id)
+  def embed(conn, params) do
     opts = Asciicasts.PlaybackOpts.parse(params)
 
     conn
     |> put_layout("embed.html")
     |> delete_resp_header("x-frame-options")
-    |> render("embed.html",
-      asciicast: asciicast,
-      playback_options: opts
-    )
+    |> render_asciicast("embed.html", playback_options: opts)
   end
 
   def example(conn, _params) do
@@ -160,7 +162,27 @@ defmodule AsciinemaWeb.AsciicastController do
 
     conn
     |> put_layout("example.html")
-    |> render("example.html", home_asciicast: home_asciicast)
+    |> render_asciicast("example.html", home_asciicast: home_asciicast)
+  end
+
+  defp render_asciicast(conn, template, assigns) do
+    if conn.assigns.asciicast.archived_at do
+      render_archived(conn)
+    else
+      render(conn, template, assigns)
+    end
+  end
+
+  defp render_archived(conn) do
+    case get_format(conn) do
+      "html" ->
+        conn
+        |> put_status(410)
+        |> render("archived.html")
+
+      _ ->
+        send_resp(conn, 410, "")
+    end
   end
 
   defp download_filename(%Asciicast{version: version, id: id}, %{"dl" => _}) do
@@ -180,24 +202,7 @@ defmodule AsciinemaWeb.AsciicastController do
   end
 
   defp load_asciicast(conn, _) do
-    asciicast = Asciicasts.get_asciicast!(conn.params["id"])
-
-    if asciicast.archived_at do
-      case get_format(conn) do
-        "html" ->
-          conn
-          |> put_status(410)
-          |> render("archived.html")
-          |> halt()
-
-         _ ->
-          conn
-          |> send_resp(410, "")
-          |> halt()
-      end
-    else
-      assign(conn, :asciicast, asciicast)
-    end
+    assign(conn, :asciicast, Asciicasts.get_asciicast!(conn.params["id"]))
   end
 
   defp count_view(conn, asciicast) do
