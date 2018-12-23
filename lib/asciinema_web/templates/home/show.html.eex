@@ -82,7 +82,7 @@
         <h1>Example sessions recorded with asciinema</h1>
 
         <div class="asciicast-list">
-          <%= for asciicasts <- Enum.chunk(@asciicasts, 3, 3, []) do %>
+          <%= for asciicasts <- Enum.chunk_every(@asciicasts, 3, 3) do %>
             <div class="row">
               <%= for asciicast <- asciicasts do %>
                 <div class="col-md-4">

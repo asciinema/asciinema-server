@@ -14,7 +14,7 @@ RUN cd vt && lein cljsbuild once main
 
 ## Release building image
 
-FROM elixir:1.6.6-alpine AS builder
+FROM elixir:1.7.3-alpine AS builder
 
 ARG MIX_ENV=prod
 
