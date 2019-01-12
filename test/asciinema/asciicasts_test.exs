@@ -261,7 +261,7 @@ defmodule Asciinema.AsciicastsTest do
     test "returns list of screen lines" do
       stdout_stream = [{1.0, "a"}, {2.4, "b"}, {2.6, "c"}]
       snapshot = Asciicasts.generate_snapshot(stdout_stream, 4, 2, 2.5)
-      assert snapshot == [[["ab  ", %{}]], [["    ", %{}]]]
+      assert snapshot == [[["ab", %{}], [" ", %{"inverse" => true}], [" ", %{}]], [["    ", %{}]]]
     end
   end
 

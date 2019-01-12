@@ -336,6 +336,10 @@ defmodule AsciinemaWeb.AsciicastView do
     end)
   end
 
+  def split_chunk([text, attrs]) do
+    split_chunk({text, attrs})
+  end
+
   def split_chunk({text, attrs}) do
     text
     |> String.codepoints()
