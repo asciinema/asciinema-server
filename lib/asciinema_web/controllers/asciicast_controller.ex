@@ -1,6 +1,6 @@
 defmodule AsciinemaWeb.AsciicastController do
   use AsciinemaWeb, :controller
-  alias Asciinema.{Asciicasts, PngGenerator}
+  alias Asciinema.{Asciicasts, PngGenerator, Accounts}
   alias Asciinema.Asciicasts.Asciicast
 
   plug :put_layout, "app2.html"
@@ -49,6 +49,7 @@ defmodule AsciinemaWeb.AsciicastController do
   def do_show(conn, "html", asciicast) do
     conn
     |> count_view(asciicast)
+    |> put_archival_info_flash(asciicast)
     |> render(
       "show.html",
       page_title: AsciinemaWeb.AsciicastView.title(asciicast),
@@ -237,6 +238,17 @@ defmodule AsciinemaWeb.AsciicastController do
       :make_featured -> !asciicast.featured
       :make_not_featured -> asciicast.featured
       _ -> true
+    end
+  end
+
+  defp put_archival_info_flash(conn, asciicast) do
+    with days when not is_nil(days) <- Asciicasts.gc_days(),
+         %{} = user <- asciicast.user,
+         true <- Accounts.temporary_user?(user),
+         true <- Timex.before?(asciicast.created_at, Timex.shift(Timex.now(), days: -days)) do
+      put_flash(conn, :error, {:safe, "This recording will be archived soon. More details: <a href=\"https://blog.asciinema.org/post/archival/\">blog.asciinema.org/post/archival/</a>"})
+    else
+      _ -> conn
     end
   end
 end
