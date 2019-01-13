@@ -27,14 +27,17 @@ defmodule AsciinemaWeb.UserController do
         |> Auth.log_in(user)
         |> put_flash(:info, "Welcome to asciinema!")
         |> redirect(to: "/username/new")
+
       {:error, :token_invalid} ->
         conn
         |> put_flash(:error, "Invalid sign-up link.")
         |> redirect(to: login_path(conn, :new))
+
       {:error, :token_expired} ->
         conn
         |> put_flash(:error, "This sign-up link has expired, sorry.")
         |> redirect(to: login_path(conn, :new))
+
       {:error, :email_taken} ->
         conn
         |> put_flash(:error, "You already signed up with this email.")
@@ -93,6 +96,7 @@ defmodule AsciinemaWeb.UserController do
         conn
         |> put_flash(:info, "Account settings saved.")
         |> redirect(to: profile_path(conn, user))
+
       {:error, %Ecto.Changeset{} = changeset} ->
         render_edit_form(conn, user, changeset)
     end
