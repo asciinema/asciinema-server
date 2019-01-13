@@ -35,8 +35,8 @@ defmodule Asciinema.Asciicasts do
       if id = Application.get_env(:asciinema, :home_asciicast_id) do
         Repo.get(Asciicast, id)
       else
-        :public
-        |> category_asciicasts()
+        Asciicast
+        |> filter(:public)
         |> first()
         |> Repo.one()
       end
@@ -47,57 +47,65 @@ defmodule Asciinema.Asciicasts do
   def list_homepage_asciicasts() do
     year_ago = Timex.now() |> Timex.shift(years: -1)
 
-    :featured
-    |> category_asciicasts()
+    Asciicast
+    |> filter(:featured)
     |> where([a], a.created_at > ^year_ago)
-    |> order_by(fragment("RANDOM()"))
+    |> sort(:random)
     |> limit(6)
     |> preload(:user)
     |> Repo.all()
   end
 
   def other_public_asciicasts(asciicast, limit \\ 3) do
-    q =
-      from(
-        a in Asciicast,
-        where: a.id != ^asciicast.id and a.user_id == ^asciicast.user_id and a.private == false,
-        order_by: fragment("RANDOM()"),
-        limit: ^limit,
-        preload: :user
-      )
-
-    Repo.all(q)
+    Asciicast
+    |> filter({asciicast.user_id, :public})
+    |> where([a], a.id != ^asciicast.id)
+    |> sort(:random)
+    |> limit(^limit)
+    |> preload(:user)
+    |> Repo.all()
   end
 
-  def category_asciicasts(category) do
+  defp filter(q, filters) do
+    q
+    |> where([a], is_nil(a.archived_at))
+    |> do_filter(filters)
+  end
+
+  defp do_filter(q, {user_id, f}) do
+    q
+    |> where([a], a.user_id == ^user_id)
+    |> do_filter(f)
+  end
+
+  defp do_filter(q, f) do
+    case f do
+      :featured ->
+        where(q, [a], a.featured == true and a.private == false)
+
+      :public ->
+        where(q, [a], a.private == false)
+
+      :all ->
+        q
+    end
+  end
+
+  defp sort(q, order) do
+    case order do
+      :date -> order_by(q, desc: :id)
+      :popularity -> order_by(q, desc: :views_count)
+      :random -> order_by(q, fragment("RANDOM()"))
+    end
+  end
+
+  def paginate_asciicasts(filters, order, page, page_size) do
     from(Asciicast)
-    |> filter(category)
-  end
-
-  defp filter(q, :featured) do
-    where(q, [a], a.featured == true and a.private == false and is_nil(a.archived_at))
-  end
-
-  defp filter(q, :public) do
-    where(q, [a], a.private == false and is_nil(a.archived_at))
-  end
-
-  defp filter(q, :all) do
-    where(q, [a], is_nil(a.archived_at))
-  end
-
-  defp sort(q, :date), do: order_by(q, desc: :id)
-  defp sort(q, :popularity), do: order_by(q, desc: :views_count)
-
-  def paginate_asciicasts(q, order, page, page_size) do
-    from(q)
+    |> where([a], is_nil(a.archived_at))
+    |> filter(filters)
     |> sort(order)
     |> preload(:user)
     |> Repo.paginate(page: page, page_size: page_size)
-  end
-
-  def count_asciicasts(q \\ Asciicast) do
-    Repo.count(q)
   end
 
   def ensure_welcome_asciicast(user) do

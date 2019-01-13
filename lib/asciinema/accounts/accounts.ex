@@ -237,16 +237,6 @@ defmodule Asciinema.Accounts do
     |> Repo.all
   end
 
-  def asciicasts(user, visibility \\ :all) do
-    q = from(a in assoc(user, :asciicasts), where: is_nil(a.archived_at))
-
-    case visibility do
-      :all -> q
-      :private -> where(q, private: true)
-      :public -> where(q, private: false)
-    end
-  end
-
   def add_admins(emails) do
     from(u in User, where: u.email in ^emails)
     |> Repo.update_all(set: [is_admin: true])

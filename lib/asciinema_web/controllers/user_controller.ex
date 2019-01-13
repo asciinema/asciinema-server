@@ -59,14 +59,19 @@ defmodule AsciinemaWeb.UserController do
 
     user_is_self = !!(current_user && (current_user.id == user.id))
 
-    asciicasts =
+    filter =
       case user_is_self do
-        true -> Accounts.asciicasts(user, :all)
-        false -> Accounts.asciicasts(user, :public)
+        true -> :all
+        false -> :public
       end
 
-    asciicast_count = Asciicasts.count_asciicasts(asciicasts)
-    page = Asciicasts.paginate_asciicasts(asciicasts, :date, params["page"], 15)
+    page =
+      Asciicasts.paginate_asciicasts(
+        {user.id, filter},
+        :date,
+        params["page"],
+        15
+      )
 
     conn
     |> put_layout(:app2)
@@ -76,7 +81,7 @@ defmodule AsciinemaWeb.UserController do
       "show.html",
       user: user,
       user_is_self: user_is_self,
-      asciicast_count: asciicast_count,
+      asciicast_count: page.total_entries,
       page: page,
       show_edit_link: Authz.can?(current_user, :update, user)
     )
