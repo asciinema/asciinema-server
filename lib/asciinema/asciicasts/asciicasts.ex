@@ -618,4 +618,9 @@ defmodule Asciinema.Asciicasts do
     {count, _} = Repo.update_all(query, set: [archived_at: Timex.now()])
     count
   end
+
+  def reassign_asciicasts(src_user_id, dst_user_id) do
+    q = from(a in Asciicast, where: a.user_id == ^src_user_id)
+    Repo.update_all(q, set: [user_id: dst_user_id, updated_at: Timex.now()])
+  end
 end

@@ -220,21 +220,15 @@ defmodule Asciinema.Accounts do
     |> Repo.update!
   end
 
-  def merge!(dst_user, src_user) do
-    Repo.transaction(fn ->
-      asciicasts_q = from(assoc(src_user, :asciicasts))
-      Repo.update_all(asciicasts_q, set: [user_id: dst_user.id, updated_at: Timex.now])
-      api_tokens_q = from(assoc(src_user, :api_tokens))
-      Repo.update_all(api_tokens_q, set: [user_id: dst_user.id, updated_at: Timex.now])
-      Repo.delete!(src_user)
-      dst_user
-    end)
-  end
-
   def list_api_tokens(%User{} = user) do
     user
     |> assoc(:api_tokens)
     |> Repo.all
+  end
+
+  def reassign_api_tokens(src_user_id, dst_user_id) do
+    q = from(at in ApiToken, where: at.user_id == ^src_user_id)
+    Repo.update_all(q, set: [user_id: dst_user_id, updated_at: Timex.now()])
   end
 
   def add_admins(emails) do
@@ -245,5 +239,9 @@ defmodule Asciinema.Accounts do
   def remove_admins(emails) do
     from(u in User, where: u.email in ^emails)
     |> Repo.update_all(set: [is_admin: false])
+  end
+
+  def delete_user!(%User{} = user) do
+    Repo.delete!(user)
   end
 end
