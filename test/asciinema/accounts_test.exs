@@ -2,7 +2,7 @@ defmodule Asciinema.AccountsTest do
   import Asciinema.Fixtures
   use Asciinema.DataCase
   use Bamboo.Test
-  alias Asciinema.Email
+  alias Asciinema.Emails.Email
   alias Asciinema.Accounts.User
 
   describe "send_login_email/1" do

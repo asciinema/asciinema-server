@@ -1,4 +1,4 @@
-defmodule Asciinema.Email do
+defmodule Asciinema.Emails.Email do
   use Bamboo.Phoenix, view: AsciinemaWeb.EmailView
   import Bamboo.Email
 

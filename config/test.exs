@@ -34,7 +34,7 @@ config :exq,
 
 config :exq_ui, server: false
 
-config :asciinema, Asciinema.Mailer,
+config :asciinema, Asciinema.Emails.Mailer,
   adapter: Bamboo.TestAdapter
 
 config :asciinema, Asciinema.Vt.Worker,

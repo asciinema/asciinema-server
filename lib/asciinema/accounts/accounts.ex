@@ -2,7 +2,7 @@ defmodule Asciinema.Accounts do
   import Ecto.Query, warn: false
   import Ecto, only: [assoc: 2, build_assoc: 2]
   alias Asciinema.Accounts.{User, ApiToken}
-  alias Asciinema.{Repo, Email, Mailer}
+  alias Asciinema.Repo
 
   def get_user!(id), do: Repo.get!(User, id)
 
@@ -82,14 +82,16 @@ defmodule Asciinema.Accounts do
   defp do_send_login_email(%User{email: nil}) do
     {:error, :email_missing}
   end
+
   defp do_send_login_email(%User{id: nil, email: email}) do
     url = signup_url(email)
-    Email.signup_email(email, url) |> Mailer.deliver_later
+    Asciinema.Emails.send_signup_email(email, url)
     {:ok, url}
   end
+
   defp do_send_login_email(%User{} = user) do
     url = login_url(user)
-    Email.login_email(user.email, url) |> Mailer.deliver_later
+    Asciinema.Emails.send_login_email(user.email, url)
     {:ok, url}
   end
 
