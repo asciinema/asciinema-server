@@ -80,9 +80,20 @@ defmodule AsciinemaWeb do
     apply(__MODULE__, which, [])
   end
 
+  alias AsciinemaWeb.Router.Helpers, as: Routes
+  alias AsciinemaWeb.Endpoint
+
   def instance_hostname do
-    AsciinemaWeb.Endpoint.url()
+    Endpoint.url()
     |> URI.parse()
     |> Map.get(:host)
+  end
+
+  def signup_url(token) do
+    Routes.users_url(Endpoint, :new, t: token)
+  end
+
+  def login_url(token) do
+    Routes.session_url(Endpoint, :new, t: token)
   end
 end

@@ -5,11 +5,15 @@ env = &System.get_env/1
 config :asciinema,
   home_asciicast_id: env.("HOME_ASCIICAST_ID")
 
+secret_key_base = env.("SECRET_KEY_BASE")
+
 config :asciinema, AsciinemaWeb.Endpoint,
   url: [scheme: env.("URL_SCHEME") || "https",
         host: env.("URL_HOST") || "asciinema.org",
         port: String.to_integer(env.("URL_PORT") || "443")],
-  secret_key_base: env.("SECRET_KEY_BASE")
+  secret_key_base: secret_key_base
+
+config :asciinema, Asciinema.Accounts, secret: secret_key_base
 
 config :asciinema, Asciinema.Repo,
   pool_size: String.to_integer(env.("DB_POOL_SIZE") || "20")

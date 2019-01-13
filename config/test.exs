@@ -7,6 +7,8 @@ config :asciinema, AsciinemaWeb.Endpoint,
   secret_key_base: "ssecretkeybasesecretkeybasesecretkeybasesecretkeybaseecretkeybase",
   server: false
 
+config :asciinema, Asciinema.Accounts, secret: "ssecretkeybasesecretkeybasesecretkeybasesecretkeybaseecretkeybase"
+
 # Print only errors during test
 config :logger, level: :error
 
