@@ -12,4 +12,5 @@
 
 Application.put_env(:asciinema, :snapshot_updater, Asciinema.Asciicasts.SnapshotUpdater.Sync)
 
-Asciinema.Accounts.create_asciinema_user!()
+user = Asciinema.Accounts.ensure_asciinema_user()
+Asciinema.Asciicasts.ensure_welcome_asciicast(user)

@@ -2,35 +2,26 @@ defmodule Asciinema.Accounts do
   import Ecto.Query, warn: false
   import Ecto, only: [assoc: 2, build_assoc: 2]
   alias Asciinema.Accounts.{User, ApiToken}
-  alias Asciinema.{Repo, Asciicasts, Email, Mailer}
+  alias Asciinema.{Repo, Email, Mailer}
 
   def get_user!(id), do: Repo.get!(User, id)
 
-  def create_asciinema_user!() do
-    attrs = %{username: "asciinema",
-              name: "asciinema",
-              email: "admin@asciinema.org"}
+  def ensure_asciinema_user do
+    case Repo.get_by(User, username: "asciinema") do
+      nil ->
+        attrs = %{
+          username: "asciinema",
+          name: "asciinema",
+          email: "admin@asciinema.org"
+        }
 
-    user = case Repo.get_by(User, username: "asciinema") do
-             nil ->
-               %User{}
-               |> User.create_changeset(attrs)
-               |> Repo.insert!
-             user ->
-               user
-           end
+        %User{}
+        |> User.create_changeset(attrs)
+        |> Repo.insert!()
 
-    if Repo.count(assoc(user, :asciicasts)) == 0 do
-      upload = %Plug.Upload{
-        path: Path.join(:code.priv_dir(:asciinema), "welcome.json"),
-        filename: "asciicast.json",
-        content_type: "application/json"
-      }
-
-      {:ok, _} = Asciicasts.create_asciicast(user, upload, %{private: false, snapshot_at: 76.2})
+      user ->
+        user
     end
-
-    :ok
   end
 
   def change_user(user) do

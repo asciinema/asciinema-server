@@ -100,6 +100,20 @@ defmodule Asciinema.Asciicasts do
     Repo.count(q)
   end
 
+  def ensure_welcome_asciicast(user) do
+    if Repo.count(Ecto.assoc(user, :asciicasts)) == 0 do
+      upload = %Plug.Upload{
+        path: Path.join(:code.priv_dir(:asciinema), "welcome.json"),
+        filename: "asciicast.json",
+        content_type: "application/json"
+      }
+
+      {:ok, _} = create_asciicast(user, upload, %{private: false, snapshot_at: 76.2})
+    end
+
+    :ok
+  end
+
   def create_asciicast(user, params, overrides \\ %{})
 
   def create_asciicast(user, %Plug.Upload{filename: filename} = upload, overrides) do
