@@ -22,19 +22,6 @@
       <p>Gratipay is a way to give small weekly cash gifts to people you love and are inspired by. And it's great for supporting open-source authors and projects. To donate to asciinema via Gratipay, click on the button below. </p>
       <script data-gratipay-username="sickill" data-gratipay-widget="button" src="//grtp.co/v1.js"></script>
 
-      <h3>PayPal</h3>
-
-      <p>You can also donate money to the project through asciinema's PayPal account. </p>
-      <p>If you click on the button below, you will be taken to the secure PayPal Web site. You don't need to have a PayPal account in order to make a donation. </p>
-
-      <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top" id="paypal-form">
-        <input name="cmd" value="_donations" type="hidden">
-        <input name="business" value="donations@asciinema.org" type="hidden">
-        <input name="lc" value="GB" type="hidden">
-        <input name="item_name" value="asciinema development" type="hidden">
-        <input name="bn" value="PP-DonationsBF:btn_donate_LG.gif:NonHosted" type="hidden">
-        <input class="button" src="https://www.paypalobjects.com/en_GB/i/btn/btn_donate_LG.gif" name="submit" alt="PayPal – The safer, easier way to pay online." type="image" border="0"><img alt="" src="https://www.paypalobjects.com/pl_PL/i/scr/pixel.gif" width="1" border="0" height="1"><span><input name="currency_code" value="USD" id="usd" checked="" type="radio"><label for="usd">USD</label></span><span><input name="currency_code" value="EUR" id="eur" type="radio"><label for="eur">EUR</label></span><span><input name="currency_code" value="PLN" id="pln" type="radio"><label for="pln">PLN</label></span></form>
-
       <h2 id="packaging">Packaging</h2>
 
       <p>If you use an operating system for which there's no native asciinema package and you know how to build one then don't hesitate, build it and let us know. </p>
