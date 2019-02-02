@@ -30,8 +30,8 @@ defmodule Asciinema.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:bamboo, "~> 0.8"},
-      {:bamboo_smtp, "~> 1.4"},
+      {:bamboo, "~> 1.2"},
+      {:bamboo_smtp, "~> 1.6"},
       {:briefly, "~> 0.3"},
       {:cowboy, "~> 1.0"},
       {:credo, "~> 0.10.0", only: [:dev, :test], runtime: false},
@@ -51,6 +51,7 @@ defmodule Asciinema.Mixfile do
       {:phoenix_live_reload, "~> 1.1", only: :dev},
       {:phoenix_markdown, "~> 0.1"},
       {:phoenix_pubsub, "~> 1.1"},
+      {:plug_cowboy, "~> 1.0"},
       {:poison, "~> 3.1"},
       {:poolboy, "~> 1.5"},
       {:postgrex, ">= 0.0.0"},
