@@ -34,33 +34,37 @@ defmodule AsciinemaWeb.AsciicastController do
   end
 
   def show(conn, _params) do
-    asciicast = conn.assigns.asciicast
-
-    if asciicast.archived_at do
-      render_archived(conn)
-    else
-      do_show(conn, get_format(conn), asciicast)
-    end
+    do_show(conn, get_format(conn), conn.assigns.asciicast)
   end
 
   def do_show(conn, "html", asciicast) do
-    conn
-    |> count_view(asciicast)
-    |> put_archival_info_flash(asciicast)
-    |> render(
-      "show.html",
-      page_title: AsciinemaWeb.AsciicastView.title(asciicast),
-      asciicast: asciicast,
-      playback_options: Asciicasts.PlaybackOpts.parse(conn.params),
-      actions: asciicast_actions(asciicast, conn.assigns.current_user),
-      author_asciicasts: Asciicasts.other_public_asciicasts(asciicast)
-    )
+    if asciicast.archived_at do
+      conn
+      |> put_status(410)
+      |> render("archived.html")
+    else
+      conn
+      |> count_view(asciicast)
+      |> put_archival_info_flash(asciicast)
+      |> render(
+        "show.html",
+        page_title: AsciinemaWeb.AsciicastView.title(asciicast),
+        asciicast: asciicast,
+        playback_options: Asciicasts.PlaybackOpts.parse(conn.params),
+        actions: asciicast_actions(asciicast, conn.assigns.current_user),
+        author_asciicasts: Asciicasts.other_public_asciicasts(asciicast)
+      )
+    end
   end
 
   def do_show(conn, format, asciicast) when format in ["json", "cast"] do
-    path = Asciicast.json_store_path(asciicast)
-    filename = download_filename(asciicast, conn.params)
-    file_store().serve_file(conn, path, filename)
+    if asciicast.archived_at do
+      send_resp(conn, 410, "")
+    else
+      path = Asciicast.json_store_path(asciicast)
+      filename = download_filename(asciicast, conn.params)
+      file_store().serve_file(conn, path, filename)
+    end
   end
 
   @js_max_age 60
@@ -75,31 +79,53 @@ defmodule AsciinemaWeb.AsciicastController do
   end
 
   def do_show(conn, "svg", asciicast) do
-    render(conn, "show.svg", asciicast: asciicast)
+    if asciicast.archived_at do
+      path = Application.app_dir(:asciinema, "priv/static/images/archived.png")
+
+      conn
+      |> put_status(410)
+      |> put_resp_header("content-type", "image/png")
+      |> send_file(200, path)
+    else
+      render(conn, "show.svg", asciicast: asciicast)
+    end
   end
 
   @png_max_age 604_800 # 7 days
 
   def do_show(conn, "png", asciicast) do
-    case PngGenerator.generate(asciicast) do
-      {:ok, png_path} ->
-        conn
-        |> put_resp_header("content-type", MIME.from_path(png_path))
-        |> put_resp_header("cache-control", "public, max-age=#{@png_max_age}")
-        |> send_file(200, png_path)
-        |> halt
+    if asciicast.archived_at do
+      path = Application.app_dir(:asciinema, "priv/static/images/archived.png")
 
-      {:error, :busy} ->
-        conn
-        |> put_resp_header("retry-after", "5")
-        |> send_resp(503, "")
+      conn
+      |> put_status(410)
+      |> put_resp_header("content-type", "image/png")
+      |> send_file(200, path)
+    else
+      case PngGenerator.generate(asciicast) do
+        {:ok, png_path} ->
+          conn
+          |> put_resp_header("content-type", MIME.from_path(png_path))
+          |> put_resp_header("cache-control", "public, max-age=#{@png_max_age}")
+          |> send_file(200, png_path)
+          |> halt
+
+        {:error, :busy} ->
+          conn
+          |> put_resp_header("retry-after", "5")
+          |> send_resp(503, "")
+      end
     end
   end
 
   def do_show(conn, "gif", asciicast) do
-    conn
-    |> put_layout("simple.html")
-    |> render("gif.html", file_url: asciicast_file_url(conn, asciicast))
+    if asciicast.archived_at do
+      send_resp(conn, 410, "")
+    else
+      conn
+      |> put_layout("simple.html")
+      |> render("gif.html", file_url: asciicast_file_url(conn, asciicast))
+    end
   end
 
   def edit(conn, _params) do
@@ -138,21 +164,35 @@ defmodule AsciinemaWeb.AsciicastController do
   end
 
   def iframe(conn, _params) do
-    url = asciicast_file_url(conn, conn.assigns.asciicast)
+    conn =
+      conn
+      |> put_layout("iframe.html")
+      |> delete_resp_header("x-frame-options")
 
-    conn
-    |> put_layout("iframe.html")
-    |> delete_resp_header("x-frame-options")
-    |> render_asciicast("iframe.html", file_url: url)
+    if conn.assigns.asciicast.archived_at do
+      conn
+      |> put_status(410)
+      |> render("archived.html")
+    else
+      url = asciicast_file_url(conn, conn.assigns.asciicast)
+      render(conn, "iframe.html", file_url: url)
+    end
   end
 
   def embed(conn, params) do
     opts = Asciicasts.PlaybackOpts.parse(params)
+    conn =
+      conn
+      |> put_layout("embed.html")
+      |> delete_resp_header("x-frame-options")
 
-    conn
-    |> put_layout("embed.html")
-    |> delete_resp_header("x-frame-options")
-    |> render_asciicast("embed.html", playback_options: opts)
+    if conn.assigns.asciicast.archived_at do
+      conn
+      |> put_status(410)
+      |> render("archived.html")
+    else
+      render(conn, "embed.html", playback_options: opts)
+    end
   end
 
   def example(conn, _params) do
@@ -160,27 +200,7 @@ defmodule AsciinemaWeb.AsciicastController do
 
     conn
     |> put_layout("example.html")
-    |> render_asciicast("example.html", home_asciicast: home_asciicast)
-  end
-
-  defp render_asciicast(conn, template, assigns) do
-    if conn.assigns.asciicast.archived_at do
-      render_archived(conn)
-    else
-      render(conn, template, assigns)
-    end
-  end
-
-  defp render_archived(conn) do
-    case get_format(conn) do
-      "html" ->
-        conn
-        |> put_status(410)
-        |> render("archived.html")
-
-      _ ->
-        send_resp(conn, 410, "")
-    end
+    |> render("example.html", home_asciicast: home_asciicast)
   end
 
   defp download_filename(%Asciicast{version: version, id: id}, %{"dl" => _}) do
