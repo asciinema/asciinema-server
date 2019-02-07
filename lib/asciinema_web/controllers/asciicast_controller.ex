@@ -259,7 +259,8 @@ defmodule AsciinemaWeb.AsciicastController do
   end
 
   defp put_archival_info_flash(conn, asciicast) do
-    with days when not is_nil(days) <- Asciicasts.gc_days(),
+    with true <- asciicast.archivable,
+         days when not is_nil(days) <- Asciicasts.gc_days(),
          %{} = user <- asciicast.user,
          true <- Accounts.temporary_user?(user),
          true <- Timex.before?(asciicast.created_at, Timex.shift(Timex.now(), days: -days)) do
