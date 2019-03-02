@@ -63,7 +63,10 @@ defmodule AsciinemaWeb.AsciicastController do
     else
       path = Asciicast.json_store_path(asciicast)
       filename = download_filename(asciicast, conn.params)
-      file_store().serve_file(conn, path, filename)
+
+      conn
+      |> put_resp_header("access-control-allow-origin", "*")
+      |> file_store().serve_file(path, filename)
     end
   end
 
