@@ -336,6 +336,10 @@ defmodule AsciinemaWeb.AsciicastView do
     end)
   end
 
+  def split_chunk([text, attrs]) do
+    split_chunk({text, attrs})
+  end
+
   def split_chunk({text, attrs}) do
     text
     |> String.codepoints()
@@ -460,5 +464,9 @@ defmodule AsciinemaWeb.AsciicastView do
 
   def percent(float) do
     "#{Decimal.round(Decimal.new(float), 3)}%"
+  end
+
+  def asciicast_gc_days do
+    Asciinema.Asciicasts.gc_days()
   end
 end

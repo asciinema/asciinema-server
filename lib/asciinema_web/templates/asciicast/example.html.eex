@@ -15,9 +15,19 @@
 
 <img src="<%= asciicast_path(@conn, :show, @asciicast) %>.svg" style="max-width: 100%" />
 
-<h2>Embed script for home asciicast</h2>
+<h2>PNG</h2>
 
-<%= embed_script @home_asciicast %>
+<p>
+  If the Earth gets hit by an asteroid, it's game over. It's control-alt-delete
+  for civilization. -- Bill Nye
+</p>
+
+<img src="<%= asciicast_path(@conn, :show, @asciicast) %>.png" style="max-width: 100%" />
+
+<%= if @home_asciicast do %>
+  <h2>Embed script for home asciicast</h2>
+  <%= embed_script @home_asciicast %>
+<% end %>
 
 <p>
   You're dressed in a tuxedo, you wear a bow tie. A bow tie with a tuxedo is more formal than a straight tie with a tuxedo. -- Bill Nye

@@ -34,3 +34,7 @@ erl_crash.dump
 /volumes
 .m2
 /.env.production
+
+.DS_Store
+.envrc
+.projectile

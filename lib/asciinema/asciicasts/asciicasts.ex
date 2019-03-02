@@ -35,8 +35,8 @@ defmodule Asciinema.Asciicasts do
       if id = Application.get_env(:asciinema, :home_asciicast_id) do
         Repo.get(Asciicast, id)
       else
-        :public
-        |> category_asciicasts()
+        Asciicast
+        |> filter(:public)
         |> first()
         |> Repo.one()
       end
@@ -47,49 +47,79 @@ defmodule Asciinema.Asciicasts do
   def list_homepage_asciicasts() do
     year_ago = Timex.now() |> Timex.shift(years: -1)
 
-    :featured
-    |> category_asciicasts()
+    Asciicast
+    |> filter(:featured)
     |> where([a], a.created_at > ^year_ago)
-    |> order_by(fragment("RANDOM()"))
+    |> sort(:random)
     |> limit(6)
     |> preload(:user)
     |> Repo.all()
   end
 
   def other_public_asciicasts(asciicast, limit \\ 3) do
-    q =
-      from(
-        a in Asciicast,
-        where: a.id != ^asciicast.id and a.user_id == ^asciicast.user_id and a.private == false,
-        order_by: fragment("RANDOM()"),
-        limit: ^limit,
-        preload: :user
-      )
-
-    Repo.all(q)
+    Asciicast
+    |> filter({asciicast.user_id, :public})
+    |> where([a], a.id != ^asciicast.id)
+    |> sort(:random)
+    |> limit(^limit)
+    |> preload(:user)
+    |> Repo.all()
   end
 
-  def category_asciicasts(category) do
+  defp filter(q, filters) do
+    q
+    |> where([a], is_nil(a.archived_at))
+    |> do_filter(filters)
+  end
+
+  defp do_filter(q, {user_id, f}) do
+    q
+    |> where([a], a.user_id == ^user_id)
+    |> do_filter(f)
+  end
+
+  defp do_filter(q, f) do
+    case f do
+      :featured ->
+        where(q, [a], a.featured == true and a.private == false)
+
+      :public ->
+        where(q, [a], a.private == false)
+
+      :all ->
+        q
+    end
+  end
+
+  defp sort(q, order) do
+    case order do
+      :date -> order_by(q, desc: :id)
+      :popularity -> order_by(q, desc: :views_count)
+      :random -> order_by(q, fragment("RANDOM()"))
+    end
+  end
+
+  def paginate_asciicasts(filters, order, page, page_size) do
     from(Asciicast)
-    |> filter(category)
-  end
-
-  defp filter(q, :featured), do: where(q, [a], a.featured == true and a.private == false)
-  defp filter(q, :public), do: where(q, [a], a.private == false)
-  defp filter(q, :all), do: q
-
-  defp sort(q, :date), do: order_by(q, desc: :id)
-  defp sort(q, :popularity), do: order_by(q, desc: :views_count)
-
-  def paginate_asciicasts(q, order, page, page_size) do
-    from(q)
+    |> where([a], is_nil(a.archived_at))
+    |> filter(filters)
     |> sort(order)
     |> preload(:user)
     |> Repo.paginate(page: page, page_size: page_size)
   end
 
-  def count_asciicasts(q \\ Asciicast) do
-    Repo.count(q)
+  def ensure_welcome_asciicast(user) do
+    if Repo.count(Ecto.assoc(user, :asciicasts)) == 0 do
+      upload = %Plug.Upload{
+        path: Path.join(:code.priv_dir(:asciinema), "welcome.json"),
+        filename: "asciicast.json",
+        content_type: "application/json"
+      }
+
+      {:ok, _} = create_asciicast(user, upload, %{private: false, snapshot_at: 76.2})
+    end
+
+    :ok
   end
 
   def create_asciicast(user, params, overrides \\ %{})
@@ -440,13 +470,30 @@ defmodule Asciinema.Asciicasts do
   def generate_snapshot(stdout_stream, width, height, secs) do
     frames = Stream.take_while(stdout_stream, &frame_before_or_at?(&1, secs))
 
-    {:ok, %{"lines" => lines}} =
+    {:ok, %{"lines" => lines, "cursor" => cursor}} =
       Vt.with_vt(width, height, fn vt ->
         Enum.each(frames, fn {_, text} -> Vt.feed(vt, text) end)
         Vt.dump_screen(vt, 30_000)
       end)
 
-    lines
+    case cursor do
+      %{"visible" => true, "x" => x, "y" => y} ->
+        lines
+        |> AsciinemaWeb.AsciicastView.split_chunks()
+        |> List.update_at(y, fn line ->
+          List.update_at(line, x, fn {text, attrs} ->
+            attrs = Map.put(attrs, "inverse", !(attrs["inverse"] || false))
+            {text, attrs}
+          end)
+        end)
+        |> AsciinemaWeb.AsciicastView.group_chunks()
+        |> Enum.map(fn chunks ->
+          Enum.map(chunks, &Tuple.to_list/1)
+        end)
+
+      _ ->
+        lines
+    end
   end
 
   defp to_absolute_time(stream) do
@@ -556,5 +603,24 @@ defmodule Asciinema.Asciicasts do
     end)
 
     tmp_path
+  end
+
+  def gc_days do
+    Application.get_env(:asciinema, :asciicast_gc_days)
+  end
+
+  def archive_asciicasts(users_query, dt) do
+    query = from a in Asciicast,
+      join: u in ^users_query,
+      on: a.user_id == u.id,
+      where: a.archivable and is_nil(a.archived_at) and a.created_at < ^dt
+
+    {count, _} = Repo.update_all(query, set: [archived_at: Timex.now()])
+    count
+  end
+
+  def reassign_asciicasts(src_user_id, dst_user_id) do
+    q = from(a in Asciicast, where: a.user_id == ^src_user_id)
+    Repo.update_all(q, set: [user_id: dst_user_id, updated_at: Timex.now()])
   end
 end

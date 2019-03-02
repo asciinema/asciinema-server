@@ -65,7 +65,7 @@ config :asciinema, Asciinema.Repo,
   pool_size: 20,
   ssl: false
 
-config :asciinema, Asciinema.Mailer,
+config :asciinema, Asciinema.Emails.Mailer,
   deliver_later_strategy: Asciinema.BambooExqStrategy,
   adapter: Bamboo.SMTPAdapter,
   server: "smtp",

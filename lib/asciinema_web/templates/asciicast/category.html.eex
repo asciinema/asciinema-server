@@ -29,7 +29,7 @@
 
       <div class="row asciicast-list">
         <div class="col">
-          <%= for asciicasts <- Enum.chunk(@page, 2, 2, []) do %>
+          <%= for asciicasts <- Enum.chunk_every(@page, 2, 2) do %>
             <div class="row">
               <%= for asciicast <- asciicasts do %>
                 <div class="col-md-6">

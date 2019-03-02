@@ -27,14 +27,17 @@ defmodule AsciinemaWeb.UserController do
         |> Auth.log_in(user)
         |> put_flash(:info, "Welcome to asciinema!")
         |> redirect(to: "/username/new")
+
       {:error, :token_invalid} ->
         conn
         |> put_flash(:error, "Invalid sign-up link.")
         |> redirect(to: login_path(conn, :new))
+
       {:error, :token_expired} ->
         conn
         |> put_flash(:error, "This sign-up link has expired, sorry.")
         |> redirect(to: login_path(conn, :new))
+
       {:error, :email_taken} ->
         conn
         |> put_flash(:error, "You already signed up with this email.")
@@ -56,14 +59,19 @@ defmodule AsciinemaWeb.UserController do
 
     user_is_self = !!(current_user && (current_user.id == user.id))
 
-    asciicasts =
+    filter =
       case user_is_self do
-        true -> Accounts.asciicasts(user, :all)
-        false -> Accounts.asciicasts(user, :public)
+        true -> :all
+        false -> :public
       end
 
-    asciicast_count = Asciicasts.count_asciicasts(asciicasts)
-    page = Asciicasts.paginate_asciicasts(asciicasts, :date, params["page"], 15)
+    page =
+      Asciicasts.paginate_asciicasts(
+        {user.id, filter},
+        :date,
+        params["page"],
+        15
+      )
 
     conn
     |> put_layout(:app2)
@@ -73,7 +81,7 @@ defmodule AsciinemaWeb.UserController do
       "show.html",
       user: user,
       user_is_self: user_is_self,
-      asciicast_count: asciicast_count,
+      asciicast_count: page.total_entries,
       page: page,
       show_edit_link: Authz.can?(current_user, :update, user)
     )
@@ -93,6 +101,7 @@ defmodule AsciinemaWeb.UserController do
         conn
         |> put_flash(:info, "Account settings saved.")
         |> redirect(to: profile_path(conn, user))
+
       {:error, %Ecto.Changeset{} = changeset} ->
         render_edit_form(conn, user, changeset)
     end

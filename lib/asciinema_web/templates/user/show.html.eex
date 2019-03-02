@@ -66,7 +66,7 @@
         <% {0, false} -> %>
 
         <% _ -> %>
-          <%= for asciicasts <- Enum.chunk(@page, 3, 3, []) do %>
+          <%= for asciicasts <- Enum.chunk_every(@page, 3, 3) do %>
             <div class="row">
               <%= for asciicast <- asciicasts do %>
                 <div class="col-md-4">
