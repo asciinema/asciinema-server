@@ -45,7 +45,7 @@ defmodule Asciinema.Asciicasts do
   end
 
   def list_homepage_asciicasts() do
-    year_ago = Timex.now() |> Timex.shift(years: -1)
+    year_ago = Timex.now() |> Timex.shift(years: -2)
 
     Asciicast
     |> filter(:featured)
