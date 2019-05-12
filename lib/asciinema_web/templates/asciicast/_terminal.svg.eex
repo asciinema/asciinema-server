@@ -8,7 +8,7 @@
 .un { text-decoration: underline }
 </style>
 
-<rect width="100%" height="100%" class="default-bg-fill" />
+<rect width="100%" height="100%" class="default-bg-fill" rx="<%= assigns[:rx] || 4 %>" ry="<%= assigns[:ry] || 4 %>" />
 
 <svg x="<%= percent(1.0 * 100 / (@cols + 2)) %>" y="<%= percent(0.5 * 100 / (@rows + 1)) %>" class="default-text-fill">
 <g style="shape-rendering: optimizeSpeed">
