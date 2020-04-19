@@ -2,15 +2,13 @@
 
 FROM clojure:alpine AS vt
 
-RUN mkdir /app
-WORKDIR /app
+WORKDIR /app/vt
 
 COPY vt/project.clj /app/vt/
-RUN cd vt && lein deps
-
 COPY vt/src /app/vt/src
 COPY vt/resources /app/vt/resources
-RUN cd vt && lein cljsbuild once main
+RUN lein deps
+RUN lein cljsbuild once main
 
 ## Release building image
 
@@ -20,50 +18,43 @@ ARG MIX_ENV=prod
 
 WORKDIR /opt/app
 
-RUN apk update && \
-  apk upgrade --no-cache && \
-  apk add --no-cache \
+RUN apk upgrade && \
+  apk add \
     nodejs \
     npm \
     build-base && \
   mix local.rebar --force && \
   mix local.hex --force
 
-COPY assets/package.json assets/
-COPY assets/package-lock.json assets/
-RUN cd assets && npm install
-
 COPY mix.* ./
 RUN mix do deps.get --only prod, deps.compile
 
 COPY assets/ assets/
-RUN cd assets && npm run deploy
+RUN cd assets && \
+  npm install && \
+  npm run deploy
+
 RUN mix phx.digest
 
 COPY config/*.exs config/
 COPY lib lib/
 COPY priv priv/
+COPY rel rel/
 RUN mix compile
 
 COPY --from=vt /app/vt/main.js priv/vt/
 COPY vt/liner.js priv/vt/
 
-COPY rel rel/
-
-RUN \
+RUN  mix release --verbose && \
   mkdir -p /opt/built && \
-  mix release --verbose && \
-  cp _build/${MIX_ENV}/rel/asciinema/releases/0.0.1/asciinema.tar.gz /opt/built && \
   cd /opt/built && \
-  tar -xzf asciinema.tar.gz && \
-  rm asciinema.tar.gz
+  tar -xzf /opt/app/_build/${MIX_ENV}/rel/asciinema/releases/0.0.1/asciinema.tar.gz
 
-## Final image
+# Final image
 
 FROM alpine:3.8
 
-RUN apk update && \
-  apk add --no-cache \
+RUN apk add --no-cache \
   bash \
   librsvg \
   ttf-dejavu \
