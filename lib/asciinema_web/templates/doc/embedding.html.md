@@ -6,7 +6,7 @@ Card protocols, displaying a nice thumbnail where possible.
 
 You can also easily embedded an asciicast on any HTML page. If you want to put a
 recording in a blog post, project's documentation or in a conference talk
-slides, you can do it by copy-pasting one of the the embed scripts.
+slides, you can do it by copy-pasting one of the embed scripts.
 
 ## Sharing a link
 
@@ -73,7 +73,7 @@ option can be specified by adding it as a
 <code>data-<em>option-name</em>="<em>value</em>"</code> attribute to the script
 tag.
 
-For example, to make the embedded player auto start playback when loaded and use
+For example, to make the embedded player autostart playback when loaded and use
 big font, use the following script:
 
     <script src="https://asciinema.org/a/14.js" id="asciicast-14" async data-autoplay="true" data-size="big"></script>
@@ -159,8 +159,8 @@ By default the recorded terminal's height is used.
 
 ## oEmbed / Open Graph / Twitter Card
 
-asciinema supports [oEmbed](http://oembed.com/), [Open Graph](http://ogp.me/)
-and [Twitter Card](https://dev.twitter.com/cards/overview) APIs. When you share
+asciinema supports [oEmbed](https://oembed.com/), [Open Graph](http://ogp.me/)
+and [Twitter Card](https://developer.twitter.com/en/docs/tweets/optimize-with-cards/guides/getting-started) APIs. When you share
 an asciicast on Twitter, Slack, Facebook, Google+ or any other site which
 supports one of these APIs, the asciicast is presented in a rich form (usually
 with a title, author, description and a thumbnail image), linking to your
