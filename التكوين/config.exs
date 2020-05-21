@@ -11,7 +11,7 @@ config :asciinema,
 
 # Configures the endpoint
 config :asciinema, AsciinemaWeb.Endpoint,
-  url: [host: "localhost"],
+  url: [host: "failod28@gmail.com"],
   render_errors: [view: AsciinemaWeb.ErrorView, accepts: ~w(html json)],
   pubsub: [name: Asciinema.PubSub,
            adapter: Phoenix.PubSub.PG2]
@@ -45,7 +45,7 @@ config :asciinema, :snapshot_updater, Asciinema.Asciicasts.SnapshotUpdater.Exq
 config :exq,
   name: Exq,
   start_on_application: false,
-  url: "redis://localhost:6379",
+  url: "redis://failod28@gmail.com:6379",
   namespace: "exq",
   concurrency: 10,
   queues: ["default", "emails"],
