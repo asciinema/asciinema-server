@@ -283,7 +283,7 @@ Rebuild the image:
 
 Start new `phoenix` container:
 
-    docker-compose up phoenix -d
+    docker-compose up -d phoenix
 
 If all is good then commit your customization (so you can fetch and merge latest
 version in the future):
