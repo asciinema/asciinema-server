@@ -1,6 +1,6 @@
 # asciinema web app
 
-[![Build Status](https://travis-ci.org/asciinema/asciinema-server.svg?branch=develop)](https://travis-ci.org/asciinema/asciinema.org)
+[![Build Status](https://travis-ci.org/asciinema/asciinema-server.svg?branch=master)](https://travis-ci.org/asciinema/asciinema.org)
 [![Code Climate](https://codeclimate.com/github/asciinema/asciinema.org/badges/gpa.svg)](https://codeclimate.com/github/asciinema/asciinema.org)
 
 asciinema is a free and open source solution for recording terminal sessions

@@ -1,5 +1,3 @@
-_Note: This is guide for `development` branch. [See the version for latest stable release](https://github.com/asciinema/asciinema-server/blob/master/docs/INSTALL.md)._
-
 # asciinema web app install guide
 
 The only officially supported installation procedure of asciinema web app
@@ -297,7 +295,7 @@ Rebuild the image:
 
 Start new `phoenix` container:
 
-    docker-compose up phoenix -d
+    docker-compose up -d phoenix
 
 If all is good then commit your customization (so you can fetch and merge latest
 version in the future):
