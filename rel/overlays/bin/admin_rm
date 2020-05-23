@@ -1,0 +1,4 @@
+#!/bin/sh
+
+emails="$@"
+bin/asciinema eval "Asciinema.ReleaseTasks.admin_rm(\"$emails\")"

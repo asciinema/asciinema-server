@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+set -e
+
+bin/asciinema eval "Asciinema.ReleaseTasks.setup()"

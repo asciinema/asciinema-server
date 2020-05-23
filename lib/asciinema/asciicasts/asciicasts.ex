@@ -110,13 +110,21 @@ defmodule Asciinema.Asciicasts do
 
   def ensure_welcome_asciicast(user) do
     if Repo.count(Ecto.assoc(user, :asciicasts)) == 0 do
+      cast_path = Path.join(:code.priv_dir(:asciinema), "welcome.cast")
+      snapshot_path = Path.join(:code.priv_dir(:asciinema), "welcome.snapshot.json")
+
       upload = %Plug.Upload{
-        path: Path.join(:code.priv_dir(:asciinema), "welcome.json"),
-        filename: "asciicast.json",
-        content_type: "application/json"
+        path: cast_path,
+        filename: "ascii.cast",
+        content_type: "application/octet-stream"
       }
 
-      {:ok, _} = create_asciicast(user, upload, %{private: false, snapshot_at: 76.2})
+      {:ok, _} =
+        create_asciicast(user, upload, %{
+          private: false,
+          snapshot: Jason.decode!(File.read!(snapshot_path)),
+          snapshot_at: 76.2
+        })
     end
 
     :ok
@@ -137,7 +145,10 @@ defmodule Asciinema.Asciicasts do
          attrs = Map.merge(attrs, overrides),
          changeset = Asciicast.create_changeset(asciicast, attrs),
          {:ok, %Asciicast{} = asciicast} <- do_create_asciicast(changeset, files) do
-      :ok = SnapshotUpdater.update_snapshot(asciicast)
+      if asciicast.snapshot == nil do
+        :ok = SnapshotUpdater.update_snapshot(asciicast)
+      end
+
       {:ok, asciicast}
     end
   end

@@ -1,81 +1,37 @@
 defmodule Asciinema.ReleaseTasks do
-  @start_apps [
-    :crypto,
-    :ssl,
-    :postgrex,
-    :ecto,
-    :briefly,
-    :timex
-  ]
+  @moduledoc "Release tasks, callable from command line"
 
-  @repos Application.get_env(:asciinema, :ecto_repos, [])
+  @app :asciinema
 
-  def migrate do
-    start_services()
-    run_migrations()
-    stop_services()
+  def setup do
+    with_repo(fn repo ->
+      migrate(repo)
+      seed()
+    end)
+  end
+
+  def upgrade do
+    with_repo(fn repo ->
+      migrate(repo)
+      seed()
+      upgrade_data()
+    end)
+  end
+
+  def migrate(repo) do
+    Ecto.Migrator.run(repo, :up, all: true)
+  end
+
+  def rollback(repo, version) do
+    Ecto.Migrator.run(repo, :down, to: version)
   end
 
   def seed do
-    start_services()
-    start_vt_pool()
-    run_seeds()
-    stop_services()
-  end
-
-  def migrate_and_seed do
-    start_services()
-    start_vt_pool()
-    run_migrations()
-    run_seeds()
-    stop_services()
-  end
-
-  def upgrade_data do
-    start_services()
-    start_vt_pool()
-    IO.puts("Upgrading data...")
-    Asciinema.Asciicasts.upgrade()
-    stop_services()
-  end
-
-  defp start_services do
-    IO.puts("Starting dependencies..")
-    # Start apps necessary for executing migrations
-    Enum.each(@start_apps, &Application.ensure_all_started/1)
-
-    # Start the Repo(s) for app
-    IO.puts("Starting repos..")
-    Enum.each(@repos, & &1.start_link(pool_size: 1))
-  end
-
-  defp stop_services do
-    IO.puts("Success!")
-    :init.stop()
-  end
-
-  defp start_vt_pool do
-    Asciinema.Vt.Pool.start_link()
-  end
-
-  defp run_migrations do
-    Enum.each(@repos, &run_migrations_for/1)
-  end
-
-  defp run_migrations_for(repo) do
-    app = Keyword.get(repo.config, :otp_app)
-    IO.puts("Running migrations for #{app}")
-    migrations_path = priv_path_for(repo, "migrations")
-    Ecto.Migrator.run(repo, migrations_path, :up, all: true)
-  end
-
-  defp run_seeds do
-    Enum.each(@repos, &run_seeds_for/1)
-  end
-
-  defp run_seeds_for(repo) do
-    # Run the seed script if it exists
-    seed_script = priv_path_for(repo, "seeds.exs")
+    seed_script = Path.join([
+      to_string(:code.priv_dir(:asciinema)),
+      "repo",
+      "seeds.exs"
+    ])
 
     if File.exists?(seed_script) do
       IO.puts("Running seed script..")
@@ -83,17 +39,45 @@ defmodule Asciinema.ReleaseTasks do
     end
   end
 
-  defp priv_path_for(repo, filename) do
-    app = Keyword.get(repo.config, :otp_app)
+  def upgrade_data do
+    IO.puts("Upgrading data...")
+    Asciinema.Asciicasts.upgrade()
+  end
 
-    repo_underscore =
-      repo
-      |> Module.split()
-      |> List.last()
-      |> Macro.underscore()
+  def admin_add(emails) when is_binary(emails) do
+    emails
+    |> String.split(~r/[, ]+/)
+    |> admin_add()
+  end
 
-    priv_dir = "#{:code.priv_dir(app)}"
+  def admin_add(emails) when is_list(emails) do
+    with_repo(fn _repo ->
+      Asciinema.Accounts.add_admins(emails)
+      IO.puts "#{Enum.join(emails, ", ")} added to admin users list"
+    end)
+  end
 
-    Path.join([priv_dir, repo_underscore, filename])
+  def admin_rm(emails) when is_binary(emails) do
+    emails
+    |> String.split(~r/[, ]+/)
+    |> admin_rm()
+  end
+
+  def admin_rm(emails) when is_list(emails) do
+    with_repo(fn _repo ->
+      Asciinema.Accounts.remove_admins(emails)
+      IO.puts "#{Enum.join(emails, ", ")} removed from admin users list"
+    end)
+  end
+
+  defp with_repo(f) do
+    [repo] = repos()
+    {:ok, _, _} = Ecto.Migrator.with_repo(repo, f)
+    :ok
+  end
+
+  defp repos do
+    _ = Application.load(@app)
+    Application.fetch_env!(@app, :ecto_repos)
   end
 end

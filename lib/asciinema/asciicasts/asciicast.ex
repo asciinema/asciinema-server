@@ -62,7 +62,7 @@ defmodule Asciinema.Asciicasts.Asciicast do
   def create_changeset(struct, attrs) do
     struct
     |> changeset(attrs)
-    |> cast(attrs, [:version, :file, :duration, :terminal_columns, :terminal_lines, :terminal_type, :command, :shell, :uname, :user_agent, :recorded_at, :theme_fg, :theme_bg, :theme_palette, :idle_time_limit])
+    |> cast(attrs, [:version, :file, :duration, :terminal_columns, :terminal_lines, :terminal_type, :command, :shell, :uname, :user_agent, :recorded_at, :theme_fg, :theme_bg, :theme_palette, :idle_time_limit, :snapshot])
     |> validate_required([:user_id, :version, :duration, :terminal_columns, :terminal_lines])
     |> generate_secret_token
   end

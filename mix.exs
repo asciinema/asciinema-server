@@ -2,15 +2,24 @@ defmodule Asciinema.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :asciinema,
-     version: "0.0.1",
-     elixir: "~> 1.10",
-     elixirc_paths: elixirc_paths(Mix.env),
-     compilers: [:phoenix, :gettext] ++ Mix.compilers,
-     build_embedded: Mix.env == :prod,
-     start_permanent: Mix.env == :prod,
-     aliases: aliases(),
-     deps: deps()]
+    [
+      app: :asciinema,
+      version: "0.0.1",
+      elixir: "~> 1.10",
+      elixirc_paths: elixirc_paths(Mix.env),
+      compilers: [:phoenix, :gettext] ++ Mix.compilers,
+      build_embedded: Mix.env == :prod,
+      start_permanent: Mix.env == :prod,
+      aliases: aliases(),
+      deps: deps(),
+      releases: [
+        asciinema: [
+          config_providers: [
+            {Config.Reader, {:system, "RELEASE_ROOT", "/etc/custom.exs"}}
+          ]
+        ]
+      ]
+    ]
   end
 
   # Configuration for the OTP application.
@@ -34,7 +43,6 @@ defmodule Asciinema.Mixfile do
       {:bamboo_smtp, "~> 1.6"},
       {:briefly, "~> 0.3"},
       {:credo, "~> 1.4", only: [:dev, :test], runtime: false},
-      {:distillery, "~> 2.0"},
       {:earmark, "~> 1.4"},
       {:ecto_sql, "~> 3.0"},
       {:ex_aws, "~> 2.1"},

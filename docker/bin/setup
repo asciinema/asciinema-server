@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-
-set -e
-
-bin/asciinema migrate_and_seed
