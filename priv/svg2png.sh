@@ -6,7 +6,7 @@ set -e
 
 if which timeout 2>/dev/null; then
     if timeout --help 2>&1 | grep BusyBox >/dev/null; then
-        timeout="timeout -t 10"
+        timeout="timeout 10"
     else
         timeout="timeout -k 5 10"
     fi
