@@ -18,7 +18,6 @@ if db_url = System.get_env("TEST_DATABASE_URL") do
 end
 
 config :asciinema, Asciinema.Repo,
-  adapter: Ecto.Adapters.Postgres,
   username: "postgres",
   password: "postgres",
   database: "asciinema_test",

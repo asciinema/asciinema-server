@@ -32,7 +32,7 @@ defmodule Asciinema.Vt.Worker do
 
     case read_stdout_line(port) do
       {:ok, line} ->
-        result = line |> Poison.decode! |> Map.get("result")
+        result = line |> Jason.decode!() |> Map.get("result")
         {:reply, {:ok, result}, port}
 
       {:error, reason} ->
@@ -65,7 +65,7 @@ defmodule Asciinema.Vt.Worker do
   end
 
   defp send_cmd(port, cmd, data \\ %{}) do
-    json = data |> Map.put(:cmd, cmd) |> Poison.encode!
+    json = data |> Map.put(:cmd, cmd) |> Jason.encode!()
     true = Port.command(port, "#{json}\n")
   end
 

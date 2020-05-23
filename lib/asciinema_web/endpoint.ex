@@ -1,7 +1,9 @@
 defmodule AsciinemaWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :asciinema
+  use Sentry.Phoenix.Endpoint
 
-  socket "/socket", AsciinemaWeb.UserSocket
+  socket "/socket", AsciinemaWeb.UserSocket,
+    websocket: true
 
   # Serve at "/" the static files from "priv/static" directory.
   #

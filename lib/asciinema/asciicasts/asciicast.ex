@@ -6,6 +6,8 @@ defmodule Asciinema.Asciicasts.Asciicast do
 
   @default_theme "asciinema"
 
+  @timestamps_opts [type: :utc_datetime_usec]
+
   schema "asciicasts" do
     field :version, :integer
     field :file, :string
@@ -31,11 +33,11 @@ defmodule Asciinema.Asciicasts.Asciicast do
     field :shell, :string
     field :uname, :string
     field :user_agent, :string
-    field :recorded_at, Timex.Ecto.DateTime
+    field :recorded_at, :utc_datetime_usec
     field :idle_time_limit, :float
     field :views_count, :integer, default: 0
     field :archivable, :boolean, default: true
-    field :archived_at, Timex.Ecto.DateTime
+    field :archived_at, :utc_datetime_usec
 
     timestamps(inserted_at: :created_at)
 

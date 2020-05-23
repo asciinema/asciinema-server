@@ -7,6 +7,8 @@ defmodule Asciinema.Accounts.User do
   @valid_username_re ~r/^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]$/
   @valid_theme_names ["asciinema", "tango", "solarized-dark", "solarized-light", "monokai"]
 
+  @timestamps_opts [type: :utc_datetime_usec]
+
   schema "users" do
     field :username, :string
     field :temporary_username, :string
@@ -15,7 +17,7 @@ defmodule Asciinema.Accounts.User do
     field :auth_token, :string
     field :theme_name, :string
     field :asciicasts_private_by_default, :boolean, default: true
-    field :last_login_at, Timex.Ecto.DateTime
+    field :last_login_at, :utc_datetime_usec
     field :is_admin, :boolean
 
     timestamps(inserted_at: :created_at)

@@ -6,7 +6,7 @@ defmodule Asciinema.Vt.Pool do
   end
 
   def init([]) do
-    supervise([
+    Supervisor.init([
       :poolboy.child_spec(:vt_pool, pool_config())
     ], strategy: :one_for_one, name: __MODULE__)
   end

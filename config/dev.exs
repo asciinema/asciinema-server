@@ -41,7 +41,6 @@ config :phoenix, :stacktrace_depth, 20
 
 # Configure your database
 config :asciinema, Asciinema.Repo,
-  adapter: Ecto.Adapters.Postgres,
   username: "postgres",
   password: "postgres",
   database: "asciinema_development",

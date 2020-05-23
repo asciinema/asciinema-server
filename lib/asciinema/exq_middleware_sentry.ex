@@ -11,7 +11,7 @@ defmodule Asciinema.Exq.Middleware.Sentry do
 
   def after_failed_work(pipeline) do
     {exception, stacktrace} = pipeline.assigns.error
-    Sentry.capture_exception(exception, stacktrace: stacktrace, extra: Poison.decode!(pipeline.assigns.job_serialized))
+    Sentry.capture_exception(exception, stacktrace: stacktrace, extra: Jason.decode!(pipeline.assigns.job_serialized))
     pipeline
   end
 end

@@ -61,7 +61,6 @@ config :logger, level: :info
 #
 
 config :asciinema, Asciinema.Repo,
-  adapter: Ecto.Adapters.Postgres,
   pool_size: 20,
   ssl: false
 
