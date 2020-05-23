@@ -1,3 +1,7 @@
+ARG ALPINE_VERSION=3.11.3
+ARG ERLANG_OTP_VERSION=22.3
+ARG ELIXIR_VERSION=1.10.3
+
 ## VT building image
 
 FROM clojure:alpine AS vt
@@ -12,7 +16,8 @@ RUN lein cljsbuild once main
 
 ## Release building image
 
-FROM elixir:1.7.3-alpine AS builder
+# https://github.com/hexpm/bob#docker-images
+FROM hexpm/elixir:${ELIXIR_VERSION}-erlang-${ERLANG_OTP_VERSION}-alpine-${ALPINE_VERSION} as builder
 
 ARG MIX_ENV=prod
 
@@ -22,6 +27,7 @@ RUN apk upgrade && \
   apk add \
     nodejs \
     npm \
+    python2 \
     build-base && \
   mix local.rebar --force && \
   mix local.hex --force
@@ -52,10 +58,11 @@ RUN  mix release --verbose && \
 
 # Final image
 
-FROM alpine:3.8
+FROM alpine:${ALPINE_VERSION}
 
 RUN apk add --no-cache \
   bash \
+  ca-certificates \
   librsvg \
   ttf-dejavu \
   pngquant \
