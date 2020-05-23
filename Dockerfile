@@ -27,7 +27,6 @@ RUN apk upgrade && \
   apk add \
     nodejs \
     npm \
-    python2 \
     build-base && \
   mix local.rebar --force && \
   mix local.hex --force
