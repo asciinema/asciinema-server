@@ -394,6 +394,8 @@ defmodule AsciinemaWeb.AsciicastView do
       rows: rows,
       bg_lines: bg_lines,
       text_lines: text_lines,
+      rx: params[:rx],
+      ry: params[:ry],
       font_family: params[:font_family],
       theme_name: theme_name(asciicast)
     )

@@ -149,6 +149,18 @@ Likewise, the PostgreSQL and Redis images have data volumes that you may wish to
 map somewhere where you know how to find them and back them up. By default
 they're mapped inside repository's `volumes` directory.
 
+### Pull latest Docker image
+
+There's official stable [asciinema-server Docker
+image](https://hub.docker.com/r/asciinema/asciinema-server) which is regularly
+updated. Let's pull it now:
+
+    docker pull asciinema/asciinema-server:latest
+
+If you skip this step, the `docker-compose` invocation in following section will
+automatically build the image locally from scratch. Pulling it now will save you
+time and trouble though.
+
 ### Initialize the database
 
 You have the config file ready and the data volumes mapped. It's time to set up
