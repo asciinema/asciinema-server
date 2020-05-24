@@ -37,7 +37,8 @@ config :sentry,
   environment_name: Mix.env(),
   enable_source_code_context: true,
   root_source_code_path: File.cwd!(),
-  included_environments: [],
+  included_environments: [:prod],
+  tags: %{env: Mix.env()},
   in_app_module_whitelist: [Asciinema]
 
 config :asciinema, :file_store, Asciinema.FileStore.Local
