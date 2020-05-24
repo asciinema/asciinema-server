@@ -1,5 +1,8 @@
 defmodule Asciinema.Repo do
-  use Ecto.Repo, otp_app: :asciinema
+  use Ecto.Repo,
+    otp_app: :asciinema,
+    adapter: Ecto.Adapters.Postgres
+
   use Scrivener, page_size: 10
 
   @doc """

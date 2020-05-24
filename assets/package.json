@@ -1,30 +1,30 @@
 {
   "repository": {},
+  "description": " ",
   "license": "MIT",
   "scripts": {
     "deploy": "webpack --mode production",
     "watch": "webpack --mode development --watch"
   },
   "devDependencies": {
-    "autoprefixer": "^8.1.0",
-    "babel-core": "^6.26.3",
-    "babel-loader": "^7.1.3",
-    "babel-preset-env": "^1.7.0",
-    "bootstrap": ">=4.1.2",
-    "copy-webpack-plugin": "^4.5.0",
-    "css-loader": "^0.28.10",
+    "@babel/core": "^7.0.0",
+    "@babel/preset-env": "^7.0.0",
+    "babel-loader": "^8.0.0",
+    "bootstrap": "^4.5.0",
+    "copy-webpack-plugin": "^5.1.1",
+    "css-loader": "^3.4.2",
     "expose-loader": "^0.7.5",
-    "extract-text-webpack-plugin": "^4.0.0-beta.0",
-    "file-loader": "^1.1.11",
-    "jquery": "^3.3.1",
-    "node-sass": "^4.11.0",
-    "phoenix": "1.3.4",
-    "phoenix_html": "2.12.0",
+    "file-loader": "6.0.0",
+    "jquery": "^3.5.1",
+    "mini-css-extract-plugin": "^0.9.0",
+    "node-sass": "^4.13.1",
+    "optimize-css-assets-webpack-plugin": "^5.0.1",
+    "phoenix_html": "2.14.2",
+    "phoenix": "1.4.17",
     "popper.js": "^1.14.3",
-    "postcss-loader": "^2.1.1",
-    "sass-loader": "^6.0.7",
-    "style-loader": "^0.20.2",
-    "webpack": "^4.26.1",
-    "webpack-cli": "^3.1.2"
+    "sass-loader": "^8.0.2",
+    "terser-webpack-plugin": "^2.3.2",
+    "webpack-cli": "^3.3.2",
+    "webpack": "4.41.5"
   }
 }

@@ -3,9 +3,11 @@ defmodule Asciinema.Accounts.ApiToken do
   import Ecto.Changeset
   alias Asciinema.Accounts.{ApiToken, User}
 
+  @timestamps_opts [type: :utc_datetime_usec]
+
   schema "api_tokens" do
     field :token, :string
-    field :revoked_at, Timex.Ecto.DateTime
+    field :revoked_at, :utc_datetime_usec
 
     timestamps(inserted_at: :created_at)
 

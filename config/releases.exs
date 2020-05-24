@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 env = &System.get_env/1
 

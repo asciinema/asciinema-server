@@ -20,8 +20,6 @@ defmodule Asciinema.Application do
       Asciinema.Scheduler
     ]
 
-    :ok = :error_logger.add_report_handler(Sentry.Logger)
-
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: Asciinema.Supervisor]

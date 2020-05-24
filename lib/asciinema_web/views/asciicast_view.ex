@@ -465,7 +465,7 @@ defmodule AsciinemaWeb.AsciicastView do
   end
 
   def percent(float) do
-    "#{Decimal.round(Decimal.new(float), 3)}%"
+    "#{Decimal.round(Decimal.from_float(float), 3)}%"
   end
 
   def asciicast_gc_days do

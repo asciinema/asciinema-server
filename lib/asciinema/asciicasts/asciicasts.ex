@@ -110,13 +110,21 @@ defmodule Asciinema.Asciicasts do
 
   def ensure_welcome_asciicast(user) do
     if Repo.count(Ecto.assoc(user, :asciicasts)) == 0 do
+      cast_path = Path.join(:code.priv_dir(:asciinema), "welcome.cast")
+      snapshot_path = Path.join(:code.priv_dir(:asciinema), "welcome.snapshot.json")
+
       upload = %Plug.Upload{
-        path: Path.join(:code.priv_dir(:asciinema), "welcome.json"),
-        filename: "asciicast.json",
-        content_type: "application/json"
+        path: cast_path,
+        filename: "ascii.cast",
+        content_type: "application/octet-stream"
       }
 
-      {:ok, _} = create_asciicast(user, upload, %{private: false, snapshot_at: 76.2})
+      {:ok, _} =
+        create_asciicast(user, upload, %{
+          private: false,
+          snapshot: Jason.decode!(File.read!(snapshot_path)),
+          snapshot_at: 76.2
+        })
     end
 
     :ok
@@ -137,7 +145,10 @@ defmodule Asciinema.Asciicasts do
          attrs = Map.merge(attrs, overrides),
          changeset = Asciicast.create_changeset(asciicast, attrs),
          {:ok, %Asciicast{} = asciicast} <- do_create_asciicast(changeset, files) do
-      :ok = SnapshotUpdater.update_snapshot(asciicast)
+      if asciicast.snapshot == nil do
+        :ok = SnapshotUpdater.update_snapshot(asciicast)
+      end
+
       {:ok, asciicast}
     end
   end
@@ -275,10 +286,9 @@ defmodule Asciinema.Asciicasts do
   end
 
   defp decode_json(json) do
-    case Poison.decode(json) do
+    case Jason.decode(json) do
       {:ok, thing} -> {:ok, thing}
-      {:error, :invalid, _} -> {:error, :invalid}
-      {:error, {:invalid, _, _}} -> {:error, :invalid}
+      {:error, %Jason.DecodeError{}}-> {:error, :invalid}
     end
   end
 
@@ -337,14 +347,14 @@ defmodule Asciinema.Asciicasts do
 
     case first_two_lines do
       ["{" <> _ = header_line, "[" <> _] ->
-        header = Poison.decode!(header_line)
+        header = Jason.decode!(header_line)
         2 = header["version"]
 
         asciicast_file_path
         |> File.stream!([], :line)
         |> Stream.drop(1)
         |> Stream.reject(fn line -> line == "\n" end)
-        |> Stream.map(&Poison.decode!/1)
+        |> Stream.map(&Jason.decode!/1)
         |> Stream.filter(fn [_, type, _] -> type == "o" end)
         |> Stream.map(fn [t, _, s] -> {t, s} end)
         |> to_relative_time
@@ -355,7 +365,7 @@ defmodule Asciinema.Asciicasts do
         asciicast =
           asciicast_file_path
           |> File.read!()
-          |> Poison.decode!()
+          |> Jason.decode!()
 
         1 = asciicast["version"]
 
@@ -594,11 +604,11 @@ defmodule Asciinema.Asciicasts do
     header = Map.put(header, :version, 2)
 
     File.open!(tmp_path, [:write, :utf8], fn f ->
-      :ok = IO.write(f, "#{Poison.encode!(header, pretty: false)}\n")
+      :ok = IO.write(f, "#{Jason.encode!(header, pretty: false)}\n")
 
       for {t, s} <- stdout_stream do
         event = [t, "o", s]
-        :ok = IO.write(f, "#{Poison.encode!(event, pretty: false)}\n")
+        :ok = IO.write(f, "#{Jason.encode!(event, pretty: false)}\n")
       end
     end)
 

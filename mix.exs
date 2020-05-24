@@ -2,15 +2,24 @@ defmodule Asciinema.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :asciinema,
-     version: "0.0.1",
-     elixir: "~> 1.7",
-     elixirc_paths: elixirc_paths(Mix.env),
-     compilers: [:phoenix, :gettext] ++ Mix.compilers,
-     build_embedded: Mix.env == :prod,
-     start_permanent: Mix.env == :prod,
-     aliases: aliases(),
-     deps: deps()]
+    [
+      app: :asciinema,
+      version: "0.0.1",
+      elixir: "~> 1.10",
+      elixirc_paths: elixirc_paths(Mix.env),
+      compilers: [:phoenix, :gettext] ++ Mix.compilers,
+      build_embedded: Mix.env == :prod,
+      start_permanent: Mix.env == :prod,
+      aliases: aliases(),
+      deps: deps(),
+      releases: [
+        asciinema: [
+          config_providers: [
+            {Config.Reader, {:system, "RELEASE_ROOT", "/etc/custom.exs"}}
+          ]
+        ]
+      ]
+    ]
   end
 
   # Configuration for the OTP application.
@@ -33,35 +42,33 @@ defmodule Asciinema.Mixfile do
       {:bamboo, "~> 1.2"},
       {:bamboo_smtp, "~> 1.6"},
       {:briefly, "~> 0.3"},
-      {:cowboy, "~> 1.0"},
-      {:credo, "~> 0.10.0", only: [:dev, :test], runtime: false},
-      {:distillery, "~> 2.0"},
-      {:earmark, "~> 1.2"},
-      {:ex_aws, "~> 1.0"},
-      {:ex_machina, "~> 2.1", only: :test},
-      {:exq, "~> 0.12.2"},
-      {:exq_ui, "~> 0.9.0"},
-      {:gettext, "~> 0.11"},
-      {:html_sanitize_ex, "~> 1.3"},
-      {:inflex, "~> 1.9"},
-      {:jason, "~> 1.1"},
-      {:phoenix, "~> 1.3.4"},
-      {:phoenix_ecto, "~> 3.4"},
-      {:phoenix_html, "~> 2.12"},
-      {:phoenix_live_reload, "~> 1.1", only: :dev},
-      {:phoenix_markdown, "~> 0.1"},
+      {:credo, "~> 1.4", only: [:dev, :test], runtime: false},
+      {:earmark, "~> 1.4"},
+      {:ecto_sql, "~> 3.0"},
+      {:ex_aws, "~> 2.1"},
+      {:ex_aws_s3, "~> 2.0"},
+      {:ex_machina, "~> 2.4", only: :test},
+      {:exq, "~> 0.13.5"},
+      {:exq_ui, "~> 0.11.0"},
+      {:gettext, "~> 0.18"},
+      {:html_sanitize_ex, "~> 1.4"},
+      {:inflex, "~> 2.0"},
+      {:jason, "~> 1.2"},
+      {:phoenix, "~> 1.4.17"},
+      {:phoenix_ecto, "~> 4.1"},
+      {:phoenix_html, "~> 2.14"},
+      {:phoenix_live_reload, "~> 1.2", only: :dev},
+      {:phoenix_markdown, "~> 1.0"},
       {:phoenix_pubsub, "~> 1.1"},
-      {:plug_cowboy, "~> 1.0"},
-      {:poison, "~> 3.1"},
+      {:plug_cowboy, "~> 2.2"},
       {:poolboy, "~> 1.5"},
       {:postgrex, ">= 0.0.0"},
-      {:quantum, "~> 2.3"},
-      {:redix, ">= 0.6.1"},
-      {:scrivener_ecto, "~> 1.0"},
-      {:scrivener_html, "~> 1.7"},
-      {:sentry, "~> 6.4"},
-      {:timex, "~> 3.0"},
-      {:timex_ecto, "~> 3.0"},
+      {:quantum, "~> 2.4"},
+      {:redix, "~> 0.10.7"},
+      {:scrivener_ecto, "~> 2.4"},
+      {:scrivener_html, "~> 1.8"},
+      {:sentry, "~> 7.2"},
+      {:timex, "~> 3.6"},
     ]
   end
 

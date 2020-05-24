@@ -1,3 +1,7 @@
+ARG ALPINE_VERSION=3.11.3
+ARG ERLANG_OTP_VERSION=22.3
+ARG ELIXIR_VERSION=1.10.3
+
 ## VT building image
 
 FROM clojure:alpine AS vt
@@ -12,7 +16,8 @@ RUN lein cljsbuild once main
 
 ## Release building image
 
-FROM elixir:1.7.3-alpine AS builder
+# https://github.com/hexpm/bob#docker-images
+FROM hexpm/elixir:${ELIXIR_VERSION}-erlang-${ERLANG_OTP_VERSION}-alpine-${ALPINE_VERSION} as builder
 
 ARG MIX_ENV=prod
 
@@ -45,17 +50,15 @@ RUN mix compile
 COPY --from=vt /app/vt/main.js priv/vt/
 COPY vt/liner.js priv/vt/
 
-RUN  mix release --verbose && \
-  mkdir -p /opt/built && \
-  cd /opt/built && \
-  tar -xzf /opt/app/_build/${MIX_ENV}/rel/asciinema/releases/0.0.1/asciinema.tar.gz
+RUN mix release
 
 # Final image
 
-FROM alpine:3.8
+FROM alpine:${ALPINE_VERSION}
 
 RUN apk add --no-cache \
   bash \
+  ca-certificates \
   librsvg \
   ttf-dejavu \
   pngquant \
@@ -63,10 +66,8 @@ RUN apk add --no-cache \
 
 WORKDIR /opt/app
 
-COPY --from=builder /opt/built .
-COPY config/custom.exs.sample /opt/app/etc/custom.exs
+COPY --from=builder /opt/app/_build/prod/rel/asciinema .
 COPY .iex.exs .
-COPY docker/bin/ bin/
 
 ENV PORT 4000
 ENV DATABASE_URL "postgresql://postgres@postgres/postgres"
@@ -77,6 +78,6 @@ ENV PATH "/opt/app/bin:${PATH}"
 VOLUME /opt/app/uploads
 VOLUME /opt/app/cache
 
-CMD trap 'exit' INT; /opt/app/bin/asciinema foreground
+CMD exec /opt/app/bin/asciinema start
 
 EXPOSE 4000

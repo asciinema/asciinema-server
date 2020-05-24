@@ -9,6 +9,9 @@ use Mix.Config
 config :asciinema,
   ecto_repos: [Asciinema.Repo]
 
+config :asciinema, Asciinema.Repo,
+  migration_timestamps: [type: :naive_datetime_usec]
+
 # Configures the endpoint
 config :asciinema, AsciinemaWeb.Endpoint,
   url: [host: "localhost"],
@@ -21,15 +24,21 @@ config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
 
+config :logger,
+  backends: [:console, Sentry.LoggerBackend]
+
 config :phoenix, :template_engines,
   md: PhoenixMarkdown.Engine
 
+config :phoenix, :json_library, Jason
+
 config :sentry,
   dsn: "https://public:secret@sentry.io/1",
-  environment_name: Mix.env,
+  environment_name: Mix.env(),
   enable_source_code_context: true,
-  root_source_code_path: File.cwd!,
+  root_source_code_path: File.cwd!(),
   included_environments: [:prod],
+  tags: %{env: Mix.env()},
   in_app_module_whitelist: [Asciinema]
 
 config :asciinema, :file_store, Asciinema.FileStore.Local
