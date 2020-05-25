@@ -16,3 +16,9 @@ priv/static/
 uploads/*
 volumes
 .stuff
+native/vt/.cargo
+native/vt/.git
+native/vt/target
+native/vt_nif/.cargo
+native/vt_nif/target
+priv/native/

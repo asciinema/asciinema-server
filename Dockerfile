@@ -27,6 +27,8 @@ RUN apk upgrade && \
   apk add \
     nodejs \
     npm \
+    rust \
+    cargo \
     build-base && \
   mix local.rebar --force && \
   mix local.hex --force
@@ -45,6 +47,7 @@ COPY config/*.exs config/
 COPY lib lib/
 COPY priv priv/
 COPY rel rel/
+COPY native native/
 RUN mix compile
 
 COPY --from=vt /app/vt/main.js priv/vt/
