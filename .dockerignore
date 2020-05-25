@@ -1,5 +1,6 @@
 _build/
 deps/
+.elixir_ls
 .git
 .gitignore
 .vagrant/
