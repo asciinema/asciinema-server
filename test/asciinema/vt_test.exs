@@ -1,6 +1,6 @@
-defmodule Asciinema.VtRsTest do
+defmodule Asciinema.VtTest do
   use ExUnit.Case
-  alias Asciinema.VtRs, as: Vt
+  alias Asciinema.Vt
 
   @moduletag :vt
 

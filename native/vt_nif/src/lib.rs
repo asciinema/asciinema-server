@@ -20,7 +20,7 @@ pub struct MutableResource {
 }
 
 rustler::rustler_export_nifs! {
-    "Elixir.Asciinema.VtRs",
+    "Elixir.Asciinema.Vt",
     [
         ("new", 2, new),
         ("feed", 2, feed),

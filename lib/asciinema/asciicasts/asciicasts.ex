@@ -1,8 +1,7 @@
 defmodule Asciinema.Asciicasts do
   require Logger
   import Ecto.Query, warn: false
-  alias Asciinema.{Repo, FileStore, StringUtils}
-  alias Asciinema.VtRs, as: Vt
+  alias Asciinema.{Repo, FileStore, StringUtils, Vt}
   alias Asciinema.Asciicasts.{Asciicast, SnapshotUpdater}
   alias Ecto.Changeset
 

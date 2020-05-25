@@ -1,4 +1,4 @@
-defmodule Asciinema.VtRs do
+defmodule Asciinema.Vt do
   use Rustler, otp_app: :asciinema, crate: "vt_nif"
 
   def with_vt(width, height, f) do

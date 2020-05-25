@@ -1,4 +1,4 @@
-# NIF for Elixir.Asciinema.VtRs
+# NIF for Elixir.Asciinema.Vt
 
 ## To build the NIF module:
 
@@ -9,7 +9,7 @@
 ## To load the NIF:
 
 ```elixir
-defmodule Asciinema.VtRs do
+defmodule Asciinema.Vt do
     use Rustler, otp_app: <otp-app>, crate: "vt_nif"
 
     # When your NIF is loaded, it will override this function.
