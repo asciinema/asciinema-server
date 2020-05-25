@@ -37,6 +37,3 @@ config :exq_ui, server: false
 
 config :asciinema, Asciinema.Emails.Mailer,
   adapter: Bamboo.TestAdapter
-
-config :asciinema, Asciinema.Vt.Worker,
-  vt_script_path: "vt/main.js"

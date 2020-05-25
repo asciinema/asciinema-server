@@ -2,18 +2,6 @@ ARG ALPINE_VERSION=3.11.3
 ARG ERLANG_OTP_VERSION=22.3
 ARG ELIXIR_VERSION=1.10.3
 
-## VT building image
-
-FROM clojure:alpine AS vt
-
-WORKDIR /app/vt
-
-COPY vt/project.clj /app/vt/
-COPY vt/src /app/vt/src
-COPY vt/resources /app/vt/resources
-RUN lein deps
-RUN lein cljsbuild once main
-
 ## Release building image
 
 # https://github.com/hexpm/bob#docker-images
@@ -46,13 +34,10 @@ RUN mix phx.digest
 COPY config/*.exs config/
 COPY lib lib/
 COPY priv priv/
-COPY rel rel/
 COPY native native/
 RUN mix compile
 
-COPY --from=vt /app/vt/main.js priv/vt/
-COPY vt/liner.js priv/vt/
-
+COPY rel rel/
 RUN mix release
 
 # Final image
@@ -64,8 +49,7 @@ RUN apk add --no-cache \
   ca-certificates \
   librsvg \
   ttf-dejavu \
-  pngquant \
-  nodejs
+  pngquant
 
 WORKDIR /opt/app
 
