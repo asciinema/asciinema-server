@@ -480,30 +480,32 @@ defmodule Asciinema.Asciicasts do
   def generate_snapshot(stdout_stream, width, height, secs) do
     frames = Stream.take_while(stdout_stream, &frame_before_or_at?(&1, secs))
 
-    {:ok, %{"lines" => lines, "cursor" => cursor}} =
+    {:ok, {lines, cursor}} =
       Vt.with_vt(width, height, fn vt ->
         Enum.each(frames, fn {_, text} -> Vt.feed(vt, text) end)
-        Vt.dump_screen(vt, 30_000)
+        Vt.dump_screen(vt)
       end)
 
-    case cursor do
-      %{"visible" => true, "x" => x, "y" => y} ->
-        lines
-        |> AsciinemaWeb.AsciicastView.split_chunks()
-        |> List.update_at(y, fn line ->
-          List.update_at(line, x, fn {text, attrs} ->
-            attrs = Map.put(attrs, "inverse", !(attrs["inverse"] || false))
-            {text, attrs}
+    lines =
+      case cursor do
+        {x, y} ->
+          lines
+          |> AsciinemaWeb.AsciicastView.split_chunks()
+          |> List.update_at(y, fn line ->
+            List.update_at(line, x, fn {text, attrs} ->
+              attrs = Map.put(attrs, "inverse", !(attrs["inverse"] || false))
+              {text, attrs}
+            end)
           end)
-        end)
-        |> AsciinemaWeb.AsciicastView.group_chunks()
-        |> Enum.map(fn chunks ->
-          Enum.map(chunks, &Tuple.to_list/1)
-        end)
+          |> AsciinemaWeb.AsciicastView.group_chunks()
 
-      _ ->
-        lines
-    end
+        _ ->
+          lines
+      end
+
+    Enum.map(lines, fn chunks ->
+      Enum.map(chunks, &Tuple.to_list/1)
+    end)
   end
 
   defp to_absolute_time(stream) do

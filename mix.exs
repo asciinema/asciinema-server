@@ -7,7 +7,7 @@ defmodule Asciinema.Mixfile do
       version: "0.0.1",
       elixir: "~> 1.10",
       elixirc_paths: elixirc_paths(Mix.env),
-      compilers: [:phoenix, :gettext] ++ Mix.compilers,
+      compilers: [:phoenix, :gettext, :rustler] ++ Mix.compilers,
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
       aliases: aliases(),
@@ -18,7 +18,8 @@ defmodule Asciinema.Mixfile do
             {Config.Reader, {:system, "RELEASE_ROOT", "/etc/custom.exs"}}
           ]
         ]
-      ]
+      ],
+      rustler_crates: [vt_nif: []]
     ]
   end
 
@@ -65,6 +66,7 @@ defmodule Asciinema.Mixfile do
       {:postgrex, ">= 0.0.0"},
       {:quantum, "~> 2.4"},
       {:redix, "~> 0.10.7"},
+      {:rustler, "~> 0.21.0"},
       {:scrivener_ecto, "~> 2.4"},
       {:scrivener_html, "~> 1.8"},
       {:sentry, "~> 7.2"},

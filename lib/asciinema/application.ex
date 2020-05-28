@@ -15,7 +15,6 @@ defmodule Asciinema.Application do
       # Start your own worker by calling: Asciinema.Worker.start_link(arg1, arg2, arg3)
       # worker(Asciinema.Worker, [arg1, arg2, arg3]),
       :poolboy.child_spec(:worker, Asciinema.PngGenerator.Rsvg.poolboy_config(), []),
-      supervisor(Asciinema.Vt.Pool, []),
       supervisor(Exq, []),
       Asciinema.Scheduler
     ]

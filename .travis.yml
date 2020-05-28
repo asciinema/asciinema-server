@@ -1,7 +1,9 @@
 language: elixir
 elixir: '1.10.3'
 otp_release: '22.3'
-before_install: gem install sass
+before_install:
+  - curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable
+  - source $HOME/.cargo/env
 script: cd assets && npm install && node_modules/webpack/bin/webpack.js --mode development && cd .. && mix test
 services:
   - postgresql

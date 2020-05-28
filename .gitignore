@@ -38,3 +38,4 @@ erl_crash.dump
 .DS_Store
 .envrc
 .projectile
+/priv/native

@@ -1,22 +1,18 @@
 defmodule Asciinema.Vt do
-  alias Asciinema.Vt.{Pool, Worker}
+  use Rustler, otp_app: :asciinema, crate: "vt_nif"
 
   def with_vt(width, height, f) do
-    Pool.checkout(fn vt ->
-      :ok = new(vt, width, height)
-      f.(vt)
-    end)
+    with {:ok, vt} <- new(width, height), do: f.(vt)
   end
 
-  def new(vt, width, height) do
-    Worker.new(vt, width, height)
-  end
+  # When NIF is loaded, it will override following functions.
 
-  def feed(vt, data) do
-    Worker.feed(vt, data)
-  end
+  def new(_width, _height), do: :erlang.nif_error(:nif_not_loaded)
+  # => {:ok, vt} | {:error, :invalid_size}
 
-  def dump_screen(vt, timeout \\ 5_000) do
-    Worker.dump_screen(vt, timeout)
-  end
+  def feed(_vt, _str), do: :erlang.nif_error(:nif_not_loaded)
+  # => :ok
+
+  def dump_screen(_vt), do: :erlang.nif_error(:nif_not_loaded)
+  # => {:ok, {lines, cursor}}
 end
