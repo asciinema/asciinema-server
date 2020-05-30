@@ -1,4 +1,4 @@
-defmodule Asciinema.Mixfile do
+defmodule Asciinema.MixProject do
   use Mix.Project
 
   def project do
@@ -6,10 +6,9 @@ defmodule Asciinema.Mixfile do
       app: :asciinema,
       version: "0.0.1",
       elixir: "~> 1.10",
-      elixirc_paths: elixirc_paths(Mix.env),
-      compilers: [:phoenix, :gettext, :rustler] ++ Mix.compilers,
-      build_embedded: Mix.env == :prod,
-      start_permanent: Mix.env == :prod,
+      elixirc_paths: elixirc_paths(Mix.env()),
+      compilers: [:phoenix, :gettext, :rustler] ++ Mix.compilers(),
+      start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
       releases: [
@@ -27,8 +26,10 @@ defmodule Asciinema.Mixfile do
   #
   # Type `mix help compile.app` for more information.
   def application do
-    [mod: {Asciinema.Application, []},
-     extra_applications: [:logger]]
+    [
+      mod: {Asciinema.Application, []},
+      extra_applications: [:logger, :runtime_tools]
+    ]
   end
 
   # Specifies which paths to compile per environment.
@@ -82,8 +83,10 @@ defmodule Asciinema.Mixfile do
   #
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
-    ["ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
-     "ecto.reset": ["ecto.drop", "ecto.setup"],
-     test: ["ecto.create --quiet", "ecto.migrate", "test"]]
+    [
+      "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
+      "ecto.reset": ["ecto.drop", "ecto.setup"],
+      test: ["ecto.create --quiet", "ecto.migrate", "test"]
+    ]
   end
 end

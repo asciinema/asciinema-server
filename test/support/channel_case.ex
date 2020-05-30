@@ -20,12 +20,6 @@ defmodule AsciinemaWeb.ChannelCase do
       # Import conveniences for testing with channels
       use Phoenix.ChannelTest
 
-      alias Asciinema.Repo
-      import Ecto
-      import Ecto.Changeset
-      import Ecto.Query
-
-
       # The default endpoint for testing
       @endpoint AsciinemaWeb.Endpoint
     end

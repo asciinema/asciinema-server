@@ -1,5 +1,14 @@
 use Mix.Config
 
+# Configure your database
+config :asciinema, Asciinema.Repo,
+  username: "postgres",
+  password: "postgres",
+  database: "asciinema_development",
+  hostname: "localhost",
+  show_sensitive_data_on_connection_error: true,
+  pool_size: 10
+
 secret_key_base =
   System.get_env("SECRET_KEY_BASE") ||
   "60BnXnzGGwwiZj91YA9XYKF9BCiM7lQ/1um8VXcWWLSdUp9OcPZV6YnQv7eFTYSY"
@@ -16,8 +25,15 @@ config :asciinema, AsciinemaWeb.Endpoint,
   code_reloader: true,
   check_origin: false,
   secret_key_base: secret_key_base,
-  watchers: [node: ["node_modules/webpack/bin/webpack.js", "--mode", "development", "--watch-stdin",
-                    cd: Path.expand("../assets", __DIR__)]]
+  watchers: [
+    node: [
+      "node_modules/webpack/bin/webpack.js",
+      "--mode",
+      "development",
+      "--watch-stdin",
+      cd: Path.expand("../assets", __DIR__)
+    ]
+  ]
 
 config :asciinema, Asciinema.Accounts, secret: secret_key_base
 
@@ -25,10 +41,10 @@ config :asciinema, Asciinema.Accounts, secret: secret_key_base
 config :asciinema, AsciinemaWeb.Endpoint,
   live_reload: [
     patterns: [
-      ~r{priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$},
-      ~r{priv/gettext/.*(po)$},
-      ~r{lib/asciinema_web/views/.*(ex)$},
-      ~r{lib/asciinema_web/templates/.*(eex|md)$}
+      ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
+      ~r"priv/gettext/.*(po)$",
+      ~r"lib/asciinema_web/views/.*(ex)$",
+      ~r"lib/asciinema_web/templates/.*(eex|md)$"
     ]
   ]
 
@@ -39,13 +55,8 @@ config :logger, :console, format: "[$level] $message\n"
 # in production as building large stacktraces may be expensive.
 config :phoenix, :stacktrace_depth, 20
 
-# Configure your database
-config :asciinema, Asciinema.Repo,
-  username: "postgres",
-  password: "postgres",
-  database: "asciinema_development",
-  hostname: "localhost",
-  pool_size: 10
+# Initialize plugs at runtime for faster development compilation
+config :phoenix, :plug_init_mode, :runtime
 
 config :asciinema, Asciinema.Emails.Mailer,
   adapter: Bamboo.LocalAdapter

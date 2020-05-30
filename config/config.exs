@@ -3,9 +3,10 @@
 #
 # This configuration file is loaded before any dependency and
 # is restricted to this project.
-use Mix.Config
 
 # General application configuration
+use Mix.Config
+
 config :asciinema,
   ecto_repos: [Asciinema.Repo]
 
@@ -16,8 +17,7 @@ config :asciinema, Asciinema.Repo,
 config :asciinema, AsciinemaWeb.Endpoint,
   url: [host: "localhost"],
   render_errors: [view: AsciinemaWeb.ErrorView, accepts: ~w(html json)],
-  pubsub: [name: Asciinema.PubSub,
-           adapter: Phoenix.PubSub.PG2]
+  pubsub: [name: Asciinema.PubSub, adapter: Phoenix.PubSub.PG2]
 
 # Configures Elixir's Logger
 config :logger, :console,
@@ -27,10 +27,11 @@ config :logger, :console,
 config :logger,
   backends: [:console, Sentry.LoggerBackend]
 
+# Use Jason for JSON parsing in Phoenix
+config :phoenix, :json_library, Jason
+
 config :phoenix, :template_engines,
   md: PhoenixMarkdown.Engine
-
-config :phoenix, :json_library, Jason
 
 config :sentry,
   dsn: "https://public:secret@sentry.io/1",
@@ -76,4 +77,4 @@ config :asciinema, Asciinema.Scheduler,
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
-import_config "#{Mix.env}.exs"
+import_config "#{Mix.env()}.exs"

@@ -20,11 +20,6 @@ defmodule AsciinemaWeb.ConnCase do
       # Import conveniences for testing with connections
       use Phoenix.ConnTest
 
-      alias Asciinema.Repo
-      import Ecto
-      import Ecto.Changeset
-      import Ecto.Query
-
       import AsciinemaWeb.Router.Helpers
       import AsciinemaWeb.Router.Helpers.Extra
       import Asciinema.Fixtures

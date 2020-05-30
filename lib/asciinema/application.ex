@@ -1,25 +1,28 @@
 defmodule Asciinema.Application do
+  # See https://hexdocs.pm/elixir/Application.html
+  # for more information on OTP Applications
+  @moduledoc false
+
   use Application
 
-  # See http://elixir-lang.org/docs/stable/elixir/Application.html
-  # for more information on OTP Applications
   def start(_type, _args) do
     import Supervisor.Spec
 
-    # Define workers and child supervisors to be supervised
+    # List all child processes to be supervised
     children = [
       # Start the Ecto repository
-      supervisor(Asciinema.Repo, []),
+      Asciinema.Repo,
       # Start the endpoint when the application starts
-      supervisor(AsciinemaWeb.Endpoint, []),
-      # Start your own worker by calling: Asciinema.Worker.start_link(arg1, arg2, arg3)
-      # worker(Asciinema.Worker, [arg1, arg2, arg3]),
+      AsciinemaWeb.Endpoint,
+      # Start PNG generator poolboy pool
       :poolboy.child_spec(:worker, Asciinema.PngGenerator.Rsvg.poolboy_config(), []),
+      # Start Exq workers
       supervisor(Exq, []),
+      # Start cron job scheduler
       Asciinema.Scheduler
     ]
 
-    # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
+    # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: Asciinema.Supervisor]
     Supervisor.start_link(children, opts)

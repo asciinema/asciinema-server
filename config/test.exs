@@ -1,5 +1,20 @@
 use Mix.Config
 
+# Configure your database
+config :asciinema, Asciinema.Repo,
+  username: "postgres",
+  password: "postgres",
+  database: "asciinema_test",
+  hostname: "localhost",
+  pool: Ecto.Adapters.SQL.Sandbox
+
+if db_url = System.get_env("TEST_DATABASE_URL") do
+  System.put_env("DATABASE_URL", db_url)
+end
+
+# Print only errors during test
+config :logger, level: :error
+
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
 config :asciinema, AsciinemaWeb.Endpoint,
@@ -8,21 +23,6 @@ config :asciinema, AsciinemaWeb.Endpoint,
   server: false
 
 config :asciinema, Asciinema.Accounts, secret: "ssecretkeybasesecretkeybasesecretkeybasesecretkeybaseecretkeybase"
-
-# Print only errors during test
-config :logger, level: :error
-
-# Configure your database
-if db_url = System.get_env("TEST_DATABASE_URL") do
-  System.put_env("DATABASE_URL", db_url)
-end
-
-config :asciinema, Asciinema.Repo,
-  username: "postgres",
-  password: "postgres",
-  database: "asciinema_test",
-  hostname: "localhost",
-  pool: Ecto.Adapters.SQL.Sandbox
 
 config :asciinema, Asciinema.FileStore.Local, path: "uploads/test/"
 
