@@ -35,7 +35,9 @@ COPY config/*.exs config/
 COPY lib lib/
 COPY priv priv/
 COPY native native/
-RUN mix compile
+
+# recompile sentry with our source code
+RUN mix deps.compile sentry --force
 
 COPY rel rel/
 RUN mix release
