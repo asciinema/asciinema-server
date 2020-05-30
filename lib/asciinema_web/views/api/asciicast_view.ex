@@ -38,7 +38,7 @@ defmodule AsciinemaWeb.Api.AsciicastView do
       If you want to preserve all recordings made on this machine, connect this
       installation with #{hostname} account by opening the following link:
 
-          #{connect_url(conn, :show, install_id)}
+          #{Routes.connect_url(conn, :show, install_id)}
       """
     else
       message

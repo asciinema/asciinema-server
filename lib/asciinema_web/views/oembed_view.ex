@@ -34,7 +34,7 @@ defmodule AsciinemaWeb.OembedView do
         max_height || image_height
       )
 
-    asciicast_url = asciicast_url(Endpoint, :show, asciicast)
+    asciicast_url = Routes.asciicast_url(Endpoint, :show, asciicast)
     thumbnail_url = asciicast_url <> ".png"
 
     %{
@@ -44,7 +44,7 @@ defmodule AsciinemaWeb.OembedView do
       author_name: UserView.username(asciicast.user),
       author_url: profile_url(asciicast.user),
       provider_name: "asciinema",
-      provider_url: home_url(Endpoint, :show),
+      provider_url: Routes.home_url(Endpoint, :show),
       thumbnail_url: thumbnail_url,
       thumbnail_width: width,
       thumbnail_height: height,

@@ -2,7 +2,7 @@
   <nav class="navbar navbar-expand-md navbar-dark bg-dark">
     <div class="container">
       <a class="navbar-brand" href="/">
-        <img src="<%= static_path(@conn, "/images/logo-red.svg") %>">
+        <img src="<%= Routes.static_path(@conn, "/images/logo-red.svg") %>">
       </a>
 
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
@@ -16,11 +16,11 @@
           </li>
 
           <li class="nav-item">
-            <a class="nav-link" href="<%= doc_path(@conn, :show, :"getting-started") %>">Record</a>
+            <a class="nav-link" href="<%= Routes.doc_path(@conn, :show, :"getting-started") %>">Record</a>
           </li>
 
           <li class="nav-item">
-            <a class="nav-link" href="<%= doc_path(@conn, :show, :"how-it-works") %>">Docs</a>
+            <a class="nav-link" href="<%= Routes.doc_path(@conn, :show, :"how-it-works") %>">Docs</a>
           </li>
 
           <li class="nav-item">
@@ -42,7 +42,7 @@
               <div class="dropdown-menu">
                 <a class="dropdown-item" href="<%= profile_path(@current_user) %>">Profile</a>
                 <a class="dropdown-item" href="/user/edit">Settings</a>
-                <%= link "Log out", to: session_path(@conn, :delete), class: "dropdown-item logout", method: :delete %>
+                <%= link "Log out", to: Routes.session_path(@conn, :delete), class: "dropdown-item logout", method: :delete %>
               </div>
             </li>
           <% else %>

@@ -10,7 +10,7 @@ defmodule AsciinemaWeb.UserController do
   def new(conn, %{"t" => signup_token}) do
     conn
     |> put_session(:signup_token, signup_token)
-    |> redirect(to: users_path(conn, :new))
+    |> redirect(to: Routes.users_path(conn, :new))
   end
 
   def new(conn, _params) do
@@ -31,17 +31,17 @@ defmodule AsciinemaWeb.UserController do
       {:error, :token_invalid} ->
         conn
         |> put_flash(:error, "Invalid sign-up link.")
-        |> redirect(to: login_path(conn, :new))
+        |> redirect(to: Routes.login_path(conn, :new))
 
       {:error, :token_expired} ->
         conn
         |> put_flash(:error, "This sign-up link has expired, sorry.")
-        |> redirect(to: login_path(conn, :new))
+        |> redirect(to: Routes.login_path(conn, :new))
 
       {:error, :email_taken} ->
         conn
         |> put_flash(:error, "You already signed up with this email.")
-        |> redirect(to: login_path(conn, :new))
+        |> redirect(to: Routes.login_path(conn, :new))
     end
   end
 

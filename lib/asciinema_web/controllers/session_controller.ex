@@ -7,7 +7,7 @@ defmodule AsciinemaWeb.SessionController do
   def new(conn, %{"t" => login_token}) do
     conn
     |> put_session(:login_token, login_token)
-    |> redirect(to: session_path(conn, :new))
+    |> redirect(to: Routes.session_path(conn, :new))
   end
   def new(conn, _params) do
     render(conn, "new.html")
@@ -26,15 +26,15 @@ defmodule AsciinemaWeb.SessionController do
       {:error, :token_invalid} ->
         conn
         |> put_flash(:error, "Invalid login link.")
-        |> redirect(to: login_path(conn, :new))
+        |> redirect(to: Routes.login_path(conn, :new))
       {:error, :token_expired} ->
         conn
         |> put_flash(:error, "This login link has expired, sorry.")
-        |> redirect(to: login_path(conn, :new))
+        |> redirect(to: Routes.login_path(conn, :new))
       {:error, :user_not_found} ->
         conn
         |> put_flash(:error, "This account has been removed.")
-        |> redirect(to: login_path(conn, :new))
+        |> redirect(to: Routes.login_path(conn, :new))
     end
   end
 

@@ -1,7 +1,7 @@
 <%= player @asciicast, @playback_options %>
 
 <p class="powered">
-  Recorded with <a href="<%= home_url(@conn, :show) %>" target="_top">asciinema</a>
+  Recorded with <a href="<%= Routes.home_url(@conn, :show) %>" target="_top">asciinema</a>
 </p>
 
 <script>

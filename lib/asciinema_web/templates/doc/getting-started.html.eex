@@ -19,7 +19,7 @@
 </p>
 
 <p>
-  See <a href="<%= doc_path(@conn, :show, :usage) %>">usage instructions</a> to learn about all commands and options.
+  See <a href="<%= Routes.doc_path(@conn, :show, :usage) %>">usage instructions</a> to learn about all commands and options.
 </p>
 
 <h2>3. Manage your recordings (optional)</h2>

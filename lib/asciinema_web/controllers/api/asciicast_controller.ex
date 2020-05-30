@@ -24,7 +24,8 @@ defmodule AsciinemaWeb.Api.AsciicastController do
 
     case Asciicasts.create_asciicast(user, params, %{user_agent: user_agent}) do
       {:ok, asciicast} ->
-        url = asciicast_url(conn, :show, asciicast)
+        url = Routes.asciicast_url(conn, :show, asciicast)
+
         conn
         |> put_status(:created)
         |> put_resp_header("location", url)

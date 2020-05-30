@@ -8,15 +8,15 @@
       </button>
 
       <a class="navbar-brand" href="/">
-        <img src="<%= static_path(@conn, "/images/logo-red.svg") %>">
+        <img src="<%= Routes.static_path(@conn, "/images/logo-red.svg") %>">
       </a>
     </div>
 
     <div class="collapse navbar-collapse navbar-ex1-collapse">
       <ul class="nav navbar-nav">
         <li><a href="/explore">Watch</a></li>
-        <li><a href="<%= doc_path(@conn, :show, :"getting-started") %>">Record</a></li>
-        <li><a href="<%= doc_path(@conn, :show, :"how-it-works") %>">Docs</a></li>
+        <li><a href="<%= Routes.doc_path(@conn, :show, :"getting-started") %>">Record</a></li>
+        <li><a href="<%= Routes.doc_path(@conn, :show, :"how-it-works") %>">Docs</a></li>
         <li><a href="http://blog.asciinema.org">Blog</a></li>
         <li><a href="/about">About</a></li>
       </ul>
@@ -30,7 +30,7 @@
             <ul class="dropdown-menu">
               <li><a href="<%= profile_path(@current_user) %>">Profile</a></li>
               <li><a href="/user/edit">Settings</a></li>
-              <li><%= link "Log out", to: session_path(@conn, :delete), class: "logout", method: :delete %></li>
+              <li><%= link "Log out", to: Routes.session_path(@conn, :delete), class: "logout", method: :delete %></li>
             </ul>
           </li>
         <% else %>

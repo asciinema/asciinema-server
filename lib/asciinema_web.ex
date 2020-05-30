@@ -23,11 +23,11 @@ defmodule AsciinemaWeb do
 
       import Plug.Conn
       import AsciinemaWeb.Gettext
-      import AsciinemaWeb.Router.Helpers
       import AsciinemaWeb.Router.Helpers.Extra
       import AsciinemaWeb.Auth, only: [require_current_user: 2]
       import AsciinemaWeb.Plug.ReturnTo
       import AsciinemaWeb.Plug.Authz
+      alias AsciinemaWeb.Router.Helpers, as: Routes
 
       action_fallback AsciinemaWeb.FallbackController
 
@@ -51,9 +51,9 @@ defmodule AsciinemaWeb do
 
       import AsciinemaWeb.ErrorHelpers
       import AsciinemaWeb.Gettext
-      import AsciinemaWeb.Router.Helpers
       import AsciinemaWeb.Router.Helpers.Extra
       import AsciinemaWeb.ApplicationView
+      alias AsciinemaWeb.Router.Helpers, as: Routes
     end
   end
 

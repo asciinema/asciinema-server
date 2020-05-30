@@ -6,7 +6,7 @@
   </div>
 </div>
 
-<%= form_for @conn, session_path(@conn, :create), [id: "login", as: :login], fn _f -> %>
+<%= form_for @conn, Routes.session_path(@conn, :create), [id: "login", as: :login], fn _f -> %>
 <% end %>
 
 <script>

@@ -9,7 +9,7 @@
       <h1><span class="glyphicon glyphicon-user"></span> Log in</h1>
       <br>
 
-      <%= form_for @conn, login_path(@conn, :create), [as: :login, class: "form-inline login-form"], fn f -> %>
+      <%= form_for @conn, Routes.login_path(@conn, :create), [as: :login, class: "form-inline login-form"], fn f -> %>
         <div class="form-group">
           <%= text_input f, :email, class: "form-control email", "data-behavior": "focus", placeholder: "Email address or username" %>
         </div>

@@ -1,7 +1,7 @@
 <div class="container edit-page">
   <div class="row">
     <div class="col-md-9">
-      <%= form_for @changeset, user_path(@conn, :update), [class: "simple_form form-horizontal", novalidate: "novalidate", role: "form"], fn f -> %>
+      <%= form_for @changeset, Routes.user_path(@conn, :update), [class: "simple_form form-horizontal", novalidate: "novalidate", role: "form"], fn f -> %>
         <legend>Account settings</legend>
 
         <div class="form-group string optional user_username <%= error_class(f, :username) %>">
@@ -70,7 +70,7 @@
 
         <ul>
           <%= for t <- active_tokens(@api_tokens) do %>
-            <li><code><%= t.token %></code> registered <%= time_tag(t.created_at) %> - <%= link "Revoke", to: api_token_path(@conn, :delete, t), method: "delete", data: [confirm: "Are you sure?"] %></li>
+            <li><code><%= t.token %></code> registered <%= time_tag(t.created_at) %> - <%= link "Revoke", to: Routes.api_token_path(@conn, :delete, t), method: "delete", data: [confirm: "Are you sure?"] %></li>
           <% end %>
         </ul>
 

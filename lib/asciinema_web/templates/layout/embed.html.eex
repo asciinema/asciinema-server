@@ -3,11 +3,11 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="<%= static_path(@conn, "/css/embed.css") %>">
+    <link rel="stylesheet" href="<%= Routes.static_path(@conn, "/css/embed.css") %>">
   </head>
 
   <body class="iframe">
-    <script src="<%= static_path(@conn, "/js/asciinema-player.js") %>"></script>
+    <script src="<%= Routes.static_path(@conn, "/js/asciinema-player.js") %>"></script>
     <%= render @view_module, @view_template, assigns %>
   </body>
 </html>
