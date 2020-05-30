@@ -55,6 +55,7 @@ defmodule Asciinema.Mixfile do
       {:html_sanitize_ex, "~> 1.4"},
       {:inflex, "~> 2.0"},
       {:jason, "~> 1.2"},
+      {:mix_test_watch, "~> 1.0", only: :dev, runtime: false},
       {:phoenix, "~> 1.4.17"},
       {:phoenix_ecto, "~> 4.1"},
       {:phoenix_html, "~> 2.14"},
