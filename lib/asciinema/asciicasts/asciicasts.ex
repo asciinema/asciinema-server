@@ -5,13 +5,20 @@ defmodule Asciinema.Asciicasts do
   alias Asciinema.Asciicasts.{Asciicast, SnapshotUpdater}
   alias Ecto.Changeset
 
-  def get_asciicast!(id) when is_integer(id) do
+  def fetch_asciicast(id) do
+    case get_asciicast(id) do
+      nil -> {:error, :not_found}
+      asciicast -> {:ok, asciicast}
+    end
+  end
+
+  def get_asciicast(id) when is_integer(id) do
     Asciicast
-    |> Repo.get!(id)
+    |> Repo.get(id)
     |> Repo.preload(:user)
   end
 
-  def get_asciicast!(thing) when is_binary(thing) do
+  def get_asciicast(thing) when is_binary(thing) do
     q =
       if String.length(thing) == 25 do
         from(a in Asciicast, where: a.secret_token == ^thing)
@@ -26,7 +33,7 @@ defmodule Asciinema.Asciicasts do
       end
 
     q
-    |> Repo.one!()
+    |> Repo.one()
     |> Repo.preload(:user)
   end
 

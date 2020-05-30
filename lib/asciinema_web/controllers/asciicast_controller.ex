@@ -223,7 +223,15 @@ defmodule AsciinemaWeb.AsciicastController do
   end
 
   defp load_asciicast(conn, _) do
-    assign(conn, :asciicast, Asciicasts.get_asciicast!(conn.params["id"]))
+    case Asciicasts.fetch_asciicast(conn.params["id"]) do
+      {:ok, asciicast} ->
+        assign(conn, :asciicast, asciicast)
+
+      {:error, :not_found} ->
+        conn
+        |> AsciinemaWeb.FallbackController.call({:error, :not_found})
+        |> halt()
+    end
   end
 
   defp count_view(conn, asciicast) do

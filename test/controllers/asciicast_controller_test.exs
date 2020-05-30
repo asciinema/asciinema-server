@@ -192,9 +192,8 @@ defmodule Asciinema.AsciicastControllerTest do
       assert get_flash(conn, :info) =~ ~r/deleted/i
       assert response(conn, 302)
 
-      assert_raise(Ecto.NoResultsError, fn ->
-        get build_conn(), asciicast_path(conn, :show, asciicast)
-      end)
+      conn = get build_conn(), asciicast_path(conn, :show, asciicast)
+      assert html_response(conn, 404) =~ ~r/not found/i
     end
   end
 end

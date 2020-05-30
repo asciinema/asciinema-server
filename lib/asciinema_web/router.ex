@@ -1,7 +1,6 @@
 defmodule AsciinemaWeb.Router do
   use AsciinemaWeb, :router
   use Plug.ErrorHandler
-  defp handle_errors(_conn, %{reason: %Ecto.NoResultsError{}}), do: nil
   defp handle_errors(_conn, %{reason: %Phoenix.NotAcceptableError{}}), do: nil
   use Sentry.Plug
   import AsciinemaWeb.Auth, only: [require_current_user: 2, require_admin: 2]

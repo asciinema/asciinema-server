@@ -5,7 +5,16 @@ defmodule Asciinema.Accounts do
   alias Asciinema.Accounts.{User, ApiToken}
   alias Asciinema.Repo
 
-  def get_user!(id), do: Repo.get!(User, id)
+  def fetch_user(id) do
+    case get_user(id) do
+      nil -> {:error, :not_found}
+      user -> {:ok, user}
+    end
+  end
+
+  def get_user(id) when is_integer(id), do: Repo.get(User, id)
+
+  def get_user([{_k, _v}] = kv), do: Repo.get_by(User, kv)
 
   def ensure_asciinema_user do
     case Repo.get_by(User, username: "asciinema") do
@@ -64,8 +73,6 @@ defmodule Asciinema.Accounts do
         end
     end
   end
-
-  def find_user_by_username!(username), do: Repo.get_by!(User, username: username)
 
   defp lookup_user_by_username(username) do
     case Repo.get_by(User, username: username) do

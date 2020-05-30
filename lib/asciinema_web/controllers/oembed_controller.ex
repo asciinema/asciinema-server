@@ -8,9 +8,8 @@ defmodule AsciinemaWeb.OembedController do
     uri = URI.parse(params["url"] || "")
 
     with path when is_binary(path) <- uri.path,
-         [_, id] <- Regex.run(~r|^/a/([^/]+)$|, path) do
-      asciicast = Asciicasts.get_asciicast!(id)
-
+         [_, id] <- Regex.run(~r|^/a/([^/]+)$|, path),
+         {:ok, asciicast} <- Asciicasts.fetch_asciicast(id) do
       mw = if params["maxwidth"], do: String.to_integer(params["maxwidth"])
       mh = if params["maxheight"], do: String.to_integer(params["maxheight"])
 
@@ -28,8 +27,11 @@ defmodule AsciinemaWeb.OembedController do
         max_height: mh
       )
     else
+      {:error, :not_found} ->
+        {:error, :not_found}
+
       _ ->
-        send_resp(conn, 400, "Bad Request")
+        {:error, :bad_request}
     end
   end
 end
