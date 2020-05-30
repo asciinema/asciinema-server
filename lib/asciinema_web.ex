@@ -31,6 +31,8 @@ defmodule AsciinemaWeb do
       import AsciinemaWeb.Plug.ReturnTo
       import AsciinemaWeb.Plug.Authz
 
+      action_fallback AsciinemaWeb.FallbackController
+
       defp clear_main_class(conn, _) do
         assign(conn, :main_class, "")
       end
