@@ -118,7 +118,6 @@ defmodule Asciinema.Asciicasts do
   def ensure_welcome_asciicast(user) do
     if Repo.count(Ecto.assoc(user, :asciicasts)) == 0 do
       cast_path = Path.join(:code.priv_dir(:asciinema), "welcome.cast")
-      snapshot_path = Path.join(:code.priv_dir(:asciinema), "welcome.snapshot.json")
 
       upload = %Plug.Upload{
         path: cast_path,
@@ -129,7 +128,6 @@ defmodule Asciinema.Asciicasts do
       {:ok, _} =
         create_asciicast(user, upload, %{
           private: false,
-          snapshot: Jason.decode!(File.read!(snapshot_path)),
           snapshot_at: 76.2
         })
     end
