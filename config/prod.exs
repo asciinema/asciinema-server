@@ -10,6 +10,7 @@ use Mix.Config
 # which you should run after static files are built and
 # before starting your production server.
 config :asciinema, AsciinemaWeb.Endpoint,
+  http: [port: 4000],
   url: [scheme: "https", host: "asciinema.org", port: 443],
   cache_static_manifest: "priv/static/cache_manifest.json",
   server: true,
