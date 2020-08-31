@@ -63,7 +63,7 @@ defmodule Asciinema.MixProject do
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_markdown, "~> 1.0"},
       {:phoenix_pubsub, "~> 1.1"},
-      {:plug_cowboy, "~> 2.2"},
+      {:plug_cowboy, "~> 2.3"},
       {:poolboy, "~> 1.5"},
       {:postgrex, ">= 0.0.0"},
       {:quantum, "~> 2.4"},
