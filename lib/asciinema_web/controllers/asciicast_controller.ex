@@ -10,7 +10,7 @@ defmodule AsciinemaWeb.AsciicastController do
   plug :authorize, :asciicast when action in [:edit, :update, :delete]
 
   def index(conn, _params) do
-    redirect(conn, to: asciicast_path(conn, :category, :featured))
+    redirect(conn, to: Routes.asciicast_path(conn, :category, :featured))
   end
 
   def category(conn, %{"category" => c} = params) when c in ["featured", "public"] do
@@ -30,7 +30,7 @@ defmodule AsciinemaWeb.AsciicastController do
   end
 
   def category(conn, _params) do
-    redirect(conn, to: asciicast_path(conn, :category, :featured))
+    redirect(conn, to: Routes.asciicast_path(conn, :category, :featured))
   end
 
   def show(conn, _params) do
@@ -143,7 +143,7 @@ defmodule AsciinemaWeb.AsciicastController do
       {:ok, asciicast} ->
         conn
         |> put_flash(:info, "Asciicast updated.")
-        |> redirect(to: asciicast_path(conn, :show, asciicast))
+        |> redirect(to: Routes.asciicast_path(conn, :show, asciicast))
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "edit.html", changeset: changeset)
@@ -162,7 +162,7 @@ defmodule AsciinemaWeb.AsciicastController do
       {:error, _reason} ->
         conn
         |> put_flash(:error, "Oops, couldn't remove this asciicast.")
-        |> redirect(to: asciicast_path(conn, :show, asciicast))
+        |> redirect(to: Routes.asciicast_path(conn, :show, asciicast))
     end
   end
 
@@ -223,7 +223,15 @@ defmodule AsciinemaWeb.AsciicastController do
   end
 
   defp load_asciicast(conn, _) do
-    assign(conn, :asciicast, Asciicasts.get_asciicast!(conn.params["id"]))
+    case Asciicasts.fetch_asciicast(conn.params["id"]) do
+      {:ok, asciicast} ->
+        assign(conn, :asciicast, asciicast)
+
+      {:error, :not_found} ->
+        conn
+        |> AsciinemaWeb.FallbackController.call({:error, :not_found})
+        |> halt()
+    end
   end
 
   defp count_view(conn, asciicast) do

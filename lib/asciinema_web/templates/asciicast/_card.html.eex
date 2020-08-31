@@ -1,5 +1,5 @@
 <div class="asciicast-card">
-  <a href="<%= asciicast_path(@conn, :show, @asciicast) %>" class="thumbnail-link">
+  <a href="<%= Routes.asciicast_path(@conn, :show, @asciicast) %>" class="thumbnail-link">
     <div class="play-button">
       <span class="arrow">
         <svg version="1.1" viewBox="0 0 12 12">
@@ -13,7 +13,7 @@
 
   <div class="info">
     <h3>
-      <%= link title(@asciicast), to: asciicast_path(@conn, :show, @asciicast) %>
+      <%= link title(@asciicast), to: Routes.asciicast_path(@conn, :show, @asciicast) %>
 
       <%= if @asciicast.private do %>
         <%= render "_private_badge.html" %>

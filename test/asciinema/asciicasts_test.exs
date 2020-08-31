@@ -156,7 +156,6 @@ defmodule Asciinema.AsciicastsTest do
     test "cast file, v2 format, full" do
       user = fixture(:user)
       upload = fixture(:upload, %{path: "2/full.cast"})
-      recorded_at = Timex.from_unix(1506410422)
 
       {:ok, asciicast} = Asciicasts.create_asciicast(user, upload, %{user_agent: "a/user/agent"})
 
@@ -168,7 +167,6 @@ defmodule Asciinema.AsciicastsTest do
                         stdout_data: nil,
                         stdout_timing: nil,
                         command: "/bin/bash -l",
-                        recorded_at: ^recorded_at,
                         shell: "/bin/zsh",
                         terminal_type: "screen-256color",
                         title: "bashing :)",
@@ -178,6 +176,8 @@ defmodule Asciinema.AsciicastsTest do
                         idle_time_limit: 2.5,
                         uname: nil,
                         user_agent: "a/user/agent"} = asciicast
+
+      assert DateTime.to_unix(asciicast.recorded_at) == 1506410422
     end
 
     test "unknown file format" do

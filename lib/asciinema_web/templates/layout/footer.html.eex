@@ -17,7 +17,7 @@
           Sponsored by
           <br/>
           <a class="brightbox-logo" href="http://brightbox.com/" rel="nofollow">
-            <img src="<%= static_path(@conn, "/images/brightbox.png") %>" />
+            <img src="<%= Routes.static_path(@conn, "/images/brightbox.png") %>" />
           </a>
         </span>
       </div>

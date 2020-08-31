@@ -3,7 +3,8 @@ defmodule Asciinema.Asciicasts.PlaybackOpts do
   import Ecto.Changeset
 
   defmodule Boolean do
-    @behaviour Ecto.Type
+    use Ecto.Type
+
     def type, do: :boolean
 
     def cast(value) when value in [0, "0", "false"], do: {:ok, false}
@@ -16,7 +17,8 @@ defmodule Asciinema.Asciicasts.PlaybackOpts do
   end
 
   defmodule Time do
-    @behaviour Ecto.Type
+    use Ecto.Type
+
     def type, do: :integer
 
     def cast(value) when is_binary(value) do

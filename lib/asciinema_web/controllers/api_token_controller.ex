@@ -30,7 +30,7 @@ defmodule AsciinemaWeb.ApiTokenController do
 
     conn
     |> put_flash(:info, "Token revoked.")
-    |> redirect(to: user_path(conn, :edit))
+    |> redirect(to: Routes.user_path(conn, :edit))
   end
 
   defp maybe_merge_users(conn, api_token_user) do

@@ -17,7 +17,7 @@ defmodule AsciinemaWeb.LoginController do
 
     case result do
       :ok ->
-        redirect(conn, to: login_path(conn, :sent))
+        redirect(conn, to: Routes.login_path(conn, :sent))
 
       {:error, :user_not_found} ->
         render(conn, "new.html", error: "No user found for given username.")
@@ -26,7 +26,7 @@ defmodule AsciinemaWeb.LoginController do
         render(conn, "new.html", error: "This doesn't look like a correct email address.")
 
       {:error, :email_missing} ->
-        redirect(conn, to: login_path(conn, :sent))
+        redirect(conn, to: Routes.login_path(conn, :sent))
     end
   end
 

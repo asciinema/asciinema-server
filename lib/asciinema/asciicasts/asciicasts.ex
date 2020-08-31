@@ -5,13 +5,20 @@ defmodule Asciinema.Asciicasts do
   alias Asciinema.Asciicasts.{Asciicast, SnapshotUpdater}
   alias Ecto.Changeset
 
-  def get_asciicast!(id) when is_integer(id) do
+  def fetch_asciicast(id) do
+    case get_asciicast(id) do
+      nil -> {:error, :not_found}
+      asciicast -> {:ok, asciicast}
+    end
+  end
+
+  def get_asciicast(id) when is_integer(id) do
     Asciicast
-    |> Repo.get!(id)
+    |> Repo.get(id)
     |> Repo.preload(:user)
   end
 
-  def get_asciicast!(thing) when is_binary(thing) do
+  def get_asciicast(thing) when is_binary(thing) do
     q =
       if String.length(thing) == 25 do
         from(a in Asciicast, where: a.secret_token == ^thing)
@@ -26,7 +33,7 @@ defmodule Asciinema.Asciicasts do
       end
 
     q
-    |> Repo.one!()
+    |> Repo.one()
     |> Repo.preload(:user)
   end
 
@@ -110,13 +117,19 @@ defmodule Asciinema.Asciicasts do
 
   def ensure_welcome_asciicast(user) do
     if Repo.count(Ecto.assoc(user, :asciicasts)) == 0 do
+      cast_path = Path.join(:code.priv_dir(:asciinema), "welcome.cast")
+
       upload = %Plug.Upload{
-        path: Path.join(:code.priv_dir(:asciinema), "welcome.json"),
-        filename: "asciicast.json",
-        content_type: "application/json"
+        path: cast_path,
+        filename: "ascii.cast",
+        content_type: "application/octet-stream"
       }
 
-      {:ok, _} = create_asciicast(user, upload, %{private: false, snapshot_at: 76.2})
+      {:ok, _} =
+        create_asciicast(user, upload, %{
+          private: false,
+          snapshot_at: 76.2
+        })
     end
 
     :ok
@@ -137,7 +150,10 @@ defmodule Asciinema.Asciicasts do
          attrs = Map.merge(attrs, overrides),
          changeset = Asciicast.create_changeset(asciicast, attrs),
          {:ok, %Asciicast{} = asciicast} <- do_create_asciicast(changeset, files) do
-      :ok = SnapshotUpdater.update_snapshot(asciicast)
+      if asciicast.snapshot == nil do
+        :ok = SnapshotUpdater.update_snapshot(asciicast)
+      end
+
       {:ok, asciicast}
     end
   end
@@ -275,10 +291,9 @@ defmodule Asciinema.Asciicasts do
   end
 
   defp decode_json(json) do
-    case Poison.decode(json) do
+    case Jason.decode(json) do
       {:ok, thing} -> {:ok, thing}
-      {:error, :invalid, _} -> {:error, :invalid}
-      {:error, {:invalid, _, _}} -> {:error, :invalid}
+      {:error, %Jason.DecodeError{}}-> {:error, :invalid}
     end
   end
 
@@ -337,14 +352,14 @@ defmodule Asciinema.Asciicasts do
 
     case first_two_lines do
       ["{" <> _ = header_line, "[" <> _] ->
-        header = Poison.decode!(header_line)
+        header = Jason.decode!(header_line)
         2 = header["version"]
 
         asciicast_file_path
         |> File.stream!([], :line)
         |> Stream.drop(1)
         |> Stream.reject(fn line -> line == "\n" end)
-        |> Stream.map(&Poison.decode!/1)
+        |> Stream.map(&Jason.decode!/1)
         |> Stream.filter(fn [_, type, _] -> type == "o" end)
         |> Stream.map(fn [t, _, s] -> {t, s} end)
         |> to_relative_time
@@ -355,7 +370,7 @@ defmodule Asciinema.Asciicasts do
         asciicast =
           asciicast_file_path
           |> File.read!()
-          |> Poison.decode!()
+          |> Jason.decode!()
 
         1 = asciicast["version"]
 
@@ -470,30 +485,32 @@ defmodule Asciinema.Asciicasts do
   def generate_snapshot(stdout_stream, width, height, secs) do
     frames = Stream.take_while(stdout_stream, &frame_before_or_at?(&1, secs))
 
-    {:ok, %{"lines" => lines, "cursor" => cursor}} =
+    {:ok, {lines, cursor}} =
       Vt.with_vt(width, height, fn vt ->
         Enum.each(frames, fn {_, text} -> Vt.feed(vt, text) end)
-        Vt.dump_screen(vt, 30_000)
+        Vt.dump_screen(vt)
       end)
 
-    case cursor do
-      %{"visible" => true, "x" => x, "y" => y} ->
-        lines
-        |> AsciinemaWeb.AsciicastView.split_chunks()
-        |> List.update_at(y, fn line ->
-          List.update_at(line, x, fn {text, attrs} ->
-            attrs = Map.put(attrs, "inverse", !(attrs["inverse"] || false))
-            {text, attrs}
+    lines =
+      case cursor do
+        {x, y} ->
+          lines
+          |> AsciinemaWeb.AsciicastView.split_chunks()
+          |> List.update_at(y, fn line ->
+            List.update_at(line, x, fn {text, attrs} ->
+              attrs = Map.put(attrs, "inverse", !(attrs["inverse"] || false))
+              {text, attrs}
+            end)
           end)
-        end)
-        |> AsciinemaWeb.AsciicastView.group_chunks()
-        |> Enum.map(fn chunks ->
-          Enum.map(chunks, &Tuple.to_list/1)
-        end)
+          |> AsciinemaWeb.AsciicastView.group_chunks()
 
-      _ ->
-        lines
-    end
+        _ ->
+          lines
+      end
+
+    Enum.map(lines, fn chunks ->
+      Enum.map(chunks, &Tuple.to_list/1)
+    end)
   end
 
   defp to_absolute_time(stream) do
@@ -594,11 +611,11 @@ defmodule Asciinema.Asciicasts do
     header = Map.put(header, :version, 2)
 
     File.open!(tmp_path, [:write, :utf8], fn f ->
-      :ok = IO.write(f, "#{Poison.encode!(header, pretty: false)}\n")
+      :ok = IO.write(f, "#{Jason.encode!(header, pretty: false)}\n")
 
       for {t, s} <- stdout_stream do
         event = [t, "o", s]
-        :ok = IO.write(f, "#{Poison.encode!(event, pretty: false)}\n")
+        :ok = IO.write(f, "#{Jason.encode!(event, pretty: false)}\n")
       end
     end)
 

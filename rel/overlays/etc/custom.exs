@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 ## Use Mailgun for mail delivery:
 

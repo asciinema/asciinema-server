@@ -86,8 +86,8 @@ Set `URL_SCHEME`, `URL_HOST` and `URL_PORT` to match the address the users are s
 
 Ensure you set the nginx port in the docker-compose.yml file equal to what you specified for `URL_PORT`.
 
-Set `SECRET_KEY_BASE` to long random string. Run `docker-compose run --rm phoenix
-asciinema gen_secret` to obtain one.
+Set `SECRET_KEY_BASE` to long random string. Run `docker-compose run --rm
+phoenix gen_secret` to obtain one.
 
 #### HTTPS settings
 
@@ -242,11 +242,11 @@ right).
 To make user an admin, run the following command with the email address of
 existing account:
 
-    docker-compose run --rm phoenix asciinema admin_add email@example.com
+    docker-compose run --rm phoenix admin_add email@example.com
 
 To remove admin bit from a user, run:
 
-    docker-compose run --rm phoenix asciinema admin_rm email@example.com
+    docker-compose run --rm phoenix admin_rm email@example.com
 
 Both above commands allow passing multiple email adresses (as separate
 arguments).

@@ -4,7 +4,7 @@ defmodule AsciinemaWeb.AsciicastView do
   alias Asciinema.Asciicasts
   alias Asciinema.FileStore
   alias AsciinemaWeb.Endpoint
-  alias AsciinemaWeb.Router.Helpers.Extra, as: Routes
+  alias AsciinemaWeb.Router.Helpers.Extra, as: RoutesX
   alias AsciinemaWeb.UserView
   import UserView, only: [theme_options: 0]
 
@@ -33,22 +33,22 @@ defmodule AsciinemaWeb.AsciicastView do
   end
 
   def embed_script(asciicast) do
-    src = asciicast_url(Endpoint, :show, asciicast) <> ".js"
+    src = Routes.asciicast_url(Endpoint, :show, asciicast) <> ".js"
     id = "asciicast-#{Phoenix.Param.to_param(asciicast)}"
     content_tag(:script, [src: src, id: id, async: true], do: [])
   end
 
   defp file_url(asciicast) do
     if path = Asciicasts.asciicast_file_path(asciicast) do
-      FileStore.url(path) || Routes.asciicast_file_url(asciicast)
+      FileStore.url(path) || RoutesX.asciicast_file_url(asciicast)
     end
   end
 
   defp asciicast_oembed_url(asciicast, format) do
-    oembed_url(
+    Routes.oembed_url(
       Endpoint,
       :show,
-      url: asciicast_url(Endpoint, :show, asciicast),
+      url: Routes.asciicast_url(Endpoint, :show, asciicast),
       format: format
     )
   end
@@ -465,7 +465,7 @@ defmodule AsciinemaWeb.AsciicastView do
   end
 
   def percent(float) do
-    "#{Decimal.round(Decimal.new(float), 3)}%"
+    "#{Decimal.round(Decimal.from_float(float), 3)}%"
   end
 
   def asciicast_gc_days do

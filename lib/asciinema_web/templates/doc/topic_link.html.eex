@@ -1,1 +1,1 @@
-<li class="<%= @class %>"><a href="<%= doc_path @conn, :show, @topic %>"><%= @text %></a></li>
+<li class="<%= @class %>"><a href="<%= Routes.doc_path @conn, :show, @topic %>"><%= @text %></a></li>

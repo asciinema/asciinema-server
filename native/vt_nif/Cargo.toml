@@ -1,0 +1,17 @@
+[package]
+name = "vt_nif"
+version = "0.1.0"
+authors = []
+edition = "2018"
+
+[lib]
+name = "vt_nif"
+path = "src/lib.rs"
+crate-type = ["dylib"]
+
+[dependencies]
+rustler = "0.21.0"
+serde = "1.0.110"
+serde_rustler = "0.1.0"
+lazy_static = "1.0"
+vt = { path = "../vt" }

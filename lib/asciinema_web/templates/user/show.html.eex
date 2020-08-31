@@ -17,7 +17,7 @@
 
       <%= if @show_edit_link do %>
         <p class="actions">
-          <%= link "Edit profile", to: user_path(@conn, :edit) %>
+          <%= link "Edit profile", to: Routes.user_path(@conn, :edit) %>
         </p>
       <% end %>
     </div>
@@ -43,7 +43,7 @@
         <%= case {@asciicast_count, @user_is_self} do %>
         <% {0, true} -> %>
           <p>
-            Make sure you have asciinema recorder <%= link "installed", to: doc_path(@conn, :show, :installation) %>.
+            Make sure you have asciinema recorder <%= link "installed", to: Routes.doc_path(@conn, :show, :installation) %>.
           </p>
 
           <p>

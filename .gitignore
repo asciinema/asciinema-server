@@ -1,40 +1,48 @@
-/.vagrant
-/.env
-/uploads/*
+# The directory Mix will write compiled artifacts to.
+/_build/
 
-# App artifacts
-/_build
-/deps
-/*.ez
+# If you run "mix test --cover", coverage assets end up here.
+/cover/
 
-# Generated on crash by the VM
+# The directory Mix downloads your dependencies sources to.
+/deps/
+
+# Where 3rd-party dependencies like ExDoc output generated docs.
+/doc/
+
+# Ignore .fetch files in case you like to edit your project deps locally.
+/.fetch
+
+# If the VM crashes, it generates a dump, let's ignore it too.
 erl_crash.dump
 
-# Static artifacts
-/assets/node_modules
+# Also ignore archive artifacts (built via "mix archive.build").
+*.ez
+
+# Ignore package tarball (built via "mix hex.build").
+sample_app-*.tar
+
+# If NPM crashes, it generates a log, let's ignore it too.
+npm-debug.log
+
+# The directory NPM downloads your dependencies sources to.
+/assets/node_modules/
 
 # Since we are building assets from assets/,
 # we ignore priv/static. You may want to comment
 # this depending on your deployment strategy.
 /priv/static/
 
-# The config/prod.secret.exs file by default contains sensitive
-# data and you should not commit it into version control.
-#
-# Alternatively, you may comment the line below and commit the
-# secrets file as long as you replace its contents by environment
-# variables.
-/config/prod.secret.exs
-/config/custom.exs
-
-.iex-history
-
-## Docker
-
-/volumes
-.m2
-/.env.production
-
+# Other
 .DS_Store
 .envrc
+.iex-history
+.m2
 .projectile
+/.env
+/.env.production
+/.vagrant
+/config/custom.exs
+/priv/native
+/uploads/*
+/volumes

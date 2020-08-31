@@ -1,5 +1,6 @@
 _build/
 deps/
+.elixir_ls
 .git
 .gitignore
 .vagrant/
@@ -10,8 +11,15 @@ README*
 test/
 docker-compose.yml
 assets/node_modules
+priv/static/
 .env
 .env.*
 uploads/*
 volumes
 .stuff
+native/vt/.cargo
+native/vt/.git
+native/vt/target
+native/vt_nif/.cargo
+native/vt_nif/target
+priv/native/

@@ -10,7 +10,7 @@ defmodule AsciinemaWeb.UserController do
   def new(conn, %{"t" => signup_token}) do
     conn
     |> put_session(:signup_token, signup_token)
-    |> redirect(to: users_path(conn, :new))
+    |> redirect(to: Routes.users_path(conn, :new))
   end
 
   def new(conn, _params) do
@@ -31,32 +31,28 @@ defmodule AsciinemaWeb.UserController do
       {:error, :token_invalid} ->
         conn
         |> put_flash(:error, "Invalid sign-up link.")
-        |> redirect(to: login_path(conn, :new))
+        |> redirect(to: Routes.login_path(conn, :new))
 
       {:error, :token_expired} ->
         conn
         |> put_flash(:error, "This sign-up link has expired, sorry.")
-        |> redirect(to: login_path(conn, :new))
+        |> redirect(to: Routes.login_path(conn, :new))
 
       {:error, :email_taken} ->
         conn
         |> put_flash(:error, "You already signed up with this email.")
-        |> redirect(to: login_path(conn, :new))
+        |> redirect(to: Routes.login_path(conn, :new))
     end
   end
 
   def show(conn, params) do
+    with {:ok, user} <- fetch_user(params) do
+      do_show(conn, params, user)
+    end
+  end
+
+  defp do_show(conn, params, user) do
     current_user = conn.assigns.current_user
-
-    user =
-      case params do
-        %{"username" => username} ->
-          Accounts.find_user_by_username!(username)
-
-        %{"id" => id} ->
-          Accounts.get_user!(id)
-      end
-
     user_is_self = !!(current_user && (current_user.id == user.id))
 
     filter =
@@ -85,6 +81,17 @@ defmodule AsciinemaWeb.UserController do
       page: page,
       show_edit_link: Authz.can?(current_user, :update, user)
     )
+  end
+
+  defp fetch_user(%{"id" => id}) do
+    case Integer.parse(id) do
+      {id, ""} -> Accounts.fetch_user(id)
+      _ -> {:error, :not_found}
+    end
+  end
+
+  defp fetch_user(%{"username" => username}) do
+    Accounts.fetch_user(username: username)
   end
 
   def edit(conn, _params) do

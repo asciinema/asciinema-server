@@ -6,10 +6,10 @@
 
       <p>
         Every asciinema user gets a profile page at
-        <a href="#"><%= home_url(@conn, :show) %>~<strong>username</strong></a>.
+        <a href="#"><%= Routes.home_url(@conn, :show) %>~<strong>username</strong></a>.
       </p>
 
-      <%= form_for @changeset, username_path(@conn, :create), [class: "username-form", method: :post], fn f -> %>
+      <%= form_for @changeset, Routes.username_path(@conn, :create), [class: "username-form", method: :post], fn f -> %>
         <div class="form-group">
           <label for="user_username">Your username:</label>
           <%= text_input f, :username, class: "form-control", "data-behavior": "focus" %>
@@ -33,7 +33,7 @@
 
         <div class="form-group">
           <%= submit "Continue", class: "btn btn-primary" %>
-          <%= link "I'll do it later", to: username_path(@conn, :skip), class: "btn" %>
+          <%= link "I'll do it later", to: Routes.username_path(@conn, :skip), class: "btn" %>
         </div>
       <% end %>
     </div>

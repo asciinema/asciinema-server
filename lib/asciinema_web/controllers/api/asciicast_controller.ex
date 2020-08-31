@@ -24,7 +24,8 @@ defmodule AsciinemaWeb.Api.AsciicastController do
 
     case Asciicasts.create_asciicast(user, params, %{user_agent: user_agent}) do
       {:ok, asciicast} ->
-        url = asciicast_url(conn, :show, asciicast)
+        url = Routes.asciicast_url(conn, :show, asciicast)
+
         conn
         |> put_status(:created)
         |> put_resp_header("location", url)
@@ -49,7 +50,7 @@ defmodule AsciinemaWeb.Api.AsciicastController do
 
   defp parse_v0_params(%Plug.Conn{params: %{"asciicast" => %{"meta" => %Plug.Upload{path: meta_path}}}} = conn, _) do
     with {:ok, json} <- File.read(meta_path),
-         {:ok, attrs} <- Poison.decode(json) do
+         {:ok, attrs} <- Jason.decode(json) do
       conn
       |> put_param(["asciicast", "meta"], Map.put(attrs, "version", 0))
       |> put_basic_auth(attrs["username"], attrs["user_token"])

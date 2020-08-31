@@ -9,13 +9,28 @@ defmodule Asciinema.ErrorViewTest do
            "Not Found"
   end
 
-  test "render 500.html" do
-    assert render_to_string(AsciinemaWeb.ErrorView, "500.html", []) ==
-           "Internal server error"
+  test "renders 404.json" do
+    assert render_to_string(AsciinemaWeb.ErrorView, "404.json", []) ==
+           "{\"error\":\"Not Found\"}"
   end
 
-  test "render any other" do
+  test "render 500.html" do
+    assert render_to_string(AsciinemaWeb.ErrorView, "500.html", []) ==
+           "Internal Server Error"
+  end
+
+  test "render 500.json" do
+    assert render_to_string(AsciinemaWeb.ErrorView, "500.json", []) ==
+           "{\"error\":\"Internal Server Error\"}"
+  end
+
+  test "render any other (html)" do
     assert render_to_string(AsciinemaWeb.ErrorView, "505.html", []) ==
-           "Internal server error"
+           "HTTP Version Not Supported"
+  end
+
+  test "render any other (json)" do
+    assert render_to_string(AsciinemaWeb.ErrorView, "505.json", []) ==
+           "{\"error\":\"HTTP Version Not Supported\"}"
   end
 end
