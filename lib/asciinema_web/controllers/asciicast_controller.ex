@@ -61,12 +61,11 @@ defmodule AsciinemaWeb.AsciicastController do
     if asciicast.archived_at do
       send_resp(conn, 410, "")
     else
-      path = Asciicast.json_store_path(asciicast)
       filename = download_filename(asciicast, conn.params)
 
       conn
       |> put_resp_header("access-control-allow-origin", "*")
-      |> file_store().serve_file(path, filename)
+      |> file_store().serve_file(asciicast.path, filename)
     end
   end
 

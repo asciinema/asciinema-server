@@ -18,7 +18,7 @@ defmodule Asciinema.Factory do
     %Asciicast{
       user: build(:user),
       version: 0,
-      file: nil,
+      path: nil,
       stdout_data: "stdout",
       stdout_timing: "stdout.time",
       duration: 123.45,
@@ -33,7 +33,7 @@ defmodule Asciinema.Factory do
     %Asciicast{
       user: build(:user),
       version: 1,
-      file: "asciicast.json",
+      path: sequence(:path, &"asciicast/file/#{&1}/asciicast.json"),
       duration: 123.45,
       terminal_columns: 80,
       terminal_lines: 24,
@@ -46,7 +46,7 @@ defmodule Asciinema.Factory do
     %Asciicast{
       user: build(:user),
       version: 2,
-      file: "ascii.cast",
+      path: sequence(:path, &"asciicast/file/#{&1}/ascii.cast"),
       duration: 123.45,
       terminal_columns: 80,
       terminal_lines: 24,
@@ -62,22 +62,19 @@ defmodule Asciinema.Factory do
         2 -> "welcome.cast"
       end
 
-    path = Asciicast.file_store_path(asciicast, :file)
-    :ok = FileStore.put_file(path, "test/fixtures/#{src}", "application/json", false)
+    :ok = FileStore.put_file(asciicast.path, "test/fixtures/#{src}", "application/json", false)
 
     asciicast
   end
 
   def with_files(%{version: 0} = asciicast) do
-    path = Asciicast.file_store_path(asciicast, :stdout_data)
     src = "test/fixtures/0.9.9/stdout"
     ct = "application/octet-stream"
-    :ok = FileStore.put_file(path, src, ct, false)
+    :ok = FileStore.put_file("asciicast/stdout/#{asciicast.id}/stdout", src, ct, false)
 
-    path = Asciicast.file_store_path(asciicast, :stdout_timing)
     src = "test/fixtures/0.9.9/stdout.time"
     ct = "application/octet-stream"
-    :ok = FileStore.put_file(path, src, ct, false)
+    :ok = FileStore.put_file("asciicast/stdout_timing/#{asciicast.id}/stdout.time", src, ct, false)
 
     asciicast
   end

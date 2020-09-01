@@ -10,7 +10,7 @@ defmodule Asciinema.Asciicasts.Asciicast do
 
   schema "asciicasts" do
     field :version, :integer
-    field :file, :string
+    field :path, :string
     field :terminal_columns, :integer
     field :terminal_lines, :integer
     field :terminal_type, :string
@@ -63,7 +63,7 @@ defmodule Asciinema.Asciicasts.Asciicast do
   def create_changeset(struct, attrs) do
     struct
     |> changeset(attrs)
-    |> cast(attrs, [:version, :file, :duration, :terminal_columns, :terminal_lines, :terminal_type, :command, :shell, :uname, :user_agent, :recorded_at, :theme_fg, :theme_bg, :theme_palette, :idle_time_limit, :snapshot])
+    |> cast(attrs, [:version, :duration, :terminal_columns, :terminal_lines, :terminal_type, :command, :shell, :uname, :user_agent, :recorded_at, :theme_fg, :theme_bg, :theme_palette, :idle_time_limit, :snapshot])
     |> validate_required([:user_id, :version, :duration, :terminal_columns, :terminal_lines])
     |> generate_secret_token
   end
@@ -80,30 +80,6 @@ defmodule Asciinema.Asciicasts.Asciicast do
 
   defp generate_secret_token(changeset) do
     put_change(changeset, :secret_token, Crypto.random_token(25))
-  end
-
-  def json_store_path(asciicast) do
-    file_store_path(asciicast, :file)
-  end
-
-  def file_store_path(%Asciicast{id: id, file: fname}, :file) do
-    file_store_path(:file, id, fname)
-  end
-
-  def file_store_path(%Asciicast{id: id, stdout_data: fname}, :stdout_data) do
-    file_store_path(:stdout, id, fname)
-  end
-
-  def file_store_path(%Asciicast{id: id, stdout_timing: fname}, :stdout_timing) do
-    file_store_path(:stdout_timing, id, fname)
-  end
-
-  def file_store_path(type, id, fname) when is_binary(fname) do
-    "asciicast/#{type}/#{id}/#{fname}"
-  end
-
-  def file_store_path(_type, _id, _fname) do
-    nil
   end
 
   def snapshot_at(%Asciicast{snapshot_at: snapshot_at, duration: duration}) do

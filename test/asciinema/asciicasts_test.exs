@@ -24,7 +24,6 @@ defmodule Asciinema.AsciicastsTest do
       {:ok, asciicast} = Asciicasts.create_asciicast(user, params, %{user_agent: "a/user/agent"})
 
       assert %Asciicast{version: 2,
-                        file: "0.cast",
                         command: "/bin/bash",
                         duration: 3.7037009999999997,
                         shell: "/bin/zsh",
@@ -34,6 +33,8 @@ defmodule Asciinema.AsciicastsTest do
                         title: "bashing :)",
                         uname: "Linux 3.9.9-302.fc19.x86_64 #1 SMP Sat Jul 6 13:41:07 UTC 2013 x86_64",
                         user_agent: nil} = asciicast
+
+      assert asciicast.path =~ ~r/0\.cast$/
     end
 
     test "pre-v1 payload without uname" do
@@ -54,7 +55,6 @@ defmodule Asciinema.AsciicastsTest do
       {:ok, asciicast} = Asciicasts.create_asciicast(user, params, %{user_agent: "a/user/agent"})
 
       assert %Asciicast{version: 2,
-                        file: "0.cast",
                         command: "/bin/bash",
                         duration: 3.7037009999999997,
                         shell: "/bin/zsh",
@@ -64,6 +64,8 @@ defmodule Asciinema.AsciicastsTest do
                         title: "bashing :)",
                         uname: nil,
                         user_agent: "a/user/agent"} = asciicast
+
+      assert asciicast.path =~ ~r/0\.cast$/
     end
 
     test "pre-v1 payload, utf-8 sequence split between frames" do
@@ -95,7 +97,6 @@ defmodule Asciinema.AsciicastsTest do
       {:ok, asciicast} = Asciicasts.create_asciicast(user, upload, %{user_agent: "a/user/agent"})
 
       assert %Asciicast{version: 1,
-                        file: "asciicast.json",
                         command: "/bin/bash",
                         duration: 11.146430015564,
                         shell: "/bin/zsh",
@@ -105,6 +106,8 @@ defmodule Asciinema.AsciicastsTest do
                         title: "bashing :)",
                         uname: nil,
                         user_agent: "a/user/agent"} = asciicast
+
+      assert asciicast.path =~ ~r/asciicast\.json$/
     end
 
     test "json file, v1 format (missing required data)" do
@@ -131,7 +134,6 @@ defmodule Asciinema.AsciicastsTest do
                         terminal_columns: 96,
                         terminal_lines: 26,
                         duration: 8.456789,
-                        file: "minimal.cast",
                         command: nil,
                         recorded_at: nil,
                         shell: nil,
@@ -143,6 +145,8 @@ defmodule Asciinema.AsciicastsTest do
                         idle_time_limit: nil,
                         uname: nil,
                         user_agent: "a/user/agent"} = asciicast
+
+      assert asciicast.path =~ ~r/minimal\.cast$/
     end
 
     test "cast file, v2 format, full" do
@@ -155,7 +159,6 @@ defmodule Asciinema.AsciicastsTest do
                         terminal_columns: 96,
                         terminal_lines: 26,
                         duration: 6.234567,
-                        file: "full.cast",
                         command: "/bin/bash -l",
                         shell: "/bin/zsh",
                         terminal_type: "screen-256color",
@@ -167,6 +170,7 @@ defmodule Asciinema.AsciicastsTest do
                         uname: nil,
                         user_agent: "a/user/agent"} = asciicast
 
+      assert asciicast.path =~ ~r/full\.cast$/
       assert DateTime.to_unix(asciicast.recorded_at) == 1506410422
     end
 
@@ -269,7 +273,7 @@ defmodule Asciinema.AsciicastsTest do
 
       assert {:ok, asciicast} = Asciicasts.upgrade(asciicast)
       assert asciicast.version == 2
-      assert asciicast.file != nil
+      assert asciicast.path =~ ~r/0\.cast$/
 
       stream_v2 =
         asciicast
