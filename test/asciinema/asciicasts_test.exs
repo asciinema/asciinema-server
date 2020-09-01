@@ -25,8 +25,6 @@ defmodule Asciinema.AsciicastsTest do
 
       assert %Asciicast{version: 2,
                         file: "0.cast",
-                        stdout_data: nil,
-                        stdout_timing: nil,
                         command: "/bin/bash",
                         duration: 3.7037009999999997,
                         shell: "/bin/zsh",
@@ -57,8 +55,6 @@ defmodule Asciinema.AsciicastsTest do
 
       assert %Asciicast{version: 2,
                         file: "0.cast",
-                        stdout_data: nil,
-                        stdout_timing: nil,
                         command: "/bin/bash",
                         duration: 3.7037009999999997,
                         shell: "/bin/zsh",
@@ -100,8 +96,6 @@ defmodule Asciinema.AsciicastsTest do
 
       assert %Asciicast{version: 1,
                         file: "asciicast.json",
-                        stdout_data: nil,
-                        stdout_timing: nil,
                         command: "/bin/bash",
                         duration: 11.146430015564,
                         shell: "/bin/zsh",
@@ -138,8 +132,6 @@ defmodule Asciinema.AsciicastsTest do
                         terminal_lines: 26,
                         duration: 8.456789,
                         file: "minimal.cast",
-                        stdout_data: nil,
-                        stdout_timing: nil,
                         command: nil,
                         recorded_at: nil,
                         shell: nil,
@@ -164,8 +156,6 @@ defmodule Asciinema.AsciicastsTest do
                         terminal_lines: 26,
                         duration: 6.234567,
                         file: "full.cast",
-                        stdout_data: nil,
-                        stdout_timing: nil,
                         command: "/bin/bash -l",
                         shell: "/bin/zsh",
                         terminal_type: "screen-256color",
@@ -189,11 +179,6 @@ defmodule Asciinema.AsciicastsTest do
   end
 
   describe "delete_asciicast/1" do
-    test "v0" do
-      asciicast = insert(:asciicast_v0) |> with_files()
-      assert {:ok, _asciicast} = Asciicasts.delete_asciicast(asciicast)
-    end
-
     test "v1/v2" do
       asciicast = insert(:asciicast_v1) |> with_file()
       assert {:ok, _asciicast} = Asciicasts.delete_asciicast(asciicast)
@@ -274,7 +259,7 @@ defmodule Asciinema.AsciicastsTest do
       assert {:ok, ^asciicast_v2} = Asciicasts.upgrade(asciicast_v2)
     end
 
-    test "converts v0 file to v2 and deletes stdout_frames" do
+    test "converts v0 file to v2" do
       asciicast = insert(:asciicast_v0) |> with_files()
 
       stream_v0 =
@@ -285,7 +270,6 @@ defmodule Asciinema.AsciicastsTest do
       assert {:ok, asciicast} = Asciicasts.upgrade(asciicast)
       assert asciicast.version == 2
       assert asciicast.file != nil
-      assert asciicast.stdout_frames == nil
 
       stream_v2 =
         asciicast

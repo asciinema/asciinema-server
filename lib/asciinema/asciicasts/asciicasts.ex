@@ -318,13 +318,6 @@ defmodule Asciinema.Asciicasts do
     :ok = FileStore.put_file(file_store_path, tmp_path, content_type, compress)
   end
 
-  defp delete_file(asciicast, type) do
-    :ok =
-      asciicast
-      |> Asciicast.file_store_path(type)
-      |> FileStore.delete_file()
-  end
-
   def stdout_stream(%Asciicast{version: 0} = asciicast) do
     {:ok, tmp_dir_path} = Briefly.create(directory: true)
     local_timing_path = tmp_dir_path <> "/timing"
@@ -461,19 +454,13 @@ defmodule Asciinema.Asciicasts do
 
   def delete_asciicast(asciicast) do
     with {:ok, asciicast} <- Repo.delete(asciicast) do
-      delete_files(asciicast)
+      :ok =
+        asciicast
+        |> Asciicast.file_store_path(:file)
+        |> FileStore.delete_file()
+
       {:ok, asciicast}
     end
-  end
-
-  defp delete_files(asciicast) do
-    for f <- [:file, :stdout_data, :stdout_timing, :stdout_frames] do
-      if path = Asciicast.file_store_path(asciicast, f) do
-        :ok = FileStore.delete_file(path)
-      end
-    end
-
-    :ok
   end
 
   def update_snapshot(%Asciicast{terminal_columns: w, terminal_lines: h} = asciicast) do
@@ -574,18 +561,14 @@ defmodule Asciinema.Asciicasts do
 
     changeset =
       Changeset.change(
-        asciicast, version: 2, file: "0.cast", stdout_frames: nil
+        asciicast, version: 2, file: "0.cast"
       )
 
     changeset
     |> Changeset.apply_changes()
     |> save_file({:file, upload, true})
 
-    {:ok, asciicast_v2} = Repo.update(changeset)
-
-    delete_file(asciicast, :stdout_frames)
-
-    {:ok, asciicast_v2}
+    {:ok, _asciicast_v2} = Repo.update(changeset)
   end
 
   def upgrade(%Asciicast{} = asciicast) do

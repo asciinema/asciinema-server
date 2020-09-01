@@ -21,7 +21,6 @@ defmodule Asciinema.Factory do
       file: nil,
       stdout_data: "stdout",
       stdout_timing: "stdout.time",
-      stdout_frames: "stdout.json",
       duration: 123.45,
       terminal_columns: 80,
       terminal_lines: 24,
@@ -78,11 +77,6 @@ defmodule Asciinema.Factory do
     path = Asciicast.file_store_path(asciicast, :stdout_timing)
     src = "test/fixtures/0.9.9/stdout.time"
     ct = "application/octet-stream"
-    :ok = FileStore.put_file(path, src, ct, false)
-
-    path = Asciicast.file_store_path(asciicast, :stdout_frames)
-    src = "test/fixtures/stdout.json"
-    ct = "application/json"
     :ok = FileStore.put_file(path, src, ct, false)
 
     asciicast

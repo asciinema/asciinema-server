@@ -14,9 +14,6 @@ defmodule Asciinema.Asciicasts.Asciicast do
     field :terminal_columns, :integer
     field :terminal_lines, :integer
     field :terminal_type, :string
-    field :stdout_data, :string
-    field :stdout_timing, :string
-    field :stdout_frames, :string
     field :private, :boolean
     field :featured, :boolean
     field :secret_token, :string
@@ -42,6 +39,10 @@ defmodule Asciinema.Asciicasts.Asciicast do
     timestamps(inserted_at: :created_at)
 
     belongs_to :user, User
+
+    # legacy
+    field :stdout_data, :string
+    field :stdout_timing, :string
   end
 
   defimpl Phoenix.Param, for: Asciicast do
@@ -81,24 +82,12 @@ defmodule Asciinema.Asciicasts.Asciicast do
     put_change(changeset, :secret_token, Crypto.random_token(25))
   end
 
-  def json_store_path(%Asciicast{file: v} = asciicast) when is_binary(v) do
+  def json_store_path(asciicast) do
     file_store_path(asciicast, :file)
-  end
-
-  def json_store_path(%Asciicast{stdout_frames: v} = asciicast) when is_binary(v) do
-    file_store_path(asciicast, :stdout_frames)
-  end
-
-  def json_store_path(_asciicast) do
-    nil
   end
 
   def file_store_path(%Asciicast{id: id, file: fname}, :file) do
     file_store_path(:file, id, fname)
-  end
-
-  def file_store_path(%Asciicast{id: id, stdout_frames: fname}, :stdout_frames) do
-    file_store_path(:stdout_frames, id, fname)
   end
 
   def file_store_path(%Asciicast{id: id, stdout_data: fname}, :stdout_data) do
