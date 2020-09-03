@@ -18,6 +18,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Pull Submodules
+          command: submodule update --init --recursive
+      - run:
           name: Install Hex
           command: mix local.hex --force
       - run:
@@ -31,7 +34,7 @@ jobs:
           name: Install Rust toolchain
           command: curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable
       - run:
-          name: load cargo into current shell
+          name: Load cargo into current shell
           command: source $HOME/.cargo/env
       - run:
           name: Fetch dependencies
