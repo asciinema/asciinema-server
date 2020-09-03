@@ -34,8 +34,8 @@ jobs:
           name: Install Rust toolchain
           command: curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable
       - run:
-          name: Load cargo into current shell
-          command: source $HOME/.cargo/env
+          name: Inject cargo into shell
+          command: echo '$HOME/.cargo/env' >> $BASH_ENV
       - run:
           name: Fetch dependencies
           command: mix do deps.get, deps.compile
