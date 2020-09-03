@@ -19,7 +19,7 @@ jobs:
       - checkout
       - run:
           name: Pull Submodules
-          command: submodule update --init --recursive
+          command: git submodule update --init --recursive
       - run:
           name: Install Hex
           command: mix local.hex --force
