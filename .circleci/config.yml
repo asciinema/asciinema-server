@@ -11,6 +11,7 @@ jobs:
         environment:
           POSTGRES_USER: postgres
           POSTGRES_DB: asciinema_test
+          POSTGRES_HOST_AUTH_METHOD: trust
       - image: circleci/redis:5
 
     working_directory: ~/repo
@@ -22,20 +23,32 @@ jobs:
       - run:
           name: Fetch a copy of rebar
           command: mix local.rebar --force
-      - restore_cache:  # restores saved mix cache, this speeds things up significantly
-          keys:  # list of cache keys, in decreasing specificity
-            - deps-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
+      - restore_cache:
+          key: deps-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
+      - restore_cache:
+          key: rust-cache-{{ .Branch }}-{{ checksum "native/vt/Cargo.lock" }}-{{ checksum "native/vt_nif/Cargo.lock" }}
+      - run:
+          name: Install Rust toolchain
+          command: curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable
+      - run:
+          name: load cargo into current shell
+          command: source $HOME/.cargo/env
       - run:
           name: Fetch dependencies
           command: mix do deps.get, deps.compile
       - run:
           name: Compile
           command: mix compile --warnings-as-errors
-      - save_cache:  # generate and store mix cache
+      - save_cache:
           key: deps-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
           paths:
             - deps
             - _build
+      - save_cache:
+          key: rust-cache-{{ .Branch }}-{{ checksum "native/vt/Cargo.lock" }}-{{ checksum "native/vt_nif/Cargo.lock" }}
+          paths:
+            - .rustup
+            - .cargo
       - run:
           name: Wait for DB
           command: dockerize -wait tcp://localhost:5432 -timeout 1m
