@@ -35,7 +35,7 @@ jobs:
           command: curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable
       - run:
           name: Inject cargo into shell
-          command: echo '$HOME/.cargo/env' >> $BASH_ENV
+          command: echo 'source $HOME/.cargo/env' >> $BASH_ENV
       - run:
           name: Fetch dependencies
           command: mix do deps.get, deps.compile
