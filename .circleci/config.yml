@@ -2,14 +2,49 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/elixir:1.10-node
+      - image: circleci/elixir:1.10.3-node
+        environment:
+          MIX_ENV: test
+          DATABASE_URL: "postgres://postgres@localhost:5432/asciinema_test"
+          REDIS_URL: "redis://localhost:6379"
       - image: circleci/postgres:10
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: asciinema_test
       - image: circleci/redis:5
 
     working_directory: ~/repo
     steps:
       - checkout
-
-      - run: mix deps.get
-      - run: mix ecto.create
-      - run: mix test
+      - run:
+          name: Install Hex
+          command: mix local.hex --force
+      - run:
+          name: Fetch a copy of rebar
+          command: mix local.rebar --force
+      - restore_cache:  # restores saved mix cache, this speeds things up significantly
+          keys:  # list of cache keys, in decreasing specificity
+            - deps-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
+      - run:
+          name: Fetch dependencies
+          command: mix do deps.get, deps.compile
+      - run:
+          name: Compile
+          command: mix compile --warnings-as-errors
+      - save_cache:  # generate and store mix cache
+          key: deps-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
+          paths:
+            - deps
+            - _build
+      - run:
+          name: Wait for DB
+          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+      - run:
+          name: Create database
+          command: mix ecto.create
+      - run:
+          name: Migrate database
+          command: mix ecto.migrate
+      - run:
+          name: Run mix.test
+          command: mix test
