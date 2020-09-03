@@ -1,11 +1,7 @@
-# Elixir CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-elixir/ for more details
 version: 2
 jobs:
   build:
     docker:
-      # specify the version here
       - image: circleci/elixir:1.10-node
       - image: circleci/postgres:10
       - image: circleci/redis:5
