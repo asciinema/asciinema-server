@@ -31,8 +31,6 @@ jobs:
       - restore_cache:
           key: rust-cache-{{ .Branch }}-{{ checksum "native/vt/Cargo.lock" }}-{{ checksum "native/vt_nif/Cargo.lock" }}
       - run:
-          command: rm _build/dev/lib/asciinema/priv/native/libvt_nif.so
-      - run:
           name: Install Rust toolchain
           command: curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable
       - run:
