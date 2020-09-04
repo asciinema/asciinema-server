@@ -72,4 +72,4 @@ jobs:
           command: mix ecto.migrate
       - run:
           name: Run mix.test
-          command: mix test
+          command: mix test --include vt
