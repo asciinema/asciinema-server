@@ -558,11 +558,10 @@ defmodule Asciinema.Asciicasts do
   end
 
   def upgrade do
-    Repo.transaction(fn ->
-      Asciicast
-      |> Repo.stream()
-      |> Enum.each(&upgrade/1)
-    end)
+    Asciicast
+    |> Repo.pages(100)
+    |> Stream.flat_map(& &1)
+    |> Enum.each(&upgrade/1)
 
     :ok
   end
