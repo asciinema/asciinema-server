@@ -2,10 +2,12 @@ defmodule Asciinema.FileStore.Local do
   use Asciinema.FileStore
   import Plug.Conn
 
+  @impl true
   def url(_path) do
     nil
   end
 
+  @impl true
   def put_file(dst_path, src_local_path, _content_type, _compress \\ false) do
     full_dst_path = base_path() <> dst_path
     parent_dir = Path.dirname(full_dst_path)
@@ -16,9 +18,20 @@ defmodule Asciinema.FileStore.Local do
     end
   end
 
+  @impl true
+  def move_file(from_path, to_path) do
+    full_from_path = base_path() <> from_path
+    full_to_path = base_path() <> to_path
+    parent_dir = Path.dirname(full_to_path)
+    :ok = File.mkdir_p(parent_dir)
+    File.rename(full_from_path, full_to_path)
+  end
+
+  @impl true
   def serve_file(conn, path, nil) do
     do_serve_file(conn, path)
   end
+
   def serve_file(conn, path, filename) do
     conn
     |> put_resp_header("content-disposition", "attachment; filename=#{filename}")
@@ -32,16 +45,21 @@ defmodule Asciinema.FileStore.Local do
     |> halt
   end
 
+  @impl true
   def open_file(path) do
     File.open(base_path() <> path, [:binary, :read])
   end
+
+  @impl true
   def open_file(path, nil) do
     open_file(path)
   end
+
   def open_file(path, function) do
     File.open(base_path() <> path, [:binary, :read], function)
   end
 
+  @impl true
   def delete_file(path) do
     File.rm(base_path() <> path)
   end

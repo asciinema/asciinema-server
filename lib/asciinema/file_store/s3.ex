@@ -3,6 +3,7 @@ defmodule Asciinema.FileStore.S3 do
   import Phoenix.Controller, only: [redirect: 2]
   alias ExAws.{S3, Config}
 
+  @impl true
   def url(path) do
     url(path, [])
   end
@@ -15,6 +16,7 @@ defmodule Asciinema.FileStore.S3 do
     url
   end
 
+  @impl true
   def put_file(dst_path, src_local_path, content_type, compress \\ false) do
     {body, opts} = if compress do
       body = src_local_path |> File.read! |> :zlib.gzip
@@ -31,9 +33,30 @@ defmodule Asciinema.FileStore.S3 do
     end
   end
 
+  @impl true
+  def move_file(from_path, to_path) do
+    req =
+      S3.put_object_copy(
+        bucket(),
+        base_path() <> to_path,
+        bucket(),
+        base_path() <> from_path
+      )
+
+    case make_request(req) do
+      {:ok, _} ->
+        delete_file(from_path)
+
+      {:error, {:http_error, 404, _}} ->
+        {:error, :enoent}
+    end
+  end
+
+  @impl true
   def serve_file(conn, path, nil) do
     do_serve_file(conn, path)
   end
+
   def serve_file(conn, path, filename) do
     do_serve_file(conn, path, ["response-content-disposition": "attachment; filename=#{filename}"])
   end
@@ -42,6 +65,7 @@ defmodule Asciinema.FileStore.S3 do
     redirect(conn, external: url(path, query_params))
   end
 
+  @impl true
   def open_file(path, function \\ nil) do
     response = bucket() |> S3.get_object(base_path() <> path) |> make_request
 
@@ -60,6 +84,7 @@ defmodule Asciinema.FileStore.S3 do
     end
   end
 
+  @impl true
   def delete_file(path) do
     req = S3.delete_object(bucket(), base_path() <> path)
 
