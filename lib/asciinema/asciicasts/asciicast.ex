@@ -10,6 +10,7 @@ defmodule Asciinema.Asciicasts.Asciicast do
 
   schema "asciicasts" do
     field :version, :integer
+    field :filename, :string
     field :path, :string
     field :terminal_columns, :integer
     field :terminal_lines, :integer

@@ -140,13 +140,14 @@ defmodule Asciinema.Asciicasts do
   def create_asciicast(user, %Plug.Upload{filename: filename} = upload, overrides) do
     asciicast = %Asciicast{
       user_id: user.id,
+      filename: filename,
       private: user.asciicasts_private_by_default
     }
 
     with {:ok, attrs} <- extract_metadata(upload),
          attrs = Map.merge(attrs, overrides),
          changeset = Asciicast.create_changeset(asciicast, attrs),
-         {:ok, %Asciicast{} = asciicast} <- do_create_asciicast(changeset, filename, {upload, true}) do
+         {:ok, %Asciicast{} = asciicast} <- do_create_asciicast(changeset, {upload, true}) do
       if asciicast.snapshot == nil do
         :ok = SnapshotUpdater.update_snapshot(asciicast)
       end
@@ -294,14 +295,20 @@ defmodule Asciinema.Asciicasts do
     end
   end
 
-  defp do_create_asciicast(changeset, filename, file) do
+  defp do_create_asciicast(changeset, file) do
     {_, result} =
       Repo.transaction(fn ->
         case Repo.insert(changeset) do
           {:ok, asciicast} ->
-            path = gen_file_store_path(asciicast, filename)
-            asciicast = Repo.update!(Changeset.change(asciicast, path: path))
-            save_file(asciicast, file)
+            path = gen_file_store_path(asciicast)
+
+            asciicast =
+              asciicast
+              |> Changeset.change(path: path)
+              |> Repo.update!()
+
+            save_file(path, file)
+
             {:ok, asciicast}
 
           otherwise ->
@@ -312,12 +319,25 @@ defmodule Asciinema.Asciicasts do
     result
   end
 
-  defp gen_file_store_path(asciicast, filename) do
-    "asciicast/file/#{asciicast.id}/#{filename}"
+  defp gen_file_store_path(asciicast) do
+    ext =
+      case asciicast.version do
+        1 -> "json"
+        2 -> "cast"
+      end
+
+    <<a::binary-size(2), b::binary-size(2)>> =
+      asciicast.id
+      |> Integer.to_string(10)
+      |> String.pad_leading(4, "0")
+      |> String.reverse()
+      |> String.slice(0, 4)
+
+    "asciicasts/#{a}/#{b}/#{asciicast.id}.#{ext}"
   end
 
-  defp save_file(asciicast, {%{path: tmp_path, content_type: content_type}, compress}) do
-    :ok = FileStore.put_file(asciicast.path, tmp_path, content_type, compress)
+  defp save_file(path, {%{path: tmp_path, content_type: content_type}, compress}) do
+    :ok = FileStore.put_file(path, tmp_path, content_type, compress)
   end
 
   def stdout_stream(%Asciicast{version: 0} = asciicast) do
@@ -538,12 +558,22 @@ defmodule Asciinema.Asciicasts do
   end
 
   def upgrade do
-    from(a in Asciicast, where: a.version == 0)
-    |> Repo.all()
-    |> Enum.each(&upgrade/1)
+    Repo.transaction(fn ->
+      Asciicast
+      |> Repo.stream()
+      |> Enum.each(&upgrade/1)
+    end)
+
+    :ok
   end
 
-  def upgrade(%Asciicast{version: 0} = asciicast) do
+  def upgrade(asciicast) do
+    asciicast
+    |> upgrade_from_v0()
+    |> upgrade_file_path()
+  end
+
+  def upgrade_from_v0(%Asciicast{version: 0} = asciicast) do
     Logger.info("upgrading asciicast ##{asciicast.id} from version 0 to version 2...")
 
     header = v2_header(asciicast)
@@ -555,21 +585,36 @@ defmodule Asciinema.Asciicasts do
 
     upload = %Plug.Upload{path: v2_path, content_type: "application/octet-stream"}
 
+    path = gen_file_store_path(%{asciicast | version: 2})
+
     changeset =
-      Changeset.change(
-        asciicast, version: 2, path: gen_file_store_path(asciicast, "0.cast")
+      Changeset.change(asciicast,
+        version: 2,
+        filename: "0.cast",
+        path: path
       )
 
-    changeset
-    |> Changeset.apply_changes()
-    |> save_file({upload, true})
+    save_file(path, {upload, true})
 
-    {:ok, _asciicast_v2} = Repo.update(changeset)
+    Repo.update!(changeset)
   end
 
-  def upgrade(%Asciicast{} = asciicast) do
-    {:ok, asciicast}
+  def upgrade_from_v0(asciicast), do: asciicast
+
+  def upgrade_file_path(%Asciicast{path: "asciicast/file/" <> _ = old_path} = asciicast) do
+    {:ok, asciicast} =
+      Repo.transaction(fn ->
+        new_path = gen_file_store_path(asciicast)
+        asciicast = Repo.update!(Changeset.change(asciicast, path: new_path))
+        :ok = FileStore.move_file(old_path, new_path)
+
+        asciicast
+      end)
+
+    asciicast
   end
+
+  def upgrade_file_path(asciicast), do: asciicast
 
   defp v2_header(asciicast) do
     header = %{

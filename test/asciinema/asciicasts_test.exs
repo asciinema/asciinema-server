@@ -34,7 +34,7 @@ defmodule Asciinema.AsciicastsTest do
                         uname: "Linux 3.9.9-302.fc19.x86_64 #1 SMP Sat Jul 6 13:41:07 UTC 2013 x86_64",
                         user_agent: nil} = asciicast
 
-      assert asciicast.path =~ ~r/0\.cast$/
+      assert asciicast.path =~ ~r|\d\d/\d\d/#{asciicast.id}\.cast$|
     end
 
     test "pre-v1 payload without uname" do
@@ -65,7 +65,7 @@ defmodule Asciinema.AsciicastsTest do
                         uname: nil,
                         user_agent: "a/user/agent"} = asciicast
 
-      assert asciicast.path =~ ~r/0\.cast$/
+      assert asciicast.path =~ ~r|\d\d/\d\d/#{asciicast.id}\.cast$|
     end
 
     test "pre-v1 payload, utf-8 sequence split between frames" do
@@ -107,7 +107,7 @@ defmodule Asciinema.AsciicastsTest do
                         uname: nil,
                         user_agent: "a/user/agent"} = asciicast
 
-      assert asciicast.path =~ ~r/asciicast\.json$/
+      assert asciicast.path =~ ~r|\d\d/\d\d/#{asciicast.id}\.json$|
     end
 
     test "json file, v1 format (missing required data)" do
@@ -146,7 +146,7 @@ defmodule Asciinema.AsciicastsTest do
                         uname: nil,
                         user_agent: "a/user/agent"} = asciicast
 
-      assert asciicast.path =~ ~r/minimal\.cast$/
+      assert asciicast.path =~ ~r|\d\d/\d\d/#{asciicast.id}\.cast$|
     end
 
     test "cast file, v2 format, full" do
@@ -170,7 +170,7 @@ defmodule Asciinema.AsciicastsTest do
                         uname: nil,
                         user_agent: "a/user/agent"} = asciicast
 
-      assert asciicast.path =~ ~r/full\.cast$/
+      assert asciicast.path =~ ~r|\d\d/\d\d/#{asciicast.id}\.cast$|
       assert DateTime.to_unix(asciicast.recorded_at) == 1506410422
     end
 
@@ -259,8 +259,8 @@ defmodule Asciinema.AsciicastsTest do
       asciicast_v1 = insert(:asciicast_v1)
       asciicast_v2 = insert(:asciicast_v2)
 
-      assert {:ok, ^asciicast_v1} = Asciicasts.upgrade(asciicast_v1)
-      assert {:ok, ^asciicast_v2} = Asciicasts.upgrade(asciicast_v2)
+      assert ^asciicast_v1 = Asciicasts.upgrade(asciicast_v1)
+      assert ^asciicast_v2 = Asciicasts.upgrade(asciicast_v2)
     end
 
     test "converts v0 file to v2" do
@@ -271,9 +271,9 @@ defmodule Asciinema.AsciicastsTest do
         |> Asciicasts.stdout_stream()
         |> Enum.to_list()
 
-      assert {:ok, asciicast} = Asciicasts.upgrade(asciicast)
+      asciicast = Asciicasts.upgrade(asciicast)
       assert asciicast.version == 2
-      assert asciicast.path =~ ~r/0\.cast$/
+      assert asciicast.path =~ ~r|\d\d/\d\d/#{asciicast.id}\.cast$|
 
       stream_v2 =
         asciicast

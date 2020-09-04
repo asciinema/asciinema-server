@@ -33,7 +33,7 @@ defmodule Asciinema.Factory do
     %Asciicast{
       user: build(:user),
       version: 1,
-      path: sequence(:path, &"asciicast/file/#{&1}/asciicast.json"),
+      path: sequence(:path, &"asciicasts/01/01/#{&1}.json"),
       duration: 123.45,
       terminal_columns: 80,
       terminal_lines: 24,
@@ -46,7 +46,7 @@ defmodule Asciinema.Factory do
     %Asciicast{
       user: build(:user),
       version: 2,
-      path: sequence(:path, &"asciicast/file/#{&1}/ascii.cast"),
+      path: sequence(:path, &"asciicasts/01/01/#{&1}.cast"),
       duration: 123.45,
       terminal_columns: 80,
       terminal_lines: 24,
