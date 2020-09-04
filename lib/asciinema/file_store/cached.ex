@@ -16,8 +16,9 @@ defmodule Asciinema.FileStore.Cached do
 
   @impl true
   def move_file(from_path, to_path) do
-    with :ok <- remote_store().move_file(from_path, to_path),
-         :ok <- cache_store().move_file(from_path, to_path) do
+    with :ok <- remote_store().move_file(from_path, to_path) do
+      cache_store().delete_file(from_path)
+
       :ok
     end
   end
