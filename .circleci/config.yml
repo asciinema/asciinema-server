@@ -30,6 +30,8 @@ jobs:
           key: deps-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
       - restore_cache:
           key: rust-cache-{{ .Branch }}-{{ checksum "native/vt/Cargo.lock" }}-{{ checksum "native/vt_nif/Cargo.lock" }}
+      - restore_cache:
+          key: node-cache-{{ .Branch }}-{{ checksum "assets/package-lock.json" }}
       - run:
           name: Install Rust toolchain
           command: curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable
@@ -42,6 +44,9 @@ jobs:
       - run:
           name: Compile
           command: mix compile --warnings-as-errors
+      - run:
+          name: Build assets
+          command: cd assets && npm install && node_modules/webpack/bin/webpack.js --mode development
       - save_cache:
           key: deps-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
           paths:
@@ -52,6 +57,10 @@ jobs:
           paths:
             - .rustup
             - .cargo
+      - save_cache:
+          key: node-cache-{{ .Branch }}-{{ checksum "assets/package-lock.json" }}
+          paths:
+            - assets/node_modules
       - run:
           name: Wait for DB
           command: dockerize -wait tcp://localhost:5432 -timeout 1m
