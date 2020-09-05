@@ -140,16 +140,14 @@ defmodule Asciinema.Asciicasts do
   def create_asciicast(user, %Plug.Upload{filename: filename} = upload, overrides) do
     asciicast = %Asciicast{
       user_id: user.id,
-      file: filename,
+      filename: filename,
       private: user.asciicasts_private_by_default
     }
-
-    files = [{:file, upload, true}]
 
     with {:ok, attrs} <- extract_metadata(upload),
          attrs = Map.merge(attrs, overrides),
          changeset = Asciicast.create_changeset(asciicast, attrs),
-         {:ok, %Asciicast{} = asciicast} <- do_create_asciicast(changeset, files) do
+         {:ok, %Asciicast{} = asciicast} <- do_create_asciicast(changeset, {upload, true}) do
       if asciicast.snapshot == nil do
         :ok = SnapshotUpdater.update_snapshot(asciicast)
       end
@@ -297,12 +295,20 @@ defmodule Asciinema.Asciicasts do
     end
   end
 
-  defp do_create_asciicast(changeset, files) do
+  defp do_create_asciicast(changeset, file) do
     {_, result} =
       Repo.transaction(fn ->
         case Repo.insert(changeset) do
-          {:ok, %Asciicast{} = asciicast} ->
-            Enum.each(files, &save_file(asciicast, &1))
+          {:ok, asciicast} ->
+            path = gen_file_store_path(asciicast)
+
+            asciicast =
+              asciicast
+              |> Changeset.change(path: path)
+              |> Repo.update!()
+
+            save_file(path, file)
+
             {:ok, asciicast}
 
           otherwise ->
@@ -313,17 +319,33 @@ defmodule Asciinema.Asciicasts do
     result
   end
 
-  defp save_file(asciicast, {type, %{path: tmp_path, content_type: content_type}, compress}) do
-    file_store_path = Asciicast.file_store_path(asciicast, type)
-    :ok = FileStore.put_file(file_store_path, tmp_path, content_type, compress)
+  defp gen_file_store_path(asciicast) do
+    ext =
+      case asciicast.version do
+        1 -> "json"
+        2 -> "cast"
+      end
+
+    <<a::binary-size(2), b::binary-size(2)>> =
+      asciicast.id
+      |> Integer.to_string(10)
+      |> String.pad_leading(4, "0")
+      |> String.reverse()
+      |> String.slice(0, 4)
+
+    "asciicasts/#{a}/#{b}/#{asciicast.id}.#{ext}"
+  end
+
+  defp save_file(path, {%{path: tmp_path, content_type: content_type}, compress}) do
+    :ok = FileStore.put_file(path, tmp_path, content_type, compress)
   end
 
   def stdout_stream(%Asciicast{version: 0} = asciicast) do
     {:ok, tmp_dir_path} = Briefly.create(directory: true)
     local_timing_path = tmp_dir_path <> "/timing"
     local_data_path = tmp_dir_path <> "/data"
-    store_timing_path = Asciicast.file_store_path(asciicast, :stdout_timing)
-    store_data_path = Asciicast.file_store_path(asciicast, :stdout_data)
+    store_timing_path = "asciicast/stdout_timing/#{asciicast.id}/#{asciicast.stdout_timing}"
+    store_data_path = "asciicast/stdout/#{asciicast.id}/#{asciicast.stdout_data}"
     :ok = FileStore.download_file(store_timing_path, local_timing_path)
     :ok = FileStore.download_file(store_data_path, local_data_path)
     stdout_stream({local_timing_path, local_data_path})
@@ -331,8 +353,7 @@ defmodule Asciinema.Asciicasts do
 
   def stdout_stream(%Asciicast{} = asciicast) do
     {:ok, local_path} = Briefly.create()
-    store_path = Asciicast.file_store_path(asciicast, :file)
-    :ok = FileStore.download_file(store_path, local_path)
+    :ok = FileStore.download_file(asciicast.path, local_path)
     stdout_stream(local_path)
   end
 
@@ -454,10 +475,7 @@ defmodule Asciinema.Asciicasts do
 
   def delete_asciicast(asciicast) do
     with {:ok, asciicast} <- Repo.delete(asciicast) do
-      :ok =
-        asciicast
-        |> Asciicast.file_store_path(:file)
-        |> FileStore.delete_file()
+      :ok = FileStore.delete_file(asciicast.path)
 
       {:ok, asciicast}
     end
@@ -532,9 +550,7 @@ defmodule Asciinema.Asciicasts do
     time <= secs
   end
 
-  def asciicast_file_path(asciicast) do
-    Asciicast.json_store_path(asciicast)
-  end
+  def asciicast_file_path(asciicast), do: asciicast.path
 
   def inc_views_count(asciicast) do
     from(a in Asciicast, where: a.id == ^asciicast.id)
@@ -542,12 +558,21 @@ defmodule Asciinema.Asciicasts do
   end
 
   def upgrade do
-    from(a in Asciicast, where: a.version == 0)
-    |> Repo.all()
+    Asciicast
+    |> Repo.pages(100)
+    |> Stream.flat_map(& &1)
     |> Enum.each(&upgrade/1)
+
+    :ok
   end
 
-  def upgrade(%Asciicast{version: 0} = asciicast) do
+  def upgrade(asciicast) do
+    asciicast
+    |> upgrade_from_v0()
+    |> upgrade_file_path()
+  end
+
+  def upgrade_from_v0(%Asciicast{version: 0} = asciicast) do
     Logger.info("upgrading asciicast ##{asciicast.id} from version 0 to version 2...")
 
     header = v2_header(asciicast)
@@ -559,21 +584,36 @@ defmodule Asciinema.Asciicasts do
 
     upload = %Plug.Upload{path: v2_path, content_type: "application/octet-stream"}
 
+    path = gen_file_store_path(%{asciicast | version: 2})
+
     changeset =
-      Changeset.change(
-        asciicast, version: 2, file: "0.cast"
+      Changeset.change(asciicast,
+        version: 2,
+        filename: "0.cast",
+        path: path
       )
 
-    changeset
-    |> Changeset.apply_changes()
-    |> save_file({:file, upload, true})
+    save_file(path, {upload, true})
 
-    {:ok, _asciicast_v2} = Repo.update(changeset)
+    Repo.update!(changeset)
   end
 
-  def upgrade(%Asciicast{} = asciicast) do
-    {:ok, asciicast}
+  def upgrade_from_v0(asciicast), do: asciicast
+
+  def upgrade_file_path(%Asciicast{path: "asciicast/file/" <> _ = old_path} = asciicast) do
+    {:ok, asciicast} =
+      Repo.transaction(fn ->
+        new_path = gen_file_store_path(asciicast)
+        asciicast = Repo.update!(Changeset.change(asciicast, path: new_path))
+        :ok = FileStore.move_file(old_path, new_path)
+
+        asciicast
+      end)
+
+    asciicast
   end
+
+  def upgrade_file_path(asciicast), do: asciicast
 
   defp v2_header(asciicast) do
     header = %{

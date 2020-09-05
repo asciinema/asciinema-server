@@ -5,6 +5,9 @@ defmodule Asciinema.FileStore do
   @doc "Puts file at given path in store"
   @callback put_file(dst_path :: String.t, src_local_path :: String.t, content_type :: String.t, compress :: boolean) :: :ok | {:error, term}
 
+  @doc "Moves file to a new path"
+  @callback move_file(from_path :: Path.t(), to_path :: Path.t()) :: :ok | {:error, term}
+
   @doc "Serves file at given path in store"
   @callback serve_file(conn :: %Plug.Conn{}, path :: String.t, filename :: String.t) :: %Plug.Conn{}
 
@@ -40,6 +43,10 @@ defmodule Asciinema.FileStore do
 
   def put_file(dst_path, src_local_path, content_type, compress \\ false) do
     instance().put_file(dst_path, src_local_path, content_type, compress)
+  end
+
+  def move_file(from_path, to_path) do
+    instance().move_file(from_path, to_path)
   end
 
   def open_file(path, f) do
