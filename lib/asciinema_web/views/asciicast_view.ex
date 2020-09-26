@@ -1,8 +1,6 @@
 defmodule AsciinemaWeb.AsciicastView do
   use AsciinemaWeb, :view
   import Scrivener.HTML
-  alias Asciinema.Asciicasts
-  alias Asciinema.FileStore
   alias AsciinemaWeb.Endpoint
   alias AsciinemaWeb.Router.Helpers.Extra, as: RoutesX
   alias AsciinemaWeb.UserView
@@ -39,9 +37,7 @@ defmodule AsciinemaWeb.AsciicastView do
   end
 
   defp file_url(asciicast) do
-    if path = Asciicasts.asciicast_file_path(asciicast) do
-      FileStore.url(path) || RoutesX.asciicast_file_url(asciicast)
-    end
+    RoutesX.asciicast_file_url(asciicast)
   end
 
   defp asciicast_oembed_url(asciicast, format) do
