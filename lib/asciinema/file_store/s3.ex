@@ -1,6 +1,7 @@
 defmodule Asciinema.FileStore.S3 do
   use Asciinema.FileStore
   import Phoenix.Controller, only: [redirect: 2]
+  import Plug.Conn
   alias ExAws.{S3, Config}
 
   @impl true
@@ -53,16 +54,32 @@ defmodule Asciinema.FileStore.S3 do
   end
 
   @impl true
-  def serve_file(conn, path, nil) do
-    do_serve_file(conn, path)
-  end
-
   def serve_file(conn, path, filename) do
-    do_serve_file(conn, path, ["response-content-disposition": "attachment; filename=#{filename}"])
+    do_serve_file(conn, path, filename, proxy?())
   end
 
-  defp do_serve_file(conn, path, query_params \\ []) do
-    redirect(conn, external: url(path, query_params))
+  defp do_serve_file(conn, path, filename, false) do
+    redirect(conn, external: url(path, s3_response_params(filename)))
+  end
+
+  defp do_serve_file(conn, path, filename, true) do
+    conn
+    |> put_resp_header("x-accel-redirect", "/_proxy/#{path}")
+    |> put_resp_header("redirect-uri", url(path))
+    |> put_content_disposition(filename)
+    |> send_resp(200, "")
+  end
+
+  defp s3_response_params(nil), do: []
+
+  defp s3_response_params(filename) do
+    ["response-content-disposition": "attachment; filename=#{filename}"]
+  end
+
+  defp put_content_disposition(conn, nil), do: conn
+
+  defp put_content_disposition(conn, filename) do
+    put_resp_header(conn, "content-disposition", "attachment; filename=#{filename}")
   end
 
   @impl true
@@ -107,6 +124,10 @@ defmodule Asciinema.FileStore.S3 do
 
   defp bucket do
     Keyword.get(config(), :bucket)
+  end
+
+  defp proxy? do
+    Keyword.get(config(), :proxy, false)
   end
 
   defp base_path do
