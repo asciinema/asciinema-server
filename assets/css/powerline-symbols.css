@@ -1,4 +1,4 @@
 @font-face {
   font-family: 'Powerline Symbols';
-  src: local('Powerline Symbols'), local('PowerlineSymbols'), url('/fonts/PowerlineSymbols.otf') format('opentype');
+  src: local('Powerline Symbols'), local('PowerlineSymbols'), url('../static/fonts/PowerlineSymbols.otf') format('opentype');
 }
