@@ -7,18 +7,18 @@
         <span class="icon-bar"></span>
       </button>
 
-      <a class="navbar-brand" href="/">
+      <a class="navbar-brand" href="<%= Routes.home_path(@conn, :show) %>">
         <img src="<%= Routes.static_path(@conn, "/images/logo-red.svg") %>">
       </a>
     </div>
 
     <div class="collapse navbar-collapse navbar-ex1-collapse">
       <ul class="nav navbar-nav">
-        <li><a href="/explore">Watch</a></li>
+        <li><a href="<%= Routes.asciicast_path(@conn, :index) %>">Watch</a></li>
         <li><a href="<%= Routes.doc_path(@conn, :show, :"getting-started") %>">Record</a></li>
         <li><a href="<%= Routes.doc_path(@conn, :show, :"how-it-works") %>">Docs</a></li>
         <li><a href="http://blog.asciinema.org">Blog</a></li>
-        <li><a href="/about">About</a></li>
+        <li><a href="<%= Routes.page_path(@conn, :about) %>">About</a></li>
       </ul>
 
       <ul class="nav navbar-nav navbar-right session-info">
@@ -29,12 +29,12 @@
             </a>
             <ul class="dropdown-menu">
               <li><a href="<%= profile_path(@current_user) %>">Profile</a></li>
-              <li><a href="/user/edit">Settings</a></li>
+              <li><a href="<%= Routes.user_path(@conn, :edit) %>">Settings</a></li>
               <li><%= link "Log out", to: Routes.session_path(@conn, :delete), class: "logout", method: :delete %></li>
             </ul>
           </li>
         <% else %>
-          <li><a href="/login/new" id="log-in">Log in / Sign up</a></li>
+          <li><a href="<%= Routes.login_path(@conn, :new) %>" id="log-in">Log in / Sign up</a></li>
         <% end %>
       </ul>
     </div>
