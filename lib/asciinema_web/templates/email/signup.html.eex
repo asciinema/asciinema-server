@@ -1,6 +1,6 @@
-<p>Welcome,</p>
+<p>Welcome to <%= @hostname %>!</p>
 
-<p>Click the following link to create your account at asciinema.org:</p>
+<p>Click the following link to setup your new account:</p>
 
 <p><a href="<%= @signup_url %>"><%= @signup_url %></a></p>
 

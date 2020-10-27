@@ -3,19 +3,23 @@ defmodule Asciinema.Emails.Email do
   import Bamboo.Email
 
   def signup_email(email_address, signup_url) do
+    hostname = instance_hostname()
+
     base_email()
     |> to(email_address)
-    |> subject("Welcome to #{instance_hostname()}")
-    |> render("signup.text", signup_url: signup_url)
-    |> render("signup.html", signup_url: signup_url)
+    |> subject("Welcome to #{hostname}")
+    |> render("signup.text", signup_url: signup_url, hostname: hostname)
+    |> render("signup.html", signup_url: signup_url, hostname: hostname)
   end
 
   def login_email(email_address, login_url) do
+    hostname = instance_hostname()
+
     base_email()
     |> to(email_address)
-    |> subject("Login request")
-    |> render("login.text", login_url: login_url)
-    |> render("login.html", login_url: login_url)
+    |> subject("Login to #{hostname}")
+    |> render("login.text", login_url: login_url, hostname: hostname)
+    |> render("login.html", login_url: login_url, hostname: hostname)
   end
 
   defp base_email do

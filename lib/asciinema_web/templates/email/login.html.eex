@@ -1,6 +1,6 @@
-<p>Hello,</p>
+<p>Welcome back!</p>
 
-<p>Click the following link to log in to asciinema.org:</p>
+<p>Click the following link to log in to your <%= @hostname %> account:</p>
 
 <p><a href="<%= @login_url %>"><%= @login_url %></a></p>
 

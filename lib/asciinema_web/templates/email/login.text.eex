@@ -1,6 +1,6 @@
-Hello,
+Welcome back!
 
-Click the following link to log in to asciinema.org:
+Click the following link to log in to your <%= @hostname %> account:
 
 <%= @login_url %>
 
