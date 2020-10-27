@@ -30,7 +30,8 @@ if env.("S3_BUCKET") do
   config :asciinema, Asciinema.FileStore.S3,
     region: env.("S3_REGION"),
     bucket: env.("S3_BUCKET"),
-    path: "uploads/"
+    path: "uploads/",
+    proxy: !!env.("S3_PROXY_ENABLED")
 
   config :ex_aws,
     access_key_id: [{:system, "AWS_ACCESS_KEY_ID"}, :instance_role],
