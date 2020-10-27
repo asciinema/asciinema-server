@@ -33,19 +33,19 @@ defmodule AsciinemaWeb.UserView do
       {"Tango", "tango"},
       {"Solarized Dark", "solarized-dark"},
       {"Solarized Light", "solarized-light"},
-      {"Monokai", "monokai"},
+      {"Monokai", "monokai"}
     ]
   end
 
   def active_tokens(api_tokens) do
     api_tokens
-    |> Enum.reject(&(&1.revoked_at))
-    |> Enum.sort_by(&(- Timex.to_unix(&1.created_at)))
+    |> Enum.reject(& &1.revoked_at)
+    |> Enum.sort_by(&(-Timex.to_unix(&1.created_at)))
   end
 
   def revoked_tokens(api_tokens) do
     api_tokens
-    |> Enum.filter(&(&1.revoked_at))
-    |> Enum.sort_by(&(- Timex.to_unix(&1.created_at)))
+    |> Enum.filter(& &1.revoked_at)
+    |> Enum.sort_by(&(-Timex.to_unix(&1.created_at)))
   end
 end

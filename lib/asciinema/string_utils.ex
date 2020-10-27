@@ -3,12 +3,13 @@ defmodule Asciinema.StringUtils do
     case String.chunk(invalid_str <> str, :valid) do
       [] ->
         {"", ""}
+
       chunks ->
         str =
           chunks
           |> Enum.take(Enum.count(chunks) - 1)
           |> Enum.filter(&String.valid?/1)
-          |> Enum.join
+          |> Enum.join()
 
         last = Enum.at(chunks, -1)
 

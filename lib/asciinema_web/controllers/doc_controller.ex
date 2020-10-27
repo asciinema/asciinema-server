@@ -5,7 +5,7 @@ defmodule AsciinemaWeb.DocController do
   @topics ["how-it-works", "getting-started", "installation", "usage", "config", "embedding"]
 
   def index(conn, _params) do
-    redirect conn, to: Routes.doc_path(conn, :show, :"getting-started")
+    redirect(conn, to: Routes.doc_path(conn, :show, :"getting-started"))
   end
 
   def show(conn, %{"topic" => topic}) when topic in @topics do
@@ -23,5 +23,4 @@ defmodule AsciinemaWeb.DocController do
     |> put_status(404)
     |> render(ErrorView, "404.html")
   end
-
 end

@@ -8,11 +8,12 @@ defmodule AsciinemaWeb.Plug.ReturnTo do
   end
 
   def redirect_back_or(conn, target) do
-    target = if return_to = get_session(conn, :return_to) do
-      [to: return_to]
-    else
-      target
-    end
+    target =
+      if return_to = get_session(conn, :return_to) do
+        [to: return_to]
+      else
+        target
+      end
 
     conn
     |> clear_return_path

@@ -34,7 +34,7 @@ defmodule Asciinema.MixProject do
 
   # Specifies which paths to compile per environment.
   defp elixirc_paths(:test), do: ["lib", "test/support"]
-  defp elixirc_paths(_),     do: ["lib"]
+  defp elixirc_paths(_), do: ["lib"]
 
   # Specifies your project dependencies.
   #
@@ -72,7 +72,7 @@ defmodule Asciinema.MixProject do
       {:scrivener_ecto, "~> 2.4"},
       {:scrivener_html, "~> 1.8"},
       {:sentry, "~> 7.2"},
-      {:timex, "~> 3.6"},
+      {:timex, "~> 3.6"}
     ]
   end
 

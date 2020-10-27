@@ -5,8 +5,8 @@ defmodule Crypto do
 
   def random_token(length) do
     length
-    |> :crypto.strong_rand_bytes
-    |> Base.url_encode64
+    |> :crypto.strong_rand_bytes()
+    |> Base.url_encode64()
     |> String.replace(~r/[_=-]/, "")
     |> binary_part(0, length)
   end

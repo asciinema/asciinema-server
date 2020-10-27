@@ -5,9 +5,11 @@ defmodule Asciinema.Factory do
   alias Asciinema.FileStore
 
   def user_factory do
-    %User{username: sequence(:username, &"username-#{&1}"),
-          email: sequence(:email, &"email-#{&1}@example.com"),
-          auth_token: Crypto.random_token(20)}
+    %User{
+      username: sequence(:username, &"username-#{&1}"),
+      email: sequence(:email, &"email-#{&1}@example.com"),
+      auth_token: Crypto.random_token(20)
+    }
   end
 
   def asciicast_factory do
@@ -74,7 +76,9 @@ defmodule Asciinema.Factory do
 
     src = "test/fixtures/0.9.9/stdout.time"
     ct = "application/octet-stream"
-    :ok = FileStore.put_file("asciicast/stdout_timing/#{asciicast.id}/stdout.time", src, ct, false)
+
+    :ok =
+      FileStore.put_file("asciicast/stdout_timing/#{asciicast.id}/stdout.time", src, ct, false)
 
     asciicast
   end

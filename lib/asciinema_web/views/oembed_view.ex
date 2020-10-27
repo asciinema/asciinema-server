@@ -14,16 +14,17 @@ defmodule AsciinemaWeb.OembedView do
   @cell_width 7.22
   @cell_height 16
   @border_width 12
-  @scale 2 # pixel density
+  # pixel density
+  @scale 2
 
   defp attrs(asciicast, max_width, max_height) do
     image_width =
-      @scale * (@cell_width * asciicast.terminal_columns + @border_width)
+      (@scale * (@cell_width * asciicast.terminal_columns + @border_width))
       |> Float.floor()
       |> round()
 
     image_height =
-      @scale * (@cell_height * asciicast.terminal_lines + @border_width)
+      (@scale * (@cell_height * asciicast.terminal_lines + @border_width))
       |> round()
 
     {width, height} =

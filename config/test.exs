@@ -22,18 +22,19 @@ config :asciinema, AsciinemaWeb.Endpoint,
   secret_key_base: "ssecretkeybasesecretkeybasesecretkeybasesecretkeybaseecretkeybase",
   server: false
 
-config :asciinema, Asciinema.Accounts, secret: "ssecretkeybasesecretkeybasesecretkeybasesecretkeybaseecretkeybase"
+config :asciinema, Asciinema.Accounts,
+  secret: "ssecretkeybasesecretkeybasesecretkeybasesecretkeybaseecretkeybase"
 
 config :asciinema, Asciinema.FileStore.Local, path: "uploads/test/"
 
 config :asciinema, :snapshot_updater, Asciinema.Asciicasts.SnapshotUpdater.Noop
 
 config :exq,
-  url: System.get_env("TEST_REDIS_URL") ||
-       System.get_env("REDIS_URL") ||
-       "redis://localhost:6379/1"
+  url:
+    System.get_env("TEST_REDIS_URL") ||
+      System.get_env("REDIS_URL") ||
+      "redis://localhost:6379/1"
 
 config :exq_ui, server: false
 
-config :asciinema, Asciinema.Emails.Mailer,
-  adapter: Bamboo.TestAdapter
+config :asciinema, Asciinema.Emails.Mailer, adapter: Bamboo.TestAdapter

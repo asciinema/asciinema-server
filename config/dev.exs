@@ -11,7 +11,7 @@ config :asciinema, Asciinema.Repo,
 
 secret_key_base =
   System.get_env("SECRET_KEY_BASE") ||
-  "60BnXnzGGwwiZj91YA9XYKF9BCiM7lQ/1um8VXcWWLSdUp9OcPZV6YnQv7eFTYSY"
+    "60BnXnzGGwwiZj91YA9XYKF9BCiM7lQ/1um8VXcWWLSdUp9OcPZV6YnQv7eFTYSY"
 
 # For development, we disable any cache and enable
 # debugging and code reloading.
@@ -58,8 +58,7 @@ config :phoenix, :stacktrace_depth, 20
 # Initialize plugs at runtime for faster development compilation
 config :phoenix, :plug_init_mode, :runtime
 
-config :asciinema, Asciinema.Emails.Mailer,
-  adapter: Bamboo.LocalAdapter
+config :asciinema, Asciinema.Emails.Mailer, adapter: Bamboo.LocalAdapter
 
 if gc_days = System.get_env("ASCIICAST_GC_DAYS") do
   config :asciinema, :asciicast_gc_days, String.to_integer(gc_days)

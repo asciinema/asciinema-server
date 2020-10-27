@@ -53,7 +53,8 @@ defmodule AsciinemaWeb.Router do
   end
 
   scope "/", AsciinemaWeb do
-    pipe_through :browser # Use the default browser stack
+    # Use the default browser stack
+    pipe_through :browser
 
     get "/", HomeController, :show
 

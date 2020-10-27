@@ -5,11 +5,12 @@ defmodule Asciinema.Api.AsciicastControllerTest do
   setup %{conn: conn} = context do
     token = Map.get(context, :token, "9da34ff4-9bf7-45d4-aa88-98c933b15a3f")
 
-    conn = if token do
-      put_req_header(conn, "authorization", "Basic " <> Base.encode64("test:" <> token))
-    else
-      conn
-    end
+    conn =
+      if token do
+        put_req_header(conn, "authorization", "Basic " <> Base.encode64("test:" <> token))
+      else
+        conn
+      end
 
     {:ok, conn: conn, token: token}
   end
@@ -20,12 +21,13 @@ defmodule Asciinema.Api.AsciicastControllerTest do
   describe ".create" do
     @tag token: nil
     test "separate files (pre-v1 params), v0.9.7 client", %{conn: conn} do
-      asciicast = %{"meta" => fixture(:upload, %{path: "0.9.7/meta.json",
-                                                 content_type: "application/json"}),
-                    "stdout" => fixture(:upload, %{path: "0.9.7/stdout",
-                                                   content_type: "application/octet-stream"}),
-                    "stdout_timing" => fixture(:upload, %{path: "0.9.7/stdout.time",
-                                                          content_type: "application/octet-stream"})}
+      asciicast = %{
+        "meta" => fixture(:upload, %{path: "0.9.7/meta.json", content_type: "application/json"}),
+        "stdout" =>
+          fixture(:upload, %{path: "0.9.7/stdout", content_type: "application/octet-stream"}),
+        "stdout_timing" =>
+          fixture(:upload, %{path: "0.9.7/stdout.time", content_type: "application/octet-stream"})
+      }
 
       conn = post conn, Routes.api_asciicast_path(conn, :create), %{"asciicast" => asciicast}
       assert text_response(conn, 201) =~ @successful_response
@@ -34,12 +36,13 @@ defmodule Asciinema.Api.AsciicastControllerTest do
 
     @tag token: nil
     test "separate files (pre-v1 params), v0.9.8 client", %{conn: conn} do
-      asciicast = %{"meta" => fixture(:upload, %{path: "0.9.8/meta.json",
-                                                 content_type: "application/json"}),
-                    "stdout" => fixture(:upload, %{path: "0.9.8/stdout",
-                                                   content_type: "application/octet-stream"}),
-                    "stdout_timing" => fixture(:upload, %{path: "0.9.8/stdout.time",
-                                                          content_type: "application/octet-stream"})}
+      asciicast = %{
+        "meta" => fixture(:upload, %{path: "0.9.8/meta.json", content_type: "application/json"}),
+        "stdout" =>
+          fixture(:upload, %{path: "0.9.8/stdout", content_type: "application/octet-stream"}),
+        "stdout_timing" =>
+          fixture(:upload, %{path: "0.9.8/stdout.time", content_type: "application/octet-stream"})
+      }
 
       conn = post conn, Routes.api_asciicast_path(conn, :create), %{"asciicast" => asciicast}
       assert text_response(conn, 201) =~ @successful_response
@@ -47,12 +50,13 @@ defmodule Asciinema.Api.AsciicastControllerTest do
     end
 
     test "separate files (pre-v1 params), v0.9.9 client", %{conn: conn} do
-      asciicast = %{"meta" => fixture(:upload, %{path: "0.9.9/meta.json",
-                                                 content_type: "application/json"}),
-                    "stdout" => fixture(:upload, %{path: "0.9.9/stdout",
-                                                   content_type: "application/octet-stream"}),
-                    "stdout_timing" => fixture(:upload, %{path: "0.9.9/stdout.time",
-                                                          content_type: "application/octet-stream"})}
+      asciicast = %{
+        "meta" => fixture(:upload, %{path: "0.9.9/meta.json", content_type: "application/json"}),
+        "stdout" =>
+          fixture(:upload, %{path: "0.9.9/stdout", content_type: "application/octet-stream"}),
+        "stdout_timing" =>
+          fixture(:upload, %{path: "0.9.9/stdout.time", content_type: "application/octet-stream"})
+      }
 
       conn = post conn, Routes.api_asciicast_path(conn, :create), %{"asciicast" => asciicast}
       assert text_response(conn, 201) =~ @successful_response
@@ -107,8 +111,9 @@ defmodule Asciinema.Api.AsciicastControllerTest do
     end
 
     test "authentication with revoked token", %{conn: conn, token: token} do
-      Accounts.get_user_with_api_token(token, "test") # force registration of the token
-      token |> Accounts.get_api_token! |> Accounts.revoke_api_token!
+      # force registration of the token
+      Accounts.get_user_with_api_token(token, "test")
+      token |> Accounts.get_api_token!() |> Accounts.revoke_api_token!()
       upload = fixture(:upload, %{path: "1/asciicast.json"})
       conn = post conn, Routes.api_asciicast_path(conn, :create), %{"asciicast" => upload}
       assert response(conn, 401)

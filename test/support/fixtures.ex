@@ -11,25 +11,35 @@ defmodule Asciinema.Fixtures do
   def fixture(:upload_v1, attrs) do
     path = Map.get(attrs, :path) || "1/asciicast.json"
     filename = Path.basename(path)
-    %Plug.Upload{path: "test/fixtures/#{path}",
-                 filename: filename,
-                 content_type: "application/json"}
+
+    %Plug.Upload{
+      path: "test/fixtures/#{path}",
+      filename: filename,
+      content_type: "application/json"
+    }
   end
 
   def fixture(:upload_v2, attrs) do
     path = Map.get(attrs, :path) || "2/full.cast"
     filename = Path.basename(path)
-    %Plug.Upload{path: "test/fixtures/#{path}",
-                 filename: filename,
-                 content_type: "application/octet-stream"}
+
+    %Plug.Upload{
+      path: "test/fixtures/#{path}",
+      filename: filename,
+      content_type: "application/octet-stream"
+    }
   end
 
   def fixture(:user, attrs) do
-    attrs = Map.merge(%{username: "test",
-                        email: "test@example.com"}, attrs)
+    attrs =
+      Map.merge(
+        %{username: "test", email: "test@example.com"},
+        attrs
+      )
+
     %User{}
     |> User.create_changeset(attrs)
-    |> Repo.insert!
+    |> Repo.insert!()
   end
 
   def fixture(:asciicast, attrs) do

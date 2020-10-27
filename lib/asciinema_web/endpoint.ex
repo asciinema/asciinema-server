@@ -11,8 +11,7 @@ defmodule AsciinemaWeb.Endpoint do
     signing_salt: "qJL+3s0T"
   ]
 
-  socket "/socket", AsciinemaWeb.UserSocket,
-    websocket: true
+  socket "/socket", AsciinemaWeb.UserSocket, websocket: true
 
   # Serve at "/" the static files from "priv/static" directory.
   #

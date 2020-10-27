@@ -10,7 +10,7 @@ defmodule Asciinema.ApiTokenControllerTest do
 
   setup %{conn: conn} do
     {:ok, %User{}} = Accounts.get_user_with_api_token(@revoked_token, "revoked")
-    @revoked_token |> Accounts.get_api_token! |> Accounts.revoke_api_token!
+    @revoked_token |> Accounts.get_api_token!() |> Accounts.revoke_api_token!()
 
     regular_user = fixture(:user)
     {:ok, _} = Accounts.create_api_token(regular_user, @regular_user_token)
@@ -27,37 +27,37 @@ defmodule Asciinema.ApiTokenControllerTest do
 
   test "as guest", %{conn: conn} do
     conn = logout(conn)
-    conn = get conn, "/connect/#{@tmp_user_token}"
+    conn = get(conn, "/connect/#{@tmp_user_token}")
     assert redirected_to(conn, 302) == "/login/new"
     assert get_flash(conn, :info)
   end
 
   test "with invalid token", %{conn: conn} do
-    conn = get conn, "/connect/nopenope"
+    conn = get(conn, "/connect/nopenope")
     assert redirected_to(conn, 302) == "/"
     assert get_flash(conn, :error) =~ ~r/invalid token/i
   end
 
   test "with revoked token", %{conn: conn} do
-    conn = get conn, "/connect/#{@revoked_token}"
+    conn = get(conn, "/connect/#{@revoked_token}")
     assert redirected_to(conn, 302) == "/"
     assert get_flash(conn, :error) =~ ~r/been revoked/i
   end
 
   test "with tmp user token", %{conn: conn} do
-    conn = get conn, "/connect/#{@tmp_user_token}"
+    conn = get(conn, "/connect/#{@tmp_user_token}")
     assert redirected_to(conn, 302) == "/~test"
     assert get_flash(conn, :info)
   end
 
   test "with his own token", %{conn: conn} do
-    conn = get conn, "/connect/#{@regular_user_token}"
+    conn = get(conn, "/connect/#{@regular_user_token}")
     assert redirected_to(conn, 302) == "/~test"
     assert get_flash(conn, :info)
   end
 
   test "regular user with other regular user token", %{conn: conn} do
-    conn = get conn, "/connect/#{@other_regular_user_token}"
+    conn = get(conn, "/connect/#{@other_regular_user_token}")
     assert redirected_to(conn, 302) == "/~test"
     assert get_flash(conn, :error)
   end

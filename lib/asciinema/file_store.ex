@@ -1,34 +1,42 @@
 defmodule Asciinema.FileStore do
   @doc "Returns direct download URL for given path"
-  @callback url(path :: String.t) :: String.t | nil
+  @callback url(path :: String.t()) :: String.t() | nil
 
   @doc "Puts file at given path in store"
-  @callback put_file(dst_path :: String.t, src_local_path :: String.t, content_type :: String.t, compress :: boolean) :: :ok | {:error, term}
+  @callback put_file(
+              dst_path :: String.t(),
+              src_local_path :: String.t(),
+              content_type :: String.t(),
+              compress :: boolean
+            ) :: :ok | {:error, term}
 
   @doc "Moves file to a new path"
   @callback move_file(from_path :: Path.t(), to_path :: Path.t()) :: :ok | {:error, term}
 
   @doc "Serves file at given path in store"
-  @callback serve_file(conn :: %Plug.Conn{}, path :: String.t, filename :: String.t) :: %Plug.Conn{}
+  @callback serve_file(conn :: %Plug.Conn{}, path :: String.t(), filename :: String.t()) ::
+              %Plug.Conn{}
 
   @doc "Opens the given path in store"
-  @callback open_file(path :: String.t) :: {:ok, File.io_device} | {:error, File.posix}
+  @callback open_file(path :: String.t()) :: {:ok, File.io_device()} | {:error, File.posix()}
 
   @doc "Opens the given path in store, executes given fn and closes the file"
-  @callback open_file(path :: String.t, function :: (File.io_device -> res)) :: {:ok, res} | {:error, File.posix} when res: var
+  @callback open_file(path :: String.t(), function :: (File.io_device() -> res)) ::
+              {:ok, res} | {:error, File.posix()}
+            when res: var
 
   @doc "Downloads file from given path in store to local path"
-  @callback download_file(path :: String.t, local_path :: String.t) :: :ok | {:error, term}
+  @callback download_file(path :: String.t(), local_path :: String.t()) :: :ok | {:error, term}
 
   @doc "Deletes file"
-  @callback delete_file(path :: String.t) :: :ok | {:error, term}
+  @callback delete_file(path :: String.t()) :: :ok | {:error, term}
 
   defmacro __using__(_) do
     quote do
       @behaviour Asciinema.FileStore
 
       def download_file(store_path, local_path) do
-        with {:ok, {:ok, _}} <- open_file(store_path, &(:file.copy(&1, local_path))) do
+        with {:ok, {:ok, _}} <- open_file(store_path, &:file.copy(&1, local_path)) do
           :ok
         end
       end

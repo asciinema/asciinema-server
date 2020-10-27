@@ -11,21 +11,24 @@ defmodule AsciinemaWeb.AsciicastView do
   def player(src, opts) when is_binary(src) do
     opts = Keyword.merge([id: "player", src: src, preload: true], opts)
     opts = Ext.Keyword.rename(opts, t: :"start-at", size: :"font-size")
-    content_tag :"asciinema-player", opts, do: []
+    content_tag(:"asciinema-player", opts, do: [])
   end
 
   def player(asciicast, opts) do
     opts =
-      Keyword.merge([
-        cols: asciicast.terminal_columns,
-        rows: asciicast.terminal_lines,
-        theme: theme_name(asciicast),
-        poster: base64_poster(asciicast),
-        title: title(asciicast),
-        author: author_username(asciicast),
-        "author-url": author_profile_url(asciicast),
-        "author-img-url": author_avatar_url(asciicast)
-      ], opts)
+      Keyword.merge(
+        [
+          cols: asciicast.terminal_columns,
+          rows: asciicast.terminal_lines,
+          theme: theme_name(asciicast),
+          poster: base64_poster(asciicast),
+          title: title(asciicast),
+          author: author_username(asciicast),
+          "author-url": author_profile_url(asciicast),
+          "author-img-url": author_avatar_url(asciicast)
+        ],
+        opts
+      )
 
     player(file_url(asciicast), opts)
   end
@@ -143,12 +146,13 @@ defmodule AsciinemaWeb.AsciicastView do
   end
 
   def active_link(title, active?, opts) do
-    opts = if active? do
-      class = Keyword.get(opts, :class, "") <> " active"
-      Keyword.put(opts, :class, class)
-    else
-      opts
-    end
+    opts =
+      if active? do
+        class = Keyword.get(opts, :class, "") <> " active"
+        Keyword.put(opts, :class, class)
+      else
+        opts
+      end
 
     link(title, opts)
   end
@@ -235,6 +239,7 @@ defmodule AsciinemaWeb.AsciicastView do
   defp add_style(styles, attr, [r, g, b]) do
     ["#{attr}:rgb(#{r},#{g},#{b})" | styles]
   end
+
   defp add_style(styles, _, _), do: styles
 
   def thumbnail(asciicast, width \\ 80, height \\ 15) do
@@ -252,16 +257,17 @@ defmodule AsciinemaWeb.AsciicastView do
 
   def drop_trailing_blank_lines(lines) do
     lines
-    |> Enum.reverse
+    |> Enum.reverse()
     |> Enum.drop_while(&blank_line?/1)
-    |> Enum.reverse
+    |> Enum.reverse()
   end
 
   def fill_to_height(lines, height) do
     if height - Enum.count(lines) > 0 do
       enums = [lines, Stream.cycle([[]])]
+
       enums
-      |> Stream.concat
+      |> Stream.concat()
       |> Enum.take(height)
     else
       lines
@@ -270,9 +276,9 @@ defmodule AsciinemaWeb.AsciicastView do
 
   def take_last(lines, height) do
     lines
-    |> Enum.reverse
+    |> Enum.reverse()
     |> Enum.take(height)
-    |> Enum.reverse
+    |> Enum.reverse()
   end
 
   def blank_line?(line) do
@@ -280,6 +286,7 @@ defmodule AsciinemaWeb.AsciicastView do
   end
 
   def blank_chunk?(["", _attrs]), do: true
+
   def blank_chunk?([text, attrs]) do
     text = String.trim(text)
     text == "" && attrs == %{}
@@ -305,15 +312,17 @@ defmodule AsciinemaWeb.AsciicastView do
   end
 
   def adjust_fg(%{"bold" => true, "fg" => fg} = attrs)
-  when is_integer(fg) and fg < 8 do
+      when is_integer(fg) and fg < 8 do
     Map.put(attrs, "fg", fg + 8)
   end
+
   def adjust_fg(attrs), do: attrs
 
   def adjust_bg(%{"blink" => true, "bg" => bg} = attrs)
-  when is_integer(bg) and bg < 8 do
+      when is_integer(bg) and bg < 8 do
     Map.put(attrs, "bg", bg + 8)
   end
+
   def adjust_bg(attrs), do: attrs
 
   @default_fg_code 7
@@ -324,6 +333,7 @@ defmodule AsciinemaWeb.AsciicastView do
     bg = attrs["fg"] || @default_fg_code
     Map.merge(attrs, %{"fg" => fg, "bg" => bg})
   end
+
   def invert_colors(attrs), do: attrs
 
   def split_chunks(lines) do
@@ -357,15 +367,15 @@ defmodule AsciinemaWeb.AsciicastView do
   def group_line_chunks([]), do: []
 
   def group_line_chunks([first_chunk | chunks]) do
-    {chunks, last_chunk} = Enum.reduce(chunks, {[], first_chunk},
-      fn {text, attrs}, {chunks, {prev_text, prev_attrs}}  ->
+    {chunks, last_chunk} =
+      Enum.reduce(chunks, {[], first_chunk}, fn {text, attrs},
+                                                {chunks, {prev_text, prev_attrs}} ->
         if attrs == prev_attrs do
           {chunks, {prev_text <> text, attrs}}
         else
           {[{prev_text, prev_attrs} | chunks], {text, attrs}}
         end
-      end
-    )
+      end)
 
     Enum.reverse([last_chunk | chunks])
   end
@@ -399,11 +409,12 @@ defmodule AsciinemaWeb.AsciicastView do
 
   defp add_coords(lines) do
     for {chunks, y} <- Enum.with_index(lines) do
-      {_, chunks} = Enum.reduce(chunks, {0, []}, fn {text, attrs}, {x, chunks} ->
-        width = String.length(text)
-        chunk = %{text: text, attrs: attrs, x: x, width: width}
-        {x + width, [chunk | chunks]}
-      end)
+      {_, chunks} =
+        Enum.reduce(chunks, {0, []}, fn {text, attrs}, {x, chunks} ->
+          width = String.length(text)
+          chunk = %{text: text, attrs: attrs, x: x, width: width}
+          {x + width, [chunk | chunks]}
+        end)
 
       chunks = Enum.reverse(chunks)
 
@@ -413,7 +424,7 @@ defmodule AsciinemaWeb.AsciicastView do
 
   defp remove_blank_chunks(lines) do
     for line <- lines do
-      chunks = Enum.reject(line.chunks, & String.trim(&1.text) == "")
+      chunks = Enum.reject(line.chunks, &(String.trim(&1.text) == ""))
       %{line | chunks: chunks}
     end
   end

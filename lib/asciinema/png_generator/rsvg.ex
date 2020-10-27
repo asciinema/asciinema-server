@@ -13,14 +13,14 @@ defmodule Asciinema.PngGenerator.Rsvg do
     try do
       :poolboy.transaction(
         @pool_name,
-        (fn pid ->
+        fn pid ->
           try do
             GenServer.call(pid, {:generate, asciicast, tmp_dir_path}, @result_timeout)
           catch
             :exit, {:timeout, _} ->
               {:error, :timeout}
           end
-        end),
+        end,
         @acquire_timeout
       )
     catch
@@ -44,24 +44,28 @@ defmodule Asciinema.PngGenerator.Rsvg do
   end
 
   def poolboy_config do
-    [{:name, {:local, @pool_name}},
-     {:worker_module, __MODULE__},
-     {:size, pool_size()},
-     {:max_overflow, 0}]
+    [
+      {:name, {:local, @pool_name}},
+      {:worker_module, __MODULE__},
+      {:size, pool_size()},
+      {:max_overflow, 0}
+    ]
   end
 
   defp do_generate(asciicast, tmp_dir_path) do
     svg_path = Path.join(tmp_dir_path, "tmp.svg")
     png_path = Path.join(tmp_dir_path, "tmp.png")
 
-    svg = AsciinemaWeb.AsciicastView.render(
-      "show.svg", %{
-        asciicast: asciicast,
-        font_family: font_family(),
-        rx: 0,
-        ry: 0
-      }
-    )
+    svg =
+      AsciinemaWeb.AsciicastView.render(
+        "show.svg",
+        %{
+          asciicast: asciicast,
+          font_family: font_family(),
+          rx: 0,
+          ry: 0
+        }
+      )
 
     File.write!(svg_path, svg)
 

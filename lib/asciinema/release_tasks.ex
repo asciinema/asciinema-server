@@ -27,11 +27,12 @@ defmodule Asciinema.ReleaseTasks do
   end
 
   def seed do
-    seed_script = Path.join([
-      to_string(:code.priv_dir(:asciinema)),
-      "repo",
-      "seeds.exs"
-    ])
+    seed_script =
+      Path.join([
+        to_string(:code.priv_dir(:asciinema)),
+        "repo",
+        "seeds.exs"
+      ])
 
     if File.exists?(seed_script) do
       IO.puts("Running seed script..")
@@ -53,7 +54,7 @@ defmodule Asciinema.ReleaseTasks do
   def admin_add(emails) when is_list(emails) do
     with_repo(fn _repo ->
       Asciinema.Accounts.add_admins(emails)
-      IO.puts "#{Enum.join(emails, ", ")} added to admin users list"
+      IO.puts("#{Enum.join(emails, ", ")} added to admin users list")
     end)
   end
 
@@ -66,7 +67,7 @@ defmodule Asciinema.ReleaseTasks do
   def admin_rm(emails) when is_list(emails) do
     with_repo(fn _repo ->
       Asciinema.Accounts.remove_admins(emails)
-      IO.puts "#{Enum.join(emails, ", ")} removed from admin users list"
+      IO.puts("#{Enum.join(emails, ", ")} removed from admin users list")
     end)
   end
 
