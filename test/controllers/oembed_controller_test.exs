@@ -8,7 +8,16 @@ defmodule Asciinema.OembedControllerTest do
       asciicast = insert(:asciicast)
       url = Routes.asciicast_url(Endpoint, :show, asciicast)
 
-      conn = get conn, Routes.oembed_path(conn, :show, url: url, format: "json", maxwidth: "500", maxheight: "300")
+      conn =
+        get(
+          conn,
+          Routes.oembed_path(conn, :show,
+            url: url,
+            format: "json",
+            maxwidth: "500",
+            maxheight: "300"
+          )
+        )
 
       assert response(conn, 200)
       assert response_content_type(conn, :json)
@@ -18,7 +27,7 @@ defmodule Asciinema.OembedControllerTest do
       asciicast = insert(:asciicast)
       url = Routes.asciicast_url(Endpoint, :show, asciicast)
 
-      conn = get conn, Routes.oembed_path(conn, :show, url: url, format: "xml")
+      conn = get(conn, Routes.oembed_path(conn, :show, url: url, format: "xml"))
 
       assert response(conn, 200)
       assert response_content_type(conn, :xml)
@@ -28,7 +37,7 @@ defmodule Asciinema.OembedControllerTest do
       asciicast = insert(:asciicast)
       url = Routes.asciicast_url(Endpoint, :show, asciicast)
 
-      conn = get conn, Routes.oembed_path(conn, :show, url: url, format: "json", maxwidth: "500")
+      conn = get(conn, Routes.oembed_path(conn, :show, url: url, format: "json", maxwidth: "500"))
 
       assert response(conn, 200)
       assert response_content_type(conn, :json)

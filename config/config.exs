@@ -10,8 +10,7 @@ use Mix.Config
 config :asciinema,
   ecto_repos: [Asciinema.Repo]
 
-config :asciinema, Asciinema.Repo,
-  migration_timestamps: [type: :naive_datetime_usec]
+config :asciinema, Asciinema.Repo, migration_timestamps: [type: :naive_datetime_usec]
 
 # Configures the endpoint
 config :asciinema, AsciinemaWeb.Endpoint,
@@ -30,8 +29,7 @@ config :logger,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
-config :phoenix, :template_engines,
-  md: PhoenixMarkdown.Engine
+config :phoenix, :template_engines, md: PhoenixMarkdown.Engine
 
 config :sentry,
   dsn: "https://public:secret@sentry.io/1",
@@ -46,6 +44,7 @@ config :asciinema, :file_store, Asciinema.FileStore.Local
 config :asciinema, Asciinema.FileStore.Local, path: "uploads/"
 
 config :asciinema, :png_generator, Asciinema.PngGenerator.Rsvg
+
 config :asciinema, Asciinema.PngGenerator.Rsvg,
   pool_size: 2,
   font_family: "monospace"
@@ -62,8 +61,13 @@ config :exq,
   scheduler_enable: true,
   max_retries: 25,
   shutdown_timeout: 5000,
-  middleware: [Exq.Middleware.Stats, Exq.Middleware.Job, Exq.Middleware.Manager,
-               Exq.Middleware.Logger, Asciinema.Exq.Middleware.Sentry]
+  middleware: [
+    Exq.Middleware.Stats,
+    Exq.Middleware.Job,
+    Exq.Middleware.Manager,
+    Exq.Middleware.Logger,
+    Asciinema.Exq.Middleware.Sentry
+  ]
 
 config :exq_ui, server: false
 

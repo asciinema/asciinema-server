@@ -14,13 +14,13 @@ defmodule AsciinemaWeb.LayoutView do
 
     controller =
       conn
-      |> Phoenix.Controller.controller_module
-      |> Atom.to_string
+      |> Phoenix.Controller.controller_module()
+      |> Atom.to_string()
       |> String.replace(~r/(Elixir\.AsciinemaWeb\.)|(Controller)/, "")
       |> String.replace(".", "")
-      |> Inflex.underscore
+      |> Inflex.underscore()
       |> String.replace("_", " ")
-      |> Inflex.parameterize
+      |> Inflex.parameterize()
 
     "c-#{controller} a-#{action}"
   end

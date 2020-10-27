@@ -53,7 +53,7 @@ defmodule AsciinemaWeb.UserController do
 
   defp do_show(conn, params, user) do
     current_user = conn.assigns.current_user
-    user_is_self = !!(current_user && (current_user.id == user.id))
+    user_is_self = !!(current_user && current_user.id == user.id)
 
     filter =
       case user_is_self do
@@ -119,6 +119,7 @@ defmodule AsciinemaWeb.UserController do
 
     render(conn, "edit.html",
       changeset: changeset,
-      api_tokens: api_tokens)
+      api_tokens: api_tokens
+    )
   end
 end

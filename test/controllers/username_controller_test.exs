@@ -4,14 +4,14 @@ defmodule Asciinema.UsernameControllerTest do
 
   describe "setting username" do
     test "requires logged in user", %{conn: conn} do
-      conn = get conn, "/username/new"
+      conn = get(conn, "/username/new")
       assert redirected_to(conn, 302) == "/login/new"
     end
 
     test "displays form", %{conn: conn} do
       user = insert(:user)
       conn = log_in(conn, user)
-      conn = get conn, "/username/new"
+      conn = get(conn, "/username/new")
       assert html_response(conn, 200) =~ ~r/your username/i
     end
 

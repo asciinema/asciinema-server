@@ -16,14 +16,13 @@ defmodule AsciinemaWeb.Auth do
   def call(%Conn{assigns: %{current_user: %User{}}} = conn, _opts) do
     conn
   end
+
   def call(conn, _opts) do
     user_id = get_session(conn, @user_key)
     user = user_id && Repo.get(User, user_id)
 
     if user do
-      Sentry.Context.set_user_context(%{id: user.id,
-                                        username: user.username,
-                                        email: user.email})
+      Sentry.Context.set_user_context(%{id: user.id, username: user.username, email: user.email})
     end
 
     assign(conn, :current_user, user)
@@ -55,7 +54,7 @@ defmodule AsciinemaWeb.Auth do
   end
 
   def log_in(conn, %User{} = user) do
-    user = user |> User.login_changeset |> Repo.update!
+    user = user |> User.login_changeset() |> Repo.update!()
 
     conn
     |> put_session(@user_key, user.id)
@@ -72,7 +71,8 @@ defmodule AsciinemaWeb.Auth do
 
   def get_basic_auth(conn) do
     with ["Basic " <> auth] <- get_req_header(conn, "authorization"),
-         auth = String.replace(auth, ~r/^%/, ""), # workaround for 1.3.0-1.4.0 client bug
+         # workaround for 1.3.0-1.4.0 client bug
+         auth = String.replace(auth, ~r/^%/, ""),
          {:ok, username_password} <- Base.decode64(auth),
          [username, password] <- String.split(username_password, ":") do
       {username, password}
@@ -84,6 +84,7 @@ defmodule AsciinemaWeb.Auth do
   def put_basic_auth(conn, nil, nil) do
     conn
   end
+
   def put_basic_auth(conn, username, password) do
     auth = Base.encode64("#{username}:#{password}")
     put_req_header(conn, "authorization", "Basic " <> auth)

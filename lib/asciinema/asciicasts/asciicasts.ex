@@ -291,7 +291,7 @@ defmodule Asciinema.Asciicasts do
   defp decode_json(json) do
     case Jason.decode(json) do
       {:ok, thing} -> {:ok, thing}
-      {:error, %Jason.DecodeError{}}-> {:error, :invalid}
+      {:error, %Jason.DecodeError{}} -> {:error, :invalid}
     end
   end
 
@@ -650,10 +650,11 @@ defmodule Asciinema.Asciicasts do
   end
 
   def archive_asciicasts(users_query, dt) do
-    query = from a in Asciicast,
-      join: u in ^users_query,
-      on: a.user_id == u.id,
-      where: a.archivable and is_nil(a.archived_at) and a.created_at < ^dt
+    query =
+      from a in Asciicast,
+        join: u in ^users_query,
+        on: a.user_id == u.id,
+        where: a.archivable and is_nil(a.archived_at) and a.created_at < ^dt
 
     {count, _} = Repo.update_all(query, set: [archived_at: Timex.now()])
     count

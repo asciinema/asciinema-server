@@ -41,7 +41,7 @@ defmodule Asciinema.Accounts do
   def update_user(user, params) do
     user
     |> User.update_changeset(params)
-    |> Repo.update
+    |> Repo.update()
   end
 
   def temporary_user?(user), do: user.email == nil
@@ -78,6 +78,7 @@ defmodule Asciinema.Accounts do
     case Repo.get_by(User, username: username) do
       %User{} = user ->
         {:ok, user}
+
       nil ->
         {:error, :user_not_found}
     end
@@ -94,7 +95,8 @@ defmodule Asciinema.Accounts do
     Token.sign(config(:secret), "login", {id, last_login_at})
   end
 
-  @login_token_max_age 15 * 60 # 15 minutes
+  # 15 minutes
+  @login_token_max_age 15 * 60
 
   def verify_signup_token(token) do
     result =
@@ -149,8 +151,10 @@ defmodule Asciinema.Accounts do
     case get_api_token(token) do
       {:ok, %ApiToken{user: user}} ->
         {:ok, user}
+
       {:error, :token_revoked} = res ->
         res
+
       {:error, :token_not_found} ->
         create_user_with_api_token(token, tmp_username)
     end
@@ -166,8 +170,10 @@ defmodule Asciinema.Accounts do
       else
         {:error, %Ecto.Changeset{}} ->
           Repo.rollback(:token_invalid)
+
         {:error, reason} ->
           Repo.rollback(reason)
+
         result ->
           Repo.rollback(result)
       end
@@ -179,11 +185,12 @@ defmodule Asciinema.Accounts do
       user
       |> build_assoc(:api_tokens)
       |> ApiToken.create_changeset(token)
-      |> Repo.insert
+      |> Repo.insert()
 
     case result do
       {:ok, api_token} ->
         {:ok, %{api_token | user: user}}
+
       {:error, %Ecto.Changeset{}} ->
         {:error, :token_invalid}
     end
@@ -195,6 +202,7 @@ defmodule Asciinema.Accounts do
     else
       {:error, :token_not_found} ->
         create_api_token(user, token)
+
       otherwise ->
         otherwise
     end
@@ -223,14 +231,14 @@ defmodule Asciinema.Accounts do
 
   def revoke_api_token!(api_token) do
     api_token
-    |> ApiToken.revoke_changeset
-    |> Repo.update!
+    |> ApiToken.revoke_changeset()
+    |> Repo.update!()
   end
 
   def list_api_tokens(%User{} = user) do
     user
     |> assoc(:api_tokens)
-    |> Repo.all
+    |> Repo.all()
   end
 
   def reassign_api_tokens(src_user_id, dst_user_id) do

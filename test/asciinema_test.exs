@@ -14,7 +14,7 @@ defmodule AsciinemaTest do
 
       assert send_login_email(user.email, &signup_url/1, &login_url/1) == :ok
 
-      assert_delivered_email Email.login_email(user.email, "http://login")
+      assert_delivered_email(Email.login_email(user.email, "http://login"))
     end
 
     test "existing user, by username" do
@@ -22,28 +22,27 @@ defmodule AsciinemaTest do
 
       assert send_login_email(user.username, &signup_url/1, &login_url/1) == :ok
 
-      assert_delivered_email Email.login_email(user.email, "http://login")
+      assert_delivered_email(Email.login_email(user.email, "http://login"))
     end
 
     test "non-existing user, by email" do
       assert send_login_email("new@example.com", &signup_url/1, &login_url/1) == :ok
 
-      assert_delivered_email Email.signup_email("new@example.com", "http://signup")
+      assert_delivered_email(Email.signup_email("new@example.com", "http://signup"))
     end
 
     test "non-existing user, by email, when email is invalid" do
       assert send_login_email("new@", &signup_url/1, &login_url/1) ==
-        {:error, :email_invalid}
+               {:error, :email_invalid}
 
       assert_no_emails_delivered()
     end
 
     test "non-existing user, by username" do
       assert send_login_email("idontexist", &signup_url/1, &login_url/1) ==
-        {:error, :user_not_found}
+               {:error, :user_not_found}
 
       assert_no_emails_delivered()
     end
   end
-
 end

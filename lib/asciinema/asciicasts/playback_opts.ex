@@ -40,7 +40,7 @@ defmodule Asciinema.Asciicasts.PlaybackOpts do
         _ ->
           t =
             parts
-            |> Enum.zip(Stream.iterate(1, & &1 * 60))
+            |> Enum.zip(Stream.iterate(1, &(&1 * 60)))
             |> Enum.map(fn {a, b} -> a * b end)
             |> Enum.sum()
 

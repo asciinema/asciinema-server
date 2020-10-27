@@ -41,6 +41,7 @@ defmodule Asciinema.FileStore.Cached do
              :ok <- File.rm(tmp_path) do
           cache_store().open_file(path, function)
         end
+
       otherwise ->
         otherwise
     end

@@ -93,7 +93,8 @@ defmodule AsciinemaWeb.AsciicastController do
     end
   end
 
-  @png_max_age 604_800 # 7 days
+  # 7 days
+  @png_max_age 604_800
 
   def do_show(conn, "png", asciicast) do
     if asciicast.archived_at do
@@ -183,6 +184,7 @@ defmodule AsciinemaWeb.AsciicastController do
 
   def embed(conn, params) do
     opts = Asciicasts.PlaybackOpts.parse(params)
+
     conn =
       conn
       |> put_layout("embed.html")
@@ -239,7 +241,7 @@ defmodule AsciinemaWeb.AsciicastController do
     case conn.req_cookies[key] do
       nil ->
         Asciicasts.inc_views_count(asciicast)
-        put_resp_cookie(conn, key, "1", max_age: 3600*24)
+        put_resp_cookie(conn, key, "1", max_age: 3600 * 24)
 
       _ ->
         conn
@@ -247,9 +249,12 @@ defmodule AsciinemaWeb.AsciicastController do
   end
 
   @actions [
-    :edit, :delete,
-    :make_private, :make_public,
-    :make_featured, :make_not_featured
+    :edit,
+    :delete,
+    :make_private,
+    :make_public,
+    :make_featured,
+    :make_not_featured
   ]
 
   defp asciicast_actions(asciicast, user) do
@@ -274,7 +279,12 @@ defmodule AsciinemaWeb.AsciicastController do
          %{} = user <- asciicast.user,
          true <- Accounts.temporary_user?(user),
          true <- Timex.before?(asciicast.created_at, Timex.shift(Timex.now(), days: -days)) do
-      put_flash(conn, :error, {:safe, "This recording will be archived soon. More details: <a href=\"https://blog.asciinema.org/post/archival/\">blog.asciinema.org/post/archival/</a>"})
+      put_flash(
+        conn,
+        :error,
+        {:safe,
+         "This recording will be archived soon. More details: <a href=\"https://blog.asciinema.org/post/archival/\">blog.asciinema.org/post/archival/</a>"}
+      )
     else
       _ -> conn
     end

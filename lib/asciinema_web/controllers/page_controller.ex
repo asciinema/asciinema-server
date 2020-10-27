@@ -24,7 +24,8 @@ defmodule AsciinemaWeb.PageController do
   def contact(conn, _params) do
     conn
     |> assign(:page_title, "Contact")
-    |> render("contact.html") # TODO rename to Community
+    # TODO rename to Community
+    |> render("contact.html")
   end
 
   def contributing(conn, _params) do

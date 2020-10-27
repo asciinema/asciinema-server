@@ -12,10 +12,10 @@ defmodule Asciinema.UserControllerTest do
       conn = get conn, "/users/new", t: Accounts.signup_token("test@example.com")
       assert redirected_to(conn, 302) == "/users/new"
 
-      conn = get conn, "/users/new"
+      conn = get(conn, "/users/new")
       assert html_response(conn, 200)
 
-      conn = post conn, "/users"
+      conn = post(conn, "/users")
       assert redirected_to(conn, 302) == "/username/new"
       assert get_flash(conn, :info) =~ ~r/welcome/i
     end
@@ -26,10 +26,10 @@ defmodule Asciinema.UserControllerTest do
       conn = get conn, "/users/new", t: Accounts.signup_token("test@example.com")
       assert redirected_to(conn, 302) == "/users/new"
 
-      conn = get conn, "/users/new"
+      conn = get(conn, "/users/new")
       assert html_response(conn, 200)
 
-      conn = post conn, "/users"
+      conn = post(conn, "/users")
       assert redirected_to(conn, 302) == "/login/new"
       assert get_flash(conn, :error) =~ ~r/already/i
     end
@@ -38,10 +38,10 @@ defmodule Asciinema.UserControllerTest do
       conn = get conn, "/users/new", t: "nope"
       assert redirected_to(conn, 302) == "/users/new"
 
-      conn = get conn, "/users/new"
+      conn = get(conn, "/users/new")
       assert html_response(conn, 200)
 
-      conn = post conn, "/users"
+      conn = post(conn, "/users")
       assert redirected_to(conn, 302) == "/login/new"
       assert get_flash(conn, :error) =~ ~r/invalid/i
     end
@@ -51,14 +51,14 @@ defmodule Asciinema.UserControllerTest do
     test "via ID based path", %{conn: conn} do
       user = insert(:user, username: "dracula3000")
       conn = log_in(conn, user)
-      conn = get conn, "/u/#{user.id}"
+      conn = get(conn, "/u/#{user.id}")
       assert html_response(conn, 200) =~ "dracula3000"
     end
 
     test "via username based path", %{conn: conn} do
       user = insert(:user, username: "dracula3000")
       conn = log_in(conn, user)
-      conn = get conn, "/~dracula3000"
+      conn = get(conn, "/~dracula3000")
       assert html_response(conn, 200) =~ "dracula3000"
     end
 
@@ -69,7 +69,7 @@ defmodule Asciinema.UserControllerTest do
 
       # as guest
 
-      conn = get build_conn(), "/~dracula3000"
+      conn = get(build_conn(), "/~dracula3000")
 
       html = html_response(conn, 200)
       assert html =~ "1 public"
@@ -78,9 +78,9 @@ defmodule Asciinema.UserControllerTest do
 
       # as himself
 
-      conn = log_in build_conn(), user
+      conn = log_in(build_conn(), user)
 
-      conn = get conn, "/~dracula3000"
+      conn = get(conn, "/~dracula3000")
       html = html_response(conn, 200)
       assert html =~ "2 asciicasts"
       assert html =~ "Public stuff"
@@ -90,14 +90,14 @@ defmodule Asciinema.UserControllerTest do
 
   describe "account editing" do
     test "requires logged in user", %{conn: conn} do
-      conn = get conn, "/user/edit"
+      conn = get(conn, "/user/edit")
       assert redirected_to(conn, 302) == "/login/new"
     end
 
     test "displays form", %{conn: conn} do
       user = insert(:user)
       conn = log_in(conn, user)
-      conn = get conn, "/user/edit"
+      conn = get(conn, "/user/edit")
       assert html_response(conn, 200) =~ "Save"
     end
 

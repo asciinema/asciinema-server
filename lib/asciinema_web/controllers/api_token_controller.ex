@@ -37,23 +37,27 @@ defmodule AsciinemaWeb.ApiTokenController do
     current_user = conn.assigns.current_user
 
     case {current_user, api_token_user} do
-      {%User{id: id}, %User{id: id}} -> # api token was just created
+      # api token was just created
+      {%User{id: id}, %User{id: id}} ->
         put_flash(conn, :info, "Recorder token has been added to your account.")
 
-      {%User{}, %User{email: nil, username: nil}} -> # api token belongs to tmp user
+      # api token belongs to tmp user
+      {%User{}, %User{email: nil, username: nil}} ->
         Asciinema.merge_accounts(api_token_user, current_user)
         put_flash(conn, :info, "Recorder token has been added to your account.")
 
-      {%User{}, %User{}} -> # api token belongs to other regular user
+      # api token belongs to other regular user
+      {%User{}, %User{}} ->
         put_flash(conn, :error, "This recorder token belongs to a different user.")
     end
   end
 
   defp redirect_to_profile(conn) do
-    path = case conn.assigns.current_user do
-             %User{username: nil} -> "/username/new"
-             %User{} = user -> profile_path(user)
-           end
+    path =
+      case conn.assigns.current_user do
+        %User{username: nil} -> "/username/new"
+        %User{} = user -> profile_path(user)
+      end
 
     redirect(conn, to: path)
   end
