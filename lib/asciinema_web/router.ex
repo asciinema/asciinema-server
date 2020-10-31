@@ -127,9 +127,9 @@ defmodule AsciinemaWeb.Router.Helpers.Extra do
 
   def profile_path(%{id: id, username: username}) do
     if username do
-      "/~#{username}"
+      H.home_path(Endpoint, :show) <> "~#{username}"
     else
-      "/u/#{id}"
+      H.home_path(Endpoint, :show) <> "u/#{id}"
     end
   end
 

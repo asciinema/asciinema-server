@@ -45,8 +45,7 @@ defmodule AsciinemaWeb.SessionController do
   defp redirect_to_profile(conn) do
     case conn.assigns.current_user do
       %User{username: nil} ->
-        redirect(conn, to: "/username/new")
-
+        redirect(conn, to: Routes.username_path(conn, :new))
       %User{} = user ->
         redirect_back_or(conn, to: profile_path(user))
     end
@@ -56,6 +55,6 @@ defmodule AsciinemaWeb.SessionController do
     conn
     |> Auth.log_out()
     |> put_flash(:info, "See you later!")
-    |> redirect(to: "/")
+    |> redirect(to: Routes.home_path(conn, :show))
   end
 end
