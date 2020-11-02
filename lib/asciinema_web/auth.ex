@@ -5,6 +5,7 @@ defmodule AsciinemaWeb.Auth do
   alias Plug.Conn
   alias Asciinema.Accounts.User
   alias Asciinema.Repo
+  alias AsciinemaWeb.Router.Helpers, as: Routes
 
   @user_key "warden.user.user.key"
   @one_year_in_secs 31_557_600
@@ -38,7 +39,7 @@ defmodule AsciinemaWeb.Auth do
     conn
     |> save_return_path
     |> put_flash(:info, msg)
-    |> redirect(to: "/login/new")
+    |> redirect(to: Routes.login_path(conn, :new))
     |> halt
   end
 
@@ -49,7 +50,7 @@ defmodule AsciinemaWeb.Auth do
   def require_admin(conn, _) do
     conn
     |> put_flash(:error, "Access denied.")
-    |> redirect(to: "/")
+    |> redirect(to: Routes.home_path(conn, :show))
     |> halt()
   end
 

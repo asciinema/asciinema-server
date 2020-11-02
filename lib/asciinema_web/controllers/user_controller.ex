@@ -26,7 +26,7 @@ defmodule AsciinemaWeb.UserController do
         conn
         |> Auth.log_in(user)
         |> put_flash(:info, "Welcome to asciinema!")
-        |> redirect(to: "/username/new")
+        |> redirect(to: Routes.username_path(conn, :new))
 
       {:error, :token_invalid} ->
         conn
