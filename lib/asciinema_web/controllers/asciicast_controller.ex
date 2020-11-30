@@ -3,7 +3,6 @@ defmodule AsciinemaWeb.AsciicastController do
   alias Asciinema.{Asciicasts, PngGenerator, Accounts}
   alias Asciinema.Asciicasts.Asciicast
 
-  plug :put_layout, "app2.html"
   plug :clear_main_class
   plug :load_asciicast when action in [:show, :edit, :update, :delete, :example, :iframe, :embed]
   plug :require_current_user when action in [:edit, :update, :delete]

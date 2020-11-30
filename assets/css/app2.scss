@@ -14,9 +14,10 @@ $primary: #06989a;
 @import "./_asciicast_card.scss";
 @import "./_asciicast_list.scss";
 @import "./_asciicast_show.scss";
-
+@import "./_simple_layout.scss";
 @import "./_user_profile.scss";
-@import "../css/asciinema-player.css";
+@import "./_user_login.scss";
+@import "./_user_edit.scss";
 @import "./powerline-symbols.css";
 @import "./asciinema-player.css";
 

@@ -2,6 +2,8 @@ defmodule AsciinemaWeb.DocController do
   use AsciinemaWeb, :controller
   alias AsciinemaWeb.{DocView, ErrorView}
 
+  plug :clear_main_class
+
   @topics ["how-it-works", "getting-started", "installation", "usage", "config", "embedding"]
 
   def index(conn, _params) do

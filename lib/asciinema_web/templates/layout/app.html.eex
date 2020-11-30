@@ -3,24 +3,24 @@
   <head>
     <meta charset="utf-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title><%= page_title @conn %></title>
-    <link rel="stylesheet" href="<%= Routes.static_path(@conn, "/css/app.css") %>">
+    <link rel="stylesheet" href="<%= Routes.static_path(@conn, "/css/app2.css") %>">
     <link rel="shortcut icon" href="<%= Routes.static_path(@conn, "/images/favicon.png") %>">
-    <!-- google analytics -->
-    <!-- content for head (twitter, open graph tags) -->
+    <%= render_existing @view_module, "meta." <> @view_template, assigns %>
   </head>
 
-  <body>
-    <%= render "header.html", conn: @conn, current_user: @current_user %>
-    <%= render "flash.html", conn: @conn %>
+  <body class="l-app <%= body_class(@conn) %>">
+    <%= render "_header.html", conn: @conn, current_user: @current_user %>
+    <%= render "_flash.html", conn: @conn %>
 
-    <div class="main">
+    <main role="main" class="<%= main_class(@conn) %>">
       <%= render @view_module, @view_template, assigns %>
-    </div>
+    </main>
 
-    <%= render "footer.html", conn: @conn %>
+    <%= render "_footer.html", conn: @conn %>
 
-    <script src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
+    <script src="<%= Routes.static_path(@conn, "/js/asciinema-player.js") %>"></script>
+    <script src="<%= Routes.static_path(@conn, "/js/app2.js") %>"></script>
   </body>
 </html>
