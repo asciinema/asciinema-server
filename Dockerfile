@@ -47,6 +47,7 @@ RUN mix release
 FROM alpine:${ALPINE_VERSION}
 
 RUN apk add --no-cache \
+  tini \
   bash \
   ca-certificates \
   librsvg \
@@ -67,6 +68,7 @@ ENV PATH "/opt/app/bin:${PATH}"
 VOLUME /opt/app/uploads
 VOLUME /opt/app/cache
 
-CMD exec /opt/app/bin/asciinema start
+ENTRYPOINT ["/sbin/tini", "--"]
+CMD ["/opt/app/bin/asciinema", "start"]
 
 EXPOSE 4000
