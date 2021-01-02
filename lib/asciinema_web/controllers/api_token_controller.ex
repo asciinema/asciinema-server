@@ -15,12 +15,12 @@ defmodule AsciinemaWeb.ApiTokenController do
       {:error, :token_invalid} ->
         conn
         |> put_flash(:error, "Invalid token. Make sure you pasted the URL correctly.")
-        |> redirect(to: Routes.home_path(conn, :show))
+        |> redirect(to: root_path())
 
       {:error, :token_revoked} ->
         conn
         |> put_flash(:error, "This token has been revoked.")
-        |> redirect(to: Routes.home_path(conn, :show))
+        |> redirect(to: root_path())
     end
   end
 

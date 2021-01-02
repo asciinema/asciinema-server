@@ -118,6 +118,14 @@ defmodule AsciinemaWeb.Router.Helpers.Extra do
   alias AsciinemaWeb.Router.Helpers, as: H
   alias AsciinemaWeb.Endpoint
 
+  def root_path do
+    Endpoint.path("/")
+  end
+
+  def root_url do
+    Endpoint.url()
+  end
+
   def profile_path(_conn, user) do
     profile_path(user)
   end
@@ -128,9 +136,9 @@ defmodule AsciinemaWeb.Router.Helpers.Extra do
 
   def profile_path(%{id: id, username: username}) do
     if username do
-      H.home_path(Endpoint, :show) <> "~#{username}"
+      Endpoint.path("/~#{username}")
     else
-      H.home_path(Endpoint, :show) <> "u/#{id}"
+      Endpoint.path("/u/#{id}")
     end
   end
 

@@ -1,7 +1,7 @@
 <header>
   <nav class="navbar navbar-expand-md navbar-dark bg-dark">
     <div class="container">
-      <a class="navbar-brand" href="<%= Routes.home_path(@conn, :show) %>">
+      <a class="navbar-brand" href="<%= root_path() %>">
         <img src="<%= Routes.static_path(@conn, "/images/logo-red.svg") %>">
       </a>
 

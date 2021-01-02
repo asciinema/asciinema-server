@@ -45,7 +45,7 @@ defmodule AsciinemaWeb.OembedView do
       author_name: UserView.username(asciicast.user),
       author_url: profile_url(asciicast.user),
       provider_name: "asciinema",
-      provider_url: Routes.home_url(Endpoint, :show),
+      provider_url: root_url(),
       thumbnail_url: thumbnail_url,
       thumbnail_width: width,
       thumbnail_height: height,

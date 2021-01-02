@@ -56,6 +56,6 @@ defmodule AsciinemaWeb.SessionController do
     conn
     |> Auth.log_out()
     |> put_flash(:info, "See you later!")
-    |> redirect(to: Routes.home_path(conn, :show))
+    |> redirect(to: root_path())
   end
 end
