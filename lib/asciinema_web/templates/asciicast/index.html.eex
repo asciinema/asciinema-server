@@ -1,7 +1,7 @@
 <div class="container">
   <div class="row">
     <div class="col-md-2">
-      <h2>Watch</h2>
+      <h2>Explore</h2>
 
       <ul class="nav flex-column">
         <%= nav_link("Featured", Routes.explore_path(@conn, :featured), @category == :featured) %>
