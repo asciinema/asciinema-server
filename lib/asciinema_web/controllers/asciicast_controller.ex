@@ -209,14 +209,6 @@ defmodule AsciinemaWeb.AsciicastController do
     end
   end
 
-  def example(conn, _params) do
-    home_asciicast = Asciicasts.get_homepage_asciicast()
-
-    conn
-    |> put_layout("example.html")
-    |> render("example.html", home_asciicast: home_asciicast)
-  end
-
   defp download_filename(%Asciicast{version: version, id: id}, %{"dl" => _}) do
     case version do
       0 -> "#{id}.json"

@@ -22,14 +22,6 @@
           <li class="nav-item">
             <a class="nav-link" href="<%= Routes.doc_path(@conn, :show, :"how-it-works") %>">Docs</a>
           </li>
-
-          <li class="nav-item">
-            <a class="nav-link" href="http://blog.asciinema.org">Blog</a>
-          </li>
-
-          <li class="nav-item">
-            <a class="nav-link" href="<%= Routes.page_path(@conn, :about) %>">About</a>
-          </li>
         </ul>
 
         <ul class="navbar-nav navbar-right session-info">
