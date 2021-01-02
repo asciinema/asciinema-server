@@ -2,11 +2,11 @@ defmodule Asciinema.AsciicastControllerTest do
   use AsciinemaWeb.ConnCase
   import Asciinema.Factory
 
-  describe "index" do
+  describe "auto" do
     test "lists featured asciicasts", %{conn: conn} do
       insert(:asciicast, featured: true, title: "Featured stuff")
 
-      conn = get(conn, Routes.asciicast_path(conn, :featured))
+      conn = get(conn, Routes.explore_path(conn, :auto))
 
       assert html_response(conn, 200) =~ "Featured stuff"
       refute html_response(conn, 200) =~ "Good stuff"

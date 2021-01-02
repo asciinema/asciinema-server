@@ -115,6 +115,12 @@ defmodule Asciinema.Asciicasts do
     |> Repo.paginate(page: page, page_size: page_size)
   end
 
+  def count_featured_asciicasts do
+    from(Asciicast)
+    |> filter(:featured)
+    |> Repo.count()
+  end
+
   def ensure_welcome_asciicast(user) do
     if Repo.count(Ecto.assoc(user, :asciicasts)) == 0 do
       cast_path = Path.join(:code.priv_dir(:asciinema), "welcome.cast")

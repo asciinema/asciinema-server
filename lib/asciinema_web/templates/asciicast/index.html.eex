@@ -1,5 +1,6 @@
 <div class="container">
   <div class="row">
+    <%= if !@sidebar_hidden do %>
     <div class="col-md-2">
       <h2>Explore</h2>
 
@@ -8,8 +9,9 @@
         <%= nav_link("All Public", Routes.explore_path(@conn, :public), @category == :public) %>
       </ul>
     </div>
+    <% end %>
 
-    <div class="col-md-10">
+    <div class="col-md-<%= if @sidebar_hidden, do: 12, else: 10 %>">
       <div class="row">
         <div class="col-md-6">
           <h2><%= @page_title %></h2>

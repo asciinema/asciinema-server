@@ -58,7 +58,7 @@ defmodule AsciinemaWeb.Router do
 
     get "/", HomeController, :show
 
-    get "/explore", AsciicastController, :featured
+    get "/explore", AsciicastController, :auto, as: :explore
     get "/explore/featured", AsciicastController, :featured, as: :explore
     get "/explore/public", AsciicastController, :public, as: :explore
 

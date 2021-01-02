@@ -17,11 +17,22 @@ defmodule AsciinemaWeb.AsciicastController do
     assigns = [
       page_title: String.capitalize("#{category} asciicasts"),
       category: category,
+      sidebar_hidden: params[:sidebar_hidden],
       page: page,
       order: order
     ]
 
     render(conn, "index.html", assigns)
+  end
+
+  def auto(conn, params) do
+    case Asciicasts.count_featured_asciicasts() do
+      0 ->
+        index(conn, Map.merge(params, %{category: :public, sidebar_hidden: true}))
+
+      _ ->
+        index(conn, Map.put(params, :category, :featured))
+    end
   end
 
   def public(conn, params) do
