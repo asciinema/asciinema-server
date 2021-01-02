@@ -3,10 +3,13 @@ defmodule Asciinema.AsciicastControllerTest do
   import Asciinema.Factory
 
   describe "index" do
-    test "redirects to featured", %{conn: conn} do
-      conn = get(conn, Routes.asciicast_path(conn, :index))
+    test "lists featured asciicasts", %{conn: conn} do
+      insert(:asciicast, featured: true, title: "Featured stuff")
 
-      assert redirected_to(conn, 302) =~ "/explore/featured"
+      conn = get(conn, Routes.asciicast_path(conn, :featured))
+
+      assert html_response(conn, 200) =~ "Featured stuff"
+      refute html_response(conn, 200) =~ "Good stuff"
     end
   end
 
@@ -14,7 +17,7 @@ defmodule Asciinema.AsciicastControllerTest do
     test "lists public asciicasts", %{conn: conn} do
       insert(:asciicast, private: false, title: "Good stuff")
 
-      conn = get(conn, Routes.asciicast_path(conn, :category, :public))
+      conn = get(conn, Routes.explore_path(conn, :public))
 
       assert html_response(conn, 200) =~ "Good stuff"
       refute html_response(conn, 200) =~ "Featured stuff"
@@ -25,7 +28,7 @@ defmodule Asciinema.AsciicastControllerTest do
     test "lists featured asciicasts", %{conn: conn} do
       insert(:asciicast, featured: true, title: "Featured stuff")
 
-      conn = get(conn, Routes.asciicast_path(conn, :category, :featured))
+      conn = get(conn, Routes.explore_path(conn, :featured))
 
       assert html_response(conn, 200) =~ "Featured stuff"
       refute html_response(conn, 200) =~ "Good stuff"

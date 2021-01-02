@@ -4,8 +4,8 @@
       <h2>Watch</h2>
 
       <ul class="nav flex-column">
-        <%= nav_link("Featured", Routes.asciicast_path(@conn, :category, :featured), @category == :featured) %>
-        <%= nav_link("All Public", Routes.asciicast_path(@conn, :category, :public), @category == :public) %>
+        <%= nav_link("Featured", Routes.explore_path(@conn, :featured), @category == :featured) %>
+        <%= nav_link("All Public", Routes.explore_path(@conn, :public), @category == :public) %>
       </ul>
     </div>
 

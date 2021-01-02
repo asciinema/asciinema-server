@@ -46,6 +46,7 @@ defmodule AsciinemaWeb.SessionController do
     case conn.assigns.current_user do
       %User{username: nil} ->
         redirect(conn, to: Routes.username_path(conn, :new))
+
       %User{} = user ->
         redirect_back_or(conn, to: profile_path(user))
     end

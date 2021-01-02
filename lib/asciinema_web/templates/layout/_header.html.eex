@@ -12,7 +12,7 @@
       <div class="collapse navbar-collapse" id="navbarNavDropdown">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item">
-            <a class="nav-link" href="<%= Routes.asciicast_path(@conn, :index) %>">Watch</span></a>
+            <a class="nav-link" href="<%= Routes.asciicast_path(@conn, :featured) %>">Explore</span></a>
           </li>
 
           <li class="nav-item">

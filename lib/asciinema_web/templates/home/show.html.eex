@@ -93,7 +93,7 @@
           <% end %>
         </div>
 
-        <p><a class="btn btn-info" href="<%= Routes.asciicast_path(@conn, :index) %>">Explore more</a></p>
+        <p><a class="btn btn-info" href="<%= Routes.asciicast_path(@conn, :featured) %>">Explore more</a></p>
       </div>
     </div>
   </div>

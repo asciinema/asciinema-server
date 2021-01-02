@@ -8,12 +8,8 @@ defmodule AsciinemaWeb.AsciicastController do
   plug :require_current_user when action in [:edit, :update, :delete]
   plug :authorize, :asciicast when action in [:edit, :update, :delete]
 
-  def index(conn, _params) do
-    redirect(conn, to: Routes.asciicast_path(conn, :category, :featured))
-  end
-
-  def category(conn, %{"category" => c} = params) when c in ["featured", "public"] do
-    category = String.to_existing_atom(c)
+  def index(conn, params) do
+    category = params[:category]
     order = if params["order"] == "popularity", do: :popularity, else: :date
 
     page = Asciicasts.paginate_asciicasts(category, order, params["page"], 12)
@@ -25,11 +21,15 @@ defmodule AsciinemaWeb.AsciicastController do
       order: order
     ]
 
-    render(conn, "category.html", assigns)
+    render(conn, "index.html", assigns)
   end
 
-  def category(conn, _params) do
-    redirect(conn, to: Routes.asciicast_path(conn, :category, :featured))
+  def public(conn, params) do
+    index(conn, Map.put(params, :category, :public))
+  end
+
+  def featured(conn, params) do
+    index(conn, Map.put(params, :category, :featured))
   end
 
   def show(conn, _params) do
