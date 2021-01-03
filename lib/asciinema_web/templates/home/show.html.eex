@@ -1,0 +1,100 @@
+<section class="cinema">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-5">
+        <h1>Record and share your terminal sessions, the&nbsp;right&nbsp;way. </h1>
+
+        <h2>
+          Forget screen recording apps and blurry video.
+          Enjoy a lightweight, purely text-based approach to terminal recording.
+        </h2>
+
+        <p>&nbsp; </p>
+        <p><button class="btn btn-info" data-content="<p>Install asciinema with:</p>
+
+<pre><code>brew install asciinema
+</code></pre>
+
+<p>See other <a href='<%= Routes.doc_path(@conn, :show, :installation) %>'>installation options</a>.</p>
+                          <p>Start recording with:</p><pre>asciinema rec</pre>" data-toggle="popover" type="button" data-original-title="" title="">Start Recording</button>
+        </p>
+
+        <p>Supports Linux, macOS and *BSD </p>
+      </div>
+
+      <div class="col-md-7">
+        <div class="player-wrapper">
+          <%= if @asciicast do %>
+            <%= player @asciicast, speed: 2 %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="even">
+  <div class="container">
+    <div class="row about">
+      <div class="col-md-12">
+        <h3>asciinema <em><abbr title="from English ASCII + from Ancient Greek κίνημα (kínēma, “movement”)">[as-kee-nuh-muh] </abbr></em>is a free and open source solution for recording
+          terminal sessions and sharing them on the web. Read about <a href="<%= Routes.doc_path(@conn, :show, :"how-it-works") %>">how it works</a>. </h3>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="odd">
+  <div class="container">
+    <div class="row features">
+      <div class="col-md-4">
+        <h1>Simple recording</h1>
+
+        <p>Record right where you work - in a terminal.
+          To start just run <code>asciinema rec</code>, to finish hit <kbd>Ctrl-D</kbd> or type <code>exit</code>. </p>
+
+        <p><a href="<%= Routes.doc_path(@conn, :show, :"getting-started") %>">Get started »</a></p>
+      </div>
+
+      <div class="col-md-4">
+        <h1>Copy &amp; paste</h1>
+
+        <p>Any time you see a command you'd like to try in your own terminal just
+    pause the player and copy-paste the content you want.
+          It's just a text after all! </p>
+      </div>
+
+      <div class="col-md-4">
+        <h1>Embedding</h1>
+
+        <p>Easily embed an asciicast player in your blog post, project documentation page or in your conference talk slides. </p>
+
+        <p><a href="<%= Routes.doc_path(@conn, :show, :embedding) %>">See the embedding docs »</a></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="even">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <h1>Example sessions recorded with asciinema</h1>
+
+        <div class="asciicast-list">
+          <%= for asciicasts <- Enum.chunk_every(@asciicasts, 3, 3) do %>
+            <div class="row">
+              <%= for asciicast <- asciicasts do %>
+                <div class="col-md-4">
+                  <%= render AsciinemaWeb.AsciicastView, "_card.html", conn: @conn, asciicast: asciicast, no_created_at: true %>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+
+        <p><a class="btn btn-info" href="<%= Routes.explore_path(@conn, :auto) %>">Explore more</a></p>
+      </div>
+    </div>
+  </div>
+</section>

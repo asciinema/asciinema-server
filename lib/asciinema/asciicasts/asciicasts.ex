@@ -37,6 +37,32 @@ defmodule Asciinema.Asciicasts do
     |> Repo.preload(:user)
   end
 
+  def get_homepage_asciicast do
+    asciicast =
+      if id = Application.get_env(:asciinema, :home_asciicast_id) do
+        Repo.get(Asciicast, id)
+      else
+        Asciicast
+        |> filter(:public)
+        |> first()
+        |> Repo.one()
+      end
+
+    Repo.preload(asciicast, :user)
+  end
+
+  def list_homepage_asciicasts() do
+    year_ago = Timex.now() |> Timex.shift(years: -2)
+
+    Asciicast
+    |> filter(:featured)
+    |> where([a], a.created_at > ^year_ago)
+    |> sort(:random)
+    |> limit(6)
+    |> preload(:user)
+    |> Repo.all()
+  end
+
   def other_public_asciicasts(asciicast, limit \\ 3) do
     Asciicast
     |> filter({asciicast.user_id, :public})

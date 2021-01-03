@@ -56,7 +56,7 @@ defmodule AsciinemaWeb.Router do
     # Use the default browser stack
     pipe_through :browser
 
-    get "/", AsciicastController, :auto
+    get "/", HomeController, :show
 
     get "/explore", AsciicastController, :auto, as: :explore
     get "/explore/featured", AsciicastController, :featured, as: :explore
@@ -85,6 +85,12 @@ defmodule AsciinemaWeb.Router do
     get "/connect/:api_token", ApiTokenController, :show, as: :connect
 
     resources "/api_tokens", ApiTokenController, only: [:delete]
+
+    get "/about", PageController, :about
+    get "/privacy", PageController, :privacy
+    get "/tos", PageController, :tos
+    get "/contact", PageController, :contact
+    get "/contributing", PageController, :contributing
   end
 
   scope "/api", AsciinemaWeb.Api, as: :api do
