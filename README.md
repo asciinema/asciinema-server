@@ -64,4 +64,4 @@ please refer to
 
 ## Copyright
 
-Copyright &copy; 2011-2019 Marcin Kulik. See LICENSE for details.
+Copyright &copy; 2011-2021 Marcin Kulik. See LICENSE for details.
