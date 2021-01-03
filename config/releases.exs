@@ -2,9 +2,6 @@ import Config
 
 env = &System.get_env/1
 
-config :asciinema,
-  home_asciicast_id: env.("HOME_ASCIICAST_ID")
-
 secret_key_base = env.("SECRET_KEY_BASE")
 
 config :asciinema, AsciinemaWeb.Endpoint,
