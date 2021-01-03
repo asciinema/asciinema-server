@@ -1,8 +1,6 @@
 defmodule AsciinemaWeb.PageController do
   use AsciinemaWeb, :controller
 
-  plug :put_layout, :app2
-
   def about(conn, _params) do
     conn
     |> assign(:page_title, "About")

@@ -58,8 +58,9 @@ defmodule AsciinemaWeb.Router do
 
     get "/", HomeController, :show
 
-    get "/explore", AsciicastController, :index
-    get "/explore/:category", AsciicastController, :category
+    get "/explore", AsciicastController, :auto, as: :explore
+    get "/explore/featured", AsciicastController, :featured, as: :explore
+    get "/explore/public", AsciicastController, :public, as: :explore
 
     get "/a/:id/iframe", AsciicastController, :iframe
     get "/a/:id/embed", AsciicastController, :embed
@@ -117,6 +118,14 @@ defmodule AsciinemaWeb.Router.Helpers.Extra do
   alias AsciinemaWeb.Router.Helpers, as: H
   alias AsciinemaWeb.Endpoint
 
+  def root_path do
+    Endpoint.path("/")
+  end
+
+  def root_url do
+    Endpoint.url()
+  end
+
   def profile_path(_conn, user) do
     profile_path(user)
   end
@@ -127,9 +136,9 @@ defmodule AsciinemaWeb.Router.Helpers.Extra do
 
   def profile_path(%{id: id, username: username}) do
     if username do
-      "/~#{username}"
+      Endpoint.path("/~#{username}")
     else
-      "/u/#{id}"
+      Endpoint.path("/u/#{id}")
     end
   end
 

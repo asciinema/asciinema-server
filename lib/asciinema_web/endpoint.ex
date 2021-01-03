@@ -11,14 +11,18 @@ defmodule AsciinemaWeb.Endpoint do
     signing_salt: "qJL+3s0T"
   ]
 
-  socket "/socket", AsciinemaWeb.UserSocket, websocket: true
+  config = Application.get_env(:asciinema, __MODULE__)
+  url = Keyword.get(config, :url)
+  path = Keyword.get(url, :path, "/")
+
+  socket path <> "socket", AsciinemaWeb.UserSocket, websocket: true
 
   # Serve at "/" the static files from "priv/static" directory.
   #
   # You should set gzip to true if you are running phx.digest
   # when deploying your static files in production.
   plug Plug.Static,
-    at: "/",
+    at: path,
     from: :asciinema,
     gzip: true,
     only: ~w(css fonts images js favicon.ico robots.txt)

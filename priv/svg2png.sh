@@ -2,11 +2,11 @@
 
 # usage: svg2png.sh <in-svg-path> <out-png-path> <zoom-factor>
 
-set -e
+set -Eeuo pipefail
 
 if which timeout 2>/dev/null; then
     if timeout --help 2>&1 | grep BusyBox >/dev/null; then
-        timeout="timeout 10"
+        timeout="timeout -s KILL 15"
     else
         timeout="timeout -k 5 10"
     fi

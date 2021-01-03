@@ -3,18 +3,13 @@ defmodule AsciinemaWeb.AsciicastController do
   alias Asciinema.{Asciicasts, PngGenerator, Accounts}
   alias Asciinema.Asciicasts.Asciicast
 
-  plug :put_layout, "app2.html"
   plug :clear_main_class
   plug :load_asciicast when action in [:show, :edit, :update, :delete, :example, :iframe, :embed]
   plug :require_current_user when action in [:edit, :update, :delete]
   plug :authorize, :asciicast when action in [:edit, :update, :delete]
 
-  def index(conn, _params) do
-    redirect(conn, to: Routes.asciicast_path(conn, :category, :featured))
-  end
-
-  def category(conn, %{"category" => c} = params) when c in ["featured", "public"] do
-    category = String.to_existing_atom(c)
+  def index(conn, params) do
+    category = params[:category]
     order = if params["order"] == "popularity", do: :popularity, else: :date
 
     page = Asciicasts.paginate_asciicasts(category, order, params["page"], 12)
@@ -22,15 +17,30 @@ defmodule AsciinemaWeb.AsciicastController do
     assigns = [
       page_title: String.capitalize("#{category} asciicasts"),
       category: category,
+      sidebar_hidden: params[:sidebar_hidden],
       page: page,
       order: order
     ]
 
-    render(conn, "category.html", assigns)
+    render(conn, "index.html", assigns)
   end
 
-  def category(conn, _params) do
-    redirect(conn, to: Routes.asciicast_path(conn, :category, :featured))
+  def auto(conn, params) do
+    case Asciicasts.count_featured_asciicasts() do
+      0 ->
+        index(conn, Map.merge(params, %{category: :public, sidebar_hidden: true}))
+
+      _ ->
+        index(conn, Map.put(params, :category, :featured))
+    end
+  end
+
+  def public(conn, params) do
+    index(conn, Map.put(params, :category, :public))
+  end
+
+  def featured(conn, params) do
+    index(conn, Map.put(params, :category, :featured))
   end
 
   def show(conn, _params) do

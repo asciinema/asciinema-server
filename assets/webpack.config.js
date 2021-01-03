@@ -16,7 +16,6 @@ module.exports = (env, options) => {
     },
     entry: {
       app: './js/app.js',
-      app2: './js/app2.js',
       embed: './js/embed.js',
       iframe: './js/iframe.js'
     },
@@ -43,7 +42,16 @@ module.exports = (env, options) => {
           ]
         },
         {
-          test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
+          test: /\.jpg$/,
+          use: [
+            {
+              loader: 'file-loader',
+              options: { name: '[name].[ext]', outputPath: '../images' }
+            },
+          ],
+        },
+        {
+          test: /\.(woff(2)?|ttf|otf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
           use: [
             {
               loader: 'file-loader',

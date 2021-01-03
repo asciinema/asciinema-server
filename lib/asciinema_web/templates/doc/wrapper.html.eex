@@ -3,7 +3,7 @@
     <div class="col-md-3">
       <%= render "topics.html", conn: @conn, active_topic: @topic %>
     </div>
-    <div class="col-md-9">
+    <div class="col-md-9 content">
       <%= render @view_module, @topic_template, assigns %>
     </div>
   </div>

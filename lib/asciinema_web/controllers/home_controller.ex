@@ -2,7 +2,6 @@ defmodule AsciinemaWeb.HomeController do
   use AsciinemaWeb, :controller
   alias Asciinema.Asciicasts
 
-  plug :put_layout, :app2
   plug :clear_main_class
 
   def show(conn, _params) do

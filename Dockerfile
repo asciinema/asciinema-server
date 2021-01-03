@@ -1,6 +1,6 @@
-ARG ALPINE_VERSION=3.11.3
-ARG ERLANG_OTP_VERSION=22.3
-ARG ELIXIR_VERSION=1.10.3
+ARG ALPINE_VERSION=3.11.6
+ARG ERLANG_OTP_VERSION=22.3.4.3
+ARG ELIXIR_VERSION=1.10.4
 
 ## Release building image
 
@@ -47,6 +47,7 @@ RUN mix release
 FROM alpine:${ALPINE_VERSION}
 
 RUN apk add --no-cache \
+  tini \
   bash \
   ca-certificates \
   librsvg \
@@ -67,6 +68,7 @@ ENV PATH "/opt/app/bin:${PATH}"
 VOLUME /opt/app/uploads
 VOLUME /opt/app/cache
 
-CMD exec /opt/app/bin/asciinema start
+ENTRYPOINT ["/sbin/tini", "--"]
+CMD ["/opt/app/bin/asciinema", "start"]
 
 EXPOSE 4000

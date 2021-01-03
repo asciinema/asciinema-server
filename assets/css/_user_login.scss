@@ -1,0 +1,22 @@
+.login-form {
+  input.email {
+    width: 250px;
+    margin-right: 10px;
+  }
+}
+
+.username-form {
+  input#user_username {
+    width: 200px;
+  }
+}
+
+.c-login {
+  h2 {
+    margin-top: 30px;
+
+    span.glyphicon {
+      top: 4px;
+    }
+  }
+}

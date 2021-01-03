@@ -2,7 +2,6 @@ defmodule AsciinemaWeb.UsernameController do
   use AsciinemaWeb, :controller
   alias Asciinema.Accounts
 
-  plug :put_layout, :app2
   plug :require_current_user
 
   def new(conn, _params) do
