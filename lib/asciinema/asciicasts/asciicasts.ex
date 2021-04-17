@@ -127,7 +127,7 @@ defmodule Asciinema.Asciicasts do
     with {:ok, attrs} <- extract_metadata(upload),
          attrs = Map.merge(attrs, overrides),
          changeset = Asciicast.create_changeset(asciicast, attrs),
-         {:ok, %Asciicast{} = asciicast} <- do_create_asciicast(changeset, {upload, false}) do
+         {:ok, %Asciicast{} = asciicast} <- do_create_asciicast(changeset, upload) do
       if asciicast.snapshot == nil do
         :ok = SnapshotUpdater.update_snapshot(asciicast)
       end
@@ -316,8 +316,8 @@ defmodule Asciinema.Asciicasts do
     "asciicasts/#{a}/#{b}/#{asciicast.id}.#{ext}"
   end
 
-  defp save_file(path, {%{path: tmp_path, content_type: content_type}, compress}) do
-    :ok = FileStore.put_file(path, tmp_path, content_type, compress)
+  defp save_file(path, %{path: tmp_path, content_type: content_type}) do
+    :ok = FileStore.put_file(path, tmp_path, content_type)
   end
 
   def stdout_stream(%Asciicast{version: 0} = asciicast) do
@@ -573,7 +573,7 @@ defmodule Asciinema.Asciicasts do
         path: path
       )
 
-    save_file(path, {upload, false})
+    save_file(path, upload)
 
     Repo.update!(changeset)
   end

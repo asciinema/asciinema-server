@@ -6,8 +6,7 @@ defmodule Asciinema.FileStore do
   @callback put_file(
               dst_path :: String.t(),
               src_local_path :: String.t(),
-              content_type :: String.t(),
-              compress :: boolean
+              content_type :: String.t()
             ) :: :ok | {:error, term}
 
   @doc "Moves file to a new path"
@@ -49,8 +48,8 @@ defmodule Asciinema.FileStore do
     instance().url(path)
   end
 
-  def put_file(dst_path, src_local_path, content_type, compress \\ false) do
-    instance().put_file(dst_path, src_local_path, content_type, compress)
+  def put_file(dst_path, src_local_path, content_type) do
+    instance().put_file(dst_path, src_local_path, content_type)
   end
 
   def move_file(from_path, to_path) do
