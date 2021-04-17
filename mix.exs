@@ -72,7 +72,7 @@ defmodule Asciinema.MixProject do
       {:scrivener_ecto, "~> 2.4"},
       {:scrivener_html, "~> 1.8"},
       {:sentry, "~> 7.2"},
-      {:timex, "~> 3.6"}
+      {:timex, "~> 3.7"}
     ]
   end
 
