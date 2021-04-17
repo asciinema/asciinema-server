@@ -57,6 +57,7 @@ RUN apk add --no-cache \
 WORKDIR /opt/app
 
 COPY --from=builder /opt/app/_build/prod/rel/asciinema .
+RUN chgrp -R 0 /opt/app && chmod -R g=u /opt/app
 COPY .iex.exs .
 
 ENV PORT 4000
