@@ -65,7 +65,6 @@ COPY .iex.exs .
 
 ENV PORT 4000
 ENV DATABASE_URL "postgresql://postgres@postgres/postgres"
-ENV REDIS_URL "redis://redis:6379"
 ENV RSVG_FONT_FAMILY "Dejavu Sans Mono"
 ENV PATH "/opt/app/bin:${PATH}"
 
