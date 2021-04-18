@@ -18,9 +18,7 @@ defmodule Asciinema.Application do
       # Start PNG generator poolboy pool
       :poolboy.child_spec(:worker, Asciinema.PngGenerator.Rsvg.poolboy_config(), []),
       # Start Oban
-      {Oban, oban_config()},
-      # Start cron job scheduler
-      Asciinema.Scheduler
+      {Oban, oban_config()}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

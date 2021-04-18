@@ -51,5 +51,5 @@ if gc_days = env.("ASCIICAST_GC_DAYS") do
 end
 
 if String.downcase("#{env.("CRON")}") in ["0", "false", "no"] do
-  config :asciinema, Asciinema.Scheduler, jobs: []
+  config :asciinema, Oban, plugins: [{Oban.Plugins.Cron, crontab: []}]
 end

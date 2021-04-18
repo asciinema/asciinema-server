@@ -51,16 +51,17 @@ config :asciinema, Asciinema.PngGenerator.Rsvg,
 
 config :asciinema, Oban,
   repo: Asciinema.Repo,
-  plugins: [{Oban.Plugins.Pruner, max_age: 604_800}],
-  queues: [default: 10, emails: 10]
+  queues: [default: 10, emails: 10],
+  plugins: [
+    {Oban.Plugins.Pruner, max_age: 604_800},
+    {Oban.Plugins.Cron,
+     crontab: [
+       {"0 * * * *", Asciinema.GC}
+     ]}
+  ]
 
 config :scrivener_html,
   view_style: :bootstrap_v4
-
-config :asciinema, Asciinema.Scheduler,
-  jobs: [
-    {"0 * * * *", {Asciinema.GC, :run, []}}
-  ]
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

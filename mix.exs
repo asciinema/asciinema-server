@@ -65,7 +65,6 @@ defmodule Asciinema.MixProject do
       {:plug_cowboy, "~> 2.3"},
       {:poolboy, "~> 1.5"},
       {:postgrex, ">= 0.0.0"},
-      {:quantum, "~> 2.4"},
       {:rustler, "~> 0.21.0"},
       {:scrivener_ecto, "~> 2.4"},
       {:scrivener_html, "~> 1.8"},
