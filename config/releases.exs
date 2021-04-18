@@ -16,8 +16,6 @@ config :asciinema, Asciinema.Accounts, secret: secret_key_base
 
 config :asciinema, Asciinema.Repo, pool_size: String.to_integer(env.("DB_POOL_SIZE") || "20")
 
-config :exq, url: env.("REDIS_URL") || "redis://localhost:6379"
-
 if env.("S3_BUCKET") do
   config :asciinema, :file_store, Asciinema.FileStore.Cached
 

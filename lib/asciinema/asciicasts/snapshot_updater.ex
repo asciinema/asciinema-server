@@ -1,10 +1,22 @@
 defmodule Asciinema.Asciicasts.SnapshotUpdater do
-  alias Asciinema.Asciicasts.Asciicast
+  defmodule Job do
+    use Oban.Worker
+    alias Asciinema.{Repo, Asciicasts}
+    alias Asciinema.Asciicasts.Asciicast
 
-  @doc "Generates poster for given asciicast"
-  @callback update_snapshot(asciicast :: %Asciicast{}) :: :ok | {:error, term}
+    @impl Oban.Worker
+    def perform(job) do
+      if asciicast = Repo.get(Asciicast, job.args["asciicast_id"]) do
+        Asciicasts.update_snapshot(asciicast)
+      else
+        :discard
+      end
+    end
+  end
 
   def update_snapshot(asciicast) do
-    Application.get_env(:asciinema, :snapshot_updater).update_snapshot(asciicast)
+    with {:ok, _} <- Oban.insert(Job.new(%{asciicast_id: asciicast.id})) do
+      :ok
+    end
   end
 end

@@ -48,7 +48,6 @@ config :asciinema, Asciinema.Repo,
   ssl: false
 
 config :asciinema, Asciinema.Emails.Mailer,
-  deliver_later_strategy: Asciinema.BambooExqStrategy,
   adapter: Bamboo.SMTPAdapter,
   server: "smtp",
   port: 25

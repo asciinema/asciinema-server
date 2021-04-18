@@ -9,12 +9,12 @@ defmodule Asciinema do
 
         %{id: nil, email: email} ->
           url = email |> Accounts.signup_token() |> signup_url.()
-          Emails.send_signup_email(email, url)
+          {:ok, _} = Emails.send_signup_email(email, url)
           :ok
 
         user ->
           url = user |> Accounts.login_token() |> login_url.()
-          Emails.send_login_email(user.email, url)
+          {:ok, _} = Emails.send_login_email(user.email, url)
           :ok
       end
     end

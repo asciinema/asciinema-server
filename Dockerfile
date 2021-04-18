@@ -29,6 +29,9 @@ RUN cd assets && \
   npm install && \
   npm run deploy
 
+COPY config/config.exs config/
+COPY config/prod.exs config/
+
 RUN mix phx.digest
 
 COPY config/*.exs config/

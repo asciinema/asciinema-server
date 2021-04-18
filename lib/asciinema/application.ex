@@ -6,7 +6,8 @@ defmodule Asciinema.Application do
   use Application
 
   def start(_type, _args) do
-    import Supervisor.Spec
+    :ok = Oban.Telemetry.attach_default_logger()
+    :ok = Asciinema.ObanErrorReporter.configure()
 
     # List all child processes to be supervised
     children = [
@@ -16,8 +17,8 @@ defmodule Asciinema.Application do
       AsciinemaWeb.Endpoint,
       # Start PNG generator poolboy pool
       :poolboy.child_spec(:worker, Asciinema.PngGenerator.Rsvg.poolboy_config(), []),
-      # Start Exq workers
-      supervisor(Exq, []),
+      # Start Oban
+      {Oban, oban_config()},
       # Start cron job scheduler
       Asciinema.Scheduler
     ]
@@ -26,5 +27,9 @@ defmodule Asciinema.Application do
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: Asciinema.Supervisor]
     Supervisor.start_link(children, opts)
+  end
+
+  defp oban_config do
+    Application.fetch_env!(:asciinema, Oban)
   end
 end

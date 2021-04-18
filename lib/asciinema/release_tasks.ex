@@ -27,6 +27,9 @@ defmodule Asciinema.ReleaseTasks do
   end
 
   def seed do
+    Application.ensure_all_started(:oban)
+    {:ok, _} = Oban.start_link(name: Oban, repo: oban_repo(), queues: [], plugins: [])
+
     seed_script =
       Path.join([
         to_string(:code.priv_dir(:asciinema)),
@@ -80,5 +83,11 @@ defmodule Asciinema.ReleaseTasks do
   defp repos do
     _ = Application.load(@app)
     Application.fetch_env!(@app, :ecto_repos)
+  end
+
+  defp oban_repo do
+    [repo] = repos()
+
+    repo
   end
 end
