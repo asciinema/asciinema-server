@@ -49,35 +49,19 @@ config :asciinema, Asciinema.PngGenerator.Rsvg,
   pool_size: 2,
   font_family: "monospace"
 
-config :asciinema, :snapshot_updater, Asciinema.Asciicasts.SnapshotUpdater.Exq
-
-config :exq,
-  name: Exq,
-  start_on_application: false,
-  url: "redis://localhost:6379",
-  namespace: "exq",
-  concurrency: 10,
-  queues: ["default", "emails"],
-  scheduler_enable: true,
-  max_retries: 25,
-  shutdown_timeout: 5000,
-  middleware: [
-    Exq.Middleware.Stats,
-    Exq.Middleware.Job,
-    Exq.Middleware.Manager,
-    Exq.Middleware.Logger,
-    Asciinema.Exq.Middleware.Sentry
+config :asciinema, Oban,
+  repo: Asciinema.Repo,
+  queues: [default: 10, emails: 10],
+  plugins: [
+    {Oban.Plugins.Pruner, max_age: 604_800},
+    {Oban.Plugins.Cron,
+     crontab: [
+       {"0 * * * *", Asciinema.GC}
+     ]}
   ]
-
-config :exq_ui, server: false
 
 config :scrivener_html,
   view_style: :bootstrap_v4
-
-config :asciinema, Asciinema.Scheduler,
-  jobs: [
-    {"0 * * * *", {Asciinema.GC, :run, []}}
-  ]
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

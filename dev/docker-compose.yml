@@ -14,10 +14,6 @@ services:
     ports:
       - 2345:5432
 
-  redis:
-    image: redis
-    container_name: asciinema_dev_redis
-
   nginx:
     image: nginx:alpine
     container_name: asciinema_dev_nginx
@@ -38,7 +34,6 @@ services:
     entrypoint: env -u MIX_ENV -u PORT
     command: mix phx.server
     links:
-      - redis
       - postgres
     env_file: .env.development
     ports:

@@ -29,6 +29,9 @@ RUN cd assets && \
   npm install && \
   npm run deploy
 
+COPY config/config.exs config/
+COPY config/prod.exs config/
+
 RUN mix phx.digest
 
 COPY config/*.exs config/
@@ -62,7 +65,6 @@ COPY .iex.exs .
 
 ENV PORT 4000
 ENV DATABASE_URL "postgresql://postgres@postgres/postgres"
-ENV REDIS_URL "redis://redis:6379"
 ENV RSVG_FONT_FAMILY "Dejavu Sans Mono"
 ENV PATH "/opt/app/bin:${PATH}"
 
