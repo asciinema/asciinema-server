@@ -7,9 +7,9 @@ defmodule Asciinema.FileStore.Cached do
   end
 
   @impl true
-  def put_file(dst_path, src_local_path, content_type, compress \\ false) do
-    with :ok <- remote_store().put_file(dst_path, src_local_path, content_type, compress),
-         :ok <- cache_store().put_file(dst_path, src_local_path, content_type, compress) do
+  def put_file(dst_path, src_local_path, content_type) do
+    with :ok <- remote_store().put_file(dst_path, src_local_path, content_type),
+         :ok <- cache_store().put_file(dst_path, src_local_path, content_type) do
       :ok
     end
   end

@@ -64,7 +64,7 @@ defmodule Asciinema.Factory do
         2 -> "welcome.cast"
       end
 
-    :ok = FileStore.put_file(asciicast.path, "test/fixtures/#{src}", "application/json", false)
+    :ok = FileStore.put_file(asciicast.path, "test/fixtures/#{src}", "application/json")
 
     asciicast
   end
@@ -72,13 +72,12 @@ defmodule Asciinema.Factory do
   def with_files(%{version: 0} = asciicast) do
     src = "test/fixtures/0.9.9/stdout"
     ct = "application/octet-stream"
-    :ok = FileStore.put_file("asciicast/stdout/#{asciicast.id}/stdout", src, ct, false)
+    :ok = FileStore.put_file("asciicast/stdout/#{asciicast.id}/stdout", src, ct)
 
     src = "test/fixtures/0.9.9/stdout.time"
     ct = "application/octet-stream"
 
-    :ok =
-      FileStore.put_file("asciicast/stdout_timing/#{asciicast.id}/stdout.time", src, ct, false)
+    :ok = FileStore.put_file("asciicast/stdout_timing/#{asciicast.id}/stdout.time", src, ct)
 
     asciicast
   end

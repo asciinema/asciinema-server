@@ -23,7 +23,7 @@ recordings are __private by default__ though).
 If you're not comfortable with uploading your terminal sessions to
 asciinema.org, or your company's policy prevents you from doing that, you can
 set up your own instance for private use. See
-our [asciinema web app install guide](https://github.com/asciinema/asciinema-server/blob/master/docs/INSTALL.md).
+our [asciinema server install guide](https://github.com/asciinema/asciinema-server/wiki/Installation-guide).
 
 Once you have your instance running, point asciinema recorder to it by setting
 API URL in `~/.config/asciinema/config` file as follows:
@@ -64,4 +64,4 @@ please refer to
 
 ## Copyright
 
-Copyright &copy; 2011-2019 Marcin Kulik. See LICENSE for details.
+Copyright &copy; 2011-2021 Marcin Kulik. See LICENSE for details.
