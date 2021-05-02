@@ -28,9 +28,14 @@
     <div class="col-md-6">
       <h2><span class="glyphicon glyphicon-info-sign"></span> First time here?</h1>
 
-      <p>We use email-based, passwordless login process. Enter your email
-        address and you'll receive a one-time login link. After you click it
-        you'll get in, and you'll be able to pick your username.</p>
+      <%= if sign_up_enabled?(@conn) do %>
+        <p>We use email-based, passwordless login process. Enter your email
+          address and you'll receive a one-time login link. After you click it
+          you'll get in, and you'll be able to pick your username.</p>
+      <% else %>
+        <p>Public sign up on this site hasn't been enabled. Bummer! Try contacting the
+        administrator.</p>
+      <% end %>
 
       <h2><span class="glyphicon glyphicon-info-sign"></span> Coming back?</h1>
 

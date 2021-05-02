@@ -15,7 +15,8 @@ defmodule AsciinemaWeb.LoginController do
       Accounts.send_login_email(
         email_or_username,
         &AsciinemaWeb.signup_url/1,
-        &AsciinemaWeb.login_url/1
+        &AsciinemaWeb.login_url/1,
+        Map.get(conn.assigns, :cfg_sign_up_enabled?, true)
       )
 
     case result do
