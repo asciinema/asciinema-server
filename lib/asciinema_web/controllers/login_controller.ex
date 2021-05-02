@@ -2,6 +2,8 @@ defmodule AsciinemaWeb.LoginController do
   use AsciinemaWeb, :controller
   alias Asciinema.Accounts
 
+  plug :clear_main_class
+
   def new(conn, _params) do
     render(conn, "new.html")
   end
