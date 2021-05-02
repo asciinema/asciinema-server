@@ -3,7 +3,7 @@ defmodule Asciinema.Accounts do
   import Ecto.Query, warn: false
   import Ecto, only: [assoc: 2, build_assoc: 2]
   alias Asciinema.Accounts.{User, ApiToken}
-  alias Asciinema.Repo
+  alias Asciinema.{Emails, Repo}
 
   def fetch_user(id) do
     case get_user(id) do
@@ -48,6 +48,27 @@ defmodule Asciinema.Accounts do
 
   def temporary_users(q \\ User) do
     from(u in q, where: is_nil(u.email))
+  end
+
+  def send_login_email(email_or_username, signup_url, login_url) do
+    with {:ok, user} <- lookup_user(email_or_username) do
+      case user do
+        %{email: nil} ->
+          {:error, :email_missing}
+
+        %{id: nil, email: email} ->
+          url = email |> signup_token() |> signup_url.()
+          {:ok, _} = Emails.send_signup_email(email, url)
+
+          :ok
+
+        user ->
+          url = user |> login_token() |> login_url.()
+          {:ok, _} = Emails.send_login_email(user.email, url)
+
+          :ok
+      end
+    end
   end
 
   def lookup_user(email_or_username) do
