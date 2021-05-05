@@ -11,6 +11,7 @@ defmodule AsciinemaWeb.Router do
     plug :protect_from_forgery
     plug :put_secure_browser_headers
     plug AsciinemaWeb.Auth
+    plug :assign_config
   end
 
   pipeline :asciicast do
@@ -18,6 +19,10 @@ defmodule AsciinemaWeb.Router do
     plug :accepts, ["html", "js", "json", "cast", "svg", "png", "gif"]
     plug :format_specific_plugs
     plug :put_secure_browser_headers
+  end
+
+  defp assign_config(conn, []) do
+    assign(conn, :cfg_sign_up_enabled?, Application.get_env(:asciinema, :sign_up_enabled?, true))
   end
 
   defp format_specific_plugs(conn, []) do

@@ -12,7 +12,7 @@ defmodule Asciinema.AccountsTest do
     test "existing user, by email" do
       user = fixture(:user)
 
-      assert Accounts.send_login_email(user.email, &signup_url/1, &login_url/1) == :ok
+      assert Accounts.send_login_email(user.email, &signup_url/1, &login_url/1, true) == :ok
 
       assert_enqueued(
         worker: Asciinema.Emails.Job,
@@ -23,7 +23,7 @@ defmodule Asciinema.AccountsTest do
     test "existing user, by username" do
       user = fixture(:user)
 
-      assert Accounts.send_login_email(user.username, &signup_url/1, &login_url/1) == :ok
+      assert Accounts.send_login_email(user.username, &signup_url/1, &login_url/1, true) == :ok
 
       assert_enqueued(
         worker: Asciinema.Emails.Job,
@@ -32,7 +32,8 @@ defmodule Asciinema.AccountsTest do
     end
 
     test "non-existing user, by email" do
-      assert Accounts.send_login_email("new@example.com", &signup_url/1, &login_url/1) == :ok
+      assert Accounts.send_login_email("new@example.com", &signup_url/1, &login_url/1, true) ==
+               :ok
 
       assert_enqueued(
         worker: Asciinema.Emails.Job,
@@ -40,15 +41,22 @@ defmodule Asciinema.AccountsTest do
       )
     end
 
+    test "non-existing user, by email, when sign up is disabled" do
+      assert Accounts.send_login_email("new@example.com", &signup_url/1, &login_url/1, false) ==
+               {:error, :user_not_found}
+
+      refute_enqueued(worker: Asciinema.Emails.Job)
+    end
+
     test "non-existing user, by email, when email is invalid" do
-      assert Accounts.send_login_email("new@", &signup_url/1, &login_url/1) ==
+      assert Accounts.send_login_email("new@", &signup_url/1, &login_url/1, true) ==
                {:error, :email_invalid}
 
       refute_enqueued(worker: Asciinema.Emails.Job)
     end
 
     test "non-existing user, by username" do
-      assert Accounts.send_login_email("idontexist", &signup_url/1, &login_url/1) ==
+      assert Accounts.send_login_email("idontexist", &signup_url/1, &login_url/1, true) ==
                {:error, :user_not_found}
 
       refute_enqueued(worker: Asciinema.Emails.Job)

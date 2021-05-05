@@ -4,6 +4,7 @@ defmodule Asciinema.Accounts do
   import Ecto, only: [assoc: 2, build_assoc: 2]
   alias Asciinema.Accounts.{User, ApiToken}
   alias Asciinema.{Emails, Repo}
+  alias Ecto.Changeset
 
   def fetch_user(id) do
     case get_user(id) do
@@ -50,58 +51,41 @@ defmodule Asciinema.Accounts do
     from(u in q, where: is_nil(u.email))
   end
 
-  def send_login_email(email_or_username, signup_url, login_url) do
-    with {:ok, user} <- lookup_user(email_or_username) do
-      case user do
-        %{email: nil} ->
-          {:error, :email_missing}
+  def send_login_email(email_or_username, signup_url, login_url, sign_up_enabled?) do
+    case {lookup_user(email_or_username), sign_up_enabled?} do
+      {%User{email: nil}, _} ->
+        {:error, :email_missing}
 
-        %{id: nil, email: email} ->
-          url = email |> signup_token() |> signup_url.()
-          {:ok, _} = Emails.send_signup_email(email, url)
+      {%User{} = user, _} ->
+        url = user |> login_token() |> login_url.()
+        {:ok, _} = Emails.send_login_email(user.email, url)
 
-          :ok
+        :ok
 
-        user ->
-          url = user |> login_token() |> login_url.()
-          {:ok, _} = Emails.send_login_email(user.email, url)
+      {%Changeset{errors: [{:email, _}]}, _} ->
+        {:error, :email_invalid}
 
-          :ok
-      end
+      {%Changeset{} = changeset, true} ->
+        email = changeset.changes.email
+        url = email |> signup_token() |> signup_url.()
+        {:ok, _} = Emails.send_signup_email(email, url)
+
+        :ok
+
+      {%Changeset{}, false} ->
+        {:error, :user_not_found}
+
+      {nil, _} ->
+        {:error, :user_not_found}
     end
   end
 
   def lookup_user(email_or_username) do
     if String.contains?(email_or_username, "@") do
-      lookup_user_by_email(email_or_username)
+      Repo.get_by(User, email: email_or_username) ||
+        User.signup_changeset(%{email: email_or_username})
     else
-      lookup_user_by_username(email_or_username)
-    end
-  end
-
-  defp lookup_user_by_email(email) do
-    case Repo.get_by(User, email: email) do
-      %User{} = user ->
-        {:ok, user}
-
-      nil ->
-        case User.signup_changeset(%{email: email}) do
-          %{errors: [{:email, _}]} ->
-            {:error, :email_invalid}
-
-          %{errors: []} ->
-            {:ok, %User{email: email}}
-        end
-    end
-  end
-
-  defp lookup_user_by_username(username) do
-    case Repo.get_by(User, username: username) do
-      %User{} = user ->
-        {:ok, user}
-
-      nil ->
-        {:error, :user_not_found}
+      Repo.get_by(User, username: email_or_username)
     end
   end
 

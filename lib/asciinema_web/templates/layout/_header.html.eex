@@ -39,7 +39,10 @@
             </li>
           <% else %>
             <li class="nav-item">
-              <a class="nav-link" href="<%= Routes.login_path(@conn, :new) %>" id="log-in">Log in / Sign up</a>
+              <a class="nav-link" href="<%= Routes.login_path(@conn, :new) %>" id="log-in">
+                Log in
+                <%= if sign_up_enabled?(@conn) do %> / Sign up<% end %>
+              </a>
             </li>
           <% end %>
         </ul>
