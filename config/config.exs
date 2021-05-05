@@ -16,7 +16,7 @@ config :asciinema, Asciinema.Repo, migration_timestamps: [type: :naive_datetime_
 config :asciinema, AsciinemaWeb.Endpoint,
   url: [host: "localhost"],
   render_errors: [view: AsciinemaWeb.ErrorView, accepts: ~w(html json)],
-  pubsub: [name: Asciinema.PubSub, adapter: Phoenix.PubSub.PG2]
+  pubsub_server: Asciinema.PubSub
 
 # Configures Elixir's Logger
 config :logger, :console,

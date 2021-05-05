@@ -15,6 +15,8 @@ defmodule Asciinema.Application do
       Asciinema.Repo,
       # Start the endpoint when the application starts
       AsciinemaWeb.Endpoint,
+      # Start Phoenix PubSub
+      {Phoenix.PubSub, [name: Asciinema.PubSub, adapter: Phoenix.PubSub.PG2]},
       # Start PNG generator poolboy pool
       :poolboy.child_spec(:worker, Asciinema.PngGenerator.Rsvg.poolboy_config(), []),
       # Start Oban

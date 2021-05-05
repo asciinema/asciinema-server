@@ -8,6 +8,6 @@
 
   <body class="iframe">
     <script src="<%= Routes.static_path(@conn, "/js/asciinema-player.js") %>"></script>
-    <%= render @view_module, @view_template, assigns %>
+    <%= @inner_content %>
   </body>
 </html>

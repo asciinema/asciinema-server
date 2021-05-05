@@ -4,14 +4,14 @@ defmodule Asciinema.ReleaseTasks do
   @app :asciinema
 
   def setup do
-    with_repo(fn repo ->
+    with_started(fn repo ->
       migrate(repo)
       seed()
     end)
   end
 
   def upgrade do
-    with_repo(fn repo ->
+    with_started(fn repo ->
       migrate(repo)
       seed()
       upgrade_data()
@@ -55,7 +55,7 @@ defmodule Asciinema.ReleaseTasks do
   end
 
   def admin_add(emails) when is_list(emails) do
-    with_repo(fn _repo ->
+    with_started(fn _repo ->
       Asciinema.Accounts.add_admins(emails)
       IO.puts("#{Enum.join(emails, ", ")} added to admin users list")
     end)
@@ -68,15 +68,17 @@ defmodule Asciinema.ReleaseTasks do
   end
 
   def admin_rm(emails) when is_list(emails) do
-    with_repo(fn _repo ->
+    with_started(fn _repo ->
       Asciinema.Accounts.remove_admins(emails)
       IO.puts("#{Enum.join(emails, ", ")} removed from admin users list")
     end)
   end
 
-  defp with_repo(f) do
+  defp with_started(f) do
+    Application.ensure_all_started(:ssl)
     [repo] = repos()
     {:ok, _, _} = Ecto.Migrator.with_repo(repo, f)
+
     :ok
   end
 

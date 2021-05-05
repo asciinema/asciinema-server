@@ -56,3 +56,5 @@ end
 if String.downcase("#{env.("CRON")}") in ["0", "false", "no"] do
   config :asciinema, Oban, plugins: [{Oban.Plugins.Cron, crontab: []}]
 end
+
+config :asciinema, :sign_up_enabled?, env.("SIGN_UP_DISABLED") not in ["1", "true"]
