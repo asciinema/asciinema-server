@@ -82,7 +82,6 @@ defmodule Asciinema.Asciicasts do
 
   def paginate_asciicasts(filters, order, page, page_size) do
     from(Asciicast)
-    |> where([a], is_nil(a.archived_at))
     |> filter(filters)
     |> sort(order)
     |> preload(:user)
