@@ -3,7 +3,11 @@ defmodule Asciinema.Telemetry do
   import Telemetry.Metrics
 
   def start_link(arg) do
-    Supervisor.start_link(__MODULE__, arg, name: __MODULE__)
+    if enabled?() do
+      Supervisor.start_link(__MODULE__, arg, name: __MODULE__)
+    else
+      :ignore
+    end
   end
 
   def init(_arg) do
@@ -86,5 +90,9 @@ defmodule Asciinema.Telemetry do
     |> Map.update(:plug, nil, &String.replace(to_string(&1), "Elixir.AsciinemaWeb.", ""))
     |> Map.put(:method, metadata.conn.method)
     |> Map.put(:status, metadata.conn.status)
+  end
+
+  defp enabled? do
+    Keyword.get(Application.get_env(:asciinema, __MODULE__, []), :enabled, true)
   end
 end
