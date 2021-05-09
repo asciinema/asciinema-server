@@ -32,3 +32,5 @@ config :asciinema, :snapshot_updater, Asciinema.Asciicasts.SnapshotUpdater.Noop
 config :asciinema, Oban, queues: false, plugins: false
 
 config :asciinema, Asciinema.Emails.Mailer, adapter: Bamboo.TestAdapter
+
+config :asciinema, Asciinema.Telemetry, enabled: false

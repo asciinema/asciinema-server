@@ -11,6 +11,8 @@ defmodule Asciinema.Application do
 
     # List all child processes to be supervised
     children = [
+      # Start telemetry reporters
+      Asciinema.Telemetry,
       # Start the Ecto repository
       Asciinema.Repo,
       # Start the endpoint when the application starts
