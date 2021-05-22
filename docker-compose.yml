@@ -10,15 +10,6 @@ services:
     ### See https://hub.docker.com/_/postgres/ for more
     ### configuration options for this image.
 
-  redis:
-    image: redis:4.0-alpine
-    container_name: asciinema_redis
-    restart: unless-stopped
-    volumes:
-      - ./volumes/redis:/data
-    ### See https://hub.docker.com/_/redis/ for more
-    ### configuration options for this image.
-
   smtp:
     image: namshi/smtp
     container_name: asciinema_smtp
@@ -50,7 +41,6 @@ services:
     container_name: asciinema_phoenix
     restart: unless-stopped
     links:
-      - redis
       - postgres
       - smtp
     env_file: .env.production

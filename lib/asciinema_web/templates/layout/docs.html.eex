@@ -1,1 +1,12 @@
-<%= render @view_module, "wrapper.html", Map.merge(assigns, %{layout: {AsciinemaWeb.LayoutView, "app.html"}, topic_template: @view_template}) %>
+<%= render_layout AsciinemaWeb.LayoutView, "app.html", assigns do %>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-3">
+        <%= render AsciinemaWeb.DocView, "topics.html", conn: @conn, active_topic: @topic %>
+      </div>
+      <div class="col-md-9 content">
+        <%= @inner_content %>
+      </div>
+    </div>
+  </div>
+<% end %>

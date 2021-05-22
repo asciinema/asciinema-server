@@ -15,7 +15,7 @@
     <%= render "_flash.html", conn: @conn %>
 
     <main role="main" class="<%= main_class(@conn) %>">
-      <%= render @view_module, @view_template, assigns %>
+      <%= @inner_content %>
     </main>
 
     <%= render "_footer.html", conn: @conn %>

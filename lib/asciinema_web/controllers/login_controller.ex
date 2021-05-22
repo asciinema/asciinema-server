@@ -1,5 +1,8 @@
 defmodule AsciinemaWeb.LoginController do
   use AsciinemaWeb, :controller
+  alias Asciinema.Accounts
+
+  plug :clear_main_class
 
   def new(conn, _params) do
     render(conn, "new.html")
@@ -9,10 +12,11 @@ defmodule AsciinemaWeb.LoginController do
     email_or_username = String.trim(email_or_username)
 
     result =
-      Asciinema.send_login_email(
+      Accounts.send_login_email(
         email_or_username,
         &AsciinemaWeb.signup_url/1,
-        &AsciinemaWeb.login_url/1
+        &AsciinemaWeb.login_url/1,
+        Map.get(conn.assigns, :cfg_sign_up_enabled?, true)
       )
 
     case result do

@@ -3,7 +3,6 @@ defmodule AsciinemaWeb.Router do
   use Plug.ErrorHandler
   defp handle_errors(_conn, %{reason: %Phoenix.NotAcceptableError{}}), do: nil
   use Sentry.Plug
-  import AsciinemaWeb.Auth, only: [require_current_user: 2, require_admin: 2]
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -12,6 +11,7 @@ defmodule AsciinemaWeb.Router do
     plug :protect_from_forgery
     plug :put_secure_browser_headers
     plug AsciinemaWeb.Auth
+    plug :assign_config
   end
 
   pipeline :asciicast do
@@ -19,6 +19,10 @@ defmodule AsciinemaWeb.Router do
     plug :accepts, ["html", "js", "json", "cast", "svg", "png", "gif"]
     plug :format_specific_plugs
     plug :put_secure_browser_headers
+  end
+
+  defp assign_config(conn, []) do
+    assign(conn, :cfg_sign_up_enabled?, Application.get_env(:asciinema, :sign_up_enabled?, true))
   end
 
   defp format_specific_plugs(conn, []) do
@@ -89,22 +93,6 @@ defmodule AsciinemaWeb.Router do
 
   scope "/api", AsciinemaWeb.Api, as: :api do
     post "/asciicasts", AsciicastController, :create
-  end
-
-  pipeline :exq do
-    plug :accepts, ["html"]
-    plug :fetch_session
-    plug :fetch_flash
-    plug :put_secure_browser_headers
-    plug AsciinemaWeb.Auth
-    plug :require_current_user
-    plug :require_admin
-    plug ExqUi.RouterPlug, namespace: "admin/exq"
-  end
-
-  scope "/admin/exq", ExqUi do
-    pipe_through :exq
-    forward "/", RouterPlug.Router, :index
   end
 end
 

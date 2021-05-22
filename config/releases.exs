@@ -16,8 +16,6 @@ config :asciinema, Asciinema.Accounts, secret: secret_key_base
 
 config :asciinema, Asciinema.Repo, pool_size: String.to_integer(env.("DB_POOL_SIZE") || "20")
 
-config :exq, url: env.("REDIS_URL") || "redis://localhost:6379"
-
 if env.("S3_BUCKET") do
   config :asciinema, :file_store, Asciinema.FileStore.Cached
 
@@ -53,5 +51,7 @@ if gc_days = env.("ASCIICAST_GC_DAYS") do
 end
 
 if String.downcase("#{env.("CRON")}") in ["0", "false", "no"] do
-  config :asciinema, Asciinema.Scheduler, jobs: []
+  config :asciinema, Oban, plugins: [{Oban.Plugins.Cron, crontab: []}]
 end
+
+config :asciinema, :sign_up_enabled?, env.("SIGN_UP_DISABLED") not in ["1", "true"]

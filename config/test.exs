@@ -29,12 +29,8 @@ config :asciinema, Asciinema.FileStore.Local, path: "uploads/test/"
 
 config :asciinema, :snapshot_updater, Asciinema.Asciicasts.SnapshotUpdater.Noop
 
-config :exq,
-  url:
-    System.get_env("TEST_REDIS_URL") ||
-      System.get_env("REDIS_URL") ||
-      "redis://localhost:6379/1"
-
-config :exq_ui, server: false
+config :asciinema, Oban, queues: false, plugins: false
 
 config :asciinema, Asciinema.Emails.Mailer, adapter: Bamboo.TestAdapter
+
+config :asciinema, Asciinema.Telemetry, enabled: false

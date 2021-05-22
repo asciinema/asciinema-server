@@ -1,6 +1,6 @@
-ARG ALPINE_VERSION=3.11.6
-ARG ERLANG_OTP_VERSION=22.3.4.3
-ARG ELIXIR_VERSION=1.10.4
+ARG ALPINE_VERSION=3.13.3
+ARG ERLANG_OTP_VERSION=23.3.2
+ARG ELIXIR_VERSION=1.11.4
 
 ## Release building image
 
@@ -28,6 +28,9 @@ COPY assets/ assets/
 RUN cd assets && \
   npm install && \
   npm run deploy
+
+COPY config/config.exs config/
+COPY config/prod.exs config/
 
 RUN mix phx.digest
 
@@ -62,7 +65,6 @@ COPY .iex.exs .
 
 ENV PORT 4000
 ENV DATABASE_URL "postgresql://postgres@postgres/postgres"
-ENV REDIS_URL "redis://redis:6379"
 ENV RSVG_FONT_FAMILY "Dejavu Sans Mono"
 ENV PATH "/opt/app/bin:${PATH}"
 
