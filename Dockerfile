@@ -43,6 +43,10 @@ COPY native native/
 RUN mix deps.compile sentry --force
 
 COPY rel rel/
+
+# temporary workaround to make rustler work with OTP 24
+ENV RUSTLER_NIF_VERSION 2.15
+
 RUN mix release
 
 # Final image
