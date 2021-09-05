@@ -1,6 +1,6 @@
 ARG ALPINE_VERSION=3.13.3
-ARG ERLANG_OTP_VERSION=23.3.2
-ARG ELIXIR_VERSION=1.11.4
+ARG ERLANG_OTP_VERSION=24.0
+ARG ELIXIR_VERSION=1.12.0
 
 ## Release building image
 
@@ -43,6 +43,10 @@ COPY native native/
 RUN mix deps.compile sentry --force
 
 COPY rel rel/
+
+# temporary workaround to make rustler work with OTP 24
+ENV RUSTLER_NIF_VERSION 2.15
+
 RUN mix release
 
 # Final image
@@ -50,6 +54,7 @@ RUN mix release
 FROM alpine:${ALPINE_VERSION}
 
 RUN apk add --no-cache \
+  libstdc++ \
   tini \
   bash \
   ca-certificates \
