@@ -4,8 +4,8 @@ You can share any recording by copying its URL and sending it to a friend or
 posting it on a social network. asciinema.org supports oEmbed/Open Graph/Twitter
 Card protocols, displaying a nice thumbnail where possible.
 
-You can also easily embedded an asciicast on any HTML page. If you want to put a
-recording in a blog post, project's documentation or in a conference talk
+You can also easily embed an asciicast on any HTML page. If you want to put a
+recording in a blog post, a project's documentation or in a conference talk's
 slides, you can do it by copy-pasting one of the embed scripts.
 
 ## Sharing a link
