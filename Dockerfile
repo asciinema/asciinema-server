@@ -54,6 +54,7 @@ RUN mix release
 FROM alpine:${ALPINE_VERSION}
 
 RUN apk add --no-cache \
+  libstdc++ \
   tini \
   bash \
   ca-certificates \
