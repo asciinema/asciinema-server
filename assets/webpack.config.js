@@ -16,6 +16,7 @@ module.exports = (env, options) => {
     },
     entry: {
       app: './js/app.js',
+      'app-player-v3': './js/app-player-v3.js',
       embed: './js/embed.js',
       iframe: './js/iframe.js'
     },

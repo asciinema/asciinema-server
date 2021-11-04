@@ -23,9 +23,9 @@
       </div>
 
       <div class="col-md-7">
-        <div class="player-wrapper">
+        <div class="player-wrapper" id="player">
           <%= if @asciicast do %>
-            <%= player @asciicast, speed: 2 %>
+            <%= player @asciicast, container_id: "player", speed: 2, player_v3: @conn.assigns[:player_v3] %>
           <% end %>
         </div>
       </div>
