@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title><%= page_title @conn %></title>
-    <link rel="stylesheet" href="<%= Routes.static_path(@conn, "/css/app.css") %>">
+    <link rel="stylesheet" href="<%= Routes.static_path(@conn, "/css/app#{@conn.assigns[:asset_suffix]}.css") %>">
     <link rel="shortcut icon" href="<%= Routes.static_path(@conn, "/images/favicon.png") %>">
     <%= render_existing @view_module, "meta." <> @view_template, assigns %>
   </head>
@@ -20,7 +20,10 @@
 
     <%= render "_footer.html", conn: @conn %>
 
-    <script src="<%= Routes.static_path(@conn, "/js/asciinema-player.js") %>"></script>
-    <script src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
+    <%= if !@conn.assigns[:player_v3] do %>
+      <script src="<%= Routes.static_path(@conn, "/js/asciinema-player.js") %>"></script>
+    <% end %>
+
+    <script src="<%= Routes.static_path(@conn, "/js/app#{@conn.assigns[:asset_suffix]}.js") %>"></script>
   </body>
 </html>

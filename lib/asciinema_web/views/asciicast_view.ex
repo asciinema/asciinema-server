@@ -9,10 +9,30 @@ defmodule AsciinemaWeb.AsciicastView do
   def player(src, opts \\ [])
 
   def player(src, opts) when is_binary(src) do
-    opts = Keyword.merge([id: "player", src: src, preload: true], opts)
-    opts = Ext.Keyword.rename(opts, t: :"start-at", size: :"font-size")
-    content_tag(:"asciinema-player", opts, do: [])
-  end
+    if Keyword.get(opts, :player_v3) do
+      container_id = Keyword.fetch!(opts, :container_id)
+
+      props =
+        [src: src, preload: true]
+        |> Keyword.merge(opts)
+        |> Enum.into(%{})
+        |> Map.drop([:container_id])
+
+      content_tag(:script) do
+        ~E"""
+          window.players ||= new Map();
+          window.players.set('<%= container_id %>', <%= {:safe, Jason.encode!(props)} %>);
+        """
+      end
+    else
+      opts =
+        [id: "player", src: src, preload: true]
+        |> Keyword.merge(opts)
+        |> Ext.Keyword.rename(t: :"start-at", size: :"font-size")
+
+      content_tag(:"asciinema-player", opts, do: [])
+    end
+ end
 
   def player(asciicast, opts) do
     opts =
@@ -21,7 +41,7 @@ defmodule AsciinemaWeb.AsciicastView do
           cols: asciicast.terminal_columns,
           rows: asciicast.terminal_lines,
           theme: theme_name(asciicast),
-          poster: base64_poster(asciicast),
+          poster: poster(asciicast, Keyword.get(opts, :player_v3)),
           title: title(asciicast),
           author: author_username(asciicast),
           "author-url": author_profile_url(asciicast),
@@ -87,6 +107,9 @@ defmodule AsciinemaWeb.AsciicastView do
     end
   end
 
+  defp poster(asciicast, true), do: text_poster(asciicast)
+  defp poster(asciicast, _), do: base64_poster(asciicast)
+
   defp base64_poster(asciicast) do
     encoded =
       asciicast
@@ -95,6 +118,65 @@ defmodule AsciinemaWeb.AsciicastView do
       |> Base.encode64()
 
     "data:application/json;base64," <> encoded
+  end
+
+  @csi_init "\x1b["
+  @sgr_reset "\x1b[0m"
+
+  defp text_poster(asciicast) do
+    text =
+      asciicast
+      |> Map.get(:snapshot)
+      |> Enum.map(&line_to_text/1)
+      |> Enum.join("\r\n")
+
+    "data:text/plain," <> text <> @csi_init <> "?25l"
+  end
+
+  defp line_to_text(segments) do
+    segments
+    |> Enum.map(&segment_to_text/1)
+    |> Enum.join("")
+    |> String.replace(~r/\e\[0m\s*$/, "\e[0m")
+  end
+
+  defp segment_to_text([text, attrs]) do
+    case sgr_params(Enum.to_list(attrs)) do
+      [] ->
+        text
+
+      params ->
+        @csi_init <> Enum.join(params, ";") <> "m" <> text <> @sgr_reset
+    end
+  end
+
+  defp sgr_params([{k, v} | rest]) do
+    param =
+      case {k, v} do
+        {"fg", c} when is_number(c) and c < 8 -> "3#{c}"
+        {"fg", c} when is_number(c) -> "38;5;#{c}"
+        {"fg", "rgb(" <> _} -> "38;2;#{parse_rgb(v)}"
+        {"bg", c} when is_number(c) and c < 8 -> "4#{c}"
+        {"bg", c} when is_number(c) -> "48;5;#{c}"
+        {"bg", "rgb(" <> _} -> "48;2;#{parse_rgb(v)}"
+        {"bold", true} -> "1"
+        {"italic", true} -> "3"
+        {"underline", true} -> "4"
+        {"blink", true} -> "5"
+        {"inverse", true} -> "7"
+        {"strikethrough", true} -> "9"
+      end
+
+    [param | sgr_params(rest)]
+  end
+
+  defp sgr_params([]), do: []
+
+  defp parse_rgb("rgb(" <> c) do
+    c
+    |> String.slice(0, String.length(c) - 1)
+    |> String.split(",")
+    |> Enum.join(";")
   end
 
   def description(asciicast) do
