@@ -13,7 +13,13 @@
 
       .player-wrapper {
         .asciinema-player {
-          box-shadow: 0 0 16px 5px rgba(255, 255, 255, 0.3);
+          box-shadow: 0 0 16px 5px rgba(255, 255, 255, 0.2);
+        }
+
+        .asciinema-player-wrapper:fullscreen {
+          .asciinema-player {
+            box-shadow: none;
+          }
         }
       }
 
