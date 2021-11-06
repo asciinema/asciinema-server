@@ -7,6 +7,7 @@ defmodule AsciinemaWeb.AsciicastController do
   plug :load_asciicast when action in [:show, :edit, :update, :delete, :example, :iframe, :embed]
   plug :require_current_user when action in [:edit, :update, :delete]
   plug :authorize, :asciicast when action in [:edit, :update, :delete]
+  plug :use_player_v3
 
   def index(conn, params) do
     category = params[:category]
@@ -53,6 +54,11 @@ defmodule AsciinemaWeb.AsciicastController do
       |> put_status(410)
       |> render("archived.html")
     else
+      playback_options =
+        conn.params
+        |> Asciicasts.PlaybackOpts.parse()
+        |> Keyword.put(:player_v3, conn.assigns[:player_v3])
+
       conn
       |> count_view(asciicast)
       |> put_archival_info_flash(asciicast)
@@ -60,7 +66,7 @@ defmodule AsciinemaWeb.AsciicastController do
         "show.html",
         page_title: AsciinemaWeb.AsciicastView.title(asciicast),
         asciicast: asciicast,
-        playback_options: Asciicasts.PlaybackOpts.parse(conn.params),
+        playback_options: playback_options,
         actions: asciicast_actions(asciicast, conn.assigns.current_user),
         author_asciicasts: Asciicasts.other_public_asciicasts(asciicast)
       )

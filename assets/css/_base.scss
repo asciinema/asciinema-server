@@ -90,7 +90,7 @@ body, main {
 section.cinema {
   color: #fff;
   background-color: #222;
-  padding: 25px 0;
+  padding: calc(min(4vh, 4vw)) 0;
 }
 
 section.odd, section.even {

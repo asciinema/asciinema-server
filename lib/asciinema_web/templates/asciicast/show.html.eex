@@ -1,6 +1,12 @@
-<section class="cinema">
-  <%= player @asciicast, @playback_options %>
-</section>
+<%= if @conn.assigns[:player_v3] do %>
+  <section class="cinema" id="cinema" style="height: <%= cinema_height(@asciicast) %>vw; max-height: 75vh">
+    <%= player @asciicast, Keyword.merge(@playback_options, container_id: "cinema", fit: "both") %>
+  </section>
+<% else %>
+  <section class="cinema">
+    <%= player @asciicast, @playback_options %>
+  </section>
+<% end %>
 
 <section class="even info">
   <div class="container">
