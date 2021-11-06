@@ -32,7 +32,7 @@ defmodule AsciinemaWeb.AsciicastView do
 
       content_tag(:"asciinema-player", opts, do: [])
     end
- end
+  end
 
   def player(asciicast, opts) do
     opts =
@@ -51,6 +51,18 @@ defmodule AsciinemaWeb.AsciicastView do
       )
 
     player(file_url(asciicast), opts)
+  end
+
+  @container_vertical_padding 2 * 4
+  @approx_char_width 7
+  @approx_char_height 16
+
+  def cinema_height(asciicast) do
+    ratio =
+      asciicast.terminal_lines * @approx_char_height /
+        (asciicast.terminal_columns * @approx_char_width)
+
+    round(@container_vertical_padding + 100 * ratio)
   end
 
   def embed_script(asciicast) do
