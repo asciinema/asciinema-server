@@ -30,13 +30,12 @@ However, as this is an open-source project maintained by a small team of volunte
 If you want to propose code change, either introducing a new feature or
 improving an existing one, please first discuss this with asciinema team. You
 can simply open a separate issue for a discussion or [join #asciinema IRC
-channel on
-freenode](https://kiwiirc.com/nextclient/irc.freenode.net/#asciinema).
+channel on Libera.Chat](https://web.libera.chat/gamja/#asciinema).
 
 ## Asking for help
 
 Github issue tracker is not a support forum. If you need help then either [join
-#asciinema IRC channel on freenode](https://kiwiirc.com/nextclient/irc.freenode.net/#asciinema) or 
+#asciinema IRC channel on Libera.Chat](https://web.libera.chat/gamja/#asciinema) or 
 ask a question on [asciinema community forum](https://discourse.asciinema.org/).
 
 ## Reporting security issues
