@@ -7,7 +7,7 @@ defmodule AsciinemaWeb.AsciicastController do
   plug :load_asciicast when action in [:show, :edit, :update, :delete, :example, :iframe, :embed]
   plug :require_current_user when action in [:edit, :update, :delete]
   plug :authorize, :asciicast when action in [:edit, :update, :delete]
-  plug :use_player_v3
+  plug :use_player_v3, [force: true] when action == :show
 
   def index(conn, params) do
     category = params[:category]
