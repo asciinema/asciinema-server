@@ -154,7 +154,12 @@ defmodule AsciinemaWeb.AsciicastView do
   end
 
   defp segment_to_text([text, attrs]) do
-    case sgr_params(Enum.to_list(attrs)) do
+    params =
+      attrs
+      |> Enum.reject(fn {_k, v} -> v == false end)
+      |> sgr_params()
+
+    case params do
       [] ->
         text
 
