@@ -15,7 +15,7 @@ defmodule AsciinemaWeb.AsciicastView do
       props =
         [src: src, preload: true]
         |> Keyword.merge(opts)
-        |> Ext.Keyword.rename(t: :"startAt")
+        |> Ext.Keyword.rename(t: :startAt)
         |> Enum.into(%{})
         |> Map.drop([:container_id, :player_v3])
 
