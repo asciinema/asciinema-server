@@ -120,6 +120,7 @@ defmodule AsciinemaWeb.AsciicastView do
       |> Map.get(:snapshot)
       |> Enum.map(&line_to_text/1)
       |> Enum.join("\r\n")
+      |> String.replace(~r/(\r\n\s+)+$/, "")
 
     "data:text/plain," <> text <> @csi_init <> "?25l"
   end
