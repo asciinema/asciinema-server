@@ -7,7 +7,6 @@ defmodule AsciinemaWeb.AsciicastController do
   plug :load_asciicast when action in [:show, :edit, :update, :delete, :example, :iframe, :embed]
   plug :require_current_user when action in [:edit, :update, :delete]
   plug :authorize, :asciicast when action in [:edit, :update, :delete]
-  plug :use_player_v3, [force: true] when action == :show
 
   def index(conn, params) do
     category = params[:category]
@@ -54,11 +53,6 @@ defmodule AsciinemaWeb.AsciicastController do
       |> put_status(410)
       |> render("archived.html")
     else
-      playback_options =
-        conn.params
-        |> Asciicasts.PlaybackOpts.parse()
-        |> Keyword.put(:player_v3, conn.assigns[:player_v3])
-
       conn
       |> count_view(asciicast)
       |> put_archival_info_flash(asciicast)
@@ -66,7 +60,7 @@ defmodule AsciinemaWeb.AsciicastController do
         "show.html",
         page_title: AsciinemaWeb.AsciicastView.title(asciicast),
         asciicast: asciicast,
-        playback_options: playback_options,
+        playback_options: Asciicasts.PlaybackOpts.parse(conn.params),
         actions: asciicast_actions(asciicast, conn.assigns.current_user),
         author_asciicasts: Asciicasts.other_public_asciicasts(asciicast)
       )
@@ -182,7 +176,9 @@ defmodule AsciinemaWeb.AsciicastController do
     end
   end
 
-  def iframe(conn, _params) do
+  def iframe(conn, params) do
+    opts = Asciicasts.PlaybackOpts.parse(params)
+
     conn =
       conn
       |> put_layout("iframe.html")
@@ -193,25 +189,7 @@ defmodule AsciinemaWeb.AsciicastController do
       |> put_status(410)
       |> render("archived.html")
     else
-      url = asciicast_file_url(conn, conn.assigns.asciicast)
-      render(conn, "iframe.html", file_url: url)
-    end
-  end
-
-  def embed(conn, params) do
-    opts = Asciicasts.PlaybackOpts.parse(params)
-
-    conn =
-      conn
-      |> put_layout("embed.html")
-      |> delete_resp_header("x-frame-options")
-
-    if conn.assigns.asciicast.archived_at do
-      conn
-      |> put_status(410)
-      |> render("archived.html")
-    else
-      render(conn, "embed.html", playback_options: opts)
+      render(conn, "iframe.html", playback_options: opts)
     end
   end
 

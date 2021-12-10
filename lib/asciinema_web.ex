@@ -34,16 +34,6 @@ defmodule AsciinemaWeb do
       defp clear_main_class(conn, _) do
         assign(conn, :main_class, "")
       end
-
-      def use_player_v3(conn, opts) do
-        if Keyword.get(opts, :force) || conn.params["v"] == "3" do
-          conn
-          |> assign(:player_v3, true)
-          |> assign(:asset_suffix, "-player-v3")
-        else
-          conn
-        end
-      end
     end
   end
 
