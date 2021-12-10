@@ -21,7 +21,7 @@ defmodule AsciinemaWeb.AsciicastView do
 
       content_tag(:script) do
         ~E"""
-          window.players ||= new Map();
+          window.players = window.players || new Map();
           window.players.set('<%= container_id %>', <%= {:safe, Jason.encode!(props)} %>);
         """
       end
