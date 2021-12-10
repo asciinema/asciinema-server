@@ -21,10 +21,10 @@ $(function() {
   console.debug(players);
 
   for (const [id, props] of players) {
-    create(props, document.getElementById(id));
+    create(props.src, document.getElementById(id), props);
   };
 });
 
-window.createPlayer = (props, elem) => {
-  create(props, elem);
+window.createPlayer = (src, elem, opts) => {
+  create(props.src, elem, opts);
 }
