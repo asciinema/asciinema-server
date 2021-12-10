@@ -9,29 +9,20 @@ defmodule AsciinemaWeb.AsciicastView do
   def player(src, opts \\ [])
 
   def player(src, opts) when is_binary(src) do
-    if Keyword.get(opts, :player_v3) do
-      container_id = Keyword.fetch!(opts, :container_id)
+    container_id = Keyword.fetch!(opts, :container_id)
 
-      props =
-        [src: src, preload: true]
-        |> Keyword.merge(opts)
-        |> Ext.Keyword.rename(t: :startAt)
-        |> Enum.into(%{})
-        |> Map.drop([:container_id, :player_v3])
+    props =
+      [src: src, preload: true]
+      |> Keyword.merge(opts)
+      |> Ext.Keyword.rename(t: :startAt)
+      |> Enum.into(%{})
+      |> Map.drop([:container_id])
 
-      content_tag(:script) do
-        ~E"""
-          window.players = window.players || new Map();
-          window.players.set('<%= container_id %>', <%= {:safe, Jason.encode!(props)} %>);
-        """
-      end
-    else
-      opts =
-        [id: "player", src: src, preload: true]
-        |> Keyword.merge(opts)
-        |> Ext.Keyword.rename(t: :"start-at", size: :"font-size")
-
-      content_tag(:"asciinema-player", opts, do: [])
+    content_tag(:script) do
+      ~E"""
+        window.players = window.players || new Map();
+        window.players.set('<%= container_id %>', <%= {:safe, Jason.encode!(props)} %>);
+      """
     end
   end
 
@@ -42,7 +33,7 @@ defmodule AsciinemaWeb.AsciicastView do
           cols: asciicast.terminal_columns,
           rows: asciicast.terminal_lines,
           theme: theme_name(asciicast),
-          poster: poster(asciicast, Keyword.get(opts, :player_v3)),
+          poster: poster(asciicast),
           title: title(asciicast),
           author: author_username(asciicast),
           "author-url": author_profile_url(asciicast),
@@ -120,23 +111,10 @@ defmodule AsciinemaWeb.AsciicastView do
     end
   end
 
-  defp poster(asciicast, true), do: text_poster(asciicast)
-  defp poster(asciicast, _), do: base64_poster(asciicast)
-
-  defp base64_poster(asciicast) do
-    encoded =
-      asciicast
-      |> Map.get(:snapshot)
-      |> Jason.encode!(escape: :unicode_safe)
-      |> Base.encode64()
-
-    "data:application/json;base64," <> encoded
-  end
-
   @csi_init "\x1b["
   @sgr_reset "\x1b[0m"
 
-  defp text_poster(asciicast) do
+  defp poster(asciicast) do
     text =
       asciicast
       |> Map.get(:snapshot)

@@ -19,7 +19,7 @@ $primary: #06989a;
 @import "./_user_login.scss";
 @import "./_user_edit.scss";
 @import "./powerline-symbols.css";
-@import "./asciinema-player.css";
+@import "~asciinema-player/dist/bundle/asciinema-player.css";
 
 .c-page {
   .bitcoin-logo {

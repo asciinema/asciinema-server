@@ -51,7 +51,7 @@
     insertAfter(script, container);
 
     var iframe = document.createElement('iframe');
-    iframe.src = apiHost + "/a/" + asciicastId + '/embed' + params(container, script);
+    iframe.src = apiHost + "/a/" + asciicastId + '/iframe' + params(container, script);
     iframe.id = "asciicast-iframe-" + asciicastId;
     iframe.name = "asciicast-iframe-" + asciicastId;
     iframe.scrolling = "no";
@@ -68,15 +68,11 @@
     container.appendChild(iframe);
 
     function receiveSize(e) {
-      if (e.origin === apiHost) {
-        var name = e.data[0];
-        var data  = e.data[1];
-        var iframeWindow = iframe.contentWindow || iframe;
+      var name = e.data[0];
+      var data = e.data[1];
 
-        if (e.source == iframeWindow && name == 'asciicast:size') {
-          iframe.style.width  = '' + data.width + 'px';
-          iframe.style.height = '' + data.height + 'px';
-        }
+      if (e.origin === apiHost && e.source === iframe.contentWindow && name === 'resize') {
+        iframe.style.height = '' + data.height + 'px';
       }
     }
 
