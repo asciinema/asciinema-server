@@ -20,7 +20,7 @@ defmodule Asciinema.Accounts.User do
     field :last_login_at, :utc_datetime_usec
     field :is_admin, :boolean
 
-    timestamps(inserted_at: :created_at)
+    timestamps()
 
     has_many :asciicasts, Asciinema.Asciicasts.Asciicast
     has_many :api_tokens, Asciinema.Accounts.ApiToken

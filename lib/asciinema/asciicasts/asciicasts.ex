@@ -174,8 +174,8 @@ defmodule Asciinema.Asciicasts do
 
     header = %{
       version: 2,
-      width: attrs[:terminal_columns],
-      height: attrs[:terminal_lines],
+      width: attrs[:cols],
+      height: attrs[:rows],
       title: attrs[:title],
       command: attrs[:command],
       env: %{"SHELL" => attrs[:shell], "TERM" => attrs[:terminal_type]}
@@ -212,8 +212,8 @@ defmodule Asciinema.Asciicasts do
   defp extract_metadata(%{"version" => 0} = attrs) do
     attrs = %{
       version: 0,
-      terminal_columns: get_in(attrs, ["term", "columns"]),
-      terminal_lines: get_in(attrs, ["term", "lines"]),
+      cols: get_in(attrs, ["term", "columns"]),
+      rows: get_in(attrs, ["term", "lines"]),
       terminal_type: get_in(attrs, ["term", "type"]),
       command: attrs["command"],
       duration: attrs["duration"],
@@ -237,8 +237,8 @@ defmodule Asciinema.Asciicasts do
          {:ok, %{"version" => 1} = attrs} <- decode_json(json) do
       metadata = %{
         version: 1,
-        terminal_columns: attrs["width"],
-        terminal_lines: attrs["height"],
+        cols: attrs["width"],
+        rows: attrs["height"],
         terminal_type: get_in(attrs, ["env", "TERM"]),
         command: attrs["command"],
         duration: attrs["duration"],
@@ -262,8 +262,8 @@ defmodule Asciinema.Asciicasts do
          {:ok, %{"version" => 2} = header} <- decode_json(line) do
       metadata = %{
         version: 2,
-        terminal_columns: header["width"],
-        terminal_lines: header["height"],
+        cols: header["width"],
+        rows: header["height"],
         terminal_type: get_in(header, ["env", "TERM"]),
         command: header["command"],
         duration: get_v2_duration(path),
@@ -471,10 +471,24 @@ defmodule Asciinema.Asciicasts do
     changeset = Asciicast.update_changeset(asciicast, attrs)
 
     with {:ok, asciicast} <- Repo.update(changeset) do
-      case Changeset.get_change(changeset, :snapshot_at, :not_changed) do
-        :not_changed -> {:ok, asciicast}
-        _ -> update_snapshot(asciicast)
+      if stale_snapshot?(changeset) do
+        update_snapshot(asciicast)
+      else
+        {:ok, asciicast}
       end
+    end
+  end
+
+  defp stale_snapshot?(changeset) do
+    changed?(changeset, :snapshot_at) ||
+      changed?(changeset, :cols_override) ||
+      changed?(changeset, :rows_override)
+  end
+
+  defp changed?(changeset, field) do
+    case Changeset.get_change(changeset, field, :none) do
+      :none -> false
+      _ -> true
     end
   end
 
@@ -486,9 +500,11 @@ defmodule Asciinema.Asciicasts do
     end
   end
 
-  def update_snapshot(%Asciicast{terminal_columns: w, terminal_lines: h} = asciicast) do
+  def update_snapshot(%Asciicast{} = asciicast) do
+    cols = asciicast.cols_override || asciicast.cols
+    rows = asciicast.rows_override || asciicast.rows
     secs = Asciicast.snapshot_at(asciicast)
-    snapshot = asciicast |> stdout_stream |> generate_snapshot(w, h, secs)
+    snapshot = asciicast |> stdout_stream |> generate_snapshot(cols, rows, secs)
     asciicast |> Asciicast.snapshot_changeset(snapshot) |> Repo.update()
   end
 
@@ -622,9 +638,9 @@ defmodule Asciinema.Asciicasts do
 
   defp v2_header(asciicast) do
     header = %{
-      width: asciicast.terminal_columns,
-      height: asciicast.terminal_lines,
-      timestamp: asciicast.created_at |> Timex.to_unix(),
+      width: asciicast.cols,
+      height: asciicast.rows,
+      timestamp: asciicast.inserted_at |> Timex.to_unix(),
       duration: asciicast.duration,
       title: asciicast.title,
       command: asciicast.command,
@@ -659,7 +675,7 @@ defmodule Asciinema.Asciicasts do
       from a in Asciicast,
         join: u in ^users_query,
         on: a.user_id == u.id,
-        where: a.archivable and is_nil(a.archived_at) and a.created_at < ^dt
+        where: a.archivable and is_nil(a.archived_at) and a.inserted_at < ^dt
 
     {count, _} = Repo.update_all(query, set: [archived_at: Timex.now()])
     count

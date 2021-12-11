@@ -24,8 +24,8 @@ defmodule Asciinema.Factory do
       stdout_data: "stdout",
       stdout_timing: "stdout.time",
       duration: 123.45,
-      terminal_columns: 80,
-      terminal_lines: 24,
+      cols: 80,
+      rows: 24,
       secret_token: sequence(:secret_token, &"sekrit-#{&1}"),
       snapshot: [[["foo", %{}]], [["bar", %{}]]]
     }
@@ -37,8 +37,8 @@ defmodule Asciinema.Factory do
       version: 1,
       path: sequence(:path, &"asciicasts/01/01/#{&1}.json"),
       duration: 123.45,
-      terminal_columns: 80,
-      terminal_lines: 24,
+      cols: 80,
+      rows: 24,
       secret_token: sequence(:secret_token, &"sekrit-#{&1}"),
       snapshot: [[["foo", %{}]], [["bar", %{}]]]
     }
@@ -50,8 +50,8 @@ defmodule Asciinema.Factory do
       version: 2,
       path: sequence(:path, &"asciicasts/01/01/#{&1}.cast"),
       duration: 123.45,
-      terminal_columns: 80,
-      terminal_lines: 24,
+      cols: 80,
+      rows: 24,
       secret_token: sequence(:secret_token, &"sekrit-#{&1}"),
       snapshot: [[["foo", %{}]], [["bar", %{}]]]
     }

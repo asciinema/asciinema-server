@@ -12,8 +12,10 @@ defmodule Asciinema.Asciicasts.Asciicast do
     field :version, :integer
     field :filename, :string
     field :path, :string
-    field :terminal_columns, :integer
-    field :terminal_lines, :integer
+    field :cols, :integer
+    field :cols_override, :integer
+    field :rows, :integer
+    field :rows_override, :integer
     field :terminal_type, :string
     field :private, :boolean
     field :featured, :boolean
@@ -37,7 +39,7 @@ defmodule Asciinema.Asciicasts.Asciicast do
     field :archivable, :boolean, default: true
     field :archived_at, :utc_datetime_usec
 
-    timestamps(inserted_at: :created_at)
+    timestamps()
 
     belongs_to :user, User
 
@@ -68,8 +70,8 @@ defmodule Asciinema.Asciicasts.Asciicast do
     |> cast(attrs, [
       :version,
       :duration,
-      :terminal_columns,
-      :terminal_lines,
+      :cols,
+      :rows,
       :terminal_type,
       :command,
       :shell,
@@ -82,14 +84,18 @@ defmodule Asciinema.Asciicasts.Asciicast do
       :idle_time_limit,
       :snapshot
     ])
-    |> validate_required([:user_id, :version, :duration, :terminal_columns, :terminal_lines])
+    |> validate_required([:user_id, :version, :duration, :cols, :rows])
     |> generate_secret_token
   end
 
   def update_changeset(struct, attrs) do
     struct
     |> changeset(attrs)
-    |> cast(attrs, [:description, :theme_name])
+    |> cast(attrs, [:description, :cols_override, :rows_override, :theme_name, :idle_time_limit])
+    |> validate_number(:cols_override, greater_than: 0, less_than: 1024)
+    |> validate_number(:rows_override, greater_than: 0, less_than: 512)
+    |> validate_number(:idle_time_limit, greater_than_or_equal_to: 0.5)
+    |> validate_number(:snapshot_at, greater_than: 0)
   end
 
   def snapshot_changeset(struct, snapshot) do

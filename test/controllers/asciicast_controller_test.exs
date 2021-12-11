@@ -51,7 +51,7 @@ defmodule Asciinema.AsciicastControllerTest do
 
     test "asciicast file, v1 format", %{conn: conn} do
       asciicast = fixture(:asciicast_v1)
-      width = asciicast.terminal_columns
+      width = asciicast.cols
       conn = get(conn, asciicast_file_path(conn, asciicast))
       assert %{"version" => 1, "width" => ^width, "stdout" => [_ | _]} = json_response(conn, 200)
     end

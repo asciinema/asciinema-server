@@ -30,10 +30,11 @@ defmodule AsciinemaWeb.AsciicastView do
     opts =
       Keyword.merge(
         [
-          cols: asciicast.terminal_columns,
-          rows: asciicast.terminal_lines,
+          cols: cols(asciicast),
+          rows: rows(asciicast),
           theme: theme_name(asciicast),
           poster: poster(asciicast.snapshot),
+          idleTimeLimit: asciicast.idle_time_limit,
           title: title(asciicast),
           author: author_username(asciicast),
           "author-url": author_profile_url(asciicast),
@@ -51,8 +52,8 @@ defmodule AsciinemaWeb.AsciicastView do
 
   def cinema_height(asciicast) do
     ratio =
-      asciicast.terminal_lines * @approx_char_height /
-        (asciicast.terminal_columns * @approx_char_width)
+      rows(asciicast) * @approx_char_height /
+        (cols(asciicast) * @approx_char_width)
 
     round(@container_vertical_padding + 100 * ratio)
   end
@@ -463,9 +464,6 @@ defmodule AsciinemaWeb.AsciicastView do
   end
 
   def render("show.svg", %{asciicast: asciicast} = params) do
-    cols = asciicast.terminal_columns
-    rows = asciicast.terminal_lines
-
     lines = adjust_colors(asciicast.snapshot || [])
 
     bg_lines = add_coords(lines)
@@ -478,8 +476,8 @@ defmodule AsciinemaWeb.AsciicastView do
 
     render(
       "_terminal.svg",
-      cols: cols,
-      rows: rows,
+      cols: cols(asciicast),
+      rows: rows(asciicast),
       bg_lines: bg_lines,
       text_lines: text_lines,
       rx: params[:rx],
@@ -560,4 +558,8 @@ defmodule AsciinemaWeb.AsciicastView do
   def asciicast_gc_days do
     Asciinema.Asciicasts.gc_days()
   end
+
+  defp cols(asciicast), do: asciicast.cols_override || asciicast.cols
+
+  defp rows(asciicast), do: asciicast.rows_override || asciicast.rows
 end
