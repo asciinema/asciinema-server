@@ -126,9 +126,9 @@ combined with `autoplay` option. Accepted values:
 The `speed` option alters the playback speed. The default speed is 1 which
 means it plays at the unaltered, original speed.
 
-### **i** / **idleTimeLimit**
+### **idleTimeLimit** / **i**
 
-The `i` (or `idleTimeLimit`) option allows reducing terminal inactivity periods
+The `idleTimeLimit` (or `i`) option allows reducing terminal inactivity periods
 to a given number of seconds.
 
 For example, when set to 2 any inactivity longer than 2 seconds will be
