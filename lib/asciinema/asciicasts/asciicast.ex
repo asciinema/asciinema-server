@@ -13,7 +13,9 @@ defmodule Asciinema.Asciicasts.Asciicast do
     field :filename, :string
     field :path, :string
     field :cols, :integer
+    field :cols_override, :integer
     field :rows, :integer
+    field :rows_override, :integer
     field :terminal_type, :string
     field :private, :boolean
     field :featured, :boolean
@@ -89,7 +91,9 @@ defmodule Asciinema.Asciicasts.Asciicast do
   def update_changeset(struct, attrs) do
     struct
     |> changeset(attrs)
-    |> cast(attrs, [:description, :theme_name, :idle_time_limit])
+    |> cast(attrs, [:description, :cols_override, :rows_override, :theme_name, :idle_time_limit])
+    |> validate_number(:cols_override, greater_than: 0, less_than: 1024)
+    |> validate_number(:rows_override, greater_than: 0, less_than: 512)
     |> validate_number(:idle_time_limit, greater_than_or_equal_to: 0.5)
     |> validate_number(:snapshot_at, greater_than: 0)
   end

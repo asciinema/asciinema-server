@@ -445,10 +445,24 @@ defmodule Asciinema.Asciicasts do
     changeset = Asciicast.update_changeset(asciicast, attrs)
 
     with {:ok, asciicast} <- Repo.update(changeset) do
-      case Changeset.get_change(changeset, :snapshot_at, :not_changed) do
-        :not_changed -> {:ok, asciicast}
-        _ -> update_snapshot(asciicast)
+      if stale_snapshot?(changeset) do
+        update_snapshot(asciicast)
+      else
+        {:ok, asciicast}
       end
+    end
+  end
+
+  defp stale_snapshot?(changeset) do
+    changed?(changeset, :snapshot_at) ||
+      changed?(changeset, :cols_override) ||
+      changed?(changeset, :rows_override)
+  end
+
+  defp changed?(changeset, field) do
+    case Changeset.get_change(changeset, field, :none) do
+      :none -> false
+      _ -> true
     end
   end
 
@@ -460,7 +474,9 @@ defmodule Asciinema.Asciicasts do
     end
   end
 
-  def update_snapshot(%Asciicast{cols: cols, rows: rows} = asciicast) do
+  def update_snapshot(%Asciicast{} = asciicast) do
+    cols = asciicast.cols_override || asciicast.cols
+    rows = asciicast.rows_override || asciicast.rows
     secs = Asciicast.snapshot_at(asciicast)
     snapshot = asciicast |> stdout_stream |> generate_snapshot(cols, rows, secs)
     asciicast |> Asciicast.snapshot_changeset(snapshot) |> Repo.update()

@@ -18,13 +18,16 @@ defmodule AsciinemaWeb.OembedView do
   @scale 2
 
   defp attrs(asciicast, max_width, max_height) do
+    cols = asciicast.cols_override || asciicast.cols
+    rows = asciicast.rows_override || asciicast.rows
+
     image_width =
-      (@scale * (@cell_width * asciicast.cols + @border_width))
+      (@scale * (@cell_width * cols + @border_width))
       |> Float.floor()
       |> round()
 
     image_height =
-      (@scale * (@cell_height * asciicast.rows + @border_width))
+      (@scale * (@cell_height * rows + @border_width))
       |> round()
 
     {width, height} =
