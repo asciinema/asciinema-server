@@ -13,7 +13,7 @@
       }
     }
 
-    var options = ['size', 'speed', 'autoplay', 'loop', 'theme', 't', 'preload', 'cols', 'rows'];
+    var options = ['size', 'speed', 'autoplay', 'loop', 'theme', 't', 'preload', 'cols', 'rows', 'i', 'idleTimeLimit'];
 
     return '?' + options.map(format).filter(Boolean).join('&');
   }

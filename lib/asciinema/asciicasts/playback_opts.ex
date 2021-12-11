@@ -66,6 +66,7 @@ defmodule Asciinema.Asciicasts.PlaybackOpts do
     field :size, :string
     field :speed, :float
     field :t, Time
+    field :idleTimeLimit, :float
     field :theme, :string
   end
 
@@ -75,6 +76,7 @@ defmodule Asciinema.Asciicasts.PlaybackOpts do
       |> cast(attrs, __MODULE__.__schema__(:fields))
       |> validate_number(:speed, greater_than: 0.0)
       |> validate_number(:t, greater_than: 0)
+      |> validate_number(:idleTimeLimit, greater_than_or_equal_to: 0.5)
       |> validate_number(:cols, greater_than: 0)
       |> validate_number(:rows, greater_than: 0)
 

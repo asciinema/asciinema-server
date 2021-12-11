@@ -89,7 +89,9 @@ defmodule Asciinema.Asciicasts.Asciicast do
   def update_changeset(struct, attrs) do
     struct
     |> changeset(attrs)
-    |> cast(attrs, [:description, :theme_name])
+    |> cast(attrs, [:description, :theme_name, :idle_time_limit])
+    |> validate_number(:idle_time_limit, greater_than_or_equal_to: 0.5)
+    |> validate_number(:snapshot_at, greater_than: 0)
   end
 
   def snapshot_changeset(struct, snapshot) do

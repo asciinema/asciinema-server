@@ -37,6 +37,15 @@
         </div>
 
         <div class="form-group row">
+          <%= label f, :idle_time_limit, "Idle time limit", class: "col-sm-4 col-md-3 col-lg-3 col-form-label" %>
+          <div class="col-sm-8 col-md-9 col-lg-9">
+            <%= text_input f, :idle_time_limit, class: "form-control", type: "number", min: 0.5, step: "0.5" %>
+            <%= error_tag f, :idle_time_limit %>
+            <small class="form-text text-muted">Limit terminal inactivity to a given number of seconds. Leave blank for no limit.</small>
+          </div>
+        </div>
+
+        <div class="form-group row">
           <div class="offset-sm-4 col-sm-8 offset-md-3 col-md-9 offset-lg-3 col-lg-9">
             <%= submit "Save", class: "btn btn-primary" %>
             <%= link "Cancel", to: Routes.asciicast_path(@conn, :show, @changeset.data), class: "btn" %>

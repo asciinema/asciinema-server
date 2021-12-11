@@ -126,6 +126,21 @@ combined with `autoplay` option. Accepted values:
 The `speed` option alters the playback speed. The default speed is 1 which
 means it plays at the unaltered, original speed.
 
+### i / idleTimeLimit
+
+The `i` (or `idleTimeLimit`) option allows reducing terminal inactivity periods
+to a given number of seconds.
+
+For example, when set to 2 any inactivity longer than 2 seconds will be
+"compressed" to 2 seconds.
+
+When not specified it defaults to (first non-blank):
+
+- the "Idle time limit" value set on asciicast's settings page,
+- `idle_time_limit` value from asciicast header (saved when passing `-i <sec>`
+  to `asciinema rec`),
+- no limit, when it was not specified at the time of recording.
+
 ### size
 
 The `size` option alters the size of the terminal font. There are 3 available

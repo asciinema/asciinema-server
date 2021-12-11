@@ -34,6 +34,7 @@ defmodule AsciinemaWeb.AsciicastView do
           rows: asciicast.terminal_lines,
           theme: theme_name(asciicast),
           poster: poster(asciicast.snapshot),
+          idleTimeLimit: asciicast.idle_time_limit,
           title: title(asciicast),
           author: author_username(asciicast),
           "author-url": author_profile_url(asciicast),
