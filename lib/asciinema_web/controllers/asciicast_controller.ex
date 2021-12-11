@@ -276,7 +276,7 @@ defmodule AsciinemaWeb.AsciicastController do
 
   defp playback_options(params) do
     params
-    |> Ext.Map.rename(%{"i" => "idleTimeLimit"})
+    |> Ext.Map.rename(%{"t" => "startAt", "i" => "idleTimeLimit"})
     |> Asciicasts.PlaybackOpts.parse()
   end
 end

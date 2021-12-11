@@ -84,16 +84,16 @@ The player supports several options that control the behavior and look of it.
 Append them to the URL (`?speed=2&theme=tango`) or set them as data attributes
 on embed script (`data-speed="2" data-theme="tango"`).
 
-### **t**
+### **startAt** / **t**
 
-The `t` option specifies the time at which the playback should start. The
-default is `t=0` (play from the beginning).
+The `startAt` (or `t`) option specifies the time at which the playback should
+start. The default is `startAt=0` (play from the beginning).
 
 Accepted formats: `ss`, `mm:ss`, `hh:mm:ss`.
 
-NOTE: when `t` is specified then `autoplay=1` is implied. To prevent the player
-from starting automatically when `t` option is set you have to explicitly set
-`autoplay=0`.
+NOTE: when `startAt` is specified then `autoplay=1` is implied. To prevent the
+player from starting automatically when `startAt` option is set you have to
+explicitly set `autoplay=0`.
 
 ### **autoplay**
 
