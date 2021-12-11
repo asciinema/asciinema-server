@@ -33,7 +33,7 @@ defmodule AsciinemaWeb.AsciicastView do
           cols: asciicast.terminal_columns,
           rows: asciicast.terminal_lines,
           theme: theme_name(asciicast),
-          poster: poster(asciicast),
+          poster: poster(asciicast.snapshot),
           title: title(asciicast),
           author: author_username(asciicast),
           "author-url": author_profile_url(asciicast),
@@ -114,10 +114,11 @@ defmodule AsciinemaWeb.AsciicastView do
   @csi_init "\x1b["
   @sgr_reset "\x1b[0m"
 
-  defp poster(asciicast) do
+  defp poster(nil), do: nil
+
+  defp poster(snapshot) do
     text =
-      asciicast
-      |> Map.get(:snapshot)
+      snapshot
       |> Enum.map(&line_to_text/1)
       |> Enum.join("\r\n")
       |> String.replace(~r/(\r\n\s+)+$/, "")
