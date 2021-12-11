@@ -32,6 +32,6 @@
       <% end %>
     </span>
 
-    <small>by <%= link author_username(@asciicast), to: author_profile_path(@asciicast) %> <%= if !assigns[:no_created_at] do %><%= time_ago_tag @asciicast.created_at %><% end %></small>
+    <small>by <%= link author_username(@asciicast), to: author_profile_path(@asciicast) %> <%= if !assigns[:no_created_at] do %><%= time_ago_tag @asciicast.inserted_at %><% end %></small>
   </div>
 </div>

@@ -18,7 +18,7 @@
 
         <small>
           by <%= link author_username(@asciicast), to: author_profile_path(@asciicast) %>
-          <%= time_ago_tag @asciicast.created_at %>
+          <%= time_ago_tag @asciicast.inserted_at %>
 
           <%= if @asciicast.private do %>
             <%= render "_private_badge.html" %>

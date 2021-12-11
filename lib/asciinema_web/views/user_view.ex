@@ -20,7 +20,7 @@ defmodule AsciinemaWeb.UserView do
   end
 
   def joined_at(user) do
-    Timex.format!(user.created_at, "{Mfull} {D}, {YYYY}")
+    Timex.format!(user.inserted_at, "{Mfull} {D}, {YYYY}")
   end
 
   def theme_name(user) do
@@ -40,12 +40,12 @@ defmodule AsciinemaWeb.UserView do
   def active_tokens(api_tokens) do
     api_tokens
     |> Enum.reject(& &1.revoked_at)
-    |> Enum.sort_by(&(-Timex.to_unix(&1.created_at)))
+    |> Enum.sort_by(&(-Timex.to_unix(&1.inserted_at)))
   end
 
   def revoked_tokens(api_tokens) do
     api_tokens
     |> Enum.filter(& &1.revoked_at)
-    |> Enum.sort_by(&(-Timex.to_unix(&1.created_at)))
+    |> Enum.sort_by(&(-Timex.to_unix(&1.inserted_at)))
   end
 end

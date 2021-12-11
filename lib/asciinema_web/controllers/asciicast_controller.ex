@@ -264,7 +264,7 @@ defmodule AsciinemaWeb.AsciicastController do
          days when not is_nil(days) <- Asciicasts.gc_days(),
          %{} = user <- asciicast.user,
          true <- Accounts.temporary_user?(user),
-         true <- Timex.before?(asciicast.created_at, Timex.shift(Timex.now(), days: -days)) do
+         true <- Timex.before?(asciicast.inserted_at, Timex.shift(Timex.now(), days: -days)) do
       put_flash(
         conn,
         :error,

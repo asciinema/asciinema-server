@@ -9,7 +9,7 @@ defmodule Asciinema.Accounts.ApiToken do
     field :token, :string
     field :revoked_at, :utc_datetime_usec
 
-    timestamps(inserted_at: :created_at)
+    timestamps()
 
     belongs_to :user, User
   end

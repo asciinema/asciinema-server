@@ -37,7 +37,7 @@ defmodule Asciinema.Asciicasts.Asciicast do
     field :archivable, :boolean, default: true
     field :archived_at, :utc_datetime_usec
 
-    timestamps(inserted_at: :created_at)
+    timestamps()
 
     belongs_to :user, User
 
