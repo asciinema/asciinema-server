@@ -11,10 +11,10 @@ If you're looking for general help this is probably the best way to go.
 
 ## IRC
 
-Many of us hang out on freenode’s __#asciinema__ channel. Join us there!
+Many of us hang out on __#asciinema__ channel on Libera.Chat. Join us there!
 
 If you don’t have IRC client at hand you can [enter #asciinema channel with
-KiwiIRC web client](https://kiwiirc.com/nextclient/irc.freenode.net/#asciinema)
+Libera.Chat web client](https://web.libera.chat/gamja/#asciinema)
 (no registration required, just pick your nickname).
 
 If you’d like to talk to someone in real-time, or just want to hang out with us
