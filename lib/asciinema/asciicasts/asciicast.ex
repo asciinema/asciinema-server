@@ -12,8 +12,8 @@ defmodule Asciinema.Asciicasts.Asciicast do
     field :version, :integer
     field :filename, :string
     field :path, :string
-    field :terminal_columns, :integer
-    field :terminal_lines, :integer
+    field :cols, :integer
+    field :rows, :integer
     field :terminal_type, :string
     field :private, :boolean
     field :featured, :boolean
@@ -68,8 +68,8 @@ defmodule Asciinema.Asciicasts.Asciicast do
     |> cast(attrs, [
       :version,
       :duration,
-      :terminal_columns,
-      :terminal_lines,
+      :cols,
+      :rows,
       :terminal_type,
       :command,
       :shell,
@@ -82,7 +82,7 @@ defmodule Asciinema.Asciicasts.Asciicast do
       :idle_time_limit,
       :snapshot
     ])
-    |> validate_required([:user_id, :version, :duration, :terminal_columns, :terminal_lines])
+    |> validate_required([:user_id, :version, :duration, :cols, :rows])
     |> generate_secret_token
   end
 

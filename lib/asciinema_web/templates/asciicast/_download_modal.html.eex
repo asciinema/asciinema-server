@@ -45,7 +45,7 @@
   &lt;link rel="stylesheet" type="text/css" href="/asciinema-player.css" />
 &lt;/head>
 &lt;body>
-  &lt;asciinema-player src="/<%= download_filename(@asciicast) %>" cols="<%= @asciicast.terminal_columns %>" rows="<%= @asciicast.terminal_lines %>">&lt;/asciinema-player>
+  &lt;asciinema-player src="/<%= download_filename(@asciicast) %>" cols="<%= @asciicast.cols %>" rows="<%= @asciicast.rows %>">&lt;/asciinema-player>
   ...
   &lt;script src="/asciinema-player.js">&lt;/script>
 &lt;/body>

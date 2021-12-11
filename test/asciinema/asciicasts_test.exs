@@ -32,8 +32,8 @@ defmodule Asciinema.AsciicastsTest do
                duration: 3.7037009999999997,
                shell: "/bin/zsh",
                terminal_type: "screen-256color",
-               terminal_columns: 96,
-               terminal_lines: 26,
+               cols: 96,
+               rows: 26,
                title: "bashing :)",
                uname: "Linux 3.9.9-302.fc19.x86_64 #1 SMP Sat Jul 6 13:41:07 UTC 2013 x86_64",
                user_agent: nil
@@ -68,8 +68,8 @@ defmodule Asciinema.AsciicastsTest do
                duration: 3.7037009999999997,
                shell: "/bin/zsh",
                terminal_type: "screen-256color",
-               terminal_columns: 96,
-               terminal_lines: 26,
+               cols: 96,
+               rows: 26,
                title: "bashing :)",
                uname: nil,
                user_agent: "a/user/agent"
@@ -118,8 +118,8 @@ defmodule Asciinema.AsciicastsTest do
                duration: 11.146430015564,
                shell: "/bin/zsh",
                terminal_type: "screen-256color",
-               terminal_columns: 96,
-               terminal_lines: 26,
+               cols: 96,
+               rows: 26,
                title: "bashing :)",
                uname: nil,
                user_agent: "a/user/agent"
@@ -150,8 +150,8 @@ defmodule Asciinema.AsciicastsTest do
 
       assert %Asciicast{
                version: 2,
-               terminal_columns: 96,
-               terminal_lines: 26,
+               cols: 96,
+               rows: 26,
                duration: 8.456789,
                command: nil,
                recorded_at: nil,
@@ -177,8 +177,8 @@ defmodule Asciinema.AsciicastsTest do
 
       assert %Asciicast{
                version: 2,
-               terminal_columns: 96,
-               terminal_lines: 26,
+               cols: 96,
+               rows: 26,
                duration: 6.234567,
                command: "/bin/bash -l",
                shell: "/bin/zsh",

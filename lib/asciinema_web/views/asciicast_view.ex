@@ -30,8 +30,8 @@ defmodule AsciinemaWeb.AsciicastView do
     opts =
       Keyword.merge(
         [
-          cols: asciicast.terminal_columns,
-          rows: asciicast.terminal_lines,
+          cols: asciicast.cols,
+          rows: asciicast.rows,
           theme: theme_name(asciicast),
           poster: poster(asciicast.snapshot),
           idleTimeLimit: asciicast.idle_time_limit,
@@ -52,8 +52,8 @@ defmodule AsciinemaWeb.AsciicastView do
 
   def cinema_height(asciicast) do
     ratio =
-      asciicast.terminal_lines * @approx_char_height /
-        (asciicast.terminal_columns * @approx_char_width)
+      asciicast.rows * @approx_char_height /
+        (asciicast.cols * @approx_char_width)
 
     round(@container_vertical_padding + 100 * ratio)
   end
@@ -464,8 +464,8 @@ defmodule AsciinemaWeb.AsciicastView do
   end
 
   def render("show.svg", %{asciicast: asciicast} = params) do
-    cols = asciicast.terminal_columns
-    rows = asciicast.terminal_lines
+    cols = asciicast.cols
+    rows = asciicast.rows
 
     lines = adjust_colors(asciicast.snapshot || [])
 

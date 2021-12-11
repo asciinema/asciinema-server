@@ -148,8 +148,8 @@ defmodule Asciinema.Asciicasts do
 
     header = %{
       version: 2,
-      width: attrs[:terminal_columns],
-      height: attrs[:terminal_lines],
+      width: attrs[:cols],
+      height: attrs[:rows],
       title: attrs[:title],
       command: attrs[:command],
       env: %{"SHELL" => attrs[:shell], "TERM" => attrs[:terminal_type]}
@@ -186,8 +186,8 @@ defmodule Asciinema.Asciicasts do
   defp extract_metadata(%{"version" => 0} = attrs) do
     attrs = %{
       version: 0,
-      terminal_columns: get_in(attrs, ["term", "columns"]),
-      terminal_lines: get_in(attrs, ["term", "lines"]),
+      cols: get_in(attrs, ["term", "columns"]),
+      rows: get_in(attrs, ["term", "lines"]),
       terminal_type: get_in(attrs, ["term", "type"]),
       command: attrs["command"],
       duration: attrs["duration"],
@@ -211,8 +211,8 @@ defmodule Asciinema.Asciicasts do
          {:ok, %{"version" => 1} = attrs} <- decode_json(json) do
       metadata = %{
         version: 1,
-        terminal_columns: attrs["width"],
-        terminal_lines: attrs["height"],
+        cols: attrs["width"],
+        rows: attrs["height"],
         terminal_type: get_in(attrs, ["env", "TERM"]),
         command: attrs["command"],
         duration: attrs["duration"],
@@ -236,8 +236,8 @@ defmodule Asciinema.Asciicasts do
          {:ok, %{"version" => 2} = header} <- decode_json(line) do
       metadata = %{
         version: 2,
-        terminal_columns: header["width"],
-        terminal_lines: header["height"],
+        cols: header["width"],
+        rows: header["height"],
         terminal_type: get_in(header, ["env", "TERM"]),
         command: header["command"],
         duration: get_v2_duration(path),
@@ -460,9 +460,9 @@ defmodule Asciinema.Asciicasts do
     end
   end
 
-  def update_snapshot(%Asciicast{terminal_columns: w, terminal_lines: h} = asciicast) do
+  def update_snapshot(%Asciicast{cols: cols, rows: rows} = asciicast) do
     secs = Asciicast.snapshot_at(asciicast)
-    snapshot = asciicast |> stdout_stream |> generate_snapshot(w, h, secs)
+    snapshot = asciicast |> stdout_stream |> generate_snapshot(cols, rows, secs)
     asciicast |> Asciicast.snapshot_changeset(snapshot) |> Repo.update()
   end
 
@@ -596,8 +596,8 @@ defmodule Asciinema.Asciicasts do
 
   defp v2_header(asciicast) do
     header = %{
-      width: asciicast.terminal_columns,
-      height: asciicast.terminal_lines,
+      width: asciicast.cols,
+      height: asciicast.rows,
       timestamp: asciicast.inserted_at |> Timex.to_unix(),
       duration: asciicast.duration,
       title: asciicast.title,
