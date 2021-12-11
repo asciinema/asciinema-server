@@ -141,15 +141,6 @@ When not specified it defaults to (first non-blank):
   to `asciinema rec`),
 - no limit, when it was not specified at the time of recording.
 
-### **size**
-
-The `size` option alters the size of the terminal font. There are 3 available
-sizes:
-
-* small (default)
-* medium
-* big
-
 ### **theme**
 
 The `theme` option allows overriding a theme used for the terminal. It defaults
