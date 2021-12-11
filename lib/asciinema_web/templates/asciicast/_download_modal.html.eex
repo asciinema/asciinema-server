@@ -42,12 +42,18 @@
 
         <pre><code>&lt;html>
 &lt;head>
-  &lt;link rel="stylesheet" type="text/css" href="/asciinema-player.css" />
+  &lt;link rel="stylesheet" type="text/css" href="asciinema-player.css" />
 &lt;/head>
 &lt;body>
-  &lt;asciinema-player src="/<%= download_filename(@asciicast) %>" cols="<%= @asciicast.cols %>" rows="<%= @asciicast.rows %>">&lt;/asciinema-player>
-  ...
-  &lt;script src="/asciinema-player.js">&lt;/script>
+  &lt;div id="player">&lt;/div>
+  &lt;script src="asciinema-player.min.js">&lt;/script>
+  &lt;script>
+    AsciinemaPlayer.create(
+      '<%= download_filename(@asciicast) %>',
+      document.getElementById('player'),
+      { cols: <%= @asciicast.cols %>, rows: <%= @asciicast.rows %> }
+    );
+  &lt;/script>
 &lt;/body>
 &lt;/html></code></pre>
 
