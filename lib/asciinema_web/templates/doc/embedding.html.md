@@ -84,7 +84,7 @@ The player supports several options that control the behavior and look of it.
 Append them to the URL (`?speed=2&theme=tango`) or set them as data attributes
 on embed script (`data-speed="2" data-theme="tango"`).
 
-### t
+### **t**
 
 The `t` option specifies the time at which the playback should start. The
 default is `t=0` (play from the beginning).
@@ -95,7 +95,7 @@ NOTE: when `t` is specified then `autoplay=1` is implied. To prevent the player
 from starting automatically when `t` option is set you have to explicitly set
 `autoplay=0`.
 
-### autoplay
+### **autoplay**
 
 The `autoplay` option controls whether the playback should automatically start
 when the player loads. Accepted values:
@@ -103,7 +103,7 @@ when the player loads. Accepted values:
 * 0 / false - do not start playback automatically (default)
 * 1 / true - start playback automatically
 
-### preload
+### **preload**
 
 The `preload` option controls whether the player should immediately start
 fetching the recording.
@@ -113,7 +113,7 @@ fetching the recording.
 
 Defaults to 1 for asciinema.org URLs, to 0 for embed script.
 
-### loop
+### **loop**
 
 The `loop` option allows for looping the playback. This option is usually
 combined with `autoplay` option. Accepted values:
@@ -121,12 +121,12 @@ combined with `autoplay` option. Accepted values:
 * 0 / false - disable looping (default)
 * 1 / true - enable looping
 
-### speed
+### **speed**
 
 The `speed` option alters the playback speed. The default speed is 1 which
 means it plays at the unaltered, original speed.
 
-### i / idleTimeLimit
+### **i** / **idleTimeLimit**
 
 The `i` (or `idleTimeLimit`) option allows reducing terminal inactivity periods
 to a given number of seconds.
@@ -141,7 +141,7 @@ When not specified it defaults to (first non-blank):
   to `asciinema rec`),
 - no limit, when it was not specified at the time of recording.
 
-### size
+### **size**
 
 The `size` option alters the size of the terminal font. There are 3 available
 sizes:
@@ -150,7 +150,7 @@ sizes:
 * medium
 * big
 
-### theme
+### **theme**
 
 The `theme` option allows overriding a theme used for the terminal. It defaults
 to a theme set by the asciicast author (or to "asciinema" if not set by the
@@ -162,12 +162,12 @@ author). The available themes are:
 * solarized-light
 * monokai
 
-### cols
+### **cols**
 
 The `cols` option allows overriding width (in characters) of the emulated
 terminal. By default the recorded terminal's width is used.
 
-### rows
+### **rows**
 
 The `rows` option allows overriding height (in lines) of the emulated terminal.
 By default the recorded terminal's height is used.
