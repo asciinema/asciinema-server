@@ -56,7 +56,7 @@ defmodule Asciinema.Asciicasts do
 
     Asciicast
     |> filter(:featured)
-    |> where([a], a.created_at > ^year_ago)
+    |> where([a], a.inserted_at > ^year_ago)
     |> sort(:random)
     |> limit(6)
     |> preload(:user)
