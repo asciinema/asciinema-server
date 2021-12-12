@@ -552,22 +552,25 @@ defmodule Asciinema.Asciicasts do
     |> Repo.update_all(inc: [views_count: 1])
   end
 
-  def upgrade do
-    Asciicast
+  def upgradable do
+    from(a in Asciicast, where: a.version == 0 or like(a.path, "asciicast/file/%"))
     |> Repo.pages(100)
     |> Stream.flat_map(& &1)
-    |> Enum.each(&upgrade/1)
-
-    :ok
   end
 
-  def upgrade(asciicast) do
+  def upgrade(id) when is_integer(id) do
+    id
+    |> get_asciicast()
+    |> upgrade()
+  end
+
+  def upgrade(%Asciicast{} = asciicast) do
     asciicast
     |> upgrade_from_v0()
     |> upgrade_file_path()
   end
 
-  def upgrade_from_v0(%Asciicast{version: 0} = asciicast) do
+  defp upgrade_from_v0(%Asciicast{version: 0} = asciicast) do
     Logger.info("upgrading asciicast ##{asciicast.id} from version 0 to version 2...")
 
     header = v2_header(asciicast)
@@ -593,9 +596,11 @@ defmodule Asciinema.Asciicasts do
     Repo.update!(changeset)
   end
 
-  def upgrade_from_v0(asciicast), do: asciicast
+  defp upgrade_from_v0(asciicast), do: asciicast
 
-  def upgrade_file_path(%Asciicast{path: "asciicast/file/" <> _ = old_path} = asciicast) do
+  defp upgrade_file_path(%Asciicast{path: "asciicast/file/" <> _ = old_path} = asciicast) do
+    Logger.info("upgrading asciicast ##{asciicast.id} file path...")
+
     {:ok, asciicast} =
       Repo.transaction(fn ->
         new_path = gen_file_store_path(asciicast)
@@ -608,7 +613,7 @@ defmodule Asciinema.Asciicasts do
     asciicast
   end
 
-  def upgrade_file_path(asciicast), do: asciicast
+  defp upgrade_file_path(asciicast), do: asciicast
 
   defp v2_header(asciicast) do
     header = %{

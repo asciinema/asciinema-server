@@ -51,7 +51,7 @@ config :asciinema, Asciinema.PngGenerator.Rsvg,
 
 config :asciinema, Oban,
   repo: Asciinema.Repo,
-  queues: [default: 10, emails: 10],
+  queues: [default: 10, emails: 10, upgrades: 1],
   plugins: [
     {Oban.Plugins.Pruner, max_age: 604_800},
     {Oban.Plugins.Cron,
