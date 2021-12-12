@@ -3,49 +3,10 @@ defmodule Asciinema.ReleaseTasks do
 
   @app :asciinema
 
-  def setup do
+  def migrate do
     with_started(fn repo ->
-      migrate(repo)
-      seed()
+      {:ok, _, _} = Ecto.Migrator.with_repo(repo, &Ecto.Migrator.run(&1, :up, all: true))
     end)
-  end
-
-  def upgrade do
-    with_started(fn repo ->
-      migrate(repo)
-      seed()
-      upgrade_data()
-    end)
-  end
-
-  def migrate(repo) do
-    Ecto.Migrator.run(repo, :up, all: true)
-  end
-
-  def rollback(repo, version) do
-    Ecto.Migrator.run(repo, :down, to: version)
-  end
-
-  def seed do
-    Application.ensure_all_started(:oban)
-    {:ok, _} = Oban.start_link(name: Oban, repo: oban_repo(), queues: [], plugins: [])
-
-    seed_script =
-      Path.join([
-        to_string(:code.priv_dir(:asciinema)),
-        "repo",
-        "seeds.exs"
-      ])
-
-    if File.exists?(seed_script) do
-      IO.puts("Running seed script..")
-      Code.eval_file(seed_script)
-    end
-  end
-
-  def upgrade_data do
-    IO.puts("Upgrading data...")
-    Asciinema.Asciicasts.upgrade()
   end
 
   def admin_add(emails) when is_binary(emails) do
@@ -85,11 +46,5 @@ defmodule Asciinema.ReleaseTasks do
   defp repos do
     _ = Application.load(@app)
     Application.fetch_env!(@app, :ecto_repos)
-  end
-
-  defp oban_repo do
-    [repo] = repos()
-
-    repo
   end
 end
