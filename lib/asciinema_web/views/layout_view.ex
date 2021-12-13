@@ -4,7 +4,7 @@ defmodule AsciinemaWeb.LayoutView do
 
   def page_title(conn) do
     case conn.assigns[:page_title] do
-      nil -> "asciinema - Record and share your terminal sessions, the right way"
+      nil -> "asciinema - Record and share your terminal sessions, the simple way"
       title -> title <> " - asciinema"
     end
   end
