@@ -4,8 +4,8 @@ You can share any recording by copying its URL and sending it to a friend or
 posting it on a social network. asciinema.org supports oEmbed/Open Graph/Twitter
 Card protocols, displaying a nice thumbnail where possible.
 
-You can also easily embedded an asciicast on any HTML page. If you want to put a
-recording in a blog post, project's documentation or in a conference talk
+You can also easily embed an asciicast on any HTML page. If you want to put a
+recording in a blog post, a project's documentation or in a conference talk's
 slides, you can do it by copy-pasting one of the embed scripts.
 
 ## Sharing a link
@@ -84,18 +84,18 @@ The player supports several options that control the behavior and look of it.
 Append them to the URL (`?speed=2&theme=tango`) or set them as data attributes
 on embed script (`data-speed="2" data-theme="tango"`).
 
-### t
+### **startAt** / **t**
 
-The `t` option specifies the time at which the playback should start. The
-default is `t=0` (play from the beginning).
+The `startAt` (or `t`) option specifies the time at which the playback should
+start. The default is `startAt=0` (play from the beginning).
 
 Accepted formats: `ss`, `mm:ss`, `hh:mm:ss`.
 
-NOTE: when `t` is specified then `autoplay=1` is implied. To prevent the player
-from starting automatically when `t` option is set you have to explicitly set
-`autoplay=0`.
+NOTE: when `startAt` is specified then `autoplay=1` is implied. To prevent the
+player from starting automatically when `startAt` option is set you have to
+explicitly set `autoplay=0`.
 
-### autoplay
+### **autoplay**
 
 The `autoplay` option controls whether the playback should automatically start
 when the player loads. Accepted values:
@@ -103,7 +103,7 @@ when the player loads. Accepted values:
 * 0 / false - do not start playback automatically (default)
 * 1 / true - start playback automatically
 
-### preload
+### **preload**
 
 The `preload` option controls whether the player should immediately start
 fetching the recording.
@@ -113,7 +113,7 @@ fetching the recording.
 
 Defaults to 1 for asciinema.org URLs, to 0 for embed script.
 
-### loop
+### **loop**
 
 The `loop` option allows for looping the playback. This option is usually
 combined with `autoplay` option. Accepted values:
@@ -121,21 +121,27 @@ combined with `autoplay` option. Accepted values:
 * 0 / false - disable looping (default)
 * 1 / true - enable looping
 
-### speed
+### **speed**
 
 The `speed` option alters the playback speed. The default speed is 1 which
 means it plays at the unaltered, original speed.
 
-### size
+### **idleTimeLimit** / **i**
 
-The `size` option alters the size of the terminal font. There are 3 available
-sizes:
+The `idleTimeLimit` (or `i`) option allows reducing terminal inactivity periods
+to a given number of seconds.
 
-* small (default)
-* medium
-* big
+For example, when set to 2 any inactivity longer than 2 seconds will be
+"compressed" to 2 seconds.
 
-### theme
+When not specified it defaults to (first non-blank):
+
+- the "Idle time limit" value set on asciicast's settings page,
+- `idle_time_limit` value from asciicast header (saved when passing `-i <sec>`
+  to `asciinema rec`),
+- no limit, when it was not specified at the time of recording.
+
+### **theme**
 
 The `theme` option allows overriding a theme used for the terminal. It defaults
 to a theme set by the asciicast author (or to "asciinema" if not set by the
@@ -147,12 +153,12 @@ author). The available themes are:
 * solarized-light
 * monokai
 
-### cols
+### **cols**
 
 The `cols` option allows overriding width (in characters) of the emulated
 terminal. By default the recorded terminal's width is used.
 
-### rows
+### **rows**
 
 The `rows` option allows overriding height (in lines) of the emulated terminal.
 By default the recorded terminal's height is used.

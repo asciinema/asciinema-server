@@ -1,5 +1,5 @@
-<section class="cinema">
-  <%= player @asciicast, @playback_options %>
+<section class="cinema" id="cinema" style="height: <%= cinema_height(@asciicast) %>vw; max-height: 75vh">
+  <%= player @asciicast, Keyword.merge(@playback_options, container_id: "cinema", fit: "both") %>
 </section>
 
 <section class="even info">
@@ -18,7 +18,7 @@
 
         <small>
           by <%= link author_username(@asciicast), to: author_profile_path(@asciicast) %>
-          <%= time_ago_tag @asciicast.created_at %>
+          <%= time_ago_tag @asciicast.inserted_at %>
 
           <%= if @asciicast.private do %>
             <%= render "_private_badge.html" %>

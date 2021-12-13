@@ -21,6 +21,7 @@ secret_key_base =
 # with webpack to recompile .js and .css sources.
 config :asciinema, AsciinemaWeb.Endpoint,
   http: [port: 4000],
+  url: [host: System.get_env("URL_HOST", "localhost")],
   debug_errors: true,
   code_reloader: true,
   check_origin: false,

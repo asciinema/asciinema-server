@@ -51,7 +51,7 @@ defmodule Asciinema.AsciicastControllerTest do
 
     test "asciicast file, v1 format", %{conn: conn} do
       asciicast = fixture(:asciicast_v1)
-      width = asciicast.terminal_columns
+      width = asciicast.cols
       conn = get(conn, asciicast_file_path(conn, asciicast))
       assert %{"version" => 1, "width" => ^width, "stdout" => [_ | _]} = json_response(conn, 200)
     end
@@ -113,10 +113,12 @@ defmodule Asciinema.AsciicastControllerTest do
       assert response_content_type(conn_2, :js)
     end
 
-    test "embed HTML (used in iframe)", %{conn: conn} do
+    test "embed iframe", %{conn: conn} do
       asciicast = fixture(:asciicast)
-      conn = get(conn, Routes.asciicast_path(conn, :embed, asciicast))
-      assert html_response(conn, 200) =~ ~r/<asciinema-player /
+      conn = get(conn, Routes.asciicast_path(conn, :iframe, asciicast))
+      assert html_response(conn, 200) =~ ~r/iframe\.css/
+      assert html_response(conn, 200) =~ ~r/iframe\.js/
+      assert html_response(conn, 200) =~ ~r/window\.players\.set/
     end
   end
 

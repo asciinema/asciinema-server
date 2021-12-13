@@ -4,7 +4,7 @@ defmodule AsciinemaWeb.AsciicastController do
   alias Asciinema.Asciicasts.Asciicast
 
   plug :clear_main_class
-  plug :load_asciicast when action in [:show, :edit, :update, :delete, :example, :iframe, :embed]
+  plug :load_asciicast when action in [:show, :edit, :update, :delete, :iframe]
   plug :require_current_user when action in [:edit, :update, :delete]
   plug :authorize, :asciicast when action in [:edit, :update, :delete]
 
@@ -60,7 +60,7 @@ defmodule AsciinemaWeb.AsciicastController do
         "show.html",
         page_title: AsciinemaWeb.AsciicastView.title(asciicast),
         asciicast: asciicast,
-        playback_options: Asciicasts.PlaybackOpts.parse(conn.params),
+        playback_options: playback_options(conn.params),
         actions: asciicast_actions(asciicast, conn.assigns.current_user),
         author_asciicasts: Asciicasts.other_public_asciicasts(asciicast)
       )
@@ -176,7 +176,7 @@ defmodule AsciinemaWeb.AsciicastController do
     end
   end
 
-  def iframe(conn, _params) do
+  def iframe(conn, params) do
     conn =
       conn
       |> put_layout("iframe.html")
@@ -187,25 +187,7 @@ defmodule AsciinemaWeb.AsciicastController do
       |> put_status(410)
       |> render("archived.html")
     else
-      url = asciicast_file_url(conn, conn.assigns.asciicast)
-      render(conn, "iframe.html", file_url: url)
-    end
-  end
-
-  def embed(conn, params) do
-    opts = Asciicasts.PlaybackOpts.parse(params)
-
-    conn =
-      conn
-      |> put_layout("embed.html")
-      |> delete_resp_header("x-frame-options")
-
-    if conn.assigns.asciicast.archived_at do
-      conn
-      |> put_status(410)
-      |> render("archived.html")
-    else
-      render(conn, "embed.html", playback_options: opts)
+      render(conn, "iframe.html", playback_options: playback_options(params))
     end
   end
 
@@ -280,7 +262,7 @@ defmodule AsciinemaWeb.AsciicastController do
          days when not is_nil(days) <- Asciicasts.gc_days(),
          %{} = user <- asciicast.user,
          true <- Accounts.temporary_user?(user),
-         true <- Timex.before?(asciicast.created_at, Timex.shift(Timex.now(), days: -days)) do
+         true <- Timex.before?(asciicast.inserted_at, Timex.shift(Timex.now(), days: -days)) do
       put_flash(
         conn,
         :error,
@@ -290,5 +272,11 @@ defmodule AsciinemaWeb.AsciicastController do
     else
       _ -> conn
     end
+  end
+
+  defp playback_options(params) do
+    params
+    |> Ext.Map.rename(%{"t" => "startAt", "i" => "idleTimeLimit"})
+    |> Asciicasts.PlaybackOpts.parse()
   end
 end

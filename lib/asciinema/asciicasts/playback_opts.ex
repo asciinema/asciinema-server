@@ -65,7 +65,8 @@ defmodule Asciinema.Asciicasts.PlaybackOpts do
     field :rows, :integer
     field :size, :string
     field :speed, :float
-    field :t, Time
+    field :startAt, Time
+    field :idleTimeLimit, :float
     field :theme, :string
   end
 
@@ -74,7 +75,8 @@ defmodule Asciinema.Asciicasts.PlaybackOpts do
       %__MODULE__{}
       |> cast(attrs, __MODULE__.__schema__(:fields))
       |> validate_number(:speed, greater_than: 0.0)
-      |> validate_number(:t, greater_than: 0)
+      |> validate_number(:startAt, greater_than: 0)
+      |> validate_number(:idleTimeLimit, greater_than_or_equal_to: 0.5)
       |> validate_number(:cols, greater_than: 0)
       |> validate_number(:rows, greater_than: 0)
 
@@ -92,7 +94,7 @@ defmodule Asciinema.Asciicasts.PlaybackOpts do
 
   defp set_autoplay(opts) do
     autoplay = Keyword.get(opts, :autoplay)
-    t = Keyword.get(opts, :t)
+    t = Keyword.get(opts, :startAt)
 
     if autoplay == nil && t != nil do
       Keyword.put(opts, :autoplay, true)
@@ -103,7 +105,7 @@ defmodule Asciinema.Asciicasts.PlaybackOpts do
 
   def set_poster(opts) do
     autoplay = Keyword.get(opts, :autoplay)
-    t = Keyword.get(opts, :t)
+    t = Keyword.get(opts, :startAt)
     poster = Keyword.get(opts, :poster)
 
     if poster == nil && t != nil && t > 0 && !autoplay do

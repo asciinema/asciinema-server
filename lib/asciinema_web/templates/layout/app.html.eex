@@ -19,8 +19,6 @@
     </main>
 
     <%= render "_footer.html", conn: @conn %>
-
-    <script src="<%= Routes.static_path(@conn, "/js/asciinema-player.js") %>"></script>
     <script src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
   </body>
 </html>
