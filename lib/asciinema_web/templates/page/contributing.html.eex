@@ -43,7 +43,7 @@
 
       <p>Finally, you can help spreading the word about the project by telling your friends about it. Tweet and blog about it or submit your recordings to Reddit. We're <a href="https://twitter.com/asciinema">@asciinema</a> on Twitter btw. </p>
 
-      <a class="resp-sharing-button__link" href="https://twitter.com/intent/tweet/?text=asciinema - Record and share your terminal sessions, the right way&amp;url=http://localhost:3000/" target="_blank">
+      <a class="resp-sharing-button__link" href="https://twitter.com/intent/tweet/?text=asciinema - Record and share your terminal sessions, the simple way&amp;url=http://localhost:3000/" target="_blank">
         <div class="resp-sharing-button resp-sharing-button--twitter resp-sharing-button--small">
           <div class="resp-sharing-button__icon">
             <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1em" height="1em" viewBox="0 0 32 32">
@@ -70,7 +70,7 @@
           </div>
         </div>
       </a>
-      <a class="resp-sharing-button__link" href="https://reddit.com/submit/?url=http://localhost:3000/&amp;title=asciinema - Record and share your terminal sessions, the right way" target="_blank">
+      <a class="resp-sharing-button__link" href="https://reddit.com/submit/?url=http://localhost:3000/&amp;title=asciinema - Record and share your terminal sessions, the simple way" target="_blank">
         <div class="resp-sharing-button resp-sharing-button--reddit resp-sharing-button--small">
           <div class="resp-sharing-button__icon">
             <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1em" height="1em" viewBox="0 0 32 32">
