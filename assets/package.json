@@ -10,7 +10,7 @@
     "defaults"
   ],
   "devDependencies": {
-    "asciinema-player": "3.0.0-rc.1",
+    "asciinema-player": "3.0.0-rc.2",
     "@babel/core": "^7.0.0",
     "@babel/preset-env": "^7.15.4",
     "babel-loader": "^8.0.0",
