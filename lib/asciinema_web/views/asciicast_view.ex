@@ -18,10 +18,15 @@ defmodule AsciinemaWeb.AsciicastView do
       |> Enum.into(%{})
       |> Map.drop([:container_id])
 
+    props_json =
+      props
+      |> Jason.encode!()
+      |> String.replace(~r/</, "\\u003c")
+
     content_tag(:script) do
       ~E"""
         window.players = window.players || new Map();
-        window.players.set('<%= container_id %>', <%= {:safe, Jason.encode!(props)} %>);
+        window.players.set('<%= container_id %>', <%= {:safe, props_json} %>);
       """
     end
   end
