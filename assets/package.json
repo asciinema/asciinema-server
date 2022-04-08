@@ -12,7 +12,7 @@
   "devDependencies": {
     "@babel/core": "^7.0.0",
     "@babel/preset-env": "^7.15.4",
-    "asciinema-player": "3.0.0-rc.2",
+    "asciinema-player": "3.0.0-rc.4",
     "babel-loader": "^8.0.0",
     "bootstrap": "^4.5.0",
     "copy-webpack-plugin": "^5.1.1",
