@@ -7,6 +7,8 @@ services:
     restart: unless-stopped
     volumes:
       - ./volumes/postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
     ### See https://hub.docker.com/_/postgres/ for more
     ### configuration options for this image.
 
