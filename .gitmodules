@@ -1,3 +1,0 @@
-[submodule "native/vt"]
-	path = native/vt
-	url = https://github.com/asciinema/vt-rs.git
