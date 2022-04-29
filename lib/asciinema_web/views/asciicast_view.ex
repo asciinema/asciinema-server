@@ -324,6 +324,10 @@ defmodule AsciinemaWeb.AsciicastView do
     end
   end
 
+  defp add_style(styles, attr, "rgb(" <> _ = rgb) do
+    ["#{attr}:#{rgb}" | styles]
+  end
+
   defp add_style(styles, attr, [r, g, b]) do
     ["#{attr}:rgb(#{r},#{g},#{b})" | styles]
   end

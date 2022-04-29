@@ -59,6 +59,12 @@ div.asciicast-card {
     border-radius: 3px;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
+
+    .asciinema-terminal {
+      .line {
+        height: 1.3333333333em;
+      }
+    }
   }
 
   .info {
