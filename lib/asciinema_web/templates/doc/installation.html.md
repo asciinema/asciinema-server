@@ -89,7 +89,7 @@ For Fedora >= 22:
 
 ### Packages
 
-    pkg install py37-asciinema
+    pkg install py39-asciinema
 
 ## Installing on OpenBSD
 {: #installing-on-openbsd}
