@@ -64,7 +64,7 @@ fn dump_screen<'a>(env: Env<'a>, args: &[Term<'a>]) -> Result<Term<'a>, Error> {
     let resource: ResourceArc<MutableResource> = args[0].decode()?;
     let vt = convert_err((*resource).data.read(), "rw_lock")?;
     let lines = vt.get_lines();
-    let cursor = vt.get_cursor();
+    let cursor = vt.cursor();
     let term = convert_err(to_term(env, (lines, cursor)), "to_term")?;
 
     Ok((atoms::ok(), term).encode(env))
