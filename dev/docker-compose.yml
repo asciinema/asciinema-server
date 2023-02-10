@@ -9,8 +9,11 @@ volumes:
 
 services:
   postgres:
-    image: postgres
+    image: postgres:14-alpine
     container_name: asciinema_dev_postgres
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_HOST_AUTH_METHOD=trust
     ports:
       - 2345:5432
 
