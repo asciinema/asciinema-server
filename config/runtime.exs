@@ -1,11 +1,36 @@
 import Config
 
+# config/runtime.exs is executed for all environments, including
+# during releases. It is executed after compilation and before the
+# system starts, so it is typically used to load production configuration
+# and secrets from environment variables or elsewhere. Do not define
+# any compile-time configuration in here, as it won't be applied.
+
 env = &System.get_env/1
+
+if env.("PHX_SERVER") do
+  config :asciinema, AsciinemaWeb.Endpoint, server: true
+end
+
+if config_env() == :prod do
+  database_url =
+    System.get_env("DATABASE_URL") ||
+      raise """
+      environment variable DATABASE_URL is missing.
+      For example: ecto://USER:PASS@HOST/DATABASE
+      """
+
+  config :asciinema, Asciinema.Repo, url: database_url
+end
 
 if config_env() in [:prod, :dev] do
   if secret_key_base = env.("SECRET_KEY_BASE") do
     config :asciinema, AsciinemaWeb.Endpoint, secret_key_base: secret_key_base
     config :asciinema, Asciinema.Accounts, secret: secret_key_base
+  end
+
+  if port = env.("PORT") do
+    config :asciinema, AsciinemaWeb.Endpoint, http: [port: String.to_integer(port)]
   end
 
   if url_scheme = env.("URL_SCHEME") do
@@ -14,6 +39,11 @@ if config_env() in [:prod, :dev] do
 
   if url_host = env.("URL_HOST") do
     config :asciinema, AsciinemaWeb.Endpoint, url: [host: url_host]
+  end
+
+  if url_path = env.("URL_PATH") do
+    config :asciinema, AsciinemaWeb.Endpoint, url: [path: url_path]
+    # this requires path prefix stripping at reverse proxy (nginx) level
   end
 
   if url_port = env.("URL_PORT") do

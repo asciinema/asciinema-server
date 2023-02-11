@@ -1,0 +1,3 @@
+#!/bin/sh
+
+PHX_SERVER=true exec ./bin/asciinema start

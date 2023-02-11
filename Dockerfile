@@ -77,6 +77,6 @@ VOLUME /opt/app/uploads
 VOLUME /opt/app/cache
 
 ENTRYPOINT ["/sbin/tini", "--"]
-CMD ["/opt/app/bin/asciinema", "start"]
+CMD ["/opt/app/bin/server"]
 
 EXPOSE 4000

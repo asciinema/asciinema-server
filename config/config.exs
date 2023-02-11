@@ -1,5 +1,5 @@
 # This file is responsible for configuring your application
-# and its dependencies with the aid of the Mix.Config module.
+# and its dependencies with the aid of the Config module.
 #
 # This configuration file is loaded before any dependency and
 # is restricted to this project.
@@ -15,7 +15,7 @@ config :asciinema, Asciinema.Repo, migration_timestamps: [type: :naive_datetime_
 # Configures the endpoint
 config :asciinema, AsciinemaWeb.Endpoint,
   url: [host: "localhost"],
-  render_errors: [view: AsciinemaWeb.ErrorView, accepts: ~w(html json)],
+  render_errors: [view: AsciinemaWeb.ErrorView, accepts: ~w(html json), layout: false],
   pubsub_server: Asciinema.PubSub
 
 # Configures Elixir's Logger
