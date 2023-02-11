@@ -33,11 +33,11 @@ config :phoenix, :template_engines, md: PhoenixMarkdown.Engine
 
 config :sentry,
   dsn: "https://public:secret@sentry.io/1",
-  environment_name: Mix.env(),
+  environment_name: config_env(),
   enable_source_code_context: true,
   root_source_code_path: File.cwd!(),
   included_environments: [:prod],
-  tags: %{env: Mix.env()},
+  tags: %{env: config_env()},
   in_app_module_whitelist: [Asciinema]
 
 config :asciinema, :file_store, Asciinema.FileStore.Local
@@ -65,4 +65,4 @@ config :scrivener_html,
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
-import_config "#{Mix.env()}.exs"
+import_config "#{config_env()}.exs"
