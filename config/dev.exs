@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 # Configure your database
 config :asciinema, Asciinema.Repo,
@@ -67,4 +67,6 @@ if gc_days = System.get_env("ASCIICAST_GC_DAYS") do
 end
 
 # Import custom config.
-import_config "custom*.exs"
+for config <- "custom*.exs" |> Path.expand(__DIR__) |> Path.wildcard() do
+  import_config config
+end
