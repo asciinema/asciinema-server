@@ -1,6 +1,6 @@
-ARG ALPINE_VERSION=3.16.0
-ARG ERLANG_OTP_VERSION=24.3.3
-ARG ELIXIR_VERSION=1.13.4
+ARG ALPINE_VERSION=3.17.0
+ARG ERLANG_OTP_VERSION=25.2.2
+ARG ELIXIR_VERSION=1.14.3
 
 ## Release building image
 
@@ -27,7 +27,7 @@ RUN mix do deps.get --only prod, deps.compile
 COPY assets/ assets/
 RUN cd assets && \
   npm install && \
-  npm run deploy
+  env NODE_OPTIONS=--openssl-legacy-provider npm run deploy
 
 COPY config/config.exs config/
 COPY config/prod.exs config/
