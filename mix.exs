@@ -55,10 +55,10 @@ defmodule Asciinema.MixProject do
       {:inflex, "~> 2.0"},
       {:jason, "~> 1.2"},
       {:mix_test_watch, "~> 1.0", only: :dev, runtime: false},
-      {:oban, "~> 2.6"},
+      {:oban, "~> 2.14"},
       # override for scrivener_html
-      {:phoenix, "~> 1.5.8", override: true},
-      {:phoenix_ecto, "~> 4.1"},
+      {:phoenix, "~> 1.5.14", override: true},
+      {:phoenix_ecto, "~> 4.4"},
       {:phoenix_html, "~> 2.14"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_markdown, "~> 1.0"},

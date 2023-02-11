@@ -29,7 +29,7 @@ config :asciinema, Asciinema.FileStore.Local, path: "uploads/test/"
 
 config :asciinema, :snapshot_updater, Asciinema.Asciicasts.SnapshotUpdater.Noop
 
-config :asciinema, Oban, queues: false, plugins: false
+config :asciinema, Oban, testing: :manual
 
 config :asciinema, Asciinema.Emails.Mailer, adapter: Bamboo.TestAdapter
 

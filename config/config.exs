@@ -57,7 +57,9 @@ config :asciinema, Oban,
     {Oban.Plugins.Cron,
      crontab: [
        {"0 * * * *", Asciinema.GC}
-     ]}
+     ]},
+    Oban.Plugins.Lifeline,
+    Oban.Plugins.Reindexer,
   ]
 
 config :scrivener_html,

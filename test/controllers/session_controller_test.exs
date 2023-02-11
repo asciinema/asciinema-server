@@ -4,10 +4,6 @@ defmodule Asciinema.SessionControllerTest do
   alias Asciinema.Repo
   alias Asciinema.Accounts
 
-  setup %{conn: conn} do
-    {:ok, conn: conn}
-  end
-
   test "successful log-in", %{conn: conn} do
     user = insert(:user, email: "test@example.com", username: "blazko")
 
