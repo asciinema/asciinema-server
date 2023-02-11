@@ -11,7 +11,7 @@ defmodule AsciinemaWeb.Endpoint do
     signing_salt: "qJL+3s0T"
   ]
 
-  config = Application.get_env(:asciinema, __MODULE__)
+  config = Application.compile_env(:asciinema, __MODULE__)
   url = Keyword.get(config, :url)
   path = Keyword.get(url, :path, "/")
 
