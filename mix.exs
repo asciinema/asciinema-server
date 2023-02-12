@@ -7,7 +7,7 @@ defmodule Asciinema.MixProject do
       version: "0.1.0",
       elixir: "~> 1.12",
       elixirc_paths: elixirc_paths(Mix.env()),
-      compilers: [:rustler] ++ Mix.compilers(),
+      compilers: Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
@@ -17,8 +17,7 @@ defmodule Asciinema.MixProject do
             {Config.Reader, {:system, "RELEASE_ROOT", "/etc/custom.exs"}}
           ]
         ]
-      ],
-      rustler_crates: [vt_nif: []]
+      ]
     ]
   end
 
@@ -68,7 +67,7 @@ defmodule Asciinema.MixProject do
       {:plug_cowboy, "~> 2.5"},
       {:poolboy, "~> 1.5"},
       {:postgrex, ">= 0.0.0"},
-      {:rustler, "~> 0.21.0"},
+      {:rustler, "~> 0.27.0"},
       {:scrivener_ecto, "~> 2.4"},
       {:scrivener_html, "~> 1.8"},
       {:sentry, "~> 7.2"},

@@ -2,7 +2,7 @@
 name = "vt_nif"
 version = "0.1.0"
 authors = []
-edition = "2018"
+edition = "2021"
 
 [lib]
 name = "vt_nif"
@@ -10,8 +10,5 @@ path = "src/lib.rs"
 crate-type = ["dylib"]
 
 [dependencies]
-rustler = "0.21.1"
-serde = "1.0.110"
-serde_rustler = "0.1.0"
-lazy_static = "1.0"
-vt = { git = "https://github.com/asciinema/vt-rs", tag = "v0.4.0" }
+rustler = "0.27.0"
+vt = { git = "https://github.com/asciinema/vt-rs", rev = "5d4e568" }

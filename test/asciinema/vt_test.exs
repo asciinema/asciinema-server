@@ -30,4 +30,6 @@ defmodule Asciinema.VtTest do
       assert {:ok, {[_ | _], {120, 79}}} = result
     end
   end
+
+  # TODO add assertion for result of dump_screen
 end
