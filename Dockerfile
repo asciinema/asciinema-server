@@ -55,7 +55,7 @@ RUN apk add --no-cache \
   tini \
   bash \
   ca-certificates \
-  librsvg \
+  rsvg-convert \
   ttf-dejavu \
   pngquant
 
