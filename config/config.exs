@@ -58,7 +58,7 @@ config :asciinema, Oban,
        {"0 * * * *", Asciinema.GC}
      ]},
     Oban.Plugins.Lifeline,
-    Oban.Plugins.Reindexer,
+    Oban.Plugins.Reindexer
   ]
 
 config :scrivener_html,
