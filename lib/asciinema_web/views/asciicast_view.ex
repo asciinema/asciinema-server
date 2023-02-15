@@ -166,6 +166,7 @@ defmodule AsciinemaWeb.AsciicastView do
         {"bg", "rgb(" <> _} -> "48;2;#{parse_rgb(v)}"
         {"bg", [r, g, b]} -> "48;2;#{r};#{g};#{b}"
         {"bold", true} -> "1"
+        {"faint", true} -> "2"
         {"italic", true} -> "3"
         {"underline", true} -> "4"
         {"blink", true} -> "5"
@@ -309,6 +310,7 @@ defmodule AsciinemaWeb.AsciicastView do
   def class({"fg", fg}) when is_integer(fg), do: "fg-#{fg}"
   def class({"bg", bg}) when is_integer(bg), do: "bg-#{bg}"
   def class({"bold", true}), do: "bright"
+  def class({"faint", true}), do: "faint"
   def class({"underline", true}), do: "underline"
   def class(_), do: nil
 
@@ -533,6 +535,7 @@ defmodule AsciinemaWeb.AsciicastView do
 
   def svg_text_class({"fg", fg}) when is_integer(fg), do: "c-#{fg}"
   def svg_text_class({"bold", true}), do: "br"
+  def svg_text_class({"faint", true}), do: "fa"
   def svg_text_class({"italic", true}), do: "it"
   def svg_text_class({"underline", true}), do: "un"
   def svg_text_class(_), do: nil
