@@ -36,9 +36,8 @@ config :sentry,
   environment_name: config_env(),
   enable_source_code_context: true,
   root_source_code_path: File.cwd!(),
-  included_environments: [:prod],
   tags: %{env: config_env()},
-  in_app_module_whitelist: [Asciinema]
+  in_app_module_allow_list: [Asciinema]
 
 config :asciinema, :file_store, Asciinema.FileStore.Local
 config :asciinema, Asciinema.FileStore.Local, path: "uploads/"
