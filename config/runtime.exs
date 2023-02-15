@@ -99,4 +99,8 @@ if config_env() in [:prod, :dev] do
   else
     config :sentry, included_environments: []
   end
+
+  if id = env.("HOME_ASCIICAST_ID") do
+    config :asciinema, home_asciicast_id: id
+  end
 end
