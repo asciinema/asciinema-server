@@ -3,11 +3,11 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="<%= Routes.static_path(@conn, "/css/iframe.css") %>">
+    <link rel="stylesheet" href={Routes.static_path(@conn, "/css/iframe.css")}>
   </head>
 
   <body class="iframe">
     <%= @inner_content %>
-    <script src="<%= Routes.static_path(@conn, "/js/iframe.js") %>"></script>
+    <script src={Routes.static_path(@conn, "/js/iframe.js")}></script>
   </body>
 </html>
