@@ -137,7 +137,7 @@ defmodule AsciinemaWeb.AsciicastController do
     else
       conn
       |> put_layout("simple.html")
-      |> render("gif.html", file_url: asciicast_file_url(conn, asciicast))
+      |> render("gif.html", file_url: asciicast_file_url(conn, asciicast), asciicast_id: asciicast.id)
     end
   end
 
