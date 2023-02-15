@@ -1,5 +1,5 @@
 defmodule Asciinema.AsciicastViewTest do
-  use ExUnit.Case, async: true
+  use AsciinemaWeb.ConnCase, async: true
   alias AsciinemaWeb.AsciicastView
   alias Asciinema.Asciicasts.Asciicast
 

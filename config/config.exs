@@ -1,11 +1,11 @@
 # This file is responsible for configuring your application
-# and its dependencies with the aid of the Mix.Config module.
+# and its dependencies with the aid of the Config module.
 #
 # This configuration file is loaded before any dependency and
 # is restricted to this project.
 
 # General application configuration
-use Mix.Config
+import Config
 
 config :asciinema,
   ecto_repos: [Asciinema.Repo]
@@ -15,7 +15,7 @@ config :asciinema, Asciinema.Repo, migration_timestamps: [type: :naive_datetime_
 # Configures the endpoint
 config :asciinema, AsciinemaWeb.Endpoint,
   url: [host: "localhost"],
-  render_errors: [view: AsciinemaWeb.ErrorView, accepts: ~w(html json)],
+  render_errors: [view: AsciinemaWeb.ErrorView, accepts: ~w(html json), layout: false],
   pubsub_server: Asciinema.PubSub
 
 # Configures Elixir's Logger
@@ -33,12 +33,11 @@ config :phoenix, :template_engines, md: PhoenixMarkdown.Engine
 
 config :sentry,
   dsn: "https://public:secret@sentry.io/1",
-  environment_name: Mix.env(),
+  environment_name: config_env(),
   enable_source_code_context: true,
   root_source_code_path: File.cwd!(),
-  included_environments: [:prod],
-  tags: %{env: Mix.env()},
-  in_app_module_whitelist: [Asciinema]
+  tags: %{env: config_env()},
+  in_app_module_allow_list: [Asciinema]
 
 config :asciinema, :file_store, Asciinema.FileStore.Local
 config :asciinema, Asciinema.FileStore.Local, path: "uploads/"
@@ -57,7 +56,9 @@ config :asciinema, Oban,
     {Oban.Plugins.Cron,
      crontab: [
        {"0 * * * *", Asciinema.GC}
-     ]}
+     ]},
+    Oban.Plugins.Lifeline,
+    Oban.Plugins.Reindexer
   ]
 
 config :scrivener_html,
@@ -65,4 +66,4 @@ config :scrivener_html,
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
-import_config "#{Mix.env()}.exs"
+import_config "#{config_env()}.exs"

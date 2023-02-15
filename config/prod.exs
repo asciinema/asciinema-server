@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 # For production, don't forget to configure the url host
 # to something meaningful, Phoenix uses this information
@@ -10,11 +10,15 @@ use Mix.Config
 # which you should run after static files are built and
 # before starting your production server.
 config :asciinema, AsciinemaWeb.Endpoint,
-  http: [port: 4000],
-  url: [scheme: "https", host: "asciinema.org", port: 443],
-  cache_static_manifest: "priv/static/cache_manifest.json",
-  server: true,
-  root: "."
+  http: [
+    # Enable IPv6 and bind on all interfaces.
+    # Set it to  {0, 0, 0, 0, 0, 0, 0, 1} for local network only access.
+    # See the documentation on https://hexdocs.pm/plug_cowboy/Plug.Cowboy.html
+    # for details about using IPv6 vs IPv4 and loopback vs public addresses.
+    ip: {0, 0, 0, 0, 0, 0, 0, 0},
+    port: 4000
+  ],
+  cache_static_manifest: "priv/static/cache_manifest.json"
 
 # Do not print debug messages in production
 config :logger, level: :info
@@ -25,11 +29,14 @@ config :logger, level: :info
 # to the previous section and set your `:url` port to 443:
 #
 #     config :asciinema, AsciinemaWeb.Endpoint,
-#       ...
+#       ...,
 #       url: [host: "example.com", port: 443],
-#       https: [port: 443,
+#       https: [
+#               ...,
+#               port: 443,
 #               keyfile: System.get_env("SOME_APP_SSL_KEY_PATH"),
-#               certfile: System.get_env("SOME_APP_SSL_CERT_PATH")]
+#               certfile: System.get_env("SOME_APP_SSL_CERT_PATH")
+#              ]
 #
 # Where those two env variables return an absolute path to
 # the key and cert in disk or a relative path inside priv,

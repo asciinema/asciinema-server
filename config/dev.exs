@@ -1,17 +1,16 @@
-use Mix.Config
+import Config
 
 # Configure your database
 config :asciinema, Asciinema.Repo,
   username: "postgres",
   password: "postgres",
-  database: "asciinema_development",
   hostname: "localhost",
+  database: "asciinema_development",
+  stacktrace: true,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
 
-secret_key_base =
-  System.get_env("SECRET_KEY_BASE") ||
-    "60BnXnzGGwwiZj91YA9XYKF9BCiM7lQ/1um8VXcWWLSdUp9OcPZV6YnQv7eFTYSY"
+secret_key_base = "60BnXnzGGwwiZj91YA9XYKF9BCiM7lQ/1um8VXcWWLSdUp9OcPZV6YnQv7eFTYSY"
 
 # For development, we disable any cache and enable
 # debugging and code reloading.
@@ -20,11 +19,12 @@ secret_key_base =
 # watchers to your application. For example, we use it
 # with webpack to recompile .js and .css sources.
 config :asciinema, AsciinemaWeb.Endpoint,
-  http: [port: 4000],
-  url: [host: System.get_env("URL_HOST", "localhost")],
-  debug_errors: true,
-  code_reloader: true,
+  # Binding to loopback ipv4 address prevents access from other machines.
+  # Change to `ip: {0, 0, 0, 0}` to allow access from other machines.
+  http: [ip: {127, 0, 0, 1}, port: 4000],
   check_origin: false,
+  code_reloader: true,
+  debug_errors: true,
   secret_key_base: secret_key_base,
   watchers: [
     node: [
@@ -32,7 +32,8 @@ config :asciinema, AsciinemaWeb.Endpoint,
       "--mode",
       "development",
       "--watch-stdin",
-      cd: Path.expand("../assets", __DIR__)
+      cd: Path.expand("../assets", __DIR__),
+      env: [{"NODE_OPTIONS", "--openssl-legacy-provider"}]
     ]
   ]
 
@@ -61,9 +62,7 @@ config :phoenix, :plug_init_mode, :runtime
 
 config :asciinema, Asciinema.Emails.Mailer, adapter: Bamboo.LocalAdapter
 
-if gc_days = System.get_env("ASCIICAST_GC_DAYS") do
-  config :asciinema, :asciicast_gc_days, String.to_integer(gc_days)
-end
-
 # Import custom config.
-import_config "custom*.exs"
+for config <- "custom*.exs" |> Path.expand(__DIR__) |> Path.wildcard() do
+  import_config config
+end
