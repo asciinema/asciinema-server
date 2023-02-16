@@ -40,8 +40,9 @@ defmodule Asciinema.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:bamboo, "~> 1.2"},
-      {:bamboo_smtp, "~> 1.6"},
+      {:bamboo, "~> 2.2"},
+      {:bamboo_phoenix, "~> 1.0"},
+      {:bamboo_smtp, "~> 4.2"},
       {:briefly, "~> 0.3"},
       {:credo, "~> 1.4", only: [:dev, :test], runtime: false},
       {:earmark, "~> 1.4"},
