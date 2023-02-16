@@ -23,7 +23,7 @@
     "mini-css-extract-plugin": "^0.9.0",
     "optimize-css-assets-webpack-plugin": "^5.0.1",
     "phoenix": "1.4.17",
-    "phoenix_html": "2.14.3",
+    "phoenix_html": "3.3.0",
     "popper.js": "^1.14.3",
     "sass": "^1.32.2",
     "sass-loader": "^10.1.1",

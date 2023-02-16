@@ -541,17 +541,15 @@ defmodule AsciinemaWeb.AsciicastView do
   def svg_text_class(_), do: nil
 
   def svg_rect_style(%{"bg" => [_r, _g, _b] = c}), do: "fill:#{hex(c)}"
+  def svg_rect_style(%{"bg" => "rgb(" <> _ = c}), do: "fill:#{c}"
   def svg_rect_style(_), do: nil
 
   def svg_rect_class(%{"bg" => bg}) when is_integer(bg), do: "c-#{bg}"
   def svg_rect_class(_), do: nil
 
-  def svg_text_style(attrs) do
-    case attrs["fg"] do
-      [_r, _g, _b] = c -> "fill:#{hex(c)}"
-      _ -> nil
-    end
-  end
+  def svg_text_style(%{"fg" => [_r, _g, _b] = c}), do: "fill:#{hex(c)}"
+  def svg_text_style(%{"fg" => "rgb(" <> _ = c}), do: "fill:#{c}"
+  def svg_text_style(_), do: nil
 
   defp hex([r, g, b]) do
     "##{hex(r)}#{hex(g)}#{hex(b)}"
