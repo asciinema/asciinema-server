@@ -97,6 +97,12 @@ defmodule AsciinemaWeb.Router do
   scope "/api", AsciinemaWeb.Api, as: :api do
     post "/asciicasts", AsciicastController, :create
   end
+
+  scope "/dev" do
+    if Mix.env() == :dev do
+      forward "/mailbox", Bamboo.SentEmailViewerPlug
+    end
+  end
 end
 
 defmodule AsciinemaWeb.Router.Helpers.Extra do

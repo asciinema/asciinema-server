@@ -10,12 +10,12 @@ defmodule Asciinema.Emails do
         "signup" ->
           job.args["to"]
           |> Email.signup_email(job.args["url"])
-          |> Mailer.deliver_now()
+          |> Mailer.deliver_now!()
 
         "login" ->
           job.args["to"]
           |> Email.login_email(job.args["url"])
-          |> Mailer.deliver_now()
+          |> Mailer.deliver_now!()
       end
 
       :ok
