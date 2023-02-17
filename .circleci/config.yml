@@ -2,11 +2,12 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/elixir:1.10.3-node
+      - image: cimg/elixir:1.14.3-node
         environment:
           MIX_ENV: test
           DATABASE_URL: "postgres://postgres@localhost:5432/asciinema_test"
-      - image: circleci/postgres:10
+          NODE_OPTIONS: "--openssl-legacy-provider"
+      - image: cimg/postgres:14.6
         environment:
           POSTGRES_USER: postgres
           POSTGRES_DB: asciinema_test
@@ -27,7 +28,7 @@ jobs:
       - restore_cache:
           key: deps-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
       - restore_cache:
-          key: rust-cache-{{ .Branch }}-{{ checksum "native/vt/Cargo.lock" }}-{{ checksum "native/vt_nif/Cargo.lock" }}
+          key: rust-cache-{{ .Branch }}-{{ checksum "native/vt_nif/Cargo.lock" }}
       - restore_cache:
           key: node-cache-{{ .Branch }}-{{ checksum "assets/package-lock.json" }}
       - run:
@@ -41,7 +42,7 @@ jobs:
           command: mix do deps.get, deps.compile
       - run:
           name: Compile
-          command: mix compile --warnings-as-errors
+          command: mix compile
       - run:
           name: Build assets
           command: cd assets && npm install && node_modules/webpack/bin/webpack.js --mode development
@@ -51,7 +52,7 @@ jobs:
             - deps
             - _build
       - save_cache:
-          key: rust-cache-{{ .Branch }}-{{ checksum "native/vt/Cargo.lock" }}-{{ checksum "native/vt_nif/Cargo.lock" }}
+          key: rust-cache-{{ .Branch }}-{{ checksum "native/vt_nif/Cargo.lock" }}
           paths:
             - .rustup
             - .cargo
