@@ -1,5 +1,5 @@
 defmodule Asciinema.Vt do
-  use Rustler, otp_app: :asciinema, crate: "vt_nif"
+  use Rustler, otp_app: :asciinema, crate: :vt_nif
 
   def with_vt(width, height, f) do
     with {:ok, vt} <- new(width, height), do: f.(vt)

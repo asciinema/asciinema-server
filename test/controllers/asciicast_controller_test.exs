@@ -104,9 +104,9 @@ defmodule Asciinema.AsciicastControllerTest do
       asciicast = insert(:asciicast)
       url = Routes.asciicast_path(conn, :show, asciicast)
 
-      conn = get(conn, url <> ".js")
-      assert response(conn, 200)
-      assert response_content_type(conn, :js)
+      conn_2 = get(conn, url <> ".js")
+      assert response(conn_2, 200)
+      assert response_content_type(conn_2, :js)
 
       conn_2 = conn |> put_req_header("accept", "application/javascript") |> get(url)
       assert response(conn_2, 200)

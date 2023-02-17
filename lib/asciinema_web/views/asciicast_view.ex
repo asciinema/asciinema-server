@@ -166,6 +166,7 @@ defmodule AsciinemaWeb.AsciicastView do
         {"bg", "rgb(" <> _} -> "48;2;#{parse_rgb(v)}"
         {"bg", [r, g, b]} -> "48;2;#{r};#{g};#{b}"
         {"bold", true} -> "1"
+        {"faint", true} -> "2"
         {"italic", true} -> "3"
         {"underline", true} -> "4"
         {"blink", true} -> "5"
@@ -309,6 +310,7 @@ defmodule AsciinemaWeb.AsciicastView do
   def class({"fg", fg}) when is_integer(fg), do: "fg-#{fg}"
   def class({"bg", bg}) when is_integer(bg), do: "bg-#{bg}"
   def class({"bold", true}), do: "bright"
+  def class({"faint", true}), do: "faint"
   def class({"underline", true}), do: "underline"
   def class(_), do: nil
 
@@ -322,6 +324,10 @@ defmodule AsciinemaWeb.AsciicastView do
       [] -> nil
       _ -> Enum.join(styles, ";")
     end
+  end
+
+  defp add_style(styles, attr, "rgb(" <> _ = rgb) do
+    ["#{attr}:#{rgb}" | styles]
   end
 
   defp add_style(styles, attr, [r, g, b]) do
@@ -529,22 +535,21 @@ defmodule AsciinemaWeb.AsciicastView do
 
   def svg_text_class({"fg", fg}) when is_integer(fg), do: "c-#{fg}"
   def svg_text_class({"bold", true}), do: "br"
+  def svg_text_class({"faint", true}), do: "fa"
   def svg_text_class({"italic", true}), do: "it"
   def svg_text_class({"underline", true}), do: "un"
   def svg_text_class(_), do: nil
 
   def svg_rect_style(%{"bg" => [_r, _g, _b] = c}), do: "fill:#{hex(c)}"
+  def svg_rect_style(%{"bg" => "rgb(" <> _ = c}), do: "fill:#{c}"
   def svg_rect_style(_), do: nil
 
   def svg_rect_class(%{"bg" => bg}) when is_integer(bg), do: "c-#{bg}"
   def svg_rect_class(_), do: nil
 
-  def svg_text_style(attrs) do
-    case attrs["fg"] do
-      [_r, _g, _b] = c -> "fill:#{hex(c)}"
-      _ -> nil
-    end
-  end
+  def svg_text_style(%{"fg" => [_r, _g, _b] = c}), do: "fill:#{hex(c)}"
+  def svg_text_style(%{"fg" => "rgb(" <> _ = c}), do: "fill:#{c}"
+  def svg_text_style(_), do: nil
 
   defp hex([r, g, b]) do
     "##{hex(r)}#{hex(g)}#{hex(b)}"

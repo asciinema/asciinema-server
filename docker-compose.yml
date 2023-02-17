@@ -2,11 +2,13 @@ version: '2'
 
 services:
   postgres:
-    image: postgres:12-alpine
+    image: postgres:14-alpine
     container_name: asciinema_postgres
     restart: unless-stopped
     volumes:
       - ./volumes/postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
     ### See https://hub.docker.com/_/postgres/ for more
     ### configuration options for this image.
 

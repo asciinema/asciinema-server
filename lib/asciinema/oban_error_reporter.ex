@@ -3,7 +3,7 @@ defmodule Asciinema.ObanErrorReporter do
     :telemetry.attach_many(
       "oban-errors",
       [[:oban, :job, :exception], [:oban, :circuit, :trip]],
-      &handle_event/4,
+      &__MODULE__.handle_event/4,
       %{}
     )
   end

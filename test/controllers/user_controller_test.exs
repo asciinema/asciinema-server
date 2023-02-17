@@ -3,10 +3,6 @@ defmodule Asciinema.UserControllerTest do
   import Asciinema.Factory
   alias Asciinema.Accounts
 
-  setup %{conn: conn} do
-    {:ok, conn: conn}
-  end
-
   describe "sign-up" do
     test "successful sign-up", %{conn: conn} do
       conn = get conn, "/users/new", t: Accounts.signup_token("test@example.com")
