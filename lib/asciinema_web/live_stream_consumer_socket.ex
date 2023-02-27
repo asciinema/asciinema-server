@@ -15,24 +15,18 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
 
   @impl true
   def connect(state) do
-    state = %{
-      stream_id: state.params["id"],
-      time_offset: 0.0
-    }
-
-    {:ok, state}
+    {:ok, %{stream_id: state.params["id"]}}
   end
 
   @impl true
   def init(state) do
     {:ok, _pid} = LiveStreamSupervisor.ensure_child(state.stream_id)
-    {:ok, {vt_size, vt_state, epoch}} = LiveStream.join(state.stream_id)
+    {:ok, {vt_size, vt_state, stream_time}} = LiveStream.join(state.stream_id)
     send(self(), {:push, reset_message(vt_size)})
-    send(self(), {:push, feed_message({0.0, vt_state})})
-    time_offset = Timex.diff(Timex.now(), epoch, :milliseconds) / 1000.0
+    send(self(), {:push, feed_message({stream_time, vt_state})})
     schedule_ping()
 
-    {:ok, %{state | time_offset: time_offset}}
+    {:ok, state}
   end
 
   @impl true
@@ -46,11 +40,11 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   end
 
   def handle_info({:live_stream, {:reset, vt_size}}, state) do
-    {:push, reset_message(vt_size), %{state | time_offset: 0.0}}
+    {:push, reset_message(vt_size), state}
   end
 
-  def handle_info({:live_stream, {:feed, {time, data}}}, state) do
-    {:push, feed_message({time - state.time_offset, data}), state}
+  def handle_info({:live_stream, {:feed, event}}, state) do
+    {:push, feed_message(event), state}
   end
 
   def handle_info(:ping, state) do
