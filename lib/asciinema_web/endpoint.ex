@@ -15,6 +15,10 @@ defmodule AsciinemaWeb.Endpoint do
 
   # socket "/socket", AsciinemaWeb.UserSocket, websocket: true
 
+  # compress helps at all?
+  socket "/ws/S/:id", AsciinemaWeb.LiveStreamProducerSocket, websocket: [path: "", compress: true]
+  socket "/ws/s/:id", AsciinemaWeb.LiveStreamConsumerSocket, websocket: [path: "", compress: true]
+
   # Serve at "/" the static files from "priv/static" directory.
   #
   # You should set gzip to true if you are running phx.digest

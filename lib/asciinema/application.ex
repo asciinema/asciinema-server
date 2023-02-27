@@ -25,7 +25,11 @@ defmodule Asciinema.Application do
       # Start PNG generator poolboy pool
       :poolboy.child_spec(:worker, Asciinema.PngGenerator.Rsvg.poolboy_config(), []),
       # Start Oban
-      {Oban, oban_config()}
+      {Oban, oban_config()},
+      {Registry, [keys: :unique, name: Asciinema.LiveStreamRegistry]},
+      {Registry,
+       [keys: :duplicate, name: Asciinema.PubSubRegistry, partitions: System.schedulers_online()]},
+      Asciinema.LiveStreamSupervisor
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
