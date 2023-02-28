@@ -15,11 +15,7 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
 
   @impl true
   def connect(state) do
-    state = %{
-      stream_id: state.params["id"]
-    }
-
-    {:ok, state}
+    {:ok, %{stream_id: state.params["id"]}}
   end
 
   @impl true
