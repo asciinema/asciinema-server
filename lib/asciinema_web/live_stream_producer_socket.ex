@@ -29,21 +29,21 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
   @impl true
   def handle_in({text, _opts}, state) do
     case Jason.decode(text) do
-      {:ok, %{"cols" => cols, "rows" => rows}} ->
+      {:ok, %{"cols" => cols, "rows" => rows}} when is_number(cols) and is_number(rows) ->
         Logger.debug("producer: reset (#{cols}x#{rows})")
         :ok = LiveStream.reset(state.stream_id, {cols, rows})
 
-      {:ok, %{"width" => cols, "height" => rows}} ->
+      {:ok, %{"width" => cols, "height" => rows}} when is_number(cols) and is_number(rows) ->
         Logger.debug("producer: reset (#{cols}x#{rows})")
         :ok = LiveStream.reset(state.stream_id, {cols, rows})
 
       {:ok, header} when is_map(header) ->
         Logger.debug("producer: invalid header: #{inspect(header)}")
 
-      {:ok, [time, "o", data]} ->
+      {:ok, [time, "o", data]} when is_number(time) and is_binary(data) ->
         :ok = LiveStream.feed(state.stream_id, {time, data})
 
-      {:ok, [_, _, _]} ->
+      {:ok, [time, _, data]} when is_number(time) and is_binary(data) ->
         :ok
 
       _otherwise ->
