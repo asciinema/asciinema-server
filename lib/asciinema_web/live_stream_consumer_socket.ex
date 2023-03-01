@@ -1,6 +1,5 @@
 defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   alias Asciinema.LiveStream
-  alias Asciinema.LiveStreamSupervisor
   require Logger
 
   @behaviour Phoenix.Socket.Transport
@@ -15,15 +14,13 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
 
   @impl true
   def connect(state) do
-    {:ok, %{stream_id: state.params["id"]}}
+    {:ok, %{stream_id: state.params["id"], init: false}}
   end
 
   @impl true
   def init(state) do
-    {:ok, _pid} = LiveStreamSupervisor.ensure_child(state.stream_id)
-    {:ok, {vt_size, vt_state, stream_time}} = LiveStream.join(state.stream_id)
-    send(self(), {:push, reset_message(vt_size)})
-    send(self(), {:push, feed_message({stream_time, vt_state})})
+    Logger.info("consumer/#{state.stream_id}: connected")
+    LiveStream.join(state.stream_id)
     schedule_ping()
 
     {:ok, state}
@@ -35,16 +32,27 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   end
 
   @impl true
-  def handle_info({:push, message}, state) do
-    {:push, message, state}
+  def handle_info(
+        {:live_stream, {:init, {vt_size, vt_state, stream_time}}},
+        %{init: false} = state
+      ) do
+    Logger.info("consumer/#{state.stream_id}: init")
+    send(self(), {:live_stream, {:reset, vt_size}})
+    send(self(), {:live_stream, {:feed, {stream_time, vt_state}}})
+
+    {:ok, %{state | init: true}}
   end
 
-  def handle_info({:live_stream, {:reset, vt_size}}, state) do
+  def handle_info({:live_stream, {:reset, vt_size}}, %{init: true} = state) do
     {:push, reset_message(vt_size), state}
   end
 
-  def handle_info({:live_stream, {:feed, event}}, state) do
+  def handle_info({:live_stream, {:feed, event}}, %{init: true} = state) do
     {:push, feed_message(event), state}
+  end
+
+  def handle_info({:live_stream, _}, %{init: false} = state) do
+    {:ok, state}
   end
 
   def handle_info(:ping, state) do
@@ -55,7 +63,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
 
   @impl true
   def terminate(_reason, state) do
-    Logger.debug("consumer: state on termination: #{inspect(state)}")
+    Logger.info("consumer/#{state.stream_id}: terminating, state: #{inspect(state)}")
 
     :ok
   end

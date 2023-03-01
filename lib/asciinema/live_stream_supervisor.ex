@@ -13,16 +13,14 @@ defmodule Asciinema.LiveStreamSupervisor do
   end
 
   def start_child(id) do
-    Logger.debug("starting server for live stream #{id}")
-
+    Logger.debug("stream sup: starting server for live stream #{id}")
     DynamicSupervisor.start_child(__MODULE__, {LiveStream, id})
   end
 
   def ensure_child(id) do
     case start_child(id) do
       {:error, {:already_started, pid}} ->
-        Logger.debug("found existing server for live stream #{id}")
-
+        Logger.debug("stream sup: server already exists for live stream #{id}")
         {:ok, pid}
 
       otherwise ->

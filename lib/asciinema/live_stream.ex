@@ -9,66 +9,55 @@ defmodule Asciinema.LiveStream do
     GenServer.start_link(__MODULE__, stream_id, name: via_tuple(stream_id))
   end
 
+  def lead(stream_id) do
+    GenServer.call(via_tuple(stream_id), :lead)
+  end
+
   def reset(stream_id, {_, _} = vt_size) do
-    :ok = GenServer.call(via_tuple(stream_id), {:reset, vt_size})
+    GenServer.call(via_tuple(stream_id), {:reset, vt_size})
   end
 
   def feed(stream_id, event) do
-    :ok = GenServer.call(via_tuple(stream_id), {:feed, event})
+    GenServer.call(via_tuple(stream_id), {:feed, event})
+  end
+
+  def heartbeat(stream_id) do
+    GenServer.call(via_tuple(stream_id), :heartbeat)
   end
 
   def join(stream_id) do
-    Logger.debug("client: join")
-
-    ref1 = make_ref()
-    ref2 = make_ref()
-
-    Logger.debug("client: casting")
-
-    :ok = GenServer.cast(via_tuple(stream_id), {:join, {self(), ref1, ref2}})
-
-    Logger.debug("client: waiting for stream state")
-
-    receive do
-      {^ref1, pid, {_vt_size, _vt_state, _stream_time} = stream_state} ->
-        Logger.debug("client: got stream state, subscribing")
-        subscribe(stream_id)
-        Logger.debug("client: releasing server")
-        send(pid, ref2)
-
-        {:ok, stream_state}
-    after
-      5000 ->
-        Logger.debug("client: live stream server not responding")
-
-        :error
-    end
+    subscribe({:live_stream, stream_id})
+    GenServer.cast(via_tuple(stream_id), {:join, self()})
   end
 
   def stop(stream_id), do: GenServer.stop(via_tuple(stream_id))
-
-  def crash(stream_id), do: GenServer.cast(via_tuple(stream_id), :raise)
 
   # Callbacks
 
   @impl true
   def init(stream_id) do
-    Logger.info("initializing live stream #{stream_id}...")
+    Logger.info("stream/#{stream_id}: init")
 
-    # TODO load cols/rows and last known dump from db
-
+    # TODO load vt size and last known state from db
     vt_size = {80, 24}
+    last_stream_time = 0.0
     last_vt_state = ""
 
     {cols, rows} = vt_size
     {:ok, vt} = Vt.new(cols, rows)
     :ok = Vt.feed(vt, last_vt_state)
 
+    publish(
+      {:live_stream, stream_id},
+      {:live_stream, {:init, {vt_size, last_vt_state, last_stream_time}}}
+    )
+
     state = %{
       stream_id: stream_id,
+      producer: nil,
       vt: vt,
       vt_size: vt_size,
-      last_stream_time: 0.0,
+      last_stream_time: last_stream_time,
       last_feed_time: Timex.now()
     }
 
@@ -76,41 +65,54 @@ defmodule Asciinema.LiveStream do
   end
 
   @impl true
-  def handle_call({:reset, {cols, rows} = vt_size}, _from, state) do
+  def handle_call(:lead, {pid, _} = _from, state) do
+    {:reply, :ok, %{state | producer: pid}}
+  end
+
+  def handle_call({:reset, {cols, rows} = vt_size}, {pid, _} = _from, %{producer: pid} = state) do
     {:ok, vt} = Vt.new(cols, rows)
-    publish(state.stream_id, {:reset, vt_size})
+    publish({:live_stream, state.stream_id}, {:live_stream, {:reset, vt_size}})
 
     {:reply, :ok, %{state | vt: vt, vt_size: vt_size}}
   end
 
-  def handle_call({:feed, {time, data} = event}, _from, state) do
+  def handle_call({:reset, _vt_size}, _from, state) do
+    Logger.info("stream/#{state.stream_id}: rejecting reset from non-leader producer")
+
+    {:reply, {:error, :not_a_leader}, state}
+  end
+
+  def handle_call({:feed, {time, data} = event}, {pid, _} = _from, %{producer: pid} = state) do
     :ok = Vt.feed(state.vt, data)
-    publish(state.stream_id, {:feed, event})
+    publish({:live_stream, state.stream_id}, {:live_stream, {:feed, event}})
 
     {:reply, :ok, %{state | last_stream_time: time, last_feed_time: Timex.now()}}
   end
 
-  @impl true
-  def handle_cast({:join, {pid, ref1, ref2}}, state) do
-    Logger.debug("server: sending stream state")
+  def handle_call({:feed, _event}, _from, state) do
+    Logger.info("stream/#{state.stream_id}: rejecting feed from non-leader producer")
 
+    {:reply, {:error, :not_a_leader}, state}
+  end
+
+  def handle_call(:heartbeat, {pid, _} = _from, %{producer: pid} = state) do
+    # TODO schedule shutdown
+    {:reply, :ok, state}
+  end
+
+  def handle_call(:heartbeat, _from, state) do
+    Logger.info("stream/#{state.stream_id}: rejecting heartbeat from non-leader producer")
+
+    {:reply, {:error, :not_a_leader}, state}
+  end
+
+  @impl true
+  def handle_cast({:join, pid}, state) do
     stream_time =
       state.last_stream_time +
         Timex.diff(Timex.now(), state.last_feed_time, :milliseconds) / 1000.0
 
-    send(pid, {ref1, self(), {state.vt_size, Vt.dump(state.vt), stream_time}})
-
-    Logger.debug("server: waiting for client subscribe")
-
-    receive do
-      ^ref2 ->
-        Logger.debug("server: client successfully subscribed")
-        :ok
-    after
-      5000 ->
-        Logger.warn("server: timed out waiting for client subscribe")
-        :ok
-    end
+    send(pid, {:live_stream, {:init, {state.vt_size, Vt.dump(state.vt), stream_time}}})
 
     {:noreply, state}
   end
@@ -123,13 +125,13 @@ defmodule Asciinema.LiveStream do
 
   defp via_tuple(stream_id), do: {:via, Registry, {Asciinema.LiveStreamRegistry, stream_id}}
 
-  defp subscribe(stream_id) do
-    {:ok, _} = Registry.register(Asciinema.PubSubRegistry, {:live_stream, stream_id}, [])
+  defp subscribe(topic) do
+    {:ok, _} = Registry.register(Asciinema.PubSubRegistry, topic, [])
   end
 
-  defp publish(stream_id, data) do
-    Registry.dispatch(Asciinema.PubSubRegistry, {:live_stream, stream_id}, fn entries ->
-      for {pid, _} <- entries, do: send(pid, {:live_stream, data})
+  defp publish(topic, payload) do
+    Registry.dispatch(Asciinema.PubSubRegistry, topic, fn entries ->
+      for {pid, _} <- entries, do: send(pid, payload)
     end)
   end
 end
