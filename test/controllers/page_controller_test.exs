@@ -6,7 +6,7 @@ defmodule Asciinema.PageControllerTest do
       ["/about", "/privacy", "/contributing", "/contact", "/tos"],
       fn path ->
         conn = get(conn, path)
-        assert html_response(conn, 200) =~ ~r{<h1>.+</h1>}
+        assert html_response(conn, 200) =~ ~r{<h1>.+</h1>}s
       end
     )
   end
