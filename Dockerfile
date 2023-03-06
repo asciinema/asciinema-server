@@ -5,7 +5,7 @@ ARG ELIXIR_VERSION=1.14.3
 ## Release building image
 
 # https://github.com/hexpm/bob#docker-images
-FROM hexpm/elixir:${ELIXIR_VERSION}-erlang-${ERLANG_OTP_VERSION}-alpine-${ALPINE_VERSION} as builder
+FROM docker.io/hexpm/elixir:${ELIXIR_VERSION}-erlang-${ERLANG_OTP_VERSION}-alpine-${ALPINE_VERSION} as builder
 
 ARG MIX_ENV=prod
 
@@ -48,7 +48,7 @@ RUN mix release
 
 # Final image
 
-FROM alpine:${ALPINE_VERSION}
+FROM docker.io/alpine:${ALPINE_VERSION}
 
 RUN apk add --no-cache \
   libstdc++ \
