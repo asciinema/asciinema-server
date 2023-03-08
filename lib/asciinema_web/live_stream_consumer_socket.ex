@@ -32,10 +32,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   end
 
   @impl true
-  def handle_info(
-        {:live_stream, {:init, {vt_size, vt_state, stream_time}}},
-        %{init: false} = state
-      ) do
+  def handle_info({:live_stream, {:init, {vt_size, vt_state, stream_time}}}, state) do
     Logger.info("consumer/#{state.stream_id}: init")
     send(self(), {:live_stream, {:reset, vt_size}})
     send(self(), {:live_stream, {:feed, {stream_time, vt_state}}})
