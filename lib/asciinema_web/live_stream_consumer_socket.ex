@@ -77,7 +77,6 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
 
   defp feed_message({time, data}) do
     {:text, Jason.encode!([time, "o", data])}
-    # {:binary, data}
   end
 
   @ping_interval 15_000
