@@ -41,15 +41,18 @@ defmodule Asciinema.LiveStream do
     # TODO load vt size and last known state from db
     vt_size = {80, 24}
     last_stream_time = 0.0
+    last_feed_time = Timex.now()
     last_vt_state = ""
 
     {cols, rows} = vt_size
     {:ok, vt} = Vt.new(cols, rows)
     :ok = Vt.feed(vt, last_vt_state)
 
+    stream_time = current_stream_time(last_stream_time, last_feed_time)
+
     publish(
       {:live_stream, stream_id},
-      {:live_stream, {:init, {vt_size, last_vt_state, last_stream_time}}}
+      {:live_stream, {:init, {vt_size, last_vt_state, stream_time}}}
     )
 
     state = %{
@@ -58,7 +61,7 @@ defmodule Asciinema.LiveStream do
       vt: vt,
       vt_size: vt_size,
       last_stream_time: last_stream_time,
-      last_feed_time: Timex.now(),
+      last_feed_time: last_feed_time,
       shutdown_timer: nil
     }
 
@@ -112,10 +115,7 @@ defmodule Asciinema.LiveStream do
 
   @impl true
   def handle_cast({:join, pid}, state) do
-    stream_time =
-      state.last_stream_time +
-        Timex.diff(Timex.now(), state.last_feed_time, :milliseconds) / 1000.0
-
+    stream_time = current_stream_time(state.last_stream_time, state.last_feed_time)
     send(pid, {:live_stream, {:init, {state.vt_size, Vt.dump(state.vt), stream_time}}})
 
     {:noreply, state}
@@ -155,5 +155,9 @@ defmodule Asciinema.LiveStream do
     timer = Process.send_after(self(), :shutdown, 60 * 1000)
 
     %{state | shutdown_timer: timer}
+  end
+
+  defp current_stream_time(last_stream_time, last_feed_time) do
+    last_stream_time + Timex.diff(Timex.now(), last_feed_time, :milliseconds) / 1000.0
   end
 end
