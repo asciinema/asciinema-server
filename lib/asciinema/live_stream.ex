@@ -135,7 +135,9 @@ defmodule Asciinema.LiveStream do
 
   @impl true
   def terminate(reason, state) do
-    Logger.info("stream/#{state.stream_id}: terminating | reason: #{reason}, state: #{inspect(state)}")
+    Logger.info(
+      "stream/#{state.stream_id}: terminating | reason: #{inspect(reason)}, state: #{inspect(state)}"
+    )
 
     :ok
   end
