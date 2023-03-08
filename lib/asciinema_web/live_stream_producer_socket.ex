@@ -33,16 +33,21 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
     {:ok, state}
   end
 
+  @max_cols 720
+  @max_rows 200
+
   def handle_in({text, _opts}, state) do
     result =
       case Jason.decode(text) do
-        # TODO add guard for positive cols/rows
-        {:ok, %{"cols" => cols, "rows" => rows}} when is_integer(cols) and is_integer(rows) ->
+        {:ok, %{"cols" => cols, "rows" => rows}}
+        when is_integer(cols) and is_integer(rows) and cols > 0 and rows > 0 and cols <= @max_cols and
+               rows <= @max_rows ->
           Logger.info("producer/#{state.stream_id}: reset (#{cols}x#{rows})")
           LiveStream.reset(state.stream_id, {cols, rows})
 
-        # TODO add guard for positive cols/rows
-        {:ok, %{"width" => cols, "height" => rows}} when is_integer(cols) and is_integer(rows) ->
+        {:ok, %{"width" => cols, "height" => rows}}
+        when is_integer(cols) and is_integer(rows) and cols > 0 and rows > 0 and cols <= @max_cols and
+               rows <= @max_rows ->
           Logger.info("producer/#{state.stream_id}: reset (#{cols}x#{rows})")
           LiveStream.reset(state.stream_id, {cols, rows})
 
