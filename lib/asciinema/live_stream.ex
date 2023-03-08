@@ -133,6 +133,13 @@ defmodule Asciinema.LiveStream do
     {:stop, :normal, state}
   end
 
+  @impl true
+  def terminate(reason, state) do
+    Logger.info("stream/#{state.stream_id}: terminating | reason: #{reason}, state: #{inspect(state)}")
+
+    :ok
+  end
+
   # Private
 
   defp via_tuple(stream_id), do: {:via, Registry, {Asciinema.LiveStreamRegistry, stream_id}}

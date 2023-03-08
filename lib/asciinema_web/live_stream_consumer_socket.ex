@@ -63,8 +63,8 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   end
 
   @impl true
-  def terminate(_reason, state) do
-    Logger.info("consumer/#{state.stream_id}: terminating, state: #{inspect(state)}")
+  def terminate(reason, state) do
+    Logger.info("consumer/#{state.stream_id}: terminating | reason: #{reason}, state: #{inspect(state)}")
 
     :ok
   end
