@@ -52,8 +52,8 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
           LiveStream.reset(state.stream_id, {cols, rows})
 
         {:ok, header} when is_map(header) ->
-          Logger.debug("producer/#{state.stream_id}: invalid header: #{inspect(header)}")
-          :ok
+          Logger.info("producer/#{state.stream_id}: invalid header: #{inspect(header)}")
+          :error
 
         {:ok, [time, "o", data]} when is_number(time) and is_binary(data) ->
           LiveStream.feed(state.stream_id, {time, data})
@@ -61,23 +61,16 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
         {:ok, [time, _, data]} when is_number(time) and is_binary(data) ->
           :ok
 
-        {:error, reason} = error ->
-          Logger.debug("producer/#{state.stream_id}: invalid message: #{inspect(reason)}")
-          error
-
-        _otherwise ->
-          Logger.debug("producer/#{state.stream_id}: invalid message: #{inspect(text)}")
-          :ok
+        result ->
+          Logger.info("producer/#{state.stream_id}: invalid message: #{inspect(result)}")
+          :error
       end
 
     case result do
       :ok ->
         {:ok, state}
 
-      {:error, :not_a_leader} ->
-        {:stop, :normal, state}
-
-      {:error, %Jason.DecodeError{}} ->
+      :error ->
         {:stop, :normal, state}
     end
   end
