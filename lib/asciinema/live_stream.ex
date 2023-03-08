@@ -58,8 +58,11 @@ defmodule Asciinema.LiveStream do
       vt: vt,
       vt_size: vt_size,
       last_stream_time: last_stream_time,
-      last_feed_time: Timex.now()
+      last_feed_time: Timex.now(),
+      shutdown_timer: nil
     }
+
+    state = reschedule_shutdown(state)
 
     {:ok, state}
   end
@@ -96,7 +99,8 @@ defmodule Asciinema.LiveStream do
   end
 
   def handle_call(:heartbeat, {pid, _} = _from, %{producer: pid} = state) do
-    # TODO schedule shutdown
+    state = reschedule_shutdown(state)
+
     {:reply, :ok, state}
   end
 
@@ -121,6 +125,14 @@ defmodule Asciinema.LiveStream do
     {:noreply, state}
   end
 
+  @impl true
+  def handle_info(:shutdown, state) do
+    Logger.info("stream/#{state.stream_id}: shutting down due to missing heartbeats")
+    publish({:live_stream, state.stream_id}, {:live_stream, :end})
+
+    {:stop, :normal, state}
+  end
+
   # Private
 
   defp via_tuple(stream_id), do: {:via, Registry, {Asciinema.LiveStreamRegistry, stream_id}}
@@ -133,5 +145,15 @@ defmodule Asciinema.LiveStream do
     Registry.dispatch(Asciinema.PubSubRegistry, topic, fn entries ->
       for {pid, _} <- entries, do: send(pid, payload)
     end)
+  end
+
+  defp reschedule_shutdown(state) do
+    if state.shutdown_timer do
+      Process.cancel_timer(state.shutdown_timer)
+    end
+
+    timer = Process.send_after(self(), :shutdown, 60 * 1000)
+
+    %{state | shutdown_timer: timer}
   end
 end

@@ -52,6 +52,10 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     {:ok, state}
   end
 
+  def handle_info({:live_stream, :end}, state) do
+    {:stop, :normal, state}
+  end
+
   def handle_info(:ping, state) do
     schedule_ping()
 
