@@ -5,6 +5,9 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
 
   @behaviour Phoenix.Socket.Transport
 
+  @ping_interval 15_000
+  @heartbeat_interval 15_000
+
   # Callbacks
 
   @impl true
@@ -23,7 +26,8 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
     Logger.info("producer/#{state.stream_id}: connected")
     {:ok, _pid} = LiveStreamSupervisor.ensure_child(state.stream_id)
     :ok = LiveStream.lead(state.stream_id)
-    schedule_ping()
+    send(self(), :heartbeat)
+    Process.send_after(self(), :ping, @ping_interval)
 
     {:ok, state}
   end
@@ -77,19 +81,21 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
 
   @impl true
   def handle_info(:ping, state) do
-    schedule_ping()
+    Process.send_after(self(), :ping, @ping_interval)
+
+    {:push, {:ping, ""}, state}
+  end
+
+  def handle_info(:heartbeat, state) do
+    Process.send_after(self(), :heartbeat, @heartbeat_interval)
 
     case LiveStream.heartbeat(state.stream_id) do
       :ok ->
-        {:push, {:ping, ""}, state}
+        {:ok, state}
 
       {:error, :not_a_leader} ->
         {:stop, :normal, state}
     end
-  end
-
-  def handle_info(_, state) do
-    {:ok, state}
   end
 
   @impl true
@@ -99,13 +105,5 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
     )
 
     :ok
-  end
-
-  # Private
-
-  @ping_interval 15_000
-
-  defp schedule_ping do
-    Process.send_after(self(), :ping, @ping_interval)
   end
 end
