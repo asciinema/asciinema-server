@@ -7,6 +7,7 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
 
   @ping_interval 15_000
   @heartbeat_interval 15_000
+  @reset_timeout 5_000
 
   # Callbacks
 
@@ -18,7 +19,7 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
 
   @impl true
   def connect(state) do
-    {:ok, %{stream_id: state.params["id"]}}
+    {:ok, %{stream_id: state.params["id"], reset_timeout_timer: nil}}
   end
 
   @impl true
@@ -26,10 +27,11 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
     Logger.info("producer/#{state.stream_id}: connected")
     {:ok, _pid} = LiveStreamSupervisor.ensure_child(state.stream_id)
     :ok = LiveStream.lead(state.stream_id)
-    send(self(), :heartbeat)
+    reset_timeout_timer = Process.send_after(self(), :reset_timeout, @reset_timeout)
     Process.send_after(self(), :ping, @ping_interval)
+    send(self(), :heartbeat)
 
-    {:ok, state}
+    {:ok, %{state | reset_timeout_timer: reset_timeout_timer}}
   end
 
   @impl true
@@ -47,12 +49,22 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
         when is_integer(cols) and is_integer(rows) and cols > 0 and rows > 0 and cols <= @max_cols and
                rows <= @max_rows ->
           Logger.info("producer/#{state.stream_id}: reset (#{cols}x#{rows})")
+
+          if state.reset_timeout_timer do
+            Process.cancel_timer(state.reset_timeout_timer)
+          end
+
           LiveStream.reset(state.stream_id, {cols, rows}, header["init"], header["time"])
 
         {:ok, %{"width" => cols, "height" => rows}}
         when is_integer(cols) and is_integer(rows) and cols > 0 and rows > 0 and cols <= @max_cols and
                rows <= @max_rows ->
           Logger.info("producer/#{state.stream_id}: reset (#{cols}x#{rows})")
+
+          if state.reset_timeout_timer do
+            Process.cancel_timer(state.reset_timeout_timer)
+          end
+
           LiveStream.reset(state.stream_id, {cols, rows})
 
         {:ok, header} when is_map(header) ->
@@ -94,8 +106,16 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
         {:ok, state}
 
       {:error, :not_a_leader} ->
+        Logger.info("producer/#{state.stream_id}: stream taken by another producer")
+
         {:stop, :normal, state}
     end
+  end
+
+  def handle_info(:reset_timeout, state) do
+    Logger.info("producer/#{state.stream_id}: initial reset timeout")
+
+    {:stop, :reset_timeout, state}
   end
 
   @impl true
