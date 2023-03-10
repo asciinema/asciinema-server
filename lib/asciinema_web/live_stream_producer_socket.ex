@@ -47,6 +47,11 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
          {:ok, state} <- handle_message(message, state) do
       {:ok, state}
     else
+      {:error, :not_a_leader} ->
+        Logger.info("producer/#{state.stream_id}: stream taken over by another producer")
+
+        {:stop, :normal, state}
+
       {:error, _} ->
         {:stop, :normal, state}
     end
@@ -118,7 +123,7 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
         {:ok, state}
 
       {:error, :not_a_leader} ->
-        Logger.info("producer/#{state.stream_id}: stream taken by another producer")
+        Logger.info("producer/#{state.stream_id}: stream taken over by another producer")
 
         {:stop, :normal, state}
     end

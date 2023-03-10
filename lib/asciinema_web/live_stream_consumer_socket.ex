@@ -36,8 +36,8 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   end
 
   @impl true
-  def handle_info({:live_stream, {:reset, {{_, _}, _, _} = data}}, state) do
-    Logger.info("consumer/#{state.stream_id}: reset")
+  def handle_info({:live_stream, {:reset, {{cols, rows}, _, _} = data}}, state) do
+    Logger.info("consumer/#{state.stream_id}: reset (#{cols}x#{rows})")
 
     {:push, reset_message(data), %{state | init: true}}
   end
