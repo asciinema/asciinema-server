@@ -5,9 +5,9 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
 
   @behaviour Phoenix.Socket.Transport
 
+  @reset_timeout 5_000
   @ping_interval 15_000
   @heartbeat_interval 15_000
-  @reset_timeout 5_000
 
   # Callbacks
 

@@ -4,6 +4,9 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
 
   @behaviour Phoenix.Socket.Transport
 
+  @reset_timeout 1_000
+  @ping_interval 15_000
+
   # Callbacks
 
   @impl true
@@ -21,7 +24,8 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   def init(state) do
     Logger.info("consumer/#{state.stream_id}: connected")
     LiveStream.join(state.stream_id)
-    schedule_ping()
+    Process.send_after(self(), :reset_timeout, @reset_timeout)
+    Process.send_after(self(), :ping, @ping_interval)
 
     {:ok, state}
   end
@@ -43,7 +47,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   end
 
   def handle_info({:live_stream, :offline}, state) do
-    {:push, {:text, Jason.encode!(%{state: "offline"})}, state}
+    {:push, offline_message(), state}
   end
 
   def handle_info({:live_stream, _}, %{init: false} = state) do
@@ -51,10 +55,16 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   end
 
   def handle_info(:ping, state) do
-    schedule_ping()
+    Process.send_after(self(), :ping, @ping_interval)
 
     {:push, {:ping, ""}, state}
   end
+
+  def handle_info(:reset_timeout, %{init: false} = state) do
+    {:push, offline_message(), state}
+  end
+
+  def handle_info(:reset_timeout, %{init: true} = state), do: {:ok, state}
 
   @impl true
   def terminate(reason, state) do
@@ -75,9 +85,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     {:text, Jason.encode!([time, "o", data])}
   end
 
-  @ping_interval 15_000
-
-  defp schedule_ping do
-    Process.send_after(self(), :ping, @ping_interval)
+  defp offline_message do
+    {:text, Jason.encode!(%{state: "offline"})}
   end
 end
