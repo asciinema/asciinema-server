@@ -19,7 +19,7 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
 
   @impl true
   def connect(state) do
-    {:ok, %{stream_id: state.params["id"], reset_timeout_timer: nil}}
+    {:ok, %{stream_id: state.params["id"], init: false}}
   end
 
   @impl true
@@ -27,11 +27,11 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
     Logger.info("producer/#{state.stream_id}: connected")
     {:ok, _pid} = LiveStreamSupervisor.ensure_child(state.stream_id)
     :ok = LiveStream.lead(state.stream_id)
-    reset_timeout_timer = Process.send_after(self(), :reset_timeout, @reset_timeout)
+    Process.send_after(self(), :reset_timeout, @reset_timeout)
     Process.send_after(self(), :ping, @ping_interval)
     send(self(), :heartbeat)
 
-    {:ok, %{state | reset_timeout_timer: reset_timeout_timer}}
+    {:ok, state}
   end
 
   @impl true
@@ -43,52 +43,64 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
   @max_rows 200
 
   def handle_in({text, _opts}, state) do
-    result =
-      case Jason.decode(text) do
-        {:ok, %{"cols" => cols, "rows" => rows} = header}
-        when is_integer(cols) and is_integer(rows) and cols > 0 and rows > 0 and cols <= @max_cols and
-               rows <= @max_rows ->
-          Logger.info("producer/#{state.stream_id}: reset (#{cols}x#{rows})")
-
-          if state.reset_timeout_timer do
-            Process.cancel_timer(state.reset_timeout_timer)
-          end
-
-          LiveStream.reset(state.stream_id, {cols, rows}, header["init"], header["time"])
-
-        {:ok, %{"width" => cols, "height" => rows}}
-        when is_integer(cols) and is_integer(rows) and cols > 0 and rows > 0 and cols <= @max_cols and
-               rows <= @max_rows ->
-          Logger.info("producer/#{state.stream_id}: reset (#{cols}x#{rows})")
-
-          if state.reset_timeout_timer do
-            Process.cancel_timer(state.reset_timeout_timer)
-          end
-
-          LiveStream.reset(state.stream_id, {cols, rows})
-
-        {:ok, header} when is_map(header) ->
-          Logger.info("producer/#{state.stream_id}: invalid header: #{inspect(header)}")
-          :error
-
-        {:ok, [time, "o", data]} when is_number(time) and is_binary(data) ->
-          LiveStream.feed(state.stream_id, {time, data})
-
-        {:ok, [time, _, data]} when is_number(time) and is_binary(data) ->
-          :ok
-
-        result ->
-          Logger.info("producer/#{state.stream_id}: invalid message: #{inspect(result)}")
-          :error
-      end
-
-    case result do
-      :ok ->
-        {:ok, state}
-
-      :error ->
+    with {:ok, message} <- Jason.decode(text),
+         {:ok, state} <- handle_message(message, state) do
+      {:ok, state}
+    else
+      {:error, _} ->
         {:stop, :normal, state}
     end
+  end
+
+  def handle_message(%{"cols" => cols, "rows" => rows} = header, state)
+      when is_integer(cols) and is_integer(rows) and cols > 0 and rows > 0 and cols <= @max_cols and
+             rows <= @max_rows do
+    Logger.info("producer/#{state.stream_id}: reset (#{cols}x#{rows})")
+
+    with :ok <- LiveStream.reset(state.stream_id, {cols, rows}, header["init"], header["time"]) do
+      {:ok, %{state | init: true}}
+    end
+  end
+
+  def handle_message(%{"width" => cols, "height" => rows}, state)
+      when is_integer(cols) and is_integer(rows) and cols > 0 and rows > 0 and cols <= @max_cols and
+             rows <= @max_rows do
+    Logger.info("producer/#{state.stream_id}: reset (#{cols}x#{rows})")
+
+    with :ok <- LiveStream.reset(state.stream_id, {cols, rows}) do
+      {:ok, %{state | init: true}}
+    end
+  end
+
+  def handle_message(header, state) when is_map(header) do
+    Logger.info("producer/#{state.stream_id}: invalid header: #{inspect(header)}")
+
+    {:error, :invalid_message}
+  end
+
+  def handle_message([time, "o", data], %{init: true} = state)
+      when is_number(time) and is_binary(data) do
+    with :ok <- LiveStream.feed(state.stream_id, {time, data}) do
+      {:ok, state}
+    end
+  end
+
+  def handle_message([time, type, data], %{init: true} = state)
+      when is_number(time) and is_binary(type) and is_binary(data) do
+    {:ok, state}
+  end
+
+  def handle_message([time, type, data], %{init: false} = state)
+      when is_number(time) and is_binary(type) and is_binary(data) do
+    Logger.info("producer/#{state.stream_id}: expected header, got event")
+
+    {:error, :unexpected_message}
+  end
+
+  def handle_message(message, state) do
+    Logger.info("producer/#{state.stream_id}: invalid message: #{inspect(message)}")
+
+    {:error, :invalid_message}
   end
 
   @impl true
@@ -112,11 +124,13 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
     end
   end
 
-  def handle_info(:reset_timeout, state) do
+  def handle_info(:reset_timeout, %{init: false} = state) do
     Logger.info("producer/#{state.stream_id}: initial reset timeout")
 
     {:stop, :reset_timeout, state}
   end
+
+  def handle_info(:reset_timeout, %{init: true} = state), do: {:ok, state}
 
   @impl true
   def terminate(reason, state) do
