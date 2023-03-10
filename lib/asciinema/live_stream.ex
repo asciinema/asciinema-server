@@ -13,8 +13,8 @@ defmodule Asciinema.LiveStream do
     GenServer.call(via_tuple(stream_id), :lead)
   end
 
-  def reset(stream_id, {_, _} = vt_size) do
-    GenServer.call(via_tuple(stream_id), {:reset, vt_size})
+  def reset(stream_id, {_, _} = vt_size, vt_init \\ nil, stream_time \\ nil) do
+    GenServer.call(via_tuple(stream_id), {:reset, vt_size, vt_init, stream_time})
   end
 
   def feed(stream_id, event) do
@@ -38,30 +38,13 @@ defmodule Asciinema.LiveStream do
   def init(stream_id) do
     Logger.info("stream/#{stream_id}: init")
 
-    # TODO load vt size and last known state from db
-    vt_size = {80, 24}
-    last_stream_time = 0.0
-    last_feed_time = Timex.now()
-    last_vt_state = ""
-
-    {cols, rows} = vt_size
-    {:ok, vt} = Vt.new(cols, rows)
-    :ok = Vt.feed(vt, last_vt_state)
-
-    stream_time = current_stream_time(last_stream_time, last_feed_time)
-
-    publish(
-      {:live_stream, stream_id},
-      {:live_stream, {:init, {vt_size, last_vt_state, stream_time}}}
-    )
-
     state = %{
       stream_id: stream_id,
       producer: nil,
-      vt: vt,
-      vt_size: vt_size,
-      last_stream_time: last_stream_time,
-      last_feed_time: last_feed_time,
+      vt: nil,
+      vt_size: nil,
+      last_stream_time: nil,
+      last_feed_time: nil,
       shutdown_timer: nil
     }
 
@@ -75,14 +58,36 @@ defmodule Asciinema.LiveStream do
     {:reply, :ok, %{state | producer: pid}}
   end
 
-  def handle_call({:reset, {cols, rows} = vt_size}, {pid, _} = _from, %{producer: pid} = state) do
+  def handle_call(
+        {:reset, {cols, rows} = vt_size, vt_init, stream_time},
+        {pid, _} = _from,
+        %{producer: pid} = state
+      ) do
     {:ok, vt} = Vt.new(cols, rows)
-    publish({:live_stream, state.stream_id}, {:live_stream, {:reset, vt_size}})
 
-    {:reply, :ok, %{state | vt: vt, vt_size: vt_size}}
+    if vt_init do
+      :ok = Vt.feed(vt, vt_init)
+    end
+
+    stream_time = stream_time || 0.0
+
+    publish(
+      {:live_stream, state.stream_id},
+      {:live_stream, {:reset, {vt_size, vt_init, stream_time}}}
+    )
+
+    state = %{
+      state
+      | vt: vt,
+        vt_size: vt_size,
+        last_stream_time: stream_time,
+        last_feed_time: Timex.now()
+    }
+
+    {:reply, :ok, state}
   end
 
-  def handle_call({:reset, _vt_size}, _from, state) do
+  def handle_call({:reset, _vt_size, _vt_init, _stream_time}, _from, state) do
     Logger.info("stream/#{state.stream_id}: rejecting reset from non-leader producer")
 
     {:reply, {:error, :not_a_leader}, state}
@@ -114,21 +119,21 @@ defmodule Asciinema.LiveStream do
   end
 
   @impl true
-  def handle_cast({:join, pid}, state) do
+  def handle_cast({:join, pid}, %{vt_size: vt_size} = state) when not is_nil(vt_size) do
     stream_time = current_stream_time(state.last_stream_time, state.last_feed_time)
-    send(pid, {:live_stream, {:init, {state.vt_size, Vt.dump(state.vt), stream_time}}})
+    send(pid, {:live_stream, {:reset, {vt_size, Vt.dump(state.vt), stream_time}}})
 
     {:noreply, state}
   end
 
-  def handle_cast(_, state) do
+  def handle_cast({:join, _pid}, state) do
     {:noreply, state}
   end
 
   @impl true
   def handle_info(:shutdown, state) do
     Logger.info("stream/#{state.stream_id}: shutting down due to missing heartbeats")
-    publish({:live_stream, state.stream_id}, {:live_stream, :end})
+    publish({:live_stream, state.stream_id}, {:live_stream, :offline})
 
     {:stop, :normal, state}
   end

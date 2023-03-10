@@ -32,28 +32,22 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   end
 
   @impl true
-  def handle_info({:live_stream, {:init, {vt_size, vt_state, stream_time}}}, state) do
-    Logger.info("consumer/#{state.stream_id}: init")
-    send(self(), {:live_stream, {:reset, vt_size}})
-    send(self(), {:live_stream, {:feed, {stream_time, vt_state}}})
+  def handle_info({:live_stream, {:reset, {{_, _}, _, _} = data}}, state) do
+    Logger.info("consumer/#{state.stream_id}: reset")
 
-    {:ok, %{state | init: true}}
-  end
-
-  def handle_info({:live_stream, {:reset, vt_size}}, %{init: true} = state) do
-    {:push, reset_message(vt_size), state}
+    {:push, reset_message(data), %{state | init: true}}
   end
 
   def handle_info({:live_stream, {:feed, event}}, %{init: true} = state) do
     {:push, feed_message(event), state}
   end
 
-  def handle_info({:live_stream, _}, %{init: false} = state) do
-    {:ok, state}
+  def handle_info({:live_stream, :offline}, state) do
+    {:push, {:text, Jason.encode!(%{state: "offline"})}, state}
   end
 
-  def handle_info({:live_stream, :end}, state) do
-    {:stop, :normal, state}
+  def handle_info({:live_stream, _}, %{init: false} = state) do
+    {:ok, state}
   end
 
   def handle_info(:ping, state) do
@@ -73,8 +67,8 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
 
   # Private
 
-  defp reset_message({cols, rows}) do
-    {:text, Jason.encode!(%{cols: cols, rows: rows})}
+  defp reset_message({{cols, rows}, vt_init, stream_time}) do
+    {:text, Jason.encode!(%{cols: cols, rows: rows, init: vt_init, time: stream_time})}
   end
 
   defp feed_message({time, data}) do
