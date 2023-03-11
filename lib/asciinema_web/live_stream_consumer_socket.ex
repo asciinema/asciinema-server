@@ -17,7 +17,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
 
   @impl true
   def connect(state) do
-    {:ok, %{stream_id: state.params["id"], init: false}}
+    {:ok, %{stream_id: state.params["id"], reset: false}}
   end
 
   @impl true
@@ -39,10 +39,10 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   def handle_info({:live_stream, {:reset, {{cols, rows}, _, _} = data}}, state) do
     Logger.info("consumer/#{state.stream_id}: reset (#{cols}x#{rows})")
 
-    {:push, reset_message(data), %{state | init: true}}
+    {:push, reset_message(data), %{state | reset: true}}
   end
 
-  def handle_info({:live_stream, {:feed, event}}, %{init: true} = state) do
+  def handle_info({:live_stream, {:feed, event}}, %{reset: true} = state) do
     {:push, feed_message(event), state}
   end
 
@@ -50,7 +50,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     {:push, offline_message(), state}
   end
 
-  def handle_info({:live_stream, _}, %{init: false} = state) do
+  def handle_info({:live_stream, _}, %{reset: false} = state) do
     {:ok, state}
   end
 
@@ -60,11 +60,11 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     {:push, {:ping, ""}, state}
   end
 
-  def handle_info(:reset_timeout, %{init: false} = state) do
+  def handle_info(:reset_timeout, %{reset: false} = state) do
     {:push, offline_message(), state}
   end
 
-  def handle_info(:reset_timeout, %{init: true} = state), do: {:ok, state}
+  def handle_info(:reset_timeout, %{reset: true} = state), do: {:ok, state}
 
   @impl true
   def terminate(reason, state) do

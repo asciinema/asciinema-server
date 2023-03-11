@@ -19,7 +19,7 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
 
   @impl true
   def connect(state) do
-    {:ok, %{stream_id: state.params["id"], init: false}}
+    {:ok, %{stream_id: state.params["id"], reset: false}}
   end
 
   @impl true
@@ -63,7 +63,7 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
     Logger.info("producer/#{state.stream_id}: reset (#{cols}x#{rows})")
 
     with :ok <- LiveStream.reset(state.stream_id, {cols, rows}, header["init"], header["time"]) do
-      {:ok, %{state | init: true}}
+      {:ok, %{state | reset: true}}
     end
   end
 
@@ -73,7 +73,7 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
     Logger.info("producer/#{state.stream_id}: reset (#{cols}x#{rows})")
 
     with :ok <- LiveStream.reset(state.stream_id, {cols, rows}) do
-      {:ok, %{state | init: true}}
+      {:ok, %{state | reset: true}}
     end
   end
 
@@ -83,19 +83,19 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
     {:error, :invalid_message}
   end
 
-  def handle_message([time, "o", data], %{init: true} = state)
+  def handle_message([time, "o", data], %{reset: true} = state)
       when is_number(time) and is_binary(data) do
     with :ok <- LiveStream.feed(state.stream_id, {time, data}) do
       {:ok, state}
     end
   end
 
-  def handle_message([time, type, data], %{init: true} = state)
+  def handle_message([time, type, data], %{reset: true} = state)
       when is_number(time) and is_binary(type) and is_binary(data) do
     {:ok, state}
   end
 
-  def handle_message([time, type, data], %{init: false} = state)
+  def handle_message([time, type, data], %{reset: false} = state)
       when is_number(time) and is_binary(type) and is_binary(data) do
     Logger.info("producer/#{state.stream_id}: expected header, got event")
 
@@ -129,13 +129,13 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
     end
   end
 
-  def handle_info(:reset_timeout, %{init: false} = state) do
+  def handle_info(:reset_timeout, %{reset: false} = state) do
     Logger.info("producer/#{state.stream_id}: initial reset timeout")
 
     {:stop, :reset_timeout, state}
   end
 
-  def handle_info(:reset_timeout, %{init: true} = state), do: {:ok, state}
+  def handle_info(:reset_timeout, %{reset: true} = state), do: {:ok, state}
 
   @impl true
   def terminate(reason, state) do
