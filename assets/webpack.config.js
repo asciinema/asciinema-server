@@ -1,7 +1,7 @@
 const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const TerserPlugin = require('terser-webpack-plugin');
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = (env, options) => {
@@ -10,8 +10,8 @@ module.exports = (env, options) => {
   return {
     optimization: {
       minimizer: [
-        new TerserPlugin({ cache: true, parallel: true, sourceMap: devMode }),
-        new OptimizeCSSAssetsPlugin({})
+        new TerserPlugin(),
+        new CssMinimizerPlugin()
       ]
     },
     entry: {
@@ -33,7 +33,7 @@ module.exports = (env, options) => {
           }
         },
         {
-          test: /\.[s]?css$/,
+          test: /\.s?css$/,
           use: [
             MiniCssExtractPlugin.loader,
             'css-loader',
@@ -42,37 +42,24 @@ module.exports = (env, options) => {
         },
         {
           test: /\.jpg$/,
-          use: [
-            {
-              loader: 'file-loader',
-              options: { name: '[name].[ext]', outputPath: '../images' }
-            },
-          ],
+          type: 'asset/resource'
         },
         {
           test: /\.(woff(2)?|ttf|otf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
-          use: [
-            {
-              loader: 'file-loader',
-              options: { name: '[name].[ext]', outputPath: '../fonts' }
-            },
-          ],
+          type: 'asset/resource'
         },
         {
           test: require.resolve('jquery'),
-          use: [{
-            loader: 'expose-loader',
-            options: 'jQuery'
-          }, {
-            loader: 'expose-loader',
-            options: '$'
-          }]
+          loader: 'expose-loader',
+          options: {
+            exposes: ["$", "jQuery"],
+          },
         }
       ]
     },
     plugins: [
       new MiniCssExtractPlugin({ filename: '../css/[name].css' }),
-      new CopyWebpackPlugin([{ from: 'static/', to: '../' }])
+      new CopyWebpackPlugin({ patterns: [{ from: 'static/', to: '../' }] })
     ],
     stats: 'errors-only'
   }

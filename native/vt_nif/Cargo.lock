@@ -12,6 +12,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "avt"
+version = "0.5.1"
+source = "git+https://github.com/asciinema/avt?tag=v0.5.1#917a3b881043fe9a33b42aa10bb374343c37e2cf"
+dependencies = [
+ "rgb",
+ "serde",
+]
+
+[[package]]
 name = "bytemuck"
 version = "1.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -165,18 +174,9 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6a02e4885ed3bc0f2de90ea6dd45ebcbb66dacffe03547fadbb0eeae2770887d"
 
 [[package]]
-name = "vt"
-version = "0.4.0"
-source = "git+https://github.com/asciinema/vt-rs?rev=5d4e568#5d4e568e763d958324b5821ff7c979c84b07b58e"
-dependencies = [
- "rgb",
- "serde",
-]
-
-[[package]]
 name = "vt_nif"
 version = "0.1.0"
 dependencies = [
+ "avt",
  "rustler",
- "vt",
 ]
