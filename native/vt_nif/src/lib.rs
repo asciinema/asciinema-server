@@ -1,6 +1,6 @@
 use rustler::{Atom, Encoder, Env, Error, NifResult, ResourceArc, Term};
 use std::sync::RwLock;
-use vt::VT;
+use avt::Vt;
 
 mod atoms {
     rustler::atoms! {
@@ -11,7 +11,7 @@ mod atoms {
 }
 
 pub struct VtResource {
-    vt: RwLock<VT>,
+    vt: RwLock<Vt>,
 }
 
 fn load(env: Env, _info: Term) -> bool {
@@ -23,7 +23,7 @@ fn load(env: Env, _info: Term) -> bool {
 #[rustler::nif]
 fn new(w: usize, h: usize) -> NifResult<(Atom, ResourceArc<VtResource>)> {
     if w > 0 && h > 0 {
-        let vt = VT::new(w, h);
+        let vt = Vt::new(w, h);
         let resource = ResourceArc::new(VtResource {
             vt: RwLock::new(vt),
         });
@@ -62,16 +62,16 @@ fn dump_screen(env: Env, resource: ResourceArc<VtResource>) -> NifResult<(Atom, 
     Ok((atoms::ok(), (lines, cursor).encode(env)))
 }
 
-fn segment_to_term(segment: vt::Segment, env: Env) -> Term {
+fn segment_to_term(segment: avt::Segment, env: Env) -> Term {
     let text = segment.text();
     let mut pairs: Vec<(String, Term)> = Vec::new();
 
     match segment.foreground() {
-        Some(vt::Color::Indexed(c)) => {
+        Some(avt::Color::Indexed(c)) => {
             pairs.push(("fg".to_owned(), c.encode(env)));
         }
 
-        Some(vt::Color::RGB(c)) => {
+        Some(avt::Color::RGB(c)) => {
             let c = format!("rgb({},{},{})", c.r, c.g, c.b);
             pairs.push(("fg".to_owned(), c.encode(env)));
         }
@@ -80,11 +80,11 @@ fn segment_to_term(segment: vt::Segment, env: Env) -> Term {
     }
 
     match segment.background() {
-        Some(vt::Color::Indexed(c)) => {
+        Some(avt::Color::Indexed(c)) => {
             pairs.push(("bg".to_owned(), c.encode(env)));
         }
 
-        Some(vt::Color::RGB(c)) => {
+        Some(avt::Color::RGB(c)) => {
             let c = format!("rgb({},{},{})", c.r, c.g, c.b);
             pairs.push(("bg".to_owned(), c.encode(env)));
         }
