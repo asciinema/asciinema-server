@@ -125,9 +125,10 @@ as the command, install extra packages and manually start `asciinema rec`:
 {: #running-from-source}
 
 If none of the above works for you (or you want to help with development) just
-clone the repo and run latest version of asciinema straight from the master
+clone the repo and run latest version of asciinema straight from the main
 branch:
 
     git clone https://github.com/asciinema/asciinema.git
     cd asciinema
+    git checkout main
     python3 -m asciinema --version

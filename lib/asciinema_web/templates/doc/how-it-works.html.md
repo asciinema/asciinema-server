@@ -44,7 +44,7 @@ the output that goes to a terminal and saving it in memory (together with timing
 information). The captured output includes all the text and invisible
 escape/control sequences in a raw, unaltered form. When the recording session
 finishes it uploads the output (in
-[asciicast format](https://github.com/asciinema/asciinema/blob/master/doc/asciicast-v1.md))
+[asciicast format](https://github.com/asciinema/asciinema/blob/main/doc/asciicast-v2.md))
 to asciinema.org. That's all about "recording" part.
 
 For the implementation details check out [recorder source

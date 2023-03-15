@@ -12,9 +12,9 @@
         <p>
           <%= case @asciicast.version do %>
             <% 1 -> %>
-              You can download this recording in <a href="https://github.com/asciinema/asciinema/blob/master/doc/asciicast-v1.md">asciicast v1 format</a>, as a .json file.
+              You can download this recording in <a href="https://github.com/asciinema/asciinema/blob/main/doc/asciicast-v1.md">asciicast v1 format</a>, as a .json file.
             <% 2 -> %>
-              You can download this recording in <a href="https://github.com/asciinema/asciinema/blob/develop/doc/asciicast-v2.md">asciicast v2 format</a>, as a .cast file.
+              You can download this recording in <a href="https://github.com/asciinema/asciinema/blob/main/doc/asciicast-v2.md">asciicast v2 format</a>, as a .cast file.
             <% _ -> %>
           <% end %>
         </p>
