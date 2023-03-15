@@ -24,7 +24,7 @@ resulting asciicast is uploaded to
 asciinema.org), where it can be watched and shared.
 
 If the `filename` argument is given then the resulting recording (called
-[asciicast](https://github.com/asciinema/asciinema/blob/master/doc/asciicast-v2.md))
+[asciicast](https://github.com/asciinema/asciinema/blob/main/doc/asciicast-v2.md))
 is saved to a local file. It can later be replayed with `asciinema play
 <filename>` and/or uploaded to asciinema server with `asciinema upload
 <filename>`.
