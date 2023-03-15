@@ -39,7 +39,7 @@ services:
     ### this image.
 
   phoenix:
-    image: asciinema/asciinema-server
+    image: ghcr.io/asciinema/asciinema-server:latest
     container_name: asciinema_phoenix
     restart: unless-stopped
     links:
