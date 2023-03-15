@@ -1,8 +1,5 @@
 # asciinema web app
 
-[![CircleCI](https://circleci.com/gh/asciinema/asciinema-server/tree/master.svg?style=svg)](https://circleci.com/gh/asciinema/asciinema-server/tree/master)
-[![Code Climate](https://codeclimate.com/github/asciinema/asciinema.org/badges/gpa.svg)](https://codeclimate.com/github/asciinema/asciinema.org)
-
 asciinema is a free and open source solution for recording terminal sessions
 and sharing them on the web.
 
