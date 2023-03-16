@@ -49,6 +49,12 @@ defmodule Asciinema.AsciicastControllerTest do
       assert response_content_type(conn_2, :html)
     end
 
+    test "HTML, public recording via secret token", %{conn: conn} do
+      asciicast = insert(:asciicast, private: false)
+      conn_2 = get(conn, "/a/#{asciicast.secret_token}")
+      assert redirected_to(conn_2, 302) == "/a/#{asciicast.id}"
+    end
+
     test "asciicast file, v1 format", %{conn: conn} do
       asciicast = fixture(:asciicast_v1)
       width = asciicast.cols
