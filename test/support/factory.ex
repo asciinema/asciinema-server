@@ -39,7 +39,7 @@ defmodule Asciinema.Factory do
       duration: 123.45,
       cols: 80,
       rows: 24,
-      secret_token: sequence(:secret_token, &"sekrit-#{&1}"),
+      secret_token: sequence(:secret_token, &secret_token/1),
       snapshot: [[["foo", %{}]], [["bar", %{}]]]
     }
   end
@@ -52,9 +52,17 @@ defmodule Asciinema.Factory do
       duration: 123.45,
       cols: 80,
       rows: 24,
-      secret_token: sequence(:secret_token, &"sekrit-#{&1}"),
+      secret_token: sequence(:secret_token, &secret_token/1),
       snapshot: [[["foo", %{}]], [["bar", %{}]]]
     }
+  end
+
+  defp secret_token(n) do
+    "sekrit-#{n}"
+    |> String.codepoints()
+    |> Stream.cycle()
+    |> Stream.take(25)
+    |> Enum.join("")
   end
 
   def with_file(asciicast) do

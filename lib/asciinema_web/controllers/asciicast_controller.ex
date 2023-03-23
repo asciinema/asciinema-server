@@ -211,9 +211,21 @@ defmodule AsciinemaWeb.AsciicastController do
   end
 
   defp load_asciicast(conn, _) do
-    case Asciicasts.fetch_asciicast(conn.params["id"]) do
+    id = String.trim(conn.params["id"])
+
+    case Asciicasts.fetch_asciicast(id) do
       {:ok, asciicast} ->
-        assign(conn, :asciicast, asciicast)
+        public_id = to_string(asciicast.id)
+
+        case {asciicast.private, get_format(conn), id == public_id} do
+          {false, "html", false} ->
+            conn
+            |> redirect(to: Routes.asciicast_path(conn, :show, asciicast))
+            |> halt()
+
+          _ ->
+            assign(conn, :asciicast, asciicast)
+        end
 
       {:error, :not_found} ->
         conn
