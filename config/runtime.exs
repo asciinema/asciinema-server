@@ -74,6 +74,10 @@ if config_env() in [:prod, :dev] do
     config :asciinema, Asciinema.Repo, pool_size: String.to_integer(db_pool_size)
   end
 
+  if env.("ECTO_IPV6") do
+    config :asciinema, Asciinema.Repo, socket_options: [:inet6]
+  end
+
   if rsvg_pool_size = env.("RSVG_POOL_SIZE") do
     config :asciinema, Asciinema.PngGenerator.Rsvg, pool_size: String.to_integer(rsvg_pool_size)
   end
