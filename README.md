@@ -1,8 +1,5 @@
 # asciinema web app
 
-[![CircleCI](https://circleci.com/gh/asciinema/asciinema-server/tree/master.svg?style=svg)](https://circleci.com/gh/asciinema/asciinema-server/tree/master)
-[![Code Climate](https://codeclimate.com/github/asciinema/asciinema.org/badges/gpa.svg)](https://codeclimate.com/github/asciinema/asciinema.org)
-
 asciinema is a free and open source solution for recording terminal sessions
 and sharing them on the web.
 
@@ -43,7 +40,7 @@ Check out our [Contributing](http://asciinema.org/contributing) page, which
 describes multiple ways you can help this project.
 
 If you decide to contribute with the code then please
-read [CONTRIBUTING.md](https://github.com/asciinema/asciinema-server/blob/master/CONTRIBUTING.md), which covers submitting bugs,
+read [CONTRIBUTING.md](https://github.com/asciinema/asciinema-server/blob/main/CONTRIBUTING.md), which covers submitting bugs,
 requesting new features, preparing your code for a pull request, etc.
 
 ## Security
@@ -51,7 +48,7 @@ requesting new features, preparing your code for a pull request, etc.
 We're serious about the security of this web app and the user data it manages.
 If you find anything that looks like a potential vulnerability please
 read on
-[how to report a security issue](https://github.com/asciinema/asciinema-server/blob/master/CONTRIBUTING.md#reporting-security-issues).
+[how to report a security issue](https://github.com/asciinema/asciinema-server/blob/main/CONTRIBUTING.md#reporting-security-issues).
 
 ## Authors
 

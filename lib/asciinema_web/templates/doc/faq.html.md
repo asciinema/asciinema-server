@@ -83,4 +83,4 @@ Alternatively, you can set `ASCIINEMA_API_URL` env variable:
 Yes, if you know how to deal with [ansi escape
 sequences](https://en.wikipedia.org/wiki/ANSI_escape_code). See documentation
 for [asciicast
-format](https://github.com/asciinema/asciinema/blob/master/doc/asciicast-v2.md).
+format](https://github.com/asciinema/asciinema/blob/main/doc/asciicast-v2.md).
