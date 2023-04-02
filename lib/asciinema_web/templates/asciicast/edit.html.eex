@@ -46,11 +46,20 @@
         </div>
 
         <div class="form-group row">
+          <%= label f, :terminal_line_height, "Terminal line height", class: "col-sm-4 col-md-3 col-lg-3 col-form-label" %>
+          <div class="col-sm-8 col-md-9 col-lg-9">
+            <%= text_input f, :terminal_line_height, class: "form-control", type: "number", min: 1, max: 2, step: "any", placeholder: "1.33333" %>
+            <%= error_tag f, :terminal_line_height %>
+            <small class="form-text text-muted">Relative to font size. Lowering it helps with alignment of block characters like ▀ ▄ █ For example: 1.1</small>
+          </div>
+        </div>
+
+        <div class="form-group row">
           <%= label f, :snapshot_at, "Thumbnail frame", class: "col-sm-4 col-md-3 col-lg-3 col-form-label" %>
           <div class="col-sm-8 col-md-9 col-lg-9">
             <%= text_input f, :snapshot_at, class: "form-control", type: "number", min: 0, step: "0.1" %>
             <%= error_tag f, :snapshot_at %>
-            <small class="form-text text-muted">Time of the frame to be displayed as snapshot/poster (float, in seconds, for example: 10.5)</small>
+            <small class="form-text text-muted">Time of the frame to be displayed as snapshot/poster. For example: 10.5</small>
           </div>
         </div>
 

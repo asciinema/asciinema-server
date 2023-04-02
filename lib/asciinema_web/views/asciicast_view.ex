@@ -38,6 +38,7 @@ defmodule AsciinemaWeb.AsciicastView do
           cols: cols(asciicast),
           rows: rows(asciicast),
           theme: theme_name(asciicast),
+          terminalLineHeight: asciicast.terminal_line_height,
           poster: poster(asciicast.snapshot),
           idleTimeLimit: asciicast.idle_time_limit,
           title: title(asciicast),
