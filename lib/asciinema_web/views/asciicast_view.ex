@@ -1,6 +1,7 @@
 defmodule AsciinemaWeb.AsciicastView do
   use AsciinemaWeb, :view
   import Scrivener.HTML
+  alias Asciinema.Asciicasts
   alias AsciinemaWeb.Endpoint
   alias AsciinemaWeb.Router.Helpers.Extra, as: RoutesX
   alias AsciinemaWeb.UserView
@@ -39,6 +40,7 @@ defmodule AsciinemaWeb.AsciicastView do
           rows: rows(asciicast),
           theme: theme_name(asciicast),
           terminalLineHeight: asciicast.terminal_line_height,
+          customTerminalFontFamily: asciicast.terminal_font_family,
           poster: poster(asciicast.snapshot),
           idleTimeLimit: asciicast.idle_time_limit,
           title: title(asciicast),
@@ -567,7 +569,16 @@ defmodule AsciinemaWeb.AsciicastView do
   end
 
   def asciicast_gc_days do
-    Asciinema.Asciicasts.gc_days()
+    Asciicasts.gc_days()
+  end
+
+  def terminal_font_family_options do
+    for family <- Asciicasts.custom_terminal_font_families() do
+      case family do
+        "FiraCode Nerd Font" -> {"Nerd Font - Fira Code", family}
+        "JetBrainsMono Nerd Font" -> {"Nerd Font - JetBrains Mono", family}
+      end
+    end
   end
 
   defp cols(asciicast), do: asciicast.cols_override || asciicast.cols

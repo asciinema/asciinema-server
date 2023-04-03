@@ -55,6 +55,14 @@
         </div>
 
         <div class="form-group row">
+          <%= label f, :terminal_font_family, "Terminal font family", class: "col-sm-4 col-md-3 col-lg-3 col-form-label" %>
+          <div class="col-sm-8 col-md-9 col-lg-9">
+            <%= select f, :terminal_font_family, terminal_font_family_options(), class: "form-control", prompt: "Default" %>
+            <small class="form-text text-muted">Choose one of Nerd Font variants if icons or other symbols in your recording are not visible.</small>
+          </div>
+        </div>
+
+        <div class="form-group row">
           <%= label f, :snapshot_at, "Thumbnail frame", class: "col-sm-4 col-md-3 col-lg-3 col-form-label" %>
           <div class="col-sm-8 col-md-9 col-lg-9">
             <%= text_input f, :snapshot_at, class: "form-control", type: "number", min: 0, step: "0.1" %>
