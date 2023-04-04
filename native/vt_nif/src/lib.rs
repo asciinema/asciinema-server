@@ -1,6 +1,6 @@
+use avt::Vt;
 use rustler::{Atom, Encoder, Env, Error, NifResult, ResourceArc, Term};
 use std::sync::RwLock;
-use avt::Vt;
 
 mod atoms {
     rustler::atoms! {
@@ -47,11 +47,9 @@ fn dump_screen(env: Env, resource: ResourceArc<VtResource>) -> NifResult<(Atom, 
     let vt = convert_err(resource.vt.read(), "rw_lock")?;
 
     let lines = vt
-        .get_lines()
-        .into_iter()
-        .map(|segments| {
-            segments
-                .into_iter()
+        .lines()
+        .map(|line| {
+            line.segments()
                 .map(|segment| segment_to_term(segment, env))
                 .collect::<Vec<_>>()
         })
