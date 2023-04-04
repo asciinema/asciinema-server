@@ -5,6 +5,11 @@ defmodule Asciinema.Asciicasts do
   alias Asciinema.Asciicasts.{Asciicast, SnapshotUpdater}
   alias Ecto.Changeset
 
+  @custom_terminal_font_families [
+    "FiraCode Nerd Font",
+    "JetBrainsMono Nerd Font"
+  ]
+
   def fetch_asciicast(id) do
     case get_asciicast(id) do
       nil -> {:error, :not_found}
@@ -468,7 +473,7 @@ defmodule Asciinema.Asciicasts do
   end
 
   def update_asciicast(asciicast, attrs \\ %{}) do
-    changeset = Asciicast.update_changeset(asciicast, attrs)
+    changeset = Asciicast.update_changeset(asciicast, attrs, @custom_terminal_font_families)
 
     with {:ok, asciicast} <- Repo.update(changeset) do
       if stale_snapshot?(changeset) do
@@ -690,4 +695,6 @@ defmodule Asciinema.Asciicasts do
     q = from(a in Asciicast, where: a.user_id == ^src_user_id)
     Repo.update_all(q, set: [user_id: dst_user_id, updated_at: Timex.now()])
   end
+
+  def custom_terminal_font_families, do: @custom_terminal_font_families
 end
