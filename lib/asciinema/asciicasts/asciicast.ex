@@ -38,6 +38,8 @@ defmodule Asciinema.Asciicasts.Asciicast do
     field :views_count, :integer, default: 0
     field :archivable, :boolean, default: true
     field :archived_at, :utc_datetime_usec
+    field :terminal_line_height, :float
+    field :terminal_font_family, :string
 
     timestamps()
 
@@ -88,13 +90,26 @@ defmodule Asciinema.Asciicasts.Asciicast do
     |> generate_secret_token
   end
 
-  def update_changeset(struct, attrs) do
+  def update_changeset(struct, attrs, custom_terminal_font_families \\ []) do
     struct
     |> changeset(attrs)
-    |> cast(attrs, [:description, :cols_override, :rows_override, :theme_name, :idle_time_limit])
+    |> cast(attrs, [
+      :description,
+      :cols_override,
+      :rows_override,
+      :theme_name,
+      :idle_time_limit,
+      :terminal_line_height,
+      :terminal_font_family
+    ])
     |> validate_number(:cols_override, greater_than: 0, less_than: 1024)
     |> validate_number(:rows_override, greater_than: 0, less_than: 512)
     |> validate_number(:idle_time_limit, greater_than_or_equal_to: 0.5)
+    |> validate_number(:terminal_line_height,
+      greater_than_or_equal_to: 1.0,
+      less_than_or_equal_to: 2.0
+    )
+    |> validate_inclusion(:terminal_font_family, custom_terminal_font_families)
     |> validate_number(:snapshot_at, greater_than: 0)
   end
 
