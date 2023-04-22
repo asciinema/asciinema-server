@@ -50,6 +50,12 @@ if config_env() in [:prod, :dev] do
     config :asciinema, AsciinemaWeb.Endpoint, url: [port: String.to_integer(url_port)]
   end
 
+  if ip_limit = env.("IP_RATE_LIMIT") do
+    config :asciinema, AsciinemaWeb.PlugAttack,
+      ip_limit: String.to_integer(ip_limit),
+      ip_period: String.to_integer(env.("IP_RATE_PERIOD") || "1") * 1_000
+  end
+
   if env.("S3_BUCKET") do
     config :asciinema, :file_store, Asciinema.FileStore.Cached
 

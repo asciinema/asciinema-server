@@ -16,6 +16,8 @@ defmodule Asciinema.Application do
       Asciinema.Telemetry,
       # Start the Ecto repository
       Asciinema.Repo,
+      # Start rate limiter
+      {PlugAttack.Storage.Ets, name: AsciinemaWeb.PlugAttack.Storage, clean_period: 60_000},
       # Start the endpoint when the application starts
       AsciinemaWeb.Endpoint,
       # Start Phoenix PubSub
