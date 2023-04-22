@@ -45,7 +45,8 @@ defmodule AsciinemaWeb.Endpoint do
   plug Sentry.PlugContext
   plug Plug.MethodOverride
   plug Plug.Head
-
   plug Plug.Session, @session_options
+  plug RemoteIp
+  plug AsciinemaWeb.PlugAttack
   plug AsciinemaWeb.Router
 end
