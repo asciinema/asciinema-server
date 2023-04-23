@@ -42,6 +42,7 @@ defmodule Asciinema.MixProject do
     [
       {:bamboo, "~> 2.2"},
       {:bamboo_phoenix, "~> 1.0"},
+      {:bamboo_ses, "~> 0.3.2"},
       {:bamboo_smtp, "~> 4.2"},
       {:briefly, "~> 0.3"},
       {:credo, "~> 1.4", only: [:dev, :test], runtime: false},
