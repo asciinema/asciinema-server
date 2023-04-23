@@ -104,16 +104,13 @@ defmodule Asciinema.Accounts do
     Token.sign(config(:secret), "login", {id, last_login_at})
   end
 
-  # 15 minutes
-  @login_token_max_age 15 * 60
-
   def verify_signup_token(token) do
     result =
       Token.verify(
         config(:secret),
         "signup",
         token,
-        max_age: @login_token_max_age
+        max_age: config(:login_token_max_age, 60) * 60
       )
 
     with {:ok, email} <- result,
@@ -137,7 +134,7 @@ defmodule Asciinema.Accounts do
         config(:secret),
         "login",
         token,
-        max_age: @login_token_max_age
+        max_age: config(:login_token_max_age, 60) * 60
       )
 
     with {:ok, {user_id, last_login_at}} <- result,
