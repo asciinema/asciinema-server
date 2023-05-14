@@ -50,6 +50,14 @@ if config_env() in [:prod, :dev] do
     config :asciinema, AsciinemaWeb.Endpoint, url: [port: String.to_integer(url_port)]
   end
 
+  if ip_limit = env.("IP_RATE_LIMIT") do
+    config :asciinema, AsciinemaWeb.PlugAttack,
+      ip_limit: String.to_integer(ip_limit),
+      ip_period: String.to_integer(env.("IP_RATE_PERIOD") || "1") * 1_000
+  end
+
+  config :ex_aws, region: {:system, "AWS_REGION"}
+
   if env.("S3_BUCKET") do
     config :asciinema, :file_store, Asciinema.FileStore.Cached
 
@@ -58,7 +66,7 @@ if config_env() in [:prod, :dev] do
       cache_store: Asciinema.FileStore.Local
 
     config :asciinema, Asciinema.FileStore.S3,
-      region: env.("S3_REGION"),
+      region: env.("S3_REGION") || env.("AWS_REGION"),
       bucket: env.("S3_BUCKET"),
       path: "uploads/",
       proxy: !!env.("S3_PROXY_ENABLED")

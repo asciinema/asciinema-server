@@ -13,9 +13,13 @@ defmodule Asciinema.Accounts do
     end
   end
 
-  def get_user(id) when is_integer(id), do: Repo.get(User, id)
-
   def get_user([{_k, _v}] = kv), do: Repo.get_by(User, kv)
+
+  def get_user(id), do: Repo.get(User, id)
+
+  def find_user_by_auth_token(auth_token) do
+    Repo.get_by(User, auth_token: auth_token)
+  end
 
   def ensure_asciinema_user do
     case Repo.get_by(User, username: "asciinema") do
@@ -27,7 +31,7 @@ defmodule Asciinema.Accounts do
         }
 
         %User{}
-        |> User.create_changeset(attrs)
+        |> User.changeset(attrs)
         |> Repo.insert!()
 
       user ->
@@ -100,16 +104,13 @@ defmodule Asciinema.Accounts do
     Token.sign(config(:secret), "login", {id, last_login_at})
   end
 
-  # 15 minutes
-  @login_token_max_age 15 * 60
-
   def verify_signup_token(token) do
     result =
       Token.verify(
         config(:secret),
         "signup",
         token,
-        max_age: @login_token_max_age
+        max_age: config(:login_token_max_age, 60) * 60
       )
 
     with {:ok, email} <- result,
@@ -133,7 +134,7 @@ defmodule Asciinema.Accounts do
         config(:secret),
         "login",
         token,
-        max_age: @login_token_max_age
+        max_age: config(:login_token_max_age, 60) * 60
       )
 
     with {:ok, {user_id, last_login_at}} <- result,
@@ -249,6 +250,18 @@ defmodule Asciinema.Accounts do
   def reassign_api_tokens(src_user_id, dst_user_id) do
     q = from(at in ApiToken, where: at.user_id == ^src_user_id)
     Repo.update_all(q, set: [user_id: dst_user_id, updated_at: Timex.now()])
+  end
+
+  def regenerate_auth_token(user) do
+    user
+    |> Changeset.change(%{auth_token: Crypto.random_token(20)})
+    |> Repo.update!()
+  end
+
+  def update_last_login(user) do
+    user
+    |> Changeset.change(%{last_login_at: Timex.now()})
+    |> Repo.update!()
   end
 
   def add_admins(emails) do

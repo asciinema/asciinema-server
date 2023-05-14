@@ -3,31 +3,59 @@ defmodule AsciinemaWeb.Auth do
   import Phoenix.Controller, only: [put_flash: 3, redirect: 2]
   import AsciinemaWeb.Plug.ReturnTo
   alias Plug.Conn
+  alias Asciinema.Accounts
   alias Asciinema.Accounts.User
-  alias Asciinema.Repo
   alias AsciinemaWeb.Endpoint
   alias AsciinemaWeb.Router.Helpers, as: Routes
 
-  @user_key "warden.user.user.key"
-  @one_year_in_secs 31_557_600
+  @user_key "user_id"
+  @token_cookie_name "auth_token"
+  @token_max_age 90 * 24 * 60 * 60
 
-  def init(opts) do
-    opts
-  end
+  def init(opts), do: opts
 
-  def call(%Conn{assigns: %{current_user: %User{}}} = conn, _opts) do
-    conn
-  end
+  def call(%Conn{assigns: %{current_user: %User{}}} = conn, _opts), do: conn
 
   def call(conn, _opts) do
+    conn
+    |> assign(:current_user, nil)
+    |> try_log_in_from_session()
+    |> try_log_in_from_cookie()
+    |> setup_sentry_context()
+  end
+
+  defp try_log_in_from_session(conn) do
     user_id = get_session(conn, @user_key)
-    user = user_id && Repo.get(User, user_id)
 
-    if user do
-      Sentry.Context.set_user_context(%{id: user.id, username: user.username, email: user.email})
+    with user_id when not is_nil(user_id) <- user_id,
+         user when not is_nil(user) <- Accounts.get_user(user_id) do
+      assign(conn, :current_user, user)
+    else
+      _ -> conn
     end
+  end
 
-    assign(conn, :current_user, user)
+  defp try_log_in_from_cookie(%Conn{assigns: %{current_user: nil}} = conn) do
+    with auth_token when not is_nil(auth_token) <- conn.req_cookies[@token_cookie_name],
+         user when not is_nil(user) <- Accounts.find_user_by_auth_token(auth_token) do
+      refresh_session(conn, user)
+    else
+      _ -> conn
+    end
+  end
+
+  defp try_log_in_from_cookie(conn), do: conn
+
+  defp setup_sentry_context(%Conn{assigns: %{current_user: nil}} = conn), do: conn
+
+  defp setup_sentry_context(%Conn{assigns: %{current_user: user}} = conn) do
+    Sentry.Context.set_user_context(%{
+      id: user.id,
+      username: user.username,
+      email: user.email
+    })
+
+    conn
   end
 
   def require_current_user(%Conn{assigns: %{current_user: %User{}}} = conn, _) do
@@ -56,18 +84,24 @@ defmodule AsciinemaWeb.Auth do
   end
 
   def log_in(conn, %User{} = user) do
-    user = user |> User.login_changeset() |> Repo.update!()
+    Accounts.update_last_login(user)
+
+    refresh_session(conn, user)
+  end
+
+  defp refresh_session(conn, user) do
+    user = Accounts.regenerate_auth_token(user)
 
     conn
     |> put_session(@user_key, user.id)
-    |> put_resp_cookie("auth_token", user.auth_token, max_age: @one_year_in_secs)
+    |> put_resp_cookie(@token_cookie_name, user.auth_token, max_age: @token_max_age)
     |> assign(:current_user, user)
   end
 
   def log_out(conn) do
     conn
     |> delete_session(@user_key)
-    |> delete_resp_cookie("auth_token")
+    |> delete_resp_cookie(@token_cookie_name)
     |> assign(:current_user, nil)
   end
 

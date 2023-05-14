@@ -38,7 +38,7 @@ defmodule Asciinema.Fixtures do
       )
 
     %User{}
-    |> User.create_changeset(attrs)
+    |> User.changeset(attrs)
     |> Repo.insert!()
   end
 

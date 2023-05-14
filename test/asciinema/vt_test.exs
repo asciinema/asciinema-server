@@ -14,7 +14,8 @@ defmodule Asciinema.VtTest do
           Vt.dump_screen(vt)
         end)
 
-      assert {:ok, {[_ | _], {6, 1}}} = result
+      assert {:ok, {[[{"foobar  ", %{}}], [{"bazqux  ", %{}}], [{"        ", %{}}]], {6, 1}}} =
+               result
     end
 
     test "feeding it a lot of data" do
@@ -30,6 +31,4 @@ defmodule Asciinema.VtTest do
       assert {:ok, {[_ | _], {120, 79}}} = result
     end
   end
-
-  # TODO add assertion for result of dump_screen
 end

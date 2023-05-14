@@ -40,7 +40,8 @@
           (you only need <code>.js</code> and <code>.css</code> file), then use it like this:
         </p>
 
-        <pre><code>&lt;html>
+        <pre><code>&lt;!DOCTYPE html>
+&lt;html>
 &lt;head>
   &lt;link rel="stylesheet" type="text/css" href="asciinema-player.css" />
 &lt;/head>
