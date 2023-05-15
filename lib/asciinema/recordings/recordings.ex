@@ -1,8 +1,8 @@
-defmodule Asciinema.Asciicasts do
+defmodule Asciinema.Recordings do
   require Logger
   import Ecto.Query, warn: false
   alias Asciinema.{Repo, FileStore, StringUtils, Vt}
-  alias Asciinema.Asciicasts.{Asciicast, SnapshotUpdater}
+  alias Asciinema.Recordings.{Asciicast, SnapshotUpdater}
   alias Ecto.Changeset
 
   @custom_terminal_font_families [
@@ -500,14 +500,14 @@ defmodule Asciinema.Asciicasts do
       case cursor do
         {x, y} ->
           lines
-          |> AsciinemaWeb.AsciicastView.split_chunks()
+          |> AsciinemaWeb.RecordingView.split_chunks()
           |> List.update_at(y, fn line ->
             List.update_at(line, x, fn {text, attrs} ->
               attrs = Map.put(attrs, "inverse", !(attrs["inverse"] || false))
               {text, attrs}
             end)
           end)
-          |> AsciinemaWeb.AsciicastView.group_chunks()
+          |> AsciinemaWeb.RecordingView.group_chunks()
 
         _ ->
           lines

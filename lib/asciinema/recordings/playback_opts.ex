@@ -1,4 +1,4 @@
-defmodule Asciinema.Asciicasts.PlaybackOpts do
+defmodule Asciinema.Recordings.PlaybackOpts do
   use Ecto.Schema
   import Ecto.Changeset
 

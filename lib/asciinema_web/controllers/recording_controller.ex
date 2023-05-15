@@ -1,7 +1,7 @@
-defmodule AsciinemaWeb.AsciicastController do
+defmodule AsciinemaWeb.RecordingController do
   use AsciinemaWeb, :controller
-  alias Asciinema.{Asciicasts, PngGenerator, Accounts}
-  alias Asciinema.Asciicasts.Asciicast
+  alias Asciinema.{Recordings, PngGenerator, Accounts}
+  alias Asciinema.Recordings.Asciicast
 
   plug :clear_main_class
   plug :load_asciicast when action in [:show, :edit, :update, :delete, :iframe]
@@ -12,10 +12,10 @@ defmodule AsciinemaWeb.AsciicastController do
     category = params[:category]
     order = if params["order"] == "popularity", do: :popularity, else: :date
 
-    page = Asciicasts.paginate_asciicasts(category, order, params["page"], 12)
+    page = Recordings.paginate_asciicasts(category, order, params["page"], 12)
 
     assigns = [
-      page_title: String.capitalize("#{category} asciicasts"),
+      page_title: String.capitalize("#{category} recordings"),
       category: category,
       sidebar_hidden: params[:sidebar_hidden],
       page: page,
@@ -26,7 +26,7 @@ defmodule AsciinemaWeb.AsciicastController do
   end
 
   def auto(conn, params) do
-    case Asciicasts.count_featured_asciicasts() do
+    case Recordings.count_featured_asciicasts() do
       0 ->
         index(conn, Map.merge(params, %{category: :public, sidebar_hidden: true}))
 
@@ -58,11 +58,11 @@ defmodule AsciinemaWeb.AsciicastController do
       |> put_archival_info_flash(asciicast)
       |> render(
         "show.html",
-        page_title: AsciinemaWeb.AsciicastView.title(asciicast),
+        page_title: AsciinemaWeb.RecordingView.title(asciicast),
         asciicast: asciicast,
         playback_options: playback_options(conn.params),
         actions: asciicast_actions(asciicast, conn.assigns.current_user),
-        author_asciicasts: Asciicasts.other_public_asciicasts(asciicast)
+        author_asciicasts: Recordings.other_public_asciicasts(asciicast)
       )
     end
   end
@@ -145,18 +145,18 @@ defmodule AsciinemaWeb.AsciicastController do
   end
 
   def edit(conn, _params) do
-    changeset = Asciicasts.change_asciicast(conn.assigns.asciicast)
+    changeset = Recordings.change_asciicast(conn.assigns.asciicast)
     render(conn, "edit.html", changeset: changeset)
   end
 
   def update(conn, %{"asciicast" => asciicast_params}) do
     asciicast = conn.assigns.asciicast
 
-    case Asciicasts.update_asciicast(asciicast, asciicast_params) do
+    case Recordings.update_asciicast(asciicast, asciicast_params) do
       {:ok, asciicast} ->
         conn
         |> put_flash(:info, "Asciicast updated.")
-        |> redirect(to: Routes.asciicast_path(conn, :show, asciicast))
+        |> redirect(to: Routes.recording_path(conn, :show, asciicast))
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "edit.html", changeset: changeset)
@@ -166,7 +166,7 @@ defmodule AsciinemaWeb.AsciicastController do
   def delete(conn, _params) do
     asciicast = conn.assigns.asciicast
 
-    case Asciicasts.delete_asciicast(asciicast) do
+    case Recordings.delete_asciicast(asciicast) do
       {:ok, _asciicast} ->
         conn
         |> put_flash(:info, "Asciicast deleted.")
@@ -175,7 +175,7 @@ defmodule AsciinemaWeb.AsciicastController do
       {:error, _reason} ->
         conn
         |> put_flash(:error, "Oops, couldn't remove this asciicast.")
-        |> redirect(to: Routes.asciicast_path(conn, :show, asciicast))
+        |> redirect(to: Routes.recording_path(conn, :show, asciicast))
     end
   end
 
@@ -213,14 +213,14 @@ defmodule AsciinemaWeb.AsciicastController do
   defp load_asciicast(conn, _) do
     id = String.trim(conn.params["id"])
 
-    case Asciicasts.fetch_asciicast(id) do
+    case Recordings.fetch_asciicast(id) do
       {:ok, asciicast} ->
         public_id = to_string(asciicast.id)
 
         case {asciicast.private, get_format(conn), id == public_id} do
           {false, "html", false} ->
             conn
-            |> redirect(to: Routes.asciicast_path(conn, :show, asciicast))
+            |> redirect(to: Routes.recording_path(conn, :show, asciicast))
             |> halt()
 
           _ ->
@@ -239,7 +239,7 @@ defmodule AsciinemaWeb.AsciicastController do
 
     case conn.req_cookies[key] do
       nil ->
-        Asciicasts.inc_views_count(asciicast)
+        Recordings.inc_views_count(asciicast)
         put_resp_cookie(conn, key, "1", max_age: 3600 * 24)
 
       _ ->
@@ -274,7 +274,7 @@ defmodule AsciinemaWeb.AsciicastController do
 
   defp put_archival_info_flash(conn, asciicast) do
     with true <- asciicast.archivable,
-         days when not is_nil(days) <- Asciicasts.gc_days(),
+         days when not is_nil(days) <- Recordings.gc_days(),
          %{} = user <- asciicast.user,
          true <- Accounts.temporary_user?(user),
          true <- Timex.before?(asciicast.inserted_at, Timex.shift(Timex.now(), days: -days)) do
@@ -292,6 +292,6 @@ defmodule AsciinemaWeb.AsciicastController do
   defp playback_options(params) do
     params
     |> Ext.Map.rename(%{"t" => "startAt", "i" => "idleTimeLimit"})
-    |> Asciicasts.PlaybackOpts.parse()
+    |> Recordings.PlaybackOpts.parse()
   end
 end

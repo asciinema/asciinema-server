@@ -1,8 +1,8 @@
-defmodule Asciinema.Asciicasts.Asciicast do
+defmodule Asciinema.Recordings.Asciicast do
   use Ecto.Schema
   import Ecto.Changeset
   alias Asciinema.Accounts.User
-  alias Asciinema.Asciicasts.Asciicast
+  alias Asciinema.Recordings.Asciicast
 
   @default_theme "asciinema"
 

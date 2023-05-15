@@ -2,7 +2,7 @@ defmodule AsciinemaWeb.UserController do
   use AsciinemaWeb, :controller
   alias Asciinema.Accounts
   alias Asciinema.Authorization, as: Authz
-  alias Asciinema.Asciicasts
+  alias Asciinema.Recordings
   alias AsciinemaWeb.Auth
 
   plug :clear_main_class
@@ -63,7 +63,7 @@ defmodule AsciinemaWeb.UserController do
       end
 
     page =
-      Asciicasts.paginate_asciicasts(
+      Recordings.paginate_asciicasts(
         {user.id, filter},
         :date,
         params["page"],

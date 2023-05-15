@@ -8,7 +8,7 @@ defmodule Asciinema.Repo.Migrations.InsertUpgradeJobs do
     {:ok, _} =
       Multi.new()
       |> Multi.insert(:seed, job(U.InitialSeed))
-      |> Multi.insert(:asciicasts, job(U.UpgradeAsciicasts))
+      |> Multi.insert(:asciicasts, job(U.UpgradeRecordings))
       |> Repo.transaction()
   end
 

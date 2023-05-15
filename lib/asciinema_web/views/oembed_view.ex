@@ -38,8 +38,8 @@ defmodule AsciinemaWeb.OembedView do
         max_height || image_height
       )
 
-    asciicast_url = Routes.asciicast_url(Endpoint, :show, asciicast)
-    thumbnail_url = asciicast_url <> ".png"
+    recording_url = Routes.recording_url(Endpoint, :show, asciicast)
+    thumbnail_url = recording_url <> ".png"
 
     %{
       type: "rich",
@@ -52,15 +52,15 @@ defmodule AsciinemaWeb.OembedView do
       thumbnail_url: thumbnail_url,
       thumbnail_width: width,
       thumbnail_height: height,
-      html: html(asciicast_url, thumbnail_url, asciicast.title, width),
+      html: html(recording_url, thumbnail_url, asciicast.title, width),
       width: width,
       height: height
     }
   end
 
-  defp html(asciicast_url, thumbnail_url, title, width) do
+  defp html(recording_url, thumbnail_url, title, width) do
     safe =
-      content_tag(:a, href: asciicast_url, target: "_blank") do
+      content_tag(:a, href: recording_url, target: "_blank") do
         img_tag(thumbnail_url, alt: title, width: width)
       end
 

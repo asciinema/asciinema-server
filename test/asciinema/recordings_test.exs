@@ -1,8 +1,8 @@
-defmodule Asciinema.AsciicastsTest do
+defmodule Asciinema.RecordingsTest do
   use Asciinema.DataCase
   import Asciinema.Factory
-  alias Asciinema.Asciicasts
-  alias Asciinema.Asciicasts.Asciicast
+  alias Asciinema.Recordings
+  alias Asciinema.Recordings.Asciicast
 
   describe "create_asciicast/3" do
     test "pre-v1 payload with uname" do
@@ -24,7 +24,7 @@ defmodule Asciinema.AsciicastsTest do
           fixture(:upload, %{path: "0.9.7/stdout.time", content_type: "application/octet-stream"})
       }
 
-      {:ok, asciicast} = Asciicasts.create_asciicast(user, params, %{user_agent: "a/user/agent"})
+      {:ok, asciicast} = Recordings.create_asciicast(user, params, %{user_agent: "a/user/agent"})
 
       assert %Asciicast{
                version: 2,
@@ -60,7 +60,7 @@ defmodule Asciinema.AsciicastsTest do
           fixture(:upload, %{path: "0.9.8/stdout.time", content_type: "application/octet-stream"})
       }
 
-      {:ok, asciicast} = Asciicasts.create_asciicast(user, params, %{user_agent: "a/user/agent"})
+      {:ok, asciicast} = Recordings.create_asciicast(user, params, %{user_agent: "a/user/agent"})
 
       assert %Asciicast{
                version: 2,
@@ -99,8 +99,8 @@ defmodule Asciinema.AsciicastsTest do
           })
       }
 
-      {:ok, asciicast} = Asciicasts.create_asciicast(user, params, %{user_agent: "a/user/agent"})
-      stream = Asciicasts.stdout_stream(asciicast)
+      {:ok, asciicast} = Recordings.create_asciicast(user, params, %{user_agent: "a/user/agent"})
+      stream = Recordings.stdout_stream(asciicast)
 
       assert :ok == Stream.run(stream)
       assert [{1.234567, "xxżó"}, {1.358023, "łć"}, {3.358023, "xx"}] == Enum.take(stream, 3)
@@ -110,7 +110,7 @@ defmodule Asciinema.AsciicastsTest do
       user = fixture(:user)
       upload = fixture(:upload, %{path: "1/asciicast.json"})
 
-      {:ok, asciicast} = Asciicasts.create_asciicast(user, upload, %{user_agent: "a/user/agent"})
+      {:ok, asciicast} = Recordings.create_asciicast(user, upload, %{user_agent: "a/user/agent"})
 
       assert %Asciicast{
                version: 1,
@@ -132,21 +132,21 @@ defmodule Asciinema.AsciicastsTest do
       user = fixture(:user)
       upload = fixture(:upload, %{path: "1/invalid.json"})
 
-      assert {:error, %Ecto.Changeset{}} = Asciicasts.create_asciicast(user, upload)
+      assert {:error, %Ecto.Changeset{}} = Recordings.create_asciicast(user, upload)
     end
 
     test "json file, unsupported version number" do
       user = fixture(:user)
       upload = fixture(:upload, %{path: "5/asciicast.json"})
 
-      assert {:error, {:unsupported_format, 5}} = Asciicasts.create_asciicast(user, upload)
+      assert {:error, {:unsupported_format, 5}} = Recordings.create_asciicast(user, upload)
     end
 
     test "cast file, v2 format, minimal" do
       user = fixture(:user)
       upload = fixture(:upload, %{path: "2/minimal.cast"})
 
-      {:ok, asciicast} = Asciicasts.create_asciicast(user, upload, %{user_agent: "a/user/agent"})
+      {:ok, asciicast} = Recordings.create_asciicast(user, upload, %{user_agent: "a/user/agent"})
 
       assert %Asciicast{
                version: 2,
@@ -173,7 +173,7 @@ defmodule Asciinema.AsciicastsTest do
       user = fixture(:user)
       upload = fixture(:upload, %{path: "2/full.cast"})
 
-      {:ok, asciicast} = Asciicasts.create_asciicast(user, upload, %{user_agent: "a/user/agent"})
+      {:ok, asciicast} = Recordings.create_asciicast(user, upload, %{user_agent: "a/user/agent"})
 
       assert %Asciicast{
                version: 2,
@@ -201,35 +201,35 @@ defmodule Asciinema.AsciicastsTest do
       user = fixture(:user)
       upload = fixture(:upload, %{path: "new-logo-bars.png"})
 
-      assert {:error, :unknown_format} = Asciicasts.create_asciicast(user, upload)
+      assert {:error, :unknown_format} = Recordings.create_asciicast(user, upload)
     end
   end
 
   describe "delete_asciicast/1" do
     test "v1/v2" do
       asciicast = insert(:asciicast_v1) |> with_file()
-      assert {:ok, _asciicast} = Asciicasts.delete_asciicast(asciicast)
+      assert {:ok, _asciicast} = Recordings.delete_asciicast(asciicast)
 
       asciicast = insert(:asciicast_v2) |> with_file()
-      assert {:ok, _asciicast} = Asciicasts.delete_asciicast(asciicast)
+      assert {:ok, _asciicast} = Recordings.delete_asciicast(asciicast)
     end
   end
 
   describe "stdout_stream/1" do
     test "with asciicast v1 file" do
-      stream = Asciicasts.stdout_stream("test/fixtures/1/asciicast.json")
+      stream = Recordings.stdout_stream("test/fixtures/1/asciicast.json")
       assert :ok == Stream.run(stream)
       assert [{1.234567, "foo bar"}, {6.913554, "baz qux"}] == Enum.take(stream, 2)
     end
 
     test "with asciicast v2 file" do
-      stream = Asciicasts.stdout_stream("test/fixtures/2/minimal.cast")
+      stream = Recordings.stdout_stream("test/fixtures/2/minimal.cast")
       assert :ok == Stream.run(stream)
       assert [{1.234567, "foo bar"}, {5.678987, "baz qux"}] == Enum.take(stream, 2)
     end
 
     test "with asciicast v2 file, with idle_time_limit" do
-      stream = Asciicasts.stdout_stream("test/fixtures/2/full.cast")
+      stream = Recordings.stdout_stream("test/fixtures/2/full.cast")
       assert :ok == Stream.run(stream)
 
       assert [{1.234567, "foo bar"}, {3.734567, "baz qux"}, {6.234567, "żółć jaźń"}] ==
@@ -237,7 +237,7 @@ defmodule Asciinema.AsciicastsTest do
     end
 
     test "with asciicast v2 file, with blank lines" do
-      stream = Asciicasts.stdout_stream("test/fixtures/2/with-blank-lines.cast")
+      stream = Recordings.stdout_stream("test/fixtures/2/with-blank-lines.cast")
       assert :ok == Stream.run(stream)
 
       assert [{1.234567, "foo bar"}, {5.678987, "baz qux"}, {8.456789, "żółć jaźń"}] ==
@@ -248,7 +248,7 @@ defmodule Asciinema.AsciicastsTest do
   describe "stdout_stream/2" do
     test "with gzipped files" do
       stream =
-        Asciicasts.stdout_stream(
+        Recordings.stdout_stream(
           {"test/fixtures/0.9.9/stdout.time", "test/fixtures/0.9.9/stdout"}
         )
 
@@ -258,7 +258,7 @@ defmodule Asciinema.AsciicastsTest do
 
     test "with bzipped files" do
       stream =
-        Asciicasts.stdout_stream(
+        Recordings.stdout_stream(
           {"test/fixtures/0.9.8/stdout.time", "test/fixtures/0.9.8/stdout"}
         )
 
@@ -268,7 +268,7 @@ defmodule Asciinema.AsciicastsTest do
 
     test "with bzipped files (utf-8 sequence split between frames)" do
       stream =
-        Asciicasts.stdout_stream(
+        Recordings.stdout_stream(
           {"test/fixtures/0.9.8/stdout-split.time", "test/fixtures/0.9.8/stdout-split"}
         )
 
@@ -281,7 +281,7 @@ defmodule Asciinema.AsciicastsTest do
     @tag :vt
     test "returns list of screen lines" do
       stdout_stream = [{1.0, "a"}, {2.4, "b"}, {2.6, "c"}]
-      snapshot = Asciicasts.generate_snapshot(stdout_stream, 4, 2, 2.5)
+      snapshot = Recordings.generate_snapshot(stdout_stream, 4, 2, 2.5)
       assert snapshot == [[["ab", %{}], [" ", %{"inverse" => true}], [" ", %{}]], [["    ", %{}]]]
     end
   end
@@ -291,8 +291,8 @@ defmodule Asciinema.AsciicastsTest do
       asciicast_v1 = insert(:asciicast_v1)
       asciicast_v2 = insert(:asciicast_v2)
 
-      assert ^asciicast_v1 = Asciicasts.upgrade(asciicast_v1)
-      assert ^asciicast_v2 = Asciicasts.upgrade(asciicast_v2)
+      assert ^asciicast_v1 = Recordings.upgrade(asciicast_v1)
+      assert ^asciicast_v2 = Recordings.upgrade(asciicast_v2)
     end
 
     test "converts v0 file to v2" do
@@ -300,16 +300,16 @@ defmodule Asciinema.AsciicastsTest do
 
       stream_v0 =
         asciicast
-        |> Asciicasts.stdout_stream()
+        |> Recordings.stdout_stream()
         |> Enum.to_list()
 
-      asciicast = Asciicasts.upgrade(asciicast)
+      asciicast = Recordings.upgrade(asciicast)
       assert asciicast.version == 2
       assert asciicast.path =~ ~r|\d\d/\d\d/#{asciicast.id}\.cast$|
 
       stream_v2 =
         asciicast
-        |> Asciicasts.stdout_stream()
+        |> Recordings.stdout_stream()
         |> Enum.to_list()
 
       assert stream_v0 == stream_v2

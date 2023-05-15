@@ -1,8 +1,8 @@
-defmodule AsciinemaWeb.AsciicastView do
+defmodule AsciinemaWeb.RecordingView do
   use AsciinemaWeb, :view
   import Scrivener.HTML
-  alias Asciinema.Asciicasts
-  alias Asciinema.Asciicasts.Asciicast
+  alias Asciinema.Recordings
+  alias Asciinema.Recordings.Asciicast
   alias AsciinemaWeb.Endpoint
   alias AsciinemaWeb.Router.Helpers.Extra, as: RoutesX
   alias AsciinemaWeb.UserView
@@ -69,7 +69,7 @@ defmodule AsciinemaWeb.AsciicastView do
   end
 
   def embed_script(asciicast) do
-    src = Routes.asciicast_url(Endpoint, :show, asciicast) <> ".js"
+    src = Routes.recording_url(Endpoint, :show, asciicast) <> ".js"
     id = "asciicast-#{Phoenix.Param.to_param(asciicast)}"
     content_tag(:script, [src: src, id: id, async: true], do: [])
   end
@@ -82,7 +82,7 @@ defmodule AsciinemaWeb.AsciicastView do
     Routes.oembed_url(
       Endpoint,
       :show,
-      url: Routes.asciicast_url(Endpoint, :show, asciicast),
+      url: Routes.recording_url(Endpoint, :show, asciicast),
       format: format
     )
   end
@@ -274,11 +274,8 @@ defmodule AsciinemaWeb.AsciicastView do
       present?(asciicast.command) && asciicast.command != asciicast.shell ->
         asciicast.command
 
-      asciicast.private ->
-        "untitled"
-
       true ->
-        "asciicast:#{asciicast.id}"
+        "untitled"
     end
   end
 
@@ -580,11 +577,11 @@ defmodule AsciinemaWeb.AsciicastView do
   end
 
   def asciicast_gc_days do
-    Asciicasts.gc_days()
+    Recordings.gc_days()
   end
 
   def terminal_font_family_options do
-    for family <- Asciicasts.custom_terminal_font_families() do
+    for family <- Recordings.custom_terminal_font_families() do
       case family do
         "FiraCode Nerd Font" -> {"Nerd Font - Fira Code", family}
         "JetBrainsMono Nerd Font" -> {"Nerd Font - JetBrains Mono", family}

@@ -1,11 +1,11 @@
-defmodule Asciinema.AsciicastViewTest do
+defmodule Asciinema.RecordingViewTest do
   use AsciinemaWeb.ConnCase, async: true
-  alias AsciinemaWeb.AsciicastView
-  alias Asciinema.Asciicasts.Asciicast
+  alias AsciinemaWeb.RecordingView
+  alias Asciinema.Recordings.Asciicast
 
   def thumbnail_from(snapshot, w, h) do
     asciicast = %Asciicast{snapshot: snapshot}
-    AsciicastView.thumbnail(asciicast, w, h)
+    RecordingView.thumbnail(asciicast, w, h)
   end
 
   describe "thumbnail/3" do

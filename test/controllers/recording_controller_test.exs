@@ -1,4 +1,4 @@
-defmodule Asciinema.AsciicastControllerTest do
+defmodule Asciinema.RecordingControllerTest do
   use AsciinemaWeb.ConnCase
   import Asciinema.Factory
 
@@ -38,7 +38,7 @@ defmodule Asciinema.AsciicastControllerTest do
   describe "show" do
     test "HTML", %{conn: conn} do
       asciicast = insert(:asciicast, title: "Good stuff")
-      url = Routes.asciicast_path(conn, :show, asciicast)
+      url = Routes.recording_path(conn, :show, asciicast)
 
       conn_2 = get(conn, url)
       assert html_response(conn_2, 200) =~ "Good stuff"
@@ -71,7 +71,7 @@ defmodule Asciinema.AsciicastControllerTest do
     @tag :rsvg
     test "PNG", %{conn: conn} do
       asciicast = insert(:asciicast)
-      url = Routes.asciicast_path(conn, :show, asciicast)
+      url = Routes.recording_path(conn, :show, asciicast)
 
       conn_2 = get(conn, url <> ".png")
       assert response(conn_2, 200)
@@ -84,7 +84,7 @@ defmodule Asciinema.AsciicastControllerTest do
 
     test "SVG", %{conn: conn} do
       asciicast = insert(:asciicast)
-      url = Routes.asciicast_path(conn, :show, asciicast)
+      url = Routes.recording_path(conn, :show, asciicast)
 
       conn_2 = get(conn, url <> ".svg")
       assert response(conn_2, 200)
@@ -101,14 +101,14 @@ defmodule Asciinema.AsciicastControllerTest do
 
     test "HTML with GIF generation instructions", %{conn: conn} do
       asciicast = insert(:asciicast)
-      conn = get(conn, Routes.asciicast_path(conn, :show, asciicast) <> ".gif")
+      conn = get(conn, Routes.recording_path(conn, :show, asciicast) <> ".gif")
       assert html_response(conn, 200) =~ "GIF"
       assert response_content_type(conn, :html)
     end
 
     test "embed JS", %{conn: conn} do
       asciicast = insert(:asciicast)
-      url = Routes.asciicast_path(conn, :show, asciicast)
+      url = Routes.recording_path(conn, :show, asciicast)
 
       conn_2 = get(conn, url <> ".js")
       assert response(conn_2, 200)
@@ -121,7 +121,7 @@ defmodule Asciinema.AsciicastControllerTest do
 
     test "embed iframe", %{conn: conn} do
       asciicast = fixture(:asciicast)
-      conn = get(conn, Routes.asciicast_path(conn, :iframe, asciicast))
+      conn = get(conn, Routes.recording_path(conn, :iframe, asciicast))
       assert html_response(conn, 200) =~ ~r/iframe\.css/
       assert html_response(conn, 200) =~ ~r/iframe\.js/
       assert html_response(conn, 200) =~ ~r/window\.players\.set/
@@ -139,7 +139,7 @@ defmodule Asciinema.AsciicastControllerTest do
     end
 
     test "requires logged in user", %{conn: conn, asciicast: asciicast} do
-      conn = get(conn, Routes.asciicast_path(conn, :edit, asciicast))
+      conn = get(conn, Routes.recording_path(conn, :edit, asciicast))
       assert redirected_to(conn, 302) == "/login/new"
     end
 
@@ -147,14 +147,14 @@ defmodule Asciinema.AsciicastControllerTest do
       conn = log_in(conn, insert(:user))
 
       assert_raise(Asciinema.Authorization.ForbiddenError, fn ->
-        get(conn, Routes.asciicast_path(conn, :edit, asciicast))
+        get(conn, Routes.recording_path(conn, :edit, asciicast))
       end)
     end
 
     test "displays form", %{conn: conn, asciicast: asciicast, user: user} do
       conn = log_in(conn, user)
 
-      conn = get(conn, Routes.asciicast_path(conn, :edit, asciicast))
+      conn = get(conn, Routes.recording_path(conn, :edit, asciicast))
 
       assert html_response(conn, 200) =~ "Save"
     end
@@ -163,7 +163,7 @@ defmodule Asciinema.AsciicastControllerTest do
       conn = log_in(conn, user)
 
       attrs = %{asciicast: %{title: "Haha!"}}
-      conn = put conn, Routes.asciicast_path(conn, :update, asciicast), attrs
+      conn = put conn, Routes.recording_path(conn, :update, asciicast), attrs
 
       location = List.first(get_resp_header(conn, "location"))
       assert get_flash(conn, :info) =~ ~r/updated/i
@@ -189,19 +189,19 @@ defmodule Asciinema.AsciicastControllerTest do
       conn = log_in(conn, insert(:user))
 
       assert_raise(Asciinema.Authorization.ForbiddenError, fn ->
-        delete(conn, Routes.asciicast_path(conn, :delete, asciicast))
+        delete(conn, Routes.recording_path(conn, :delete, asciicast))
       end)
     end
 
     test "removes and redirects", %{conn: conn, asciicast: asciicast, user: user} do
       conn = log_in(conn, user)
 
-      conn = delete(conn, Routes.asciicast_path(conn, :delete, asciicast))
+      conn = delete(conn, Routes.recording_path(conn, :delete, asciicast))
 
       assert get_flash(conn, :info) =~ ~r/deleted/i
       assert response(conn, 302)
 
-      conn = get(build_conn(), Routes.asciicast_path(conn, :show, asciicast))
+      conn = get(build_conn(), Routes.recording_path(conn, :show, asciicast))
       assert html_response(conn, 404) =~ ~r/not found/i
     end
   end
