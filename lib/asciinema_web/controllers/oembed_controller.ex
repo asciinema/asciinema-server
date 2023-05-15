@@ -1,6 +1,6 @@
 defmodule AsciinemaWeb.OembedController do
   use AsciinemaWeb, :controller
-  alias Asciinema.Asciicasts
+  alias Asciinema.Recordings
 
   plug :put_layout, nil
 
@@ -9,7 +9,7 @@ defmodule AsciinemaWeb.OembedController do
 
     with path when is_binary(path) <- uri.path,
          [_, id] <- Regex.run(~r|^/a/([^/]+)$|, path),
-         {:ok, asciicast} <- Asciicasts.fetch_asciicast(id) do
+         {:ok, asciicast} <- Recordings.fetch_asciicast(id) do
       mw = if params["maxwidth"], do: String.to_integer(params["maxwidth"])
       mh = if params["maxheight"], do: String.to_integer(params["maxheight"])
 

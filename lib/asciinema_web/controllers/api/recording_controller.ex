@@ -1,7 +1,7 @@
-defmodule AsciinemaWeb.Api.AsciicastController do
+defmodule AsciinemaWeb.Api.RecordingController do
   use AsciinemaWeb, :controller
   import AsciinemaWeb.Auth, only: [get_basic_auth: 1, put_basic_auth: 3]
-  alias Asciinema.{Asciicasts, Accounts}
+  alias Asciinema.{Recordings, Accounts}
   alias Asciinema.Accounts.User
 
   plug :accepts, ~w(text json)
@@ -23,9 +23,9 @@ defmodule AsciinemaWeb.Api.AsciicastController do
     user = conn.assigns.current_user
     user_agent = conn |> get_req_header("user-agent") |> List.first()
 
-    case Asciicasts.create_asciicast(user, params, %{user_agent: user_agent}) do
+    case Recordings.create_asciicast(user, params, %{user_agent: user_agent}) do
       {:ok, asciicast} ->
-        url = Routes.asciicast_url(conn, :show, asciicast)
+        url = Routes.recording_url(conn, :show, asciicast)
 
         conn
         |> put_status(:created)

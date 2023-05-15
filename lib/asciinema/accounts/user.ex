@@ -22,7 +22,7 @@ defmodule Asciinema.Accounts.User do
 
     timestamps()
 
-    has_many :asciicasts, Asciinema.Asciicasts.Asciicast
+    has_many :asciicasts, Asciinema.Recordings.Asciicast
     has_many :api_tokens, Asciinema.Accounts.ApiToken
   end
 

@@ -12,7 +12,7 @@
         <h2>Link</h2>
 
         <p>
-          <input data-behavior="auto-select" readonly="" value="<%= Routes.asciicast_url(@conn, :show, @asciicast) %>" type="text">
+          <input data-behavior="auto-select" readonly="" value="<%= Routes.recording_url(@conn, :show, @asciicast) %>" type="text">
         </p>
 
         <p>
@@ -27,13 +27,13 @@
         <p>
           <span>HTML:</span>
           <br>
-          <input data-behavior="auto-select" readonly="" value="<a href=&quot;<%= Routes.asciicast_url(@conn, :show, @asciicast) %>&quot; target=&quot;_blank&quot;><img src=&quot;<%= Routes.asciicast_url(@conn, :show, @asciicast) %>.svg&quot; /></a>" type="text">
+          <input data-behavior="auto-select" readonly="" value="<a href=&quot;<%= Routes.recording_url(@conn, :show, @asciicast) %>&quot; target=&quot;_blank&quot;><img src=&quot;<%= Routes.recording_url(@conn, :show, @asciicast) %>.svg&quot; /></a>" type="text">
         </p>
 
         <p>
           <span>Markdown:</span>
           <br>
-          <input data-behavior="auto-select" readonly="" value="[![asciicast](<%= Routes.asciicast_url(@conn, :show, @asciicast) %>.svg)](<%= Routes.asciicast_url(@conn, :show, @asciicast) %>)" type="text">
+          <input data-behavior="auto-select" readonly="" value="[![asciicast](<%= Routes.recording_url(@conn, :show, @asciicast) %>.svg)](<%= Routes.recording_url(@conn, :show, @asciicast) %>)" type="text">
         </p>
 
         <h2>Embed the player</h2>

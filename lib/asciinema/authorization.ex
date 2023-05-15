@@ -1,6 +1,6 @@
 defmodule Asciinema.Authorization do
   alias Asciinema.Accounts.User
-  alias Asciinema.Asciicasts.Asciicast
+  alias Asciinema.Recordings.Asciicast
 
   defmodule Policy do
     def can?(nil, _action, _thing) do

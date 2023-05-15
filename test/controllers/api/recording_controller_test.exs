@@ -1,4 +1,4 @@
-defmodule Asciinema.Api.AsciicastControllerTest do
+defmodule Asciinema.Api.RecordingControllerTest do
   use AsciinemaWeb.ConnCase
   alias Asciinema.Accounts
 
@@ -15,7 +15,7 @@ defmodule Asciinema.Api.AsciicastControllerTest do
     {:ok, conn: conn, token: token}
   end
 
-  @asciicast_url ~r|^http://localhost:4001/a/[a-zA-Z0-9]{25}|
+  @recording_url ~r|^http://localhost:4001/a/[a-zA-Z0-9]{25}|
   @successful_response ~r|View.+at.+http://localhost:4001/a/[a-zA-Z0-9]{25}\n|s
 
   describe ".create" do
@@ -29,9 +29,9 @@ defmodule Asciinema.Api.AsciicastControllerTest do
           fixture(:upload, %{path: "0.9.7/stdout.time", content_type: "application/octet-stream"})
       }
 
-      conn = post conn, Routes.api_asciicast_path(conn, :create), %{"asciicast" => asciicast}
+      conn = post conn, Routes.api_recording_path(conn, :create), %{"asciicast" => asciicast}
       assert text_response(conn, 201) =~ @successful_response
-      assert List.first(get_resp_header(conn, "location")) =~ @asciicast_url
+      assert List.first(get_resp_header(conn, "location")) =~ @recording_url
     end
 
     @tag token: nil
@@ -44,9 +44,9 @@ defmodule Asciinema.Api.AsciicastControllerTest do
           fixture(:upload, %{path: "0.9.8/stdout.time", content_type: "application/octet-stream"})
       }
 
-      conn = post conn, Routes.api_asciicast_path(conn, :create), %{"asciicast" => asciicast}
+      conn = post conn, Routes.api_recording_path(conn, :create), %{"asciicast" => asciicast}
       assert text_response(conn, 201) =~ @successful_response
-      assert List.first(get_resp_header(conn, "location")) =~ @asciicast_url
+      assert List.first(get_resp_header(conn, "location")) =~ @recording_url
     end
 
     test "separate files (pre-v1 params), v0.9.9 client", %{conn: conn} do
@@ -58,55 +58,55 @@ defmodule Asciinema.Api.AsciicastControllerTest do
           fixture(:upload, %{path: "0.9.9/stdout.time", content_type: "application/octet-stream"})
       }
 
-      conn = post conn, Routes.api_asciicast_path(conn, :create), %{"asciicast" => asciicast}
+      conn = post conn, Routes.api_recording_path(conn, :create), %{"asciicast" => asciicast}
       assert text_response(conn, 201) =~ @successful_response
-      assert List.first(get_resp_header(conn, "location")) =~ @asciicast_url
+      assert List.first(get_resp_header(conn, "location")) =~ @recording_url
     end
 
     test "json file, v1 format", %{conn: conn} do
       upload = fixture(:upload, %{path: "1/asciicast.json"})
-      conn = post conn, Routes.api_asciicast_path(conn, :create), %{"asciicast" => upload}
+      conn = post conn, Routes.api_recording_path(conn, :create), %{"asciicast" => upload}
       assert text_response(conn, 201) =~ @successful_response
-      assert List.first(get_resp_header(conn, "location")) =~ @asciicast_url
+      assert List.first(get_resp_header(conn, "location")) =~ @recording_url
     end
 
     test "json file, v2 format", %{conn: conn} do
       upload = fixture(:upload, %{path: "2/minimal.cast"})
-      conn = post conn, Routes.api_asciicast_path(conn, :create), %{"asciicast" => upload}
+      conn = post conn, Routes.api_recording_path(conn, :create), %{"asciicast" => upload}
       assert text_response(conn, 201) =~ @successful_response
-      assert List.first(get_resp_header(conn, "location")) =~ @asciicast_url
+      assert List.first(get_resp_header(conn, "location")) =~ @recording_url
     end
 
     test "json file, v1 format (missing required data)", %{conn: conn} do
       upload = fixture(:upload, %{path: "1/invalid.json"})
-      conn = post conn, Routes.api_asciicast_path(conn, :create), %{"asciicast" => upload}
+      conn = post conn, Routes.api_recording_path(conn, :create), %{"asciicast" => upload}
       assert %{"errors" => _} = json_response(conn, 422)
     end
 
     test "json file, unsupported version number", %{conn: conn} do
       upload = fixture(:upload, %{path: "5/asciicast.json"})
-      conn = post conn, Routes.api_asciicast_path(conn, :create), %{"asciicast" => upload}
+      conn = post conn, Routes.api_recording_path(conn, :create), %{"asciicast" => upload}
       assert text_response(conn, 422) =~ ~r|not supported|
     end
 
     test "non-json file", %{conn: conn} do
       upload = fixture(:upload, %{path: "new-logo-bars.png"})
-      conn = post conn, Routes.api_asciicast_path(conn, :create), %{"asciicast" => upload}
+      conn = post conn, Routes.api_recording_path(conn, :create), %{"asciicast" => upload}
       assert text_response(conn, 400) =~ ~r|valid asciicast|
     end
 
     test "existing user (API token)", %{conn: conn, token: token} do
       {:ok, _} = Accounts.create_user_with_api_token(token, "test")
       upload = fixture(:upload, %{path: "1/asciicast.json"})
-      conn = post conn, Routes.api_asciicast_path(conn, :create), %{"asciicast" => upload}
+      conn = post conn, Routes.api_recording_path(conn, :create), %{"asciicast" => upload}
       assert text_response(conn, 201) =~ @successful_response
-      assert List.first(get_resp_header(conn, "location")) =~ @asciicast_url
+      assert List.first(get_resp_header(conn, "location")) =~ @recording_url
     end
 
     @tag token: nil
     test "no authentication", %{conn: conn} do
       upload = fixture(:upload, %{path: "1/asciicast.json"})
-      conn = post conn, Routes.api_asciicast_path(conn, :create), %{"asciicast" => upload}
+      conn = post conn, Routes.api_recording_path(conn, :create), %{"asciicast" => upload}
       assert response(conn, 401)
     end
 
@@ -115,23 +115,23 @@ defmodule Asciinema.Api.AsciicastControllerTest do
       Accounts.get_user_with_api_token(token, "test")
       token |> Accounts.get_api_token!() |> Accounts.revoke_api_token!()
       upload = fixture(:upload, %{path: "1/asciicast.json"})
-      conn = post conn, Routes.api_asciicast_path(conn, :create), %{"asciicast" => upload}
+      conn = post conn, Routes.api_recording_path(conn, :create), %{"asciicast" => upload}
       assert response(conn, 401)
     end
 
     @tag token: "invalid-lol"
     test "authentication with invalid token", %{conn: conn} do
       upload = fixture(:upload, %{path: "1/asciicast.json"})
-      conn = post conn, Routes.api_asciicast_path(conn, :create), %{"asciicast" => upload}
+      conn = post conn, Routes.api_recording_path(conn, :create), %{"asciicast" => upload}
       assert response(conn, 401)
     end
 
     test "requesting json response", %{conn: conn} do
       upload = fixture(:upload, %{path: "2/minimal.cast"})
       conn = put_req_header(conn, "accept", "application/json")
-      conn = post conn, Routes.api_asciicast_path(conn, :create), %{"asciicast" => upload}
+      conn = post conn, Routes.api_recording_path(conn, :create), %{"asciicast" => upload}
       assert %{"url" => "http" <> _} = json_response(conn, 201)
-      assert List.first(get_resp_header(conn, "location")) =~ @asciicast_url
+      assert List.first(get_resp_header(conn, "location")) =~ @recording_url
     end
   end
 end

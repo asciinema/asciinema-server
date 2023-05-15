@@ -13,7 +13,7 @@
   for civilization. -- Bill Nye
 </p>
 
-<img src="<%= Routes.asciicast_path(@conn, :show, @asciicast) %>.svg" style="max-width: 100%" />
+<img src="<%= Routes.recording_path(@conn, :show, @asciicast) %>.svg" style="max-width: 100%" />
 
 <h2>PNG</h2>
 
@@ -22,7 +22,7 @@
   for civilization. -- Bill Nye
 </p>
 
-<img src="<%= Routes.asciicast_path(@conn, :show, @asciicast) %>.png" style="max-width: 100%" />
+<img src="<%= Routes.recording_path(@conn, :show, @asciicast) %>.png" style="max-width: 100%" />
 
 <%= if @home_asciicast do %>
   <h2>Embed script for home asciicast</h2>

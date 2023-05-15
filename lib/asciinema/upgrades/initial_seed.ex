@@ -5,7 +5,7 @@ defmodule Asciinema.Upgrades.InitialSeed do
   @impl Oban.Worker
   def perform(_job) do
     user = Asciinema.Accounts.ensure_asciinema_user()
-    :ok = Asciinema.Asciicasts.ensure_welcome_asciicast(user)
+    :ok = Asciinema.Recordings.ensure_welcome_asciicast(user)
 
     Logger.info("database seeded successfully")
 

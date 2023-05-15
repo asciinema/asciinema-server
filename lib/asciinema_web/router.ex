@@ -45,7 +45,7 @@ defmodule AsciinemaWeb.Router do
   scope "/", AsciinemaWeb do
     pipe_through :asciicast
 
-    resources "/a", AsciicastController, only: [:show, :edit, :update, :delete]
+    resources "/a", RecordingController, only: [:show, :edit, :update, :delete]
   end
 
   scope "/", AsciinemaWeb do
@@ -60,12 +60,12 @@ defmodule AsciinemaWeb.Router do
 
     get "/", HomeController, :show
 
-    get "/explore", AsciicastController, :auto, as: :explore
-    get "/explore/featured", AsciicastController, :featured, as: :explore
-    get "/explore/public", AsciicastController, :public, as: :explore
+    get "/explore", RecordingController, :auto, as: :explore
+    get "/explore/featured", RecordingController, :featured, as: :explore
+    get "/explore/public", RecordingController, :public, as: :explore
 
-    get "/a/:id/iframe", AsciicastController, :iframe
-    get "/a/:id/example", AsciicastController, :example
+    get "/a/:id/iframe", RecordingController, :iframe
+    get "/a/:id/example", RecordingController, :example
 
     get "/docs", DocController, :index
     get "/docs/:topic", DocController, :show
@@ -95,7 +95,7 @@ defmodule AsciinemaWeb.Router do
   end
 
   scope "/api", AsciinemaWeb.Api, as: :api do
-    post "/asciicasts", AsciicastController, :create
+    post "/asciicasts", RecordingController, :create
   end
 
   scope "/dev" do
@@ -138,7 +138,7 @@ defmodule AsciinemaWeb.Router.Helpers.Extra do
   end
 
   def asciicast_file_path(conn, asciicast) do
-    H.asciicast_path(conn, :show, asciicast) <> "." <> ext(asciicast)
+    H.recording_path(conn, :show, asciicast) <> "." <> ext(asciicast)
   end
 
   def asciicast_file_url(asciicast) do
@@ -146,7 +146,7 @@ defmodule AsciinemaWeb.Router.Helpers.Extra do
   end
 
   def asciicast_file_url(conn, asciicast) do
-    H.asciicast_url(conn, :show, asciicast) <> "." <> ext(asciicast)
+    H.recording_url(conn, :show, asciicast) <> "." <> ext(asciicast)
   end
 
   defp ext(asciicast) do

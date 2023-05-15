@@ -1,8 +1,8 @@
-defmodule Asciinema.Asciicasts.Asciicast do
+defmodule Asciinema.Recordings.Asciicast do
   use Ecto.Schema
   import Ecto.Changeset
   alias Asciinema.Accounts.User
-  alias Asciinema.Asciicasts.Asciicast
+  alias Asciinema.Recordings.Asciicast
 
   @default_theme "asciinema"
 
@@ -40,6 +40,7 @@ defmodule Asciinema.Asciicasts.Asciicast do
     field :archived_at, :utc_datetime_usec
     field :terminal_line_height, :float
     field :terminal_font_family, :string
+    field :markers, :string
 
     timestamps()
 
@@ -100,7 +101,8 @@ defmodule Asciinema.Asciicasts.Asciicast do
       :theme_name,
       :idle_time_limit,
       :terminal_line_height,
-      :terminal_font_family
+      :terminal_font_family,
+      :markers
     ])
     |> validate_number(:cols_override, greater_than: 0, less_than: 1024)
     |> validate_number(:rows_override, greater_than: 0, less_than: 512)
@@ -111,6 +113,44 @@ defmodule Asciinema.Asciicasts.Asciicast do
     )
     |> validate_inclusion(:terminal_font_family, custom_terminal_font_families)
     |> validate_number(:snapshot_at, greater_than: 0)
+    |> validate_change(:markers, &validate_markers/2)
+  end
+
+  defp validate_markers(_, markers) do
+    case parse_markers(markers) do
+      {:ok, _} -> []
+      {:error, index} -> [markers: "invalid syntax in line #{index + 1}"]
+    end
+  end
+
+  def parse_markers(markers) do
+    results =
+      markers
+      |> String.trim()
+      |> String.split("\n")
+      |> Enum.map(&parse_marker/1)
+
+    case Enum.find_index(results, fn result -> result == :error end) do
+      nil -> {:ok, results}
+      index -> {:error, index}
+    end
+  end
+
+  defp parse_marker(marker) do
+    parts =
+      marker
+      |> String.trim()
+      |> String.split(~r/\s+-\s+/, parts: 2)
+      |> Kernel.++([""])
+      |> Enum.take(2)
+
+    with [t, l] <- parts,
+         {t, ""} <- Float.parse(t),
+         true <- String.length(l) < 100 do
+      {t, l}
+    else
+      _ -> :error
+    end
   end
 
   def snapshot_changeset(struct, snapshot) do

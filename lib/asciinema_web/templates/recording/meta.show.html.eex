@@ -5,8 +5,8 @@
 <!-- Open Graph -->
 <meta property="og:title" content="<%= title(@asciicast) %>" />
 <meta property="og:type" content="website" />
-<meta property="og:url" content="<%= Routes.asciicast_url(@conn, :show, @asciicast) %>" />
-<meta property="og:image" content="<%= Routes.asciicast_url(@conn, :show, @asciicast) %>.png" />
+<meta property="og:url" content="<%= Routes.recording_url(@conn, :show, @asciicast) %>" />
+<meta property="og:image" content="<%= Routes.recording_url(@conn, :show, @asciicast) %>.png" />
 <meta property="og:description" content="<%= short_text_description(@asciicast) %>" />
 <meta property="og:site_name" content="asciinema.org" />
 
@@ -14,9 +14,9 @@
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="@asciinema" />
 <meta name="twitter:title" content="<%= title(@asciicast) %>" />
-<meta name="twitter:url" content="<%= Routes.asciicast_url(@conn, :show, @asciicast) %>" />
+<meta name="twitter:url" content="<%= Routes.recording_url(@conn, :show, @asciicast) %>" />
 <meta name="twitter:description" content="<%= short_text_description(@asciicast) %>" />
-<meta name="twitter:image" content="<%= Routes.asciicast_url(@conn, :show, @asciicast) %>.png" />
+<meta name="twitter:image" content="<%= Routes.recording_url(@conn, :show, @asciicast) %>.png" />
 
 <!-- application/x-asciicast -->
 <link rel="alternate" type="<%= alternate_link_type(@asciicast) %>" href="<%= asciicast_file_url(@asciicast) %>">

@@ -1,4 +1,4 @@
-defmodule AsciinemaWeb.Api.AsciicastView do
+defmodule AsciinemaWeb.Api.RecordingView do
   use AsciinemaWeb, :view
 
   def render("created.text", assigns) do
@@ -24,7 +24,7 @@ defmodule AsciinemaWeb.Api.AsciicastView do
     """
 
     is_tmp_user = Asciinema.Accounts.temporary_user?(conn.assigns.current_user)
-    gc_days = Asciinema.Asciicasts.gc_days()
+    gc_days = Asciinema.Recordings.gc_days()
 
     if is_tmp_user && gc_days do
       hostname = AsciinemaWeb.instance_hostname()
