@@ -6,6 +6,16 @@
     background-position: 50%;
 
     .row {
+      .headline {
+        margin-bottom: 0;
+      }
+
+      @media (min-width: 992px) {
+        .headline {
+          margin-bottom: 3rem;
+        }
+      }
+
       > div {
         margin-top: 3rem;
         margin-bottom: 3rem;
