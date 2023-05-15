@@ -42,7 +42,7 @@ defmodule Asciinema.Recordings do
     |> Repo.preload(:user)
   end
 
-  def other_public_asciicasts(asciicast, limit \\ 3) do
+  def other_public_asciicasts(asciicast, limit \\ 4) do
     Asciicast
     |> filter({asciicast.user_id, :public})
     |> where([a], a.id != ^asciicast.id)

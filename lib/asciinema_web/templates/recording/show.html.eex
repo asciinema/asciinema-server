@@ -119,7 +119,7 @@
             <div class="asciicast-list">
               <div class="row">
                 <%= for asciicast <- asciicasts do %>
-                  <div class="col-md-4">
+                  <div class="col-md-6">
                     <%= render AsciinemaWeb.RecordingView, "_card.html", conn: @conn, asciicast: asciicast %>
                   </div>
                 <% end %>
