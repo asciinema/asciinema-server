@@ -66,10 +66,10 @@
         <% {0, false} -> %>
 
         <% _ -> %>
-          <%= for asciicasts <- Enum.chunk_every(@page, 3, 3) do %>
+          <%= for asciicasts <- Enum.chunk_every(@page, 2, 2) do %>
             <div class="row">
               <%= for asciicast <- asciicasts do %>
-                <div class="col-md-4">
+                <div class="col-md-6">
                   <%= render AsciinemaWeb.AsciicastView, "_card.html", conn: @conn, asciicast: asciicast %>
                 </div>
               <% end %>
