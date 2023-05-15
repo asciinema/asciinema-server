@@ -36,12 +36,13 @@ source [contributors](https://github.com/asciinema/asciinema-server/contributors
 
 As the service is built of several parts there are separate bug trackers:
 
-* [github.com/asciinema/asciinema/issues](https://github.com/asciinema/asciinema/issues) - for recorder issues and ideas
-* [github.com/asciinema/asciinema-server/issues](https://github.com/asciinema/asciinema-server/issues) - for website/embedding issues and ideas
-* [github.com/asciinema/asciinema-player/issues](https://github.com/asciinema/asciinema-player/issues) - for player issues and ideas
+* [github.com/asciinema/asciinema/issues](https://github.com/asciinema/asciinema/issues) - for recorder issues
+* [github.com/asciinema/asciinema-server/issues](https://github.com/asciinema/asciinema-server/issues) - for website/embedding issues
+* [github.com/asciinema/asciinema-player/issues](https://github.com/asciinema/asciinema-player/issues) - for player issues
 
-Please only use them for reporting bugs and submitting feature requests.
-Do not ask for general help there. Use IRC or the support email for that.
+Please only use them for reporting bugs. Do not ask for general help there. Use
+[Github Discussions](https://github.com/orgs/asciinema/discussions) or IRC for
+that.
 
 ## Credits
 
@@ -50,4 +51,3 @@ and resources:
 
 * [Brightbox](http://brightbox.com) - [cloud servers](http://brightbox.com)
 * [Reza Ali](http://www.syedrezaali.com/blog/) - homepage background
-* [Bugsnag](https://bugsnag.com/) - error monitoring
