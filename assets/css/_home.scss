@@ -12,12 +12,12 @@
       }
 
       .player-wrapper {
-        .asciinema-player {
+        .ap-player {
           box-shadow: 0 0 16px 5px rgba(255, 255, 255, 0.2);
         }
 
-        .asciinema-player-wrapper:fullscreen {
-          .asciinema-player {
+        .ap-wrapper:fullscreen {
+          .ap-player {
             box-shadow: none;
           }
         }
