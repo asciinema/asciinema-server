@@ -2,6 +2,7 @@ defmodule AsciinemaWeb.AsciicastView do
   use AsciinemaWeb, :view
   import Scrivener.HTML
   alias Asciinema.Asciicasts
+  alias Asciinema.Asciicasts.Asciicast
   alias AsciinemaWeb.Endpoint
   alias AsciinemaWeb.Router.Helpers.Extra, as: RoutesX
   alias AsciinemaWeb.UserView
@@ -42,6 +43,7 @@ defmodule AsciinemaWeb.AsciicastView do
           terminalLineHeight: asciicast.terminal_line_height,
           customTerminalFontFamily: asciicast.terminal_font_family,
           poster: poster(asciicast.snapshot),
+          markers: markers(asciicast.markers),
           idleTimeLimit: asciicast.idle_time_limit,
           title: title(asciicast),
           author: author_username(asciicast),
@@ -133,6 +135,15 @@ defmodule AsciinemaWeb.AsciicastView do
       |> String.replace(~r/(\r\n\s+)+$/, "")
 
     "data:text/plain," <> text <> @csi_init <> "?25l"
+  end
+
+  defp markers(nil), do: nil
+
+  defp markers(markers) do
+    case Asciicast.parse_markers(markers) do
+      {:ok, markers} -> Enum.map(markers, &Tuple.to_list/1)
+      {:error, _} -> nil
+    end
   end
 
   defp line_to_text(segments) do

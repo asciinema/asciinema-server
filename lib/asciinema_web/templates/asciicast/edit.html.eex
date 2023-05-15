@@ -82,6 +82,15 @@
         </div>
 
         <div class="form-group row">
+          <%= label f, :markers, class: "col-sm-4 col-md-3 col-lg-3 col-form-label" %>
+          <div class="col-sm-8 col-md-9 col-lg-9">
+            <%= textarea f, :markers, class: "form-control", rows: 6, placeholder: "Example:\n\n5.0 - Intro\n11.3 - Installation\n32.0 - Configuration\n66.5 - Tips & Tricks" %>
+            <%= error_tag f, :markers %>
+            <small class="form-text text-muted">Each line is a marker defined as <code>[time] - [label]</code>.</small>
+          </div>
+        </div>
+
+        <div class="form-group row">
           <div class="offset-sm-4 col-sm-8 offset-md-3 col-md-9 offset-lg-3 col-lg-9">
             <br>
             <%= submit "Save", class: "btn btn-primary" %>
