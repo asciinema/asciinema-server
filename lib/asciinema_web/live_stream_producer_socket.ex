@@ -8,6 +8,9 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
   @reset_timeout 5_000
   @ping_interval 15_000
   @heartbeat_interval 15_000
+  @bucket_fill_interval 100
+  @bucket_fill_amount 10_000
+  @bucket_size 60_000_000
 
   # Callbacks
 
@@ -19,7 +22,7 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
 
   @impl true
   def connect(state) do
-    {:ok, %{stream_id: state.params["id"], reset: false}}
+    {:ok, %{stream_id: state.params["id"], reset: false, bucket: @bucket_size}}
   end
 
   @impl true
@@ -29,6 +32,7 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
     :ok = LiveStream.lead(state.stream_id)
     Process.send_after(self(), :reset_timeout, @reset_timeout)
     Process.send_after(self(), :ping, @ping_interval)
+    Process.send_after(self(), :fill_bucket, @bucket_fill_interval)
     send(self(), :heartbeat)
 
     {:ok, state}
@@ -44,12 +48,19 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
 
   def handle_in({text, _opts}, state) do
     with {:ok, message} <- Jason.decode(text),
-         {:ok, state} <- handle_message(message, state) do
+         {:ok, state} <- handle_message(message, state),
+         {:ok, state} <- drain_bucket(state, byte_size(text)) do
       {:ok, state}
     else
       {:error, :not_a_leader} ->
         Logger.info("producer/#{state.stream_id}: stream taken over by another producer")
 
+        {:stop, :normal, state}
+
+      {:error, :empty_bucket} ->
+        Logger.info("producer/#{state.stream_id}: byte budget exceeded")
+
+        # TODO use reason other than :normal to make streamer reconnect
         {:stop, :normal, state}
 
       {:error, _} ->
@@ -137,6 +148,18 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
 
   def handle_info(:reset_timeout, %{reset: true} = state), do: {:ok, state}
 
+  def handle_info(:fill_bucket, state) do
+    bucket = min(@bucket_size, state.bucket + @bucket_fill_amount)
+
+    if bucket > state.bucket && bucket < @bucket_size do
+      Logger.debug("producer/#{state.stream_id}: fill to #{bucket}")
+    end
+
+    Process.send_after(self(), :fill_bucket, @bucket_fill_interval)
+
+    {:ok, %{state | bucket: bucket}}
+  end
+
   @impl true
   def terminate(reason, state) do
     Logger.info(
@@ -144,5 +167,15 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
     )
 
     :ok
+  end
+
+  defp drain_bucket(state, drain_amount) do
+    bucket = state.bucket - drain_amount
+
+    if bucket < 0 do
+      {:error, :empty_bucket}
+    else
+      {:ok, %{state | bucket: bucket}}
+    end
   end
 end
