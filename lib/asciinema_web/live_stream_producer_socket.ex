@@ -46,7 +46,7 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
   @max_cols 720
   @max_rows 200
 
-  def handle_in({text, _opts}, state) do
+  def handle_in({text, [opcode: :text]}, state) do
     with {:ok, message} <- Jason.decode(text),
          {:ok, state} <- handle_message(message, state),
          {:ok, state} <- drain_bucket(state, byte_size(text)) do
@@ -66,6 +66,12 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
       {:error, _} ->
         {:stop, :normal, state}
     end
+  end
+
+  def handle_in(_, state) do
+    Logger.info("producer/#{state.stream_id}: binary message received, disconnecting")
+
+    {:stop, :normal, state}
   end
 
   def handle_message(%{"cols" => cols, "rows" => rows} = header, state)
