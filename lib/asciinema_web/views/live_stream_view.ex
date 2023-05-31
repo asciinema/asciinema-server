@@ -1,6 +1,6 @@
 defmodule AsciinemaWeb.LiveStreamView do
   use AsciinemaWeb, :view
-  import AsciinemaWeb.AsciicastView, only: [cinema_height: 1]
+  import AsciinemaWeb.RecordingView, only: [cinema_height: 1]
   alias AsciinemaWeb.UserView
 
   def player(src, opts \\ [])
