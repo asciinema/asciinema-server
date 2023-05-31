@@ -8,7 +8,7 @@ asciinema project is built of several complementary pieces:
 
 When you run `asciinema rec` in your terminal the recording starts, capturing
 all output that is being printed to your terminal while you're issuing the
-shell commands. When the recording finishes (by hitting <kbd>Ctrl-D</kbd> or
+shell commands. When the recording finishes (by hitting Ctrl-D or
 typing `exit`) then the captured output is uploaded to asciinema.org website
 and prepared for playback on the web.
 
