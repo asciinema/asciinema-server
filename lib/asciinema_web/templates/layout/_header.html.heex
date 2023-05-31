@@ -33,6 +33,9 @@
         </ul>
 
         <ul class="navbar-nav navbar-right session-info">
+            <li class="nav-item">
+              <a class="nav-link nav-link-consulting" href={Routes.page_path(@conn, :consulting)} id="log-in">Hire me!</a>
+            </li>
           <%= if @current_user do %>
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">
