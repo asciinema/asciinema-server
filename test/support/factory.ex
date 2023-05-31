@@ -1,7 +1,7 @@
 defmodule Asciinema.Factory do
   use ExMachina.Ecto, repo: Asciinema.Repo
   alias Asciinema.Accounts.User
-  alias Asciinema.Asciicasts.Asciicast
+  alias Asciinema.Recordings.Asciicast
   alias Asciinema.FileStore
 
   def user_factory do

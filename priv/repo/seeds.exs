@@ -11,4 +11,4 @@
 # and so on) as they will fail if something goes wrong.
 
 user = Asciinema.Accounts.ensure_asciinema_user()
-Asciinema.Asciicasts.ensure_welcome_asciicast(user)
+Asciinema.Recordings.ensure_welcome_asciicast(user)

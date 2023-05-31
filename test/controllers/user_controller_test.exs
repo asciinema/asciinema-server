@@ -78,7 +78,7 @@ defmodule Asciinema.UserControllerTest do
 
       conn = get(conn, "/~dracula3000")
       html = html_response(conn, 200)
-      assert html =~ "2 asciicasts"
+      assert html =~ "2 recordings"
       assert html =~ "Public stuff"
       assert html =~ "Private stuff"
     end

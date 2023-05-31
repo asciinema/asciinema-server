@@ -10,9 +10,9 @@ $primary: #06989a;
 @import "./_header.scss";
 @import "./_footer.scss";
 @import "./_flash.scss";
-@import "./_asciicast_card.scss";
-@import "./_asciicast_list.scss";
-@import "./_asciicast_show.scss";
+@import "./_recording_card.scss";
+@import "./_recording_list.scss";
+@import "./_recording_show.scss";
 @import "./_simple_layout.scss";
 @import "./_user_profile.scss";
 @import "./_user_login.scss";
@@ -22,7 +22,7 @@ $primary: #06989a;
 @import "./fonts/jetbrains-mono-nerd-font.css";
 @import "~asciinema-player/dist/bundle/asciinema-player.css";
 
-.c-asciicast.a-index {
+.c-recording.a-index {
   h2 {
     font-weight: 600;
 

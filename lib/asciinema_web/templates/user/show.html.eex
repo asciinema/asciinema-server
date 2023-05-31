@@ -26,15 +26,15 @@
   <div class="container">
     <%= if @user_is_self do %>
       <%= if @asciicast_count > 0 do %>
-        <h2>You have recorded <%= pluralize(@asciicast_count, "asciicast") %></h2>
+        <h2>You have <%= pluralize(@asciicast_count, "recording") %></h2>
       <% else %>
-        <h2>Record your first asciicast</h2>
+        <h2>Record your first session</h2>
       <% end %>
     <% else %>
       <%= if @asciicast_count > 0 do %>
-        <h2><%= pluralize(@asciicast_count, "public asciicast") %> by <%= username(@user) %></h2>
+        <h2><%= pluralize(@asciicast_count, "public recording") %> by <%= username(@user) %></h2>
       <% else %>
-        <h2><%= username(@user) %> has no public asciicasts</h2>
+        <h2><%= username(@user) %> has no public recordings</h2>
       <% end %>
     <% end %>
 
@@ -58,7 +58,7 @@
           </p>
 
           <p>
-            If you have already recorded an asciicast but you don't see it
+            If you have already uploaded a recording but you don't see it
             here then associate it with your account by running
             <code>asciinema auth</code> in your terminal.
           </p>
@@ -66,11 +66,11 @@
         <% {0, false} -> %>
 
         <% _ -> %>
-          <%= for asciicasts <- Enum.chunk_every(@page, 3, 3) do %>
+          <%= for asciicasts <- Enum.chunk_every(@page, 2, 2) do %>
             <div class="row">
               <%= for asciicast <- asciicasts do %>
-                <div class="col-md-4">
-                  <%= render AsciinemaWeb.AsciicastView, "_card.html", conn: @conn, asciicast: asciicast %>
+                <div class="col-md-6">
+                  <%= render AsciinemaWeb.RecordingView, "_card.html", conn: @conn, asciicast: asciicast %>
                 </div>
               <% end %>
             </div>

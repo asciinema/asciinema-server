@@ -1,8 +1,8 @@
 <div class="container">
   <div class="row">
     <div class="col-md-12 col-lg-9">
-      <%= form_for @changeset, Routes.asciicast_path(@conn, :update, @changeset.data), fn f -> %>
-        <legend>Asciicast settings</legend>
+      <%= form_for @changeset, Routes.recording_path(@conn, :update, @changeset.data), fn f -> %>
+        <legend>Recording settings</legend>
 
         <div class="form-group row">
           <%= label f, :title, class: "col-sm-4 col-md-3 col-lg-3 col-form-label" %>
@@ -17,6 +17,7 @@
           <div class="col-sm-8 col-md-9 col-lg-9">
             <%= textarea f, :description, class: "form-control", rows: 10 %>
             <%= error_tag f, :description %>
+            <small class="form-text text-muted">Parsed as Markdown.</small>
           </div>
         </div>
 
@@ -81,9 +82,19 @@
         </div>
 
         <div class="form-group row">
+          <%= label f, :markers, class: "col-sm-4 col-md-3 col-lg-3 col-form-label" %>
+          <div class="col-sm-8 col-md-9 col-lg-9">
+            <%= textarea f, :markers, class: "form-control", rows: 6, placeholder: "Example:\n\n5.0 - Intro\n11.3 - Installation\n32.0 - Configuration\n66.5 - Tips & Tricks" %>
+            <%= error_tag f, :markers %>
+            <small class="form-text text-muted">Each line is a marker defined as <code>[time] - [label]</code>.</small>
+          </div>
+        </div>
+
+        <div class="form-group row">
           <div class="offset-sm-4 col-sm-8 offset-md-3 col-md-9 offset-lg-3 col-lg-9">
+            <br>
             <%= submit "Save", class: "btn btn-primary" %>
-            <%= link "Cancel", to: Routes.asciicast_path(@conn, :show, @changeset.data), class: "btn" %>
+            <%= link "Cancel", to: Routes.recording_path(@conn, :show, @changeset.data), class: "btn" %>
           </div>
         </div>
       <% end %>

@@ -1,5 +1,5 @@
 defmodule Asciinema.PngGenerator do
-  alias Asciinema.Asciicasts.Asciicast
+  alias Asciinema.Recordings.Asciicast
 
   @doc "Generates PNG image from asciicast and returns path to it"
   @callback generate(asciicast :: %Asciicast{}) :: {:ok, String.t()} | {:error, term}
