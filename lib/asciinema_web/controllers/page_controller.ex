@@ -31,4 +31,10 @@ defmodule AsciinemaWeb.PageController do
     |> assign(:page_title, "Contributing")
     |> render("contributing.html")
   end
+
+  def consulting(conn, _params) do
+    conn
+    |> assign(:page_title, "Consulting services")
+    |> render("consulting.html")
+  end
 end

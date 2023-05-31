@@ -92,6 +92,7 @@ defmodule AsciinemaWeb.Router do
     get "/tos", PageController, :tos
     get "/contact", PageController, :contact
     get "/contributing", PageController, :contributing
+    get "/consulting", PageController, :consulting
   end
 
   scope "/api", AsciinemaWeb.Api, as: :api do

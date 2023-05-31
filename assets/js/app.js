@@ -40,4 +40,7 @@ $(function() {
   for (const [id, props] of players) {
     createPlayer(props.src, document.getElementById(id), { ...props, logger: console });
   };
+
+  const m = `consulting@${window.location.hostname}`;
+  $('.a-consulting code').replaceWith(`<a href="mailto:${m}">${m}</a>`);
 });

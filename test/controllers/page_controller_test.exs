@@ -3,7 +3,7 @@ defmodule Asciinema.PageControllerTest do
 
   test "static pages", %{conn: conn} do
     Enum.each(
-      ["/about", "/privacy", "/contributing", "/contact", "/tos"],
+      ["/about", "/privacy", "/contributing", "/contact", "/tos", "/consulting"],
       fn path ->
         conn = get(conn, path)
         assert html_response(conn, 200) =~ ~r{<h1>.+</h1>}s
