@@ -26,6 +26,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     LiveStream.join(state.stream_id)
     Process.send_after(self(), :reset_timeout, @reset_timeout)
     Process.send_after(self(), :ping, @ping_interval)
+    send(self(), :push_alis_header)
 
     {:ok, state}
   end
@@ -36,6 +37,12 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   end
 
   @impl true
+  def handle_info(:push_alis_header, state) do
+    Logger.debug("consumer/#{state.stream_id}: sending alis header")
+
+    {:push, header_message(), state}
+  end
+
   def handle_info({:live_stream, {:reset, {{cols, rows}, _, _} = data}}, state) do
     Logger.info("consumer/#{state.stream_id}: reset (#{cols}x#{rows})")
 
@@ -77,15 +84,57 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
 
   # Private
 
-  defp reset_message({{cols, rows}, vt_init, stream_time}) do
-    {:text, Jason.encode!(%{cols: cols, rows: rows, init: vt_init, time: stream_time})}
+  @alis_version 1
+  @compression_algo_none 0
+
+  @msg_type_reset 0x01
+  @msg_type_output ?o
+  @msg_type_offline 0x04
+
+  defp header_message do
+    msg = <<
+      "ALiS"::binary,
+      @alis_version::unsigned-8,
+      @compression_algo_none::unsigned-8,
+      0x00,
+      0x00,
+      0x00,
+      0x00
+    >>
+
+    {:binary, msg}
+  end
+
+  defp reset_message({{cols, rows}, init, time}) do
+    init = init || ""
+    init_len = byte_size(init)
+
+    msg = <<
+      @msg_type_reset,
+      cols::little-16,
+      rows::little-16,
+      time::little-float-32,
+      init_len::little-32,
+      init::binary
+    >>
+
+    {:binary, msg}
   end
 
   defp feed_message({time, data}) do
-    {:text, Jason.encode!([time, "o", data])}
+    data_len = byte_size(data)
+
+    msg = <<
+      @msg_type_output,
+      time::little-float-32,
+      data_len::little-32,
+      data::binary
+    >>
+
+    {:binary, msg}
   end
 
   defp offline_message do
-    {:text, Jason.encode!(%{state: "offline"})}
+    {:binary, <<@msg_type_offline>>}
   end
 end
