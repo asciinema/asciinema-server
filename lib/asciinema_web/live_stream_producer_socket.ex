@@ -8,9 +8,9 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
   @reset_timeout 5_000
   @ping_interval 15_000
   @heartbeat_interval 15_000
-  @bucket_fill_interval 100
-  @bucket_fill_amount 10_000
-  @bucket_size 60_000_000
+  @default_bucket_fill_interval 100
+  @default_bucket_fill_amount 10_000
+  @default_bucket_size 60_000_000
 
   # Callbacks
 
@@ -22,7 +22,16 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
 
   @impl true
   def connect(state) do
-    {:ok, %{stream_id: state.params["id"], reset: false, bucket: @bucket_size}}
+    state = %{
+      stream_id: state.params["id"],
+      reset: false,
+      bucket_size: config(:bucket_size, @default_bucket_size),
+      bucket_tokens: config(:bucket_size, @default_bucket_size),
+      bucket_fill_interval: config(:bucket_fill_interval, @default_bucket_fill_interval),
+      bucket_fill_amount: config(:bucket_fill_amount, @default_bucket_fill_amount)
+    }
+
+    {:ok, state}
   end
 
   @impl true
@@ -32,7 +41,7 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
     :ok = LiveStream.lead(state.stream_id)
     Process.send_after(self(), :reset_timeout, @reset_timeout)
     Process.send_after(self(), :ping, @ping_interval)
-    Process.send_after(self(), :fill_bucket, @bucket_fill_interval)
+    Process.send_after(self(), :fill_bucket, state.bucket_fill_interval)
     send(self(), :heartbeat)
 
     {:ok, state}
@@ -155,15 +164,15 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
   def handle_info(:reset_timeout, %{reset: true} = state), do: {:ok, state}
 
   def handle_info(:fill_bucket, state) do
-    bucket = min(@bucket_size, state.bucket + @bucket_fill_amount)
+    tokens = min(state.bucket_size, state.bucket_tokens + state.bucket_fill_amount)
 
-    if bucket > state.bucket && bucket < @bucket_size do
-      Logger.debug("producer/#{state.stream_id}: fill to #{bucket}")
+    if tokens > state.bucket_tokens && tokens < state.bucket_size do
+      Logger.debug("producer/#{state.stream_id}: fill to #{tokens}")
     end
 
-    Process.send_after(self(), :fill_bucket, @bucket_fill_interval)
+    Process.send_after(self(), :fill_bucket, state.bucket_fill_interval)
 
-    {:ok, %{state | bucket: bucket}}
+    {:ok, %{state | bucket_tokens: tokens}}
   end
 
   @impl true
@@ -176,12 +185,16 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
   end
 
   defp drain_bucket(state, drain_amount) do
-    bucket = state.bucket - drain_amount
+    tokens = state.bucket_tokens - drain_amount
 
-    if bucket < 0 do
+    if tokens < 0 do
       {:error, :bucket_empty}
     else
-      {:ok, %{state | bucket: bucket}}
+      {:ok, %{state | bucket_tokens: tokens}}
     end
+  end
+
+  defp config(key, default) do
+    Application.get_env(:asciinema, :"live_stream_producer_#{key}", default)
   end
 end
