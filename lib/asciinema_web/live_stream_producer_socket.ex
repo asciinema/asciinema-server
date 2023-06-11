@@ -25,10 +25,12 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
     state = %{
       stream_id: state.params["id"],
       reset: false,
-      bucket_size: config(:bucket_size, @default_bucket_size),
-      bucket_tokens: config(:bucket_size, @default_bucket_size),
-      bucket_fill_interval: config(:bucket_fill_interval, @default_bucket_fill_interval),
-      bucket_fill_amount: config(:bucket_fill_amount, @default_bucket_fill_amount)
+      bucket: %{
+        size: config(:bucket_size, @default_bucket_size),
+        tokens: config(:bucket_size, @default_bucket_size),
+        fill_interval: config(:bucket_fill_interval, @default_bucket_fill_interval),
+        fill_amount: config(:bucket_fill_amount, @default_bucket_fill_amount)
+      }
     }
 
     {:ok, state}
@@ -41,7 +43,7 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
     :ok = LiveStream.lead(state.stream_id)
     Process.send_after(self(), :reset_timeout, @reset_timeout)
     Process.send_after(self(), :ping, @ping_interval)
-    Process.send_after(self(), :fill_bucket, state.bucket_fill_interval)
+    Process.send_after(self(), :fill_bucket, state.bucket.fill_interval)
     send(self(), :heartbeat)
 
     {:ok, state}
@@ -163,16 +165,16 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
 
   def handle_info(:reset_timeout, %{reset: true} = state), do: {:ok, state}
 
-  def handle_info(:fill_bucket, state) do
-    tokens = min(state.bucket_size, state.bucket_tokens + state.bucket_fill_amount)
+  def handle_info(:fill_bucket, %{bucket: bucket} = state) do
+    tokens = min(bucket.size, bucket.tokens + bucket.fill_amount)
 
-    if tokens > state.bucket_tokens && tokens < state.bucket_size do
+    if tokens > bucket.tokens && tokens < bucket.size do
       Logger.debug("producer/#{state.stream_id}: fill to #{tokens}")
     end
 
-    Process.send_after(self(), :fill_bucket, state.bucket_fill_interval)
+    Process.send_after(self(), :fill_bucket, bucket.fill_interval)
 
-    {:ok, %{state | bucket_tokens: tokens}}
+    {:ok, put_in(state, [:bucket, :tokens], tokens)}
   end
 
   @impl true
@@ -185,12 +187,12 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
   end
 
   defp drain_bucket(state, drain_amount) do
-    tokens = state.bucket_tokens - drain_amount
+    tokens = state.bucket.tokens - drain_amount
 
     if tokens < 0 do
       {:error, :bucket_empty}
     else
-      {:ok, %{state | bucket_tokens: tokens}}
+      {:ok, put_in(state, [:bucket, :tokens], tokens)}
     end
   end
 
