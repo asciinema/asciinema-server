@@ -57,7 +57,7 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
 
         {:stop, :normal, state}
 
-      {:error, :empty_bucket} ->
+      {:error, :bucket_empty} ->
         Logger.info("producer/#{state.stream_id}: byte budget exceeded")
 
         # TODO use reason other than :normal to make streamer reconnect
@@ -179,7 +179,7 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
     bucket = state.bucket - drain_amount
 
     if bucket < 0 do
-      {:error, :empty_bucket}
+      {:error, :bucket_empty}
     else
       {:ok, %{state | bucket: bucket}}
     end
