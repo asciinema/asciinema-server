@@ -26,10 +26,14 @@ defmodule Asciinema.Application do
       :poolboy.child_spec(:worker, Asciinema.PngGenerator.Rsvg.poolboy_config(), []),
       # Start Oban
       {Oban, oban_config()},
-      {Registry, [keys: :unique, name: Asciinema.LiveStreamRegistry]},
+      {Registry, [keys: :unique, name: Asciinema.Streaming.LiveStreamRegistry]},
       {Registry,
-       [keys: :duplicate, name: Asciinema.PubSubRegistry, partitions: System.schedulers_online()]},
-      Asciinema.LiveStreamSupervisor
+       [
+         keys: :duplicate,
+         name: Asciinema.Streaming.PubSubRegistry,
+         partitions: System.schedulers_online()
+       ]},
+      Asciinema.Streaming.LiveStreamSupervisor
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

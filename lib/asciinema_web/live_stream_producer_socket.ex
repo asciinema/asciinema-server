@@ -1,7 +1,5 @@
 defmodule AsciinemaWeb.LiveStreamProducerSocket do
-  alias Asciinema.LiveStream
-  alias Asciinema.LiveStreamSupervisor
-  alias Asciinema.Streaming.ProducerHandler
+  alias Asciinema.Streaming.{LiveStream, LiveStreamSupervisor, ProducerHandler}
   require Logger
 
   @behaviour Phoenix.Socket.Transport

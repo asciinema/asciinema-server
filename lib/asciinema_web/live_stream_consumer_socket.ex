@@ -1,5 +1,5 @@
 defmodule AsciinemaWeb.LiveStreamConsumerSocket do
-  alias Asciinema.LiveStream
+  alias Asciinema.Streaming.LiveStream
   require Logger
 
   @behaviour Phoenix.Socket.Transport

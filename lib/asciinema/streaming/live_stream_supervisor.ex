@@ -1,6 +1,6 @@
-defmodule Asciinema.LiveStreamSupervisor do
+defmodule Asciinema.Streaming.LiveStreamSupervisor do
   use DynamicSupervisor
-  alias Asciinema.LiveStream
+  alias Asciinema.Streaming.LiveStream
   require Logger
 
   def start_link(init_arg) do

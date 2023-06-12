@@ -1,4 +1,4 @@
-defmodule Asciinema.LiveStream do
+defmodule Asciinema.Streaming.LiveStream do
   use GenServer, restart: :transient
   alias Asciinema.Vt
   require Logger
@@ -149,14 +149,15 @@ defmodule Asciinema.LiveStream do
 
   # Private
 
-  defp via_tuple(stream_id), do: {:via, Registry, {Asciinema.LiveStreamRegistry, stream_id}}
+  defp via_tuple(stream_id),
+    do: {:via, Registry, {Asciinema.Streaming.LiveStreamRegistry, stream_id}}
 
   defp subscribe(topic) do
-    {:ok, _} = Registry.register(Asciinema.PubSubRegistry, topic, [])
+    {:ok, _} = Registry.register(Asciinema.Streaming.PubSubRegistry, topic, [])
   end
 
   defp publish(topic, payload) do
-    Registry.dispatch(Asciinema.PubSubRegistry, topic, fn entries ->
+    Registry.dispatch(Asciinema.Streaming.PubSubRegistry, topic, fn entries ->
       for {pid, _} <- entries, do: send(pid, payload)
     end)
   end
