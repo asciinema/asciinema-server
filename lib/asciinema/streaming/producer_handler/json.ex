@@ -1,9 +1,9 @@
 defmodule Asciinema.Streaming.ProducerHandler.Json do
   @behaviour Asciinema.Streaming.ProducerHandler
 
-  def init, do: %{reset: false}
+  def init, do: %{}
 
-  def parse({"\n", _opts}, %{reset: true} = state), do: {:ok, [], state}
+  def parse({"\n", _opts}, state), do: {:ok, [], state}
 
   def parse({payload, _opts}, state) do
     case Jason.decode(payload) do
@@ -17,17 +17,12 @@ defmodule Asciinema.Streaming.ProducerHandler.Json do
 
   def handle_message(%{"cols" => cols, "rows" => rows} = header, state)
       when is_integer(cols) and is_integer(rows) do
-    {:ok, [reset: %{size: {cols, rows}, init: header["init"], time: header["time"]}],
-     %{state | reset: true}}
+    {:ok, [reset: %{size: {cols, rows}, init: header["init"], time: header["time"]}], state}
   end
 
   def handle_message(%{"width" => cols, "height" => rows}, state)
       when is_integer(cols) and is_integer(rows) do
-    {:ok, [reset: %{size: {cols, rows}, init: nil, time: nil}], %{state | reset: true}}
-  end
-
-  def handle_message(_message, %{reset: false}) do
-    {:error, :header_expected}
+    {:ok, [reset: %{size: {cols, rows}, init: nil, time: nil}], state}
   end
 
   def handle_message([time, "o", data], state) when is_number(time) and is_binary(data) do

@@ -34,6 +34,9 @@ defmodule Asciinema.Streaming.LiveStream do
 
   # Callbacks
 
+  @default_cols 80
+  @default_rows 24
+
   @impl true
   def init(stream_id) do
     Logger.info("stream/#{stream_id}: init")
@@ -48,7 +51,10 @@ defmodule Asciinema.Streaming.LiveStream do
       shutdown_timer: nil
     }
 
-    state = reschedule_shutdown(state)
+    state =
+      state
+      |> reset_stream({@default_cols, @default_rows})
+      |> reschedule_shutdown()
 
     {:ok, state}
   end
@@ -59,30 +65,21 @@ defmodule Asciinema.Streaming.LiveStream do
   end
 
   def handle_call(
-        {:reset, {cols, rows} = vt_size, vt_init, stream_time},
+        {:reset, vt_size, vt_init, stream_time},
         {pid, _} = _from,
         %{producer: pid} = state
       ) do
-    {:ok, vt} = Vt.new(cols, rows)
+    stream_time = stream_time || 0.0
+    state = reset_stream(state, vt_size, stream_time)
 
     if vt_init do
-      :ok = Vt.feed(vt, vt_init)
+      :ok = Vt.feed(state.vt, vt_init)
     end
-
-    stream_time = stream_time || 0.0
 
     publish(
       {:live_stream, state.stream_id},
       {:live_stream, {:reset, {vt_size, vt_init, stream_time}}}
     )
-
-    state = %{
-      state
-      | vt: vt,
-        vt_size: vt_size,
-        last_stream_time: stream_time,
-        last_feed_time: Timex.now()
-    }
 
     {:reply, :ok, state}
   end
@@ -154,6 +151,18 @@ defmodule Asciinema.Streaming.LiveStream do
 
   defp subscribe(topic) do
     {:ok, _} = Registry.register(Asciinema.Streaming.PubSubRegistry, topic, [])
+  end
+
+  defp reset_stream(state, {cols, rows} = vt_size, stream_time \\ 0.0) do
+    {:ok, vt} = Vt.new(cols, rows)
+
+    %{
+      state
+      | vt: vt,
+        vt_size: vt_size,
+        last_stream_time: stream_time,
+        last_feed_time: Timex.now()
+    }
   end
 
   defp publish(topic, payload) do

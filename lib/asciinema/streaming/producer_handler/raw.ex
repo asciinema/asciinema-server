@@ -1,17 +1,21 @@
 defmodule Asciinema.Streaming.ProducerHandler.Raw do
   @behaviour Asciinema.Streaming.ProducerHandler
 
-  def init, do: %{reset: false, start_time: nil}
+  def init, do: %{first: true, start_time: nil}
 
-  def parse({payload, _}, %{reset: false} = state) do
-    size = size_from_resize_seq(payload) || size_from_script_start_message(payload) || {80, 24}
+  def parse({payload, _}, %{first: true} = state) do
+    size = size_from_resize_seq(payload) || size_from_script_start_message(payload)
 
-    commands = [
-      reset: %{size: size, init: nil, time: 0.0},
-      feed: {0.0, payload}
-    ]
+    commands =
+      case size do
+        nil ->
+          [feed: {0.0, payload}]
 
-    state = %{state | reset: true, start_time: Timex.now()}
+        size ->
+          [reset: %{size: size, init: payload, time: 0.0}]
+      end
+
+    state = %{state | first: false, start_time: Timex.now()}
 
     {:ok, commands, state}
   end
