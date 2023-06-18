@@ -1,4 +1,4 @@
-defmodule Asciinema.Streaming.LiveStream do
+defmodule Asciinema.Streaming.LiveStreamServer do
   use GenServer, restart: :transient
   alias Asciinema.Vt
   require Logger

@@ -1,5 +1,6 @@
 defmodule AsciinemaWeb.LiveStreamProducerSocket do
-  alias Asciinema.Streaming.{LiveStream, LiveStreamSupervisor, ProducerHandler}
+  alias Asciinema.Streaming
+  alias Asciinema.Streaming.{LiveStreamServer, LiveStreamSupervisor, ProducerHandler}
   require Logger
 
   @behaviour Phoenix.Socket.Transport
@@ -39,7 +40,7 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
   def init(state) do
     Logger.info("producer/#{state.stream_id}: connected")
     {:ok, _pid} = LiveStreamSupervisor.ensure_child(state.stream_id)
-    :ok = LiveStream.lead(state.stream_id)
+    :ok = LiveStreamServer.lead(state.stream_id)
     Process.send_after(self(), :handler_timeout, @handler_timeout)
     Process.send_after(self(), :ping, @ping_interval)
     Process.send_after(self(), :fill_bucket, state.bucket.fill_interval)
@@ -108,7 +109,7 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
        when cols > 0 and rows > 0 and cols <= @max_cols and rows <= @max_rows do
     Logger.info("producer/#{stream_id}: reset (#{cols}x#{rows})")
 
-    LiveStream.reset(stream_id, {cols, rows}, init, time)
+    LiveStreamServer.reset(stream_id, {cols, rows}, init, time)
   end
 
   defp run_command({:reset, %{size: {cols, rows}}}, _stream_id) do
@@ -116,7 +117,7 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
   end
 
   defp run_command({:feed, {time, data}}, stream_id) do
-    LiveStream.feed(stream_id, {time, data})
+    LiveStreamServer.feed(stream_id, {time, data})
   end
 
   @impl true
@@ -129,7 +130,7 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
   def handle_info(:heartbeat, state) do
     Process.send_after(self(), :heartbeat, @heartbeat_interval)
 
-    case LiveStream.heartbeat(state.stream_id) do
+    case LiveStreamServer.heartbeat(state.stream_id) do
       :ok ->
         {:ok, state}
 

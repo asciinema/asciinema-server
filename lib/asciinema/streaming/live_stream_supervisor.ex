@@ -1,6 +1,6 @@
 defmodule Asciinema.Streaming.LiveStreamSupervisor do
   use DynamicSupervisor
-  alias Asciinema.Streaming.LiveStream
+  alias Asciinema.Streaming.LiveStreamServer
   require Logger
 
   def start_link(init_arg) do
@@ -14,7 +14,7 @@ defmodule Asciinema.Streaming.LiveStreamSupervisor do
 
   def start_child(id) do
     Logger.debug("stream sup: starting server for live stream #{id}")
-    DynamicSupervisor.start_child(__MODULE__, {LiveStream, id})
+    DynamicSupervisor.start_child(__MODULE__, {LiveStreamServer, id})
   end
 
   def ensure_child(id) do

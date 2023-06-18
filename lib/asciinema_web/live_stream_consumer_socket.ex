@@ -1,5 +1,5 @@
 defmodule AsciinemaWeb.LiveStreamConsumerSocket do
-  alias Asciinema.Streaming.LiveStream
+  alias Asciinema.Streaming.LiveStreamServer
   require Logger
 
   @behaviour Phoenix.Socket.Transport
@@ -23,7 +23,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   @impl true
   def init(state) do
     Logger.info("consumer/#{state.stream_id}: connected")
-    LiveStream.join(state.stream_id)
+    LiveStreamServer.join(state.stream_id)
     Process.send_after(self(), :reset_timeout, @reset_timeout)
     Process.send_after(self(), :ping, @ping_interval)
     send(self(), :push_alis_header)
