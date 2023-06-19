@@ -7,7 +7,7 @@ There are several ways to get asciinema recorder:
 - [Installing on macOS](#installing-on-macos)
 - [Installing on FreeBSD](#installing-on-freebsd)
 - [Installing on OpenBSD](#installing-on-openbsd)
-- [Running in Docker container](#running-in-docker-container)
+- [Running in a container](#running-in-a-container)
 - [Running from source](#running-from-source)
 
 If you use other operating system and you can build a native package for it then
@@ -96,30 +96,54 @@ For Fedora >= 22:
 
     pkg_add asciinema
 
-## Running in Docker container
-{: #running-in-docker-container}
+## Running in a container
+{: #running-in-a-container}
 
-asciinema Docker image is based on Ubuntu 16.04 and has the latest version of
+asciinema Docker image is based on [Ubuntu
+22.04](https://releases.ubuntu.com/22.04/) and has the latest version of
 asciinema recorder pre-installed.
 
-    docker pull asciinema/asciinema
+```sh
+docker pull ghcr.io/asciinema/asciinema
+```
 
 When running it don't forget to allocate a pseudo-TTY (`-t`), keep STDIN open
 (`-i`) and mount config directory volume (`-v`):
 
-    docker run --rm -ti -v "$HOME/.config/asciinema":/root/.config/asciinema asciinema/asciinema
+```sh
+docker run --rm -it -v "${HOME}/.config/asciinema:/root/.config/asciinema" ghcr.io/asciinema/asciinema rec
+```
 
-Default command run in a container is `asciinema rec`.
+Container's entrypoint is set to `/usr/local/bin/asciinema` so you can run the
+container with any arguments you would normally pass to `asciinema` binary (see
+Usage section for commands and options).
 
 There's not much software installed in this image though. In most cases you may
 want to install extra programs before recording. One option is to derive new
 image from this one (start your custom Dockerfile with `FROM
-asciinema/asciinema`). Another option is to start the container with `/bin/bash`
-as the command, install extra packages and manually start `asciinema rec`:
+ghcr.io/asciinema/asciinema`). Another option is to start the container with
+`/bin/bash` as the entrypoint, install extra packages and manually start
+`asciinema rec`:
 
-    docker run --rm -ti -v "$HOME/.config/asciinema":/root/.config/asciinema asciinema/asciinema /bin/bash
-    root@6689517d99a1:~# apt-get install foobar
-    root@6689517d99a1:~# asciinema rec
+```console
+docker run --rm -it -v "${HOME}/.config/asciinema:/root/.config/asciinema" --entrypoint=/bin/bash ghcr.io/asciinema/asciinema rec
+root@6689517d99a1:~# apt-get install foobar
+root@6689517d99a1:~# asciinema rec
+```
+
+It is also possible to run the docker container as a non-root user, which has
+security benefits. You can specify a user and group id at runtime to give the
+application permission similar to the calling user on your host.
+
+```sh
+docker run --rm -it \
+    --env=ASCIINEMA_CONFIG_HOME="/run/user/$(id -u)/.config/asciinema" \
+    --user="$(id -u):$(id -g)" \
+    --volume="${HOME}/.config/asciinema:/run/user/$(id -u)/.config/asciinema:rw" \
+    --volume="${PWD}:/data:rw" \
+    --workdir='/data' \
+    ghcr.io/asciinema/asciinema rec
+```
 
 ## Running from source
 {: #running-from-source}
