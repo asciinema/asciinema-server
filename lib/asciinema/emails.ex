@@ -22,13 +22,10 @@ defmodule Asciinema.Emails do
     end
   end
 
-  def send_signup_email(to, url) do
-    Job.new(%{type: :signup, to: to, url: url})
-    |> Oban.insert()
-  end
+  def send_email(type, to, url) do
+    Job.new(%{type: type, to: to, url: url})
+    |> Oban.insert!()
 
-  def send_login_email(to, url) do
-    Job.new(%{type: :login, to: to, url: url})
-    |> Oban.insert()
+    :ok
   end
 end

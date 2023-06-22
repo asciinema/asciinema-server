@@ -1,6 +1,5 @@
 defmodule AsciinemaWeb.LoginController do
   use AsciinemaWeb, :controller
-  alias Asciinema.Accounts
 
   plug :clear_main_class
 
@@ -8,15 +7,14 @@ defmodule AsciinemaWeb.LoginController do
     render(conn, "new.html")
   end
 
-  def create(conn, %{"login" => %{"email" => email_or_username}}) do
-    email_or_username = String.trim(email_or_username)
+  def create(conn, %{"login" => %{"email" => identifier}}) do
+    identifier = String.trim(identifier)
 
     result =
-      Accounts.send_login_email(
-        email_or_username,
-        &AsciinemaWeb.signup_url/1,
-        &AsciinemaWeb.login_url/1,
-        Map.get(conn.assigns, :cfg_sign_up_enabled?, true)
+      Asciinema.send_login_email(
+        identifier,
+        Map.get(conn.assigns, :cfg_sign_up_enabled?, true),
+        AsciinemaWeb
       )
 
     case result do
