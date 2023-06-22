@@ -22,18 +22,28 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
 
   @impl true
   def connect(state) do
-    state = %{
-      stream_id: state.params["id"],
-      handler: nil,
-      bucket: %{
-        size: config(:bucket_size, @default_bucket_size),
-        tokens: config(:bucket_size, @default_bucket_size),
-        fill_interval: config(:bucket_fill_interval, @default_bucket_fill_interval),
-        fill_amount: config(:bucket_fill_amount, @default_bucket_fill_amount)
-      }
-    }
+    token = state.params["producer_token"]
 
-    {:ok, state}
+    case Streaming.find_live_stream_by_producer_token(token) do
+      nil ->
+        Logger.warn("producer: stream not found for producer token #{token}")
+
+        :error
+
+      live_stream ->
+        state = %{
+          stream_id: live_stream.id,
+          handler: nil,
+          bucket: %{
+            size: config(:bucket_size, @default_bucket_size),
+            tokens: config(:bucket_size, @default_bucket_size),
+            fill_interval: config(:bucket_fill_interval, @default_bucket_fill_interval),
+            fill_amount: config(:bucket_fill_amount, @default_bucket_fill_amount)
+          }
+        }
+
+        {:ok, state}
+    end
   end
 
   @impl true

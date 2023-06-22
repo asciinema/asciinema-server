@@ -1,4 +1,5 @@
 defmodule AsciinemaWeb.LiveStreamConsumerSocket do
+  alias Asciinema.Streaming
   alias Asciinema.Streaming.LiveStreamServer
   require Logger
 
@@ -17,7 +18,17 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
 
   @impl true
   def connect(state) do
-    {:ok, %{stream_id: state.params["id"], reset: false}}
+    id = state.params["id"]
+
+    case Streaming.get_live_stream(id) do
+      nil ->
+        Logger.warn("consumer: stream not found for ID #{id}")
+
+        :error
+
+      live_stream ->
+        {:ok, %{stream_id: live_stream.id, reset: false}}
+    end
   end
 
   @impl true
