@@ -24,10 +24,22 @@
 
 <script>
 window.addEventListener('load', function() {
+  const container = document.getElementById('cinema');
+
   const player = window.createPlayer(
     <%= safe_json(player_src(@stream)) %>,
-    document.getElementById('cinema'),
+    container,
     { fit: 'both', logger: console }
   );
+
+  const containerVerticalPadding = 2 * 4;
+  const approxCharWidth = 7;
+  const approxCharHeight = 16;
+
+  player.addEventListener('reset', ({ cols, rows }) => {
+    const ratio = (rows * approxCharHeight) / (cols * approxCharWidth);
+    const height = Math.round(containerVerticalPadding + 100 * ratio);
+    container.style.height = `${height}vw`;
+  });
 });
 </script>

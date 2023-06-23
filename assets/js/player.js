@@ -9,9 +9,9 @@ export function createPlayer(src, container, opts) {
       create(src, container, opts);
     }).catch(error => {
       console.log(`failed to load font ${opts.customTerminalFontFamily}`, error);
-      create(src, container, opts);
+      return create(src, container, opts);
     });
   } else {
-    create(src, container, opts);
+    return create(src, container, opts);
   }
 }
