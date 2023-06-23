@@ -153,10 +153,6 @@ defmodule Asciinema.Recordings.Asciicast do
     end
   end
 
-  def snapshot_changeset(struct, snapshot) do
-    cast(struct, %{snapshot: snapshot}, [:snapshot])
-  end
-
   defp generate_secret_token(changeset) do
     put_change(changeset, :secret_token, Crypto.random_token(25))
   end
