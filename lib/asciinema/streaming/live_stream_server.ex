@@ -1,6 +1,6 @@
 defmodule Asciinema.Streaming.LiveStreamServer do
   use GenServer, restart: :transient
-  alias Asciinema.Vt
+  alias Asciinema.{Streaming, Vt}
   require Logger
 
   # Client
@@ -41,8 +41,12 @@ defmodule Asciinema.Streaming.LiveStreamServer do
   def init(stream_id) do
     Logger.info("stream/#{stream_id}: init")
 
+    send(self(), :update_stream)
+    stream = Streaming.get_live_stream(stream_id)
+
     state = %{
-      stream_id: stream_id,
+      stream: stream,
+      stream_id: stream.id,
       producer: nil,
       vt: nil,
       vt_size: nil,
@@ -127,7 +131,16 @@ defmodule Asciinema.Streaming.LiveStreamServer do
     {:noreply, state}
   end
 
+  @update_stream_interval 10_000
+
   @impl true
+  def handle_info(:update_stream, state) do
+    Process.send_after(self(), :update_stream, @update_stream_interval)
+    stream = Streaming.touch(state.stream)
+
+    {:noreply, %{state | stream: stream}}
+  end
+
   def handle_info(:shutdown, state) do
     Logger.info("stream/#{state.stream_id}: shutting down due to missing heartbeats")
     publish({:live_stream, state.stream_id}, {:live_stream, :offline})

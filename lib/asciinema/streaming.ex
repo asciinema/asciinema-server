@@ -26,5 +26,11 @@ defmodule Asciinema.Streaming do
     |> Repo.insert!()
   end
 
+  def touch(stream) do
+    stream
+    |> cast(%{last_activity_at: Timex.now()}, [:last_activity_at])
+    |> Repo.update!()
+  end
+
   defp generate_producer_token, do: Crypto.random_token(25)
 end

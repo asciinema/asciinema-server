@@ -5,6 +5,7 @@ defmodule Asciinema.Repo.Migrations.CreateLiveStreams do
     create table(:live_streams) do
       add :user_id, references(:users), null: false
       add :producer_token, :string, null: false
+      add :last_activity_at, :naive_datetime
       timestamps()
     end
 
