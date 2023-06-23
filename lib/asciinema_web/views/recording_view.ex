@@ -8,52 +8,22 @@ defmodule AsciinemaWeb.RecordingView do
   alias AsciinemaWeb.UserView
   import UserView, only: [theme_options: 0]
 
-  def player(src, opts \\ [])
+  def player_src(asciicast), do: file_url(asciicast)
 
-  def player(src, opts) when is_binary(src) do
-    container_id = Keyword.fetch!(opts, :container_id)
-
-    props =
-      [src: src, preload: true]
-      |> Keyword.merge(opts)
-      |> Ext.Keyword.rename(t: :startAt)
-      |> Enum.into(%{})
-      |> Map.drop([:container_id])
-
-    props_json =
-      props
-      |> Jason.encode!()
-      |> String.replace(~r/</, "\\u003c")
-
-    content_tag(:script) do
-      ~E"""
-        window.players = window.players || new Map();
-        window.players.set('<%= container_id %>', <%= {:safe, props_json} %>);
-      """
-    end
-  end
-
-  def player(asciicast, opts) do
-    opts =
-      Keyword.merge(
-        [
-          cols: cols(asciicast),
-          rows: rows(asciicast),
-          theme: theme_name(asciicast),
-          terminalLineHeight: asciicast.terminal_line_height,
-          customTerminalFontFamily: asciicast.terminal_font_family,
-          poster: poster(asciicast.snapshot),
-          markers: markers(asciicast.markers),
-          idleTimeLimit: asciicast.idle_time_limit,
-          title: title(asciicast),
-          author: author_username(asciicast),
-          "author-url": author_profile_url(asciicast),
-          "author-img-url": author_avatar_url(asciicast)
-        ],
-        opts
-      )
-
-    player(file_url(asciicast), opts)
+  def player_opts(asciicast, opts) do
+    [
+      cols: cols(asciicast),
+      rows: rows(asciicast),
+      theme: theme_name(asciicast),
+      terminalLineHeight: asciicast.terminal_line_height,
+      customTerminalFontFamily: asciicast.terminal_font_family,
+      poster: poster(asciicast.snapshot),
+      markers: markers(asciicast.markers),
+      idleTimeLimit: asciicast.idle_time_limit
+    ]
+    |> Keyword.merge(opts)
+    |> Ext.Keyword.rename(t: :startAt)
+    |> Enum.into(%{})
   end
 
   @container_vertical_padding 2 * 4

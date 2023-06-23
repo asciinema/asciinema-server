@@ -1,6 +1,4 @@
-<section class="cinema" id="cinema" style="height: <%= cinema_height(@asciicast) %>vw; max-height: 75vh">
-  <%= player @asciicast, Keyword.merge(@playback_options, container_id: "cinema", fit: "both") %>
-</section>
+<section class="cinema" id="cinema" style="height: <%= cinema_height(@asciicast) %>vw; max-height: 75vh"></section>
 
 <section class="even info">
   <div class="container">
@@ -140,3 +138,20 @@
 <%= if download_filename(@asciicast) do %>
   <%= render "_download_modal.html", conn: @conn, asciicast: @asciicast %>
 <% end %>
+
+<script>
+window.addEventListener('load', function() {
+  const opts = <%= safe_json(player_opts(@asciicast, @playback_options)) %>;
+
+  const player = window.createPlayer(
+    <%= safe_json(player_src(@asciicast)) %>,
+    document.getElementById('cinema'),
+    {
+      ...opts,
+      fit: 'both',
+      preload: true,
+      logger: console
+    }
+  );
+});
+</script>

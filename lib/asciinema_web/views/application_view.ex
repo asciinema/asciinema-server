@@ -30,4 +30,13 @@ defmodule AsciinemaWeb.ApplicationView do
   def sign_up_enabled?(conn) do
     Map.get(conn.assigns, :cfg_sign_up_enabled?, true)
   end
+
+  def safe_json(value) do
+    json =
+      value
+      |> Jason.encode!()
+      |> String.replace(~r/</, "\\u003c")
+
+    {:safe, json}
+  end
 end
