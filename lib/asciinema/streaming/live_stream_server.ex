@@ -41,7 +41,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
   def init(stream_id) do
     Logger.info("stream/#{stream_id}: init")
 
-    send(self(), :update_stream)
+    Process.send_after(self(), :update_stream, 1_000)
     stream = Streaming.get_live_stream(stream_id)
 
     state = %{
@@ -136,7 +136,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
   @impl true
   def handle_info(:update_stream, state) do
     Process.send_after(self(), :update_stream, @update_stream_interval)
-    stream = Streaming.touch(state.stream)
+    stream = Streaming.update_live_stream(state.stream, state.vt_size)
 
     {:noreply, %{state | stream: stream}}
   end

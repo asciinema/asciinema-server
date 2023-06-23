@@ -3,6 +3,8 @@ defmodule Asciinema.Streaming.LiveStream do
 
   schema "live_streams" do
     field :producer_token, :string
+    field :cols, :integer
+    field :rows, :integer
     field :last_activity_at, :naive_datetime
 
     timestamps()

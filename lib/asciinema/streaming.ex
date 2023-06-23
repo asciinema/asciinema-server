@@ -26,9 +26,10 @@ defmodule Asciinema.Streaming do
     |> Repo.insert!()
   end
 
-  def touch(stream) do
+  def update_live_stream(stream, {cols, rows}) do
     stream
     |> cast(%{last_activity_at: Timex.now()}, [:last_activity_at])
+    |> change(cols: cols, rows: rows)
     |> Repo.update!()
   end
 
