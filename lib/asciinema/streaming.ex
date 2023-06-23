@@ -9,7 +9,9 @@ defmodule Asciinema.Streaming do
   end
 
   def get_live_stream(id) when is_integer(id) or is_binary(id) do
-    Repo.get(LiveStream, id)
+    LiveStream
+    |> Repo.get(id)
+    |> Repo.preload(:user)
   end
 
   def get_live_stream(owner) do
