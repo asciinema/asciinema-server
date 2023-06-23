@@ -11,11 +11,7 @@
       </div>
 
       <div class="col-sm-12 col-lg-7">
-        <div class="player-wrapper" id="player">
-          <%= if @asciicast do %>
-            <%= player @asciicast, container_id: "player", speed: 2 %>
-          <% end %>
-        </div>
+        <div class="player-wrapper" id="player"></div>
       </div>
     </div>
   </div>
@@ -86,3 +82,22 @@
     </div>
   </div>
 </section>
+
+<%= if @asciicast do %>
+<script>
+window.addEventListener('load', function() {
+  const opts = <%= safe_json(player_opts(@asciicast)) %>;
+
+  const player = window.createPlayer(
+    <%= safe_json(player_src(@asciicast)) %>,
+    document.getElementById('player'),
+    {
+      ...opts,
+      preload: true,
+      speed: 2,
+      logger: console
+    }
+  );
+});
+</script>
+<% end %>

@@ -10,7 +10,7 @@ defmodule AsciinemaWeb.RecordingView do
 
   def player_src(asciicast), do: file_url(asciicast)
 
-  def player_opts(asciicast, opts) do
+  def player_opts(asciicast, opts \\ []) do
     [
       cols: cols(asciicast),
       rows: rows(asciicast),
