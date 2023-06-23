@@ -473,9 +473,11 @@ defmodule Asciinema.Recordings do
 
   def delete_asciicast(asciicast) do
     with {:ok, asciicast} <- Repo.delete(asciicast) do
-      :ok = FileStore.delete_file(asciicast.path)
-
-      {:ok, asciicast}
+      case FileStore.delete_file(asciicast.path) do
+        :ok -> {:ok, asciicast}
+        {:error, :enoent} -> {:ok, asciicast}
+        otherwise -> otherwise
+      end
     end
   end
 
