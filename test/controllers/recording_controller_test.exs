@@ -55,6 +55,12 @@ defmodule Asciinema.RecordingControllerTest do
       assert redirected_to(conn_2, 302) == "/a/#{asciicast.id}"
     end
 
+    test "IFRAME, public recording via secret token", %{conn: conn} do
+      asciicast = insert(:asciicast, private: false)
+      conn_2 = get(conn, "/a/#{asciicast.secret_token}/iframe")
+      assert html_response(conn_2, 200) =~ "createPlayer"
+    end
+
     test "asciicast file, v1 format", %{conn: conn} do
       asciicast = fixture(:asciicast_v1)
       width = asciicast.cols

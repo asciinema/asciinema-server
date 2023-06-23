@@ -217,8 +217,8 @@ defmodule AsciinemaWeb.RecordingController do
       {:ok, asciicast} ->
         public_id = to_string(asciicast.id)
 
-        case {asciicast.private, get_format(conn), id == public_id} do
-          {false, "html", false} ->
+        case {asciicast.private, action_name(conn), get_format(conn), id == public_id} do
+          {false, :show, "html", false} ->
             conn
             |> redirect(to: Routes.recording_path(conn, :show, asciicast))
             |> halt()
