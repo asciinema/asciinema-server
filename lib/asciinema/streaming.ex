@@ -2,13 +2,21 @@ defmodule Asciinema.Streaming do
   import Ecto.Changeset
   alias Asciinema.Repo
   alias Asciinema.Streaming.LiveStream
+  alias Ecto.Query
 
   def find_live_stream_by_producer_token(token) do
     Repo.get_by(LiveStream, producer_token: token)
   end
 
-  def get_live_stream(id) do
+  def get_live_stream(id) when is_integer(id) or is_binary(id) do
     Repo.get(LiveStream, id)
+  end
+
+  def get_live_stream(owner) do
+    owner
+    |> Ecto.assoc(:live_streams)
+    |> Query.first()
+    |> Repo.one()
   end
 
   def create_live_stream!(user) do

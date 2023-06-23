@@ -17,6 +17,7 @@ defmodule Asciinema.Accounts.User do
     timestamps()
 
     has_many :asciicasts, Asciinema.Recordings.Asciicast
+    has_many :live_streams, Asciinema.Streaming.LiveStream
     has_many :api_tokens, Asciinema.Accounts.ApiToken
   end
 end

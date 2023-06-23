@@ -38,4 +38,6 @@ defmodule Asciinema do
       Accounts.get_user(dst_user.id)
     end)
   end
+
+  defdelegate get_live_stream(id_or_owner), to: Streaming
 end
