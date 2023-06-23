@@ -499,9 +499,11 @@ defmodule Asciinema.Recordings do
 
   def delete_asciicast(asciicast) do
     with {:ok, asciicast} <- Repo.delete(asciicast) do
-      :ok = FileStore.delete_file(asciicast.path)
-
-      {:ok, asciicast}
+      case FileStore.delete_file(asciicast.path) do
+        :ok -> {:ok, asciicast}
+        {:error, :enoent} -> {:ok, asciicast}
+        otherwise -> otherwise
+      end
     end
   end
 
@@ -510,7 +512,7 @@ defmodule Asciinema.Recordings do
     rows = asciicast.rows_override || asciicast.rows
     secs = Asciicast.snapshot_at(asciicast)
     snapshot = asciicast |> stdout_stream |> generate_snapshot(cols, rows, secs)
-    asciicast |> Asciicast.snapshot_changeset(snapshot) |> Repo.update()
+    asciicast |> Changeset.cast(%{snapshot: snapshot}, [:snapshot]) |> Repo.update()
   end
 
   def generate_snapshot(stdout_stream, width, height, secs) do

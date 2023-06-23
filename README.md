@@ -34,6 +34,17 @@ Alternatively, you can set `ASCIINEMA_API_URL` environment variable:
 
     ASCIINEMA_API_URL=https://your.asciinema.host asciinema rec
 
+## Security
+
+Security of this web app and user data it manages is important.
+If you find anything that looks like a potential vulnerability please
+read on
+[how to report a security issue](https://github.com/asciinema/asciinema-server/blob/main/CONTRIBUTING.md#reporting-security-issues).
+
+## Consulting
+
+I offer consulting services for asciinema project. See https://asciinema.org/consulting for more information.
+
 ## Contributing
 
 Check out our [Contributing](http://asciinema.org/contributing) page, which
@@ -42,13 +53,6 @@ describes multiple ways you can help this project.
 If you decide to contribute with the code then please
 read [CONTRIBUTING.md](https://github.com/asciinema/asciinema-server/blob/main/CONTRIBUTING.md), which covers submitting bugs,
 requesting new features, preparing your code for a pull request, etc.
-
-## Security
-
-We're serious about the security of this web app and the user data it manages.
-If you find anything that looks like a potential vulnerability please
-read on
-[how to report a security issue](https://github.com/asciinema/asciinema-server/blob/main/CONTRIBUTING.md#reporting-security-issues).
 
 ## Authors
 

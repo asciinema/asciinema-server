@@ -13,6 +13,9 @@ defmodule Asciinema.Vt do
   def feed(_vt, _str), do: :erlang.nif_error(:nif_not_loaded)
   # => :ok
 
+  def dump(_vt), do: :erlang.nif_error(:nif_not_loaded)
+  # => ...
+
   def dump_screen(_vt), do: :erlang.nif_error(:nif_not_loaded)
   # => {:ok, {lines, cursor}}
 end

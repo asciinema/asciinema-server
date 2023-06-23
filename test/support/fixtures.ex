@@ -1,5 +1,6 @@
 defmodule Asciinema.Fixtures do
   alias Asciinema.{Repo, Recordings}
+  alias Asciinema.Accounts
   alias Asciinema.Accounts.User
 
   def fixture(what, attrs \\ %{})
@@ -38,7 +39,7 @@ defmodule Asciinema.Fixtures do
       )
 
     %User{}
-    |> User.changeset(attrs)
+    |> Accounts.change_user(attrs)
     |> Repo.insert!()
   end
 

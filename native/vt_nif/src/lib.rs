@@ -43,6 +43,13 @@ fn feed(resource: ResourceArc<VtResource>, input: &str) -> NifResult<Atom> {
 }
 
 #[rustler::nif]
+fn dump(resource: ResourceArc<VtResource>) -> NifResult<String> {
+    let vt = convert_err(resource.vt.read(), "rw_lock")?;
+
+    Ok(vt.dump())
+}
+
+#[rustler::nif]
 fn dump_screen(env: Env, resource: ResourceArc<VtResource>) -> NifResult<(Atom, Term)> {
     let vt = convert_err(resource.vt.read(), "rw_lock")?;
 
@@ -130,4 +137,4 @@ fn convert_err<T, E>(result: Result<T, E>, error: &'static str) -> Result<T, Err
     }
 }
 
-rustler::init!("Elixir.Asciinema.Vt", [new, feed, dump_screen], load = load);
+rustler::init!("Elixir.Asciinema.Vt", [new, feed, dump, dump_screen], load = load);
