@@ -1,8 +1,8 @@
 defmodule Asciinema.Streaming do
   import Ecto.Changeset
+  import Ecto.Query
   alias Asciinema.Repo
   alias Asciinema.Streaming.LiveStream
-  alias Ecto.Query
 
   def find_live_stream_by_producer_token(token) do
     Repo.get_by(LiveStream, producer_token: token)
@@ -17,7 +17,7 @@ defmodule Asciinema.Streaming do
   def get_live_stream(owner) do
     owner
     |> Ecto.assoc(:live_streams)
-    |> Query.first()
+    |> first()
     |> Repo.one()
   end
 
@@ -33,6 +33,11 @@ defmodule Asciinema.Streaming do
     |> cast(%{last_activity_at: Timex.now()}, [:last_activity_at])
     |> change(cols: cols, rows: rows)
     |> Repo.update!()
+  end
+
+  def reassign_live_streams(src_user_id, dst_user_id) do
+    from(s in LiveStream, where: s.user_id == ^src_user_id)
+    |> Repo.update_all(set: [user_id: dst_user_id, updated_at: Timex.now()])
   end
 
   defp generate_producer_token, do: Crypto.random_token(25)

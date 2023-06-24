@@ -78,4 +78,19 @@ defmodule AsciinemaTest do
       refute_enqueued(worker: Asciinema.Emails.Job)
     end
   end
+
+  describe "merge_accounts/1" do
+    test "succeeds" do
+      [user1, user2] = insert_pair(:user)
+      id2 = user2.id
+      insert(:asciicast, user: user1)
+      insert(:asciicast, user: user2)
+      insert(:api_token, user: user1)
+      insert(:api_token, user: user2)
+      insert(:live_stream, user: user1)
+      insert(:live_stream, user: user2)
+
+      assert {:ok, %{id: ^id2}} = Asciinema.merge_accounts(user1, user2)
+    end
+  end
 end
