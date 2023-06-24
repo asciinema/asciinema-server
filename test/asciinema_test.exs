@@ -1,5 +1,5 @@
 defmodule AsciinemaTest do
-  import Asciinema.Fixtures
+  import Asciinema.Factory
   use Asciinema.DataCase
   use Oban.Testing, repo: Asciinema.Repo
   alias Asciinema.Accounts
@@ -26,7 +26,7 @@ defmodule AsciinemaTest do
     end
 
     test "existing user, by email" do
-      user = fixture(:user)
+      user = insert(:user)
 
       assert Asciinema.send_login_email(user.email, true, Routes) == :ok
 
@@ -37,7 +37,7 @@ defmodule AsciinemaTest do
     end
 
     test "existing user, by username" do
-      user = fixture(:user)
+      user = insert(:user)
 
       assert Asciinema.send_login_email(user.username, true, Routes) == :ok
 
