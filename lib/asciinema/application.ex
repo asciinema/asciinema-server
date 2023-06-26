@@ -31,12 +31,6 @@ defmodule Asciinema.Application do
       # Start Oban
       {Oban, oban_config()},
       {Registry, [keys: :unique, name: Asciinema.Streaming.LiveStreamRegistry]},
-      {Registry,
-       [
-         keys: :duplicate,
-         name: Asciinema.Streaming.PubSubRegistry,
-         partitions: System.schedulers_online()
-       ]},
       Asciinema.Streaming.LiveStreamSupervisor
     ]
 
