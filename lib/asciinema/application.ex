@@ -30,7 +30,8 @@ defmodule Asciinema.Application do
       :poolboy.child_spec(:worker, Asciinema.PngGenerator.Rsvg.poolboy_config(), []),
       # Start Oban
       {Oban, oban_config()},
-      {Registry, [keys: :unique, name: Asciinema.Streaming.LiveStreamRegistry]},
+      {Horde.Registry,
+       [name: Asciinema.Streaming.LiveStreamRegistry, keys: :unique, members: :auto]},
       Asciinema.Streaming.LiveStreamSupervisor
     ]
 

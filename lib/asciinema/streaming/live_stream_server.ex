@@ -157,7 +157,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
   # Private
 
   defp via_tuple(stream_id),
-    do: {:via, Registry, {Asciinema.Streaming.LiveStreamRegistry, stream_id}}
+    do: {:via, Horde.Registry, {Asciinema.Streaming.LiveStreamRegistry, stream_id}}
 
   defp subscribe(stream_id) do
     PubSub.subscribe(topic_name(stream_id))
