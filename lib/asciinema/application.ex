@@ -10,8 +10,12 @@ defmodule Asciinema.Application do
     :ok = Oban.Telemetry.attach_default_logger()
     :ok = Asciinema.ObanErrorReporter.configure()
 
+    topologies = Application.get_env(:libcluster, :topologies, [])
+
     # List all child processes to be supervised
     children = [
+      # Start cluster supervisor
+      {Cluster.Supervisor, [topologies, [name: Asciinema.ClusterSupervisor]]},
       # Start telemetry reporters
       Asciinema.Telemetry,
       # Start the Ecto repository
