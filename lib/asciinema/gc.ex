@@ -7,10 +7,10 @@ defmodule Asciinema.GC do
   @impl Oban.Worker
   def perform(_job) do
     if days = Recordings.gc_days() do
-      Logger.info("archiving unclaimed Recordings...")
+      Logger.info("archiving unclaimed recordings...")
       dt = Timex.shift(Timex.now(), days: -days)
       count = Recordings.archive_asciicasts(Accounts.temporary_users(), dt)
-      Logger.info("archived #{count} asciicasts")
+      Logger.info("archived #{count} recordings")
 
       :ok
     else

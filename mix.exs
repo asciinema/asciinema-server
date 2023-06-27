@@ -53,9 +53,11 @@ defmodule Asciinema.MixProject do
       {:ex_machina, "~> 2.4", only: :test},
       {:gettext, "~> 0.18"},
       {:hackney, "~> 1.18"},
+      {:horde, "~> 0.8.7"},
       {:html_sanitize_ex, "~> 1.4"},
       {:inflex, "~> 2.0"},
       {:jason, "~> 1.2"},
+      {:libcluster, "~> 3.3.3"},
       {:mix_test_watch, "~> 1.0", only: :dev, runtime: false},
       {:oban, "~> 2.14"},
       # override for scrivener_html

@@ -10,8 +10,12 @@ defmodule Asciinema.Application do
     :ok = Oban.Telemetry.attach_default_logger()
     :ok = Asciinema.ObanErrorReporter.configure()
 
+    topologies = Application.get_env(:libcluster, :topologies, [])
+
     # List all child processes to be supervised
     children = [
+      # Start cluster supervisor
+      {Cluster.Supervisor, [topologies, [name: Asciinema.ClusterSupervisor]]},
       # Start telemetry reporters
       Asciinema.Telemetry,
       # Start the Ecto repository
@@ -26,13 +30,8 @@ defmodule Asciinema.Application do
       :poolboy.child_spec(:worker, Asciinema.PngGenerator.Rsvg.poolboy_config(), []),
       # Start Oban
       {Oban, oban_config()},
-      {Registry, [keys: :unique, name: Asciinema.Streaming.LiveStreamRegistry]},
-      {Registry,
-       [
-         keys: :duplicate,
-         name: Asciinema.Streaming.PubSubRegistry,
-         partitions: System.schedulers_online()
-       ]},
+      {Horde.Registry,
+       [name: Asciinema.Streaming.LiveStreamRegistry, keys: :unique, members: :auto]},
       Asciinema.Streaming.LiveStreamSupervisor
     ]
 

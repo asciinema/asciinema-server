@@ -1,5 +1,5 @@
 use avt::Vt;
-use rustler::{Atom, Encoder, Env, Error, NifResult, ResourceArc, Term};
+use rustler::{Atom, Encoder, Env, Error, NifResult, ResourceArc, Term, Binary};
 use std::sync::RwLock;
 
 mod atoms {
@@ -35,9 +35,9 @@ fn new(w: usize, h: usize) -> NifResult<(Atom, ResourceArc<VtResource>)> {
 }
 
 #[rustler::nif]
-fn feed(resource: ResourceArc<VtResource>, input: &str) -> NifResult<Atom> {
+fn feed(resource: ResourceArc<VtResource>, input: Binary) -> NifResult<Atom> {
     let mut vt = convert_err(resource.vt.write(), "rw_lock")?;
-    vt.feed_str(input);
+    vt.feed_str(&String::from_utf8_lossy(&input));
 
     Ok(atoms::ok())
 }

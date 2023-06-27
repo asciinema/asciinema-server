@@ -1,6 +1,6 @@
 defmodule Asciinema.Streaming.LiveStreamServer do
   use GenServer, restart: :transient
-  alias Asciinema.{Streaming, Vt}
+  alias Asciinema.{PubSub, Streaming, Vt}
   require Logger
 
   # Client
@@ -26,7 +26,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
   end
 
   def join(stream_id) do
-    subscribe({:live_stream, stream_id})
+    subscribe(stream_id)
     GenServer.cast(via_tuple(stream_id), {:join, self()})
   end
 
@@ -80,10 +80,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
       :ok = Vt.feed(state.vt, vt_init)
     end
 
-    publish(
-      {:live_stream, state.stream_id},
-      {:live_stream, {:reset, {vt_size, vt_init, stream_time}}}
-    )
+    publish(state.stream_id, {:reset, {vt_size, vt_init, stream_time}})
 
     {:reply, :ok, state}
   end
@@ -96,7 +93,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
 
   def handle_call({:feed, {time, data} = event}, {pid, _} = _from, %{producer: pid} = state) do
     :ok = Vt.feed(state.vt, data)
-    publish({:live_stream, state.stream_id}, {:live_stream, {:feed, event}})
+    publish(state.stream_id, {:feed, event})
 
     {:reply, :ok, %{state | last_stream_time: time, last_feed_time: Timex.now()}}
   end
@@ -143,7 +140,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
 
   def handle_info(:shutdown, state) do
     Logger.info("stream/#{state.stream_id}: shutting down due to missing heartbeats")
-    publish({:live_stream, state.stream_id}, {:live_stream, :offline})
+    publish(state.stream_id, :offline)
 
     {:stop, :normal, state}
   end
@@ -160,11 +157,17 @@ defmodule Asciinema.Streaming.LiveStreamServer do
   # Private
 
   defp via_tuple(stream_id),
-    do: {:via, Registry, {Asciinema.Streaming.LiveStreamRegistry, stream_id}}
+    do: {:via, Horde.Registry, {Asciinema.Streaming.LiveStreamRegistry, stream_id}}
 
-  defp subscribe(topic) do
-    {:ok, _} = Registry.register(Asciinema.Streaming.PubSubRegistry, topic, [])
+  defp subscribe(stream_id) do
+    PubSub.subscribe(topic_name(stream_id))
   end
+
+  defp publish(stream_id, payload) do
+    PubSub.broadcast(topic_name(stream_id), {:live_stream, payload})
+  end
+
+  defp topic_name(stream_id), do: "stream:#{stream_id}"
 
   defp reset_stream(state, {cols, rows} = vt_size, stream_time \\ 0.0) do
     {:ok, vt} = Vt.new(cols, rows)
@@ -176,12 +179,6 @@ defmodule Asciinema.Streaming.LiveStreamServer do
         last_stream_time: stream_time,
         last_feed_time: Timex.now()
     }
-  end
-
-  defp publish(topic, payload) do
-    Registry.dispatch(Asciinema.Streaming.PubSubRegistry, topic, fn entries ->
-      for {pid, _} <- entries, do: send(pid, payload)
-    end)
   end
 
   defp reschedule_shutdown(state) do
