@@ -117,14 +117,10 @@ defmodule Asciinema.Streaming.LiveStreamServer do
   end
 
   @impl true
-  def handle_cast({:join, pid}, %{vt_size: vt_size} = state) when not is_nil(vt_size) do
+  def handle_cast({:join, pid}, %{vt_size: vt_size} = state) do
     stream_time = current_stream_time(state.last_stream_time, state.last_feed_time)
     send(pid, {:live_stream, {:reset, {vt_size, Vt.dump(state.vt), stream_time}}})
 
-    {:noreply, state}
-  end
-
-  def handle_cast({:join, _pid}, state) do
     {:noreply, state}
   end
 
