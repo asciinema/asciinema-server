@@ -6,5 +6,6 @@ defmodule Asciinema.Streaming.ProducerHandler do
   alias Asciinema.Streaming.ProducerHandler
 
   def get(:raw), do: %{impl: ProducerHandler.Raw, state: ProducerHandler.Raw.init()}
+  def get(:alis), do: %{impl: ProducerHandler.Alis, state: ProducerHandler.Alis.init()}
   def get(:json), do: %{impl: ProducerHandler.Json, state: ProducerHandler.Json.init()}
 end

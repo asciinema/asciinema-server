@@ -60,11 +60,18 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
   end
 
   @impl true
+  def handle_in({"ALiS" <> _, [opcode: :binary]} = message, %{handler: nil} = state) do
+    Logger.info("producer/#{state.stream_id}: activating ALiS handler")
+    handle_in(message, %{state | handler: ProducerHandler.get(:alis)})
+  end
+
   def handle_in({_, [opcode: :binary]} = message, %{handler: nil} = state) do
+    Logger.info("producer/#{state.stream_id}: activating raw text handler")
     handle_in(message, %{state | handler: ProducerHandler.get(:raw)})
   end
 
   def handle_in({_, [opcode: :text]} = message, %{handler: nil} = state) do
+    Logger.info("producer/#{state.stream_id}: activating json handler")
     handle_in(message, %{state | handler: ProducerHandler.get(:json)})
   end
 
@@ -128,6 +135,10 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
 
   defp run_command({:feed, {time, data}}, stream_id) do
     LiveStreamServer.feed(stream_id, {time, data})
+  end
+
+  defp run_command({:offline, true}, _stream_id) do
+    :ok
   end
 
   @impl true
