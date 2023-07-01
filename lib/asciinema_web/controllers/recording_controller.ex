@@ -12,7 +12,7 @@ defmodule AsciinemaWeb.RecordingController do
     category = params[:category]
     order = if params["order"] == "popularity", do: :popularity, else: :date
 
-    page = Recordings.paginate_asciicasts(category, order, params["page"], 12)
+    page = Recordings.paginate_asciicasts(category, order, params["page"], 14)
 
     assigns = [
       page_title: String.capitalize("#{category} recordings"),
