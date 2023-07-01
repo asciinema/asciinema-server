@@ -28,16 +28,35 @@ defmodule Asciinema.Streaming do
     |> Repo.insert!()
   end
 
-  def update_live_stream(stream, {cols, rows}) do
+  def update_live_stream(stream, attrs) when is_list(attrs) do
     stream
-    |> cast(%{last_activity_at: Timex.now()}, [:last_activity_at])
-    |> change(cols: cols, rows: rows)
+    |> change(attrs)
+    |> change_last_activity()
     |> Repo.update!()
+  end
+
+  defp change_last_activity(changeset) do
+    case fetch_field!(changeset, :online) do
+      true ->
+        cast(changeset, %{last_activity_at: Timex.now()}, [:last_activity_at])
+
+      false ->
+        changeset
+    end
   end
 
   def reassign_live_streams(src_user_id, dst_user_id) do
     from(s in LiveStream, where: s.user_id == ^src_user_id)
     |> Repo.update_all(set: [user_id: dst_user_id, updated_at: Timex.now()])
+  end
+
+  def mark_inactive_live_streams_offline do
+    t = Timex.shift(Timex.now(), minutes: -1)
+    q = from(s in LiveStream, where: s.online and s.last_activity_at < ^t)
+
+    {count, _} = Repo.update_all(q, set: [online: false])
+
+    count
   end
 
   defp generate_producer_token, do: Crypto.random_token(25)

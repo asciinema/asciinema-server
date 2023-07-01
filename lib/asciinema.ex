@@ -41,4 +41,13 @@ defmodule Asciinema do
   end
 
   defdelegate get_live_stream(id_or_owner), to: Streaming
+
+  def recording_gc_days do
+    Application.get_env(:asciinema, :asciicast_gc_days)
+  end
+
+  def archive_unclaimed_recordings(days) do
+    t = Timex.shift(Timex.now(), days: -days)
+    Recordings.archive_asciicasts(Accounts.temporary_users(), t)
+  end
 end

@@ -30,7 +30,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
     GenServer.cast(via_tuple(stream_id), {:join, self()})
   end
 
-  def stop(stream_id), do: GenServer.stop(via_tuple(stream_id))
+  def stop(stream_id, reason \\ :normal), do: GenServer.stop(via_tuple(stream_id), reason)
 
   # Callbacks
 
@@ -117,14 +117,10 @@ defmodule Asciinema.Streaming.LiveStreamServer do
   end
 
   @impl true
-  def handle_cast({:join, pid}, %{vt_size: vt_size} = state) when not is_nil(vt_size) do
+  def handle_cast({:join, pid}, %{vt_size: vt_size} = state) do
     stream_time = current_stream_time(state.last_stream_time, state.last_feed_time)
     send(pid, {:live_stream, {:reset, {vt_size, Vt.dump(state.vt), stream_time}}})
 
-    {:noreply, state}
-  end
-
-  def handle_cast({:join, _pid}, state) do
     {:noreply, state}
   end
 
@@ -133,23 +129,24 @@ defmodule Asciinema.Streaming.LiveStreamServer do
   @impl true
   def handle_info(:update_stream, state) do
     Process.send_after(self(), :update_stream, @update_stream_interval)
-    stream = Streaming.update_live_stream(state.stream, state.vt_size)
+    stream = Streaming.update_live_stream(state.stream, [])
 
     {:noreply, %{state | stream: stream}}
   end
 
   def handle_info(:shutdown, state) do
     Logger.info("stream/#{state.stream_id}: shutting down due to missing heartbeats")
-    publish(state.stream_id, :offline)
 
     {:stop, :normal, state}
   end
 
   @impl true
   def terminate(reason, state) do
-    Logger.info(
-      "stream/#{state.stream_id}: terminating | reason: #{inspect(reason)}, state: #{inspect(state)}"
-    )
+    Logger.info("stream/#{state.stream_id}: terminating (#{inspect(reason)})")
+    Logger.debug("stream/#{state.stream_id}: state: #{inspect(state)}")
+
+    publish(state.stream_id, :offline)
+    Streaming.update_live_stream(state.stream, online: false)
 
     :ok
   end
@@ -172,10 +169,13 @@ defmodule Asciinema.Streaming.LiveStreamServer do
   defp reset_stream(state, {cols, rows} = vt_size, stream_time \\ 0.0) do
     {:ok, vt} = Vt.new(cols, rows)
 
+    stream = Streaming.update_live_stream(state.stream, online: true, cols: cols, rows: rows)
+
     %{
       state
       | vt: vt,
         vt_size: vt_size,
+        stream: stream,
         last_stream_time: stream_time,
         last_feed_time: Timex.now()
     }

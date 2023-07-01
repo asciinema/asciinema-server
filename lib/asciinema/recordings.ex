@@ -678,18 +678,15 @@ defmodule Asciinema.Recordings do
     tmp_path
   end
 
-  def gc_days do
-    Application.get_env(:asciinema, :asciicast_gc_days)
-  end
-
-  def archive_asciicasts(users_query, dt) do
+  def archive_asciicasts(users_query, t) do
     query =
       from a in Asciicast,
         join: u in ^users_query,
         on: a.user_id == u.id,
-        where: a.archivable and is_nil(a.archived_at) and a.inserted_at < ^dt
+        where: a.archivable and is_nil(a.archived_at) and a.inserted_at < ^t
 
     {count, _} = Repo.update_all(query, set: [archived_at: Timex.now()])
+
     count
   end
 

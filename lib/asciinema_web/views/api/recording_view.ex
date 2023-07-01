@@ -24,7 +24,7 @@ defmodule AsciinemaWeb.Api.RecordingView do
     """
 
     is_tmp_user = Asciinema.Accounts.temporary_user?(conn.assigns.current_user)
-    gc_days = Asciinema.Recordings.gc_days()
+    gc_days = Asciinema.recording_gc_days()
 
     if is_tmp_user && gc_days do
       hostname = AsciinemaWeb.instance_hostname()
