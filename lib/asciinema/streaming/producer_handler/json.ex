@@ -1,7 +1,7 @@
 defmodule Asciinema.Streaming.ProducerHandler.Json do
   @behaviour Asciinema.Streaming.ProducerHandler
 
-  def init, do: %{}
+  def init, do: %{first: true}
 
   def parse({"\n", _opts}, state), do: {:ok, [], state}
 
@@ -17,12 +17,20 @@ defmodule Asciinema.Streaming.ProducerHandler.Json do
 
   def handle_message(%{"cols" => cols, "rows" => rows} = header, state)
       when is_integer(cols) and is_integer(rows) do
-    {:ok, [reset: %{size: {cols, rows}, init: header["init"], time: header["time"]}], state}
+    commands = [reset: %{size: {cols, rows}, init: header["init"], time: header["time"]}]
+
+    {:ok, commands, %{state | first: false}}
   end
 
   def handle_message(%{"width" => cols, "height" => rows}, state)
       when is_integer(cols) and is_integer(rows) do
-    {:ok, [reset: %{size: {cols, rows}, init: nil, time: nil}], state}
+    commands = [reset: %{size: {cols, rows}, init: nil, time: nil}]
+
+    {:ok, commands, %{state | first: false}}
+  end
+
+  def handle_message(_message, %{first: true}) do
+    {:error, :reset_expected}
   end
 
   def handle_message([time, "o", data], state) when is_number(time) and is_binary(data) do

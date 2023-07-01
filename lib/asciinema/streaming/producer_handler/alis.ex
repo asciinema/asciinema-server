@@ -1,14 +1,14 @@
 defmodule Asciinema.Streaming.ProducerHandler.Alis do
   @behaviour Asciinema.Streaming.ProducerHandler
 
-  def init, do: %{first: true}
+  def init, do: %{status: :new}
 
-  def parse({"ALiS\x01\x00\x00\x00\x00\x00", _opts}, %{first: true} = state) do
-    {:ok, [], %{state | first: false}}
+  def parse({"ALiS\x01\x00\x00\x00\x00\x00", _opts}, %{status: :new} = state) do
+    {:ok, [], %{state | status: :init}}
   end
 
-  def parse({"ALiS" <> rest, _opts}, %{first: true}) do
-    {:error, "unsupported ALiS version/compression: #{inspect(rest)}"}
+  def parse({"ALiS" <> rest, _opts}, %{status: :new}) do
+    {:error, "unsupported ALiS version/configuration: #{inspect(rest)}"}
   end
 
   def parse(
@@ -23,9 +23,10 @@ defmodule Asciinema.Streaming.ProducerHandler.Alis do
           >>,
           _opts
         },
-        state
-      ) do
-    {:ok, [reset: %{size: {cols, rows}, init: init, time: time}], state}
+        %{status: status} = state
+      )
+      when status in [:init, :offline] do
+    {:ok, [reset: %{size: {cols, rows}, init: init, time: time}], %{state | status: :online}}
   end
 
   def parse(
@@ -38,13 +39,13 @@ defmodule Asciinema.Streaming.ProducerHandler.Alis do
           >>,
           _opts
         },
-        state
+        %{status: :online} = state
       ) do
     {:ok, [feed: {time, data}], state}
   end
 
-  def parse({<<0x04>>, _opts}, state) do
-    {:ok, [offline: true], state}
+  def parse({<<0x04>>, _opts}, %{status: status} = state) when status in [:init, :online] do
+    {:ok, [status: :offline], %{state | status: :offline}}
   end
 
   def parse({_payload, _opts}, _state) do
