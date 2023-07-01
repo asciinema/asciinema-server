@@ -546,9 +546,7 @@ defmodule AsciinemaWeb.RecordingView do
     "#{Decimal.round(Decimal.from_float(float), 3)}%"
   end
 
-  def asciicast_gc_days do
-    Recordings.gc_days()
-  end
+  def recording_gc_days, do: Asciinema.recording_gc_days()
 
   def terminal_font_family_options do
     for family <- Recordings.custom_terminal_font_families() do

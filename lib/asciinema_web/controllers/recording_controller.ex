@@ -274,7 +274,7 @@ defmodule AsciinemaWeb.RecordingController do
 
   defp put_archival_info_flash(conn, asciicast) do
     with true <- asciicast.archivable,
-         days when not is_nil(days) <- Recordings.gc_days(),
+         days when not is_nil(days) <- Asciinema.recording_gc_days(),
          %{} = user <- asciicast.user,
          true <- Accounts.temporary_user?(user),
          true <- Timex.before?(asciicast.inserted_at, Timex.shift(Timex.now(), days: -days)) do
