@@ -5,6 +5,7 @@ defmodule Asciinema.Streaming.LiveStream do
     field :producer_token, :string
     field :cols, :integer
     field :rows, :integer
+    field :online, :boolean
     field :last_activity_at, :naive_datetime
 
     timestamps()

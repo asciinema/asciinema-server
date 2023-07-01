@@ -55,7 +55,8 @@ config :asciinema, Oban,
     {Oban.Plugins.Pruner, max_age: 604_800},
     {Oban.Plugins.Cron,
      crontab: [
-       {"0 * * * *", Asciinema.GC}
+       {"0 * * * *", Asciinema.GC},
+       {"* * * * *", Asciinema.Streaming.GC}
      ]},
     Oban.Plugins.Lifeline,
     Oban.Plugins.Reindexer
