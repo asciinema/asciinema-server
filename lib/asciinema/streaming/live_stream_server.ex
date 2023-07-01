@@ -145,7 +145,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
     Logger.info("stream/#{state.stream_id}: terminating (#{inspect(reason)})")
     Logger.debug("stream/#{state.stream_id}: state: #{inspect(state)}")
 
-    publish(state.stream_id, {:status, :offline})
+    publish(state.stream_id, :offline)
     Streaming.update_live_stream(state.stream, online: false)
 
     :ok
