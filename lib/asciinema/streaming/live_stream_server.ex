@@ -30,7 +30,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
     GenServer.cast(via_tuple(stream_id), {:join, self()})
   end
 
-  def stop(stream_id), do: GenServer.stop(via_tuple(stream_id))
+  def stop(stream_id, reason \\ :normal), do: GenServer.stop(via_tuple(stream_id), reason)
 
   # Callbacks
 
@@ -136,16 +136,16 @@ defmodule Asciinema.Streaming.LiveStreamServer do
 
   def handle_info(:shutdown, state) do
     Logger.info("stream/#{state.stream_id}: shutting down due to missing heartbeats")
-    publish(state.stream_id, :offline)
 
     {:stop, :normal, state}
   end
 
   @impl true
   def terminate(reason, state) do
-    Logger.info(
-      "stream/#{state.stream_id}: terminating | reason: #{inspect(reason)}, state: #{inspect(state)}"
-    )
+    Logger.info("stream/#{state.stream_id}: terminating (#{inspect(reason)})")
+    Logger.debug("stream/#{state.stream_id}: state: #{inspect(state)}")
+
+    publish(state.stream_id, {:status, :offline})
 
     :ok
   end

@@ -33,6 +33,7 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
       live_stream ->
         state = %{
           stream_id: live_stream.id,
+          status: :new,
           handler: nil,
           bucket: %{
             size: config(:bucket_size, @default_bucket_size),
@@ -49,12 +50,10 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
   @impl true
   def init(state) do
     Logger.info("producer/#{state.stream_id}: connected")
-    {:ok, _pid} = LiveStreamSupervisor.ensure_child(state.stream_id)
-    :ok = LiveStreamServer.lead(state.stream_id)
     Process.send_after(self(), :handler_timeout, @handler_timeout)
     Process.send_after(self(), :ping, @ping_interval)
     Process.send_after(self(), :fill_bucket, state.bucket.fill_interval)
-    send(self(), :heartbeat)
+    Process.send_after(self(), :heartbeat, @heartbeat_interval)
 
     {:ok, state}
   end
@@ -77,7 +76,7 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
 
   def handle_in({payload, _} = message, %{handler: handler} = state) do
     with {:ok, commands, new_handler_state} <- run_handler(handler, message),
-         :ok <- run_commands(commands, state.stream_id),
+         {:ok, state} <- run_commands(commands, state),
          {:ok, state} <- drain_bucket(state, byte_size(payload)) do
       {:ok, put_in(state, [:handler, :state], new_handler_state)}
     else
@@ -111,10 +110,10 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
     end
   end
 
-  defp run_commands(commands, stream_id) do
-    Enum.reduce(commands, :ok, fn command, prev_result ->
-      with :ok <- prev_result do
-        run_command(command, stream_id)
+  defp run_commands(commands, state) do
+    Enum.reduce(commands, {:ok, state}, fn command, prev_result ->
+      with {:ok, state} <- prev_result do
+        run_command(command, state)
       end
     end)
   end
@@ -122,23 +121,47 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
   @max_cols 720
   @max_rows 200
 
-  defp run_command({:reset, %{size: {cols, rows}, init: init, time: time}}, stream_id)
+  defp run_command({:reset, %{size: {cols, rows}, init: init, time: time}}, state)
        when cols > 0 and rows > 0 and cols <= @max_cols and rows <= @max_rows do
-    Logger.info("producer/#{stream_id}: reset (#{cols}x#{rows})")
+    Logger.info("producer/#{state.stream_id}: reset (#{cols}x#{rows})")
 
-    LiveStreamServer.reset(stream_id, {cols, rows}, init, time)
+    state = ensure_server(state)
+
+    with :ok <- LiveStreamServer.reset(state.stream_id, {cols, rows}, init, time) do
+      {:ok, state}
+    end
   end
 
-  defp run_command({:reset, %{size: {cols, rows}}}, _stream_id) do
+  defp run_command({:reset, %{size: {cols, rows}}}, _state) do
     {:error, {:invalid_vt_size, {cols, rows}}}
   end
 
-  defp run_command({:feed, {time, data}}, stream_id) do
-    LiveStreamServer.feed(stream_id, {time, data})
+  defp run_command({:feed, {time, data}}, %{status: :online} = state) do
+    with :ok <- LiveStreamServer.feed(state.stream_id, {time, data}) do
+      {:ok, state}
+    end
   end
 
-  defp run_command({:offline, true}, _stream_id) do
-    :ok
+  defp run_command({:status, :offline}, %{status: :new} = state) do
+    {:ok, state}
+  end
+
+  defp run_command({:status, :offline}, %{status: :online} = state) do
+    Logger.info("producer/#{state.stream_id}: stream went offline, stopping server")
+    LiveStreamServer.stop(state.stream_id)
+
+    {:ok, %{state | status: :offline}}
+  end
+
+  defp ensure_server(%{status: :online} = state), do: state
+
+  defp ensure_server(state) do
+    Logger.info("producer/#{state.stream_id}: stream went online, starting server")
+    {:ok, _pid} = LiveStreamSupervisor.ensure_child(state.stream_id)
+    :ok = LiveStreamServer.lead(state.stream_id)
+    Process.send_after(self(), :heartbeat, @heartbeat_interval)
+
+    %{state | status: :online}
   end
 
   @impl true
@@ -151,15 +174,7 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
   def handle_info(:heartbeat, state) do
     Process.send_after(self(), :heartbeat, @heartbeat_interval)
 
-    case LiveStreamServer.heartbeat(state.stream_id) do
-      :ok ->
-        {:ok, state}
-
-      {:error, :not_a_leader} ->
-        Logger.info("producer/#{state.stream_id}: stream taken over by another producer")
-
-        {:stop, :normal, state}
-    end
+    send_heartbeat(state)
   end
 
   def handle_info(:handler_timeout, %{handler: nil} = state) do
@@ -181,6 +196,20 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
 
     {:ok, put_in(state, [:bucket, :tokens], tokens)}
   end
+
+  defp send_heartbeat(%{status: :online} = state) do
+    case LiveStreamServer.heartbeat(state.stream_id) do
+      :ok ->
+        {:ok, state}
+
+      {:error, :not_a_leader} ->
+        Logger.info("producer/#{state.stream_id}: stream taken over by another producer")
+
+        {:stop, :normal, state}
+    end
+  end
+
+  defp send_heartbeat(state), do: {:ok, state}
 
   @impl true
   def terminate(reason, state) do
