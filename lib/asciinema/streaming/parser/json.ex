@@ -1,5 +1,5 @@
-defmodule Asciinema.Streaming.ProducerHandler.Json do
-  @behaviour Asciinema.Streaming.ProducerHandler
+defmodule Asciinema.Streaming.Parser.Json do
+  @behaviour Asciinema.Streaming.Parser
 
   def init, do: %{first: true}
 

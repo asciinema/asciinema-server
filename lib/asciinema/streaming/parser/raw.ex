@@ -1,5 +1,5 @@
-defmodule Asciinema.Streaming.ProducerHandler.Raw do
-  @behaviour Asciinema.Streaming.ProducerHandler
+defmodule Asciinema.Streaming.Parser.Raw do
+  @behaviour Asciinema.Streaming.Parser
 
   @default_size {80, 24}
 
