@@ -1,6 +1,6 @@
 defmodule AsciinemaWeb.LiveStreamView do
   use AsciinemaWeb, :view
-  alias AsciinemaWeb.{PlayerView, UserView}
+  alias AsciinemaWeb.{PlayerView, RecordingView, UserView}
   import UserView, only: [theme_options: 0]
 
   defdelegate author_username(stream), to: PlayerView

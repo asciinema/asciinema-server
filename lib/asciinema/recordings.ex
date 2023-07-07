@@ -37,6 +37,16 @@ defmodule Asciinema.Recordings do
     |> Repo.preload(:user)
   end
 
+  def public_asciicasts(%{asciicasts: _} = owner, limit \\ 4) do
+    owner
+    |> Ecto.assoc(:asciicasts)
+    |> filter(:public)
+    |> sort(:random)
+    |> limit(^limit)
+    |> preload(:user)
+    |> Repo.all()
+  end
+
   def other_public_asciicasts(asciicast, limit \\ 4) do
     Asciicast
     |> filter({asciicast.user_id, :public})

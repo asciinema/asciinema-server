@@ -72,6 +72,8 @@
   </div>
 </section>
 
+<%= render RecordingView, "_user_recordings.html", conn: @conn, user: @stream.user, asciicasts: @author_asciicasts %>
+
 <script>
 window.addEventListener('load', function() {
   const container = document.getElementById('cinema');

@@ -1,6 +1,6 @@
 defmodule AsciinemaWeb.LiveStreamController do
   use AsciinemaWeb, :controller
-  alias Asciinema.{Authorization, Streaming}
+  alias Asciinema.{Authorization, Recordings, Streaming}
   alias AsciinemaWeb.PlayerOpts
 
   plug :clear_main_class
@@ -9,10 +9,13 @@ defmodule AsciinemaWeb.LiveStreamController do
   plug :authorize, :stream when action in [:edit, :update]
 
   def show(conn, params) do
+    stream = conn.assigns.stream
+
     render(
       conn,
       player_opts: player_opts(params),
-      actions: stream_actions(conn.assigns.stream, conn.assigns.current_user)
+      actions: stream_actions(stream, conn.assigns.current_user),
+      author_asciicasts: Recordings.public_asciicasts(stream.user)
     )
   end
 

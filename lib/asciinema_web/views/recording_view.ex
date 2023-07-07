@@ -14,6 +14,7 @@ defmodule AsciinemaWeb.RecordingView do
   defdelegate theme_name(stream), to: PlayerView
   defdelegate default_theme_name(stream), to: PlayerView
   defdelegate terminal_font_family_options, to: PlayerView
+  defdelegate username(user), to: UserView
 
   def player_src(asciicast), do: file_url(asciicast)
 
