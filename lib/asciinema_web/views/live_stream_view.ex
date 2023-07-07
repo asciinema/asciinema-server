@@ -22,6 +22,7 @@ defmodule AsciinemaWeb.LiveStreamView do
     [
       cols: cols(stream),
       rows: rows(stream),
+      autoplay: true,
       theme: theme_name(stream),
       terminalLineHeight: stream.terminal_line_height,
       customTerminalFontFamily: stream.terminal_font_family
