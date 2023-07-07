@@ -11,8 +11,6 @@ defmodule AsciinemaWeb.LiveStreamView do
   end
 
   def cinema_height(stream) do
-    # TODO make it live - with cinema height automatically recalculated and updated
-
     AsciinemaWeb.RecordingView.cinema_height(%{
       cols: stream.cols || 80,
       rows: stream.rows || 24,
