@@ -68,6 +68,7 @@ defmodule Asciinema.Factory do
   def live_stream_factory do
     %LiveStream{
       user: build(:user),
+      secret_token: sequence(:secret_token, &secret_token/1),
       producer_token: sequence(:producer_token, &"token-#{&1}")
     }
   end

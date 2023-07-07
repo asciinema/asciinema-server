@@ -33,8 +33,8 @@ defmodule AsciinemaWeb.LiveStreamView do
     profile_path(stream.user)
   end
 
-  # TODO use Routes
   defp ws_consumer_url(live_stream) do
-    String.replace(AsciinemaWeb.Endpoint.url() <> "/ws/s/#{live_stream.id}", ~r/^http/, "ws")
+    param = Phoenix.Param.to_param(live_stream)
+    String.replace(AsciinemaWeb.Endpoint.url() <> "/ws/s/#{param}", ~r/^http/, "ws")
   end
 end

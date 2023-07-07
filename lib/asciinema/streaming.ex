@@ -8,22 +8,46 @@ defmodule Asciinema.Streaming do
     Repo.get_by(LiveStream, producer_token: token)
   end
 
-  def get_live_stream(id) when is_integer(id) or is_binary(id) do
+  def get_live_stream(id) when is_integer(id) do
     LiveStream
     |> Repo.get(id)
     |> Repo.preload(:user)
   end
 
-  def get_live_stream(owner) do
+  def get_live_stream(id) when is_binary(id) do
+    stream =
+      cond do
+        String.match?(id, ~r/[[:alpha:]]/) ->
+          Repo.one(from(s in LiveStream, where: s.secret_token == ^id))
+
+        String.match?(id, ~r/^\d+$/) ->
+          id = String.to_integer(id)
+          Repo.one(from(s in LiveStream, where: s.private == false and s.id == ^id))
+
+        true ->
+          nil
+      end
+
+    Repo.preload(stream, :user)
+  end
+
+  def get_live_stream(%{live_streams: _} = owner) do
     owner
     |> Ecto.assoc(:live_streams)
     |> first()
     |> Repo.one()
   end
 
+  def fetch_live_stream(id) do
+    case get_live_stream(id) do
+      nil -> {:error, :not_found}
+      stream -> {:ok, stream}
+    end
+  end
+
   def create_live_stream!(user) do
     %LiveStream{}
-    |> change(producer_token: generate_producer_token())
+    |> change(secret_token: generate_secret_token(), producer_token: generate_producer_token())
     |> put_assoc(:user, user)
     |> Repo.insert!()
   end
@@ -60,4 +84,5 @@ defmodule Asciinema.Streaming do
   end
 
   defp generate_producer_token, do: Crypto.random_token(25)
+  defp generate_secret_token, do: Crypto.random_token(25)
 end
