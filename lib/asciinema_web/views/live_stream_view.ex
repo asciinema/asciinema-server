@@ -1,6 +1,11 @@
 defmodule AsciinemaWeb.LiveStreamView do
   use AsciinemaWeb, :view
-  alias AsciinemaWeb.UserView
+  alias AsciinemaWeb.PlayerView
+
+  defdelegate author_username(stream), to: PlayerView
+  defdelegate author_avatar_url(stream), to: PlayerView
+  defdelegate author_profile_path(stream), to: PlayerView
+  defdelegate theme_name(stream), to: PlayerView
 
   def player_src(stream) do
     %{
@@ -10,29 +15,30 @@ defmodule AsciinemaWeb.LiveStreamView do
     }
   end
 
+  def player_opts(stream, opts) do
+    [
+      cols: cols(stream),
+      rows: rows(stream),
+      theme: theme_name(stream),
+      terminalLineHeight: stream.terminal_line_height,
+      customTerminalFontFamily: stream.terminal_font_family
+    ]
+    |> Keyword.merge(opts)
+    |> Enum.into(%{})
+  end
+
   def cinema_height(stream) do
-    AsciinemaWeb.RecordingView.cinema_height(%{
-      cols: stream.cols || 80,
-      rows: stream.rows || 24,
-      cols_override: nil,
-      rows_override: nil
-    })
+    PlayerView.cinema_height(cols(stream), rows(stream))
   end
 
-  def author_username(stream) do
-    UserView.username(stream.user)
-  end
-
-  def author_avatar_url(stream) do
-    UserView.avatar_url(stream.user)
-  end
-
-  def author_profile_path(stream) do
-    profile_path(stream.user)
-  end
+  def title(stream), do: stream.description || "Live stream"
 
   defp ws_consumer_url(live_stream) do
     param = Phoenix.Param.to_param(live_stream)
     String.replace(AsciinemaWeb.Endpoint.url() <> "/ws/s/#{param}", ~r/^http/, "ws")
   end
+
+  defp cols(stream), do: stream.cols || 80
+
+  defp rows(stream), do: stream.rows || 24
 end

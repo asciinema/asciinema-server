@@ -2,6 +2,7 @@ defmodule AsciinemaWeb.RecordingController do
   use AsciinemaWeb, :controller
   alias Asciinema.{Recordings, PngGenerator, Accounts}
   alias Asciinema.Recordings.Asciicast
+  alias AsciinemaWeb.PlayerOpts
 
   plug :clear_main_class
   plug :load_asciicast when action in [:show, :edit, :update, :delete, :iframe]
@@ -292,6 +293,6 @@ defmodule AsciinemaWeb.RecordingController do
   defp playback_options(params) do
     params
     |> Ext.Map.rename(%{"t" => "startAt", "i" => "idleTimeLimit"})
-    |> Recordings.PlaybackOpts.parse()
+    |> PlayerOpts.parse(:recording)
   end
 end

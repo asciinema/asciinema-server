@@ -1,12 +1,19 @@
 defmodule AsciinemaWeb.RecordingView do
+  alias AsciinemaWeb.PlayerView
   use AsciinemaWeb, :view
   import Scrivener.HTML
   alias Asciinema.Recordings
   alias Asciinema.Recordings.Asciicast
   alias AsciinemaWeb.Endpoint
   alias AsciinemaWeb.Router.Helpers.Extra, as: RoutesX
-  alias AsciinemaWeb.UserView
+  alias AsciinemaWeb.{PlayerView, UserView}
   import UserView, only: [theme_options: 0]
+
+  defdelegate author_username(asciicast), to: PlayerView
+  defdelegate author_avatar_url(stream), to: PlayerView
+  defdelegate author_profile_path(stream), to: PlayerView
+  defdelegate theme_name(stream), to: PlayerView
+  defdelegate default_theme_name(stream), to: PlayerView
 
   def player_src(asciicast), do: file_url(asciicast)
 
@@ -26,16 +33,8 @@ defmodule AsciinemaWeb.RecordingView do
     |> Enum.into(%{})
   end
 
-  @container_vertical_padding 2 * 4
-  @approx_char_width 7
-  @approx_char_height 16
-
   def cinema_height(asciicast) do
-    ratio =
-      rows(asciicast) * @approx_char_height /
-        (cols(asciicast) * @approx_char_width)
-
-    round(@container_vertical_padding + 100 * ratio)
+    PlayerView.cinema_height(cols(asciicast), rows(asciicast))
   end
 
   def embed_script(asciicast) do
@@ -256,30 +255,6 @@ defmodule AsciinemaWeb.RecordingView do
       seconds = rem(d, 60)
       :io_lib.format("~2..0B:~2..0B", [minutes, seconds])
     end
-  end
-
-  def theme_name(asciicast) do
-    asciicast.theme_name || default_theme_name(asciicast)
-  end
-
-  def default_theme_name(asciicast) do
-    UserView.theme_name(asciicast.user) || "asciinema"
-  end
-
-  def author_username(asciicast) do
-    UserView.username(asciicast.user)
-  end
-
-  def author_avatar_url(asciicast) do
-    UserView.avatar_url(asciicast.user)
-  end
-
-  def author_profile_path(asciicast) do
-    profile_path(asciicast.user)
-  end
-
-  def author_profile_url(asciicast) do
-    profile_url(asciicast.user)
   end
 
   def class(%{} = attrs) do

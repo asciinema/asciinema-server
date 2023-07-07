@@ -1,6 +1,7 @@
 defmodule AsciinemaWeb.LiveStreamController do
   use AsciinemaWeb, :controller
   alias Asciinema.Streaming
+  alias AsciinemaWeb.PlayerOpts
 
   plug :clear_main_class
 
@@ -11,8 +12,10 @@ defmodule AsciinemaWeb.LiveStreamController do
   end
 
   defp do_show(conn, stream) do
-    conn
-    |> assign(:stream, stream)
-    |> render(:show)
+    render(conn, stream: stream, player_opts: player_opts(conn.params))
+  end
+
+  defp player_opts(params) do
+    PlayerOpts.parse(params, :live_stream)
   end
 end

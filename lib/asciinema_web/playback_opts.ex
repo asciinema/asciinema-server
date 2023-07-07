@@ -1,4 +1,4 @@
-defmodule Asciinema.Recordings.PlaybackOpts do
+defmodule AsciinemaWeb.PlayerOpts do
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -70,10 +70,18 @@ defmodule Asciinema.Recordings.PlaybackOpts do
     field :theme, :string
   end
 
-  def parse(attrs) do
+  def parse(attrs, :recording) do
+    parse(attrs, __MODULE__.__schema__(:fields))
+  end
+
+  def parse(attrs, :live_stream) do
+    parse(attrs, [:autoplay, :cols, :poster, :rows, :theme])
+  end
+
+  def parse(attrs, fields) when is_list(fields) do
     changeset =
       %__MODULE__{}
-      |> cast(attrs, __MODULE__.__schema__(:fields))
+      |> cast(attrs, fields)
       |> validate_number(:speed, greater_than: 0.0)
       |> validate_number(:startAt, greater_than: 0)
       |> validate_number(:idleTimeLimit, greater_than_or_equal_to: 0.5)

@@ -10,12 +10,14 @@
           <% end %>
         </span>
 
-        <h2>
-          Live stream
-        </h2>
+        <h2><%= title(@stream) %></h2>
 
         <small>
           by <%= link author_username(@stream), to: author_profile_path(@stream) %>
+
+          <%= if @stream.private do %>
+            <%= render "_private_badge.html" %>
+          <% end %>
         </small>
       </div>
     </div>
@@ -25,11 +27,12 @@
 <script>
 window.addEventListener('load', function() {
   const container = document.getElementById('cinema');
+  const opts = <%= safe_json(player_opts(@stream, @player_opts)) %>;
 
   const player = window.createPlayer(
     <%= safe_json(player_src(@stream)) %>,
     container,
-    { fit: 'both', logger: console }
+    { ...opts, fit: 'both', logger: console }
   );
 
   const containerVerticalPadding = 2 * 4;
