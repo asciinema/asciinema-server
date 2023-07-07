@@ -1,11 +1,14 @@
 defmodule AsciinemaWeb.LiveStreamView do
   use AsciinemaWeb, :view
-  alias AsciinemaWeb.PlayerView
+  alias AsciinemaWeb.{PlayerView, UserView}
+  import UserView, only: [theme_options: 0]
 
   defdelegate author_username(stream), to: PlayerView
   defdelegate author_avatar_url(stream), to: PlayerView
   defdelegate author_profile_path(stream), to: PlayerView
   defdelegate theme_name(stream), to: PlayerView
+  defdelegate default_theme_name(stream), to: PlayerView
+  defdelegate terminal_font_family_options, to: PlayerView
 
   def player_src(stream) do
     %{
@@ -31,7 +34,7 @@ defmodule AsciinemaWeb.LiveStreamView do
     PlayerView.cinema_height(cols(stream), rows(stream))
   end
 
-  def title(stream), do: stream.description || "Live stream"
+  def title(stream), do: stream.title || "Live stream"
 
   defp ws_consumer_url(live_stream) do
     param = Phoenix.Param.to_param(live_stream)

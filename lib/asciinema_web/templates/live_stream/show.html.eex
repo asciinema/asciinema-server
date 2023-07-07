@@ -20,6 +20,44 @@
           <% end %>
         </small>
       </div>
+
+      <div class="col-md-4 col-xs-12 text-right actions">
+        <div class="dropdown actions-dropdown pull-right">
+          <%= if length(@actions) > 0 do %>
+            <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+              Settings
+            </button>
+
+            <div class="dropdown-menu">
+              <%= if :edit in @actions do %>
+                <%= link "Edit", to: Routes.live_stream_path(@conn, :edit, @stream), class: "dropdown-item" %>
+              <% end %>
+
+              <%= if :make_private in @actions do %>
+                <%= link "Make private", to: Routes.live_stream_path(@conn, :update, @stream, live_stream: [private: 1]), class: "dropdown-item", method: :put %>
+              <% end %>
+
+              <%= if :make_public in @actions do %>
+                <%= link "Make public", to: Routes.live_stream_path(@conn, :update, @stream, live_stream: [private: 0]), class: "dropdown-item", method: :put %>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="odd meta">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12 col-xs-12">
+        <%= if desc = render_markdown(@stream.description) do %>
+          <div class="description">
+            <%= desc %>
+          </div>
+        <% end %>
+      </div>
     </div>
   </div>
 </section>

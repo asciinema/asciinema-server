@@ -1,6 +1,7 @@
 defmodule Asciinema.Authorization do
   alias Asciinema.Accounts.User
   alias Asciinema.Recordings.Asciicast
+  alias Asciinema.Streaming.LiveStream
 
   defmodule Policy do
     def can?(nil, _action, _thing) do
@@ -15,6 +16,10 @@ defmodule Asciinema.Authorization do
     def can?(_user, :make_not_featured, %Asciicast{}), do: false
 
     def can?(user, _action, %Asciicast{user_id: uid}) do
+      user.id == uid
+    end
+
+    def can?(user, _action, %LiveStream{user_id: uid}) do
       user.id == uid
     end
 

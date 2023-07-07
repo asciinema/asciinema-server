@@ -2,7 +2,6 @@ defmodule AsciinemaWeb.RecordingView do
   alias AsciinemaWeb.PlayerView
   use AsciinemaWeb, :view
   import Scrivener.HTML
-  alias Asciinema.Recordings
   alias Asciinema.Recordings.Asciicast
   alias AsciinemaWeb.Endpoint
   alias AsciinemaWeb.Router.Helpers.Extra, as: RoutesX
@@ -14,6 +13,7 @@ defmodule AsciinemaWeb.RecordingView do
   defdelegate author_profile_path(stream), to: PlayerView
   defdelegate theme_name(stream), to: PlayerView
   defdelegate default_theme_name(stream), to: PlayerView
+  defdelegate terminal_font_family_options, to: PlayerView
 
   def player_src(asciicast), do: file_url(asciicast)
 
@@ -167,14 +167,6 @@ defmodule AsciinemaWeb.RecordingView do
     |> String.slice(0, String.length(c) - 1)
     |> String.split(",")
     |> Enum.join(";")
-  end
-
-  def description(asciicast) do
-    desc = String.trim("#{asciicast.description}")
-
-    if present?(desc) do
-      {:safe, HtmlSanitizeEx.basic_html(Earmark.as_html!(desc))}
-    end
   end
 
   def os_info(asciicast) do
@@ -522,15 +514,6 @@ defmodule AsciinemaWeb.RecordingView do
   end
 
   def recording_gc_days, do: Asciinema.recording_gc_days()
-
-  def terminal_font_family_options do
-    for family <- Recordings.custom_terminal_font_families() do
-      case family do
-        "FiraCode Nerd Font" -> {"Nerd Font - Fira Code", family}
-        "JetBrainsMono Nerd Font" -> {"Nerd Font - JetBrains Mono", family}
-      end
-    end
-  end
 
   defp cols(asciicast), do: asciicast.cols_override || asciicast.cols
 

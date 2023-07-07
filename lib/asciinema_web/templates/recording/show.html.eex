@@ -93,7 +93,7 @@
 
         <code>VIEWS=<%= views_count(@asciicast) %></code>
 
-        <%= if desc = description(@asciicast) do %>
+        <%= if desc = render_markdown(@asciicast.description) do %>
           <hr/>
 
           <div class="description">

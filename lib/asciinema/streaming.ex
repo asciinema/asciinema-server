@@ -1,7 +1,7 @@
 defmodule Asciinema.Streaming do
   import Ecto.Changeset
   import Ecto.Query
-  alias Asciinema.Repo
+  alias Asciinema.{Media, Repo}
   alias Asciinema.Streaming.LiveStream
 
   def find_live_stream_by_producer_token(token) do
@@ -52,11 +52,36 @@ defmodule Asciinema.Streaming do
     |> Repo.insert!()
   end
 
+  def change_live_stream(stream, attrs \\ %{})
+
+  def change_live_stream(stream, attrs) when is_map(attrs) do
+    stream
+    |> cast(attrs, [
+      :title,
+      :description,
+      :private,
+      :theme_name,
+      :terminal_line_height,
+      :terminal_font_family
+    ])
+    |> validate_number(:terminal_line_height,
+      greater_than_or_equal_to: 1.0,
+      less_than_or_equal_to: 2.0
+    )
+    |> validate_inclusion(:terminal_font_family, Media.custom_terminal_font_families())
+  end
+
   def update_live_stream(stream, attrs) when is_list(attrs) do
     stream
     |> change(attrs)
     |> change_last_activity()
     |> Repo.update!()
+  end
+
+  def update_live_stream(stream, attrs) when is_map(attrs) do
+    stream
+    |> change_live_stream(attrs)
+    |> Repo.update()
   end
 
   defp change_last_activity(changeset) do

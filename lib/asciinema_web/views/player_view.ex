@@ -1,5 +1,6 @@
 defmodule AsciinemaWeb.PlayerView do
   use AsciinemaWeb, :view
+  alias Asciinema.Media
   alias AsciinemaWeb.UserView
 
   @container_vertical_padding 2 * 4
@@ -33,5 +34,14 @@ defmodule AsciinemaWeb.PlayerView do
 
   def default_theme_name(%{user: user}) do
     UserView.theme_name(user) || "asciinema"
+  end
+
+  def terminal_font_family_options do
+    for family <- Media.custom_terminal_font_families() do
+      case family do
+        "FiraCode Nerd Font" -> {"Nerd Font - Fira Code", family}
+        "JetBrainsMono Nerd Font" -> {"Nerd Font - JetBrains Mono", family}
+      end
+    end
   end
 end

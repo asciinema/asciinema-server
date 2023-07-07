@@ -1,17 +1,71 @@
 defmodule AsciinemaWeb.LiveStreamController do
   use AsciinemaWeb, :controller
-  alias Asciinema.Streaming
+  alias Asciinema.{Authorization, Streaming}
   alias AsciinemaWeb.PlayerOpts
 
   plug :clear_main_class
+  plug :load_stream when action in [:show, :edit, :update]
+  plug :require_current_user when action in [:edit, :update]
+  plug :authorize, :stream when action in [:edit, :update]
 
-  def show(conn, %{"id" => id}) do
-    with {:ok, stream} <- Streaming.fetch_live_stream(id) do
-      render(conn, stream: stream, player_opts: player_opts(conn.params))
+  def show(conn, params) do
+    render(
+      conn,
+      player_opts: player_opts(params),
+      actions: stream_actions(conn.assigns.stream, conn.assigns.current_user)
+    )
+  end
+
+  def edit(conn, _params) do
+    changeset = Streaming.change_live_stream(conn.assigns.stream)
+    render(conn, "edit.html", changeset: changeset)
+  end
+
+  def update(conn, %{"live_stream" => params}) do
+    case Streaming.update_live_stream(conn.assigns.stream, params) do
+      {:ok, stream} ->
+        conn
+        |> put_flash(:info, "Live stream updated.")
+        |> redirect(to: Routes.live_stream_path(conn, :show, stream))
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        render(conn, "edit.html", changeset: changeset)
     end
   end
 
   defp player_opts(params) do
     PlayerOpts.parse(params, :live_stream)
+  end
+
+  @actions [
+    :edit,
+    :make_private,
+    :make_public
+  ]
+
+  defp stream_actions(stream, user) do
+    @actions
+    |> Enum.filter(&action_applicable?(&1, stream))
+    |> Enum.filter(&Authorization.can?(user, &1, stream))
+  end
+
+  defp action_applicable?(action, stream) do
+    case action do
+      :edit -> true
+      :make_private -> !stream.private
+      :make_public -> stream.private
+    end
+  end
+
+  defp load_stream(conn, _) do
+    case Streaming.fetch_live_stream(conn.params["id"]) do
+      {:ok, stream} ->
+        assign(conn, :stream, stream)
+
+      {:error, :not_found} ->
+        conn
+        |> AsciinemaWeb.FallbackController.call({:error, :not_found})
+        |> halt()
+    end
   end
 end
