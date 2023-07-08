@@ -1,0 +1,81 @@
+<div class="container">
+  <div class="row">
+    <div class="col-md-12 col-lg-9">
+      <%= form_for @changeset, ~p"/s/#{@changeset.data}", fn f -> %>
+        <legend>Live stream settings</legend>
+
+        <div class="form-group row">
+          <%= label(f, :title, class: "col-sm-4 col-md-3 col-lg-3 col-form-label") %>
+          <div class="col-sm-8 col-md-9 col-lg-9">
+            <%= text_input(f, :title, class: "form-control", autofocus: true) %>
+            <%= error_tag(f, :title) %>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <%= label(f, :description, class: "col-sm-4 col-md-3 col-lg-3 col-form-label") %>
+          <div class="col-sm-8 col-md-9 col-lg-9">
+            <%= textarea(f, :description, class: "form-control", rows: 10) %>
+            <%= error_tag(f, :description) %>
+            <small class="form-text text-muted">Parsed as Markdown.</small>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <%= label(f, :theme_name, "Terminal theme",
+            class: "col-sm-4 col-md-3 col-lg-3 col-form-label"
+          ) %>
+          <div class="col-sm-8 col-md-9 col-lg-9">
+            <%= select(f, :theme_name, theme_options(),
+              class: "form-control",
+              prompt: "Default (#{default_theme_name(@changeset.data)})"
+            ) %>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <%= label(f, :terminal_line_height, "Terminal line height",
+            class: "col-sm-4 col-md-3 col-lg-3 col-form-label"
+          ) %>
+          <div class="col-sm-8 col-md-9 col-lg-9">
+            <%= text_input(f, :terminal_line_height,
+              class: "form-control",
+              type: "number",
+              min: 1,
+              max: 2,
+              step: "any",
+              placeholder: "1.33333"
+            ) %>
+            <%= error_tag(f, :terminal_line_height) %>
+            <small class="form-text text-muted">
+              Relative to font size. Lowering it ~1.1 helps with alignment of block characters like ▀ ▄ █
+            </small>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <%= label(f, :terminal_font_family, "Terminal font family",
+            class: "col-sm-4 col-md-3 col-lg-3 col-form-label"
+          ) %>
+          <div class="col-sm-8 col-md-9 col-lg-9">
+            <%= select(f, :terminal_font_family, terminal_font_family_options(),
+              class: "form-control",
+              prompt: "Default (web safe, platform specific)"
+            ) %>
+            <small class="form-text text-muted">
+              Choose one of Nerd Font variants if icons or other symbols in your recording are not visible.
+            </small>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <div class="offset-sm-4 col-sm-8 offset-md-3 col-md-9 offset-lg-3 col-lg-9">
+            <br />
+            <%= submit("Save", class: "btn btn-primary") %>
+            <%= link("Cancel", to: ~p"/s/#{@changeset.data}", class: "btn") %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

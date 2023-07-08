@@ -1,0 +1,122 @@
+<section
+  class="cinema"
+  id="cinema"
+  style={"height: #{cinema_height(@stream)}vw; max-height: 75vh"}
+>
+</section>
+
+<section class="even info">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-xs-12">
+        <span class="author-avatar">
+          <%= link to: author_profile_path(@stream), title: author_username(@stream) do %>
+            <%= img_tag(author_avatar_url(@stream), class: "avatar") %>
+          <% end %>
+        </span>
+
+        <h2><%= title(@stream) %></h2>
+
+        <small>
+          by <%= link(author_username(@stream), to: author_profile_path(@stream)) %>
+
+          <%= if @stream.private do %>
+            <%= render("_private_badge.html") %>
+          <% end %>
+        </small>
+      </div>
+
+      <div class="col-md-4 col-xs-12 text-right actions">
+        <div class="dropdown actions-dropdown pull-right">
+          <%= if length(@actions) > 0 do %>
+            <button
+              class="btn btn-sm btn-secondary dropdown-toggle"
+              type="button"
+              data-toggle="dropdown"
+            >
+              Settings
+            </button>
+
+            <div class="dropdown-menu">
+              <%= if :edit in @actions do %>
+                <%= link("Edit", to: ~p"/s/#{@stream}/edit", class: "dropdown-item") %>
+              <% end %>
+
+              <%= if :make_private in @actions do %>
+                <%= link("Make private",
+                  to: ~p"/s/#{@stream}?live_stream[private]=1",
+                  class: "dropdown-item",
+                  method: :put
+                ) %>
+              <% end %>
+
+              <%= if :make_public in @actions do %>
+                <%= link("Make public",
+                  to: ~p"/s/#{@stream}?live_stream[private]=0",
+                  class: "dropdown-item",
+                  method: :put
+                ) %>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="odd meta">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12 col-xs-12">
+        <%= render(PlayerView, "_info_icon.html") %>
+
+        <%= cond do %>
+          <% @stream.online -> %>
+            Online
+          <% @stream.last_activity_at -> %>
+            Last streamed <%= time_ago_tag(@stream.last_activity_at) %>
+          <% true -> %>
+            Stream hasn't started yet
+        <% end %>
+
+        <%= if desc = render_markdown(@stream.description) do %>
+          <hr />
+
+          <div class="description">
+            <%= desc %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%= render(RecordingView, "_user_recordings.html",
+  conn: @conn,
+  user: @stream.user,
+  asciicasts: @author_asciicasts
+) %>
+
+<script>
+  window.addEventListener('load', function() {
+    const container = document.getElementById('cinema');
+    const opts = <%= safe_json(player_opts(@stream, @player_opts)) %>;
+
+    const player = window.createPlayer(
+      <%= safe_json(player_src(@stream)) %>,
+      container,
+      { ...opts, fit: 'both', logger: console }
+    );
+
+    const containerVerticalPadding = 2 * 4;
+    const approxCharWidth = 7;
+    const approxCharHeight = 16;
+
+    player.addEventListener('reset', ({ cols, rows }) => {
+      const ratio = (rows * approxCharHeight) / (cols * approxCharWidth);
+      const height = Math.round(containerVerticalPadding + 100 * ratio);
+      container.style.height = `${height}vw`;
+    });
+  });
+</script>
