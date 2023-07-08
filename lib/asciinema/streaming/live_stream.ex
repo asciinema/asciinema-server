@@ -14,6 +14,8 @@ defmodule Asciinema.Streaming.LiveStream do
     field :theme_name, :string
     field :terminal_line_height, :float
     field :terminal_font_family, :string
+    field :current_viewer_count, :integer
+    field :peak_viewer_count, :integer
 
     timestamps()
 

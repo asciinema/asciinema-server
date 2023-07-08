@@ -1,5 +1,6 @@
 defmodule Asciinema.Streaming.LiveStreamServer do
   use GenServer, restart: :transient
+  alias Asciinema.Streaming.ViewerTracker
   alias Asciinema.{PubSub, Streaming, Vt}
   require Logger
 
@@ -43,6 +44,8 @@ defmodule Asciinema.Streaming.LiveStreamServer do
 
     Process.send_after(self(), :update_stream, 1_000)
     stream = Streaming.get_live_stream(stream_id)
+    ViewerTracker.subscribe(stream_id)
+    viewer_count = ViewerTracker.count(stream_id)
 
     state = %{
       stream: stream,
@@ -52,7 +55,8 @@ defmodule Asciinema.Streaming.LiveStreamServer do
       vt_size: nil,
       last_stream_time: nil,
       last_feed_time: nil,
-      shutdown_timer: nil
+      shutdown_timer: nil,
+      viewer_count: viewer_count
     }
 
     state =
@@ -127,9 +131,13 @@ defmodule Asciinema.Streaming.LiveStreamServer do
   @update_stream_interval 10_000
 
   @impl true
+  def handle_info({:viewers, {_, count}}, state) do
+    {:noreply, %{state | viewer_count: count}}
+  end
+
   def handle_info(:update_stream, state) do
     Process.send_after(self(), :update_stream, @update_stream_interval)
-    stream = Streaming.update_live_stream(state.stream, [])
+    stream = Streaming.update_live_stream(state.stream, current_viewer_count: state.viewer_count)
 
     {:noreply, %{state | stream: stream}}
   end

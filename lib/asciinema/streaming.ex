@@ -74,6 +74,7 @@ defmodule Asciinema.Streaming do
   def update_live_stream(stream, attrs) when is_list(attrs) do
     stream
     |> change(attrs)
+    |> update_peak_viewer_count()
     |> change_last_activity()
     |> Repo.update!()
   end
@@ -82,6 +83,17 @@ defmodule Asciinema.Streaming do
     stream
     |> change_live_stream(attrs)
     |> Repo.update()
+  end
+
+  defp update_peak_viewer_count(changeset) do
+    case get_change(changeset, :current_viewer_count, :not_changed) do
+      :not_changed ->
+        changeset
+
+      count ->
+        peak_viewer_count = fetch_field!(changeset, :peak_viewer_count) || 0
+        change(changeset, peak_viewer_count: max(count, peak_viewer_count))
+    end
   end
 
   defp change_last_activity(changeset) do
