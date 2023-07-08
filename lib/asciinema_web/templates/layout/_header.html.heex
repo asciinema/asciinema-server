@@ -2,10 +2,18 @@
   <nav class="navbar navbar-expand-md navbar-dark bg-dark">
     <div class="container">
       <a class="navbar-brand" href={root_path()}>
-        <img src={Routes.static_path(@conn, "/images/logo-red.svg")}>
+        <img src={Routes.static_path(@conn, "/images/logo-red.svg")} />
       </a>
 
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarNavDropdown"
+        aria-controls="navbarNavDropdown"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
         <span class="navbar-toggler-icon"></span>
       </button>
 
@@ -16,7 +24,9 @@
           </li>
 
           <li class="nav-item">
-            <a class="nav-link" href={Routes.doc_path(@conn, :show, :"getting-started")}>Record</a>
+            <a class="nav-link" href={Routes.doc_path(@conn, :show, :"getting-started")}>
+              Record
+            </a>
           </li>
 
           <li class="nav-item">
@@ -28,20 +38,26 @@
           <%= if @current_user do %>
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">
-
-                <img class="avatar" src={avatar_url(@current_user)}><%= @current_user.username || @current_user.email %>
+                <img class="avatar" src={avatar_url(@current_user)} /><%= @current_user.username ||
+                  @current_user.email %>
               </a>
               <div class="dropdown-menu">
                 <a class="dropdown-item" href={profile_path(@current_user)}>Profile</a>
                 <a class="dropdown-item" href={Routes.user_path(@conn, :edit)}>Settings</a>
-                <%= link "Log out", to: Routes.session_path(@conn, :delete), class: "dropdown-item logout", method: :delete %>
+                <%= link("Log out",
+                  to: Routes.session_path(@conn, :delete),
+                  class: "dropdown-item logout",
+                  method: :delete
+                ) %>
               </div>
             </li>
           <% else %>
             <li class="nav-item">
               <a class="nav-link" href={Routes.login_path(@conn, :new)} id="log-in">
                 Log in
-                <%= if sign_up_enabled?(@conn) do %> / Sign up<% end %>
+                <%= if sign_up_enabled?(@conn) do %>
+                  / Sign up
+                <% end %>
               </a>
             </li>
           <% end %>
