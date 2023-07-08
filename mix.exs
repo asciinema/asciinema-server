@@ -5,7 +5,7 @@ defmodule Asciinema.MixProject do
     [
       app: :asciinema,
       version: "0.1.0",
-      elixir: "~> 1.12",
+      elixir: "~> 1.14",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
@@ -50,7 +50,7 @@ defmodule Asciinema.MixProject do
       {:ex_aws, "~> 2.2"},
       {:ex_aws_s3, "~> 2.1"},
       {:ex_machina, "~> 2.4", only: :test},
-      {:gettext, "~> 0.18"},
+      {:gettext, "~> 0.20"},
       {:hackney, "~> 1.18"},
       {:horde, "~> 0.8.7"},
       {:html_sanitize_ex, "~> 1.4"},
@@ -93,6 +93,7 @@ defmodule Asciinema.MixProject do
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
+      setup: ["deps.get", "ecto.setup"],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"]

@@ -8,7 +8,8 @@ defmodule AsciinemaWeb.Endpoint do
   @session_options [
     store: :cookie,
     key: "_asciinema_key",
-    signing_salt: "qJL+3s0T"
+    signing_salt: "qJL+3s0T",
+    same_site: "Lax"
   ]
 
   # socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]]

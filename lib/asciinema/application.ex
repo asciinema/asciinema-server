@@ -16,7 +16,7 @@ defmodule Asciinema.Application do
     children = [
       # Start cluster supervisor
       {Cluster.Supervisor, [topologies, [name: Asciinema.ClusterSupervisor]]},
-      # Start Phoenix PubSub
+      # Start the PubSub system
       {Phoenix.PubSub, [name: Asciinema.PubSub, adapter: Phoenix.PubSub.PG2]},
       # Start live stream viewer tracker
       {Asciinema.Streaming.ViewerTracker, [pubsub_server: Asciinema.PubSub]},
