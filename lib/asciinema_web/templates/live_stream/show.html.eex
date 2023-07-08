@@ -30,15 +30,15 @@
 
             <div class="dropdown-menu">
               <%= if :edit in @actions do %>
-                <%= link "Edit", to: Routes.live_stream_path(@conn, :edit, @stream), class: "dropdown-item" %>
+                <%= link "Edit", to: ~p"/s/#{@stream}/edit", class: "dropdown-item" %>
               <% end %>
 
               <%= if :make_private in @actions do %>
-                <%= link "Make private", to: Routes.live_stream_path(@conn, :update, @stream, live_stream: [private: 1]), class: "dropdown-item", method: :put %>
+                <%= link "Make private", to: ~p"/s/#{@stream}?live_stream[private]=1", class: "dropdown-item", method: :put %>
               <% end %>
 
               <%= if :make_public in @actions do %>
-                <%= link "Make public", to: Routes.live_stream_path(@conn, :update, @stream, live_stream: [private: 0]), class: "dropdown-item", method: :put %>
+                <%= link "Make public", to: ~p"/s/#{@stream}?live_stream[private]=0", class: "dropdown-item", method: :put %>
               <% end %>
             </div>
           <% end %>

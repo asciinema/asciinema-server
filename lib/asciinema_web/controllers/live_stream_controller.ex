@@ -29,7 +29,7 @@ defmodule AsciinemaWeb.LiveStreamController do
       {:ok, stream} ->
         conn
         |> put_flash(:info, "Live stream updated.")
-        |> redirect(to: Routes.live_stream_path(conn, :show, stream))
+        |> redirect(to: ~p"/s/#{stream}")
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "edit.html", changeset: changeset)
