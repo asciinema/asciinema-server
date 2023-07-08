@@ -16,6 +16,10 @@ defmodule Asciinema.Application do
     children = [
       # Start cluster supervisor
       {Cluster.Supervisor, [topologies, [name: Asciinema.ClusterSupervisor]]},
+      # Start Phoenix PubSub
+      {Phoenix.PubSub, [name: Asciinema.PubSub, adapter: Phoenix.PubSub.PG2]},
+      # Start live stream viewer tracker
+      {Asciinema.Streaming.ViewerTracker, [pubsub_server: Asciinema.PubSub]},
       # Start telemetry reporters
       Asciinema.Telemetry,
       # Start the Ecto repository
@@ -24,8 +28,6 @@ defmodule Asciinema.Application do
       {PlugAttack.Storage.Ets, name: AsciinemaWeb.PlugAttack.Storage, clean_period: 60_000},
       # Start the endpoint when the application starts
       AsciinemaWeb.Endpoint,
-      # Start Phoenix PubSub
-      {Phoenix.PubSub, [name: Asciinema.PubSub, adapter: Phoenix.PubSub.PG2]},
       # Start PNG generator poolboy pool
       :poolboy.child_spec(:worker, Asciinema.PngGenerator.Rsvg.poolboy_config(), []),
       # Start Oban

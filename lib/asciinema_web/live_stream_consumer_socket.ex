@@ -1,6 +1,6 @@
 defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   alias Asciinema.Streaming
-  alias Asciinema.Streaming.LiveStreamServer
+  alias Asciinema.Streaming.{LiveStreamServer, ViewerTracker}
   require Logger
 
   @behaviour Phoenix.Socket.Transport
@@ -35,6 +35,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   def init(state) do
     Logger.info("consumer/#{state.stream_id}: connected")
     LiveStreamServer.join(state.stream_id)
+    ViewerTracker.track(state.stream_id)
     Process.send_after(self(), :reset_timeout, @reset_timeout)
     Process.send_after(self(), :ping, @ping_interval)
     send(self(), :push_alis_header)
@@ -88,6 +89,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   def terminate(reason, state) do
     Logger.info("consumer/#{state.stream_id}: terminating (#{inspect(reason)})")
     Logger.debug("consumer/#{state.stream_id}: state: #{inspect(state)}")
+    ViewerTracker.untrack(state.stream_id)
 
     :ok
   end
