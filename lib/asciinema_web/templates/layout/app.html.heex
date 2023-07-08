@@ -11,8 +11,8 @@
   </head>
 
   <body class={"l-app " <> body_class(@conn)}>
-    <%= render "_header.html", conn: @conn, current_user: @current_user %>
-    <%= render "_flash.html", conn: @conn %>
+    <%= render("_header.html", conn: @conn, current_user: @current_user) %>
+    <%= render("_flash.html", flash: @flash) %>
 
     <main role="main" class={main_class(@conn)}>
       <%= @inner_content %>

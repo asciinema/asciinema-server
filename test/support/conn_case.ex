@@ -28,6 +28,10 @@ defmodule AsciinemaWeb.ConnCase do
       # The default endpoint for testing
       @endpoint AsciinemaWeb.Endpoint
 
+      defp flash(conn, key) do
+        Phoenix.Flash.get(conn.assigns.flash, key)
+      end
+
       def log_in(conn, user) do
         assign(conn, :current_user, user)
       end

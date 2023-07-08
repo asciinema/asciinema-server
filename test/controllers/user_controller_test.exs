@@ -13,7 +13,7 @@ defmodule Asciinema.UserControllerTest do
 
       conn = post(conn, "/users")
       assert redirected_to(conn, 302) == "/username/new"
-      assert get_flash(conn, :info) =~ ~r/welcome/i
+      assert flash(conn, :info) =~ ~r/welcome/i
     end
 
     test "failed sign-up due to email taken", %{conn: conn} do
@@ -27,7 +27,7 @@ defmodule Asciinema.UserControllerTest do
 
       conn = post(conn, "/users")
       assert redirected_to(conn, 302) == "/login/new"
-      assert get_flash(conn, :error) =~ ~r/already/i
+      assert flash(conn, :error) =~ ~r/already/i
     end
 
     test "failed sign-up due to invalid token", %{conn: conn} do
@@ -39,7 +39,7 @@ defmodule Asciinema.UserControllerTest do
 
       conn = post(conn, "/users")
       assert redirected_to(conn, 302) == "/login/new"
-      assert get_flash(conn, :error) =~ ~r/invalid/i
+      assert flash(conn, :error) =~ ~r/invalid/i
     end
   end
 
@@ -102,7 +102,7 @@ defmodule Asciinema.UserControllerTest do
       conn = log_in(conn, user)
       conn = put conn, "/user", %{user: %{name: "Rick"}}
       location = List.first(get_resp_header(conn, "location"))
-      assert get_flash(conn, :info) =~ ~r/saved/i
+      assert flash(conn, :info) =~ ~r/saved/i
       assert response(conn, 302)
       assert location == "/~#{user.username}"
     end
