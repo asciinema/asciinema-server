@@ -77,7 +77,7 @@
   <div class="container">
     <div class="row">
       <div class="col-md-12 col-xs-12">
-        <%= render PlayerView, "_info_icon.html" %>
+        <%= AsciinemaWeb.Icons.info_icon(assigns) %>
 
         <%= if os = os_info(@asciicast) do %>
           <code>OS=<%= os %></code>

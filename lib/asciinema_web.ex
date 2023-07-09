@@ -41,6 +41,28 @@ defmodule AsciinemaWeb do
     end
   end
 
+  def new_controller do
+    quote do
+      use Phoenix.Controller,
+        formats: [:html, :json]
+
+      import Plug.Conn
+      import AsciinemaWeb.Gettext
+      import AsciinemaWeb.Router.Helpers.Extra
+      import AsciinemaWeb.Auth, only: [require_current_user: 2]
+      import AsciinemaWeb.Plug.ReturnTo
+      import AsciinemaWeb.Plug.Authz
+
+      unquote(verified_routes())
+
+      action_fallback AsciinemaWeb.FallbackController
+
+      defp clear_main_class(conn, _) do
+        assign(conn, :main_class, "")
+      end
+    end
+  end
+
   def view do
     quote do
       use Phoenix.View,
@@ -61,7 +83,7 @@ defmodule AsciinemaWeb do
       use Phoenix.LiveView,
         layout: {AsciinemaWeb.LayoutView, "live.html"}
 
-      unquote(view_helpers())
+      unquote(html_helpers())
     end
   end
 
@@ -69,7 +91,7 @@ defmodule AsciinemaWeb do
     quote do
       use Phoenix.LiveComponent
 
-      unquote(view_helpers())
+      unquote(html_helpers())
     end
   end
 
@@ -108,6 +130,7 @@ defmodule AsciinemaWeb do
       import Phoenix.LiveView.Helpers
 
       # Import basic rendering functionality (render, render_layout, etc)
+      use Phoenix.Component
       import Phoenix.View
 
       import AsciinemaWeb.ErrorHelpers
@@ -117,6 +140,36 @@ defmodule AsciinemaWeb do
       import AsciinemaWeb.Router.Helpers.Extra
       import AsciinemaWeb.ApplicationView
 
+      # Routes generation with the ~p sigil
+      unquote(verified_routes())
+    end
+  end
+
+  def html do
+    quote do
+      use Phoenix.Component
+      import Phoenix.View
+      import AsciinemaWeb.ApplicationView
+
+      # Include general helpers for rendering HTML
+      unquote(html_helpers())
+    end
+  end
+
+  defp html_helpers do
+    quote do
+      # HTML escaping functionality
+      import Phoenix.HTML
+
+      # Core UI components and translation
+      import AsciinemaWeb.CoreComponents
+      import AsciinemaWeb.Gettext
+      import AsciinemaWeb.Icons
+
+      # Shortcut for generating JS commands
+      alias Phoenix.LiveView.JS
+
+      # Routes generation with the ~p sigil
       unquote(verified_routes())
     end
   end

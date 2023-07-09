@@ -51,7 +51,8 @@ defmodule Asciinema.LiveStreamControllerTest do
     end
 
     test "requires logged in user", %{conn: conn, stream: stream} do
-      conn = get(conn, Routes.live_stream_path(conn, :edit, stream))
+      conn = get(conn, ~p"/s/#{stream}/edit")
+
       assert redirected_to(conn, 302) == "/login/new"
     end
 
@@ -59,14 +60,14 @@ defmodule Asciinema.LiveStreamControllerTest do
       conn = log_in(conn, insert(:user))
 
       assert_raise(Authorization.ForbiddenError, fn ->
-        get(conn, Routes.live_stream_path(conn, :edit, stream))
+        get(conn, ~p"/s/#{stream}/edit")
       end)
     end
 
     test "displays form", %{conn: conn, stream: stream, user: user} do
       conn = log_in(conn, user)
 
-      conn = get(conn, Routes.live_stream_path(conn, :edit, stream))
+      conn = get(conn, ~p"/s/#{stream}/edit")
 
       assert html_response(conn, 200) =~ "Save"
     end
@@ -75,7 +76,7 @@ defmodule Asciinema.LiveStreamControllerTest do
       conn = log_in(conn, user)
 
       attrs = %{live_stream: %{title: "Haha!"}}
-      conn = put conn, Routes.live_stream_path(conn, :update, stream), attrs
+      conn = put conn, ~p"/s/#{stream}", attrs
 
       location = List.first(get_resp_header(conn, "location"))
       assert flash(conn, :info) =~ ~r/updated/i

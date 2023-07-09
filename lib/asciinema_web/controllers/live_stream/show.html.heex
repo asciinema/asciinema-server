@@ -10,55 +10,53 @@
     <div class="row">
       <div class="col-md-8 col-xs-12">
         <span class="author-avatar">
-          <%= link to: author_profile_path(@stream), title: author_username(@stream) do %>
-            <%= img_tag(author_avatar_url(@stream), class: "avatar") %>
-          <% end %>
+          <.link navigate={author_profile_path(@stream)} title={author_username(@stream)}>
+            <img src={author_avatar_url(@stream)} class="avatar" />
+          </.link>
         </span>
 
         <h2><%= title(@stream) %></h2>
 
         <small>
-          by <%= link(author_username(@stream), to: author_profile_path(@stream)) %>
-
-          <%= if @stream.private do %>
-            <%= render("_private_badge.html") %>
-          <% end %>
+          by
+          <.link navigate={author_profile_path(@stream)}><%= author_username(@stream) %></.link>
+          <.private_badge :if={@stream.private} />
         </small>
       </div>
 
       <div class="col-md-4 col-xs-12 text-right actions">
-        <div class="dropdown actions-dropdown pull-right">
-          <%= if length(@actions) > 0 do %>
-            <button
-              class="btn btn-sm btn-secondary dropdown-toggle"
-              type="button"
-              data-toggle="dropdown"
+        <div :if={length(@actions) > 0} class="dropdown actions-dropdown pull-right">
+          <button
+            class="btn btn-sm btn-secondary dropdown-toggle"
+            type="button"
+            data-toggle="dropdown"
+          >
+            Settings
+          </button>
+
+          <div class="dropdown-menu">
+            <.link :if={:edit in @actions} navigate={~p"/s/#{@stream}/edit"} class="dropdown-item">
+              Edit
+            </.link>
+
+            <.link
+              :if={:make_private in @actions}
+              href={~p"/s/#{@stream}?live_stream[private]=1"}
+              class="dropdown-item"
+              method="put"
             >
-              Settings
-            </button>
+              Make private
+            </.link>
 
-            <div class="dropdown-menu">
-              <%= if :edit in @actions do %>
-                <%= link("Edit", to: ~p"/s/#{@stream}/edit", class: "dropdown-item") %>
-              <% end %>
-
-              <%= if :make_private in @actions do %>
-                <%= link("Make private",
-                  to: ~p"/s/#{@stream}?live_stream[private]=1",
-                  class: "dropdown-item",
-                  method: :put
-                ) %>
-              <% end %>
-
-              <%= if :make_public in @actions do %>
-                <%= link("Make public",
-                  to: ~p"/s/#{@stream}?live_stream[private]=0",
-                  class: "dropdown-item",
-                  method: :put
-                ) %>
-              <% end %>
-            </div>
-          <% end %>
+            <.link
+              :if={:make_public in @actions}
+              href={~p"/s/#{@stream}?live_stream[private]=0"}
+              class="dropdown-item"
+              method="put"
+            >
+              Make public
+            </.link>
+          </div>
         </div>
       </div>
     </div>
@@ -69,13 +67,13 @@
   <div class="container">
     <div class="row">
       <div class="col-md-12 col-xs-12">
-        <%= render(PlayerView, "_info_icon.html") %>
+        <.info_icon />
 
         <%= cond do %>
           <% @stream.online -> %>
             Online
           <% @stream.last_activity_at -> %>
-            Last streamed <%= time_ago_tag(@stream.last_activity_at) %>
+            Last streamed <.time_ago time={@stream.last_activity_at} />
           <% true -> %>
             Stream hasn't started yet
         <% end %>

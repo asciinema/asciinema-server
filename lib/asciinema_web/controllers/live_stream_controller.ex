@@ -1,5 +1,5 @@
 defmodule AsciinemaWeb.LiveStreamController do
-  use AsciinemaWeb, :controller
+  use AsciinemaWeb, :new_controller
   alias Asciinema.{Authorization, Recordings, Streaming}
   alias AsciinemaWeb.PlayerOpts
 
@@ -13,6 +13,7 @@ defmodule AsciinemaWeb.LiveStreamController do
 
     render(
       conn,
+      :show,
       player_opts: player_opts(params),
       actions: stream_actions(stream, conn.assigns.current_user),
       author_asciicasts: Recordings.public_asciicasts(stream.user)
@@ -21,7 +22,7 @@ defmodule AsciinemaWeb.LiveStreamController do
 
   def edit(conn, _params) do
     changeset = Streaming.change_live_stream(conn.assigns.stream)
-    render(conn, "edit.html", changeset: changeset)
+    render(conn, :edit, changeset: changeset)
   end
 
   def update(conn, %{"live_stream" => params}) do
@@ -32,7 +33,7 @@ defmodule AsciinemaWeb.LiveStreamController do
         |> redirect(to: ~p"/s/#{stream}")
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, "edit.html", changeset: changeset)
+        render(conn, :edit, changeset: changeset)
     end
   end
 
