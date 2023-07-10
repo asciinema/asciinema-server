@@ -134,6 +134,7 @@ defmodule AsciinemaWeb do
 
       import AsciinemaWeb.ErrorHelpers
       import AsciinemaWeb.Gettext
+      import AsciinemaWeb.Icons
       alias AsciinemaWeb.Router.Helpers, as: Routes
 
       import AsciinemaWeb.Router.Helpers.Extra
