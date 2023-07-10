@@ -37,7 +37,7 @@ defmodule AsciinemaWeb.LiveStreamHTML do
     PlayerView.cinema_height(cols(stream), rows(stream))
   end
 
-  def title(stream), do: stream.title || "Live stream"
+  def title(stream), do: stream.title || "#{author_username(stream)}'s live stream"
 
   defp ws_consumer_url(live_stream) do
     param = Phoenix.Param.to_param(live_stream)
