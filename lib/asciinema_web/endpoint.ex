@@ -12,9 +12,7 @@ defmodule AsciinemaWeb.Endpoint do
     same_site: "Lax"
   ]
 
-  # socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]]
-
-  # socket "/socket", AsciinemaWeb.UserSocket, websocket: true
+  socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]]
 
   # compress helps at all?
   socket "/ws/S/:producer_token", AsciinemaWeb.LiveStreamProducerSocket,

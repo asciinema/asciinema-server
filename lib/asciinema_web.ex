@@ -80,8 +80,7 @@ defmodule AsciinemaWeb do
 
   def live_view do
     quote do
-      use Phoenix.LiveView,
-        layout: {AsciinemaWeb.LayoutView, "live.html"}
+      use Phoenix.LiveView
 
       unquote(html_helpers())
     end
