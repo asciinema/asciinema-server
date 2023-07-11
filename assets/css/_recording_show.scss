@@ -35,6 +35,20 @@
       color: #212529;
       background-color: #f7f7f7;
     }
+
+    .status-line-item {
+      margin-right: 2em;
+
+      .icon {
+        svg {
+          font-size: 1.5em;
+        }
+      }
+
+      .icon.icon-live {
+        margin-right: 1em;
+      }
+    }
   }
 }
 

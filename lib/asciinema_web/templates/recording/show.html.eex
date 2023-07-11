@@ -77,21 +77,23 @@
   <div class="container">
     <div class="row">
       <div class="col-md-12 col-xs-12">
-        <%= AsciinemaWeb.Icons.info_outline_icon(assigns) %>
+        <div class="status-line">
+          <% os = os_info(@asciicast) %>
+          <% term = term_info(@asciicast) %>
+          <% shell = shell_info(@asciicast) %>
 
-        <%= if os = os_info(@asciicast) do %>
-          <code>OS=<%= os %></code>
-        <% end %>
+          <%= if Enum.any?([os, term, shell]) do %>
+            <span class="status-line-item" title="Terminal environment">
+              <%= AsciinemaWeb.Icons.terminal_solid_icon(assigns) %>
+              <%= Enum.join([os, term, shell], " ◆ ") %>
+            </span>
+          <% end %>
 
-        <%= if shell = shell_info(@asciicast) do %>
-          <code>SHELL=<%= shell %></code>
-        <% end %>
-
-        <%= if term = term_info(@asciicast) do %>
-          <code>TERM=<%= term %></code>
-        <% end %>
-
-        <code>VIEWS=<%= views_count(@asciicast) %></code>
+          <span class="status-line-item" title="Total views">
+            <%= AsciinemaWeb.Icons.eye_solid_icon(assigns) %>
+            <%= views_count(@asciicast) %>
+          </span>
+        </div>
 
         <%= if desc = render_markdown(@asciicast.description) do %>
           <hr/>

@@ -183,6 +183,7 @@ defmodule AsciinemaWeb.RecordingView do
         |> String.replace("-", "/")
         |> String.split("/")
         |> List.first()
+        |> String.replace(~r/^Linux$/i, "GNU/Linux")
         |> String.replace(~r/Darwin/i, "macOS")
       end
     end
@@ -191,7 +192,7 @@ defmodule AsciinemaWeb.RecordingView do
   defp os_from_uname(asciicast) do
     if uname = asciicast.uname do
       cond do
-        uname =~ ~r/Linux/i -> "Linux"
+        uname =~ ~r/Linux/i -> "GNU/Linux"
         uname =~ ~r/Darwin/i -> "macOS"
         true -> uname |> String.split(~r/[\s-]/) |> List.first()
       end
@@ -199,7 +200,9 @@ defmodule AsciinemaWeb.RecordingView do
   end
 
   def shell_info(asciicast) do
-    Path.basename("#{asciicast.shell}")
+    if asciicast.shell do
+      Path.basename("#{asciicast.shell}")
+    end
   end
 
   def term_info(asciicast) do
