@@ -61,7 +61,7 @@ defmodule AsciinemaWeb.RecordingController do
         "show.html",
         page_title: AsciinemaWeb.RecordingView.title(asciicast),
         asciicast: asciicast,
-        playback_options: playback_options(conn.params),
+        player_opts: player_opts(conn.params),
         actions: asciicast_actions(asciicast, conn.assigns.current_user),
         author_asciicasts: Recordings.other_public_asciicasts(asciicast)
       )
@@ -191,7 +191,7 @@ defmodule AsciinemaWeb.RecordingController do
       |> put_status(410)
       |> render("archived.html")
     else
-      render(conn, "iframe.html", playback_options: playback_options(params))
+      render(conn, "iframe.html", player_opts: player_opts(params))
     end
   end
 
@@ -290,7 +290,7 @@ defmodule AsciinemaWeb.RecordingController do
     end
   end
 
-  defp playback_options(params) do
+  defp player_opts(params) do
     params
     |> Ext.Map.rename(%{"t" => "startAt", "i" => "idleTimeLimit"})
     |> PlayerOpts.parse(:recording)

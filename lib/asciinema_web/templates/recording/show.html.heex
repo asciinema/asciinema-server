@@ -157,7 +157,7 @@
 
 <script>
   window.addEventListener('load', function() {
-    const opts = <%= safe_json(player_opts(@asciicast, @playback_options)) %>;
+    const opts = <%= safe_json(player_opts(@asciicast, @player_opts)) %>;
 
     const player = window.createPlayer(
       <%= safe_json(player_src(@asciicast)) %>,
