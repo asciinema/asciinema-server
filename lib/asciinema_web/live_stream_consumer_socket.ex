@@ -65,8 +65,12 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     {:push, feed_message(event), state}
   end
 
-  def handle_info({:live_stream, :offline}, state) do
+  def handle_info({:live_stream, {:status, :offline}}, state) do
     {:push, offline_message(), state}
+  end
+
+  def handle_info({:live_stream, {:status, :online}}, state) do
+    {:ok, state}
   end
 
   def handle_info({:live_stream, _}, %{reset: false} = state) do

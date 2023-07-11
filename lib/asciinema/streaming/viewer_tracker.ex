@@ -4,6 +4,10 @@ defmodule Asciinema.Streaming.ViewerTracker do
   alias Phoenix.Tracker
   require Logger
 
+  defmodule Update do
+    defstruct [:stream_id, :viewer_count]
+  end
+
   # Public API
 
   def start_link(opts) do
@@ -60,7 +64,7 @@ defmodule Asciinema.Streaming.ViewerTracker do
     for stream_id <- stream_ids do
       count = Map.get(state.counts, stream_id, 0)
       Logger.debug("tracker/#{stream_id}: viewer count: #{count}")
-      PubSub.broadcast(topic_name(stream_id), {:viewers, {stream_id, count}})
+      PubSub.broadcast(topic_name(stream_id), %Update{stream_id: stream_id, viewer_count: count})
     end
 
     {:noreply, state}
