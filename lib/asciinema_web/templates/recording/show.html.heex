@@ -1,0 +1,182 @@
+<section
+  class="cinema"
+  id="cinema"
+  style={"height: #{cinema_height(@asciicast)}vw; max-height: 75vh"}
+>
+</section>
+
+<section class="even info">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-xs-12">
+        <span class="author-avatar">
+          <%= link to: author_profile_path(@asciicast), title: author_username(@asciicast) do %>
+            <%= img_tag(author_avatar_url(@asciicast), class: "avatar") %>
+          <% end %>
+        </span>
+
+        <h2>
+          <%= title(@asciicast) %>
+        </h2>
+
+        <small>
+          by <%= link(author_username(@asciicast), to: author_profile_path(@asciicast)) %>
+          <%= time_ago_tag(@asciicast.inserted_at) %>
+
+          <%= if @asciicast.private do %>
+            <%= render("_private_badge.html") %>
+          <% end %>
+
+          <%= if @asciicast.featured do %>
+            <%= render("_featured_badge.html") %>
+          <% end %>
+        </small>
+      </div>
+
+      <div class="col-md-4 col-xs-12 text-right actions">
+        <div class="dropdown actions-dropdown pull-right">
+          <%= link("Share",
+            to: "#",
+            class: "btn btn-sm btn-secondary",
+            id: "share-link",
+            "data-toggle": "modal",
+            "data-target": "#share-modal"
+          ) %>
+
+          <%= if download_filename(@asciicast) do %>
+            <%= link("Download",
+              to: "#",
+              class: "btn btn-sm btn-secondary",
+              id: "download-link",
+              "data-toggle": "modal",
+              "data-target": "#download-modal"
+            ) %>
+          <% end %>
+
+          <%= if length(@actions) > 0 do %>
+            <button
+              class="btn btn-sm btn-secondary dropdown-toggle"
+              type="button"
+              data-toggle="dropdown"
+            >
+              Settings
+            </button>
+
+            <div class="dropdown-menu">
+              <%= if :edit in @actions do %>
+                <%= link("Edit",
+                  to: Routes.recording_path(@conn, :edit, @asciicast),
+                  class: "dropdown-item"
+                ) %>
+              <% end %>
+
+              <%= if :make_featured in @actions do %>
+                <%= link("Make featured",
+                  to: Routes.recording_path(@conn, :update, @asciicast, asciicast: [featured: 1]),
+                  class: "dropdown-item",
+                  method: :put
+                ) %>
+              <% end %>
+
+              <%= if :make_not_featured in @actions do %>
+                <%= link("Make not featured",
+                  to: Routes.recording_path(@conn, :update, @asciicast, asciicast: [featured: 0]),
+                  class: "dropdown-item",
+                  method: :put
+                ) %>
+              <% end %>
+
+              <%= if :make_private in @actions do %>
+                <%= link("Make private",
+                  to: Routes.recording_path(@conn, :update, @asciicast, asciicast: [private: 1]),
+                  class: "dropdown-item",
+                  method: :put
+                ) %>
+              <% end %>
+
+              <%= if :make_public in @actions do %>
+                <%= link("Make public",
+                  to: Routes.recording_path(@conn, :update, @asciicast, asciicast: [private: 0]),
+                  class: "dropdown-item",
+                  method: :put
+                ) %>
+              <% end %>
+
+              <%= if :delete in @actions do %>
+                <%= link("Delete",
+                  to: Routes.recording_path(@conn, :delete, @asciicast),
+                  class: "dropdown-item text-danger",
+                  method: :delete,
+                  data: [confirm: "Are you sure you want to delete this?"]
+                ) %>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="odd meta">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12 col-xs-12">
+        <div class="status-line">
+          <% os = os_info(@asciicast) %>
+          <% term = term_info(@asciicast) %>
+          <% shell = shell_info(@asciicast) %>
+
+          <%= if Enum.any?([os, term, shell]) do %>
+            <span class="status-line-item" title="Terminal environment">
+              <%= AsciinemaWeb.Icons.terminal_solid_icon(assigns) %>
+              <%= Enum.join([os, term, shell], " ◆ ") %>
+            </span>
+          <% end %>
+
+          <span class="status-line-item" title="Total views">
+            <%= AsciinemaWeb.Icons.eye_solid_icon(assigns) %>
+            <%= views_count(@asciicast) %>
+          </span>
+        </div>
+
+        <%= if desc = render_markdown(@asciicast.description) do %>
+          <hr />
+
+          <div class="description">
+            <%= desc %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%= render("_user_recordings.html",
+  conn: @conn,
+  user: @asciicast.user,
+  asciicasts: @author_asciicasts
+) %>
+
+<%= render("_share_modal.html", conn: @conn, asciicast: @asciicast) %>
+
+<%= if download_filename(@asciicast) do %>
+  <%= render("_download_modal.html", conn: @conn, asciicast: @asciicast) %>
+<% end %>
+
+<script>
+  window.addEventListener('load', function() {
+    const opts = <%= safe_json(player_opts(@asciicast, @playback_options)) %>;
+
+    const player = window.createPlayer(
+      <%= safe_json(player_src(@asciicast)) %>,
+      document.getElementById('cinema'),
+      {
+        ...opts,
+        fit: 'both',
+        preload: true,
+        logger: console
+      }
+    );
+  });
+</script>
