@@ -120,14 +120,12 @@
 
           <%= if Enum.any?([os, term, shell]) do %>
             <span class="status-line-item" title="Terminal environment">
-              <.terminal_solid_icon />
-              <%= Enum.join([os, term, shell], " ◆ ") %>
+              <.terminal_solid_icon /> <%= Enum.join([os, term, shell], " ◆ ") %>
             </span>
           <% end %>
 
           <span class="status-line-item" title="Total views">
-            <.eye_solid_icon />
-            <%= views_count(@asciicast) %>
+            <.eye_solid_icon /> <%= views_count(@asciicast) %> views
           </span>
         </div>
 
