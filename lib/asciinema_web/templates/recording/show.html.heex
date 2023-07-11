@@ -10,9 +10,9 @@
     <div class="row">
       <div class="col-md-8 col-xs-12">
         <span class="author-avatar">
-          <%= link to: author_profile_path(@asciicast), title: author_username(@asciicast) do %>
-            <%= img_tag(author_avatar_url(@asciicast), class: "avatar") %>
-          <% end %>
+          <.link navigate={author_profile_path(@asciicast)} title={author_username(@asciicast)}>
+            <img src={author_avatar_url(@asciicast)} class="avatar" />
+          </.link>
         </span>
 
         <h2>
@@ -20,8 +20,11 @@
         </h2>
 
         <small>
-          by <%= link(author_username(@asciicast), to: author_profile_path(@asciicast)) %>
-          <%= time_ago_tag(@asciicast.inserted_at) %>
+          by
+          <.link navigate={author_profile_path(@asciicast)}>
+            <%= author_username(@asciicast) %>
+          </.link>
+          <.time_ago time={@asciicast.inserted_at} />
 
           <%= if @asciicast.private do %>
             <%= render("_private_badge.html") %>
@@ -63,53 +66,41 @@
             </button>
 
             <div class="dropdown-menu">
-              <%= if :edit in @actions do %>
-                <%= link("Edit",
-                  to: Routes.recording_path(@conn, :edit, @asciicast),
-                  class: "dropdown-item"
-                ) %>
-              <% end %>
+              <.link
+                :if={:edit in @actions}
+                navigate={~p"/a/#{@asciicast}/edit"}
+                class="dropdown-item"
+              >
+                Edit
+              </.link>
 
-              <%= if :make_featured in @actions do %>
-                <%= link("Make featured",
-                  to: Routes.recording_path(@conn, :update, @asciicast, asciicast: [featured: 1]),
-                  class: "dropdown-item",
-                  method: :put
-                ) %>
-              <% end %>
+              <.link
+                :if={:make_private in @actions}
+                href={~p"/a/#{@asciicast}?asciicast[private]=1"}
+                class="dropdown-item"
+                method="put"
+              >
+                Make private
+              </.link>
 
-              <%= if :make_not_featured in @actions do %>
-                <%= link("Make not featured",
-                  to: Routes.recording_path(@conn, :update, @asciicast, asciicast: [featured: 0]),
-                  class: "dropdown-item",
-                  method: :put
-                ) %>
-              <% end %>
+              <.link
+                :if={:make_public in @actions}
+                href={~p"/a/#{@asciicast}?asciicast[private]=0"}
+                class="dropdown-item"
+                method="put"
+              >
+                Make public
+              </.link>
 
-              <%= if :make_private in @actions do %>
-                <%= link("Make private",
-                  to: Routes.recording_path(@conn, :update, @asciicast, asciicast: [private: 1]),
-                  class: "dropdown-item",
-                  method: :put
-                ) %>
-              <% end %>
-
-              <%= if :make_public in @actions do %>
-                <%= link("Make public",
-                  to: Routes.recording_path(@conn, :update, @asciicast, asciicast: [private: 0]),
-                  class: "dropdown-item",
-                  method: :put
-                ) %>
-              <% end %>
-
-              <%= if :delete in @actions do %>
-                <%= link("Delete",
-                  to: Routes.recording_path(@conn, :delete, @asciicast),
-                  class: "dropdown-item text-danger",
-                  method: :delete,
-                  data: [confirm: "Are you sure you want to delete this?"]
-                ) %>
-              <% end %>
+              <.link
+                :if={:delete in @actions}
+                href={~p"/a/#{@asciicast}"}
+                class="dropdown-item text-danger"
+                method="delete"
+                data-confirm="Are you sure you want to delete this recording?"
+              >
+                Delete
+              </.link>
             </div>
           <% end %>
         </div>
@@ -129,13 +120,13 @@
 
           <%= if Enum.any?([os, term, shell]) do %>
             <span class="status-line-item" title="Terminal environment">
-              <%= AsciinemaWeb.Icons.terminal_solid_icon(assigns) %>
+              <.terminal_solid_icon />
               <%= Enum.join([os, term, shell], " ◆ ") %>
             </span>
           <% end %>
 
           <span class="status-line-item" title="Total views">
-            <%= AsciinemaWeb.Icons.eye_solid_icon(assigns) %>
+            <.eye_solid_icon />
             <%= views_count(@asciicast) %>
           </span>
         </div>

@@ -132,9 +132,12 @@ defmodule AsciinemaWeb do
       use Phoenix.Component
       import Phoenix.View
 
-      import AsciinemaWeb.ErrorHelpers
+      # Core UI components and translation
+      import AsciinemaWeb.CoreComponents
       import AsciinemaWeb.Gettext
       import AsciinemaWeb.Icons
+
+      import AsciinemaWeb.ErrorHelpers
       alias AsciinemaWeb.Router.Helpers, as: Routes
 
       import AsciinemaWeb.Router.Helpers.Extra
