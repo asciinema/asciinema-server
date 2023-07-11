@@ -49,6 +49,11 @@
 
         <hr>
 
+        <h2>Embed the player as an `iframe`</h2>
+	<p>Alternatively, if you wish to embed the player in a CMS where JS tags cannot be used, you may include an `iframe` tag, thusly:<br />
+        <input data-behavior="auto-select" readonly="" value="<iframe src=&quot;<%= Routes.recording_url(@conn, :show, @asciicast) %>/iframe&quot; scrolling=&quot;no&quot; allowfullscreen=&quot;true&quot; style=&quot;overflow: hidden; margin: 0px; border: 0px; display: inline-block; width: 100%; float: none; visibility: visible; height: 1232px;&quot;></iframe>" type="text">
+	</p>
+
         <p>See <a href="<%= Routes.doc_path(@conn, :show, :embedding) %>">Sharing &amp; embedding</a> for additional options.</p>
 
       </div>
