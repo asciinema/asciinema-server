@@ -54,15 +54,14 @@ defmodule AsciinemaWeb.LiveStreamStatusLive do
         {false, _} -> :ended
       end
 
-    last_started_at = stream.last_started_at || Timex.now()
-
     socket =
-      assign(socket,
+      socket
+      |> assign(
         status: status,
-        last_started_at: last_started_at,
-        duration: format_duration(last_started_at),
+        last_started_at: stream.last_started_at || Timex.now(),
         viewer_count: stream.current_viewer_count
       )
+      |> update_duration()
 
     {:ok, socket}
   end
@@ -72,10 +71,12 @@ defmodule AsciinemaWeb.LiveStreamStatusLive do
     if socket.assigns.status == :live do
       {:noreply, socket}
     else
-      now = Timex.now()
+      socket =
+        socket
+        |> assign(status: :live, last_started_at: Timex.now())
+        |> update_duration()
 
-      {:noreply,
-       assign(socket, status: :live, last_started_at: now, duration: format_duration(now))}
+      {:noreply, socket}
     end
   end
 
@@ -94,7 +95,11 @@ defmodule AsciinemaWeb.LiveStreamStatusLive do
   def handle_info(:update_duration, socket) do
     Process.send_after(self(), :update_duration, @duration_update_interval)
 
-    {:noreply, assign(socket, :duration, format_duration(socket.assigns.last_started_at))}
+    {:noreply, update_duration(socket)}
+  end
+
+  defp update_duration(socket) do
+    assign(socket, :duration, format_duration(socket.assigns.last_started_at))
   end
 
   defp format_duration(time) do
@@ -106,8 +111,14 @@ defmodule AsciinemaWeb.LiveStreamStatusLive do
       diff
       |> Timex.Duration.from_seconds()
       |> Timex.format_duration(:humanized)
-      |> String.split(",")
-      |> List.first()
+      |> String.split(", ")
+      |> then(fn parts ->
+        case length(parts) do
+          l when l in [1, 2] -> Enum.take(parts, 1)
+          _ -> Enum.take(parts, 2)
+        end
+      end)
+      |> Enum.join(", ")
     end
   end
 end
