@@ -73,7 +73,7 @@ defmodule Asciinema.Streaming do
 
   def update_live_stream(stream, attrs) when is_list(attrs) do
     stream
-    |> change(attrs)
+    |> cast(Enum.into(attrs, %{}), LiveStream.__schema__(:fields))
     |> update_peak_viewer_count()
     |> change_last_activity()
     |> Repo.update!()

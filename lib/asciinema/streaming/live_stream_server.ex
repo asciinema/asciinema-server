@@ -179,7 +179,13 @@ defmodule Asciinema.Streaming.LiveStreamServer do
   defp reset_stream(state, {cols, rows} = vt_size, stream_time \\ 0.0) do
     {:ok, vt} = Vt.new(cols, rows)
 
-    stream = Streaming.update_live_stream(state.stream, online: true, cols: cols, rows: rows)
+    stream =
+      Streaming.update_live_stream(state.stream,
+        online: true,
+        last_started_at: Timex.shift(Timex.now(), seconds: -round(stream_time)),
+        cols: cols,
+        rows: rows
+      )
 
     %{
       state

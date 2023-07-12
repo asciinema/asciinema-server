@@ -45,8 +45,10 @@
         }
       }
 
-      .icon.icon-live {
-        margin-right: 1em;
+      .icon {
+        &.icon-live, &.icon-offline {
+          margin-right: 0.5em;
+        }
       }
     }
   }

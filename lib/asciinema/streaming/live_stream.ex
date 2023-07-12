@@ -9,6 +9,7 @@ defmodule Asciinema.Streaming.LiveStream do
     field :rows, :integer
     field :online, :boolean
     field :last_activity_at, :naive_datetime
+    field :last_started_at, :naive_datetime
     field :title, :string
     field :description, :string
     field :theme_name, :string

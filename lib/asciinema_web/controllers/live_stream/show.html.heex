@@ -67,16 +67,9 @@
   <div class="container">
     <div class="row">
       <div class="col-md-12 col-xs-12">
-        <.info_icon />
-
-        <%= cond do %>
-          <% @stream.online -> %>
-            Online
-          <% @stream.last_activity_at -> %>
-            Last streamed <.time_ago time={@stream.last_activity_at} />
-          <% true -> %>
-            Stream hasn't started yet
-        <% end %>
+        <%= live_render(@conn, AsciinemaWeb.LiveStreamStatusLive,
+          session: %{"stream_id" => @stream.id}
+        ) %>
 
         <%= if desc = render_markdown(@stream.description) do %>
           <hr />
