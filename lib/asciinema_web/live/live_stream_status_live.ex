@@ -3,7 +3,7 @@ defmodule AsciinemaWeb.LiveStreamStatusLive do
   alias Asciinema.Streaming.{LiveStreamServer, ViewerTracker}
   use AsciinemaWeb, :live_view
 
-  @duration_update_interval 1_000
+  @duration_update_interval 60_000
 
   @impl true
   def render(assigns) do
