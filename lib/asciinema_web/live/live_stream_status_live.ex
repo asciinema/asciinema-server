@@ -67,7 +67,7 @@ defmodule AsciinemaWeb.LiveStreamStatusLive do
   end
 
   @impl true
-  def handle_info({:live_stream, {:status, :online}}, socket) do
+  def handle_info(%LiveStreamServer.StatusUpdate{status: :online}, socket) do
     if socket.assigns.status == :live do
       {:noreply, socket}
     else
@@ -80,7 +80,7 @@ defmodule AsciinemaWeb.LiveStreamStatusLive do
     end
   end
 
-  def handle_info({:live_stream, {:status, :offline}}, socket) do
+  def handle_info(%LiveStreamServer.StatusUpdate{status: :offline}, socket) do
     if socket.assigns.status == :live do
       {:noreply, assign(socket, status: :ended)}
     else
