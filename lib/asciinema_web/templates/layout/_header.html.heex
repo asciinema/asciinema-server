@@ -20,17 +20,17 @@
       <div class="collapse navbar-collapse" id="navbarNavDropdown">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item">
-            <a class="nav-link" href={Routes.explore_path(@conn, :auto)}>Explore</a>
+            <a class="nav-link" href={~p"/explore"}>Explore</a>
           </li>
 
           <li class="nav-item">
-            <a class="nav-link" href={Routes.doc_path(@conn, :show, :"getting-started")}>
+            <a class="nav-link" href={~p"/docs/getting-started"}>
               Record
             </a>
           </li>
 
           <li class="nav-item">
-            <a class="nav-link" href={Routes.doc_path(@conn, :show, :"how-it-works")}>Docs</a>
+            <a class="nav-link" href={~p"/docs/how-it-works"}>Docs</a>
           </li>
 
           <li class="nav-item">
@@ -43,35 +43,34 @@
         </ul>
 
         <ul class="navbar-nav navbar-right session-info">
-            <li class="nav-item">
-              <a class="nav-link nav-link-consulting" href={Routes.page_path(@conn, :consulting)} id="log-in">Hire me!</a>
-            </li>
-          <%= if @current_user do %>
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">
-                <img class="avatar" src={avatar_url(@current_user)} /><%= @current_user.username ||
-                  @current_user.email %>
-              </a>
-              <div class="dropdown-menu">
-                <a class="dropdown-item" href={profile_path(@current_user)}>Profile</a>
-                <a class="dropdown-item" href={Routes.user_path(@conn, :edit)}>Settings</a>
-                <%= link("Log out",
-                  to: Routes.session_path(@conn, :delete),
-                  class: "dropdown-item logout",
-                  method: :delete
-                ) %>
-              </div>
-            </li>
-          <% else %>
-            <li class="nav-item">
-              <a class="nav-link" href={Routes.login_path(@conn, :new)} id="log-in">
-                Log in
-                <%= if sign_up_enabled?(@conn) do %>
-                  / Sign up
-                <% end %>
-              </a>
-            </li>
-          <% end %>
+          <li class="nav-item">
+            <a class="nav-link nav-link-consulting" href={~p"/consulting"} id="log-in">
+              Hire me!
+            </a>
+          </li>
+
+          <li :if={@current_user} class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">
+              <img class="avatar" src={avatar_url(@current_user)} /><%= @current_user.username ||
+                @current_user.email %>
+            </a>
+            <div class="dropdown-menu">
+              <a href={profile_path(@current_user)} class="dropdown-item">Profile</a>
+              <a href={~p"/user/edit"} class="dropdown-item">Settings</a>
+              <.link href={~p"/session"} class="dropdown-item logout" method="delete">
+                Log out
+              </.link>
+            </div>
+          </li>
+
+          <li :if={!@current_user} class="nav-item">
+            <a href={~p"/login/new"} class="nav-link" id="log-in">
+              Log in
+              <%= if sign_up_enabled?(@conn) do %>
+                / Sign up
+              <% end %>
+            </a>
+          </li>
         </ul>
       </div>
     </div>
