@@ -14,7 +14,7 @@ If you're looking for general help this is probably the best way to go.
 Many of us hang out on __#asciinema__ channel on Libera.Chat. Join us there!
 
 If you don’t have IRC client at hand you can [enter #asciinema channel with
-Libera.Chat web client](https://web.libera.chat/gamja/#asciinema)
+Libera.Chat web client](https://web.libera.chat/#asciinema)
 (no registration required, just pick your nickname).
 
 If you’d like to talk to someone in real-time, or just want to hang out with us
