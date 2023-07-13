@@ -42,7 +42,6 @@ defmodule AsciinemaWeb.LiveStreamStatusLive do
     if connected?(socket) do
       LiveStreamServer.subscribe(stream_id, :status)
       ViewerTracker.subscribe(stream_id)
-      Process.send_after(self(), :update_duration, @duration_update_interval)
     end
 
     stream = Streaming.get_live_stream(stream_id)
@@ -93,13 +92,23 @@ defmodule AsciinemaWeb.LiveStreamStatusLive do
   end
 
   def handle_info(:update_duration, socket) do
-    Process.send_after(self(), :update_duration, @duration_update_interval)
-
     {:noreply, update_duration(socket)}
   end
 
   defp update_duration(socket) do
-    assign(socket, :duration, format_duration(socket.assigns.last_started_at))
+    socket = assign(socket, :duration, format_duration(socket.assigns.last_started_at))
+
+    if connected?(socket) do
+      if timer = socket.assigns[:update_timer] do
+        Process.cancel_timer(timer)
+      end
+
+      timer = Process.send_after(self(), :update_duration, @duration_update_interval)
+
+      assign(socket, :update_timer, timer)
+    else
+      socket
+    end
   end
 
   defp format_duration(time) do
