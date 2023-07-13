@@ -2,10 +2,10 @@
 
 ## Forum
 
-[asciinema community forum](https://discourse.asciinema.org/) is a great place
-to discuss all things related to the project: questions and answers to common
-problems, usage tips, troubleshooting, cool new ideas, planning the future
-developments.
+[Github Discussions](https://github.com/orgs/asciinema/discussions) is a great
+place to discuss all things related to the project: questions and answers to
+common problems, usage tips, troubleshooting, cool new ideas, planning the
+future developments.
 
 If you're looking for general help this is probably the best way to go.
 
