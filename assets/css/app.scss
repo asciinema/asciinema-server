@@ -23,29 +23,7 @@ $primary: #06989a;
 @import "./fonts/fira-code-nerd-font.css";
 @import "./fonts/jetbrains-mono-nerd-font.css";
 @import "~asciinema-player/dist/bundle/asciinema-player.css";
-
-.c-page {
-  .bitcoin-logo {
-    width: 32px;
-    margin-right: 10px;
-  }
-
-  #paypal-form {
-    .button {
-      margin-right: 15px;
-      vertical-align: middle;
-    }
-
-    span {
-      vertical-align: middle;
-      margin-right: 10px;
-
-      label {
-        margin-left: 0.2rem;
-      }
-    }
-  }
-}
+@import "./pages/contributing.scss";
 
 .c-recording.a-index {
   h2 {
