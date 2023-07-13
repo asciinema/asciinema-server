@@ -49,5 +49,5 @@ that.
 Thanks to the following companies and individuals for providing services
 and resources:
 
-* [Brightbox](http://brightbox.com) - [cloud servers](http://brightbox.com)
+* [Brightbox](https://www.brightbox.com) - cloud servers hosting asciinema.org
 * [Reza Ali](http://www.syedrezaali.com/blog/) - homepage background
