@@ -172,7 +172,7 @@ defmodule Asciinema.RecordingControllerTest do
       conn = put conn, Routes.recording_path(conn, :update, asciicast), attrs
 
       location = List.first(get_resp_header(conn, "location"))
-      assert get_flash(conn, :info) =~ ~r/updated/i
+      assert flash(conn, :info) =~ ~r/updated/i
       assert response(conn, 302)
 
       conn = get(build_conn(), location)
@@ -204,7 +204,7 @@ defmodule Asciinema.RecordingControllerTest do
 
       conn = delete(conn, Routes.recording_path(conn, :delete, asciicast))
 
-      assert get_flash(conn, :info) =~ ~r/deleted/i
+      assert flash(conn, :info) =~ ~r/deleted/i
       assert response(conn, 302)
 
       conn = get(build_conn(), Routes.recording_path(conn, :show, asciicast))

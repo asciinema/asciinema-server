@@ -29,37 +29,37 @@ defmodule Asciinema.ApiTokenControllerTest do
     conn = logout(conn)
     conn = get(conn, "/connect/#{@tmp_user_token}")
     assert redirected_to(conn, 302) == "/login/new"
-    assert get_flash(conn, :info)
+    assert flash(conn, :info)
   end
 
   test "with invalid token", %{conn: conn} do
     conn = get(conn, "/connect/nopenope")
     assert redirected_to(conn, 302) == "/"
-    assert get_flash(conn, :error) =~ ~r/invalid token/i
+    assert flash(conn, :error) =~ ~r/invalid token/i
   end
 
   test "with revoked token", %{conn: conn} do
     conn = get(conn, "/connect/#{@revoked_token}")
     assert redirected_to(conn, 302) == "/"
-    assert get_flash(conn, :error) =~ ~r/been revoked/i
+    assert flash(conn, :error) =~ ~r/been revoked/i
   end
 
   test "with tmp user token", %{conn: conn} do
     conn = get(conn, "/connect/#{@tmp_user_token}")
     assert redirected_to(conn, 302) == "/~test"
-    assert get_flash(conn, :info)
+    assert flash(conn, :info)
   end
 
   test "with his own token", %{conn: conn} do
     conn = get(conn, "/connect/#{@regular_user_token}")
     assert redirected_to(conn, 302) == "/~test"
-    assert get_flash(conn, :info)
+    assert flash(conn, :info)
   end
 
   test "regular user with other regular user token", %{conn: conn} do
     conn = get(conn, "/connect/#{@other_regular_user_token}")
     assert redirected_to(conn, 302) == "/~test"
-    assert get_flash(conn, :error)
+    assert flash(conn, :error)
   end
 
   defp login_as(conn, user) do

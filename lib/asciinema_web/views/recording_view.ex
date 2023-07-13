@@ -1,12 +1,20 @@
 defmodule AsciinemaWeb.RecordingView do
+  alias AsciinemaWeb.PlayerView
   use AsciinemaWeb, :view
   import Scrivener.HTML
-  alias Asciinema.Recordings
   alias Asciinema.Recordings.Asciicast
   alias AsciinemaWeb.Endpoint
   alias AsciinemaWeb.Router.Helpers.Extra, as: RoutesX
-  alias AsciinemaWeb.UserView
+  alias AsciinemaWeb.{PlayerView, UserView}
   import UserView, only: [theme_options: 0]
+
+  defdelegate author_username(asciicast), to: PlayerView
+  defdelegate author_avatar_url(stream), to: PlayerView
+  defdelegate author_profile_path(stream), to: PlayerView
+  defdelegate theme_name(stream), to: PlayerView
+  defdelegate default_theme_name(stream), to: PlayerView
+  defdelegate terminal_font_family_options, to: PlayerView
+  defdelegate username(user), to: UserView
 
   def player_src(asciicast), do: file_url(asciicast)
 
@@ -26,16 +34,8 @@ defmodule AsciinemaWeb.RecordingView do
     |> Enum.into(%{})
   end
 
-  @container_vertical_padding 2 * 4
-  @approx_char_width 7
-  @approx_char_height 16
-
   def cinema_height(asciicast) do
-    ratio =
-      rows(asciicast) * @approx_char_height /
-        (cols(asciicast) * @approx_char_width)
-
-    round(@container_vertical_padding + 100 * ratio)
+    PlayerView.cinema_height(cols(asciicast), rows(asciicast))
   end
 
   def embed_script(asciicast) do
@@ -170,14 +170,6 @@ defmodule AsciinemaWeb.RecordingView do
     |> Enum.join(";")
   end
 
-  def description(asciicast) do
-    desc = String.trim("#{asciicast.description}")
-
-    if present?(desc) do
-      {:safe, HtmlSanitizeEx.basic_html(Earmark.as_html!(desc))}
-    end
-  end
-
   def os_info(asciicast) do
     os_from_user_agent(asciicast) || os_from_uname(asciicast)
   end
@@ -191,6 +183,7 @@ defmodule AsciinemaWeb.RecordingView do
         |> String.replace("-", "/")
         |> String.split("/")
         |> List.first()
+        |> String.replace(~r/^Linux$/i, "GNU/Linux")
         |> String.replace(~r/Darwin/i, "macOS")
       end
     end
@@ -199,7 +192,7 @@ defmodule AsciinemaWeb.RecordingView do
   defp os_from_uname(asciicast) do
     if uname = asciicast.uname do
       cond do
-        uname =~ ~r/Linux/i -> "Linux"
+        uname =~ ~r/Linux/i -> "GNU/Linux"
         uname =~ ~r/Darwin/i -> "macOS"
         true -> uname |> String.split(~r/[\s-]/) |> List.first()
       end
@@ -207,7 +200,9 @@ defmodule AsciinemaWeb.RecordingView do
   end
 
   def shell_info(asciicast) do
-    Path.basename("#{asciicast.shell}")
+    if asciicast.shell do
+      Path.basename("#{asciicast.shell}")
+    end
   end
 
   def term_info(asciicast) do
@@ -256,30 +251,6 @@ defmodule AsciinemaWeb.RecordingView do
       seconds = rem(d, 60)
       :io_lib.format("~2..0B:~2..0B", [minutes, seconds])
     end
-  end
-
-  def theme_name(asciicast) do
-    asciicast.theme_name || default_theme_name(asciicast)
-  end
-
-  def default_theme_name(asciicast) do
-    UserView.theme_name(asciicast.user) || "asciinema"
-  end
-
-  def author_username(asciicast) do
-    UserView.username(asciicast.user)
-  end
-
-  def author_avatar_url(asciicast) do
-    UserView.avatar_url(asciicast.user)
-  end
-
-  def author_profile_path(asciicast) do
-    profile_path(asciicast.user)
-  end
-
-  def author_profile_url(asciicast) do
-    profile_url(asciicast.user)
   end
 
   def class(%{} = attrs) do
@@ -548,16 +519,10 @@ defmodule AsciinemaWeb.RecordingView do
 
   def recording_gc_days, do: Asciinema.recording_gc_days()
 
-  def terminal_font_family_options do
-    for family <- Recordings.custom_terminal_font_families() do
-      case family do
-        "FiraCode Nerd Font" -> {"Nerd Font - Fira Code", family}
-        "JetBrainsMono Nerd Font" -> {"Nerd Font - JetBrains Mono", family}
-      end
-    end
-  end
-
   defp cols(asciicast), do: asciicast.cols_override || asciicast.cols
 
   defp rows(asciicast), do: asciicast.rows_override || asciicast.rows
+
+  def meta(:show, assigns), do: render("meta.show.html", assigns)
+  def meta(_, _), do: nil
 end

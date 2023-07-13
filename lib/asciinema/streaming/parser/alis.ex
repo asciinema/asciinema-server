@@ -1,5 +1,5 @@
-defmodule Asciinema.Streaming.ProducerHandler.Alis do
-  @behaviour Asciinema.Streaming.ProducerHandler
+defmodule Asciinema.Streaming.Parser.Alis do
+  @behaviour Asciinema.Streaming.Parser
 
   def init, do: %{status: :new}
 

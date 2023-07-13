@@ -67,7 +67,7 @@ defmodule AsciinemaWeb.UserController do
         {user.id, filter},
         :date,
         params["page"],
-        15
+        14
       )
 
     conn

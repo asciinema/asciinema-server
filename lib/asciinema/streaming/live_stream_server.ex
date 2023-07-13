@@ -1,7 +1,16 @@
 defmodule Asciinema.Streaming.LiveStreamServer do
   use GenServer, restart: :transient
+  alias Asciinema.Streaming.ViewerTracker
   alias Asciinema.{PubSub, Streaming, Vt}
   require Logger
+
+  defmodule StatusUpdate do
+    defstruct [:stream_id, :status]
+  end
+
+  defmodule StreamUpdate do
+    defstruct [:stream_id, :event, :data]
+  end
 
   # Client
 
@@ -26,8 +35,17 @@ defmodule Asciinema.Streaming.LiveStreamServer do
   end
 
   def join(stream_id) do
-    subscribe(stream_id)
+    subscribe(stream_id, :stream)
+    subscribe(stream_id, :status)
     GenServer.cast(via_tuple(stream_id), {:join, self()})
+  end
+
+  def subscribe(stream_id, :stream) do
+    PubSub.subscribe(topic_name(stream_id, :stream))
+  end
+
+  def subscribe(stream_id, :status) do
+    PubSub.subscribe(topic_name(stream_id, :status))
   end
 
   def stop(stream_id, reason \\ :normal), do: GenServer.stop(via_tuple(stream_id), reason)
@@ -42,7 +60,13 @@ defmodule Asciinema.Streaming.LiveStreamServer do
     Logger.info("stream/#{stream_id}: init")
 
     Process.send_after(self(), :update_stream, 1_000)
-    stream = Streaming.get_live_stream(stream_id)
+    ViewerTracker.subscribe(stream_id)
+    viewer_count = ViewerTracker.count(stream_id)
+
+    stream =
+      stream_id
+      |> Streaming.get_live_stream()
+      |> Streaming.update_live_stream(online: true)
 
     state = %{
       stream: stream,
@@ -52,13 +76,19 @@ defmodule Asciinema.Streaming.LiveStreamServer do
       vt_size: nil,
       last_stream_time: nil,
       last_feed_time: nil,
-      shutdown_timer: nil
+      shutdown_timer: nil,
+      viewer_count: viewer_count
     }
 
     state =
       state
       |> reset_stream({@default_cols, @default_rows})
       |> reschedule_shutdown()
+
+    publish(stream_id, :status, %StatusUpdate{
+      stream_id: stream_id,
+      status: :online
+    })
 
     {:ok, state}
   end
@@ -80,7 +110,11 @@ defmodule Asciinema.Streaming.LiveStreamServer do
       :ok = Vt.feed(state.vt, vt_init)
     end
 
-    publish(state.stream_id, {:reset, {vt_size, vt_init, stream_time}})
+    publish(state.stream_id, :stream, %StreamUpdate{
+      stream_id: state.stream_id,
+      event: :reset,
+      data: {vt_size, vt_init, stream_time}
+    })
 
     {:reply, :ok, state}
   end
@@ -93,7 +127,12 @@ defmodule Asciinema.Streaming.LiveStreamServer do
 
   def handle_call({:feed, {time, data} = event}, {pid, _} = _from, %{producer: pid} = state) do
     :ok = Vt.feed(state.vt, data)
-    publish(state.stream_id, {:feed, event})
+
+    publish(state.stream_id, :stream, %StreamUpdate{
+      stream_id: state.stream_id,
+      event: :feed,
+      data: event
+    })
 
     {:reply, :ok, %{state | last_stream_time: time, last_feed_time: Timex.now()}}
   end
@@ -119,7 +158,12 @@ defmodule Asciinema.Streaming.LiveStreamServer do
   @impl true
   def handle_cast({:join, pid}, %{vt_size: vt_size} = state) do
     stream_time = current_stream_time(state.last_stream_time, state.last_feed_time)
-    send(pid, {:live_stream, {:reset, {vt_size, Vt.dump(state.vt), stream_time}}})
+
+    send(pid, %StreamUpdate{
+      stream_id: state.stream_id,
+      event: :reset,
+      data: {vt_size, Vt.dump(state.vt), stream_time}
+    })
 
     {:noreply, state}
   end
@@ -127,9 +171,13 @@ defmodule Asciinema.Streaming.LiveStreamServer do
   @update_stream_interval 10_000
 
   @impl true
+  def handle_info(%ViewerTracker.Update{viewer_count: c}, state) do
+    {:noreply, %{state | viewer_count: c}}
+  end
+
   def handle_info(:update_stream, state) do
     Process.send_after(self(), :update_stream, @update_stream_interval)
-    stream = Streaming.update_live_stream(state.stream, [])
+    stream = Streaming.update_live_stream(state.stream, current_viewer_count: state.viewer_count)
 
     {:noreply, %{state | stream: stream}}
   end
@@ -145,7 +193,11 @@ defmodule Asciinema.Streaming.LiveStreamServer do
     Logger.info("stream/#{state.stream_id}: terminating (#{inspect(reason)})")
     Logger.debug("stream/#{state.stream_id}: state: #{inspect(state)}")
 
-    publish(state.stream_id, :offline)
+    publish(state.stream_id, :status, %StatusUpdate{
+      stream_id: state.stream_id,
+      status: :offline
+    })
+
     Streaming.update_live_stream(state.stream, online: false)
 
     :ok
@@ -156,20 +208,21 @@ defmodule Asciinema.Streaming.LiveStreamServer do
   defp via_tuple(stream_id),
     do: {:via, Horde.Registry, {Asciinema.Streaming.LiveStreamRegistry, stream_id}}
 
-  defp subscribe(stream_id) do
-    PubSub.subscribe(topic_name(stream_id))
+  defp publish(stream_id, type, payload) do
+    PubSub.broadcast(topic_name(stream_id, type), payload)
   end
 
-  defp publish(stream_id, payload) do
-    PubSub.broadcast(topic_name(stream_id), {:live_stream, payload})
-  end
-
-  defp topic_name(stream_id), do: "stream:#{stream_id}"
+  defp topic_name(stream_id, type), do: "stream:#{stream_id}:#{type}"
 
   defp reset_stream(state, {cols, rows} = vt_size, stream_time \\ 0.0) do
     {:ok, vt} = Vt.new(cols, rows)
 
-    stream = Streaming.update_live_stream(state.stream, online: true, cols: cols, rows: rows)
+    stream =
+      Streaming.update_live_stream(state.stream,
+        last_started_at: Timex.shift(Timex.now(), seconds: -round(stream_time)),
+        cols: cols,
+        rows: rows
+      )
 
     %{
       state

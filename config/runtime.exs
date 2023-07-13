@@ -82,7 +82,7 @@ if config_env() in [:prod, :dev] do
     config :asciinema, Asciinema.Repo, pool_size: String.to_integer(db_pool_size)
   end
 
-  if env.("ECTO_IPV6") do
+  if env.("ECTO_IPV6") in ~w(true 1) do
     config :asciinema, Asciinema.Repo, socket_options: [:inet6]
   end
 

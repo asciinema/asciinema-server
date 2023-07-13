@@ -1,11 +1,11 @@
 defmodule AsciinemaWeb.LiveStreamProducerSocket do
   alias Asciinema.Streaming
-  alias Asciinema.Streaming.{LiveStreamServer, LiveStreamSupervisor, ProducerHandler}
+  alias Asciinema.Streaming.{LiveStreamServer, LiveStreamSupervisor, Parser}
   require Logger
 
   @behaviour Phoenix.Socket.Transport
 
-  @handler_timeout 5_000
+  @parser_check_timeout 5_000
   @ping_interval 15_000
   @heartbeat_interval 15_000
   @default_bucket_fill_interval 100
@@ -34,7 +34,7 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
         state = %{
           stream_id: live_stream.id,
           status: :new,
-          handler: nil,
+          parser: nil,
           bucket: %{
             size: config(:bucket_size, @default_bucket_size),
             tokens: config(:bucket_size, @default_bucket_size),
@@ -50,7 +50,7 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
   @impl true
   def init(state) do
     Logger.info("producer/#{state.stream_id}: connected")
-    Process.send_after(self(), :handler_timeout, @handler_timeout)
+    Process.send_after(self(), :parser_check, @parser_check_timeout)
     Process.send_after(self(), :ping, @ping_interval)
     Process.send_after(self(), :fill_bucket, state.bucket.fill_interval)
     Process.send_after(self(), :heartbeat, @heartbeat_interval)
@@ -59,26 +59,26 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
   end
 
   @impl true
-  def handle_in({"ALiS" <> _, [opcode: :binary]} = message, %{handler: nil} = state) do
-    Logger.info("producer/#{state.stream_id}: activating ALiS handler")
-    handle_in(message, %{state | handler: ProducerHandler.get(:alis)})
+  def handle_in({"ALiS" <> _, [opcode: :binary]} = message, %{parser: nil} = state) do
+    Logger.info("producer/#{state.stream_id}: activating ALiS parser")
+    handle_in(message, %{state | parser: Parser.get(:alis)})
   end
 
-  def handle_in({_, [opcode: :binary]} = message, %{handler: nil} = state) do
-    Logger.info("producer/#{state.stream_id}: activating raw text handler")
-    handle_in(message, %{state | handler: ProducerHandler.get(:raw)})
+  def handle_in({_, [opcode: :binary]} = message, %{parser: nil} = state) do
+    Logger.info("producer/#{state.stream_id}: activating raw text parser")
+    handle_in(message, %{state | parser: Parser.get(:raw)})
   end
 
-  def handle_in({_, [opcode: :text]} = message, %{handler: nil} = state) do
-    Logger.info("producer/#{state.stream_id}: activating json handler")
-    handle_in(message, %{state | handler: ProducerHandler.get(:json)})
+  def handle_in({_, [opcode: :text]} = message, %{parser: nil} = state) do
+    Logger.info("producer/#{state.stream_id}: activating json parser")
+    handle_in(message, %{state | parser: Parser.get(:json)})
   end
 
-  def handle_in({payload, _} = message, %{handler: handler} = state) do
-    with {:ok, commands, new_handler_state} <- run_handler(handler, message),
+  def handle_in({payload, _} = message, %{parser: parser} = state) do
+    with {:ok, commands, new_parser_state} <- run_parser(parser, message),
          {:ok, state} <- run_commands(commands, state),
          {:ok, state} <- drain_bucket(state, byte_size(payload)) do
-      {:ok, put_in(state, [:handler, :state], new_handler_state)}
+      {:ok, put_in(state, [:parser, :state], new_parser_state)}
     else
       {:error, :not_a_leader} ->
         Logger.info("producer/#{state.stream_id}: stream taken over by another producer")
@@ -96,17 +96,17 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
         # TODO use reason other than :normal to make producer reconnect
         {:stop, :normal, state}
 
-      {:error, {:handler, reason}} ->
+      {:error, {:parser, reason}} ->
         Logger.debug("producer/#{state.stream_id}: message: #{inspect(payload)}")
-        Logger.warn("producer/#{state.stream_id}: handler error: #{reason}")
+        Logger.warn("producer/#{state.stream_id}: parser error: #{reason}")
 
         {:stop, :normal, state}
     end
   end
 
-  defp run_handler(%{impl: impl, state: state}, message) do
+  defp run_parser(%{impl: impl, state: state}, message) do
     with {:error, reason} <- impl.parse(message, state) do
-      {:error, {:handler, reason}}
+      {:error, {:parser, reason}}
     end
   end
 
@@ -177,13 +177,13 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
     send_heartbeat(state)
   end
 
-  def handle_info(:handler_timeout, %{handler: nil} = state) do
-    Logger.info("producer/#{state.stream_id}: handler init timeout")
+  def handle_info(:parser_check, %{parser: nil} = state) do
+    Logger.info("producer/#{state.stream_id}: initial message timeout")
 
-    {:stop, :handler_timeout, state}
+    {:stop, :parser_timeout, state}
   end
 
-  def handle_info(:handler_timeout, state), do: {:ok, state}
+  def handle_info(:parser_check, state), do: {:ok, state}
 
   def handle_info(:fill_bucket, %{bucket: bucket} = state) do
     tokens = min(bucket.size, bucket.tokens + bucket.fill_amount)

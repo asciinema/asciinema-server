@@ -39,4 +39,12 @@ defmodule AsciinemaWeb.ApplicationView do
 
     {:safe, json}
   end
+
+  def render_markdown(input) do
+    input = String.trim("#{input}")
+
+    if present?(input) do
+      {:safe, HtmlSanitizeEx.basic_html(Earmark.as_html!(input))}
+    end
+  end
 end

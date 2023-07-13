@@ -6,6 +6,7 @@ $pagination-active-bg: #06989a;
 $primary: #06989a;
 
 @import "~bootstrap/scss/bootstrap";
+@import "./_icons.css";
 @import "./_base.scss";
 @import "./_header.scss";
 @import "./_footer.scss";

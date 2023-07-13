@@ -1,7 +1,7 @@
 defmodule AsciinemaWeb do
   @moduledoc """
   The entrypoint for defining your web interface, such
-  as controllers, views, channels and so on.
+  as controllers, components, channels, and so on.
 
   This can be used in your application as:
 
@@ -17,6 +17,8 @@ defmodule AsciinemaWeb do
   and import those modules here.
   """
 
+  def static_paths, do: ~w(css fonts images js favicon.ico robots.txt)
+
   def controller do
     quote do
       use Phoenix.Controller, namespace: AsciinemaWeb
@@ -28,6 +30,30 @@ defmodule AsciinemaWeb do
       import AsciinemaWeb.Plug.ReturnTo
       import AsciinemaWeb.Plug.Authz
       alias AsciinemaWeb.Router.Helpers, as: Routes
+
+      unquote(verified_routes())
+
+      action_fallback AsciinemaWeb.FallbackController
+
+      defp clear_main_class(conn, _) do
+        assign(conn, :main_class, "")
+      end
+    end
+  end
+
+  def new_controller do
+    quote do
+      use Phoenix.Controller,
+        formats: [:html, :json]
+
+      import Plug.Conn
+      import AsciinemaWeb.Gettext
+      import AsciinemaWeb.Router.Helpers.Extra
+      import AsciinemaWeb.Auth, only: [require_current_user: 2]
+      import AsciinemaWeb.Plug.ReturnTo
+      import AsciinemaWeb.Plug.Authz
+
+      unquote(verified_routes())
 
       action_fallback AsciinemaWeb.FallbackController
 
@@ -54,10 +80,9 @@ defmodule AsciinemaWeb do
 
   def live_view do
     quote do
-      use Phoenix.LiveView,
-        layout: {AsciinemaWeb.LayoutView, "live.html"}
+      use Phoenix.LiveView
 
-      unquote(view_helpers())
+      unquote(html_helpers())
     end
   end
 
@@ -65,7 +90,7 @@ defmodule AsciinemaWeb do
     quote do
       use Phoenix.LiveComponent
 
-      unquote(view_helpers())
+      unquote(html_helpers())
     end
   end
 
@@ -104,14 +129,60 @@ defmodule AsciinemaWeb do
       import Phoenix.LiveView.Helpers
 
       # Import basic rendering functionality (render, render_layout, etc)
+      use Phoenix.Component
       import Phoenix.View
 
-      import AsciinemaWeb.ErrorHelpers
+      # Core UI components and translation
+      import AsciinemaWeb.CoreComponents
       import AsciinemaWeb.Gettext
+      import AsciinemaWeb.Icons
+
+      import AsciinemaWeb.ErrorHelpers
       alias AsciinemaWeb.Router.Helpers, as: Routes
 
       import AsciinemaWeb.Router.Helpers.Extra
       import AsciinemaWeb.ApplicationView
+
+      # Routes generation with the ~p sigil
+      unquote(verified_routes())
+    end
+  end
+
+  def html do
+    quote do
+      use Phoenix.Component
+      import Phoenix.View
+      import AsciinemaWeb.ApplicationView
+
+      # Include general helpers for rendering HTML
+      unquote(html_helpers())
+    end
+  end
+
+  defp html_helpers do
+    quote do
+      # HTML escaping functionality
+      import Phoenix.HTML
+
+      # Core UI components and translation
+      import AsciinemaWeb.CoreComponents
+      import AsciinemaWeb.Gettext
+      import AsciinemaWeb.Icons
+
+      # Shortcut for generating JS commands
+      alias Phoenix.LiveView.JS
+
+      # Routes generation with the ~p sigil
+      unquote(verified_routes())
+    end
+  end
+
+  def verified_routes do
+    quote do
+      use Phoenix.VerifiedRoutes,
+        endpoint: AsciinemaWeb.Endpoint,
+        router: AsciinemaWeb.Router,
+        statics: AsciinemaWeb.static_paths()
     end
   end
 

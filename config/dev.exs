@@ -47,9 +47,13 @@ config :asciinema, AsciinemaWeb.Endpoint,
       ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
       ~r"priv/gettext/.*(po)$",
       ~r"lib/asciinema_web/views/.*(ex)$",
-      ~r"lib/asciinema_web/templates/.*(eex|md)$"
+      ~r"lib/asciinema_web/templates/.*(eex|md)$",
+      ~r"lib/asciinema_web/(controllers|live|components)/.*(ex|heex)$"
     ]
   ]
+
+# Enable dev routes for dashboard and mailbox
+config :asciinema, dev_routes: true
 
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"

@@ -1,0 +1,113 @@
+<section
+  class="cinema"
+  id="cinema"
+  style={"height: #{cinema_height(@stream)}vw; max-height: 75vh"}
+>
+</section>
+
+<section class="even info">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-xs-12">
+        <span class="author-avatar">
+          <.link navigate={author_profile_path(@stream)} title={author_username(@stream)}>
+            <img src={author_avatar_url(@stream)} class="avatar" />
+          </.link>
+        </span>
+
+        <h2><%= title(@stream) %></h2>
+
+        <small>
+          by
+          <.link navigate={author_profile_path(@stream)}><%= author_username(@stream) %></.link>
+          <.private_badge :if={@stream.private} />
+        </small>
+      </div>
+
+      <div class="col-md-4 col-xs-12 text-right actions">
+        <div :if={length(@actions) > 0} class="dropdown actions-dropdown pull-right">
+          <button
+            class="btn btn-sm btn-secondary dropdown-toggle"
+            type="button"
+            data-toggle="dropdown"
+          >
+            Settings
+          </button>
+
+          <div class="dropdown-menu">
+            <.link :if={:edit in @actions} navigate={~p"/s/#{@stream}/edit"} class="dropdown-item">
+              Edit
+            </.link>
+
+            <.link
+              :if={:make_private in @actions}
+              href={~p"/s/#{@stream}?live_stream[private]=1"}
+              class="dropdown-item"
+              method="put"
+            >
+              Make private
+            </.link>
+
+            <.link
+              :if={:make_public in @actions}
+              href={~p"/s/#{@stream}?live_stream[private]=0"}
+              class="dropdown-item"
+              method="put"
+            >
+              Make public
+            </.link>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="odd meta">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12 col-xs-12">
+        <%= live_render(@conn, AsciinemaWeb.LiveStreamStatusLive,
+          session: %{"stream_id" => @stream.id}
+        ) %>
+
+        <%= if desc = render_markdown(@stream.description) do %>
+          <hr />
+
+          <div class="description">
+            <%= desc %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%= render(RecordingView, "_user_recordings.html",
+  conn: @conn,
+  user: @stream.user,
+  asciicasts: @author_asciicasts
+) %>
+
+<script>
+  window.addEventListener('load', function() {
+    const container = document.getElementById('cinema');
+    const opts = <%= safe_json(player_opts(@stream, @player_opts)) %>;
+
+    const player = window.createPlayer(
+      <%= safe_json(player_src(@stream)) %>,
+      container,
+      { ...opts, fit: 'both', logger: console }
+    );
+
+    const containerVerticalPadding = 2 * 4;
+    const approxCharWidth = 7;
+    const approxCharHeight = 16;
+
+    player.addEventListener('reset', ({ cols, rows }) => {
+      const ratio = (rows * approxCharHeight) / (cols * approxCharWidth);
+      const height = Math.round(containerVerticalPadding + 100 * ratio);
+      container.style.height = `${height}vw`;
+    });
+  });
+</script>

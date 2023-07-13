@@ -5,9 +5,8 @@ defmodule Asciinema.MixProject do
     [
       app: :asciinema,
       version: "0.1.0",
-      elixir: "~> 1.12",
+      elixir: "~> 1.14",
       elixirc_paths: elixirc_paths(Mix.env()),
-      compilers: Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
@@ -51,24 +50,25 @@ defmodule Asciinema.MixProject do
       {:ex_aws, "~> 2.2"},
       {:ex_aws_s3, "~> 2.1"},
       {:ex_machina, "~> 2.4", only: :test},
-      {:gettext, "~> 0.18"},
+      {:gettext, "~> 0.20"},
       {:hackney, "~> 1.18"},
       {:horde, "~> 0.8.7"},
       {:html_sanitize_ex, "~> 1.4"},
       {:inflex, "~> 2.0"},
       {:jason, "~> 1.2"},
-      {:libcluster, "~> 3.3.3"},
+      {:libcluster, "~> 3.3"},
       {:mix_test_watch, "~> 1.0", only: :dev, runtime: false},
       {:oban, "~> 2.14"},
       # override for scrivener_html
-      {:phoenix, "~> 1.6.15", override: true},
+      {:phoenix, "~> 1.7.6", override: true},
       {:phoenix_ecto, "~> 4.4"},
       # override for scrivener_html
+      {:phoenix_view, "~> 2.0.2"},
       {:phoenix_html, "~> 3.3", override: true},
-      {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:phoenix_live_view, "~> 0.18.14"},
+      {:phoenix_live_reload, "~> 1.4", only: :dev},
+      {:phoenix_live_view, "~> 0.19.3"},
       {:phoenix_markdown, "~> 1.0"},
-      {:phoenix_pubsub, "~> 2.0"},
+      {:phoenix_pubsub, "~> 2.1.3"},
       {:plug_attack, "~> 0.4.3"},
       {:plug_cowboy, "~> 2.5"},
       {:poolboy, "~> 1.5"},
@@ -93,6 +93,7 @@ defmodule Asciinema.MixProject do
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
+      setup: ["deps.get", "ecto.setup"],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"]

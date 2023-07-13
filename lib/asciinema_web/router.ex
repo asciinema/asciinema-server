@@ -67,7 +67,7 @@ defmodule AsciinemaWeb.Router do
     get "/a/:id/iframe", RecordingController, :iframe
     get "/a/:id/example", RecordingController, :example
 
-    get "/s/:id", LiveStreamController, :show
+    resources "/s", LiveStreamController, only: [:show, :edit, :update]
 
     get "/docs", DocController, :index
     get "/docs/:topic", DocController, :show
@@ -102,7 +102,7 @@ defmodule AsciinemaWeb.Router do
   end
 
   scope "/dev" do
-    if Mix.env() == :dev do
+    if Application.compile_env(:asciinema, :dev_routes) do
       forward "/mailbox", Bamboo.SentEmailViewerPlug
     end
   end

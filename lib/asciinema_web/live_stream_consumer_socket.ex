@@ -1,6 +1,6 @@
 defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   alias Asciinema.Streaming
-  alias Asciinema.Streaming.LiveStreamServer
+  alias Asciinema.Streaming.{LiveStreamServer, ViewerTracker}
   require Logger
 
   @behaviour Phoenix.Socket.Transport
@@ -35,6 +35,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   def init(state) do
     Logger.info("consumer/#{state.stream_id}: connected")
     LiveStreamServer.join(state.stream_id)
+    ViewerTracker.track(state.stream_id)
     Process.send_after(self(), :reset_timeout, @reset_timeout)
     Process.send_after(self(), :ping, @ping_interval)
     send(self(), :push_alis_header)
@@ -54,21 +55,26 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     {:push, header_message(), state}
   end
 
-  def handle_info({:live_stream, {:reset, {{cols, rows}, _, _} = data}}, state) do
+  def handle_info(%LiveStreamServer.StreamUpdate{event: :reset, data: data}, state) do
+    {{cols, rows}, _, _} = data
     Logger.info("consumer/#{state.stream_id}: reset (#{cols}x#{rows})")
 
     {:push, reset_message(data), %{state | reset: true}}
   end
 
-  def handle_info({:live_stream, {:feed, event}}, %{reset: true} = state) do
-    {:push, feed_message(event), state}
+  def handle_info(%LiveStreamServer.StreamUpdate{event: :feed, data: data}, state) do
+    {:push, feed_message(data), state}
   end
 
-  def handle_info({:live_stream, :offline}, state) do
+  def handle_info(%LiveStreamServer.StreamUpdate{}, %{reset: false} = state) do
+    {:ok, state}
+  end
+
+  def handle_info(%LiveStreamServer.StatusUpdate{status: :offline}, state) do
     {:push, offline_message(), state}
   end
 
-  def handle_info({:live_stream, _}, %{reset: false} = state) do
+  def handle_info(%LiveStreamServer.StatusUpdate{status: :online}, state) do
     {:ok, state}
   end
 
@@ -88,6 +94,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   def terminate(reason, state) do
     Logger.info("consumer/#{state.stream_id}: terminating (#{inspect(reason)})")
     Logger.debug("consumer/#{state.stream_id}: state: #{inspect(state)}")
+    ViewerTracker.untrack(state.stream_id)
 
     :ok
   end

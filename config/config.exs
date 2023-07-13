@@ -16,6 +16,7 @@ config :asciinema, Asciinema.Repo, migration_timestamps: [type: :naive_datetime_
 config :asciinema, AsciinemaWeb.Endpoint,
   url: [host: "localhost"],
   render_errors: [view: AsciinemaWeb.ErrorView, accepts: ~w(html json), layout: false],
+  live_view: [signing_salt: "F3BMP7k9SZ-Y2SMJ"],
   pubsub_server: Asciinema.PubSub
 
 # Configures Elixir's Logger
