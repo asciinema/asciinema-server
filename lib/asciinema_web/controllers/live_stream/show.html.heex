@@ -83,11 +83,31 @@
   </div>
 </section>
 
-<%= render(RecordingView, "_user_recordings.html",
-  conn: @conn,
-  user: @stream.user,
-  asciicasts: @author_asciicasts
-) %>
+<section :if={length(@author_asciicasts) > 0} class="even">
+  <div class="container">
+    <div class="row other-asciicasts">
+      <div class="col-md-12">
+        <h2>
+          Recordings by <a href={author_profile_path(@stream)}><%= author_username(@stream) %></a>
+        </h2>
+
+        <div class="asciicast-list">
+          <div class="row">
+            <%= for asciicast <- @author_asciicasts do %>
+              <div class="col-md-6">
+                <%= render(RecordingView, "_card.html", conn: @conn, asciicast: asciicast) %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <p>
+          <a href={author_profile_path(@stream)} class="btn btn-info">See all</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
 
 <script>
   window.addEventListener('load', function() {
