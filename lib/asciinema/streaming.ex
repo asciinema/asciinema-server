@@ -61,9 +61,14 @@ defmodule Asciinema.Streaming do
       :description,
       :private,
       :theme_name,
+      :buffer_time,
       :terminal_line_height,
       :terminal_font_family
     ])
+    |> validate_number(:buffer_time,
+      greater_than_or_equal_to: 0.0,
+      less_than_or_equal_to: 30.0
+    )
     |> validate_number(:terminal_line_height,
       greater_than_or_equal_to: 1.0,
       less_than_or_equal_to: 2.0
