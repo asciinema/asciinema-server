@@ -1,8 +1,11 @@
 <div class="container">
   <div class="row">
     <div class="col-md-12">
-      <h1><span class="glyphicon glyphicon-envelope"></span> Check your inbox</h1>
-      <br>
+      <h1>
+        <.envelope_outline_icon /> Check your inbox
+      </h1>
+
+      <br />
 
       <p>
         We've sent an email with one-time login link to your email address.
@@ -12,7 +15,7 @@
 
       <p>
         If the email doesn't show up in your inbox, check your spam folder,
-        or <a href="<%= Routes.login_path(@conn, :new) %>">try again</a>.
+        or <a href={~p"/login/new"}>try again</a>.
       </p>
     </div>
   </div>
