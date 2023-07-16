@@ -38,6 +38,22 @@ defmodule Asciinema.LiveStreamControllerTest do
       assert html_response(conn_2, 200) =~ "createPlayer"
       assert response_content_type(conn_2, :html)
     end
+
+    test "HTML, streaming instructions", %{conn: conn} do
+      user = insert(:user)
+      stream = insert(:live_stream, user: user)
+
+      conn_2 = get(conn, "/s/#{stream.secret_token}")
+      refute html_response(conn_2, 200) =~ stream.producer_token
+
+      conn_2 = log_in(conn, insert(:user))
+      conn_2 = get(conn_2, "/s/#{stream.secret_token}")
+      refute html_response(conn_2, 200) =~ stream.producer_token
+
+      conn_2 = log_in(conn, user)
+      conn_2 = get(conn_2, "/s/#{stream.secret_token}")
+      assert html_response(conn_2, 200) =~ stream.producer_token
+    end
   end
 
   describe "editing" do

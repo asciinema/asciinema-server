@@ -10,12 +10,15 @@ defmodule AsciinemaWeb.LiveStreamController do
 
   def show(conn, params) do
     stream = conn.assigns.stream
+    current_user = conn.assigns.current_user
+    user_is_self = match?({%{id: id}, %{id: id}}, {current_user, stream.user})
 
     render(
       conn,
       :show,
       player_opts: player_opts(params),
-      actions: stream_actions(stream, conn.assigns.current_user),
+      actions: stream_actions(stream, current_user),
+      user_is_self: user_is_self,
       author_asciicasts: Recordings.public_asciicasts(stream.user)
     )
   end

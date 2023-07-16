@@ -62,7 +62,7 @@
               type="button"
               data-toggle="dropdown"
             >
-              Settings
+              <.cog_8_tooth_mini_icon />
             </button>
 
             <div class="dropdown-menu">
@@ -71,7 +71,7 @@
                 navigate={~p"/a/#{@asciicast}/edit"}
                 class="dropdown-item"
               >
-                Edit
+                Settings
               </.link>
 
               <.link
@@ -141,11 +141,31 @@
   </div>
 </section>
 
-<%= render("_user_recordings.html",
-  conn: @conn,
-  user: @asciicast.user,
-  asciicasts: @author_asciicasts
-) %>
+<section :if={length(@author_asciicasts) > 0} class="even">
+  <div class="container">
+    <div class="row other-asciicasts">
+      <div class="col-md-12">
+        <h2>
+          More by <a href={author_profile_path(@asciicast)}><%= author_username(@asciicast) %></a>
+        </h2>
+
+        <div class="asciicast-list">
+          <div class="row">
+            <%= for asciicast <- @author_asciicasts do %>
+              <div class="col-md-6">
+                <%= render("_card.html", conn: @conn, asciicast: asciicast) %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <p>
+          <a href={author_profile_path(@asciicast)} class="btn btn-info">See all</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
 
 <%= render("_share_modal.html", conn: @conn, asciicast: @asciicast) %>
 

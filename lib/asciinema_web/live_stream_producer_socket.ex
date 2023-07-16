@@ -216,6 +216,10 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
     Logger.info("producer/#{state.stream_id}: terminating (#{inspect(reason)})")
     Logger.debug("producer/#{state.stream_id}: state: #{inspect(state)}")
 
+    if reason == :remote do
+      LiveStreamServer.stop(state.stream_id)
+    end
+
     :ok
   end
 

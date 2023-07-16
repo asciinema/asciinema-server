@@ -19,26 +19,30 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   @impl true
   def connect(state) do
     id = state.params["id"]
+    Logger.info("consumer/#{id}: connected")
 
-    case Streaming.get_live_stream(id) do
-      nil ->
-        Logger.warn("consumer: stream not found for ID #{id}")
-
-        :error
-
-      live_stream ->
-        {:ok, %{stream_id: live_stream.id, reset: false}}
-    end
+    {:ok, %{stream_id: id}}
   end
 
   @impl true
   def init(state) do
-    Logger.info("consumer/#{state.stream_id}: connected")
-    LiveStreamServer.join(state.stream_id)
-    ViewerTracker.track(state.stream_id)
-    Process.send_after(self(), :reset_timeout, @reset_timeout)
-    Process.send_after(self(), :ping, @ping_interval)
-    send(self(), :push_alis_header)
+    state =
+      case Streaming.get_live_stream(state.stream_id) do
+        nil ->
+          Logger.warn("consumer: stream not found for ID #{state.stream_id}")
+          send(self(), :not_found)
+
+          state
+
+        live_stream ->
+          LiveStreamServer.join(live_stream.id)
+          ViewerTracker.track(live_stream.id)
+          Process.send_after(self(), :reset_timeout, @reset_timeout)
+          Process.send_after(self(), :ping, @ping_interval)
+          send(self(), :push_alis_header)
+
+          %{stream_id: live_stream.id, reset: false}
+      end
 
     {:ok, state}
   end
@@ -49,6 +53,10 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   end
 
   @impl true
+  def handle_info(:not_found, state) do
+    {:stop, :not_found, state}
+  end
+
   def handle_info(:push_alis_header, state) do
     Logger.debug("consumer/#{state.stream_id}: sending alis header")
 

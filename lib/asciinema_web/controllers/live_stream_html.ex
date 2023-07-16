@@ -16,7 +16,7 @@ defmodule AsciinemaWeb.LiveStreamHTML do
     %{
       driver: "websocket",
       url: ws_consumer_url(stream),
-      bufferTime: 1.0
+      bufferTime: stream.buffer_time || 1.0
     }
   end
 
@@ -38,6 +38,16 @@ defmodule AsciinemaWeb.LiveStreamHTML do
   end
 
   def title(stream), do: stream.title || "#{author_username(stream)}'s live stream"
+
+  @http_to_ws %{"http" => "ws", "https" => "wss"}
+
+  defp ws_producer_url(live_stream) do
+    uri = AsciinemaWeb.Endpoint.struct_url()
+    scheme = @http_to_ws[uri.scheme]
+    path = "/ws/S/#{live_stream.producer_token}"
+
+    to_string(%{uri | scheme: scheme, path: path})
+  end
 
   defp ws_consumer_url(live_stream) do
     param = Phoenix.Param.to_param(live_stream)

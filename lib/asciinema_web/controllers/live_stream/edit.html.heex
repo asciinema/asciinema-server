@@ -24,6 +24,29 @@
         </div>
 
         <div class="form-group row">
+          <.label for={f[:buffer_time]} class="col-sm-4 col-md-3 col-lg-3 col-form-label">
+            Buffer time
+          </.label>
+          <div class="col-sm-8 col-md-9 col-lg-9">
+            <.input
+              type="number"
+              field={f[:buffer_time]}
+              class="form-control"
+              min={0.0}
+              max={30.0}
+              step="any"
+              placeholder="1.0"
+            />
+            <.error form={f} field={:buffer_time} />
+            <small class="form-text text-muted">
+              Player uses buffer duration (in
+              seconds) to avoid animation lag from network jitter. Set to 0 to
+              turn off buffering.
+            </small>
+          </div>
+        </div>
+
+        <div class="form-group row">
           <.label for={f[:theme_name]} class="col-sm-4 col-md-3 col-lg-3 col-form-label">
             Terminal theme
           </.label>

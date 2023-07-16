@@ -31,12 +31,12 @@
             type="button"
             data-toggle="dropdown"
           >
-            Settings
+            <.cog_8_tooth_mini_icon />
           </button>
 
           <div class="dropdown-menu">
             <.link :if={:edit in @actions} navigate={~p"/s/#{@stream}/edit"} class="dropdown-item">
-              Edit
+              Settings
             </.link>
 
             <.link
@@ -83,11 +83,103 @@
   </div>
 </section>
 
-<%= render(RecordingView, "_user_recordings.html",
-  conn: @conn,
-  user: @stream.user,
-  asciicasts: @author_asciicasts
-) %>
+<section :if={@user_is_self} class="even instructions">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <h2>Stream URL</h2>
+        <.input
+          name="consumer-url"
+          data-behavior="auto-select"
+          readonly
+          value={url(~p"/s/#{@stream}")}
+        />
+
+        <p class="text-success">This is your unique live stream URL. Share this
+          freely with your viewers.</p>
+
+        <h2>How to stream</h2>
+
+        <h3>Producer endpoint:</h3>
+        <.input
+          name="producer-url"
+          data-behavior="auto-select"
+          readonly
+          value={ws_producer_url(@stream)}
+        />
+
+        <p class="text-danger">Do not share this with anyone. Use it only with
+          the commands provided below to go live.</p>
+
+        <h3>Stream with asciinema + asp:</h3>
+        <.input
+          name="rec-cmd-asciinema-streamer"
+          data-behavior="auto-select"
+          readonly
+          value={"asciinema rec - | asp -f #{ws_producer_url(@stream)}"}
+        />
+
+        <h3>Stream with asciinema + <a href="https://github.com/vi/websocat">websocat</a>:</h3>
+        <.input
+          name="rec-cmd-asciinema-websocat"
+          data-behavior="auto-select"
+          readonly
+          value={"asciinema rec - | websocat --ping-interval 10 #{ws_producer_url(@stream)}"}
+        />
+
+        <h3>
+          Stream with <a href="https://en.wikipedia.org/wiki/Script_(Unix)">script</a> + asp:
+        </h3>
+        <pre><code>mkfifo live.pipe
+
+# in shell 1
+asp -i live.pipe -f <%= ws_producer_url(@stream) %>&nbsp;
+
+# in shell 2
+script -f -O live.pipe
+</code></pre>
+
+        <h3>
+          Stream with <a href="https://en.wikipedia.org/wiki/Script_(Unix)">script</a>
+          + <a href="https://github.com/vi/websocat">websocat</a>:
+        </h3>
+        <pre><code>mkfifo live.pipe
+
+# in shell 1
+websocat --binary --ping-interval 10 readfile:live.pipe <%= ws_producer_url(@stream) %>&nbsp;
+
+# in shell 2
+script -f -O live.pipe</code></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section :if={!@user_is_self && length(@author_asciicasts) > 0} class="even">
+  <div class="container">
+    <div class="row other-asciicasts">
+      <div class="col-md-12">
+        <h2>
+          Recordings by <a href={author_profile_path(@stream)}><%= author_username(@stream) %></a>
+        </h2>
+
+        <div class="asciicast-list">
+          <div class="row">
+            <%= for asciicast <- @author_asciicasts do %>
+              <div class="col-md-6">
+                <%= render(RecordingView, "_card.html", conn: @conn, asciicast: asciicast) %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <p>
+          <a href={author_profile_path(@stream)} class="btn btn-info">See all</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
 
 <script>
   window.addEventListener('load', function() {
