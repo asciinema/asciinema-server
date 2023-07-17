@@ -5,7 +5,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
 
   @behaviour Phoenix.Socket.Transport
 
-  @reset_timeout 1_000
+  @info_timeout 1_000
   @ping_interval 15_000
 
   # Callbacks
@@ -35,9 +35,11 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
           state
 
         live_stream ->
-          LiveStreamServer.join(live_stream.id)
+          LiveStreamServer.subscribe(live_stream.id, :stream)
+          LiveStreamServer.subscribe(live_stream.id, :status)
+          LiveStreamServer.request_info(live_stream.id)
           ViewerTracker.track(live_stream.id)
-          Process.send_after(self(), :reset_timeout, @reset_timeout)
+          Process.send_after(self(), :info_timeout, @info_timeout)
           Process.send_after(self(), :ping, @ping_interval)
           send(self(), :push_alis_header)
 
@@ -63,29 +65,27 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     {:push, header_message(), state}
   end
 
-  def handle_info(%LiveStreamServer.StreamUpdate{event: :reset, data: data}, state) do
+  def handle_info(%LiveStreamServer.Update{event: e, data: data}, state)
+      when e in [:info, :reset] do
     {{cols, rows}, _, _} = data
     Logger.info("consumer/#{state.stream_id}: reset (#{cols}x#{rows})")
 
     {:push, reset_message(data), %{state | reset: true}}
   end
 
-  def handle_info(
-        %LiveStreamServer.StreamUpdate{event: :feed, data: data},
-        %{reset: true} = state
-      ) do
+  def handle_info(%LiveStreamServer.Update{event: :feed, data: data}, %{reset: true} = state) do
     {:push, feed_message(data), state}
   end
 
-  def handle_info(%LiveStreamServer.StreamUpdate{}, %{reset: false} = state) do
+  def handle_info(%LiveStreamServer.Update{}, %{reset: false} = state) do
     {:ok, state}
   end
 
-  def handle_info(%LiveStreamServer.StatusUpdate{status: :offline}, state) do
+  def handle_info(%LiveStreamServer.Update{event: :status, data: :offline}, state) do
     {:push, offline_message(), state}
   end
 
-  def handle_info(%LiveStreamServer.StatusUpdate{status: :online}, state) do
+  def handle_info(%LiveStreamServer.Update{event: :status, data: :online}, state) do
     {:ok, state}
   end
 
@@ -95,11 +95,11 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     {:push, {:ping, ""}, state}
   end
 
-  def handle_info(:reset_timeout, %{reset: false} = state) do
+  def handle_info(:info_timeout, %{reset: false} = state) do
     {:push, offline_message(), state}
   end
 
-  def handle_info(:reset_timeout, %{reset: true} = state), do: {:ok, state}
+  def handle_info(:info_timeout, %{reset: true} = state), do: {:ok, state}
 
   @impl true
   def terminate(reason, state) do
