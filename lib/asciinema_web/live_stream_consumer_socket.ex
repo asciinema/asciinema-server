@@ -70,7 +70,10 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     {:push, reset_message(data), %{state | reset: true}}
   end
 
-  def handle_info(%LiveStreamServer.StreamUpdate{event: :feed, data: data}, state) do
+  def handle_info(
+        %LiveStreamServer.StreamUpdate{event: :feed, data: data},
+        %{reset: true} = state
+      ) do
     {:push, feed_message(data), state}
   end
 
