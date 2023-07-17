@@ -3,14 +3,15 @@ defmodule AsciinemaWeb.LiveStreamStatusLive do
   alias Asciinema.Streaming.{LiveStreamServer, ViewerTracker}
   use AsciinemaWeb, :live_view
 
+  @info_timeout 1_000
   @duration_update_interval 60_000
 
   @impl true
   def render(assigns) do
     ~H"""
     <div class="status-line">
-      <%= case @status do %>
-        <% :live -> %>
+      <%= case {@online, @started_at} do %>
+        <% {true, _} -> %>
           <span class="status-line-item">
             <.live_icon />
 
@@ -24,13 +25,13 @@ defmodule AsciinemaWeb.LiveStreamStatusLive do
           <span class="status-line-item">
             <.eye_solid_icon /> <%= @viewer_count %> watching
           </span>
-        <% :ended -> %>
-          <span class="status-line-item">
-            <.offline_icon /> Stream ended
-          </span>
-        <% :not_started -> %>
+        <% {false, nil} -> %>
           <span class="status-line-item">
             <.offline_icon /> Stream hasn't started
+          </span>
+        <% {false, _} -> %>
+          <span class="status-line-item">
+            <.offline_icon /> Stream ended
           </span>
       <% end %>
     </div>
@@ -41,23 +42,20 @@ defmodule AsciinemaWeb.LiveStreamStatusLive do
   def mount(_params, %{"stream_id" => stream_id}, socket) do
     if connected?(socket) do
       LiveStreamServer.subscribe(stream_id, :status)
+      LiveStreamServer.request_info(stream_id)
       ViewerTracker.subscribe(stream_id)
+      Process.send_after(self(), :info_timeout, @info_timeout)
     end
 
     stream = Streaming.get_live_stream(stream_id)
 
-    status =
-      case {stream.online, stream.last_started_at} do
-        {true, _} -> :live
-        {false, nil} -> :not_started
-        {false, _} -> :ended
-      end
-
     socket =
       socket
       |> assign(
-        status: status,
-        last_started_at: stream.last_started_at || Timex.now(),
+        online: stream.online,
+        confirmed: false,
+        started_at: stream.last_started_at,
+        duration: nil,
         viewer_count: stream.current_viewer_count
       )
       |> update_duration()
@@ -66,22 +64,41 @@ defmodule AsciinemaWeb.LiveStreamStatusLive do
   end
 
   @impl true
-  def handle_info(%LiveStreamServer.StatusUpdate{status: :online}, socket) do
-    if socket.assigns.status == :live do
+  def handle_info(:info_timeout, socket) do
+    if socket.assigns.confirmed do
+      {:noreply, socket}
+    else
+      {:noreply, assign(socket, :online, false)}
+    end
+  end
+
+  def handle_info(%LiveStreamServer.Update{event: :info, data: {_, _, time}}, socket) do
+    started_at = Timex.shift(Timex.now(), milliseconds: -round(time * 1000.0))
+
+    socket =
+      socket
+      |> assign(online: true, started_at: started_at, confirmed: true)
+      |> update_duration()
+
+    {:noreply, socket}
+  end
+
+  def handle_info(%LiveStreamServer.Update{event: :status, data: :online}, socket) do
+    if socket.assigns.online do
       {:noreply, socket}
     else
       socket =
         socket
-        |> assign(status: :live, last_started_at: Timex.now())
+        |> assign(online: true, started_at: Timex.now())
         |> update_duration()
 
       {:noreply, socket}
     end
   end
 
-  def handle_info(%LiveStreamServer.StatusUpdate{status: :offline}, socket) do
-    if socket.assigns.status == :live do
-      {:noreply, assign(socket, status: :ended)}
+  def handle_info(%LiveStreamServer.Update{event: :status, data: :offline}, socket) do
+    if socket.assigns.online do
+      {:noreply, assign(socket, online: false)}
     else
       {:noreply, socket}
     end
@@ -96,7 +113,7 @@ defmodule AsciinemaWeb.LiveStreamStatusLive do
   end
 
   defp update_duration(socket) do
-    socket = assign(socket, :duration, format_duration(socket.assigns.last_started_at))
+    socket = assign(socket, :duration, format_duration(socket.assigns.started_at))
 
     if connected?(socket) do
       if timer = socket.assigns[:update_timer] do
@@ -110,6 +127,8 @@ defmodule AsciinemaWeb.LiveStreamStatusLive do
       socket
     end
   end
+
+  defp format_duration(nil), do: nil
 
   defp format_duration(time) do
     diff = Timex.diff(Timex.now(), time, :seconds)

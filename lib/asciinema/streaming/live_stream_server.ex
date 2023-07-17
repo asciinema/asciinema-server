@@ -4,11 +4,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
   alias Asciinema.{PubSub, Streaming, Vt}
   require Logger
 
-  defmodule StatusUpdate do
-    defstruct [:stream_id, :status]
-  end
-
-  defmodule StreamUpdate do
+  defmodule Update do
     defstruct [:stream_id, :event, :data]
   end
 
@@ -34,18 +30,12 @@ defmodule Asciinema.Streaming.LiveStreamServer do
     GenServer.call(via_tuple(stream_id), :heartbeat)
   end
 
-  def join(stream_id) do
-    subscribe(stream_id, :stream)
-    subscribe(stream_id, :status)
-    GenServer.cast(via_tuple(stream_id), {:join, self()})
+  def subscribe(stream_id, type) when type in [:stream, :status] do
+    PubSub.subscribe(topic_name(stream_id, type))
   end
 
-  def subscribe(stream_id, :stream) do
-    PubSub.subscribe(topic_name(stream_id, :stream))
-  end
-
-  def subscribe(stream_id, :status) do
-    PubSub.subscribe(topic_name(stream_id, :status))
+  def request_info(stream_id) do
+    GenServer.cast(via_tuple(stream_id), {:info, self()})
   end
 
   def stop(stream_id, reason \\ :normal), do: GenServer.stop(via_tuple(stream_id), reason)
@@ -85,9 +75,10 @@ defmodule Asciinema.Streaming.LiveStreamServer do
       |> reset_stream({@default_cols, @default_rows})
       |> reschedule_shutdown()
 
-    publish(stream_id, :status, %StatusUpdate{
+    publish(stream_id, :status, %Update{
       stream_id: stream_id,
-      status: :online
+      event: :status,
+      data: :online
     })
 
     {:ok, state}
@@ -110,7 +101,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
       :ok = Vt.feed(state.vt, vt_init)
     end
 
-    publish(state.stream_id, :stream, %StreamUpdate{
+    publish(state.stream_id, :stream, %Update{
       stream_id: state.stream_id,
       event: :reset,
       data: {vt_size, vt_init, stream_time}
@@ -128,7 +119,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
   def handle_call({:feed, {time, data} = event}, {pid, _} = _from, %{producer: pid} = state) do
     :ok = Vt.feed(state.vt, data)
 
-    publish(state.stream_id, :stream, %StreamUpdate{
+    publish(state.stream_id, :stream, %Update{
       stream_id: state.stream_id,
       event: :feed,
       data: event
@@ -156,12 +147,12 @@ defmodule Asciinema.Streaming.LiveStreamServer do
   end
 
   @impl true
-  def handle_cast({:join, pid}, %{vt_size: vt_size} = state) do
+  def handle_cast({:info, pid}, %{vt_size: vt_size} = state) do
     stream_time = current_stream_time(state.last_stream_time, state.last_feed_time)
 
-    send(pid, %StreamUpdate{
+    send(pid, %Update{
       stream_id: state.stream_id,
-      event: :reset,
+      event: :info,
       data: {vt_size, Vt.dump(state.vt), stream_time}
     })
 
@@ -193,9 +184,10 @@ defmodule Asciinema.Streaming.LiveStreamServer do
     Logger.info("stream/#{state.stream_id}: terminating (#{inspect(reason)})")
     Logger.debug("stream/#{state.stream_id}: state: #{inspect(state)}")
 
-    publish(state.stream_id, :status, %StatusUpdate{
+    publish(state.stream_id, :status, %Update{
       stream_id: state.stream_id,
-      status: :offline
+      event: :status,
+      data: :offline
     })
 
     Streaming.update_live_stream(state.stream, online: false)
@@ -214,12 +206,12 @@ defmodule Asciinema.Streaming.LiveStreamServer do
 
   defp topic_name(stream_id, type), do: "stream:#{stream_id}:#{type}"
 
-  defp reset_stream(state, {cols, rows} = vt_size, stream_time \\ 0.0) do
+  defp reset_stream(state, {cols, rows} = vt_size, time \\ 0.0) do
     {:ok, vt} = Vt.new(cols, rows)
 
     stream =
       Streaming.update_live_stream(state.stream,
-        last_started_at: Timex.shift(Timex.now(), seconds: -round(stream_time)),
+        last_started_at: Timex.shift(Timex.now(), milliseconds: -round(time * 1000.0)),
         cols: cols,
         rows: rows
       )
@@ -229,7 +221,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
       | vt: vt,
         vt_size: vt_size,
         stream: stream,
-        last_stream_time: stream_time,
+        last_stream_time: time,
         last_feed_time: Timex.now()
     }
   end
