@@ -8,17 +8,18 @@
       <h1><.user_circle_outline_icon /> Log in</h1>
       <br />
 
-      <%= form_for @conn, Routes.login_path(@conn, :create), [as: :login, class: "form-inline login-form"], fn f -> %>
+      <.form :let={f} for={@conn} action={~p"/login"} as={:login} class="form-inline login-form">
         <div class="form-group">
-          <%= text_input(f, :email,
-            class: "form-control email",
-            "data-behavior": "focus",
-            placeholder: "Email address or username"
-          ) %>
+          <.input
+            field={f[:email]}
+            class="form-control email"
+            data-behavior="focus"
+            placeholder="Email address or username"
+          />
         </div>
 
         <button class="btn btn-primary" type="submit">Log in</button>
-      <% end %>
+      </.form>
 
       <%= if error = assigns[:error] do %>
         <br />
