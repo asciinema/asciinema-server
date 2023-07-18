@@ -24,17 +24,18 @@ defmodule Asciinema.Application do
       Asciinema.Telemetry,
       # Start the Ecto repository
       Asciinema.Repo,
-      # Start rate limiter
-      {PlugAttack.Storage.Ets, name: AsciinemaWeb.PlugAttack.Storage, clean_period: 60_000},
-      # Start the endpoint when the application starts
-      AsciinemaWeb.Endpoint,
       # Start PNG generator poolboy pool
       :poolboy.child_spec(:worker, Asciinema.PngGenerator.Rsvg.poolboy_config(), []),
       # Start Oban
       {Oban, oban_config()},
+      # Start distributed registry
       {Horde.Registry,
        [name: Asciinema.Streaming.LiveStreamRegistry, keys: :unique, members: :auto]},
-      Asciinema.Streaming.LiveStreamSupervisor
+      Asciinema.Streaming.LiveStreamSupervisor,
+      # Start rate limiter
+      {PlugAttack.Storage.Ets, name: AsciinemaWeb.PlugAttack.Storage, clean_period: 60_000},
+      # Start the endpoint when the application starts
+      AsciinemaWeb.Endpoint
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
