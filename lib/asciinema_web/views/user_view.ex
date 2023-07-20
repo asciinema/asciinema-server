@@ -3,6 +3,8 @@ defmodule AsciinemaWeb.UserView do
   import Scrivener.HTML
   alias Asciinema.Gravatar
 
+  defdelegate theme_options, to: AsciinemaWeb.PlayerView
+
   def avatar_url(user) do
     username = username(user)
     email = user.email || "#{username}+#{user.id}@asciinema.org"
@@ -25,16 +27,6 @@ defmodule AsciinemaWeb.UserView do
 
   def theme_name(user) do
     user.theme_name
-  end
-
-  def theme_options do
-    [
-      {"asciinema", "asciinema"},
-      {"Tango", "tango"},
-      {"Solarized Dark", "solarized-dark"},
-      {"Solarized Light", "solarized-light"},
-      {"Monokai", "monokai"}
-    ]
   end
 
   def active_tokens(api_tokens) do

@@ -479,7 +479,12 @@ defmodule Asciinema.Recordings do
 
   def update_asciicast(asciicast, attrs \\ %{}) do
     changeset =
-      Asciicast.update_changeset(asciicast, attrs, Media.custom_terminal_font_families())
+      Asciicast.update_changeset(
+        asciicast,
+        attrs,
+        Media.custom_terminal_font_families(),
+        Media.themes()
+      )
 
     with {:ok, asciicast} <- Repo.update(changeset) do
       if stale_snapshot?(changeset) do

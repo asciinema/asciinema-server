@@ -6,12 +6,12 @@ defmodule AsciinemaWeb.RecordingView do
   alias AsciinemaWeb.Endpoint
   alias AsciinemaWeb.Router.Helpers.Extra, as: RoutesX
   alias AsciinemaWeb.{PlayerView, UserView}
-  import UserView, only: [theme_options: 0]
 
   defdelegate author_username(asciicast), to: PlayerView
   defdelegate author_avatar_url(stream), to: PlayerView
   defdelegate author_profile_path(stream), to: PlayerView
   defdelegate theme_name(stream), to: PlayerView
+  defdelegate theme_options, to: PlayerView
   defdelegate default_theme_name(stream), to: PlayerView
   defdelegate terminal_font_family_options, to: PlayerView
   defdelegate username(user), to: UserView

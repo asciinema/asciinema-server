@@ -28,6 +28,17 @@ defmodule AsciinemaWeb.PlayerView do
     profile_url(user)
   end
 
+  def theme_options do
+    [
+      {"asciinema", "asciinema"},
+      {"Monokai", "monokai"},
+      {"Nord", "nord"},
+      {"Tango", "tango"},
+      {"Solarized Dark", "solarized-dark"},
+      {"Solarized Light", "solarized-light"}
+    ]
+  end
+
   def theme_name(medium) do
     medium.theme_name || default_theme_name(medium)
   end
