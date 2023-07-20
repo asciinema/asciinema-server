@@ -4,5 +4,16 @@ defmodule Asciinema.Media do
     "JetBrainsMono Nerd Font"
   ]
 
+  @themes [
+    "asciinema",
+    "monokai",
+    "nord",
+    "solarized-dark",
+    "solarized-light",
+    "tango"
+  ]
+
   def custom_terminal_font_families, do: @custom_terminal_font_families
+
+  def themes, do: @themes
 end

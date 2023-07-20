@@ -1,6 +1,6 @@
 defmodule AsciinemaWeb.LiveStreamHTML do
   use AsciinemaWeb, :html
-  alias AsciinemaWeb.{PlayerView, RecordingView, UserView}
+  alias AsciinemaWeb.{PlayerView, RecordingView}
 
   embed_templates "live_stream/*"
 
@@ -8,9 +8,9 @@ defmodule AsciinemaWeb.LiveStreamHTML do
   defdelegate author_avatar_url(stream), to: PlayerView
   defdelegate author_profile_path(stream), to: PlayerView
   defdelegate theme_name(stream), to: PlayerView
+  defdelegate theme_options, to: PlayerView
   defdelegate default_theme_name(stream), to: PlayerView
   defdelegate terminal_font_family_options, to: PlayerView
-  defdelegate theme_options, to: UserView
 
   def player_src(stream) do
     %{

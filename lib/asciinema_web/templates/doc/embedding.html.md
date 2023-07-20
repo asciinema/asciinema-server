@@ -148,10 +148,11 @@ to a theme set by the asciicast author (or to "asciinema" if not set by the
 author). The available themes are:
 
 * asciinema
-* tango
+* monokai
+* nord
 * solarized-dark
 * solarized-light
-* monokai
+* tango
 
 ### **cols**
 

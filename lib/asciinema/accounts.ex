@@ -3,12 +3,11 @@ defmodule Asciinema.Accounts do
   import Ecto.Query, warn: false
   import Ecto, only: [assoc: 2, build_assoc: 2]
   alias Asciinema.Accounts.{User, ApiToken}
-  alias Asciinema.Repo
+  alias Asciinema.{Media, Repo}
   alias Ecto.Changeset
 
   @valid_email_re ~r/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i
   @valid_username_re ~r/^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]$/
-  @valid_theme_names ["asciinema", "tango", "solarized-dark", "solarized-light", "monokai"]
 
   def fetch_user(id) do
     case get_user(id) do
@@ -67,7 +66,7 @@ defmodule Asciinema.Accounts do
     |> validate_format(:email, @valid_email_re)
     |> validate_format(:username, @valid_username_re)
     |> validate_length(:username, min: 2, max: 16)
-    |> validate_inclusion(:theme_name, @valid_theme_names)
+    |> validate_inclusion(:theme_name, Media.themes())
     |> add_contraints()
   end
 
