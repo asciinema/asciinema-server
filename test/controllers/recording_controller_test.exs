@@ -42,6 +42,8 @@ defmodule Asciinema.RecordingControllerTest do
 
       conn_2 = get(conn, url)
       assert html_response(conn_2, 200) =~ "Good stuff"
+      assert html_response(conn_2, 200) =~ "application/json+oembed"
+      assert html_response(conn_2, 200) =~ "application/x-asciicast"
       assert response_content_type(conn_2, :html)
 
       conn_2 = conn |> put_req_header("accept", "*/*") |> get(url)

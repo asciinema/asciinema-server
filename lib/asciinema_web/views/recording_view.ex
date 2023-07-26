@@ -523,6 +523,6 @@ defmodule AsciinemaWeb.RecordingView do
 
   defp rows(asciicast), do: asciicast.rows_override || asciicast.rows
 
-  def meta(:show, assigns), do: render("meta.show.html", assigns)
+  def meta("show.html", assigns), do: render("meta.show.html", assigns)
   def meta(_, _), do: nil
 end
