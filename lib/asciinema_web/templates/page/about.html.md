@@ -22,12 +22,12 @@ Help the project by [contributing](/contributing) money or time.
 
 ## A bit of history
 
-asciinema project was started by [Marcin Kulik](https://asciinema.org/~sickill)
-([@sickill](https://twitter.com/sickill)) in the beginning of 2011 as ascii.io.
-He was playing with the idea of sharing terminal session recordings on the web
-since 2010 but the working prototype came to life a bit later.  asciinema.org
-site had a first public release in March 2012 (as ascii.io then).  The project
-was renamed to "asciinema" in September 2013.
+asciinema project was started by [Marcin Kulik](https://asciinema.org/~ku1ik)
+in the beginning of 2011 as ascii.io. He was playing with the idea of sharing
+terminal session recordings on the web since 2010 but the working prototype
+came to life a bit later.  asciinema.org site had a first public release in
+March 2012 (as ascii.io then).  The project was renamed to "asciinema" in
+September 2013.
 
 asciinema is actively developed with the help of great open
 source [contributors](https://github.com/asciinema/asciinema-server/contributors).
