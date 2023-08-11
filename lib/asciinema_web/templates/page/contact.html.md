@@ -1,5 +1,12 @@
 # Contact / Community
 
+## Mastodon
+
+Follow [@asciinema](https://fosstodon.org/@asciinema) on Mastodon to get updates on
+new releases, get some tips & tricks and find out about interesting recordings.
+
+Please don't report bugs via Mastodon.
+
 ## Forum
 
 [Github Discussions](https://github.com/orgs/asciinema/discussions) is a great
@@ -27,13 +34,6 @@ We also have a [Matrix](https://matrix.org/) room:
 [#asciinema:matrix.org](https://matrix.to/#/#asciinema:matrix.org). We recommend
 Riot web client (click on big R icon). This Matrix room is bridged to the IRC
 channel, and the discussions are synced both ways (IRC <-> Matrix).
-
-## Twitter
-
-Follow [@asciinema](https://twitter.com/asciinema) on Twitter to get updates on
-new releases, get some tips & tricks and find out about interesting recordings.
-
-Please don't report bugs via Twitter.
 
 ## Contacting admin of asciinema.org
 
