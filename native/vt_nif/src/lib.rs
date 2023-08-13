@@ -1,5 +1,5 @@
 use avt::Vt;
-use rustler::{Atom, Encoder, Env, Error, NifResult, ResourceArc, Term};
+use rustler::{Atom, Encoder, Env, Error, NifResult, ResourceArc, Term, Binary};
 use std::sync::RwLock;
 
 mod atoms {
@@ -35,11 +35,18 @@ fn new(w: usize, h: usize) -> NifResult<(Atom, ResourceArc<VtResource>)> {
 }
 
 #[rustler::nif]
-fn feed(resource: ResourceArc<VtResource>, input: &str) -> NifResult<Atom> {
+fn feed(resource: ResourceArc<VtResource>, input: Binary) -> NifResult<Atom> {
     let mut vt = convert_err(resource.vt.write(), "rw_lock")?;
-    vt.feed_str(input);
+    vt.feed_str(&String::from_utf8_lossy(&input));
 
     Ok(atoms::ok())
+}
+
+#[rustler::nif]
+fn dump(resource: ResourceArc<VtResource>) -> NifResult<String> {
+    let vt = convert_err(resource.vt.read(), "rw_lock")?;
+
+    Ok(vt.dump())
 }
 
 #[rustler::nif]
@@ -130,4 +137,4 @@ fn convert_err<T, E>(result: Result<T, E>, error: &'static str) -> Result<T, Err
     }
 }
 
-rustler::init!("Elixir.Asciinema.Vt", [new, feed, dump_screen], load = load);
+rustler::init!("Elixir.Asciinema.Vt", [new, feed, dump, dump_screen], load = load);

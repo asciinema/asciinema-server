@@ -10,22 +10,32 @@ defmodule Asciinema.Application do
     :ok = Oban.Telemetry.attach_default_logger()
     :ok = Asciinema.ObanErrorReporter.configure()
 
+    topologies = Application.get_env(:libcluster, :topologies, [])
+
     # List all child processes to be supervised
     children = [
+      # Start cluster supervisor
+      {Cluster.Supervisor, [topologies, [name: Asciinema.ClusterSupervisor]]},
+      # Start the PubSub system
+      {Phoenix.PubSub, [name: Asciinema.PubSub, adapter: Phoenix.PubSub.PG2]},
+      # Start live stream viewer tracker
+      {Asciinema.Streaming.ViewerTracker, [pubsub_server: Asciinema.PubSub]},
       # Start telemetry reporters
       Asciinema.Telemetry,
       # Start the Ecto repository
       Asciinema.Repo,
-      # Start rate limiter
-      {PlugAttack.Storage.Ets, name: AsciinemaWeb.PlugAttack.Storage, clean_period: 60_000},
-      # Start the endpoint when the application starts
-      AsciinemaWeb.Endpoint,
-      # Start Phoenix PubSub
-      {Phoenix.PubSub, [name: Asciinema.PubSub, adapter: Phoenix.PubSub.PG2]},
       # Start PNG generator poolboy pool
       :poolboy.child_spec(:worker, Asciinema.PngGenerator.Rsvg.poolboy_config(), []),
       # Start Oban
-      {Oban, oban_config()}
+      {Oban, oban_config()},
+      # Start distributed registry
+      {Horde.Registry,
+       [name: Asciinema.Streaming.LiveStreamRegistry, keys: :unique, members: :auto]},
+      Asciinema.Streaming.LiveStreamSupervisor,
+      # Start rate limiter
+      {PlugAttack.Storage.Ets, name: AsciinemaWeb.PlugAttack.Storage, clean_period: 60_000},
+      # Start the endpoint when the application starts
+      AsciinemaWeb.Endpoint
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

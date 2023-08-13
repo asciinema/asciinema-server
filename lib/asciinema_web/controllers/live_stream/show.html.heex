@@ -1,0 +1,218 @@
+<section
+  class="cinema"
+  id="cinema"
+  style={"height: #{cinema_height(@stream)}vw; max-height: 75vh"}
+>
+</section>
+
+<section class="even info">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-xs-12">
+        <span class="author-avatar">
+          <.link navigate={author_profile_path(@stream)} title={author_username(@stream)}>
+            <img src={author_avatar_url(@stream)} class="avatar" />
+          </.link>
+        </span>
+
+        <h2><%= title(@stream) %></h2>
+
+        <small>
+          by
+          <.link navigate={author_profile_path(@stream)}><%= author_username(@stream) %></.link>
+          <.private_badge :if={@stream.private} />
+        </small>
+      </div>
+
+      <div class="col-md-4 col-xs-12 text-right actions">
+        <div :if={length(@actions) > 0} class="dropdown actions-dropdown pull-right">
+          <button
+            class="btn btn-sm btn-secondary dropdown-toggle"
+            type="button"
+            data-toggle="dropdown"
+          >
+            <.cog_8_tooth_mini_icon />
+          </button>
+
+          <div class="dropdown-menu">
+            <.link :if={:edit in @actions} navigate={~p"/s/#{@stream}/edit"} class="dropdown-item">
+              Settings
+            </.link>
+
+            <.link
+              :if={:make_private in @actions}
+              href={~p"/s/#{@stream}?live_stream[private]=1"}
+              class="dropdown-item"
+              method="put"
+            >
+              Make private
+            </.link>
+
+            <.link
+              :if={:make_public in @actions}
+              href={~p"/s/#{@stream}?live_stream[private]=0"}
+              class="dropdown-item"
+              method="put"
+            >
+              Make public
+            </.link>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="odd meta">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12 col-xs-12">
+        <%= live_render(@conn, AsciinemaWeb.LiveStreamStatusLive,
+          session: %{"stream_id" => @stream.id}
+        ) %>
+
+        <%= if desc = render_markdown(@stream.description) do %>
+          <hr />
+
+          <div class="description">
+            <%= desc %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section :if={@user_is_self} class="even instructions">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <h2>Stream URL</h2>
+        <.input
+          name="consumer-url"
+          data-behavior="auto-select"
+          readonly
+          value={url(~p"/s/#{@stream}")}
+        />
+
+        <p class="text-success">This is your unique live stream URL. Share this
+          freely with your viewers.</p>
+
+        <h2>How to stream</h2>
+
+        <h3>Producer endpoint:</h3>
+        <.input
+          name="producer-url"
+          data-behavior="auto-select"
+          readonly
+          value={ws_producer_url(@stream)}
+        />
+
+        <p class="text-danger">Do not share this with anyone. Use it only with
+          the commands provided below to go live.</p>
+
+        <h3>Stream with asciinema (2.2+) + asp:</h3>
+        <.input
+          name="rec-cmd-asciinema-streamer"
+          data-behavior="auto-select"
+          readonly
+          value={"asciinema rec - | asp -f #{ws_producer_url(@stream)}"}
+        />
+
+        <h3>
+          Stream with asciinema (2.2+) + <a href="https://github.com/vi/websocat">websocat</a>:
+        </h3>
+        <.input
+          name="rec-cmd-asciinema-websocat"
+          data-behavior="auto-select"
+          readonly
+          value={"asciinema rec - | websocat #{ws_producer_url(@stream)}"}
+        />
+
+        <h3>
+          Stream with asciinema (&lt;2.2) + <a href="https://github.com/vi/websocat">websocat</a>:
+        </h3>
+        <pre><code>mkfifo live.pipe
+
+# in shell 1
+websocat <%= ws_producer_url(@stream) %> &lt;live.pipe
+
+# in shell 2
+asciinema rec live.pipe</code></pre>
+
+        <h3>
+          Stream with <a href="https://en.wikipedia.org/wiki/Script_(Unix)">script</a> + asp:
+        </h3>
+        <pre><code>mkfifo live.pipe
+
+# in shell 1
+asp --in-fmt raw -i live.pipe -f <%= ws_producer_url(@stream) %>&nbsp;
+
+# in shell 2
+script -f -O live.pipe
+</code></pre>
+
+        <h3>
+          Stream with <a href="https://en.wikipedia.org/wiki/Script_(Unix)">script</a>
+          + <a href="https://github.com/vi/websocat">websocat</a>:
+        </h3>
+        <pre><code>mkfifo live.pipe
+
+# in shell 1
+websocat --binary <%= ws_producer_url(@stream) %> &lt;live.pipe
+
+# in shell 2
+script -f -O live.pipe</code></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section :if={!@user_is_self && length(@author_asciicasts) > 0} class="even">
+  <div class="container">
+    <div class="row other-asciicasts">
+      <div class="col-md-12">
+        <h2>
+          Recordings by <a href={author_profile_path(@stream)}><%= author_username(@stream) %></a>
+        </h2>
+
+        <div class="asciicast-list">
+          <div class="row">
+            <%= for asciicast <- @author_asciicasts do %>
+              <div class="col-md-6">
+                <%= render(RecordingView, "_card.html", conn: @conn, asciicast: asciicast) %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <p>
+          <a href={author_profile_path(@stream)} class="btn btn-info">See all</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  window.addEventListener('load', function() {
+    const container = document.getElementById('cinema');
+    const opts = <%= safe_json(player_opts(@stream, @player_opts)) %>;
+
+    const player = window.createPlayer(
+      <%= safe_json(player_src(@stream)) %>,
+      container,
+      { ...opts, fit: 'both', logger: console }
+    );
+
+    const containerVerticalPadding = 2 * 4;
+    const approxCharWidth = 7;
+    const approxCharHeight = 16;
+
+    player.addEventListener('reset', ({ cols, rows }) => {
+      const ratio = (rows * approxCharHeight) / (cols * approxCharWidth);
+      const height = Math.round(containerVerticalPadding + 100 * ratio);
+      container.style.height = `${height}vw`;
+    });
+  });
+</script>

@@ -3,8 +3,11 @@ defmodule Asciinema.Accounts do
   import Ecto.Query, warn: false
   import Ecto, only: [assoc: 2, build_assoc: 2]
   alias Asciinema.Accounts.{User, ApiToken}
-  alias Asciinema.{Emails, Repo}
+  alias Asciinema.{Media, Repo}
   alias Ecto.Changeset
+
+  @valid_email_re ~r/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i
+  @valid_username_re ~r/^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]$/
 
   def fetch_user(id) do
     case get_user(id) do
@@ -21,6 +24,22 @@ defmodule Asciinema.Accounts do
     Repo.get_by(User, auth_token: auth_token)
   end
 
+  def create_user(attrs) do
+    import Ecto.Changeset
+
+    result =
+      %User{}
+      |> cast(attrs, [:email])
+      |> validate_format(:email, @valid_email_re)
+      |> validate_required([:email])
+      |> add_contraints()
+      |> Repo.insert()
+
+    with {:error, %Ecto.Changeset{errors: [{:email, _}]}} <- result do
+      {:error, :email_taken}
+    end
+  end
+
   def ensure_asciinema_user do
     case Repo.get_by(User, username: "asciinema") do
       nil ->
@@ -31,7 +50,7 @@ defmodule Asciinema.Accounts do
         }
 
         %User{}
-        |> User.changeset(attrs)
+        |> change_user(attrs)
         |> Repo.insert!()
 
       user ->
@@ -39,13 +58,32 @@ defmodule Asciinema.Accounts do
     end
   end
 
-  def change_user(user) do
-    User.changeset(user)
+  def change_user(user, params \\ %{}) do
+    import Ecto.Changeset
+
+    user
+    |> cast(params, [:email, :name, :username, :theme_name, :asciicasts_private_by_default])
+    |> validate_format(:email, @valid_email_re)
+    |> validate_format(:username, @valid_username_re)
+    |> validate_length(:username, min: 2, max: 16)
+    |> validate_inclusion(:theme_name, Media.themes())
+    |> add_contraints()
+  end
+
+  defp add_contraints(changeset) do
+    import Ecto.Changeset
+
+    changeset
+    |> unique_constraint(:username, name: "index_users_on_username")
+    |> unique_constraint(:email, name: "index_users_on_email")
   end
 
   def update_user(user, params) do
+    import Ecto.Changeset
+
     user
-    |> User.update_changeset(params)
+    |> change_user(params)
+    |> validate_required([:username, :email])
     |> Repo.update()
   end
 
@@ -55,41 +93,38 @@ defmodule Asciinema.Accounts do
     from(u in q, where: is_nil(u.email))
   end
 
-  def send_login_email(email_or_username, signup_url, login_url, sign_up_enabled?) do
-    case {lookup_user(email_or_username), sign_up_enabled?} do
-      {%User{email: nil}, _} ->
+  def generate_login_url(identifier, sign_up_enabled?, routes) do
+    case {lookup_user(identifier), sign_up_enabled?} do
+      {{_, %User{email: nil}}, _} ->
         {:error, :email_missing}
 
-      {%User{} = user, _} ->
-        url = user |> login_token() |> login_url.()
-        {:ok, _} = Emails.send_login_email(user.email, url)
+      {{_, %User{} = user}, _} ->
+        url = user |> login_token() |> routes.login_url()
 
-        :ok
+        {:ok, {:login, url, user.email}}
 
-      {%Changeset{errors: [{:email, _}]}, _} ->
-        {:error, :email_invalid}
+      {{:email, nil}, true} ->
+        changeset = change_user(%User{}, %{email: identifier})
 
-      {%Changeset{} = changeset, true} ->
-        email = changeset.changes.email
-        url = email |> signup_token() |> signup_url.()
-        {:ok, _} = Emails.send_signup_email(email, url)
+        if changeset.valid? do
+          email = changeset.changes.email
+          url = email |> signup_token() |> routes.signup_url()
 
-        :ok
+          {:ok, {:signup, url, email}}
+        else
+          {:error, :email_invalid}
+        end
 
-      {%Changeset{}, false} ->
-        {:error, :user_not_found}
-
-      {nil, _} ->
+      {{_, nil}, _} ->
         {:error, :user_not_found}
     end
   end
 
-  def lookup_user(email_or_username) do
-    if String.contains?(email_or_username, "@") do
-      Repo.get_by(User, email: email_or_username) ||
-        User.signup_changeset(%{email: email_or_username})
+  def lookup_user(identifier) do
+    if String.contains?(identifier, "@") do
+      {:email, Repo.get_by(User, email: identifier)}
     else
-      Repo.get_by(User, username: email_or_username)
+      {:username, Repo.get_by(User, username: identifier)}
     end
   end
 
@@ -113,18 +148,10 @@ defmodule Asciinema.Accounts do
         max_age: config(:login_token_max_age, 60) * 60
       )
 
-    with {:ok, email} <- result,
-         {:ok, user} <- %{email: email} |> User.signup_changeset() |> Repo.insert() do
-      {:ok, user}
-    else
-      {:error, :invalid} ->
-        {:error, :token_invalid}
-
-      {:error, %Ecto.Changeset{}} ->
-        {:error, :email_taken}
-
-      {:error, _} ->
-        {:error, :token_expired}
+    case result do
+      {:ok, email} -> {:ok, email}
+      {:error, :invalid} -> {:error, :token_invalid}
+      {:error, _} -> {:error, :token_expired}
     end
   end
 
@@ -167,10 +194,12 @@ defmodule Asciinema.Accounts do
   end
 
   def create_user_with_api_token(token, tmp_username) do
-    user_changeset = User.temporary_changeset(tmp_username)
+    import Ecto.Changeset
+
+    changeset = change(%User{}, %{temporary_username: tmp_username})
 
     Repo.transaction(fn ->
-      with {:ok, %User{} = user} <- Repo.insert(user_changeset),
+      with {:ok, %User{} = user} <- Repo.insert(changeset),
            {:ok, %ApiToken{}} <- create_api_token(user, token) do
         user
       else

@@ -2,6 +2,7 @@ defmodule AsciinemaWeb.RecordingController do
   use AsciinemaWeb, :controller
   alias Asciinema.{Recordings, PngGenerator, Accounts}
   alias Asciinema.Recordings.Asciicast
+  alias AsciinemaWeb.PlayerOpts
 
   plug :clear_main_class
   plug :load_asciicast when action in [:show, :edit, :update, :delete, :iframe]
@@ -12,7 +13,7 @@ defmodule AsciinemaWeb.RecordingController do
     category = params[:category]
     order = if params["order"] == "popularity", do: :popularity, else: :date
 
-    page = Recordings.paginate_asciicasts(category, order, params["page"], 12)
+    page = Recordings.paginate_asciicasts(category, order, params["page"], 14)
 
     assigns = [
       page_title: String.capitalize("#{category} recordings"),
@@ -60,7 +61,7 @@ defmodule AsciinemaWeb.RecordingController do
         "show.html",
         page_title: AsciinemaWeb.RecordingView.title(asciicast),
         asciicast: asciicast,
-        playback_options: playback_options(conn.params),
+        player_opts: player_opts(conn.params),
         actions: asciicast_actions(asciicast, conn.assigns.current_user),
         author_asciicasts: Recordings.other_public_asciicasts(asciicast)
       )
@@ -190,7 +191,7 @@ defmodule AsciinemaWeb.RecordingController do
       |> put_status(410)
       |> render("archived.html")
     else
-      render(conn, "iframe.html", playback_options: playback_options(params))
+      render(conn, "iframe.html", player_opts: player_opts(params))
     end
   end
 
@@ -217,8 +218,8 @@ defmodule AsciinemaWeb.RecordingController do
       {:ok, asciicast} ->
         public_id = to_string(asciicast.id)
 
-        case {asciicast.private, get_format(conn), id == public_id} do
-          {false, "html", false} ->
+        case {asciicast.private, action_name(conn), get_format(conn), id == public_id} do
+          {false, :show, "html", false} ->
             conn
             |> redirect(to: Routes.recording_path(conn, :show, asciicast))
             |> halt()
@@ -274,7 +275,7 @@ defmodule AsciinemaWeb.RecordingController do
 
   defp put_archival_info_flash(conn, asciicast) do
     with true <- asciicast.archivable,
-         days when not is_nil(days) <- Recordings.gc_days(),
+         days when not is_nil(days) <- Asciinema.recording_gc_days(),
          %{} = user <- asciicast.user,
          true <- Accounts.temporary_user?(user),
          true <- Timex.before?(asciicast.inserted_at, Timex.shift(Timex.now(), days: -days)) do
@@ -289,9 +290,9 @@ defmodule AsciinemaWeb.RecordingController do
     end
   end
 
-  defp playback_options(params) do
+  defp player_opts(params) do
     params
     |> Ext.Map.rename(%{"t" => "startAt", "i" => "idleTimeLimit"})
-    |> Recordings.PlaybackOpts.parse()
+    |> PlayerOpts.parse(:recording)
   end
 end

@@ -1,6 +1,5 @@
 defmodule AsciinemaWeb.SessionController do
   use AsciinemaWeb, :controller
-  alias Asciinema.Accounts
   alias AsciinemaWeb.Auth
   alias Asciinema.Accounts.User
 
@@ -18,7 +17,7 @@ defmodule AsciinemaWeb.SessionController do
     login_token = get_session(conn, :login_token)
     conn = delete_session(conn, :login_token)
 
-    case Accounts.verify_login_token(login_token) do
+    case Asciinema.verify_login_token(login_token) do
       {:ok, user} ->
         conn
         |> Auth.log_in(user)

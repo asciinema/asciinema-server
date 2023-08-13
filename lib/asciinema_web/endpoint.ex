@@ -8,12 +8,17 @@ defmodule AsciinemaWeb.Endpoint do
   @session_options [
     store: :cookie,
     key: "_asciinema_key",
-    signing_salt: "qJL+3s0T"
+    signing_salt: "qJL+3s0T",
+    same_site: "Lax"
   ]
 
-  # socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]]
+  socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]]
 
-  # socket "/socket", AsciinemaWeb.UserSocket, websocket: true
+  # compress helps at all?
+  socket "/ws/S/:producer_token", AsciinemaWeb.LiveStreamProducerSocket,
+    websocket: [path: "", compress: true]
+
+  socket "/ws/s/:id", AsciinemaWeb.LiveStreamConsumerSocket, websocket: [path: "", compress: true]
 
   # Serve at "/" the static files from "priv/static" directory.
   #
@@ -23,7 +28,7 @@ defmodule AsciinemaWeb.Endpoint do
     at: "/",
     from: :asciinema,
     gzip: true,
-    only: ~w(css fonts images js favicon.ico robots.txt)
+    only: AsciinemaWeb.static_paths()
 
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
@@ -42,11 +47,11 @@ defmodule AsciinemaWeb.Endpoint do
     pass: ["*/*"],
     json_decoder: Phoenix.json_library()
 
+  plug RemoteIp
   plug Sentry.PlugContext
   plug Plug.MethodOverride
   plug Plug.Head
   plug Plug.Session, @session_options
-  plug RemoteIp
   plug AsciinemaWeb.PlugAttack
   plug AsciinemaWeb.Router
 end

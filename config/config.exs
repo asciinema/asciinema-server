@@ -16,6 +16,7 @@ config :asciinema, Asciinema.Repo, migration_timestamps: [type: :naive_datetime_
 config :asciinema, AsciinemaWeb.Endpoint,
   url: [host: "localhost"],
   render_errors: [view: AsciinemaWeb.ErrorView, accepts: ~w(html json), layout: false],
+  live_view: [signing_salt: "F3BMP7k9SZ-Y2SMJ"],
   pubsub_server: Asciinema.PubSub
 
 # Configures Elixir's Logger
@@ -55,7 +56,8 @@ config :asciinema, Oban,
     {Oban.Plugins.Pruner, max_age: 604_800},
     {Oban.Plugins.Cron,
      crontab: [
-       {"0 * * * *", Asciinema.GC}
+       {"0 * * * *", Asciinema.GC},
+       {"* * * * *", Asciinema.Streaming.GC}
      ]},
     Oban.Plugins.Lifeline,
     Oban.Plugins.Reindexer

@@ -3,7 +3,7 @@
     <div class="col-md-12">
       <h2>This recording has been archived</h2>
 
-      <%= if days = asciicast_gc_days() do %>
+      <%= if days = recording_gc_days() do %>
         <p>
           All unclaimed recordings (the ones not linked to any user account) are
           automatically archived <%= days %> days after upload.

@@ -91,7 +91,7 @@ defmodule Asciinema.Recordings.Asciicast do
     |> generate_secret_token
   end
 
-  def update_changeset(struct, attrs, custom_terminal_font_families \\ []) do
+  def update_changeset(struct, attrs, custom_terminal_font_families \\ [], themes \\ []) do
     struct
     |> changeset(attrs)
     |> cast(attrs, [
@@ -107,6 +107,7 @@ defmodule Asciinema.Recordings.Asciicast do
     |> validate_number(:cols_override, greater_than: 0, less_than: 1024)
     |> validate_number(:rows_override, greater_than: 0, less_than: 512)
     |> validate_number(:idle_time_limit, greater_than_or_equal_to: 0.5)
+    |> validate_inclusion(:theme_name, themes)
     |> validate_number(:terminal_line_height,
       greater_than_or_equal_to: 1.0,
       less_than_or_equal_to: 2.0
@@ -151,10 +152,6 @@ defmodule Asciinema.Recordings.Asciicast do
     else
       _ -> :error
     end
-  end
-
-  def snapshot_changeset(struct, snapshot) do
-    cast(struct, %{snapshot: snapshot}, [:snapshot])
   end
 
   defp generate_secret_token(changeset) do

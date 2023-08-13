@@ -1,14 +1,9 @@
 defmodule Asciinema.Recordings do
   require Logger
   import Ecto.Query, warn: false
-  alias Asciinema.{Repo, FileStore, StringUtils, Vt}
+  alias Asciinema.{FileStore, Media, Repo, StringUtils, Vt}
   alias Asciinema.Recordings.{Asciicast, SnapshotUpdater}
   alias Ecto.Changeset
-
-  @custom_terminal_font_families [
-    "FiraCode Nerd Font",
-    "JetBrainsMono Nerd Font"
-  ]
 
   def fetch_asciicast(id) do
     case get_asciicast(id) do
@@ -40,6 +35,16 @@ defmodule Asciinema.Recordings do
     q
     |> Repo.one()
     |> Repo.preload(:user)
+  end
+
+  def public_asciicasts(%{asciicasts: _} = owner, limit \\ 4) do
+    owner
+    |> Ecto.assoc(:asciicasts)
+    |> filter(:public)
+    |> sort(:random)
+    |> limit(^limit)
+    |> preload(:user)
+    |> Repo.all()
   end
 
   def other_public_asciicasts(asciicast, limit \\ 4) do
@@ -447,7 +452,13 @@ defmodule Asciinema.Recordings do
   end
 
   def update_asciicast(asciicast, attrs \\ %{}) do
-    changeset = Asciicast.update_changeset(asciicast, attrs, @custom_terminal_font_families)
+    changeset =
+      Asciicast.update_changeset(
+        asciicast,
+        attrs,
+        Media.custom_terminal_font_families(),
+        Media.themes()
+      )
 
     with {:ok, asciicast} <- Repo.update(changeset) do
       if stale_snapshot?(changeset) do
@@ -473,9 +484,11 @@ defmodule Asciinema.Recordings do
 
   def delete_asciicast(asciicast) do
     with {:ok, asciicast} <- Repo.delete(asciicast) do
-      :ok = FileStore.delete_file(asciicast.path)
-
-      {:ok, asciicast}
+      case FileStore.delete_file(asciicast.path) do
+        :ok -> {:ok, asciicast}
+        {:error, :enoent} -> {:ok, asciicast}
+        otherwise -> otherwise
+      end
     end
   end
 
@@ -484,7 +497,7 @@ defmodule Asciinema.Recordings do
     rows = asciicast.rows_override || asciicast.rows
     secs = Asciicast.snapshot_at(asciicast)
     snapshot = asciicast |> stdout_stream |> generate_snapshot(cols, rows, secs)
-    asciicast |> Asciicast.snapshot_changeset(snapshot) |> Repo.update()
+    asciicast |> Changeset.cast(%{snapshot: snapshot}, [:snapshot]) |> Repo.update()
   end
 
   def generate_snapshot(stdout_stream, width, height, secs) do
@@ -650,18 +663,15 @@ defmodule Asciinema.Recordings do
     tmp_path
   end
 
-  def gc_days do
-    Application.get_env(:asciinema, :asciicast_gc_days)
-  end
-
-  def archive_asciicasts(users_query, dt) do
+  def archive_asciicasts(users_query, t) do
     query =
       from a in Asciicast,
         join: u in ^users_query,
         on: a.user_id == u.id,
-        where: a.archivable and is_nil(a.archived_at) and a.inserted_at < ^dt
+        where: a.archivable and is_nil(a.archived_at) and a.inserted_at < ^t
 
     {count, _} = Repo.update_all(query, set: [archived_at: Timex.now()])
+
     count
   end
 
@@ -669,6 +679,4 @@ defmodule Asciinema.Recordings do
     q = from(a in Asciicast, where: a.user_id == ^src_user_id)
     Repo.update_all(q, set: [user_id: dst_user_id, updated_at: Timex.now()])
   end
-
-  def custom_terminal_font_families, do: @custom_terminal_font_families
 end

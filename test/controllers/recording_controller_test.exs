@@ -42,6 +42,8 @@ defmodule Asciinema.RecordingControllerTest do
 
       conn_2 = get(conn, url)
       assert html_response(conn_2, 200) =~ "Good stuff"
+      assert html_response(conn_2, 200) =~ "application/json+oembed"
+      assert html_response(conn_2, 200) =~ "application/x-asciicast"
       assert response_content_type(conn_2, :html)
 
       conn_2 = conn |> put_req_header("accept", "*/*") |> get(url)
@@ -53,6 +55,12 @@ defmodule Asciinema.RecordingControllerTest do
       asciicast = insert(:asciicast, private: false)
       conn_2 = get(conn, "/a/#{asciicast.secret_token}")
       assert redirected_to(conn_2, 302) == "/a/#{asciicast.id}"
+    end
+
+    test "IFRAME, public recording via secret token", %{conn: conn} do
+      asciicast = insert(:asciicast, private: false)
+      conn_2 = get(conn, "/a/#{asciicast.secret_token}/iframe")
+      assert html_response(conn_2, 200) =~ "createPlayer"
     end
 
     test "asciicast file, v1 format", %{conn: conn} do
@@ -124,7 +132,7 @@ defmodule Asciinema.RecordingControllerTest do
       conn = get(conn, Routes.recording_path(conn, :iframe, asciicast))
       assert html_response(conn, 200) =~ ~r/iframe\.css/
       assert html_response(conn, 200) =~ ~r/iframe\.js/
-      assert html_response(conn, 200) =~ ~r/window\.players\.set/
+      assert html_response(conn, 200) =~ ~r/window\.createPlayer/
     end
   end
 
@@ -166,7 +174,7 @@ defmodule Asciinema.RecordingControllerTest do
       conn = put conn, Routes.recording_path(conn, :update, asciicast), attrs
 
       location = List.first(get_resp_header(conn, "location"))
-      assert get_flash(conn, :info) =~ ~r/updated/i
+      assert flash(conn, :info) =~ ~r/updated/i
       assert response(conn, 302)
 
       conn = get(build_conn(), location)
@@ -198,7 +206,7 @@ defmodule Asciinema.RecordingControllerTest do
 
       conn = delete(conn, Routes.recording_path(conn, :delete, asciicast))
 
-      assert get_flash(conn, :info) =~ ~r/deleted/i
+      assert flash(conn, :info) =~ ~r/deleted/i
       assert response(conn, 302)
 
       conn = get(build_conn(), Routes.recording_path(conn, :show, asciicast))

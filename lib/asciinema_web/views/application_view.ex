@@ -30,4 +30,21 @@ defmodule AsciinemaWeb.ApplicationView do
   def sign_up_enabled?(conn) do
     Map.get(conn.assigns, :cfg_sign_up_enabled?, true)
   end
+
+  def safe_json(value) do
+    json =
+      value
+      |> Jason.encode!()
+      |> String.replace(~r/</, "\\u003c")
+
+    {:safe, json}
+  end
+
+  def render_markdown(input) do
+    input = String.trim("#{input}")
+
+    if present?(input) do
+      {:safe, HtmlSanitizeEx.basic_html(Earmark.as_html!(input))}
+    end
+  end
 end

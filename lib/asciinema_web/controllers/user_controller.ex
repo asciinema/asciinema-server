@@ -19,10 +19,10 @@ defmodule AsciinemaWeb.UserController do
   end
 
   def create(conn, _params) do
-    signup_token = get_session(conn, :signup_token)
+    token = get_session(conn, :signup_token)
     conn = delete_session(conn, :signup_token)
 
-    case Accounts.verify_signup_token(signup_token) do
+    case Asciinema.create_user_from_signup_token(token) do
       {:ok, user} ->
         conn
         |> Auth.log_in(user)
@@ -67,7 +67,7 @@ defmodule AsciinemaWeb.UserController do
         {user.id, filter},
         :date,
         params["page"],
-        15
+        14
       )
 
     conn

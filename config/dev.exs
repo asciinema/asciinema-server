@@ -47,9 +47,13 @@ config :asciinema, AsciinemaWeb.Endpoint,
       ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
       ~r"priv/gettext/.*(po)$",
       ~r"lib/asciinema_web/views/.*(ex)$",
-      ~r"lib/asciinema_web/templates/.*(eex|md)$"
+      ~r"lib/asciinema_web/templates/.*(eex|md)$",
+      ~r"lib/asciinema_web/(controllers|live|components)/.*(ex|heex)$"
     ]
   ]
+
+# Enable dev routes for dashboard and mailbox
+config :asciinema, dev_routes: true
 
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"
@@ -62,6 +66,8 @@ config :phoenix, :stacktrace_depth, 20
 config :phoenix, :plug_init_mode, :runtime
 
 config :asciinema, Asciinema.Emails.Mailer, adapter: Bamboo.LocalAdapter
+
+config :asciinema, Asciinema.Telemetry, enabled: false
 
 # Import custom config.
 for config <- "custom*.exs" |> Path.expand(__DIR__) |> Path.wildcard() do

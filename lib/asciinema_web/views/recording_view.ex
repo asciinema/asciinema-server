@@ -1,71 +1,41 @@
 defmodule AsciinemaWeb.RecordingView do
+  alias AsciinemaWeb.PlayerView
   use AsciinemaWeb, :view
   import Scrivener.HTML
-  alias Asciinema.Recordings
   alias Asciinema.Recordings.Asciicast
   alias AsciinemaWeb.Endpoint
   alias AsciinemaWeb.Router.Helpers.Extra, as: RoutesX
-  alias AsciinemaWeb.UserView
-  import UserView, only: [theme_options: 0]
+  alias AsciinemaWeb.{PlayerView, UserView}
 
-  def player(src, opts \\ [])
+  defdelegate author_username(asciicast), to: PlayerView
+  defdelegate author_avatar_url(stream), to: PlayerView
+  defdelegate author_profile_path(stream), to: PlayerView
+  defdelegate theme_name(stream), to: PlayerView
+  defdelegate theme_options, to: PlayerView
+  defdelegate default_theme_name(stream), to: PlayerView
+  defdelegate terminal_font_family_options, to: PlayerView
+  defdelegate username(user), to: UserView
 
-  def player(src, opts) when is_binary(src) do
-    container_id = Keyword.fetch!(opts, :container_id)
+  def player_src(asciicast), do: file_url(asciicast)
 
-    props =
-      [src: src, preload: true]
-      |> Keyword.merge(opts)
-      |> Ext.Keyword.rename(t: :startAt)
-      |> Enum.into(%{})
-      |> Map.drop([:container_id])
-
-    props_json =
-      props
-      |> Jason.encode!()
-      |> String.replace(~r/</, "\\u003c")
-
-    content_tag(:script) do
-      ~E"""
-        window.players = window.players || new Map();
-        window.players.set('<%= container_id %>', <%= {:safe, props_json} %>);
-      """
-    end
+  def player_opts(asciicast, opts) do
+    [
+      cols: cols(asciicast),
+      rows: rows(asciicast),
+      theme: theme_name(asciicast),
+      terminalLineHeight: asciicast.terminal_line_height,
+      customTerminalFontFamily: asciicast.terminal_font_family,
+      poster: poster(asciicast.snapshot),
+      markers: markers(asciicast.markers),
+      idleTimeLimit: asciicast.idle_time_limit
+    ]
+    |> Keyword.merge(opts)
+    |> Ext.Keyword.rename(t: :startAt)
+    |> Enum.into(%{})
   end
-
-  def player(asciicast, opts) do
-    opts =
-      Keyword.merge(
-        [
-          cols: cols(asciicast),
-          rows: rows(asciicast),
-          theme: theme_name(asciicast),
-          terminalLineHeight: asciicast.terminal_line_height,
-          customTerminalFontFamily: asciicast.terminal_font_family,
-          poster: poster(asciicast.snapshot),
-          markers: markers(asciicast.markers),
-          idleTimeLimit: asciicast.idle_time_limit,
-          title: title(asciicast),
-          author: author_username(asciicast),
-          "author-url": author_profile_url(asciicast),
-          "author-img-url": author_avatar_url(asciicast)
-        ],
-        opts
-      )
-
-    player(file_url(asciicast), opts)
-  end
-
-  @container_vertical_padding 2 * 4
-  @approx_char_width 7
-  @approx_char_height 16
 
   def cinema_height(asciicast) do
-    ratio =
-      rows(asciicast) * @approx_char_height /
-        (cols(asciicast) * @approx_char_width)
-
-    round(@container_vertical_padding + 100 * ratio)
+    PlayerView.cinema_height(cols(asciicast), rows(asciicast))
   end
 
   def embed_script(asciicast) do
@@ -200,14 +170,6 @@ defmodule AsciinemaWeb.RecordingView do
     |> Enum.join(";")
   end
 
-  def description(asciicast) do
-    desc = String.trim("#{asciicast.description}")
-
-    if present?(desc) do
-      {:safe, HtmlSanitizeEx.basic_html(Earmark.as_html!(desc))}
-    end
-  end
-
   def os_info(asciicast) do
     os_from_user_agent(asciicast) || os_from_uname(asciicast)
   end
@@ -221,6 +183,7 @@ defmodule AsciinemaWeb.RecordingView do
         |> String.replace("-", "/")
         |> String.split("/")
         |> List.first()
+        |> String.replace(~r/^Linux$/i, "GNU/Linux")
         |> String.replace(~r/Darwin/i, "macOS")
       end
     end
@@ -229,7 +192,7 @@ defmodule AsciinemaWeb.RecordingView do
   defp os_from_uname(asciicast) do
     if uname = asciicast.uname do
       cond do
-        uname =~ ~r/Linux/i -> "Linux"
+        uname =~ ~r/Linux/i -> "GNU/Linux"
         uname =~ ~r/Darwin/i -> "macOS"
         true -> uname |> String.split(~r/[\s-]/) |> List.first()
       end
@@ -237,7 +200,9 @@ defmodule AsciinemaWeb.RecordingView do
   end
 
   def shell_info(asciicast) do
-    Path.basename("#{asciicast.shell}")
+    if asciicast.shell do
+      Path.basename("#{asciicast.shell}")
+    end
   end
 
   def term_info(asciicast) do
@@ -286,30 +251,6 @@ defmodule AsciinemaWeb.RecordingView do
       seconds = rem(d, 60)
       :io_lib.format("~2..0B:~2..0B", [minutes, seconds])
     end
-  end
-
-  def theme_name(asciicast) do
-    asciicast.theme_name || default_theme_name(asciicast)
-  end
-
-  def default_theme_name(asciicast) do
-    UserView.theme_name(asciicast.user) || "asciinema"
-  end
-
-  def author_username(asciicast) do
-    UserView.username(asciicast.user)
-  end
-
-  def author_avatar_url(asciicast) do
-    UserView.avatar_url(asciicast.user)
-  end
-
-  def author_profile_path(asciicast) do
-    profile_path(asciicast.user)
-  end
-
-  def author_profile_url(asciicast) do
-    profile_url(asciicast.user)
   end
 
   def class(%{} = attrs) do
@@ -576,20 +517,12 @@ defmodule AsciinemaWeb.RecordingView do
     "#{Decimal.round(Decimal.from_float(float), 3)}%"
   end
 
-  def asciicast_gc_days do
-    Recordings.gc_days()
-  end
-
-  def terminal_font_family_options do
-    for family <- Recordings.custom_terminal_font_families() do
-      case family do
-        "FiraCode Nerd Font" -> {"Nerd Font - Fira Code", family}
-        "JetBrainsMono Nerd Font" -> {"Nerd Font - JetBrains Mono", family}
-      end
-    end
-  end
+  def recording_gc_days, do: Asciinema.recording_gc_days()
 
   defp cols(asciicast), do: asciicast.cols_override || asciicast.cols
 
   defp rows(asciicast), do: asciicast.rows_override || asciicast.rows
+
+  def meta("show.html", assigns), do: render("meta.show.html", assigns)
+  def meta(_, _), do: nil
 end
