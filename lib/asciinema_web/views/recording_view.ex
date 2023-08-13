@@ -170,7 +170,16 @@ defmodule AsciinemaWeb.RecordingView do
     |> Enum.join(";")
   end
 
-  def os_info(asciicast) do
+  def metadata(asciicast) do
+    items = [os_info(asciicast), term_info(asciicast), shell_info(asciicast)]
+
+    case Enum.filter(items, & &1) do
+      [] -> nil
+      items -> Enum.join(items, " ◆ ")
+    end
+  end
+
+  defp os_info(asciicast) do
     os_from_user_agent(asciicast) || os_from_uname(asciicast)
   end
 
@@ -199,13 +208,13 @@ defmodule AsciinemaWeb.RecordingView do
     end
   end
 
-  def shell_info(asciicast) do
+  defp shell_info(asciicast) do
     if asciicast.shell do
       Path.basename("#{asciicast.shell}")
     end
   end
 
-  def term_info(asciicast) do
+  defp term_info(asciicast) do
     asciicast.terminal_type
   end
 

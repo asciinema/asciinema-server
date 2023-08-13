@@ -114,13 +114,9 @@
     <div class="row">
       <div class="col-md-12 col-xs-12">
         <div class="status-line">
-          <% os = os_info(@asciicast) %>
-          <% term = term_info(@asciicast) %>
-          <% shell = shell_info(@asciicast) %>
-
-          <%= if Enum.any?([os, term, shell]) do %>
+          <%= if m = metadata(@asciicast) do %>
             <span class="status-line-item" title="Terminal environment">
-              <.terminal_solid_icon /> <%= Enum.join([os, term, shell], " ◆ ") %>
+              <.terminal_solid_icon /> <%= m %>
             </span>
           <% end %>
 
