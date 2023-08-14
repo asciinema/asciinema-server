@@ -304,6 +304,9 @@ defmodule Asciinema.Accounts do
   end
 
   def delete_user!(%User{} = user) do
+    Repo.delete_all(assoc(user, :api_tokens))
     Repo.delete!(user)
+
+    :ok
   end
 end

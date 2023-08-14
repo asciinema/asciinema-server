@@ -41,6 +41,17 @@ defmodule Asciinema do
     end)
   end
 
+  def delete_user!(user) do
+    result =
+      Repo.transact(fn ->
+        Recordings.delete_asciicasts(user)
+        Streaming.delete_live_streams(user)
+        Accounts.delete_user!(user)
+      end)
+
+    with {:ok, _} <- result, do: :ok
+  end
+
   defdelegate get_live_stream(id_or_owner), to: Streaming
 
   def recording_gc_days do

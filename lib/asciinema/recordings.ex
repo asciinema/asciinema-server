@@ -492,6 +492,14 @@ defmodule Asciinema.Recordings do
     end
   end
 
+  def delete_asciicasts(%{asciicasts: _} = owner) do
+    for a <- Repo.all(Ecto.assoc(owner, :asciicasts)) do
+      {:ok, _} = delete_asciicast(a)
+    end
+
+    :ok
+  end
+
   def update_snapshot(%Asciicast{} = asciicast) do
     cols = asciicast.cols_override || asciicast.cols
     rows = asciicast.rows_override || asciicast.rows
