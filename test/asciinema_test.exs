@@ -93,4 +93,15 @@ defmodule AsciinemaTest do
       assert {:ok, %{id: ^id2}} = Asciinema.merge_accounts(user1, user2)
     end
   end
+
+  describe "delete_user!/1" do
+    test "succeeds" do
+      user = insert(:user)
+      insert(:asciicast, user: user)
+      insert(:api_token, user: user)
+      insert(:live_stream, user: user)
+
+      assert :ok = Asciinema.delete_user!(user)
+    end
+  end
 end
