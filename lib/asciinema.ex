@@ -31,12 +31,13 @@ defmodule Asciinema do
   defdelegate verify_login_token(token), to: Accounts
 
   def merge_accounts(src_user, dst_user) do
-    Repo.transaction(fn ->
+    Repo.transact(fn ->
       Recordings.reassign_asciicasts(src_user.id, dst_user.id)
       Streaming.reassign_live_streams(src_user.id, dst_user.id)
       Accounts.reassign_api_tokens(src_user.id, dst_user.id)
       Accounts.delete_user!(src_user)
-      Accounts.get_user(dst_user.id)
+
+      {:ok, Accounts.get_user(dst_user.id)}
     end)
   end
 
