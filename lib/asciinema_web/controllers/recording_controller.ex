@@ -63,7 +63,7 @@ defmodule AsciinemaWeb.RecordingController do
         asciicast: asciicast,
         player_opts: player_opts(conn.params),
         actions: asciicast_actions(asciicast, conn.assigns.current_user),
-        author_asciicasts: Recordings.other_public_asciicasts(asciicast)
+        author_asciicasts: Recordings.list_other_public_asciicasts(asciicast)
       )
     end
   end
