@@ -4,7 +4,7 @@ export function createPlayer(src, container, opts) {
   if (opts.customTerminalFontFamily) {
     opts.terminalFontFamily = `${opts.customTerminalFontFamily},Consolas,Menlo,'Bitstream Vera Sans Mono',monospace,'Powerline Symbols'`;
 
-    document.fonts.load(`1em ${opts.customTerminalFontFamily}`).then(() => {
+    return document.fonts.load(`1em ${opts.customTerminalFontFamily}`).then(() => {
       console.log(`loaded font ${opts.customTerminalFontFamily}`);
       return create(src, container, opts);
     }).catch(error => {
