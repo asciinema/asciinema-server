@@ -171,6 +171,7 @@
 
 <script>
   window.addEventListener('load', function() {
+    const container = document.getElementById('cinema');
     const opts = <%= safe_json(player_opts(@asciicast, @player_opts)) %>;
 
     const player = window.createPlayer(
@@ -183,5 +184,9 @@
         logger: console
       }
     );
+
+    player.addEventListener('resize', ({ cols, rows }) => {
+      container.style.height = window.cinemaHeight(cols, rows);
+    });
   });
 </script>

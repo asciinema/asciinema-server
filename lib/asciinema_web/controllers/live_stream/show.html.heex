@@ -205,14 +205,11 @@ script -f -O live.pipe</code></pre>
       { ...opts, fit: 'both', logger: console }
     );
 
-    const containerVerticalPadding = 2 * 4;
-    const approxCharWidth = 7;
-    const approxCharHeight = 16;
+    function resizeCinema({ cols, rows }) {
+      container.style.height = window.cinemaHeight(cols, rows);
+    }
 
-    player.addEventListener('reset', ({ cols, rows }) => {
-      const ratio = (rows * approxCharHeight) / (cols * approxCharWidth);
-      const height = Math.round(containerVerticalPadding + 100 * ratio);
-      container.style.height = `${height}vw`;
-    });
+    player.addEventListener('reset', resizeCinema);
+    player.addEventListener('resize', resizeCinema);
   });
 </script>

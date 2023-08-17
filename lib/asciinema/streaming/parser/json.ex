@@ -37,6 +37,11 @@ defmodule Asciinema.Streaming.Parser.Json do
     {:ok, [feed: {time, data}], state}
   end
 
+  def handle_message([time, "r", data], state) when is_number(time) and is_binary(data) do
+    [cols, rows] = String.split(data, "x")
+    {:ok, [feed: {time, "\x1b[8;#{rows};#{cols}t"}], state}
+  end
+
   def handle_message([time, type, data], state)
       when is_number(time) and is_binary(type) and is_binary(data) do
     {:ok, [], state}
