@@ -126,6 +126,7 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
     Logger.info("producer/#{state.stream_id}: reset (#{cols}x#{rows})")
 
     state = ensure_server(state)
+    save_parser(state.stream_id, state.parser.name)
 
     with :ok <- LiveStreamServer.reset(state.stream_id, {cols, rows}, init, time) do
       {:ok, state}
@@ -231,6 +232,14 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
     else
       {:ok, put_in(state, [:bucket, :tokens], tokens)}
     end
+  end
+
+  defp save_parser(stream_id, parser_name) do
+    Task.Supervisor.start_child(Asciinema.TaskSupervisor, fn ->
+      stream_id
+      |> Streaming.get_live_stream()
+      |> Streaming.update_live_stream(parser: parser_name)
+    end)
   end
 
   defp config(key, default) do

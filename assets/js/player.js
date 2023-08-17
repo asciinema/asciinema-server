@@ -15,3 +15,13 @@ export function createPlayer(src, container, opts) {
     return create(src, container, opts);
   }
 }
+
+const CONTAINER_VERTICAL_PADDING = 2 * 4;
+const APPROX_CHAR_WIDTH = 7;
+const APPROX_CHAR_HEIGHT = 16;
+
+export function cinemaHeight(cols, rows) {
+  const ratio = (rows * APPROX_CHAR_HEIGHT) / (cols * APPROX_CHAR_WIDTH);
+  const height = Math.round(CONTAINER_VERTICAL_PADDING + 100 * ratio);
+  return `${height}vw`;
+}
