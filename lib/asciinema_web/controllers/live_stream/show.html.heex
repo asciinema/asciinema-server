@@ -195,11 +195,11 @@ script -f -O live.pipe</code></pre>
 </section>
 
 <script>
-  window.addEventListener('load', function() {
+  window.addEventListener('load', async function() {
     const container = document.getElementById('cinema');
     const opts = <%= safe_json(player_opts(@stream, @player_opts)) %>;
 
-    const player = window.createPlayer(
+    const player = await window.createPlayer(
       <%= safe_json(player_src(@stream)) %>,
       container,
       { ...opts, fit: 'both', logger: console }
