@@ -18,6 +18,7 @@ defmodule Asciinema.Streaming.LiveStream do
     field :current_viewer_count, :integer
     field :peak_viewer_count, :integer
     field :buffer_time, :float
+    field :parser, :string
 
     timestamps()
 

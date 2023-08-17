@@ -14,6 +14,8 @@ defmodule Asciinema.Application do
 
     # List all child processes to be supervised
     children = [
+      # Start task supervisor
+      {Task.Supervisor, name: Asciinema.TaskSupervisor},
       # Start cluster supervisor
       {Cluster.Supervisor, [topologies, [name: Asciinema.ClusterSupervisor]]},
       # Start the PubSub system
