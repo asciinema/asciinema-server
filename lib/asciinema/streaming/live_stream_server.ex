@@ -98,7 +98,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
     state = reset_stream(state, vt_size, stream_time)
 
     if vt_init do
-      :ok = Vt.feed(state.vt, vt_init)
+      Vt.feed(state.vt, vt_init)
     end
 
     publish(state.stream_id, :stream, %Update{
@@ -117,7 +117,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
   end
 
   def handle_call({:feed, {time, data} = event}, {pid, _} = _from, %{producer: pid} = state) do
-    :ok = Vt.feed(state.vt, data)
+    new_size = Vt.feed(state.vt, data)
 
     publish(state.stream_id, :stream, %Update{
       stream_id: state.stream_id,
@@ -125,7 +125,14 @@ defmodule Asciinema.Streaming.LiveStreamServer do
       data: event
     })
 
-    {:reply, :ok, %{state | last_stream_time: time, last_feed_time: Timex.now()}}
+    state = %{
+      state
+      | last_stream_time: time,
+        last_feed_time: Timex.now(),
+        vt_size: new_size || state.vt_size
+    }
+
+    {:reply, :ok, state}
   end
 
   def handle_call({:feed, _event}, _from, state) do
