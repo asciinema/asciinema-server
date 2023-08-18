@@ -39,7 +39,10 @@ defmodule Asciinema.Streaming.Parser.Json do
 
   def handle_message([time, "r", data], state) when is_number(time) and is_binary(data) do
     [cols, rows] = String.split(data, "x")
-    {:ok, [feed: {time, "\x1b[8;#{rows};#{cols}t"}], state}
+    cols = String.to_integer(cols)
+    rows = String.to_integer(rows)
+
+    {:ok, [resize: {time, {cols, rows}}], state}
   end
 
   def handle_message([time, type, data], state)

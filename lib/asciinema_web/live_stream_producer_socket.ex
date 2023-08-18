@@ -135,14 +135,25 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
     end
   end
 
-  defp run_command({:reset, %{size: {cols, rows}}}, _state) do
-    {:error, {:invalid_vt_size, {cols, rows}}}
+  defp run_command({:reset, %{size: size}}, _state) do
+    {:error, {:invalid_vt_size, size}}
   end
 
   defp run_command({:feed, {time, data}}, %{status: :online} = state) do
     with :ok <- LiveStreamServer.feed(state.stream_id, {time, data}) do
       {:ok, state}
     end
+  end
+
+  defp run_command({:resize, {time, {cols, rows}}}, state)
+       when cols > 0 and rows > 0 and cols <= @max_cols and rows <= @max_rows do
+    with :ok <- LiveStreamServer.feed(state.stream_id, {time, resize_seq(cols, rows)}) do
+      {:ok, state}
+    end
+  end
+
+  defp run_command({:resize, size}, _state) do
+    {:error, {:invalid_vt_size, size}}
   end
 
   defp run_command({:status, :offline}, %{status: :new} = state) do
@@ -243,6 +254,8 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
       |> Streaming.update_live_stream(parser: parser_name)
     end)
   end
+
+  defp resize_seq(cols, rows), do: "\x1b[8;#{rows};#{cols}t"
 
   defp config(key, default) do
     Application.get_env(:asciinema, :"live_stream_producer_#{key}", default)
