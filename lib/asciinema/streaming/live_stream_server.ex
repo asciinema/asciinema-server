@@ -175,7 +175,14 @@ defmodule Asciinema.Streaming.LiveStreamServer do
 
   def handle_info(:update_stream, state) do
     Process.send_after(self(), :update_stream, @update_stream_interval)
-    stream = Streaming.update_live_stream(state.stream, current_viewer_count: state.viewer_count)
+    {cols, rows} = state.vt_size
+
+    stream =
+      Streaming.update_live_stream(state.stream,
+        current_viewer_count: state.viewer_count,
+        cols: cols,
+        rows: rows
+      )
 
     {:noreply, %{state | stream: stream}}
   end
