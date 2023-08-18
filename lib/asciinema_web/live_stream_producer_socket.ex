@@ -61,16 +61,19 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
   @impl true
   def handle_in({"ALiS" <> _, [opcode: :binary]} = message, %{parser: nil} = state) do
     Logger.info("producer/#{state.stream_id}: activating ALiS parser")
+    save_parser(state.stream_id, "alis")
     handle_in(message, %{state | parser: Parser.get(:alis)})
   end
 
   def handle_in({_, [opcode: :binary]} = message, %{parser: nil} = state) do
     Logger.info("producer/#{state.stream_id}: activating raw text parser")
+    save_parser(state.stream_id, "raw")
     handle_in(message, %{state | parser: Parser.get(:raw)})
   end
 
   def handle_in({_, [opcode: :text]} = message, %{parser: nil} = state) do
     Logger.info("producer/#{state.stream_id}: activating json parser")
+    save_parser(state.stream_id, "json")
     handle_in(message, %{state | parser: Parser.get(:json)})
   end
 
@@ -126,7 +129,6 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
     Logger.info("producer/#{state.stream_id}: reset (#{cols}x#{rows})")
 
     state = ensure_server(state)
-    save_parser(state.stream_id, state.parser.name)
 
     with :ok <- LiveStreamServer.reset(state.stream_id, {cols, rows}, init, time) do
       {:ok, state}
