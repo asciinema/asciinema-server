@@ -16,6 +16,7 @@ defmodule AsciinemaWeb.LiveStreamController do
     render(
       conn,
       :show,
+      page_title: AsciinemaWeb.LiveStreamHTML.title(stream),
       player_opts: player_opts(params),
       actions: stream_actions(stream, current_user),
       user_is_self: user_is_self,
