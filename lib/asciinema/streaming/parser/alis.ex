@@ -44,6 +44,21 @@ defmodule Asciinema.Streaming.Parser.Alis do
     {:ok, [feed: {time, data}], state}
   end
 
+  def parse(
+        {
+          <<
+            ?r,
+            time::little-float-32,
+            cols::little-16,
+            rows::little-16
+          >>,
+          _opts
+        },
+        %{status: :online} = state
+      ) do
+    {:ok, [resize: {time, {cols, rows}}], state}
+  end
+
   def parse({<<0x04>>, _opts}, %{status: status} = state) when status in [:init, :online] do
     {:ok, [status: :offline], %{state | status: :offline}}
   end
