@@ -177,6 +177,13 @@ defmodule AsciinemaWeb do
     end
   end
 
+  def json do
+    quote do
+      # Routes generation with the ~p sigil
+      unquote(verified_routes())
+    end
+  end
+
   def verified_routes do
     quote do
       use Phoenix.VerifiedRoutes,
