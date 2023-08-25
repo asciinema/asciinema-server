@@ -61,16 +61,19 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
   @impl true
   def handle_in({"ALiS" <> _, [opcode: :binary]} = message, %{parser: nil} = state) do
     Logger.info("producer/#{state.stream_id}: activating ALiS parser")
+    save_parser(state.stream_id, "alis")
     handle_in(message, %{state | parser: Parser.get(:alis)})
   end
 
   def handle_in({_, [opcode: :binary]} = message, %{parser: nil} = state) do
     Logger.info("producer/#{state.stream_id}: activating raw text parser")
+    save_parser(state.stream_id, "raw")
     handle_in(message, %{state | parser: Parser.get(:raw)})
   end
 
   def handle_in({_, [opcode: :text]} = message, %{parser: nil} = state) do
     Logger.info("producer/#{state.stream_id}: activating json parser")
+    save_parser(state.stream_id, "json")
     handle_in(message, %{state | parser: Parser.get(:json)})
   end
 
@@ -126,21 +129,31 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
     Logger.info("producer/#{state.stream_id}: reset (#{cols}x#{rows})")
 
     state = ensure_server(state)
-    save_parser(state.stream_id, state.parser.name)
 
     with :ok <- LiveStreamServer.reset(state.stream_id, {cols, rows}, init, time) do
       {:ok, state}
     end
   end
 
-  defp run_command({:reset, %{size: {cols, rows}}}, _state) do
-    {:error, {:invalid_vt_size, {cols, rows}}}
+  defp run_command({:reset, %{size: size}}, _state) do
+    {:error, {:invalid_vt_size, size}}
   end
 
   defp run_command({:feed, {time, data}}, %{status: :online} = state) do
     with :ok <- LiveStreamServer.feed(state.stream_id, {time, data}) do
       {:ok, state}
     end
+  end
+
+  defp run_command({:resize, {time, {cols, rows}}}, state)
+       when cols > 0 and rows > 0 and cols <= @max_cols and rows <= @max_rows do
+    with :ok <- LiveStreamServer.feed(state.stream_id, {time, resize_seq(cols, rows)}) do
+      {:ok, state}
+    end
+  end
+
+  defp run_command({:resize, size}, _state) do
+    {:error, {:invalid_vt_size, size}}
   end
 
   defp run_command({:status, :offline}, %{status: :new} = state) do
@@ -241,6 +254,8 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
       |> Streaming.update_live_stream(parser: parser_name)
     end)
   end
+
+  defp resize_seq(cols, rows), do: "\x1b[8;#{rows};#{cols}t"
 
   defp config(key, default) do
     Application.get_env(:asciinema, :"live_stream_producer_#{key}", default)

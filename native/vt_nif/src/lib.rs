@@ -35,11 +35,15 @@ fn new(w: usize, h: usize) -> NifResult<(Atom, ResourceArc<VtResource>)> {
 }
 
 #[rustler::nif]
-fn feed(resource: ResourceArc<VtResource>, input: Binary) -> NifResult<Atom> {
+fn feed(resource: ResourceArc<VtResource>, input: Binary) -> NifResult<Option<(usize, usize)>> {
     let mut vt = convert_err(resource.vt.write(), "rw_lock")?;
-    vt.feed_str(&String::from_utf8_lossy(&input));
+    let (_, resized) = vt.feed_str(&String::from_utf8_lossy(&input));
 
-    Ok(atoms::ok())
+    if resized {
+        Ok(Some((vt.cols, vt.rows)))
+    } else {
+        Ok(None)
+    }
 }
 
 #[rustler::nif]

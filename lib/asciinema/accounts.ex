@@ -124,7 +124,14 @@ defmodule Asciinema.Accounts do
     if String.contains?(identifier, "@") do
       {:email, Repo.get_by(User, email: identifier)}
     else
-      {:username, Repo.get_by(User, username: identifier)}
+      user =
+        Repo.one(
+          from(u in User,
+            where: fragment("lower(?)", u.username) == ^String.downcase(identifier)
+          )
+        )
+
+      {:username, user}
     end
   end
 

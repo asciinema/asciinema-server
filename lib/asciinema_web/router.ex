@@ -42,6 +42,10 @@ defmodule AsciinemaWeb.Router do
     plug :put_secure_browser_headers
   end
 
+  pipeline :webfinger do
+    plug :put_format, :json
+  end
+
   scope "/", AsciinemaWeb do
     pipe_through :asciicast
 
@@ -52,6 +56,11 @@ defmodule AsciinemaWeb.Router do
     pipe_through :oembed
 
     get "/oembed", OembedController, :show
+  end
+
+  scope "/", AsciinemaWeb do
+    pipe_through :webfinger
+    get "/.well-known/webfinger", WebFingerController, :show
   end
 
   scope "/", AsciinemaWeb do

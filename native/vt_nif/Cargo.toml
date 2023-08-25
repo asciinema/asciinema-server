@@ -11,4 +11,4 @@ crate-type = ["dylib"]
 
 [dependencies]
 rustler = "0.27.0"
-avt = { git = "https://github.com/asciinema/avt", tag = "v0.6.0" }
+avt = { git = "https://github.com/asciinema/avt", tag = "v0.7.0" }

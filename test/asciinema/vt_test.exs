@@ -8,9 +8,9 @@ defmodule Asciinema.VtTest do
     test "basic usage" do
       result =
         Vt.with_vt(8, 3, fn vt ->
-          :ok = Vt.feed(vt, "foobar\r\n")
-          :ok = Vt.feed(vt, "baz")
-          :ok = Vt.feed(vt, "qux")
+          Vt.feed(vt, "foobar\r\n")
+          Vt.feed(vt, "baz")
+          Vt.feed(vt, "qux")
           Vt.dump_screen(vt)
         end)
 
@@ -22,7 +22,7 @@ defmodule Asciinema.VtTest do
       result =
         Vt.with_vt(120, 80, fn vt ->
           Enum.each(1..300_000, fn _ ->
-            :ok = Vt.feed(vt, "aaaaaaaaaaaaaaaaaaaaaaaa")
+            Vt.feed(vt, "aaaaaaaaaaaaaaaaaaaaaaaa")
           end)
 
           Vt.dump_screen(vt)
