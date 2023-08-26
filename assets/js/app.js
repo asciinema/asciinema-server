@@ -3,9 +3,10 @@ import css from '../css/app.scss';
 import $ from 'jquery';
 import "bootstrap";
 import "phoenix_html";
-import { createPlayer } from './player';
+import { createPlayer, cinemaHeight } from './player';
 
 window.createPlayer = createPlayer;
+window.cinemaHeight = cinemaHeight;
 
 $(function() {
   $('input[data-behavior=focus]:first').focus().select();

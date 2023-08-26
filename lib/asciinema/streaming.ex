@@ -111,6 +111,12 @@ defmodule Asciinema.Streaming do
     end
   end
 
+  def delete_live_streams(%{live_streams: _} = owner) do
+    Repo.delete_all(Ecto.assoc(owner, :live_streams))
+
+    :ok
+  end
+
   def reassign_live_streams(src_user_id, dst_user_id) do
     from(s in LiveStream, where: s.user_id == ^src_user_id)
     |> Repo.update_all(set: [user_id: dst_user_id, updated_at: Timex.now()])

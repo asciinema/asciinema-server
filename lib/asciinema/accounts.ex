@@ -20,6 +20,14 @@ defmodule Asciinema.Accounts do
 
   def get_user(id), do: Repo.get(User, id)
 
+  def find_user_by_username(username) do
+    Repo.one(
+      from(u in User,
+        where: fragment("lower(?)", u.username) == ^String.downcase(username)
+      )
+    )
+  end
+
   def find_user_by_auth_token(auth_token) do
     Repo.get_by(User, auth_token: auth_token)
   end
@@ -120,11 +128,11 @@ defmodule Asciinema.Accounts do
     end
   end
 
-  def lookup_user(identifier) do
+  def lookup_user(identifier) when is_binary(identifier) do
     if String.contains?(identifier, "@") do
       {:email, Repo.get_by(User, email: identifier)}
     else
-      {:username, Repo.get_by(User, username: identifier)}
+      {:username, find_user_by_username(identifier)}
     end
   end
 
@@ -304,6 +312,9 @@ defmodule Asciinema.Accounts do
   end
 
   def delete_user!(%User{} = user) do
+    Repo.delete_all(assoc(user, :api_tokens))
     Repo.delete!(user)
+
+    :ok
   end
 end

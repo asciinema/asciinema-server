@@ -114,13 +114,9 @@
     <div class="row">
       <div class="col-md-12 col-xs-12">
         <div class="status-line">
-          <% os = os_info(@asciicast) %>
-          <% term = term_info(@asciicast) %>
-          <% shell = shell_info(@asciicast) %>
-
-          <%= if Enum.any?([os, term, shell]) do %>
+          <%= if m = metadata(@asciicast) do %>
             <span class="status-line-item" title="Terminal environment">
-              <.terminal_solid_icon /> <%= Enum.join([os, term, shell], " ◆ ") %>
+              <.terminal_solid_icon /> <%= m %>
             </span>
           <% end %>
 
@@ -174,10 +170,11 @@
 <% end %>
 
 <script>
-  window.addEventListener('load', function() {
+  window.addEventListener('load', async function() {
+    const container = document.getElementById('cinema');
     const opts = <%= safe_json(player_opts(@asciicast, @player_opts)) %>;
 
-    const player = window.createPlayer(
+    const player = await window.createPlayer(
       <%= safe_json(player_src(@asciicast)) %>,
       document.getElementById('cinema'),
       {
@@ -187,5 +184,9 @@
         logger: console
       }
     );
+
+    player.addEventListener('resize', ({ cols, rows }) => {
+      container.style.height = window.cinemaHeight(cols, rows);
+    });
   });
 </script>

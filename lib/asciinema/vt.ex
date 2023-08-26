@@ -11,7 +11,7 @@ defmodule Asciinema.Vt do
   # => {:ok, vt} | {:error, :invalid_size}
 
   def feed(_vt, _str), do: :erlang.nif_error(:nif_not_loaded)
-  # => :ok
+  # => nil | {cols, rows}
 
   def dump(_vt), do: :erlang.nif_error(:nif_not_loaded)
   # => ...

@@ -5,6 +5,20 @@ defmodule Asciinema.Repo do
 
   use Scrivener, page_size: 10
 
+  def transact(fun, opts \\ []) do
+    transaction(
+      fn ->
+        case fun.() do
+          {:ok, value} -> value
+          :ok -> :transaction_commited
+          {:error, reason} -> rollback(reason)
+          :error -> rollback(:transaction_rollback_error)
+        end
+      end,
+      opts
+    )
+  end
+
   def count(query) do
     aggregate(query, :count, :id)
   end

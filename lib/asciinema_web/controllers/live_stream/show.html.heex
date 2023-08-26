@@ -195,24 +195,21 @@ script -f -O live.pipe</code></pre>
 </section>
 
 <script>
-  window.addEventListener('load', function() {
+  window.addEventListener('load', async function() {
     const container = document.getElementById('cinema');
     const opts = <%= safe_json(player_opts(@stream, @player_opts)) %>;
 
-    const player = window.createPlayer(
+    const player = await window.createPlayer(
       <%= safe_json(player_src(@stream)) %>,
       container,
       { ...opts, fit: 'both', logger: console }
     );
 
-    const containerVerticalPadding = 2 * 4;
-    const approxCharWidth = 7;
-    const approxCharHeight = 16;
+    function resizeCinema({ cols, rows }) {
+      container.style.height = window.cinemaHeight(cols, rows);
+    }
 
-    player.addEventListener('reset', ({ cols, rows }) => {
-      const ratio = (rows * approxCharHeight) / (cols * approxCharWidth);
-      const height = Math.round(containerVerticalPadding + 100 * ratio);
-      container.style.height = `${height}vw`;
-    });
+    player.addEventListener('reset', resizeCinema);
+    player.addEventListener('resize', resizeCinema);
   });
 </script>
