@@ -148,6 +148,7 @@ to a theme set by the asciicast author (or to "asciinema" if not set by the
 author). The available themes are:
 
 * asciinema
+* dracula
 * monokai
 * nord
 * solarized-dark

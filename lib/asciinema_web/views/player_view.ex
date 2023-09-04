@@ -31,6 +31,7 @@ defmodule AsciinemaWeb.PlayerView do
   def theme_options do
     [
       {"asciinema", "asciinema"},
+      {"Dracula", "dracula"},
       {"Monokai", "monokai"},
       {"Nord", "nord"},
       {"Tango", "tango"},

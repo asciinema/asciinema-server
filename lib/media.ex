@@ -6,6 +6,7 @@ defmodule Asciinema.Media do
 
   @themes [
     "asciinema",
+    "dracula",
     "monokai",
     "nord",
     "solarized-dark",
