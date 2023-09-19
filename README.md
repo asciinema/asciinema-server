@@ -41,6 +41,12 @@ If you find anything that looks like a potential vulnerability please
 read on
 [how to report a security issue](https://github.com/asciinema/asciinema-server/blob/main/CONTRIBUTING.md#reporting-security-issues).
 
+## Sponsors
+
+asciinema is sponsored by:
+
+- [Brightbox](https://www.brightbox.com/)
+
 ## Consulting
 
 I offer consulting services for asciinema project. See https://asciinema.org/consulting for more information.
