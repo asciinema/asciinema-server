@@ -65,11 +65,25 @@
       margin: 0 0 1.3rem 0;
       text-align: center;
     }
+
+    p {
+      text-align: justify;
+    }
   }
 
   .about {
     h3 {
       margin-top: 10px;
+    }
+  }
+
+  .platinum-sponsors {
+    padding: 1rem 0;
+
+    a {
+      img {
+        width: 200px;
+      }
     }
   }
 }

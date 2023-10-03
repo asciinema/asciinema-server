@@ -19,7 +19,7 @@
 
 <section class="even">
   <div class="container">
-    <div class="row about">
+    <div class="row text-center about">
       <div class="col-md-12">
         <h3>
           asciinema <em><abbr title="from English ASCII + from Ancient Greek κίνημα (kínēma, “movement”)">[as-kee-nuh-muh] </abbr></em>
@@ -54,6 +54,29 @@
         <p>Easily embed asciinema player in your blog post, project documentation or in conference talk slides. </p>
 
         <p><a href="<%= Routes.doc_path(@conn, :show, :embedding) %>">See docs on embedding »</a></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="even">
+  <div class="container">
+    <div class="row text-center">
+      <div class="col">
+        Financial support from our Platinum sponsors 👇 helps keep the project alive. Thank you!
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="odd platinum-sponsors">
+  <div class="container">
+    <div class="row text-center">
+      <div class="col">
+        <a href="https://dashcam.io?utm_source=asciinema&utm_campaign=hero" rel="nofollow">
+          <img src="<%= Routes.static_path(@conn, "/images/sponsor-logos/dashcam/logo-on-light.png") %>" alt="Dashcam" />
+        </a>
       </div>
     </div>
   </div>
