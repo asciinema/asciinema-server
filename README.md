@@ -14,7 +14,7 @@ at [asciinema/asciinema-player](https://github.com/asciinema/asciinema-player).
 Shout-out to our Platinum [sponsors](https://github.com/sponsors/ku1ik), whose
 financial support helps keep the project alive:
 
-[<img src="./.github/sponsor-logos/dashcam/logo-on-light.png" width="200" />](https://dashcam.io?utm_source=asciinemagithub)
+[<img src="./assets/static/images/sponsor-logos/dashcam/logo-on-light.png" width="200" />](https://dashcam.io?utm_source=asciinemagithub)
 
 ## Setting up your own asciinema web app instance
 
