@@ -1,8 +1,8 @@
 <footer>
   <div class="container">
     <div class="row">
-      <div class="col-md-4 col-xs-12">
-        <ul class="links">
+      <div class="col-md-3 col-xs-12 links">
+        <ul>
           <li><a href={~p"/contributing"}>Contributing</a></li>
           <li><a href={~p"/tos"}>Terms of Service</a></li>
           <li><a href={~p"/privacy"}>Privacy Policy</a></li>
@@ -10,19 +10,26 @@
         </ul>
       </div>
 
-      <div class="col-md-4 col-xs-12 text-center">
-        <span>
-          Hosted by <br />
-          <a class="brightbox-logo" href="https://www.brightbox.com" rel="nofollow">
-            <img src={Routes.static_path(@conn, "/images/brightbox-logo.svg")} alt="Brightbox" />
-          </a>
-        </span>
+      <div class="col-md-3 col-xs-12 sponsor-dashcam">
+        Sponsored by <br />
+        <a href="https://dashcam.io?utm_source=asciinema&utm_campaign=footer" rel="nofollow">
+          <img
+            src={Routes.static_path(@conn, "/images/sponsor-logos/dashcam/logo-on-light.png")}
+            alt="Dashcam"
+          />
+        </a>
       </div>
 
-      <div class="col-md-4 col-xs-12">
-        <ul class="links float-right">
+      <div class="col-md-3 col-xs-12 sponsor-brightbox">
+        Hosted by <br />
+        <a href="https://www.brightbox.com" rel="nofollow">
+          <img src={Routes.static_path(@conn, "/images/brightbox-logo.svg")} alt="Brightbox" />
+        </a>
+      </div>
+
+      <div class="col-md-3 col-xs-12 links">
+        <ul>
           <li>
-            <b>mastodon:</b>
             <a
               rel="me"
               href="https://fosstodon.org/@asciinema"
@@ -32,16 +39,22 @@
             </a>
           </li>
           <li>
-            <b>matrix:</b>
-            <a href="https://matrix.to/#/#asciinema:matrix.org">#asciinema:matrix.org</a>
+            <a href="https://matrix.to/#/#asciinema:matrix.org" title="Join asciinema Matrix room">
+              #asciinema:matrix.org
+            </a>
           </li>
           <li>
-            <b>irc:</b>
-            <a href="https://web.libera.chat/#asciinema">#asciinema on Libera.Chat</a>
+            <a href="https://web.libera.chat/#asciinema" title="Join asciinema IRC channel">
+              #asciinema on Libera.Chat
+            </a>
           </li>
           <li>
-            <b>forum:</b>
-            <a href="https://github.com/orgs/asciinema/discussions">Github Discussions</a>
+            <a
+              href="https://github.com/orgs/asciinema/discussions"
+              title="Join asciinema community discussions"
+            >
+              Github Discussions
+            </a>
           </li>
         </ul>
       </div>
