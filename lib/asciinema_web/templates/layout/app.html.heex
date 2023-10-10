@@ -23,6 +23,7 @@
     </main>
 
     <%= render("_footer.html", conn: @conn) %>
+    <%= render("_donate_modal.html") %>
     <script phx-track-static src={Routes.static_path(@conn, "/js/app.js")}>
     </script>
   </body>
