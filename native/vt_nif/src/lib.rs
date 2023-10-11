@@ -40,7 +40,7 @@ fn feed(resource: ResourceArc<VtResource>, input: Binary) -> NifResult<Option<(u
     let (_, resized) = vt.feed_str(&String::from_utf8_lossy(&input));
 
     if resized {
-        Ok(Some((vt.cols, vt.rows)))
+        Ok(Some(vt.size()))
     } else {
         Ok(None)
     }
@@ -58,7 +58,8 @@ fn dump_screen(env: Env, resource: ResourceArc<VtResource>) -> NifResult<(Atom, 
     let vt = convert_err(resource.vt.read(), "rw_lock")?;
 
     let lines = vt
-        .lines()
+        .view()
+        .iter()
         .map(|line| {
             line.segments()
                 .map(|segment| segment_to_term(segment, env))
