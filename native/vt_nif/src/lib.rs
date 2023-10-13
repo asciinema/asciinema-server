@@ -1,5 +1,5 @@
 use avt::Vt;
-use rustler::{Atom, Encoder, Env, Error, NifResult, ResourceArc, Term, Binary};
+use rustler::{Atom, Binary, Encoder, Env, Error, NifResult, ResourceArc, Term};
 use std::sync::RwLock;
 
 mod atoms {
@@ -40,7 +40,7 @@ fn feed(resource: ResourceArc<VtResource>, input: Binary) -> NifResult<Option<(u
     let (_, resized) = vt.feed_str(&String::from_utf8_lossy(&input));
 
     if resized {
-        Ok(Some((vt.cols, vt.rows)))
+        Ok(Some(vt.size()))
     } else {
         Ok(None)
     }
@@ -58,7 +58,8 @@ fn dump_screen(env: Env, resource: ResourceArc<VtResource>) -> NifResult<(Atom, 
     let vt = convert_err(resource.vt.read(), "rw_lock")?;
 
     let lines = vt
-        .lines()
+        .view()
+        .iter()
         .map(|line| {
             line.segments()
                 .map(|segment| segment_to_term(segment, env))
@@ -66,7 +67,8 @@ fn dump_screen(env: Env, resource: ResourceArc<VtResource>) -> NifResult<(Atom, 
         })
         .collect::<Vec<_>>();
 
-    let cursor = vt.cursor();
+    let (col, row, visible) = vt.cursor();
+    let cursor = if visible { Some((col, row)) } else { None };
 
     Ok((atoms::ok(), (lines, cursor).encode(env)))
 }
@@ -141,4 +143,8 @@ fn convert_err<T, E>(result: Result<T, E>, error: &'static str) -> Result<T, Err
     }
 }
 
-rustler::init!("Elixir.Asciinema.Vt", [new, feed, dump, dump_screen], load = load);
+rustler::init!(
+    "Elixir.Asciinema.Vt",
+    [new, feed, dump, dump_screen],
+    load = load
+);

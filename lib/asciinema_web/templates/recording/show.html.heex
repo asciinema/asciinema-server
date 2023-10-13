@@ -27,7 +27,7 @@
           <.time_ago time={@asciicast.inserted_at} />
 
           <%= if @asciicast.private do %>
-            <%= render("_private_badge.html") %>
+            <%= render("_secret_badge.html") %>
           <% end %>
 
           <%= if @asciicast.featured do %>
@@ -80,7 +80,7 @@
                 class="dropdown-item"
                 method="put"
               >
-                Make private
+                Make it secret
               </.link>
 
               <.link
@@ -89,7 +89,7 @@
                 class="dropdown-item"
                 method="put"
               >
-                Make public
+                Make it public
               </.link>
 
               <.link
