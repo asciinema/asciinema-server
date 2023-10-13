@@ -73,8 +73,20 @@ fn dump_screen(env: Env, resource: ResourceArc<VtResource>) -> NifResult<(Atom, 
     Ok((atoms::ok(), (lines, cursor).encode(env)))
 }
 
+#[rustler::nif]
+fn text(resource: ResourceArc<VtResource>) -> NifResult<Vec<String>> {
+    let vt = convert_err(resource.vt.read(), "rw_lock")?;
+    let mut text = vt.text();
+
+    while !text.is_empty() && text[text.len() - 1].is_empty() {
+        text.truncate(text.len() - 1);
+    }
+
+    Ok(text)
+}
+
 fn segment_to_term(segment: avt::Segment, env: Env) -> Term {
-    let text = segment.text();
+    let txt = segment.text();
     let mut pairs: Vec<(String, Term)> = Vec::new();
 
     match segment.foreground() {
@@ -133,7 +145,7 @@ fn segment_to_term(segment: avt::Segment, env: Env) -> Term {
 
     let attrs = Term::map_from_pairs(env, &pairs).unwrap();
 
-    (text, attrs).encode(env)
+    (txt, attrs).encode(env)
 }
 
 fn convert_err<T, E>(result: Result<T, E>, error: &'static str) -> Result<T, Error> {
@@ -145,6 +157,6 @@ fn convert_err<T, E>(result: Result<T, E>, error: &'static str) -> Result<T, Err
 
 rustler::init!(
     "Elixir.Asciinema.Vt",
-    [new, feed, dump, dump_screen],
+    [new, feed, dump, dump_screen, text],
     load = load
 );
