@@ -1,5 +1,5 @@
 use avt::Vt;
-use rustler::{Atom, Encoder, Env, Error, NifResult, ResourceArc, Term, Binary};
+use rustler::{Atom, Binary, Encoder, Env, Error, NifResult, ResourceArc, Term};
 use std::sync::RwLock;
 
 mod atoms {
@@ -143,4 +143,8 @@ fn convert_err<T, E>(result: Result<T, E>, error: &'static str) -> Result<T, Err
     }
 }
 
-rustler::init!("Elixir.Asciinema.Vt", [new, feed, dump, dump_screen], load = load);
+rustler::init!(
+    "Elixir.Asciinema.Vt",
+    [new, feed, dump, dump_screen],
+    load = load
+);
