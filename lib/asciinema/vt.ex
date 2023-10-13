@@ -7,18 +7,18 @@ defmodule Asciinema.Vt do
 
   # When NIF is loaded, it will override following functions.
 
-  def new(_width, _height), do: :erlang.nif_error(:nif_not_loaded)
-  # => {:ok, vt} | {:error, :invalid_size}
+  @spec new(integer, integer) :: {:ok, reference} | {:error, :invalid_size}
+  def new(_cols, _rows), do: :erlang.nif_error(:nif_not_loaded)
 
+  @spec feed(reference, binary) :: {integer, integer} | nil
   def feed(_vt, _str), do: :erlang.nif_error(:nif_not_loaded)
-  # => nil | {cols, rows}
 
+  @spec dump(reference) :: binary
   def dump(_vt), do: :erlang.nif_error(:nif_not_loaded)
-  # => ...
 
+  @spec dump_screen(reference) :: {:ok, {list(list({binary, map})), {integer, integer} | nil}}
   def dump_screen(_vt), do: :erlang.nif_error(:nif_not_loaded)
-  # => {:ok, {lines, cursor}}
 
+  @spec text(reference) :: list(binary)
   def text(_vt), do: :erlang.nif_error(:nif_not_loaded)
-  # => ...
 end
