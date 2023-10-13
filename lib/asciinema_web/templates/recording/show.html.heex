@@ -27,7 +27,7 @@
           <.time_ago time={@asciicast.inserted_at} />
 
           <%= if @asciicast.private do %>
-            <%= render("_private_badge.html") %>
+            <%= render("_secret_badge.html") %>
           <% end %>
 
           <%= if @asciicast.featured do %>

@@ -16,7 +16,7 @@
       <%= link title(@asciicast), to: Routes.recording_path(@conn, :show, @asciicast) %>
 
       <%= if @asciicast.private do %>
-        <%= render "_private_badge.html" %>
+        <%= render "_secret_badge.html" %>
       <% end %>
 
       <%= if @asciicast.featured do %>

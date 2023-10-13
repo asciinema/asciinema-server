@@ -20,7 +20,7 @@
         <small>
           by
           <.link navigate={author_profile_path(@stream)}><%= author_username(@stream) %></.link>
-          <.private_badge :if={@stream.private} />
+          <.secret_badge :if={@stream.private} />
         </small>
       </div>
 
