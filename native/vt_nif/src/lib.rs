@@ -67,7 +67,8 @@ fn dump_screen(env: Env, resource: ResourceArc<VtResource>) -> NifResult<(Atom, 
         })
         .collect::<Vec<_>>();
 
-    let cursor = vt.cursor();
+    let (col, row, visible) = vt.cursor();
+    let cursor = if visible { Some((col, row)) } else { None };
 
     Ok((atoms::ok(), (lines, cursor).encode(env)))
 }
