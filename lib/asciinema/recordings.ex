@@ -504,16 +504,24 @@ defmodule Asciinema.Recordings do
     cols = asciicast.cols_override || asciicast.cols
     rows = asciicast.rows_override || asciicast.rows
     secs = Asciicast.snapshot_at(asciicast)
-    snapshot = asciicast |> stdout_stream |> generate_snapshot(cols, rows, secs)
-    asciicast |> Changeset.cast(%{snapshot: snapshot}, [:snapshot]) |> Repo.update()
+
+    snapshot =
+      asciicast
+      |> stdout_stream()
+      |> generate_snapshot(cols, rows, secs)
+
+    asciicast
+    |> Changeset.cast(%{snapshot: snapshot}, [:snapshot])
+    |> Repo.update()
   end
 
-  def generate_snapshot(stdout_stream, width, height, secs) do
+  def generate_snapshot(stdout_stream, cols, rows, secs) do
     frames = Stream.take_while(stdout_stream, &frame_before_or_at?(&1, secs))
 
     {:ok, {lines, cursor}} =
-      Vt.with_vt(width, height, fn vt ->
+      Vt.with_vt(cols, rows, [resizable: false, scrollback_limit: 0], fn vt ->
         Enum.each(frames, fn {_, text} -> Vt.feed(vt, text) end)
+
         Vt.dump_screen(vt)
       end)
 
