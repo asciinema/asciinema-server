@@ -21,9 +21,22 @@ fn load(env: Env, _info: Term) -> bool {
 }
 
 #[rustler::nif]
-fn new(w: usize, h: usize) -> NifResult<(Atom, ResourceArc<VtResource>)> {
-    if w > 0 && h > 0 {
-        let vt = Vt::new(w, h);
+fn new(
+    cols: usize,
+    rows: usize,
+    resizable: bool,
+    scrollback_limit: Option<usize>,
+) -> NifResult<(Atom, ResourceArc<VtResource>)> {
+    if cols > 0 && rows > 0 {
+        let mut builder = Vt::builder();
+        builder.size(cols, rows).resizable(resizable);
+
+        if let Some(limit) = scrollback_limit {
+            builder.scrollback_limit(limit);
+        }
+
+        let vt = builder.build();
+
         let resource = ResourceArc::new(VtResource {
             vt: RwLock::new(vt),
         });
@@ -67,8 +80,7 @@ fn dump_screen(env: Env, resource: ResourceArc<VtResource>) -> NifResult<(Atom, 
         })
         .collect::<Vec<_>>();
 
-    let (col, row, visible) = vt.cursor();
-    let cursor = if visible { Some((col, row)) } else { None };
+    let cursor: Option<(usize, usize)> = vt.cursor().into();
 
     Ok((atoms::ok(), (lines, cursor).encode(env)))
 }
