@@ -85,12 +85,11 @@ defmodule AsciinemaWeb.RecordingView do
   end
 
   def download_filename(asciicast) do
-    case asciicast.version do
-      1 -> "#{asciicast.id}.json"
-      2 -> "#{asciicast.id}.cast"
-      _ -> nil
-    end
+    "#{asciicast.id}.#{filename_ext(asciicast)}"
   end
+
+  def filename_ext(%{version: 1}), do: "json"
+  def filename_ext(%{version: 2}), do: "cast"
 
   @csi_init "\x1b["
   @sgr_reset "\x1b[0m"
