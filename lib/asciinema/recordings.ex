@@ -2,7 +2,7 @@ defmodule Asciinema.Recordings do
   require Logger
   import Ecto.Query, warn: false
   alias Asciinema.{FileStore, Media, Repo, Vt}
-  alias Asciinema.Recordings.{Asciicast, Output, SnapshotUpdater}
+  alias Asciinema.Recordings.{Asciicast, Output, Paths, SnapshotUpdater}
   alias Ecto.Changeset
 
   def fetch_asciicast(id) do
@@ -290,7 +290,7 @@ defmodule Asciinema.Recordings do
       Repo.transaction(fn ->
         case Repo.insert(changeset) do
           {:ok, asciicast} ->
-            path = gen_file_store_path(asciicast)
+            path = Paths.sharded_path(asciicast)
 
             asciicast =
               asciicast
@@ -307,23 +307,6 @@ defmodule Asciinema.Recordings do
       end)
 
     result
-  end
-
-  defp gen_file_store_path(asciicast) do
-    ext =
-      case asciicast.version do
-        1 -> "json"
-        2 -> "cast"
-      end
-
-    <<a::binary-size(2), b::binary-size(2)>> =
-      asciicast.id
-      |> Integer.to_string(10)
-      |> String.pad_leading(4, "0")
-      |> String.reverse()
-      |> String.slice(0, 4)
-
-    "asciicasts/#{a}/#{b}/#{asciicast.id}.#{ext}"
   end
 
   defp save_file(path, %{path: tmp_path, content_type: content_type}) do
@@ -470,8 +453,7 @@ defmodule Asciinema.Recordings do
       |> write_v2_file(header)
 
     upload = %Plug.Upload{path: v2_path, content_type: "application/octet-stream"}
-
-    path = gen_file_store_path(%{asciicast | version: 2})
+    path = Paths.sharded_path(%{asciicast | version: 2})
 
     changeset =
       Changeset.change(asciicast,
@@ -492,7 +474,7 @@ defmodule Asciinema.Recordings do
 
     {:ok, asciicast} =
       Repo.transaction(fn ->
-        new_path = gen_file_store_path(asciicast)
+        new_path = Paths.sharded_path(asciicast)
         asciicast = Repo.update!(Changeset.change(asciicast, path: new_path))
         :ok = FileStore.move_file(old_path, new_path)
 
