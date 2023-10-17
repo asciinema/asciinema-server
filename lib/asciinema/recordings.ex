@@ -273,6 +273,7 @@ defmodule Asciinema.Recordings do
 
   defp get_v2_duration(path) do
     path
+    # TODO use any last event, not specifically output
     |> Output.stream()
     |> Enum.reduce(fn {t, _}, _prev_t -> t end)
   end
