@@ -38,6 +38,7 @@ defmodule Asciinema.Recordings.Output do
         |> Stream.drop(1)
         |> Stream.reject(fn line -> line == "\n" end)
         |> Stream.map(&Jason.decode!/1)
+        |> Stream.map(&convert_resize_to_output/1)
         |> Stream.filter(fn [_, type, _] -> type == "o" end)
         |> Stream.map(fn [t, _, s] -> {t, s} end)
         |> to_relative_time()
@@ -69,6 +70,16 @@ defmodule Asciinema.Recordings.Output do
 
     to_absolute_time(stream)
   end
+
+  defp convert_resize_to_output([time, "r", size]) do
+    [cols, rows] = String.split(size, "x")
+    cols = String.to_integer(cols)
+    rows = String.to_integer(rows)
+
+    [time, "o", "\x1b[8;#{rows};#{cols}t"]
+  end
+
+  defp convert_resize_to_output(event), do: event
 
   defp open_files(timing_path, data_path) do
     {open_file(timing_path), open_file(data_path), ""}
