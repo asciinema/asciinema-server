@@ -38,22 +38,26 @@
 
       <div class="col-md-4 col-xs-12 text-right actions">
         <div class="dropdown actions-dropdown pull-right">
-          <%= link("Share",
-            to: "#",
-            class: "btn btn-sm btn-secondary",
-            id: "share-link",
-            "data-toggle": "modal",
-            "data-target": "#share-modal"
-          ) %>
+          <.link
+            href="#"
+            class="btn btn-sm btn-secondary"
+            id="share-link"
+            data-toggle="modal"
+            data-target="#share-modal"
+          >
+            <.share_mini_icon /> Share
+          </.link>
 
           <%= if download_filename(@asciicast) do %>
-            <%= link("Download",
-              to: "#",
-              class: "btn btn-sm btn-secondary",
-              id: "download-link",
-              "data-toggle": "modal",
-              "data-target": "#download-modal"
-            ) %>
+            <.link
+              href="#"
+              class="btn btn-sm btn-secondary"
+              id="download-link"
+              data-toggle="modal"
+              data-target="#download-modal"
+            >
+              <.download_mini_icon /> Download
+            </.link>
           <% end %>
 
           <%= if length(@actions) > 0 do %>
