@@ -43,6 +43,8 @@ config :sentry,
 config :asciinema, :file_store, Asciinema.FileStore.Local
 config :asciinema, Asciinema.FileStore.Local, path: "uploads/"
 
+config :asciinema, Asciinema.FileCache, path: "cache/"
+
 config :asciinema, :png_generator, Asciinema.PngGenerator.Rsvg
 
 config :asciinema, Asciinema.PngGenerator.Rsvg,

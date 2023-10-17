@@ -9,7 +9,7 @@ defmodule Asciinema.FileStore.Local do
 
   @impl true
   def put_file(dst_path, src_local_path, _content_type) do
-    full_dst_path = base_path() <> dst_path
+    full_dst_path = full_path(dst_path)
     parent_dir = Path.dirname(full_dst_path)
 
     with :ok <- File.mkdir_p(parent_dir),
@@ -20,8 +20,8 @@ defmodule Asciinema.FileStore.Local do
 
   @impl true
   def move_file(from_path, to_path) do
-    full_from_path = base_path() <> from_path
-    full_to_path = base_path() <> to_path
+    full_from_path = full_path(from_path)
+    full_to_path = full_path(to_path)
     parent_dir = Path.dirname(full_to_path)
     :ok = File.mkdir_p(parent_dir)
     File.rename(full_from_path, full_to_path)
@@ -41,13 +41,13 @@ defmodule Asciinema.FileStore.Local do
   defp do_serve_file(conn, path) do
     conn
     |> put_resp_header("content-type", MIME.from_path(path))
-    |> send_file(200, base_path() <> path)
+    |> send_file(200, full_path(path))
     |> halt
   end
 
   @impl true
   def open_file(path) do
-    File.open(base_path() <> path, [:binary, :read])
+    File.open(full_path(path), [:binary, :read])
   end
 
   @impl true
@@ -56,19 +56,21 @@ defmodule Asciinema.FileStore.Local do
   end
 
   def open_file(path, function) do
-    File.open(base_path() <> path, [:binary, :read], function)
+    File.open(full_path(path), [:binary, :read], function)
   end
 
   @impl true
   def delete_file(path) do
-    File.rm(base_path() <> path)
+    File.rm(full_path(path))
+  end
+
+  defp full_path(path), do: Path.join(base_path(), path)
+
+  defp base_path do
+    Keyword.get(config(), :path)
   end
 
   defp config do
     Application.get_env(:asciinema, __MODULE__)
-  end
-
-  defp base_path do
-    Keyword.get(config(), :path)
   end
 end

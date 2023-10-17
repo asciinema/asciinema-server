@@ -76,6 +76,19 @@ defmodule Asciinema.RecordingControllerTest do
       assert response(conn, 200)
     end
 
+    test "TXT", %{conn: conn} do
+      asciicast = insert(:asciicast) |> with_file()
+      url = Routes.recording_path(conn, :show, asciicast)
+
+      conn_2 = get(conn, url <> ".txt")
+      assert response(conn_2, 200)
+      assert response_content_type(conn_2, :txt)
+
+      conn_2 = conn |> put_req_header("accept", "text/plain") |> get(url)
+      assert response(conn_2, 200)
+      assert response_content_type(conn_2, :txt)
+    end
+
     @tag :rsvg
     test "PNG", %{conn: conn} do
       asciicast = insert(:asciicast)

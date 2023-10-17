@@ -91,6 +91,18 @@ defmodule AsciinemaWeb.RecordingController do
     |> send_file(200, path)
   end
 
+  def do_show(conn, "txt", asciicast) do
+    if asciicast.archived_at do
+      conn
+      |> put_status(410)
+      |> text("This recording has been archived\n")
+    else
+      send_download(conn, {:file, Recordings.text_file_path(asciicast)},
+        filename: "#{asciicast.id}.txt"
+      )
+    end
+  end
+
   def do_show(conn, "svg", asciicast) do
     if asciicast.archived_at do
       path = Application.app_dir(:asciinema, "priv/static/images/archived.png")

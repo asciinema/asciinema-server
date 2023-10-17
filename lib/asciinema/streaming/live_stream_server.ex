@@ -221,7 +221,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
   defp topic_name(stream_id, type), do: "stream:#{stream_id}:#{type}"
 
   defp reset_stream(state, {cols, rows} = vt_size, time \\ 0.0) do
-    {:ok, vt} = Vt.new(cols, rows)
+    {:ok, vt} = Vt.new(cols, rows, true, 100)
 
     stream =
       Streaming.update_live_stream(state.stream,

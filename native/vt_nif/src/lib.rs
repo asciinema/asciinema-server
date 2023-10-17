@@ -21,9 +21,22 @@ fn load(env: Env, _info: Term) -> bool {
 }
 
 #[rustler::nif]
-fn new(w: usize, h: usize) -> NifResult<(Atom, ResourceArc<VtResource>)> {
-    if w > 0 && h > 0 {
-        let vt = Vt::new(w, h);
+fn new(
+    cols: usize,
+    rows: usize,
+    resizable: bool,
+    scrollback_limit: Option<usize>,
+) -> NifResult<(Atom, ResourceArc<VtResource>)> {
+    if cols > 0 && rows > 0 {
+        let mut builder = Vt::builder();
+        builder.size(cols, rows).resizable(resizable);
+
+        if let Some(limit) = scrollback_limit {
+            builder.scrollback_limit(limit);
+        }
+
+        let vt = builder.build();
+
         let resource = ResourceArc::new(VtResource {
             vt: RwLock::new(vt),
         });
@@ -67,14 +80,29 @@ fn dump_screen(env: Env, resource: ResourceArc<VtResource>) -> NifResult<(Atom, 
         })
         .collect::<Vec<_>>();
 
-    let (col, row, visible) = vt.cursor();
-    let cursor = if visible { Some((col, row)) } else { None };
+    let cursor: Option<(usize, usize)> = vt.cursor().into();
 
     Ok((atoms::ok(), (lines, cursor).encode(env)))
 }
 
+#[rustler::nif]
+fn text(resource: ResourceArc<VtResource>) -> NifResult<String> {
+    let vt = convert_err(resource.vt.read(), "rw_lock")?;
+    let mut text = vt.text();
+
+    while !text.is_empty() && text[text.len() - 1].is_empty() {
+        text.truncate(text.len() - 1);
+    }
+
+    for line in &mut text.iter_mut() {
+        line.push('\n');
+    }
+
+    Ok(text.join(""))
+}
+
 fn segment_to_term(segment: avt::Segment, env: Env) -> Term {
-    let text = segment.text();
+    let txt = segment.text();
     let mut pairs: Vec<(String, Term)> = Vec::new();
 
     match segment.foreground() {
@@ -133,7 +161,7 @@ fn segment_to_term(segment: avt::Segment, env: Env) -> Term {
 
     let attrs = Term::map_from_pairs(env, &pairs).unwrap();
 
-    (text, attrs).encode(env)
+    (txt, attrs).encode(env)
 }
 
 fn convert_err<T, E>(result: Result<T, E>, error: &'static str) -> Result<T, Error> {
@@ -145,6 +173,6 @@ fn convert_err<T, E>(result: Result<T, E>, error: &'static str) -> Result<T, Err
 
 rustler::init!(
     "Elixir.Asciinema.Vt",
-    [new, feed, dump, dump_screen],
+    [new, feed, dump, dump_screen, text],
     load = load
 );
