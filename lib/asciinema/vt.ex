@@ -23,6 +23,6 @@ defmodule Asciinema.Vt do
   @spec dump_screen(reference) :: {:ok, {list(list({binary, map})), {integer, integer} | nil}}
   def dump_screen(_vt), do: :erlang.nif_error(:nif_not_loaded)
 
-  @spec text(reference) :: list(binary)
+  @spec text(reference) :: binary
   def text(_vt), do: :erlang.nif_error(:nif_not_loaded)
 end

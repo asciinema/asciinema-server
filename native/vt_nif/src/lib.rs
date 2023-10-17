@@ -86,7 +86,7 @@ fn dump_screen(env: Env, resource: ResourceArc<VtResource>) -> NifResult<(Atom, 
 }
 
 #[rustler::nif]
-fn text(resource: ResourceArc<VtResource>) -> NifResult<Vec<String>> {
+fn text(resource: ResourceArc<VtResource>) -> NifResult<String> {
     let vt = convert_err(resource.vt.read(), "rw_lock")?;
     let mut text = vt.text();
 
@@ -94,7 +94,11 @@ fn text(resource: ResourceArc<VtResource>) -> NifResult<Vec<String>> {
         text.truncate(text.len() - 1);
     }
 
-    Ok(text)
+    for line in &mut text.iter_mut() {
+        line.push('\n');
+    }
+
+    Ok(text.join(""))
 }
 
 fn segment_to_term(segment: avt::Segment, env: Env) -> Term {

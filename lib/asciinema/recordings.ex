@@ -2,7 +2,7 @@ defmodule Asciinema.Recordings do
   require Logger
   import Ecto.Query, warn: false
   alias Asciinema.{FileStore, Media, Repo, Vt}
-  alias Asciinema.Recordings.{Asciicast, Output, Paths, SnapshotUpdater}
+  alias Asciinema.Recordings.{Asciicast, Output, Paths, SnapshotUpdater, Text}
   alias Ecto.Changeset
 
   def fetch_asciicast(id) do
@@ -412,6 +412,9 @@ defmodule Asciinema.Recordings do
       Enum.map(chunks, &Tuple.to_list/1)
     end)
   end
+
+  defdelegate text(asciicast), to: Text
+  defdelegate text_file_path(asciicast), to: Text
 
   defp frame_before_or_at?({time, _}, secs) do
     time <= secs

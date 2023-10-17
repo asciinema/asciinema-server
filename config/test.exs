@@ -31,6 +31,8 @@ config :asciinema, Asciinema.Accounts,
 
 config :asciinema, Asciinema.FileStore.Local, path: "uploads/test/"
 
+config :asciinema, Asciinema.FileCache, path: "/tmp/asciinema/"
+
 config :asciinema, :snapshot_updater, Asciinema.Recordings.SnapshotUpdater.Noop
 
 config :asciinema, Oban, testing: :manual

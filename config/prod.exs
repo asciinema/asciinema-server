@@ -31,3 +31,5 @@ config :asciinema, Asciinema.Emails.Mailer,
   adapter: Bamboo.SMTPAdapter,
   server: "smtp",
   port: 25
+
+config :asciinema, Asciinema.FileCache, path: "/var/cache/asciinema"

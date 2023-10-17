@@ -2,8 +2,8 @@ defmodule Asciinema.Recordings.Paths do
   def sharded_path(asciicast, ext \\ nil) do
     ext =
       case {ext, asciicast.version} do
-        {nil, 1} -> "json"
-        {nil, 2} -> "cast"
+        {nil, 1} -> ".json"
+        {nil, 2} -> ".cast"
         {ext, _} when is_binary(ext) -> ext
       end
 
@@ -14,6 +14,6 @@ defmodule Asciinema.Recordings.Paths do
       |> String.reverse()
       |> String.slice(0, 4)
 
-    "asciicasts/#{a}/#{b}/#{asciicast.id}.#{ext}"
+    "asciicasts/#{a}/#{b}/#{asciicast.id}#{ext}"
   end
 end

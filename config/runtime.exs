@@ -58,6 +58,12 @@ if config_env() in [:prod, :dev] do
 
   config :ex_aws, region: {:system, "AWS_REGION"}
 
+  file_cache_path = env.("FILE_CACHE_PATH")
+
+  if file_cache_path do
+    config :asciinema, Asciinema.FileCache, path: file_cache_path
+  end
+
   if env.("S3_BUCKET") do
     config :asciinema, :file_store, Asciinema.FileStore.Cached
 
@@ -75,7 +81,8 @@ if config_env() in [:prod, :dev] do
       access_key_id: [{:system, "AWS_ACCESS_KEY_ID"}, :instance_role],
       secret_access_key: [{:system, "AWS_SECRET_ACCESS_KEY"}, :instance_role]
 
-    config :asciinema, Asciinema.FileStore.Local, path: "cache/uploads/"
+    config :asciinema, Asciinema.FileStore.Local,
+      path: Path.join(file_cache_path || "/var/cache/asciinema", "uploads")
   end
 
   if db_pool_size = env.("DB_POOL_SIZE") do
