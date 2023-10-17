@@ -37,74 +37,98 @@
       </div>
 
       <div class="col-md-4 col-xs-12 text-right actions">
-        <div class="dropdown actions-dropdown pull-right">
-          <.link
-            href="#"
-            class="btn btn-sm btn-secondary"
-            id="share-link"
-            data-toggle="modal"
-            data-target="#share-modal"
-          >
-            <.share_mini_icon /> Share
-          </.link>
-
-          <%= if download_filename(@asciicast) do %>
+        <div class="btn-group pull-right">
+          <div>
             <.link
               href="#"
               class="btn btn-sm btn-secondary"
-              id="download-link"
+              id="share-link"
               data-toggle="modal"
-              data-target="#download-modal"
+              data-target="#share-modal"
             >
-              <.download_mini_icon /> Download
+              <.share_mini_icon /> Share
             </.link>
-          <% end %>
+          </div>
 
-          <%= if length(@actions) > 0 do %>
+          <div class="dropdown actions-dropdown">
             <button
               class="btn btn-sm btn-secondary dropdown-toggle"
               type="button"
               data-toggle="dropdown"
             >
-              <.cog_8_tooth_mini_icon />
+              <.download_mini_icon /> Download
             </button>
 
             <div class="dropdown-menu">
               <.link
-                :if={:edit in @actions}
-                navigate={~p"/a/#{@asciicast}/edit"}
+                href="#"
                 class="dropdown-item"
+                id="download-link"
+                data-toggle="modal"
+                data-target="#download-modal"
               >
-                Settings
+                <strong>.<%= filename_ext(@asciicast) %></strong> - original recording
               </.link>
-
               <.link
-                :if={:make_private in @actions}
-                href={~p"/a/#{@asciicast}?asciicast[private]=1"}
+                navigate={~p"/a/#{@asciicast}" <> ".txt"}
                 class="dropdown-item"
-                method="put"
+                rel="nofollow"
               >
-                Make it secret
+                <strong>.txt</strong> - pure text version
               </.link>
+              <.link href="#" class="dropdown-item" data-toggle="modal" data-target="#gif-modal">
+                <strong>.gif</strong> - animated GIF
+              </.link>
+            </div>
+          </div>
 
-              <.link
-                :if={:make_public in @actions}
-                href={~p"/a/#{@asciicast}?asciicast[private]=0"}
-                class="dropdown-item"
-                method="put"
+          <%= if length(@actions) > 0 do %>
+            <div class="dropdown actions-dropdown">
+              <button
+                class="btn btn-sm btn-secondary dropdown-toggle"
+                type="button"
+                data-toggle="dropdown"
               >
-                Make it public
-              </.link>
+                <.cog_8_tooth_mini_icon />
+              </button>
 
-              <.link
-                :if={:delete in @actions}
-                href={~p"/a/#{@asciicast}"}
-                class="dropdown-item text-danger"
-                method="delete"
-                data-confirm="Are you sure you want to delete this recording?"
-              >
-                Delete
-              </.link>
+              <div class="dropdown-menu">
+                <.link
+                  :if={:edit in @actions}
+                  navigate={~p"/a/#{@asciicast}/edit"}
+                  class="dropdown-item"
+                >
+                  Settings
+                </.link>
+
+                <.link
+                  :if={:make_private in @actions}
+                  href={~p"/a/#{@asciicast}?asciicast[private]=1"}
+                  class="dropdown-item"
+                  method="put"
+                >
+                  Make it secret
+                </.link>
+
+                <.link
+                  :if={:make_public in @actions}
+                  href={~p"/a/#{@asciicast}?asciicast[private]=0"}
+                  class="dropdown-item"
+                  method="put"
+                >
+                  Make it public
+                </.link>
+
+                <.link
+                  :if={:delete in @actions}
+                  href={~p"/a/#{@asciicast}"}
+                  class="dropdown-item text-danger"
+                  method="delete"
+                  data-confirm="Are you sure you want to delete this recording?"
+                >
+                  Delete
+                </.link>
+              </div>
             </div>
           <% end %>
         </div>
@@ -168,10 +192,8 @@
 </section>
 
 <%= render("_share_modal.html", conn: @conn, asciicast: @asciicast) %>
-
-<%= if download_filename(@asciicast) do %>
-  <%= render("_download_modal.html", conn: @conn, asciicast: @asciicast) %>
-<% end %>
+<%= render("_download_modal.html", conn: @conn, asciicast: @asciicast) %>
+<%= render("_gif_modal.html", conn: @conn, asciicast: @asciicast) %>
 
 <script>
   window.addEventListener('load', async function() {
