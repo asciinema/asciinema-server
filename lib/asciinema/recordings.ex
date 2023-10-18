@@ -348,6 +348,12 @@ defmodule Asciinema.Recordings do
     end
   end
 
+  def set_featured(asciicast, featured \\ true) do
+    asciicast
+    |> Changeset.change(%{featured: featured})
+    |> Repo.update!()
+  end
+
   def delete_asciicast(asciicast) do
     with {:ok, asciicast} <- Repo.delete(asciicast) do
       case FileStore.delete_file(asciicast.path) do
