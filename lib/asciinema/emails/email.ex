@@ -25,6 +25,7 @@ defmodule Asciinema.Emails.Email do
   defp base_email do
     new_email()
     |> from({"asciinema", from_address()})
+    |> put_header("Date", Timex.format!(Timex.now(), "{RFC1123}"))
     |> put_header("Reply-To", reply_to_address())
     |> put_html_layout({AsciinemaWeb.LayoutView, "email.html"})
   end
