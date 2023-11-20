@@ -45,7 +45,7 @@
             </div>
             <div class="form-check">
               <%= radio_button f, :asciicasts_private_by_default, true, class: "radio_buttons optional form-check-input" %>
-              <%= label f, :asciicasts_private_by_default, "private", for: "user_asciicasts_private_by_default_true", class: "form-check-label" %>
+              <%= label f, :asciicasts_private_by_default, "secret - unlisted, accessible via secret link", for: "user_asciicasts_private_by_default_true", class: "form-check-label" %>
             </div>
             <small class="form-text text-muted">Applies to all *new* asciicasts</small>
           </div>

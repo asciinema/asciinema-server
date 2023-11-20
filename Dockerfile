@@ -21,6 +21,9 @@ RUN apk upgrade && \
   mix local.rebar --force && \
   mix local.hex --force
 
+COPY native native/
+RUN cd native/vt_nif && cargo build -r
+
 COPY mix.* ./
 RUN mix do deps.get --only prod, deps.compile
 
@@ -37,7 +40,6 @@ RUN mix phx.digest
 COPY config/*.exs config/
 COPY lib lib/
 COPY priv priv/
-COPY native native/
 
 # recompile sentry with our source code
 RUN mix deps.compile sentry --force

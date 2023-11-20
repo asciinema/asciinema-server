@@ -1,0 +1,22 @@
+<!-- dracula theme -->
+
+.default-text-fill {fill: #f8f8f2}
+.default-bg-fill {fill: #282a36}
+
+.c-0 {fill: #21222c}
+.c-1 {fill: #ff5555}
+.c-2 {fill: #50fa7b}
+.c-3 {fill: #f1fa8c}
+.c-4 {fill: #bd93f9}
+.c-5 {fill: #ff79c6}
+.c-6 {fill: #8be9fd}
+.c-7 {fill: #f8f8f2}
+.c-8 {fill: #6272a4}
+.c-9 {fill: #ff6e6e}
+.c-10 {fill: #69ff94}
+.c-11 {fill: #ffffa5}
+.c-12 {fill: #d6acff}
+.c-13 {fill: #ff92df}
+.c-14 {fill: #a4ffff}
+.c-15 {fill: #ffffff}
+.c-8, .c-9, .c-10, .c-11, .c-12, .c-13, .c-14, .c-15 {font-weight: bold}
