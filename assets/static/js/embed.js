@@ -26,7 +26,7 @@
       script.dataset.preload = '1';
     }
 
-    const keys = new Set(['speed', 'autoplay', 'loop', 'theme', 'startAt', 'preload', 'cols', 'rows', 'idleTimeLimit']);
+    const keys = new Set(['speed', 'autoplay', 'loop', 'theme', 'startAt', 'preload', 'cols', 'rows', 'idleTimeLimit', 'poster']);
 
     return Object.entries(script.dataset)
       .filter(([key, _]) => keys.has(key))
