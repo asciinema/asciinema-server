@@ -14,6 +14,6 @@ defmodule AsciinemaWeb.Admin.Router do
   scope "/", AsciinemaWeb.Admin do
     pipe_through :browser
 
-    live_dashboard "/dashboard"
+    live_dashboard "/dashboard", metrics: Asciinema.Telemetry
   end
 end

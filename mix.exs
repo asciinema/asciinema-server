@@ -26,7 +26,7 @@ defmodule Asciinema.MixProject do
   def application do
     [
       mod: {Asciinema.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :os_mon]
     ]
   end
 
@@ -46,6 +46,7 @@ defmodule Asciinema.MixProject do
       {:briefly, "~> 0.3"},
       {:credo, "~> 1.4", only: [:dev, :test], runtime: false},
       {:earmark, "~> 1.4"},
+      {:ecto_psql_extras, "~> 0.7.14"},
       {:ecto_sql, "~> 3.6"},
       {:ex_aws, "~> 2.2"},
       {:ex_aws_s3, "~> 2.1"},

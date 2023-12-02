@@ -22,7 +22,8 @@ config :asciinema, AsciinemaWeb.Endpoint,
 # Configures the admin endpoint
 config :asciinema, AsciinemaWeb.Admin.Endpoint,
   url: [host: "localhost"],
-  live_view: [signing_salt: "F3BMP7k9SZ-Y2SMJ"]
+  live_view: [signing_salt: "F3BMP7k9SZ-Y2SMJ"],
+  pubsub_server: Asciinema.PubSub
 
 # Configures Elixir's Logger
 config :logger, :console,

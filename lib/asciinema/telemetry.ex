@@ -21,7 +21,7 @@ defmodule Asciinema.Telemetry do
 
   @buckets [5, 10, 25, 50, 100, 250, 500, 1_000, 2_500, 5_000, 10_000]
 
-  defp metrics do
+  def metrics do
     repo_distribution = [
       unit: {:native, :millisecond},
       tags: [:query, :source],
