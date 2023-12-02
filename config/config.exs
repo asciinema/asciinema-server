@@ -12,12 +12,17 @@ config :asciinema,
 
 config :asciinema, Asciinema.Repo, migration_timestamps: [type: :naive_datetime_usec]
 
-# Configures the endpoint
+# Configures the public endpoint
 config :asciinema, AsciinemaWeb.Endpoint,
   url: [host: "localhost"],
   render_errors: [view: AsciinemaWeb.ErrorView, accepts: ~w(html json), layout: false],
   live_view: [signing_salt: "F3BMP7k9SZ-Y2SMJ"],
   pubsub_server: Asciinema.PubSub
+
+# Configures the admin endpoint
+config :asciinema, AsciinemaWeb.Admin.Endpoint,
+  url: [host: "localhost"],
+  live_view: [signing_salt: "F3BMP7k9SZ-Y2SMJ"]
 
 # Configures Elixir's Logger
 config :logger, :console,

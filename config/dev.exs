@@ -38,6 +38,13 @@ config :asciinema, AsciinemaWeb.Endpoint,
     ]
   ]
 
+config :asciinema, AsciinemaWeb.Admin.Endpoint,
+  http: [ip: {127, 0, 0, 1}, port: 4002],
+  check_origin: false,
+  code_reloader: true,
+  debug_errors: true,
+  secret_key_base: secret_key_base
+
 config :asciinema, Asciinema.Accounts, secret: secret_key_base
 
 # Watch static and templates for browser reloading.
