@@ -26,7 +26,7 @@ defmodule Asciinema.MixProject do
   def application do
     [
       mod: {Asciinema.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :os_mon]
     ]
   end
 
@@ -46,6 +46,7 @@ defmodule Asciinema.MixProject do
       {:briefly, "~> 0.3"},
       {:credo, "~> 1.4", only: [:dev, :test], runtime: false},
       {:earmark, "~> 1.4"},
+      {:ecto_psql_extras, "~> 0.7.14"},
       {:ecto_sql, "~> 3.6"},
       {:ex_aws, "~> 2.2"},
       {:ex_aws_s3, "~> 2.1"},
@@ -65,6 +66,7 @@ defmodule Asciinema.MixProject do
       # override for scrivener_html
       {:phoenix_view, "~> 2.0.2"},
       {:phoenix_html, "~> 3.3", override: true},
+      {:phoenix_live_dashboard, "~> 0.8.3"},
       {:phoenix_live_reload, "~> 1.4", only: :dev},
       {:phoenix_live_view, "~> 0.19.3"},
       {:phoenix_markdown, "~> 1.0"},

@@ -36,8 +36,10 @@ defmodule Asciinema.Application do
       Asciinema.Streaming.LiveStreamSupervisor,
       # Start rate limiter
       {PlugAttack.Storage.Ets, name: AsciinemaWeb.PlugAttack.Storage, clean_period: 60_000},
-      # Start the endpoint when the application starts
-      AsciinemaWeb.Endpoint
+      # Start the public endpoint
+      AsciinemaWeb.Endpoint,
+      # Start the admin endpoint
+      AsciinemaWeb.Admin.Endpoint
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
