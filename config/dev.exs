@@ -65,8 +65,6 @@ config :phoenix, :stacktrace_depth, 20
 # Initialize plugs at runtime for faster development compilation
 config :phoenix, :plug_init_mode, :runtime
 
-config :asciinema, Asciinema.Emails.Mailer, adapter: Bamboo.LocalAdapter
-
 config :asciinema, Asciinema.Telemetry, enabled: false
 
 # Import custom config.

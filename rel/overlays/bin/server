@@ -1,3 +1,10 @@
 #!/bin/sh
 
+if [ -z "${SECRET_KEY_BASE}" ]; then
+  echo "SECRET_KEY_BASE environment variable not set"
+  echo "Generating a temporary one for this boot..."
+  echo "Don't forget to set it in production deployment!"
+  export SECRET_KEY_BASE=$(exec ./bin/asciinema eval "IO.puts Crypto.random_token(64)")
+fi
+
 PHX_SERVER=true exec ./bin/asciinema start
