@@ -27,6 +27,7 @@ end
 if config_env() in [:prod, :dev] do
   if secret_key_base = env.("SECRET_KEY_BASE") do
     config :asciinema, AsciinemaWeb.Endpoint, secret_key_base: secret_key_base
+    config :asciinema, AsciinemaWeb.Admin.Endpoint, secret_key_base: secret_key_base
     config :asciinema, Asciinema.Accounts, secret: secret_key_base
   end
 
