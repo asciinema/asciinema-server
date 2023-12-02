@@ -20,7 +20,9 @@ config :asciinema, AsciinemaWeb.Endpoint,
   ],
   cache_static_manifest: "priv/static/cache_manifest.json"
 
-config :asciinema, AsciinemaWeb.Admin.Endpoint, http: [ip: {127, 0, 0, 1}, port: 4002]
+config :asciinema, AsciinemaWeb.Admin.Endpoint,
+  http: [ip: {127, 0, 0, 1}, port: 4002],
+  check_origin: false
 
 # Do not print debug messages in production
 config :logger, level: :info
