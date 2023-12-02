@@ -45,6 +45,8 @@ config :asciinema, Asciinema.FileStore.Local, path: "uploads/"
 
 config :asciinema, Asciinema.FileCache, path: "cache/"
 
+config :asciinema, Asciinema.Emails.Mailer, adapter: Bamboo.LocalAdapter
+
 config :asciinema, :png_generator, Asciinema.PngGenerator.Rsvg
 
 config :asciinema, Asciinema.PngGenerator.Rsvg,

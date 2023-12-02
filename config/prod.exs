@@ -27,10 +27,5 @@ config :asciinema, Asciinema.Repo,
   pool_size: 20,
   ssl: false
 
-config :asciinema, Asciinema.Emails.Mailer,
-  adapter: Bamboo.SMTPAdapter,
-  server: "smtp",
-  port: 25
-
 config :asciinema, Asciinema.FileStore.Local, path: "/var/opt/asciinema/uploads"
 config :asciinema, Asciinema.FileCache, path: "/var/cache/asciinema"
