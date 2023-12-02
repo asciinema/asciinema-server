@@ -51,6 +51,10 @@ if config_env() in [:prod, :dev] do
     config :asciinema, AsciinemaWeb.Endpoint, url: [port: String.to_integer(url_port)]
   end
 
+  if env.("ADMIN_BIND_ALL") do
+    config :asciinema, AsciinemaWeb.Admin.Endpoint, http: [ip: {0, 0, 0, 0}]
+  end
+
   if port = env.("ADMIN_PORT") do
     config :asciinema, AsciinemaWeb.Admin.Endpoint, http: [port: String.to_integer(port)]
   end
