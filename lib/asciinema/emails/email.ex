@@ -39,6 +39,6 @@ defmodule Asciinema.Emails.Email do
   end
 
   defp instance_hostname do
-    System.get_env("URL_HOST") || "asciinema.org"
+    System.get_env("URL_HOST") || "localhost"
   end
 end
