@@ -22,6 +22,15 @@ defmodule Asciinema.Emails.Email do
     |> render("login.html", login_url: login_url, hostname: hostname)
   end
 
+  def test_email(email_address) do
+    hostname = instance_hostname()
+
+    base_email()
+    |> to(email_address)
+    |> subject("Test email from #{hostname}")
+    |> text_body("It works!")
+  end
+
   defp base_email do
     new_email()
     |> from({"asciinema", from_address()})
