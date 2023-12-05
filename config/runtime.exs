@@ -123,7 +123,35 @@ if config_env() in [:prod, :dev] do
     config :asciinema, Asciinema.Emails.Mailer,
       adapter: Bamboo.SMTPAdapter,
       server: smtp_host,
-      port: 25
+      port: String.to_integer(env.("SMTP_PORT") || "587")
+
+    if username = env.("SMTP_USERNAME") do
+      config :asciinema, Asciinema.Emails.Mailer, username: username
+    end
+
+    if password = env.("SMTP_PASSWORD") do
+      config :asciinema, Asciinema.Emails.Mailer, password: password
+    end
+
+    if auth = env.("SMTP_AUTH") do
+      config :asciinema, Asciinema.Emails.Mailer, auth: auth
+    end
+
+    if tls = env.("SMTP_TLS") do
+      config :asciinema, Asciinema.Emails.Mailer, tls: tls
+    end
+
+    if versions = env.("SMTP_ALLOWED_TLS_VERSIONS") do
+      config :asciinema, Asciinema.Emails.Mailer, allowed_tls_versions: versions
+    end
+
+    if retries = env.("SMTP_RETRIES") do
+      config :asciinema, Asciinema.Emails.Mailer, retries: String.to_integer(retries)
+    end
+
+    if no_mx_lookups = env.("SMTP_NO_MX_LOOKUPS") do
+      config :asciinema, Asciinema.Emails.Mailer, no_mx_lookups: no_mx_lookups
+    end
   end
 
   if rsvg_pool_size = env.("RSVG_POOL_SIZE") do
