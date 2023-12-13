@@ -38,8 +38,15 @@ if config_env() in [:prod, :dev] do
   if url_scheme = env.("URL_SCHEME") do
     config :asciinema, AsciinemaWeb.Endpoint, url: [scheme: url_scheme]
 
-    if url_scheme == "https" do
-      config :asciinema, AsciinemaWeb.Endpoint, url: [port: 443]
+    case url_scheme do
+      "http" ->
+        config :asciinema, AsciinemaWeb.Endpoint, url: [port: 80]
+
+      "https" ->
+        config :asciinema, AsciinemaWeb.Endpoint, url: [port: 443]
+
+      _ ->
+        :ok
     end
   end
 
