@@ -28,7 +28,7 @@ config :asciinema, AsciinemaWeb.Admin.Endpoint,
 config :logger, level: :info
 
 config :asciinema, Asciinema.Repo,
-  pool_size: 20,
+  pool_size: 10,
   ssl: false
 
 config :asciinema, Asciinema.FileStore.Local, path: "/var/opt/asciinema/uploads"
