@@ -89,10 +89,10 @@ if config_env() in [:prod, :dev] do
       ip_period: String.to_integer(env.("IP_RATE_PERIOD") || "1") * 1_000
   end
 
-  file_cache_path = env.("FILE_CACHE_PATH")
+  cache_path = env.("CACHE_PATH")
 
-  if file_cache_path do
-    config :asciinema, Asciinema.FileCache, path: file_cache_path
+  if cache_path do
+    config :asciinema, Asciinema.FileCache, path: cache_path
   end
 
   if bucket = env.("S3_BUCKET") do
@@ -108,7 +108,7 @@ if config_env() in [:prod, :dev] do
       cache_store: Asciinema.FileStore.Local
 
     config :asciinema, Asciinema.FileStore.Local,
-      path: Path.join(file_cache_path || "/var/cache/asciinema", "uploads")
+      path: Path.join(cache_path || "/var/cache/asciinema", "uploads")
 
     config :ex_aws,
       region: [{:system, "S3_REGION"}, {:system, "AWS_REGION"}],
