@@ -11,7 +11,7 @@ defmodule Asciinema.FileStore.S3 do
 
   def url(path, query_params) do
     {:ok, url} =
-      Config.new(:s3, region: region())
+      Config.new(:s3)
       |> S3.presigned_url(:get, bucket(), base_path() <> path, query_params: query_params)
 
     url
@@ -104,15 +104,11 @@ defmodule Asciinema.FileStore.S3 do
   end
 
   defp make_request(request) do
-    ExAws.request(request, region: region())
+    ExAws.request(request)
   end
 
   defp config do
     Application.get_env(:asciinema, __MODULE__)
-  end
-
-  defp region do
-    Keyword.get(config(), :region)
   end
 
   defp bucket do
