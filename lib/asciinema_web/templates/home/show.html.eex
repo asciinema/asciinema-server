@@ -61,29 +61,6 @@
 
 <section class="even">
   <div class="container">
-    <div class="row text-center">
-      <div class="col">
-        Financial support from our Platinum sponsors 👇 helps keep the project alive. Thank you!
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="odd platinum-sponsors">
-  <div class="container">
-    <div class="row text-center">
-      <div class="col">
-        <a href="https://dashcam.io?utm_source=asciinema&utm_campaign=hero" rel="nofollow">
-          <img src="<%= Routes.static_path(@conn, "/images/sponsor-logos/dashcam/logo-on-light.png") %>" alt="Dashcam" />
-        </a>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="even">
-  <div class="container">
     <div class="row">
       <div class="col-md-12">
         <h1>Example sessions recorded with asciinema</h1>

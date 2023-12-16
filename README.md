@@ -50,7 +50,6 @@ read on
 
 asciinema is sponsored by:
 
-- [**Dashcam**](https://dashcam.io?utm_source=asciinemagithub)
 - [Brightbox](https://www.brightbox.com/)
 
 ## Consulting
