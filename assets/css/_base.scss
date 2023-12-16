@@ -87,6 +87,10 @@ body, main {
   }
 }
 
+.c-page .container > h1 {
+  margin-bottom: 2rem;
+}
+
 section.cinema {
   color: #fff;
   background-color: #222;
@@ -201,4 +205,8 @@ body pre {
   color: #333;
   background-color: #eee;
   border-color: #ccc;
+}
+
+span.email b {
+  display: none;
 }

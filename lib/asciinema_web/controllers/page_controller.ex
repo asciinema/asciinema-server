@@ -2,9 +2,12 @@ defmodule AsciinemaWeb.PageController do
   use AsciinemaWeb, :controller
 
   def about(conn, _params) do
-    conn
-    |> assign(:page_title, "About")
-    |> render("about.html")
+    render(
+      conn,
+      "about.html",
+      page_title: "About",
+      contact_email_address: Application.get_env(:asciinema, :contact_email_address)
+    )
   end
 
   def privacy(conn, _params) do
