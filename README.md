@@ -11,11 +11,6 @@ at [asciinema/asciinema](https://github.com/asciinema/asciinema), and the source
 code of asciinema web player
 at [asciinema/asciinema-player](https://github.com/asciinema/asciinema-player).
 
-Shout-out to our Platinum [sponsors](https://github.com/sponsors/ku1ik), whose
-financial support helps keep the project alive:
-
-[<img src="./assets/static/images/sponsor-logos/dashcam/logo-on-light.png" width="200" />](https://dashcam.io?utm_source=asciinemagithub)
-
 ## Setting up your own asciinema web app instance
 
 asciinema terminal recorder uses [asciinema.org](https://asciinema.org) as its
@@ -48,9 +43,6 @@ read on
 
 ## Sponsors
 
-asciinema is sponsored by:
-
-- [**Dashcam**](https://dashcam.io?utm_source=asciinemagithub)
 - [Brightbox](https://www.brightbox.com/)
 
 ## Consulting

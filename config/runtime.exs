@@ -10,6 +10,7 @@ env = &System.get_env/1
 
 if env.("PHX_SERVER") do
   config :asciinema, AsciinemaWeb.Endpoint, server: true
+  config :asciinema, AsciinemaWeb.Admin.Endpoint, server: true
 end
 
 if config_env() == :prod do
@@ -26,6 +27,7 @@ end
 if config_env() in [:prod, :dev] do
   if secret_key_base = env.("SECRET_KEY_BASE") do
     config :asciinema, AsciinemaWeb.Endpoint, secret_key_base: secret_key_base
+    config :asciinema, AsciinemaWeb.Admin.Endpoint, secret_key_base: secret_key_base
     config :asciinema, Asciinema.Accounts, secret: secret_key_base
   end
 
@@ -35,6 +37,17 @@ if config_env() in [:prod, :dev] do
 
   if url_scheme = env.("URL_SCHEME") do
     config :asciinema, AsciinemaWeb.Endpoint, url: [scheme: url_scheme]
+
+    case url_scheme do
+      "http" ->
+        config :asciinema, AsciinemaWeb.Endpoint, url: [port: 80]
+
+      "https" ->
+        config :asciinema, AsciinemaWeb.Endpoint, url: [port: 443]
+
+      _ ->
+        :ok
+    end
   end
 
   if url_host = env.("URL_HOST") do
@@ -50,39 +63,74 @@ if config_env() in [:prod, :dev] do
     config :asciinema, AsciinemaWeb.Endpoint, url: [port: String.to_integer(url_port)]
   end
 
+  if env.("ADMIN_BIND_ALL") do
+    config :asciinema, AsciinemaWeb.Admin.Endpoint, http: [ip: {0, 0, 0, 0}]
+  end
+
+  if port = env.("ADMIN_PORT") do
+    config :asciinema, AsciinemaWeb.Admin.Endpoint, http: [port: String.to_integer(port)]
+  end
+
+  if url_scheme = env.("ADMIN_URL_SCHEME") do
+    config :asciinema, AsciinemaWeb.Admin.Endpoint, url: [scheme: url_scheme]
+  end
+
+  if url_host = env.("ADMIN_URL_HOST") do
+    config :asciinema, AsciinemaWeb.Admin.Endpoint, url: [host: url_host]
+  end
+
+  if url_port = env.("ADMIN_URL_PORT") do
+    config :asciinema, AsciinemaWeb.Admin.Endpoint, url: [port: String.to_integer(url_port)]
+  end
+
   if ip_limit = env.("IP_RATE_LIMIT") do
     config :asciinema, AsciinemaWeb.PlugAttack,
       ip_limit: String.to_integer(ip_limit),
       ip_period: String.to_integer(env.("IP_RATE_PERIOD") || "1") * 1_000
   end
 
-  config :ex_aws, region: {:system, "AWS_REGION"}
+  cache_path = env.("CACHE_PATH")
 
-  file_cache_path = env.("FILE_CACHE_PATH")
-
-  if file_cache_path do
-    config :asciinema, Asciinema.FileCache, path: file_cache_path
+  if cache_path do
+    config :asciinema, Asciinema.FileCache, path: cache_path
   end
 
-  if env.("S3_BUCKET") do
+  if bucket = env.("S3_BUCKET") do
+    config :asciinema, Asciinema.FileStore.S3,
+      bucket: bucket,
+      path: "uploads/",
+      proxy: !!env.("S3_PROXY_ENABLED")
+
     config :asciinema, :file_store, Asciinema.FileStore.Cached
 
     config :asciinema, Asciinema.FileStore.Cached,
       remote_store: Asciinema.FileStore.S3,
       cache_store: Asciinema.FileStore.Local
 
-    config :asciinema, Asciinema.FileStore.S3,
-      region: env.("S3_REGION") || env.("AWS_REGION"),
-      bucket: env.("S3_BUCKET"),
-      path: "uploads/",
-      proxy: !!env.("S3_PROXY_ENABLED")
+    config :asciinema, Asciinema.FileStore.Local,
+      path: Path.join(cache_path || "/var/cache/asciinema", "uploads")
 
     config :ex_aws,
-      access_key_id: [{:system, "AWS_ACCESS_KEY_ID"}, :instance_role],
-      secret_access_key: [{:system, "AWS_SECRET_ACCESS_KEY"}, :instance_role]
+      region: [{:system, "S3_REGION"}, {:system, "AWS_REGION"}],
+      access_key_id: [
+        {:system, "S3_ACCESS_KEY_ID"},
+        {:system, "AWS_ACCESS_KEY_ID"},
+        :instance_role
+      ],
+      secret_access_key: [
+        {:system, "S3_SECRET_ACCESS_KEY"},
+        {:system, "AWS_SECRET_ACCESS_KEY"},
+        :instance_role
+      ]
 
-    config :asciinema, Asciinema.FileStore.Local,
-      path: Path.join(file_cache_path || "/var/cache/asciinema", "uploads")
+    if endpoint = env.("S3_ENDPOINT") do
+      uri = URI.parse(endpoint)
+
+      config :ex_aws, :s3,
+        scheme: "#{uri.scheme}://",
+        host: uri.host,
+        port: uri.port
+    end
   end
 
   if db_pool_size = env.("DB_POOL_SIZE") do
@@ -91,6 +139,41 @@ if config_env() in [:prod, :dev] do
 
   if env.("ECTO_IPV6") in ~w(true 1) do
     config :asciinema, Asciinema.Repo, socket_options: [:inet6]
+  end
+
+  if smtp_host = env.("SMTP_HOST") do
+    config :asciinema, Asciinema.Emails.Mailer,
+      adapter: Bamboo.SMTPAdapter,
+      server: smtp_host,
+      port: String.to_integer(env.("SMTP_PORT") || "587")
+
+    if username = env.("SMTP_USERNAME") do
+      config :asciinema, Asciinema.Emails.Mailer, username: username
+    end
+
+    if password = env.("SMTP_PASSWORD") do
+      config :asciinema, Asciinema.Emails.Mailer, password: password
+    end
+
+    if auth = env.("SMTP_AUTH") do
+      config :asciinema, Asciinema.Emails.Mailer, auth: auth
+    end
+
+    if tls = env.("SMTP_TLS") do
+      config :asciinema, Asciinema.Emails.Mailer, tls: tls
+    end
+
+    if versions = env.("SMTP_ALLOWED_TLS_VERSIONS") do
+      config :asciinema, Asciinema.Emails.Mailer, allowed_tls_versions: versions
+    end
+
+    if retries = env.("SMTP_RETRIES") do
+      config :asciinema, Asciinema.Emails.Mailer, retries: String.to_integer(retries)
+    end
+
+    if no_mx_lookups = env.("SMTP_NO_MX_LOOKUPS") do
+      config :asciinema, Asciinema.Emails.Mailer, no_mx_lookups: no_mx_lookups
+    end
   end
 
   if rsvg_pool_size = env.("RSVG_POOL_SIZE") do
@@ -119,7 +202,7 @@ if config_env() in [:prod, :dev] do
     config :sentry, included_environments: []
   end
 
-  if id = env.("HOME_ASCIICAST_ID") do
-    config :asciinema, home_asciicast_id: id
+  if email = env.("CONTACT_EMAIL_ADDRESS") do
+    config :asciinema, contact_email_address: email
   end
 end

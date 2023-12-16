@@ -97,6 +97,8 @@ defmodule AsciinemaWeb.Router do
     get "/connect/:api_token", ApiTokenController, :show, as: :connect
 
     resources "/api_tokens", ApiTokenController, only: [:delete]
+
+    get "/about", PageController, :about
   end
 
   scope "/api", AsciinemaWeb.Api, as: :api do

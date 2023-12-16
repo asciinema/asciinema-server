@@ -6,40 +6,54 @@
   }
 
   function params(container, script) {
-    function format(name) {
-      var value = script.getAttribute('data-' + name);
-      if (value) {
-        return name + '=' + value;
-      }
+    if (script.dataset.t !== undefined) {
+      script.dataset.startAt = script.dataset.t;
     }
 
-    var options = ['size', 'speed', 'autoplay', 'loop', 'theme', 't', 'startAt', 'preload', 'cols', 'rows', 'i', 'idleTimeLimit'];
+    if (script.dataset.i !== undefined) {
+      script.dataset.idleTimeLimit = script.dataset.i;
+    }
 
-    return '?' + options.map(format).filter(Boolean).join('&');
+    if (script.dataset.autoplay === '') {
+      script.dataset.autoplay = '1';
+    }
+
+    if (script.dataset.loop === '') {
+      script.dataset.loop = '1';
+    }
+
+    if (script.dataset.preload === '') {
+      script.dataset.preload = '1';
+    }
+
+    const keys = new Set(['speed', 'autoplay', 'loop', 'theme', 'startAt', 'preload', 'cols', 'rows', 'idleTimeLimit', 'poster']);
+
+    return Object.entries(script.dataset)
+      .filter(([key, _]) => keys.has(key))
+      .map(kv => kv.join('='))
+      .join('&');
   }
 
   function locationFromString(string) {
-    var parser = document.createElement('a');
+    const parser = document.createElement('a');
     parser.href = string;
     return parser;
   }
 
   function apiHostFromScript(script) {
-    var location = locationFromString(script.src);
+    const location = locationFromString(script.src);
     return location.protocol + '//' + location.host;
   }
 
   function insertPlayer(script) {
-    // do not insert player if there's one already associated with this script
-    if (script.dataset.player) {
+    if (script.dataset.initialized !== undefined) {
       return;
     }
 
-    var apiHost = apiHostFromScript(script);
+    const apiHost = apiHostFromScript(script);
+    const asciicastId = script.id.split('-')[1];
+    const container = document.createElement('div');
 
-    var asciicastId = script.id.split('-')[1];
-
-    var container = document.createElement('div');
     container.id = "asciicast-container-" + asciicastId;
     container.className = 'asciicast';
     container.style.display = 'block';
@@ -50,8 +64,8 @@
 
     insertAfter(script, container);
 
-    var iframe = document.createElement('iframe');
-    iframe.src = apiHost + "/a/" + asciicastId + '/iframe' + params(container, script);
+    const iframe = document.createElement('iframe');
+    iframe.src = apiHost + "/a/" + asciicastId + '/iframe?' + params(container, script);
     iframe.id = "asciicast-iframe-" + asciicastId;
     iframe.name = "asciicast-iframe-" + asciicastId;
     iframe.scrolling = "no";
@@ -68,8 +82,8 @@
     container.appendChild(iframe);
 
     function receiveSize(e) {
-      var name = e.data[0];
-      var data = e.data[1];
+      const name = e.data[0];
+      const data = e.data[1];
 
       if (e.origin === apiHost && e.source === iframe.contentWindow && name === 'resize') {
         iframe.style.height = '' + data.height + 'px';
@@ -77,10 +91,11 @@
     }
 
     window.addEventListener("message", receiveSize, false);
-
-    script.dataset.player = container;
+    script.dataset.initialized = '1';
   }
 
-  var scripts = document.querySelectorAll("script[id^='asciicast-']");
-  [].forEach.call(scripts, insertPlayer);
+  [].forEach.call(
+    document.querySelectorAll("script[id^='asciicast-']"),
+    insertPlayer
+  );
 })();

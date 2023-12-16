@@ -1,4 +1,4 @@
 #!/bin/sh
 
 emails="$@"
-exec ./bin/asciinema eval "Asciinema.Release.admin_rm(\"$emails\")"
+exec ./bin/asciinema rpc "Asciinema.Release.admin_rm(\"$emails\")"

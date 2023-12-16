@@ -4,7 +4,7 @@ defmodule Asciinema.MixProject do
   def project do
     [
       app: :asciinema,
-      version: "0.1.0",
+      version: "1.0.0",
       elixir: "~> 1.14",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
@@ -26,7 +26,7 @@ defmodule Asciinema.MixProject do
   def application do
     [
       mod: {Asciinema.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :os_mon]
     ]
   end
 
@@ -41,11 +41,12 @@ defmodule Asciinema.MixProject do
     [
       {:bamboo, "~> 2.2"},
       {:bamboo_phoenix, "~> 1.0"},
-      {:bamboo_ses, "~> 0.3.2"},
+      {:bamboo_ses, "~> 0.4.2"},
       {:bamboo_smtp, "~> 4.2"},
       {:briefly, "~> 0.3"},
       {:credo, "~> 1.4", only: [:dev, :test], runtime: false},
       {:earmark, "~> 1.4"},
+      {:ecto_psql_extras, "~> 0.7.14"},
       {:ecto_sql, "~> 3.6"},
       {:ex_aws, "~> 2.2"},
       {:ex_aws_s3, "~> 2.1"},
@@ -65,6 +66,7 @@ defmodule Asciinema.MixProject do
       # override for scrivener_html
       {:phoenix_view, "~> 2.0.2"},
       {:phoenix_html, "~> 3.3", override: true},
+      {:phoenix_live_dashboard, "~> 0.8.3"},
       {:phoenix_live_reload, "~> 1.4", only: :dev},
       {:phoenix_live_view, "~> 0.19.3"},
       {:phoenix_markdown, "~> 1.0"},

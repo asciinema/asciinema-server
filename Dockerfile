@@ -68,12 +68,10 @@ RUN chgrp -R 0 /opt/app && chmod -R g=u /opt/app
 COPY .iex.exs .
 
 ENV PORT 4000
+ENV ADMIN_BIND_ALL 1
 ENV DATABASE_URL "postgresql://postgres@postgres/postgres"
 ENV RSVG_FONT_FAMILY "Dejavu Sans Mono"
 ENV PATH "/opt/app/bin:${PATH}"
-
-VOLUME /opt/app/uploads
-VOLUME /opt/app/cache
 
 ENTRYPOINT ["/sbin/tini", "--"]
 CMD ["/opt/app/bin/server"]

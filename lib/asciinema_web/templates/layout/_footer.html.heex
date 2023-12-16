@@ -1,10 +1,12 @@
 <footer>
   <div class="container">
     <div class="row">
-      <div class="col" style="text-align: center">
-        This site is powered by
-        <a href="https://github.com/asciinema/asciinema-server">asciinema-server</a>
-        <br /> ❤️ <a href="#" data-toggle="modal" data-target="#donate-modal">Donate</a>
+      <div class="col-md-6">
+        Powered by <a href="https://docs.asciinema.org/manual/server/">asciinema server</a>
+      </div>
+
+      <div class="col-md-6" style="text-align: right">
+        <a href={~p"/about"}>About <%= @conn.host %></a>
       </div>
     </div>
   </div>

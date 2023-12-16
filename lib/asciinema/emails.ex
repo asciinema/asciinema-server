@@ -28,4 +28,10 @@ defmodule Asciinema.Emails do
 
     :ok
   end
+
+  def send_email(:test, to) do
+    to
+    |> Email.test_email()
+    |> Mailer.deliver_now!()
+  end
 end

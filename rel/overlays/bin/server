@@ -1,3 +1,10 @@
 #!/bin/sh
 
+if [ -z "${SECRET_KEY_BASE}" ]; then
+  echo "SECRET_KEY_BASE not set, generating one for this boot..."
+  echo "Don't forget to set it in production deployment!"
+  export SECRET_KEY_BASE=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 64)
+  echo "SECRET_KEY_BASE=${SECRET_KEY_BASE}"
+fi
+
 PHX_SERVER=true exec ./bin/asciinema start

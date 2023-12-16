@@ -20,16 +20,16 @@ config :asciinema, AsciinemaWeb.Endpoint,
   ],
   cache_static_manifest: "priv/static/cache_manifest.json"
 
+config :asciinema, AsciinemaWeb.Admin.Endpoint,
+  http: [ip: {127, 0, 0, 1}, port: 4002],
+  check_origin: false
+
 # Do not print debug messages in production
 config :logger, level: :info
 
 config :asciinema, Asciinema.Repo,
-  pool_size: 20,
+  pool_size: 10,
   ssl: false
 
-config :asciinema, Asciinema.Emails.Mailer,
-  adapter: Bamboo.SMTPAdapter,
-  server: "smtp",
-  port: 25
-
+config :asciinema, Asciinema.FileStore.Local, path: "/var/opt/asciinema/uploads"
 config :asciinema, Asciinema.FileCache, path: "/var/cache/asciinema"
