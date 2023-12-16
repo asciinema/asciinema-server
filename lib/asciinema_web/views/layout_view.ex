@@ -3,10 +3,9 @@ defmodule AsciinemaWeb.LayoutView do
   import AsciinemaWeb.UserView, only: [avatar_url: 1]
 
   def page_title(conn) do
-    case conn.assigns[:page_title] do
-      nil -> "asciinema - Record and share your terminal sessions, the simple way"
-      title -> title <> " - asciinema"
-    end
+    title = conn.assigns[:page_title] || "Record and share your terminal sessions, the simple way"
+
+    "#{title} - #{conn.host}"
   end
 
   def body_class(conn) do
