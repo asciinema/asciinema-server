@@ -74,7 +74,7 @@ body, main {
   background-color: #f7f7f7;
 }
 
-.c-recording, .c-live-stream {
+.c-page, .c-recording, .c-live-stream {
   main {
     h1, h2, h3 {
       margin-top: 2rem;
@@ -85,6 +85,10 @@ body, main {
       font-size: 2rem;
     }
   }
+}
+
+.c-page .container > h1 {
+  margin-bottom: 2rem;
 }
 
 section.cinema {
@@ -201,4 +205,8 @@ body pre {
   color: #333;
   background-color: #eee;
   border-color: #ccc;
+}
+
+span.email b {
+  display: none;
 }

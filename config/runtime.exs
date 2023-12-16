@@ -201,4 +201,8 @@ if config_env() in [:prod, :dev] do
   else
     config :sentry, included_environments: []
   end
+
+  if email = env.("CONTACT_EMAIL_ADDRESS") do
+    config :asciinema, contact_email_address: email
+  end
 end
