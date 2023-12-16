@@ -78,9 +78,6 @@ defmodule AsciinemaWeb.Router do
 
     resources "/s", LiveStreamController, only: [:show, :edit, :update]
 
-    get "/docs", DocController, :index
-    get "/docs/:topic", DocController, :show
-
     resources "/login", LoginController, only: [:new, :create], singleton: true
     get "/login/sent", LoginController, :sent, as: :login
 
@@ -101,9 +98,6 @@ defmodule AsciinemaWeb.Router do
     get "/about", PageController, :about
     get "/privacy", PageController, :privacy
     get "/tos", PageController, :tos
-    get "/contact", PageController, :contact
-    get "/contributing", PageController, :contributing
-    get "/consulting", PageController, :consulting
   end
 
   scope "/api", AsciinemaWeb.Api, as: :api do

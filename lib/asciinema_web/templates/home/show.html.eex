@@ -23,7 +23,7 @@
       <div class="col-md-12">
         <h3>
           asciinema <em><abbr title="from English ASCII + from Ancient Greek κίνημα (kínēma, “movement”)">[as-kee-nuh-muh] </abbr></em>
-          is a free and open source solution for recording terminal sessions and sharing them on the web. Read about <a href="<%= Routes.doc_path(@conn, :show, :"how-it-works") %>">how it works</a>.
+          is a free and open source solution for recording terminal sessions and sharing them on the web. Read about <a href="https://docs.asciinema.org/how-it-works/">how it works</a>.
         </h3>
       </div>
     </div>
@@ -39,7 +39,7 @@
         <p>Record right where you work - in a terminal.
           To start just run <code>asciinema rec</code>, to finish hit <kbd>Ctrl-D</kbd> or type <code>exit</code>. </p>
 
-        <p><a href="<%= Routes.doc_path(@conn, :show, :"getting-started") %>">Get started »</a></p>
+        <p><a href="https://docs.asciinema.org/getting-started/">Get started »</a></p>
       </div>
 
       <div class="col-md-4">
@@ -53,7 +53,7 @@
 
         <p>Easily embed asciinema player in your blog post, project documentation or in conference talk slides. </p>
 
-        <p><a href="<%= Routes.doc_path(@conn, :show, :embedding) %>">See docs on embedding »</a></p>
+        <p><a href="https://docs.asciinema.org/manual/server/embedding/">See docs on embedding »</a></p>
       </div>
     </div>
   </div>
