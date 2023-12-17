@@ -30,7 +30,7 @@
         <pre><code>asciinema play <%= download_filename(@asciicast) %></code></pre>
 
         <p>
-          If you don't have asciinema CLI installed then <a href="<%= Routes.doc_path(@conn, :show, :installation) %>">see installation instructions</a>.
+          If you don't have asciinema CLI installed then <a href="https://docs.asciinema.org/manual/cli/installation/">see installation instructions</a>.
         </p>
 
         <h2>Use with stand-alone player on your website</h2>

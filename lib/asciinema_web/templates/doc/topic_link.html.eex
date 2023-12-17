@@ -1,1 +1,0 @@
-<li class="nav-item"><a class="nav-link <%= @class %>" href="<%= Routes.doc_path @conn, :show, @topic %>"><%= @text %></a></li>

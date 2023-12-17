@@ -49,8 +49,7 @@
 
         <hr>
 
-        <p>See <a href="<%= Routes.doc_path(@conn, :show, :embedding) %>">Sharing &amp; embedding</a> for additional options.</p>
-
+        <p>See <a href="https://docs.asciinema.org/manual/server/embedding/">embedding docs</a> for additional options.</p>
       </div>
     </div>
   </div>
