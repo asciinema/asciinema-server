@@ -37,7 +37,7 @@ defmodule AsciinemaWeb.Api.RecordingView do
       deleted #{ttl} days after upload.
 
       If you want to preserve all recordings uploaded from this machine,
-      authorize this CLI with your #{hostname} account by opening the following link:
+      authenticate this CLI with your #{hostname} account by opening the following link:
 
           #{Routes.connect_url(conn, :show, install_id)}
       """
