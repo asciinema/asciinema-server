@@ -391,11 +391,17 @@ defmodule Asciinema.Recordings do
   end
 
   def delete_asciicasts(%{asciicasts: _} = owner) do
-    for a <- Repo.all(Ecto.assoc(owner, :asciicasts)) do
+    delete_asciicasts(Ecto.assoc(owner, :asciicasts))
+  end
+
+  def delete_asciicasts(%Ecto.Query{} = query) do
+    asciicasts = Repo.all(query)
+
+    for a <- asciicasts do
       {:ok, _} = delete_asciicast(a)
     end
 
-    :ok
+    length(asciicasts)
   end
 
   def update_snapshot(%Asciicast{} = asciicast) do
@@ -551,16 +557,26 @@ defmodule Asciinema.Recordings do
     tmp_path
   end
 
-  def archive_asciicasts(users_query, t) do
+  def hide_unclaimed_asciicasts(tmp_users_query, t) do
     query =
       from a in Asciicast,
-        join: u in ^users_query,
+        join: u in ^tmp_users_query,
         on: a.user_id == u.id,
         where: a.archivable and is_nil(a.archived_at) and a.inserted_at < ^t
 
     {count, _} = Repo.update_all(query, set: [archived_at: Timex.now()])
 
     count
+  end
+
+  def delete_unclaimed_asciicasts(tmp_users_query, t) do
+    query =
+      from a in Asciicast,
+        join: u in ^tmp_users_query,
+        on: a.user_id == u.id,
+        where: a.archivable and a.inserted_at < ^t
+
+    delete_asciicasts(query)
   end
 
   def reassign_asciicasts(src_user_id, dst_user_id) do

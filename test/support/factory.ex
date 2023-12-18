@@ -13,6 +13,10 @@ defmodule Asciinema.Factory do
     }
   end
 
+  def temporary_user_factory do
+    %{user_factory() | email: nil}
+  end
+
   def api_token_factory do
     %ApiToken{
       user: build(:user),
