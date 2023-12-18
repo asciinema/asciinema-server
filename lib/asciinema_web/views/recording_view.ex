@@ -525,8 +525,6 @@ defmodule AsciinemaWeb.RecordingView do
     "#{Decimal.round(Decimal.from_float(float), 3)}%"
   end
 
-  def recording_gc_days, do: Asciinema.recording_gc_days()
-
   defp cols(asciicast), do: asciicast.cols_override || asciicast.cols
 
   defp rows(asciicast), do: asciicast.rows_override || asciicast.rows

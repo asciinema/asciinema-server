@@ -54,12 +54,23 @@ defmodule Asciinema do
 
   defdelegate get_live_stream(id_or_owner), to: Streaming
 
-  def recording_gc_days do
-    Application.get_env(:asciinema, :asciicast_gc_days)
+  def unclaimed_recording_ttl(mode \\ nil)
+
+  def unclaimed_recording_ttl(nil) do
+    unclaimed_recording_ttl(:hide) || unclaimed_recording_ttl(:delete)
   end
 
-  def archive_unclaimed_recordings(days) do
+  def unclaimed_recording_ttl(mode) do
+    Keyword.get(Application.get_env(:asciinema, :unclaimed_recording_ttl, []), mode)
+  end
+
+  def hide_unclaimed_recordings(days) do
     t = Timex.shift(Timex.now(), days: -days)
-    Recordings.archive_asciicasts(Accounts.temporary_users(), t)
+    Recordings.hide_unclaimed_asciicasts(Accounts.temporary_users(), t)
+  end
+
+  def delete_unclaimed_recordings(days) do
+    t = Timex.shift(Timex.now(), days: -days)
+    Recordings.delete_unclaimed_asciicasts(Accounts.temporary_users(), t)
   end
 end
