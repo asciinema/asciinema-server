@@ -24,19 +24,20 @@ defmodule AsciinemaWeb.Api.RecordingView do
     """
 
     is_tmp_user = Asciinema.Accounts.temporary_user?(conn.assigns.current_user)
-    gc_days = Asciinema.recording_gc_days()
+    ttl = Asciinema.unclaimed_recording_ttl()
 
-    if is_tmp_user && gc_days do
+    if is_tmp_user && ttl do
       hostname = AsciinemaWeb.instance_hostname()
 
       """
       #{message}
-      This installation of asciinema recorder hasn't been linked to any #{hostname}
-      account. All unclaimed recordings (from unknown installations like this one)
-      are automatically archived #{gc_days} days after upload.
+      This asciinema CLI hasn't been linked to any #{hostname} account.
 
-      If you want to preserve all recordings made on this machine, connect this
-      installation with #{hostname} account by opening the following link:
+      Recordings uploaded from unrecognized systems, such as this one, are automatically
+      deleted #{ttl} days after upload.
+
+      If you want to preserve all recordings uploaded from this machine,
+      authorize this CLI with your #{hostname} account by opening the following link:
 
           #{Routes.connect_url(conn, :show, install_id)}
       """

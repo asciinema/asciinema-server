@@ -2,7 +2,7 @@ defmodule AsciinemaTest do
   import Asciinema.Factory
   use Asciinema.DataCase
   use Oban.Testing, repo: Asciinema.Repo
-  alias Asciinema.Accounts
+  alias Asciinema.{Accounts, Recordings}
 
   describe "create_user/1" do
     test "succeeds when email not taken" do
@@ -102,6 +102,66 @@ defmodule AsciinemaTest do
       insert(:live_stream, user: user)
 
       assert :ok = Asciinema.delete_user!(user)
+    end
+  end
+
+  describe "hide_unclaimed_recordings/1" do
+    test "sets archived_at on matching asciicasts" do
+      tmp_user = insert(:temporary_user, email: nil)
+
+      asciicast_1 =
+        insert(:asciicast,
+          user: tmp_user,
+          inserted_at: Timex.shift(Timex.now(), days: -2)
+        )
+
+      asciicast_2 =
+        insert(:asciicast,
+          user: tmp_user,
+          inserted_at: Timex.shift(Timex.now(), days: -4)
+        )
+
+      asciicast_3 =
+        insert(:asciicast,
+          user: tmp_user,
+          inserted_at: Timex.shift(Timex.now(), days: -10),
+          archivable: false
+        )
+
+      assert Asciinema.hide_unclaimed_recordings(3) == 1
+      assert Recordings.get_asciicast(asciicast_1.id).archived_at == nil
+      assert Recordings.get_asciicast(asciicast_2.id).archived_at != nil
+      assert Recordings.get_asciicast(asciicast_3.id).archived_at == nil
+    end
+  end
+
+  describe "delete_unclaimed_recordings/1" do
+    test "deletes matching asciicasts" do
+      tmp_user = insert(:temporary_user, email: nil)
+
+      asciicast_1 =
+        insert(:asciicast,
+          user: tmp_user,
+          inserted_at: Timex.shift(Timex.now(), days: -2)
+        )
+
+      asciicast_2 =
+        insert(:asciicast,
+          user: tmp_user,
+          inserted_at: Timex.shift(Timex.now(), days: -4)
+        )
+
+      asciicast_3 =
+        insert(:asciicast,
+          user: tmp_user,
+          inserted_at: Timex.shift(Timex.now(), days: -10),
+          archivable: false
+        )
+
+      assert Asciinema.delete_unclaimed_recordings(3) == 1
+      assert Recordings.get_asciicast(asciicast_1.id) != nil
+      assert Recordings.get_asciicast(asciicast_2.id) == nil
+      assert Recordings.get_asciicast(asciicast_3.id) != nil
     end
   end
 end
