@@ -145,54 +145,6 @@ defmodule Asciinema.Recordings do
     end
   end
 
-  def create_asciicast(
-        user,
-        %{
-          "meta" => meta,
-          "stdout" => %Plug.Upload{} = data,
-          "stdout_timing" => %Plug.Upload{} = timing
-        },
-        overrides
-      ) do
-    {:ok, attrs} = extract_metadata(meta)
-
-    header = %{
-      version: 2,
-      width: attrs[:cols],
-      height: attrs[:rows],
-      title: attrs[:title],
-      command: attrs[:command],
-      env: %{"SHELL" => attrs[:shell], "TERM" => attrs[:terminal_type]}
-    }
-
-    header =
-      header
-      |> Enum.filter(fn {_k, v} -> v end)
-      |> Enum.into(%{})
-
-    overrides =
-      if uname = attrs[:uname] do
-        overrides
-        |> Map.put(:uname, uname)
-        |> Map.drop([:user_agent])
-      else
-        Map.put(overrides, :uname, uname)
-      end
-
-    tmp_path =
-      {timing.path, data.path}
-      |> Output.stream()
-      |> write_v2_file(header)
-
-    upload = %Plug.Upload{
-      path: tmp_path,
-      filename: "0.cast",
-      content_type: "application/octet-stream"
-    }
-
-    create_asciicast(user, upload, overrides)
-  end
-
   defp extract_metadata(%{"version" => 0} = attrs) do
     attrs = %{
       version: 0,
