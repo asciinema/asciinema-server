@@ -35,6 +35,7 @@ defmodule Asciinema.Recordings.Asciicast do
     field :user_agent, :string
     field :recorded_at, :utc_datetime_usec
     field :idle_time_limit, :float
+    field :speed, :float
     field :views_count, :integer, default: 0
     field :archivable, :boolean, default: true
     field :archived_at, :utc_datetime_usec
@@ -100,6 +101,7 @@ defmodule Asciinema.Recordings.Asciicast do
       :rows_override,
       :theme_name,
       :idle_time_limit,
+      :speed,
       :terminal_line_height,
       :terminal_font_family,
       :markers
