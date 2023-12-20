@@ -48,17 +48,38 @@
               To start recording run the following command in your terminal:
             </p>
 
-            <pre><code>$ asciinema rec</code></pre>
+            <pre><code>asciinema rec demo.cast</code></pre>
 
             <p>
-              When you're ready to finish just exit the shell,
-              either by typing <code>exit</code> or hitting <kbd>C-d</kbd>.
+              When you're ready to end the recording session exit the shell,
+              either by entering <code>exit</code> or pressing <kbd>ctrl+d</kbd>.
             </p>
 
             <p>
-              If you have already uploaded a recording but you don't see it
-              here then associate it with your account by running <code>asciinema auth</code>
-              in your terminal.
+              You can replay your recording in the terminal with:
+            </p>
+
+            <pre><code>asciinema play demo.cast</code></pre>
+
+            <p>
+              To upload the recording run:
+            </p>
+
+            <pre><code>asciinema upload demo.cast</code></pre>
+
+            <p>
+              If you have already uploaded a recording and you don't see it
+              here, then associate your asciinema CLI with this user account by running:
+            </p>
+
+            <pre><code>asciinema auth</code></pre>
+
+            <p>
+              See
+              <a href="https://docs.asciinema.org/manual/cli/usage/#asciinema-auth">
+                <code>asciinema auth</code> docs
+              </a>
+              for details.
             </p>
           <% {0, false} -> %>
           <% _ -> %>
