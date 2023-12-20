@@ -27,7 +27,8 @@ defmodule AsciinemaWeb.RecordingView do
       customTerminalFontFamily: asciicast.terminal_font_family,
       poster: poster(asciicast.snapshot),
       markers: markers(asciicast.markers),
-      idleTimeLimit: asciicast.idle_time_limit
+      idleTimeLimit: asciicast.idle_time_limit,
+      speed: asciicast.speed
     ]
     |> Keyword.merge(opts)
     |> Ext.Keyword.rename(t: :startAt)

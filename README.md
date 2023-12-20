@@ -1,47 +1,57 @@
-# asciinema web app
+# asciinema server
 
-asciinema is a free and open source solution for recording terminal sessions
-and sharing them on the web.
+__asciinema server__ is a server-side component of the asciinema ecosystem.
 
-This repository contains the source code of asciinema hosting web app, which
-runs at [asciinema.org](https://asciinema.org).
+It implements a hosting platform for terminal session recordings. This includes
+an API endpoint for uploading recordings, which is used by the [asciinema
+CLI](https://docs.asciinema.org/manual/cli/), and offers a familiar web
+interface for viewing, browsing, sharing and managing recordings.
 
-You can find the source code of asciinema terminal recorder
-at [asciinema/asciinema](https://github.com/asciinema/asciinema), and the source
-code of asciinema web player
-at [asciinema/asciinema-player](https://github.com/asciinema/asciinema-player).
+The server is built with [Elixir language](https://elixir-lang.org/) and
+[Phoenix framework](https://www.phoenixframework.org/), and embeds asciinema's
+virtual terminal, [avt](https://github.com/asciinema/avt), to perform tasks such
+as preview generation and recording analysis.
 
-## Setting up your own asciinema web app instance
+[asciinema.org](https://asciinema.org) is a public asciinema server instance
+managed by the asciinema team, offering free hosting for terminal recordings,
+available to everyone. Check [asciinema.org/about](https://asciinema.org/about)
+to learn more about this instance.
 
-asciinema terminal recorder uses [asciinema.org](https://asciinema.org) as its
-default host for the recordings. It's free, public service (all uploaded
-recordings are __private by default__ though).
-
+You can easily [self-host asciinema
+server](https://docs.asciinema.org/manual/server/self-hosting/) and use the
+[asciinema CLI](https://docs.asciinema.org/manual/cli/) with your own instance.
 If you're not comfortable with uploading your terminal sessions to
-asciinema.org, or your company's policy prevents you from doing that, you can
-set up your own instance for private use. See
-our [asciinema server install guide](https://github.com/asciinema/asciinema-server/wiki/Installation-guide).
+asciinema.org, if your company policy prevents you from doing so, or if you
+simply prefer self-hosting everything, then asciinema has you covered.
 
-Once you have your instance running, point asciinema recorder to it by setting
-API URL in `~/.config/asciinema/config` file as follows:
+Notable features:
 
-```ini
-[api]
-url = https://your.asciinema.host
-```
+- hosting of terminal session recordings in
+  [asciicast](https://docs.asciinema.org/manual/asciicast/v2/) format,
+- perfectly integrated [asciinema
+  player](https://docs.asciinema.org/manual/player/) for best viewing experience,
+- easy [sharing](https://docs.asciinema.org/manual/server/sharing/) of
+  recordings via secret links,
+- easy [embedding](https://docs.asciinema.org/manual/server/embedding/) of the
+  player, or linking via preview images (SVG),
+- privacy friendly - no tracking, no ads,
+- visibility control for recordings: unlisted (secret) or public,
+- editable recording metadata like title or long description (Markdown),
+- configurable terminal themes and font families,
+- ability to download pure text version (`.txt`) of a recording.
 
-Alternatively, you can set `ASCIINEMA_API_URL` environment variable:
+Refer to [asciinema server docs](https://docs.asciinema.org/manual/server/) for
+further details.
 
-    ASCIINEMA_API_URL=https://your.asciinema.host asciinema rec
+## Donations
 
-## Security
+Sustainability of asciinema development relies on donations and sponsorships.
 
-Security of this web app and user data it manages is important.
-If you find anything that looks like a potential vulnerability please
-read on
-[how to report a security issue](https://github.com/asciinema/asciinema-server/blob/main/CONTRIBUTING.md#reporting-security-issues).
+Please help the software project you use and love. Become a
+[supporter](https://docs.asciinema.org/donations/#individuals) or a [corporate
+sponsor](https://docs.asciinema.org/donations/#corporate-sponsorship).
 
-## Sponsors
+asciinema is sponsored by:
 
 asciinema is sponsored by:
 
@@ -49,28 +59,13 @@ asciinema is sponsored by:
 
 ## Consulting
 
-I offer consulting services for asciinema project. See https://asciinema.org/consulting for more information.
-
-## Contributing
-
-Check out our [Contributing](http://asciinema.org/contributing) page, which
-describes multiple ways you can help this project.
-
-If you decide to contribute with the code then please
-read [CONTRIBUTING.md](https://github.com/asciinema/asciinema-server/blob/main/CONTRIBUTING.md), which covers submitting bugs,
-requesting new features, preparing your code for a pull request, etc.
-
-## Authors
-
-asciinema is developed by [Marcin Kulik](http://ku1ik.com) with the help of
-many great open source contributors.
-
-For a complete list of the many individuals that contributed to the project,
-please refer to
-[GitHub's list of contributors](https://github.com/asciinema/asciinema-server/contributors).
+If you're interested in hosting, maintenance or customization of asciinema
+server, check [asciinema consulting
+services](https://docs.asciinema.org/consulting/).
 
 ## Copyright
 
 © 2011 Marcin Kulik.
 
-All code is licensed under the Apache License, Version 2.0. See LICENSE file for details.
+All code is licensed under the Apache License, Version 2.0. See LICENSE file for
+details.
