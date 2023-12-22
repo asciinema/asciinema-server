@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Create a report to help improve asciinema
+about: Create a report to help improve asciinema server
 title: ''
 labels: ''
 assignees: ''
@@ -9,11 +9,13 @@ assignees: ''
 
 To make life of the project maintainers easier please submit bug reports only.
 
-This is bug tracker for asciinema server. If your issue seems to be with another component (cli recorder, js player) then open an issue in related repository. If you're experiencing issue with asciinema server running at asciinema.org then contact admin@asciinema.org.
+This is a bug tracker for asciinema server.
+If your issue seems to be with another component (cli recorder, js player) then open an issue in related repository.
+If you're experiencing issue with asciinema server instance running at asciinema.org, contact admin@asciinema.org.
 
-Ideas, feature requests, help requests, questions and general discussions should be discussed in project's Discussions instead: https://github.com/orgs/asciinema/discussions
+Ideas, feature requests, help requests, questions and general discussions should be discussed on the forum: https://discourse.asciinema.org
 
-If you think you've found a bug or regression, go ahead and delete this message and fill in the details below.
+If you think you've found a bug or regression, go ahead, delete this message, then fill in the details below.
 
 -----
 
