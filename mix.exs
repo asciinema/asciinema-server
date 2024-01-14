@@ -59,7 +59,7 @@ defmodule Asciinema.MixProject do
       {:jason, "~> 1.2"},
       {:libcluster, "~> 3.3"},
       {:mix_test_watch, "~> 1.0", only: :dev, runtime: false},
-      {:oban, "~> 2.14"},
+      {:oban, "~> 2.17"},
       # override for scrivener_html
       {:phoenix, "~> 1.7.6", override: true},
       {:phoenix_ecto, "~> 4.4"},
