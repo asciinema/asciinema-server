@@ -9,8 +9,8 @@ defmodule AsciinemaWeb.LoginController do
     render(conn, :new)
   end
 
-  def create(%{assigns: %{bot: true}} = conn, %{"login" => login}) do
-    Logger.warn("bot login attempt: #{inspect(login)}")
+  def create(%{assigns: %{bot: true}} = conn, params) do
+    Logger.warn("bot login attempt: #{inspect(params)}")
 
     redirect(conn, to: ~p"/login/sent")
   end
