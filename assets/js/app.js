@@ -19,6 +19,12 @@ $(function() {
   if ($('meta[name=referrer][content=origin]').length > 0) {
     $('a[href*=http]').attr('rel', 'noreferrer');
   }
+
+  document.querySelectorAll('#download-txt').forEach(link => {
+    link.addEventListener('click', () => {
+      link.href = window.location.origin + window.location.pathname + '.txt';
+    })
+  });
 });
 
 
