@@ -22,6 +22,12 @@ $(function() {
 
   const m = `consulting@${window.location.hostname}`;
   $('.a-consulting code').replaceWith(`<a href="mailto:${m}">${m}</a>`);
+
+  document.querySelectorAll('#download-txt').forEach(link => {
+    link.addEventListener('click', () => {
+      link.href = window.location.origin + window.location.pathname + '.txt';
+    })
+  });
 });
 
 
