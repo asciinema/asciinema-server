@@ -10,15 +10,21 @@ defmodule Asciinema.Emails do
         "signup" ->
           job.args["to"]
           |> Email.signup_email(job.args["url"])
-          |> Mailer.deliver_now!()
+          |> deliver()
 
         "login" ->
           job.args["to"]
           |> Email.login_email(job.args["url"])
-          |> Mailer.deliver_now!()
+          |> deliver()
       end
 
       :ok
+    end
+
+    defp deliver(email) do
+      with {:permanent_failure, _, _} <- Mailer.deliver_now!(email) do
+        {:cancel, :permanent_failure}
+      end
     end
   end
 
