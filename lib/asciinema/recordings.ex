@@ -117,7 +117,7 @@ defmodule Asciinema.Recordings do
       {:ok, _} =
         create_asciicast(user, upload, %{
           private: false,
-          snapshot_at: 76.2
+          snapshot_at: 106.0
         })
     end
 
