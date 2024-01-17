@@ -8,7 +8,7 @@ defmodule Asciinema.Emails.Email do
     base_email()
     |> to(email_address)
     |> subject("Welcome to #{hostname}")
-    |> render("signup.text", signup_url: signup_url, hostname: hostname)
+    # |> render("signup.text", signup_url: signup_url, hostname: hostname)
     |> render("signup.html", signup_url: signup_url, hostname: hostname)
   end
 
@@ -18,7 +18,7 @@ defmodule Asciinema.Emails.Email do
     base_email()
     |> to(email_address)
     |> subject("Login to #{hostname}")
-    |> render("login.text", login_url: login_url, hostname: hostname)
+    # |> render("login.text", login_url: login_url, hostname: hostname)
     |> render("login.html", login_url: login_url, hostname: hostname)
   end
 
