@@ -69,11 +69,7 @@
               >
                 <strong>.<%= filename_ext(@asciicast) %></strong> - original recording
               </.link>
-              <.link
-                navigate={~p"/a/#{@asciicast}" <> ".txt"}
-                class="dropdown-item"
-                rel="nofollow"
-              >
+              <.link href="#" class="dropdown-item" rel="nofollow" id="download-txt">
                 <strong>.txt</strong> - pure text version
               </.link>
               <.link href="#" class="dropdown-item" data-toggle="modal" data-target="#gif-modal">

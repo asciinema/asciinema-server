@@ -117,7 +117,7 @@ defmodule Asciinema.Recordings do
       {:ok, _} =
         create_asciicast(user, upload, %{
           private: false,
-          snapshot_at: 76.2
+          snapshot_at: 106.0
         })
     end
 
@@ -143,54 +143,6 @@ defmodule Asciinema.Recordings do
 
       {:ok, asciicast}
     end
-  end
-
-  def create_asciicast(
-        user,
-        %{
-          "meta" => meta,
-          "stdout" => %Plug.Upload{} = data,
-          "stdout_timing" => %Plug.Upload{} = timing
-        },
-        overrides
-      ) do
-    {:ok, attrs} = extract_metadata(meta)
-
-    header = %{
-      version: 2,
-      width: attrs[:cols],
-      height: attrs[:rows],
-      title: attrs[:title],
-      command: attrs[:command],
-      env: %{"SHELL" => attrs[:shell], "TERM" => attrs[:terminal_type]}
-    }
-
-    header =
-      header
-      |> Enum.filter(fn {_k, v} -> v end)
-      |> Enum.into(%{})
-
-    overrides =
-      if uname = attrs[:uname] do
-        overrides
-        |> Map.put(:uname, uname)
-        |> Map.drop([:user_agent])
-      else
-        Map.put(overrides, :uname, uname)
-      end
-
-    tmp_path =
-      {timing.path, data.path}
-      |> Output.stream()
-      |> write_v2_file(header)
-
-    upload = %Plug.Upload{
-      path: tmp_path,
-      filename: "0.cast",
-      content_type: "application/octet-stream"
-    }
-
-    create_asciicast(user, upload, overrides)
   end
 
   defp extract_metadata(%{"version" => 0} = attrs) do
@@ -365,11 +317,17 @@ defmodule Asciinema.Recordings do
   end
 
   def delete_asciicasts(%{asciicasts: _} = owner) do
-    for a <- Repo.all(Ecto.assoc(owner, :asciicasts)) do
+    delete_asciicasts(Ecto.assoc(owner, :asciicasts))
+  end
+
+  def delete_asciicasts(%Ecto.Query{} = query) do
+    asciicasts = Repo.all(query)
+
+    for a <- asciicasts do
       {:ok, _} = delete_asciicast(a)
     end
 
-    :ok
+    length(asciicasts)
   end
 
   def update_snapshot(%Asciicast{} = asciicast) do
@@ -525,16 +483,26 @@ defmodule Asciinema.Recordings do
     tmp_path
   end
 
-  def archive_asciicasts(users_query, t) do
+  def hide_unclaimed_asciicasts(tmp_users_query, t) do
     query =
       from a in Asciicast,
-        join: u in ^users_query,
+        join: u in ^tmp_users_query,
         on: a.user_id == u.id,
         where: a.archivable and is_nil(a.archived_at) and a.inserted_at < ^t
 
     {count, _} = Repo.update_all(query, set: [archived_at: Timex.now()])
 
     count
+  end
+
+  def delete_unclaimed_asciicasts(tmp_users_query, t) do
+    query =
+      from a in Asciicast,
+        join: u in ^tmp_users_query,
+        on: a.user_id == u.id,
+        where: a.archivable and a.inserted_at < ^t
+
+    delete_asciicasts(query)
   end
 
   def reassign_asciicasts(src_user_id, dst_user_id) do

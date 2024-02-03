@@ -184,8 +184,24 @@ if config_env() in [:prod, :dev] do
     config :asciinema, Asciinema.PngGenerator.Rsvg, font_family: rsvg_font_family
   end
 
-  if gc_days = env.("ASCIICAST_GC_DAYS") do
-    config :asciinema, :asciicast_gc_days, String.to_integer(gc_days)
+  if limit = env.("UPLOAD_SIZE_LIMIT") do
+    config :asciinema, AsciinemaWeb.Plug.Parsers.MULTIPART, length: String.to_integer(limit)
+  end
+
+  if ttls = env.("UNCLAIMED_RECORDING_TTL") do
+    ttls =
+      case String.split(ttls, ",", parts: 2) do
+        [hide_ttl] ->
+          [hide: String.to_integer(hide_ttl)]
+
+        [delete_ttl, delete_ttl] ->
+          [delete: String.to_integer(delete_ttl)]
+
+        [hide_ttl, delete_ttl] ->
+          [hide: String.to_integer(hide_ttl), delete: String.to_integer(delete_ttl)]
+      end
+
+    config :asciinema, :unclaimed_recording_ttl, ttls
   end
 
   if String.downcase("#{env.("CRON")}") in ["0", "false", "no"] do

@@ -10,6 +10,7 @@ defmodule Asciinema.Emails.Email do
     |> subject("Welcome to #{hostname}")
     |> render("signup.text", signup_url: signup_url, hostname: hostname)
     |> render("signup.html", signup_url: signup_url, hostname: hostname)
+    |> fix_text_body()
   end
 
   def login_email(email_address, login_url) do
@@ -20,6 +21,7 @@ defmodule Asciinema.Emails.Email do
     |> subject("Login to #{hostname}")
     |> render("login.text", login_url: login_url, hostname: hostname)
     |> render("login.html", login_url: login_url, hostname: hostname)
+    |> fix_text_body()
   end
 
   def test_email(email_address) do
@@ -49,5 +51,9 @@ defmodule Asciinema.Emails.Email do
 
   defp instance_hostname do
     System.get_env("URL_HOST") || "localhost"
+  end
+
+  defp fix_text_body(email) do
+    %{email | text_body: String.replace(email.text_body, "\n", "\r\n")}
   end
 end

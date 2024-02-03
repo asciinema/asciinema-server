@@ -27,7 +27,8 @@ defmodule AsciinemaWeb.RecordingView do
       customTerminalFontFamily: asciicast.terminal_font_family,
       poster: poster(asciicast.snapshot),
       markers: markers(asciicast.markers),
-      idleTimeLimit: asciicast.idle_time_limit
+      idleTimeLimit: asciicast.idle_time_limit,
+      speed: asciicast.speed
     ]
     |> Keyword.merge(opts)
     |> Ext.Keyword.rename(t: :startAt)
@@ -524,8 +525,6 @@ defmodule AsciinemaWeb.RecordingView do
   def percent(float) do
     "#{Decimal.round(Decimal.from_float(float), 3)}%"
   end
-
-  def recording_gc_days, do: Asciinema.recording_gc_days()
 
   defp cols(asciicast), do: asciicast.cols_override || asciicast.cols
 

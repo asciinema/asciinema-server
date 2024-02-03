@@ -1,6 +1,6 @@
 defmodule AsciinemaWeb.RecordingController do
   use AsciinemaWeb, :controller
-  alias Asciinema.{Recordings, PngGenerator, Accounts}
+  alias Asciinema.{Recordings, PngGenerator}
   alias Asciinema.Recordings.Asciicast
   alias AsciinemaWeb.PlayerOpts
 
@@ -52,11 +52,10 @@ defmodule AsciinemaWeb.RecordingController do
     if asciicast.archived_at do
       conn
       |> put_status(410)
-      |> render("archived.html")
+      |> render("deleted.html", ttl: Asciinema.unclaimed_recording_ttl())
     else
       conn
       |> count_view(asciicast)
-      |> put_archival_info_flash(asciicast)
       |> render(
         "show.html",
         page_title: AsciinemaWeb.RecordingView.title(asciicast),
@@ -95,7 +94,7 @@ defmodule AsciinemaWeb.RecordingController do
     if asciicast.archived_at do
       conn
       |> put_status(410)
-      |> text("This recording has been archived\n")
+      |> text("This recording has been deleted\n")
     else
       send_download(conn, {:file, Recordings.text_file_path(asciicast)},
         filename: "#{asciicast.id}.txt"
@@ -201,7 +200,7 @@ defmodule AsciinemaWeb.RecordingController do
     if conn.assigns.asciicast.archived_at do
       conn
       |> put_status(410)
-      |> render("archived.html")
+      |> render("deleted.html", ttl: Asciinema.unclaimed_recording_ttl())
     else
       render(conn, "iframe.html", player_opts: player_opts(params))
     end
@@ -282,23 +281,6 @@ defmodule AsciinemaWeb.RecordingController do
       :make_featured -> !asciicast.featured
       :make_not_featured -> asciicast.featured
       _ -> true
-    end
-  end
-
-  defp put_archival_info_flash(conn, asciicast) do
-    with true <- asciicast.archivable,
-         days when not is_nil(days) <- Asciinema.recording_gc_days(),
-         %{} = user <- asciicast.user,
-         true <- Accounts.temporary_user?(user),
-         true <- Timex.before?(asciicast.inserted_at, Timex.shift(Timex.now(), days: -days)) do
-      put_flash(
-        conn,
-        :error,
-        {:safe,
-         "This recording will be archived soon. More details: <a href=\"https://blog.asciinema.org/post/archival/\">blog.asciinema.org/post/archival/</a>"}
-      )
-    else
-      _ -> conn
     end
   end
 
