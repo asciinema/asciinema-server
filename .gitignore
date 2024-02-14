@@ -47,6 +47,7 @@ npm-debug.log
 .iex-history
 .m2
 .projectile
+.direnv
 /.vagrant
 /config/custom.exs
 /priv/native
