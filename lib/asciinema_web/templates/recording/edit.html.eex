@@ -60,7 +60,7 @@
         <div class="form-group row">
           <%= label f, :theme_name, "Terminal theme", class: "col-sm-4 col-md-3 col-lg-3 col-form-label" %>
           <div class="col-sm-8 col-md-9 col-lg-9">
-            <%= select f, :theme_name, theme_options(), class: "form-control", prompt: "Default (#{default_theme_name(@changeset.data)})" %>
+            <%= select f, :theme_name, theme_options(), class: "form-control", prompt: "Account default (#{default_theme_display_name(@changeset.data)})" %>
           </div>
         </div>
 
@@ -69,15 +69,15 @@
           <div class="col-sm-8 col-md-9 col-lg-9">
             <%= text_input f, :terminal_line_height, class: "form-control", type: "number", min: 1, max: 2, step: "any", placeholder: "1.33333" %>
             <%= error_tag f, :terminal_line_height %>
-            <small class="form-text text-muted">Relative to font size. Lowering it to ~1.1 helps with alignment of block characters like ▀ ▄ █</small>
+            <small class="form-text text-muted">Relative to the font size. Lowering it to ~1.1 helps with alignment of block characters such as ▀ ▄ █</small>
           </div>
         </div>
 
         <div class="form-group row">
           <%= label f, :terminal_font_family, "Terminal font family", class: "col-sm-4 col-md-3 col-lg-3 col-form-label" %>
           <div class="col-sm-8 col-md-9 col-lg-9">
-            <%= select f, :terminal_font_family, terminal_font_family_options(), class: "form-control", prompt: "Default (web safe, platform specific)" %>
-            <small class="form-text text-muted">Choose one of Nerd Font variants if icons or other symbols in your recording are not visible.</small>
+            <%= select f, :terminal_font_family, terminal_font_family_options(), class: "form-control", prompt: "Account default (#{default_font_display_name(@changeset.data)})" %>
+            <small class="form-text text-muted">Choose one of the Nerd Font variants if icons or other symbols in your recording are not visible.</small>
           </div>
         </div>
 

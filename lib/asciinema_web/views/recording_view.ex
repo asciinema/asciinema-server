@@ -1,9 +1,9 @@
 defmodule AsciinemaWeb.RecordingView do
-  alias AsciinemaWeb.PlayerView
   use AsciinemaWeb, :view
   import Scrivener.HTML
   alias Asciinema.Recordings.Asciicast
   alias AsciinemaWeb.Endpoint
+  alias AsciinemaWeb.PlayerView
   alias AsciinemaWeb.Router.Helpers.Extra, as: RoutesX
   alias AsciinemaWeb.{PlayerView, UserView}
 
@@ -12,8 +12,12 @@ defmodule AsciinemaWeb.RecordingView do
   defdelegate author_profile_path(stream), to: PlayerView
   defdelegate theme_name(stream), to: PlayerView
   defdelegate theme_options, to: PlayerView
+  defdelegate theme_display_name(asciicast), to: PlayerView
   defdelegate default_theme_name(stream), to: PlayerView
+  defdelegate terminal_font_family(asciicast), to: PlayerView
   defdelegate terminal_font_family_options, to: PlayerView
+  defdelegate terminal_font_family_display_name(asciicast), to: PlayerView
+  defdelegate default_terminal_font_family(asciicast), to: PlayerView
   defdelegate username(user), to: UserView
 
   def player_src(asciicast), do: file_url(asciicast)
@@ -24,7 +28,7 @@ defmodule AsciinemaWeb.RecordingView do
       rows: rows(asciicast),
       theme: theme_name(asciicast),
       terminalLineHeight: asciicast.terminal_line_height,
-      customTerminalFontFamily: asciicast.terminal_font_family,
+      customTerminalFontFamily: terminal_font_family(asciicast),
       poster: poster(asciicast.snapshot),
       markers: markers(asciicast.markers),
       idleTimeLimit: asciicast.idle_time_limit,
@@ -56,6 +60,14 @@ defmodule AsciinemaWeb.RecordingView do
       url: Routes.recording_url(Endpoint, :show, asciicast),
       format: format
     )
+  end
+
+  def default_theme_display_name(%{user: user}) do
+    theme_display_name(UserView.theme_name(user) || "asciinema")
+  end
+
+  def default_font_display_name(%{user: user}) do
+    terminal_font_family_display_name(UserView.terminal_font_family(user))
   end
 
   defp short_text_description(asciicast) do

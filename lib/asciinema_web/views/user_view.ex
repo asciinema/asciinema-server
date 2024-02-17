@@ -1,9 +1,12 @@
 defmodule AsciinemaWeb.UserView do
   use AsciinemaWeb, :view
   import Scrivener.HTML
+  alias AsciinemaWeb.PlayerView
   alias Asciinema.Gravatar
 
-  defdelegate theme_options, to: AsciinemaWeb.PlayerView
+  defdelegate theme_options, to: PlayerView
+  defdelegate terminal_font_family_options, to: PlayerView
+  defdelegate terminal_font_family_display_name(asciicast), to: PlayerView
 
   def avatar_url(user) do
     username = username(user)
@@ -27,6 +30,14 @@ defmodule AsciinemaWeb.UserView do
 
   def theme_name(user) do
     user.theme_name
+  end
+
+  def terminal_font_family(user) do
+    user.terminal_font_family
+  end
+
+  def default_font_display_name do
+    terminal_font_family_display_name(nil)
   end
 
   def active_tokens(api_tokens) do
