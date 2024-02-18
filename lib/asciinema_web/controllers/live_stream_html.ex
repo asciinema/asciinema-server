@@ -1,6 +1,6 @@
 defmodule AsciinemaWeb.LiveStreamHTML do
   use AsciinemaWeb, :html
-  alias AsciinemaWeb.{PlayerView, RecordingView}
+  alias AsciinemaWeb.{PlayerView, RecordingView, UserView}
 
   embed_templates "live_stream/*"
 
@@ -9,8 +9,10 @@ defmodule AsciinemaWeb.LiveStreamHTML do
   defdelegate author_profile_path(stream), to: PlayerView
   defdelegate theme_name(stream), to: PlayerView
   defdelegate theme_options, to: PlayerView
+  defdelegate theme_display_name(stream), to: PlayerView
   defdelegate default_theme_name(stream), to: PlayerView
   defdelegate terminal_font_family_options, to: PlayerView
+  defdelegate terminal_font_family_display_name(asciicast), to: PlayerView
 
   def player_src(stream) do
     %{
@@ -38,6 +40,14 @@ defmodule AsciinemaWeb.LiveStreamHTML do
   end
 
   def title(stream), do: stream.title || "#{author_username(stream)}'s live stream"
+
+  def default_theme_display_name(%{user: user}) do
+    theme_display_name(UserView.theme_name(user) || "asciinema")
+  end
+
+  def default_font_display_name(%{user: user}) do
+    terminal_font_family_display_name(UserView.terminal_font_family(user))
+  end
 
   @http_to_ws %{"http" => "ws", "https" => "wss"}
 
