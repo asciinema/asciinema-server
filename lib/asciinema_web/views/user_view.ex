@@ -37,7 +37,7 @@ defmodule AsciinemaWeb.UserView do
   end
 
   def default_font_display_name do
-    terminal_font_family_display_name(nil)
+    terminal_font_family_display_name("default")
   end
 
   def active_tokens(api_tokens) do

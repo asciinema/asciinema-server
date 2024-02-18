@@ -67,7 +67,7 @@ defmodule AsciinemaWeb.RecordingView do
   end
 
   def default_font_display_name(%{user: user}) do
-    terminal_font_family_display_name(UserView.terminal_font_family(user))
+    terminal_font_family_display_name(UserView.terminal_font_family(user) || "default")
   end
 
   defp short_text_description(asciicast) do

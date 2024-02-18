@@ -82,7 +82,7 @@ defmodule Asciinema.Accounts do
     |> validate_format(:username, @valid_username_re)
     |> validate_length(:username, min: 2, max: 16)
     |> validate_inclusion(:theme_name, Media.themes())
-    |> validate_inclusion(:terminal_font_family, Media.custom_terminal_font_families())
+    |> validate_inclusion(:terminal_font_family, Media.terminal_font_families())
     |> add_contraints()
   end
 

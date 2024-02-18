@@ -1,5 +1,6 @@
 defmodule Asciinema.Media do
-  @custom_terminal_font_families [
+  @terminal_font_families [
+    "default",
     "FiraCode Nerd Font",
     "JetBrainsMono Nerd Font"
   ]
@@ -14,7 +15,7 @@ defmodule Asciinema.Media do
     "tango"
   ]
 
-  def custom_terminal_font_families, do: @custom_terminal_font_families
+  def terminal_font_families, do: @terminal_font_families
 
   def themes, do: @themes
 end

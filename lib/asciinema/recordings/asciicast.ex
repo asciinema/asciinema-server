@@ -92,7 +92,7 @@ defmodule Asciinema.Recordings.Asciicast do
     |> generate_secret_token
   end
 
-  def update_changeset(struct, attrs, custom_terminal_font_families \\ [], themes \\ []) do
+  def update_changeset(struct, attrs, terminal_font_families \\ [], themes \\ []) do
     struct
     |> changeset(attrs)
     |> cast(attrs, [
@@ -114,7 +114,7 @@ defmodule Asciinema.Recordings.Asciicast do
       greater_than_or_equal_to: 1.0,
       less_than_or_equal_to: 2.0
     )
-    |> validate_inclusion(:terminal_font_family, custom_terminal_font_families)
+    |> validate_inclusion(:terminal_font_family, terminal_font_families)
     |> validate_number(:snapshot_at, greater_than: 0)
     |> validate_change(:markers, &validate_markers/2)
   end

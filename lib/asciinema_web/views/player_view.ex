@@ -55,18 +55,21 @@ defmodule AsciinemaWeb.PlayerView do
   end
 
   def terminal_font_family_options do
-    for family <- Media.custom_terminal_font_families() do
+    for family <- Media.terminal_font_families() do
       {terminal_font_family_display_name(family), family}
     end
   end
 
   def terminal_font_family(medium) do
-    medium.terminal_font_family || default_terminal_font_family(medium)
+    case medium.terminal_font_family || default_terminal_font_family(medium) do
+      "default" -> nil
+      family -> family
+    end
   end
 
   def terminal_font_family_display_name(family) do
     case family do
-      nil -> "web safe, platform specific"
+      "default" -> "System monospace, web safe"
       "FiraCode Nerd Font" -> "Nerd Font - Fira Code"
       "JetBrainsMono Nerd Font" -> "Nerd Font - JetBrains Mono"
     end
