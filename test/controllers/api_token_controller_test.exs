@@ -35,7 +35,7 @@ defmodule Asciinema.ApiTokenControllerTest do
   test "with invalid token", %{conn: conn} do
     conn = get(conn, "/connect/nopenope")
     assert redirected_to(conn, 302) == "/"
-    assert flash(conn, :error) =~ ~r/invalid token/i
+    assert flash(conn, :error) =~ ~r/invalid/i
   end
 
   test "with revoked token", %{conn: conn} do
@@ -53,13 +53,13 @@ defmodule Asciinema.ApiTokenControllerTest do
   test "with his own token", %{conn: conn} do
     conn = get(conn, "/connect/#{@regular_user_token}")
     assert redirected_to(conn, 302) == "/~test"
-    assert flash(conn, :info)
+    assert flash(conn, :info) =~ ~r/successfully/
   end
 
   test "regular user with other regular user token", %{conn: conn} do
     conn = get(conn, "/connect/#{@other_regular_user_token}")
     assert redirected_to(conn, 302) == "/~test"
-    assert flash(conn, :error)
+    assert flash(conn, :error) =~ ~r/different/
   end
 
   defp login_as(conn, user) do
