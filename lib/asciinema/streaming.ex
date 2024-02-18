@@ -73,7 +73,7 @@ defmodule Asciinema.Streaming do
       greater_than_or_equal_to: 1.0,
       less_than_or_equal_to: 2.0
     )
-    |> validate_inclusion(:terminal_font_family, Media.custom_terminal_font_families())
+    |> validate_inclusion(:terminal_font_family, Media.terminal_font_families())
   end
 
   def update_live_stream(stream, attrs) when is_list(attrs) do

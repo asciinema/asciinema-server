@@ -29,19 +29,25 @@ defmodule AsciinemaWeb.PlayerView do
   end
 
   def theme_options do
-    [
-      {"asciinema", "asciinema"},
-      {"Dracula", "dracula"},
-      {"Monokai", "monokai"},
-      {"Nord", "nord"},
-      {"Tango", "tango"},
-      {"Solarized Dark", "solarized-dark"},
-      {"Solarized Light", "solarized-light"}
-    ]
+    for theme <- Media.themes() do
+      {theme_display_name(theme), theme}
+    end
   end
 
   def theme_name(medium) do
     medium.theme_name || default_theme_name(medium)
+  end
+
+  def theme_display_name(theme) do
+    case theme do
+      "asciinema" -> "asciinema"
+      "dracula" -> "Dracula"
+      "monokai" -> "Monokai"
+      "nord" -> "Nord"
+      "tango" -> "Tango"
+      "solarized-dark" -> "Solarized Dark"
+      "solarized-light" -> "Solarized Light"
+    end
   end
 
   def default_theme_name(%{user: user}) do
@@ -49,11 +55,27 @@ defmodule AsciinemaWeb.PlayerView do
   end
 
   def terminal_font_family_options do
-    for family <- Media.custom_terminal_font_families() do
-      case family do
-        "FiraCode Nerd Font" -> {"Nerd Font - Fira Code", family}
-        "JetBrainsMono Nerd Font" -> {"Nerd Font - JetBrains Mono", family}
-      end
+    for family <- Media.terminal_font_families() do
+      {terminal_font_family_display_name(family), family}
     end
+  end
+
+  def terminal_font_family(medium) do
+    case medium.terminal_font_family || default_terminal_font_family(medium) do
+      "default" -> nil
+      family -> family
+    end
+  end
+
+  def terminal_font_family_display_name(family) do
+    case family do
+      "default" -> "System monospace, web safe"
+      "FiraCode Nerd Font" -> "Nerd Font - Fira Code"
+      "JetBrainsMono Nerd Font" -> "Nerd Font - JetBrains Mono"
+    end
+  end
+
+  def default_terminal_font_family(%{user: user}) do
+    UserView.terminal_font_family(user)
   end
 end

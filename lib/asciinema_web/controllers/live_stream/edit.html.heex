@@ -56,7 +56,7 @@
               field={f[:theme_name]}
               options={theme_options()}
               class="form-control"
-              prompt={"Default (#{default_theme_name(@changeset.data)})"}
+              prompt={"Account default (#{default_theme_display_name(@changeset.data)})"}
             />
           </div>
         </div>
@@ -92,7 +92,7 @@
               field={f[:terminal_font_family]}
               options={terminal_font_family_options()}
               class="form-control"
-              prompt="Default (web safe, platform specific)"
+              prompt={"Account default (#{default_font_display_name(@changeset.data)})"}
             />
             <small class="form-text text-muted">
               Choose one of Nerd Font variants if icons or other symbols in your recording are not visible.

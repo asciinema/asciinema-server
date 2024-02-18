@@ -70,11 +70,19 @@ defmodule Asciinema.Accounts do
     import Ecto.Changeset
 
     user
-    |> cast(params, [:email, :name, :username, :theme_name, :asciicasts_private_by_default])
+    |> cast(params, [
+      :email,
+      :name,
+      :username,
+      :theme_name,
+      :terminal_font_family,
+      :asciicasts_private_by_default
+    ])
     |> validate_format(:email, @valid_email_re)
     |> validate_format(:username, @valid_username_re)
     |> validate_length(:username, min: 2, max: 16)
     |> validate_inclusion(:theme_name, Media.themes())
+    |> validate_inclusion(:terminal_font_family, Media.terminal_font_families())
     |> add_contraints()
   end
 

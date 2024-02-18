@@ -274,7 +274,7 @@ defmodule Asciinema.Recordings do
       Asciicast.update_changeset(
         asciicast,
         attrs,
-        Media.custom_terminal_font_families(),
+        Media.terminal_font_families(),
         Media.themes()
       )
 
