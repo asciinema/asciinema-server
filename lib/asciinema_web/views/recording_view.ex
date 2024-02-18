@@ -1,23 +1,19 @@
 defmodule AsciinemaWeb.RecordingView do
   use AsciinemaWeb, :view
   import Scrivener.HTML
+  alias Asciinema.{Accounts, Fonts, Media, Themes}
   alias Asciinema.Recordings.Asciicast
   alias AsciinemaWeb.Endpoint
-  alias AsciinemaWeb.PlayerView
+  alias AsciinemaWeb.MediaView
   alias AsciinemaWeb.Router.Helpers.Extra, as: RoutesX
-  alias AsciinemaWeb.{PlayerView, UserView}
+  alias AsciinemaWeb.{MediaView, UserView}
 
-  defdelegate author_username(asciicast), to: PlayerView
-  defdelegate author_avatar_url(stream), to: PlayerView
-  defdelegate author_profile_path(stream), to: PlayerView
-  defdelegate theme_name(stream), to: PlayerView
-  defdelegate theme_options, to: PlayerView
-  defdelegate theme_display_name(asciicast), to: PlayerView
-  defdelegate default_theme_name(stream), to: PlayerView
-  defdelegate terminal_font_family(asciicast), to: PlayerView
-  defdelegate terminal_font_family_options, to: PlayerView
-  defdelegate terminal_font_family_display_name(asciicast), to: PlayerView
-  defdelegate default_terminal_font_family(asciicast), to: PlayerView
+  defdelegate author_username(asciicast), to: MediaView
+  defdelegate author_avatar_url(stream), to: MediaView
+  defdelegate author_profile_path(stream), to: MediaView
+  defdelegate theme_name(stream), to: Media
+  defdelegate theme_options, to: MediaView
+  defdelegate font_family_options, to: MediaView
   defdelegate username(user), to: UserView
 
   def player_src(asciicast), do: file_url(asciicast)
@@ -26,9 +22,9 @@ defmodule AsciinemaWeb.RecordingView do
     [
       cols: cols(asciicast),
       rows: rows(asciicast),
-      theme: theme_name(asciicast),
+      theme: Media.theme_name(asciicast),
       terminalLineHeight: asciicast.terminal_line_height,
-      customTerminalFontFamily: terminal_font_family(asciicast),
+      customTerminalFontFamily: Media.font_family(asciicast),
       poster: poster(asciicast.snapshot),
       markers: markers(asciicast.markers),
       idleTimeLimit: asciicast.idle_time_limit,
@@ -40,7 +36,7 @@ defmodule AsciinemaWeb.RecordingView do
   end
 
   def cinema_height(asciicast) do
-    PlayerView.cinema_height(cols(asciicast), rows(asciicast))
+    MediaView.cinema_height(cols(asciicast), rows(asciicast))
   end
 
   def embed_script(asciicast) do
@@ -62,12 +58,12 @@ defmodule AsciinemaWeb.RecordingView do
     )
   end
 
-  def default_theme_display_name(%{user: user}) do
-    theme_display_name(UserView.theme_name(user) || "asciinema")
+  def default_theme_display_name(user) do
+    Themes.display_name(Accounts.default_theme_name(user) || "asciinema")
   end
 
-  def default_font_display_name(%{user: user}) do
-    terminal_font_family_display_name(UserView.terminal_font_family(user) || "default")
+  def default_font_display_name(user) do
+    Fonts.display_name(Accounts.default_font_family(user) || "default")
   end
 
   defp short_text_description(asciicast) do
@@ -467,7 +463,7 @@ defmodule AsciinemaWeb.RecordingView do
       rx: params[:rx],
       ry: params[:ry],
       font_family: params[:font_family],
-      theme_name: theme_name(asciicast)
+      theme_name: Media.theme_name(asciicast)
     )
   end
 

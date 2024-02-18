@@ -39,7 +39,7 @@
         <div class="form-group row">
           <%= label f, :terminal_font_family, "Default terminal font", class: "col-sm-4 col-md-3 col-form-label" %>
           <div class="col-sm-8 col-md-9">
-            <%= select f, :terminal_font_family, terminal_font_family_options(), class: "form-control", prompt: "Default (#{default_font_display_name()})" %>
+            <%= select f, :terminal_font_family, font_family_options(), class: "form-control", prompt: "Default (#{default_font_display_name()})" %>
             <small class="form-text text-muted">Applies to all your recordings that don't explicitly override this.</small>
           </div>
         </div>
