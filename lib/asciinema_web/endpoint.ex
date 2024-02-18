@@ -47,7 +47,7 @@ defmodule AsciinemaWeb.Endpoint do
   plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint]
 
   plug Plug.Parsers,
-    parsers: [:urlencoded, :multipart, :json],
+    parsers: [:urlencoded, AsciinemaWeb.Plug.Parsers.MULTIPART, :json],
     pass: ["*/*"],
     json_decoder: Phoenix.json_library()
 

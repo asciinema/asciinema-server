@@ -1,7 +1,7 @@
 defmodule Asciinema.Recordings do
   require Logger
   import Ecto.Query, warn: false
-  alias Asciinema.{FileStore, Media, Repo, Vt}
+  alias Asciinema.{FileStore, Fonts, Repo, Themes, Vt}
   alias Asciinema.Recordings.{Asciicast, Output, Paths, SnapshotUpdater, Text}
   alias Ecto.Changeset
 
@@ -300,8 +300,8 @@ defmodule Asciinema.Recordings do
       Asciicast.update_changeset(
         asciicast,
         attrs,
-        Media.custom_terminal_font_families(),
-        Media.themes()
+        Fonts.terminal_font_families(),
+        Themes.terminal_themes()
       )
 
     with {:ok, asciicast} <- Repo.update(changeset) do

@@ -3,7 +3,7 @@ defmodule Asciinema.Accounts do
   import Ecto.Query, warn: false
   import Ecto, only: [assoc: 2, build_assoc: 2]
   alias Asciinema.Accounts.{User, ApiToken}
-  alias Asciinema.{Media, Repo}
+  alias Asciinema.{Fonts, Repo, Themes}
   alias Ecto.Changeset
 
   @valid_email_re ~r/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i
@@ -70,11 +70,19 @@ defmodule Asciinema.Accounts do
     import Ecto.Changeset
 
     user
-    |> cast(params, [:email, :name, :username, :theme_name, :asciicasts_private_by_default])
+    |> cast(params, [
+      :email,
+      :name,
+      :username,
+      :theme_name,
+      :terminal_font_family,
+      :asciicasts_private_by_default
+    ])
     |> validate_format(:email, @valid_email_re)
     |> validate_format(:username, @valid_username_re)
     |> validate_length(:username, min: 2, max: 16)
-    |> validate_inclusion(:theme_name, Media.themes())
+    |> validate_inclusion(:theme_name, Themes.terminal_themes())
+    |> validate_inclusion(:terminal_font_family, Fonts.terminal_font_families())
     |> add_contraints()
   end
 
@@ -317,4 +325,8 @@ defmodule Asciinema.Accounts do
 
     :ok
   end
+
+  def default_theme_name(user), do: user.theme_name
+
+  def default_font_family(user), do: user.terminal_font_family
 end

@@ -1,16 +1,15 @@
 defmodule AsciinemaWeb.LiveStreamHTML do
   use AsciinemaWeb, :html
-  alias AsciinemaWeb.{PlayerView, RecordingView}
+  alias Asciinema.{Fonts, Media, Themes}
+  alias AsciinemaWeb.{MediaView, RecordingView}
 
   embed_templates "live_stream/*"
 
-  defdelegate author_username(stream), to: PlayerView
-  defdelegate author_avatar_url(stream), to: PlayerView
-  defdelegate author_profile_path(stream), to: PlayerView
-  defdelegate theme_name(stream), to: PlayerView
-  defdelegate theme_options, to: PlayerView
-  defdelegate default_theme_name(stream), to: PlayerView
-  defdelegate terminal_font_family_options, to: PlayerView
+  defdelegate author_username(stream), to: MediaView
+  defdelegate author_avatar_url(stream), to: MediaView
+  defdelegate author_profile_path(stream), to: MediaView
+  defdelegate theme_options, to: MediaView
+  defdelegate font_family_options, to: MediaView
 
   def player_src(stream) do
     %{
@@ -25,19 +24,27 @@ defmodule AsciinemaWeb.LiveStreamHTML do
       cols: cols(stream),
       rows: rows(stream),
       autoplay: true,
-      theme: theme_name(stream),
+      theme: Media.theme_name(stream),
       terminalLineHeight: stream.terminal_line_height,
-      customTerminalFontFamily: stream.terminal_font_family
+      customTerminalFontFamily: Media.font_family(stream)
     ]
     |> Keyword.merge(opts)
     |> Enum.into(%{})
   end
 
   def cinema_height(stream) do
-    PlayerView.cinema_height(cols(stream), rows(stream))
+    MediaView.cinema_height(cols(stream), rows(stream))
   end
 
   def title(stream), do: stream.title || "#{author_username(stream)}'s live stream"
+
+  def default_theme_display_name(user) do
+    Themes.display_name(user.theme_name || "asciinema")
+  end
+
+  def default_font_display_name(user) do
+    Fonts.display_name(user.terminal_font_family || "default")
+  end
 
   @http_to_ws %{"http" => "ws", "https" => "wss"}
 

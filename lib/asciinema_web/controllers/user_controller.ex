@@ -107,10 +107,10 @@ defmodule AsciinemaWeb.UserController do
     user = conn.assigns.current_user
 
     case Accounts.update_user(user, user_params) do
-      {:ok, user} ->
+      {:ok, _user} ->
         conn
-        |> put_flash(:info, "Account settings saved.")
-        |> redirect(to: profile_path(conn, user))
+        |> put_flash(:info, "Settings updated")
+        |> redirect(to: ~p"/user/edit")
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render_edit_form(conn, user, changeset)

@@ -2,61 +2,98 @@
   <div class="row user-form">
     <div class="col-md-12 col-lg-9">
       <%= form_for @changeset, Routes.user_path(@conn, :update), [class: "simple_form form-horizontal", novalidate: "novalidate", role: "form"], fn f -> %>
-        <legend>Account settings</legend>
-
-        <div class="form-group row string optional user_username <%= error_class(f, :username) %>">
-          <%= label f, :username, class: "string optional col-form-label col-sm-3 col-md-3 col-lg-2" %>
-          <div class="col-sm-9 col-md-9 col-lg-10">
-            <%= text_input f, :username, class: "string optional form-control" %>
-            <%= error_tag f, :username %>
-          </div>
-        </div>
+        <legend>Account</legend>
 
         <div class="form-group row email required user_email <%= error_class(f, :email) %>">
-          <%= label f, :email, class: "email required col-form-label col-sm-3 col-md-3 col-lg-2" %>
-          <div class="col-sm-9 col-md-9 col-lg-10">
+          <%= label f, :email, class: "email required col-form-label col-3" %>
+          <div class="col-9">
             <%= email_input f, :email, class: "string email required form-control" %>
             <%= error_tag f, :email %>
           </div>
         </div>
 
+        <div class="form-group row">
+          <label class="col-form-label col-3"></label>
+          <div class="col-offset-3 col-9">
+            <br>
+            <%= submit "Update", class: "btn btn-primary" %>
+          </div>
+        </div>
+      <% end %>
+
+      <%= form_for @changeset, Routes.user_path(@conn, :update), [class: "simple_form form-horizontal", novalidate: "novalidate", role: "form"], fn f -> %>
+        <legend>Profile</legend>
+
+        <div class="form-group row string optional user_username <%= error_class(f, :username) %>">
+          <%= label f, :username, class: "string optional col-form-label col-3" %>
+          <div class="col-9">
+            <%= text_input f, :username, class: "string optional form-control" %>
+            <%= error_tag f, :username %>
+          </div>
+        </div>
+
         <div class="form-group row string optional user_name <%= error_class(f, :name) %>">
-          <%= label f, :name, "Full name", class: "string optional col-form-label col-sm-3 col-md-3 col-lg-2" %>
-          <div class="col-sm-9 col-md-9 col-lg-10">
-            <%= text_input f, :name, class: "string optional form-control" %>
+          <%= label f, :name, "Display name", class: "string optional col-form-label col-3" %>
+          <div class="col-9">
+            <%= text_input f, :name, class: "string optional form-control", placeholder: @changeset.data.username %>
             <%= error_tag f, :name %>
           </div>
         </div>
 
-        <div class="form-group row select optional user_theme_name">
-          <%= label f, :theme_name, "Terminal theme", class: "select optional col-form-label col-sm-3 col-md-3 col-lg-2" %>
-          <div class="col-sm-9 col-md-9 col-lg-10">
-            <%= select f, :theme_name, theme_options(), class: "select optional form-control", prompt: "Default (asciinema)" %>
-            <small class="form-text text-muted">Applies to all your asciicasts unless custom theme chosen for a specific asciicast</small>
+        <div class="form-group row">
+          <label class="col-form-label col-3"></label>
+          <div class="col-offset-3 col-9">
+            <br>
+            <%= submit "Update", class: "btn btn-primary" %>
           </div>
         </div>
+      <% end %>
+
+      <%= form_for @changeset, Routes.user_path(@conn, :update), [class: "simple_form form-horizontal", novalidate: "novalidate", role: "form"], fn f -> %>
+        <legend>Defaults</legend>
+
+        <p>
+          The settings below control the defaults for your uploaded recordings.
+          <br>
+          <br>
+        </p>
 
         <div class="form-group row radio_buttons optional user_asciicasts_private_by_default">
-          <%= label f, :asciicasts_private_by_default, "Asciicast visibility", class: "radio_buttons optional col-form-label col-sm-3 col-md-3 col-lg-2" %>
-          <div class="col-sm-9 col-md-9 col-lg-10">
+          <%= label f, :asciicasts_private_by_default, "Recording visibility", class: "col-3 radio_buttons optional col-form-label" %>
+          <div class="col-9">
             <div class="form-check">
               <%= radio_button f, :asciicasts_private_by_default, false, class: "radio_buttons optional form-check-input" %>
-              <%= label f, :asciicasts_private_by_default, "public", for: "user_asciicasts_private_by_default_false", class: "form-check-label" %>
+              <%= label f, :asciicasts_private_by_default, "Public", for: "user_asciicasts_private_by_default_false", class: "form-check-label" %>
             </div>
             <div class="form-check">
               <%= radio_button f, :asciicasts_private_by_default, true, class: "radio_buttons optional form-check-input" %>
-              <%= label f, :asciicasts_private_by_default, "secret - unlisted, accessible via secret link", for: "user_asciicasts_private_by_default_true", class: "form-check-label" %>
+              <%= label f, :asciicasts_private_by_default, "Secret - unlisted, accessible via secret link", for: "user_asciicasts_private_by_default_true", class: "form-check-label" %>
             </div>
-            <small class="form-text text-muted">Applies to all *new* asciicasts</small>
+            <small class="form-text text-muted">Applies to *new* uploads. Existing recordings are not affected by changes to this setting.</small>
+          </div>
+        </div>
+
+        <div class="form-group row select optional user_theme_name">
+          <%= label f, :theme_name, "Terminal theme", class: "col-3 select optional col-form-label" %>
+          <div class="col-9">
+            <%= select f, :theme_name, theme_options(), class: "select optional form-control", prompt: "Default (asciinema)" %>
+            <small class="form-text text-muted">Applies to all your recordings that don't explicitly override this.</small>
           </div>
         </div>
 
         <div class="form-group row">
-          <label class="col-form-label col-sm-3 col-md-3 col-lg-2"></label>
-          <div class="col-sm-offset-3 col-sm-9 col-md-offset-3 col-md-9 col-lg-offset-2 col-lg-10">
+          <%= label f, :terminal_font_family, "Terminal font family", class: "col-sm-4 col-md-3 col-form-label" %>
+          <div class="col-sm-8 col-md-9">
+            <%= select f, :terminal_font_family, font_family_options(), class: "form-control", prompt: "Default (#{default_font_display_name()})" %>
+            <small class="form-text text-muted">Applies to all your recordings that don't explicitly override this.</small>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-form-label col-3"></label>
+          <div class="col-offset-3 col-9">
             <br>
-            <%= submit "Save", class: "btn btn-primary" %>
-            <%= link "Cancel", to: profile_path(@conn), class: "btn" %>
+            <%= submit "Update", class: "btn btn-primary" %>
           </div>
         </div>
       <% end %>
@@ -65,35 +102,61 @@
 
   <div class="row tokens-list">
     <div class="col-md-12">
-      <legend>Recorder tokens</legend>
+      <form>
+        <legend>CLI</legend>
 
-      <%= if present?(@api_tokens) do %>
-        <p>
-          The following recorder tokens have been associated with your account:
-        </p>
+        <p>To associate the uploaded recordings with your account, you need to
+        authenticate asciinema CLI on every new system from which you upload.</p>
 
-        <ul>
-          <%= for t <- active_tokens(@api_tokens) do %>
-            <li><code><%= t.token %></code> registered <%= time_tag(t.inserted_at) %> - <%= link "Revoke", to: Routes.api_token_path(@conn, :delete, t), method: "delete", data: [confirm: "Are you sure?"] %></li>
-          <% end %>
-        </ul>
+        <p>Run <code>asciinema auth</code> to do this. For more information see the <a href="https://docs.asciinema.org/manual/cli/usage/#asciinema-auth">documentation</a>.</p>
 
-        <ul>
-          <%= for t <- revoked_tokens(@api_tokens) do %>
-            <li class="revoked-token"><code><%= t.token %></code> registered <%= time_ago_tag(t.inserted_at) %>, revoked <%= time_ago_tag(t.revoked_at) %>
-          <% end %>
-        </ul>
-      <% else %>
-        <p>
-          If you want your recordings to be assigned to your profile
-          you have to register your local recorder token.
-        </p>
+        <%= if present?(@api_tokens) do %>
+          <p>
+            The following asciinema CLI installations have been authenticated with your account:
+          </p>
 
-        <p>
-          There is currently no recorder token associated with your account.
-          Run <code>asciinema auth</code> in your terminal to register one.
-        </p>
-      <% end %>
+          <table class="table install-ids">
+            <thead>
+              <th>Installation ID</th>
+              <th>Registered at</th>
+              <th></th>
+            </thead>
+            <tbody>
+            <%= for t <- active_tokens(@api_tokens) do %>
+              <tr>
+                <td>
+                  <code><%= t.token %></code>
+                </td>
+                <td>
+                  <%= time_tag(t.inserted_at) %>
+                </td>
+                <td>
+                  <%= link "Revoke", to: Routes.api_token_path(@conn, :delete, t), class: "btn btn-danger btn-sm", method: "delete", data: [confirm: "Are you sure? This will prevent future uploads from that system."] %>
+                </td>
+              </tr>
+            <% end %>
+
+            <%= for t <- revoked_tokens(@api_tokens) do %>
+              <tr class="revoked">
+                <td>
+                  <code><%= t.token %></code>
+                </td>
+                <td>
+                  <%= time_tag(t.inserted_at) %>
+                </td>
+                <td>
+                  Revoked <%= time_ago_tag(t.revoked_at) %>
+                </td>
+              </tr>
+            <% end %>
+          </table>
+
+          <p>The installation ID of your local system is stored in the
+          <code>$HOME/.config/asciinema/install-id</code> file.</p>
+        <% else %>
+          <p>There is currently no CLI authenticated with this account.</p>
+        <% end %>
+      </form>
     </div>
   </div>
 </div>
