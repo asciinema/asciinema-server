@@ -63,6 +63,10 @@ div.asciicast-card {
     .ap-terminal {
       .ap-line {
         height: 1.3333333333em;
+
+        span {
+          position: inherit;
+        }
       }
     }
   }

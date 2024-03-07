@@ -1,4 +1,4 @@
-<div class="thumbnail asciinema-player-theme-<%= theme_name(@asciicast) %>">
+<div class="thumbnail ap-player asciinema-player-theme-<%= theme_name(@asciicast) %>">
   <pre class="ap-terminal font-small"><%= for line <- thumbnail(@asciicast) do %><span class="ap-line"><%= for {text, attrs} <- line do %><span class="<%= class(attrs) %>" style="<%= style(attrs) %>"><%= text %></span><% end %></span><% end %></pre>
 </div>
 <!-- The above <pre> has to be in one line, without extra spacing around for loops
