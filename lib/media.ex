@@ -2,7 +2,11 @@ defmodule Asciinema.Media do
   alias Asciinema.Accounts
 
   def theme_name(medium) do
-    medium.theme_name || Accounts.default_theme_name(medium.user) || "asciinema"
+    cond do
+      medium.theme_name -> medium.theme_name
+      medium.theme_palette -> nil
+      true -> Accounts.default_theme_name(medium.user) || "asciinema"
+    end
   end
 
   def font_family(medium) do

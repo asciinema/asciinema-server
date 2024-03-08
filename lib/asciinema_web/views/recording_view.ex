@@ -58,9 +58,11 @@ defmodule AsciinemaWeb.RecordingView do
     )
   end
 
-  def default_theme_display_name(user) do
-    Themes.display_name(Accounts.default_theme_name(user) || "asciinema")
+  def default_theme_display_name(%{theme_palette: nil} = asciicast) do
+    "Account default (#{Themes.display_name(Accounts.default_theme_name(asciicast.user) || "asciinema")})"
   end
+
+  def default_theme_display_name(_asciicast), do: "Original"
 
   def default_font_display_name(user) do
     Fonts.display_name(Accounts.default_font_family(user) || "default")
