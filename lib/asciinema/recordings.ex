@@ -359,14 +359,14 @@ defmodule Asciinema.Recordings do
       case cursor do
         {x, y} ->
           lines
-          |> AsciinemaWeb.RecordingView.split_chunks()
+          |> AsciinemaWeb.RecordingView.split_segments()
           |> List.update_at(y, fn line ->
             List.update_at(line, x, fn {text, attrs} ->
               attrs = Map.put(attrs, "inverse", !(attrs["inverse"] || false))
               {text, attrs}
             end)
           end)
-          |> AsciinemaWeb.RecordingView.group_chunks()
+          |> AsciinemaWeb.RecordingView.group_segments()
 
         _ ->
           lines

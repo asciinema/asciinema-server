@@ -13,12 +13,12 @@
 
 <svg x="<%= percent(1.0 * 100 / (@cols + 2)) %>" y="<%= percent(0.5 * 100 / (@rows + 1)) %>" class="default-text-fill">
 <g style="shape-rendering: optimizeSpeed">
-<%= for %{y: y, chunks: chunks} <- @bg_lines do %><%= for chunk <- chunks do %><%= c = svg_rect_class(chunk.attrs); s = svg_rect_style(chunk.attrs); if c || s do %><rect x="<%= percent(100 * chunk.x / (@cols + 2)) %>" y="<%= percent(100 * y / (@rows + 1)) %>" width="<%= percent(100 * chunk.width / (@cols + 2)) %>" height="19.7"<%= if c do %> class="<%= c %>"<% end %><%= if s do %> style="<%= s %>"<% end %> />
+<%= for %{y: y, segments: segments} <- @bg_lines do %><%= for segment <- segments do %><%= c = svg_rect_class(segment.attrs); s = svg_rect_style(segment.attrs); if c || s do %><rect x="<%= percent(100 * segment.x / (@cols + 2)) %>" y="<%= percent(100 * y / (@rows + 1)) %>" width="<%= percent(100 * segment.width / (@cols + 2)) %>" height="19.7"<%= if c do %> class="<%= c %>"<% end %><%= if s do %> style="<%= s %>"<% end %> />
 <% end %><% end %><% end %></g>
 
 <text class="default-text-fill">
-<%= for %{y: y, chunks: chunks} <- @text_lines do %><tspan y="<%= percent(100 * y / (@rows + 1)) %>">
-<%= for {chunk, i} <- Enum.with_index(chunks) do %><tspan<%= if i == 0 do %> dy="1em"<% end %> x="<%= percent(100 * chunk.x / (@cols + 2)) %>"<%= if c = svg_text_class(chunk.attrs) do %> class="<%= c %>"<% end %><%= if s = svg_text_style(chunk.attrs) do %> style="<%= s %>"<% end %>><%= safe_to_string(html_escape(chunk.text)) %></tspan><% end %>
+<%= for %{y: y, segments: segments} <- @text_lines do %><tspan y="<%= percent(100 * y / (@rows + 1)) %>">
+<%= for {segment, i} <- Enum.with_index(segments) do %><tspan<%= if i == 0 do %> dy="1em"<% end %> x="<%= percent(100 * segment.x / (@cols + 2)) %>"<%= if c = svg_text_class(segment.attrs) do %> class="<%= c %>"<% end %><%= if s = svg_text_style(segment.attrs) do %> style="<%= s %>"<% end %>><%= safe_to_string(html_escape(segment.text)) %></tspan><% end %>
 </tspan>
 <% end %>
 </text>

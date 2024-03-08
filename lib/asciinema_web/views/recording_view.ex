@@ -311,13 +311,13 @@ defmodule AsciinemaWeb.RecordingView do
     lines = asciicast.snapshot || []
 
     lines
-    |> drop_trailing_blank_lines
+    |> drop_trailing_blank_lines()
     |> fill_to_height(height)
     |> take_last(height)
-    |> adjust_colors
-    |> split_chunks
+    |> adjust_colors()
+    |> split_segments()
     |> crop_to_width(width)
-    |> group_chunks
+    |> group_segments()
   end
 
   def drop_trailing_blank_lines(lines) do
@@ -347,12 +347,12 @@ defmodule AsciinemaWeb.RecordingView do
   end
 
   def blank_line?(line) do
-    Enum.all?(line, &blank_chunk?/1)
+    Enum.all?(line, &blank_segment?/1)
   end
 
-  def blank_chunk?(["", _attrs]), do: true
+  def blank_segment?(["", _attrs]), do: true
 
-  def blank_chunk?([text, attrs]) do
+  def blank_segment?([text, attrs]) do
     text = String.trim(text)
     text == "" && attrs == %{}
   end
@@ -361,11 +361,11 @@ defmodule AsciinemaWeb.RecordingView do
     Enum.map(lines, &adjust_line_colors/1)
   end
 
-  def adjust_line_colors(chunks) do
-    Enum.map(chunks, &adjust_chunk_colors/1)
+  def adjust_line_colors(segments) do
+    Enum.map(segments, &adjust_segment_colors/1)
   end
 
-  def adjust_chunk_colors([text, attrs]) do
+  def adjust_segment_colors([text, attrs]) do
     {text, adjust_attrs_colors(attrs)}
   end
 
@@ -401,17 +401,17 @@ defmodule AsciinemaWeb.RecordingView do
 
   def invert_colors(attrs), do: attrs
 
-  def split_chunks(lines) do
+  def split_segments(lines) do
     Enum.map(lines, fn line ->
-      Enum.flat_map(line, &split_chunk/1)
+      Enum.flat_map(line, &split_segment/1)
     end)
   end
 
-  def split_chunk([text, attrs]) do
-    split_chunk({text, attrs})
+  def split_segment([text, attrs]) do
+    split_segment({text, attrs})
   end
 
-  def split_chunk({text, attrs}) do
+  def split_segment({text, attrs}) do
     text
     |> String.codepoints()
     |> Enum.map(&{&1, attrs})
@@ -421,28 +421,28 @@ defmodule AsciinemaWeb.RecordingView do
     Enum.map(lines, &crop_line_to_width(&1, width))
   end
 
-  def crop_line_to_width(chunks, width) do
-    Enum.take(chunks, width)
+  def crop_line_to_width(segments, width) do
+    Enum.take(segments, width)
   end
 
-  def group_chunks(lines) do
-    Enum.map(lines, &group_line_chunks/1)
+  def group_segments(lines) do
+    Enum.map(lines, &group_line_segments/1)
   end
 
-  def group_line_chunks([]), do: []
+  def group_line_segments([]), do: []
 
-  def group_line_chunks([first_chunk | chunks]) do
-    {chunks, last_chunk} =
-      Enum.reduce(chunks, {[], first_chunk}, fn {text, attrs},
-                                                {chunks, {prev_text, prev_attrs}} ->
+  def group_line_segments([first_segment | segments]) do
+    {segments, last_segment} =
+      Enum.reduce(segments, {[], first_segment}, fn {text, attrs},
+                                                    {segments, {prev_text, prev_attrs}} ->
         if attrs == prev_attrs do
-          {chunks, {prev_text <> text, attrs}}
+          {segments, {prev_text <> text, attrs}}
         else
-          {[{prev_text, prev_attrs} | chunks], {text, attrs}}
+          {[{prev_text, prev_attrs} | segments], {text, attrs}}
         end
       end)
 
-    Enum.reverse([last_chunk | chunks])
+    Enum.reverse([last_segment | segments])
   end
 
   def render("show.svg", %{asciicast: asciicast} = params) do
@@ -452,9 +452,9 @@ defmodule AsciinemaWeb.RecordingView do
 
     text_lines =
       lines
-      |> split_chunks()
+      |> split_segments()
       |> add_coords()
-      |> remove_blank_chunks()
+      |> remove_blank_segments()
 
     render(
       "_terminal.svg",
@@ -470,24 +470,24 @@ defmodule AsciinemaWeb.RecordingView do
   end
 
   defp add_coords(lines) do
-    for {chunks, y} <- Enum.with_index(lines) do
-      {_, chunks} =
-        Enum.reduce(chunks, {0, []}, fn {text, attrs}, {x, chunks} ->
+    for {segments, y} <- Enum.with_index(lines) do
+      {_, segments} =
+        Enum.reduce(segments, {0, []}, fn {text, attrs}, {x, segments} ->
           width = String.length(text)
-          chunk = %{text: text, attrs: attrs, x: x, width: width}
-          {x + width, [chunk | chunks]}
+          segment = %{text: text, attrs: attrs, x: x, width: width}
+          {x + width, [segment | segments]}
         end)
 
-      chunks = Enum.reverse(chunks)
+      segments = Enum.reverse(segments)
 
-      %{y: y, chunks: chunks}
+      %{y: y, segments: segments}
     end
   end
 
-  defp remove_blank_chunks(lines) do
+  defp remove_blank_segments(lines) do
     for line <- lines do
-      chunks = Enum.reject(line.chunks, &(String.trim(&1.text) == ""))
-      %{line | chunks: chunks}
+      segments = Enum.reject(line.segments, &(String.trim(&1.text) == ""))
+      %{line | segments: segments}
     end
   end
 
