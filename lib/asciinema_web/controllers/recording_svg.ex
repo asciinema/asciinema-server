@@ -10,11 +10,11 @@ defmodule AsciinemaWeb.RecordingSVG do
   alias Asciinema.Media
   alias Asciinema.Recordings.Snapshot
 
-  def svg_text_class(%{} = attrs) do
+  def text_class(%{} = attrs) do
     classes =
       attrs
       |> Enum.reject(fn {attr, _} -> attr == "bg" end)
-      |> Enum.map(&svg_text_class/1)
+      |> Enum.map(&text_class/1)
       |> Enum.filter(& &1)
 
     case classes do
@@ -23,23 +23,23 @@ defmodule AsciinemaWeb.RecordingSVG do
     end
   end
 
-  def svg_text_class({"fg", fg}) when is_integer(fg), do: "c-#{fg}"
-  def svg_text_class({"bold", true}), do: "br"
-  def svg_text_class({"faint", true}), do: "fa"
-  def svg_text_class({"italic", true}), do: "it"
-  def svg_text_class({"underline", true}), do: "un"
-  def svg_text_class(_), do: nil
+  def text_class({"fg", fg}) when is_integer(fg), do: "c-#{fg}"
+  def text_class({"bold", true}), do: "br"
+  def text_class({"faint", true}), do: "fa"
+  def text_class({"italic", true}), do: "it"
+  def text_class({"underline", true}), do: "un"
+  def text_class(_), do: nil
 
-  def svg_rect_style(%{"bg" => [_r, _g, _b] = c}), do: "fill:#{hex(c)}"
-  def svg_rect_style(%{"bg" => "rgb(" <> _ = c}), do: "fill:#{c}"
-  def svg_rect_style(_), do: nil
+  def rect_style(%{"bg" => [_r, _g, _b] = c}), do: "fill:#{hex(c)}"
+  def rect_style(%{"bg" => "rgb(" <> _ = c}), do: "fill:#{c}"
+  def rect_style(_), do: nil
 
-  def svg_rect_class(%{"bg" => bg}) when is_integer(bg), do: "c-#{bg}"
-  def svg_rect_class(_), do: nil
+  def rect_class(%{"bg" => bg}) when is_integer(bg), do: "c-#{bg}"
+  def rect_class(_), do: nil
 
-  def svg_text_style(%{"fg" => [_r, _g, _b] = c}), do: "fill:#{hex(c)}"
-  def svg_text_style(%{"fg" => "rgb(" <> _ = c}), do: "fill:#{c}"
-  def svg_text_style(_), do: nil
+  def text_style(%{"fg" => [_r, _g, _b] = c}), do: "fill:#{hex(c)}"
+  def text_style(%{"fg" => "rgb(" <> _ = c}), do: "fill:#{c}"
+  def text_style(_), do: nil
 
   defp hex([r, g, b]) do
     "##{hex(r)}#{hex(g)}#{hex(b)}"
