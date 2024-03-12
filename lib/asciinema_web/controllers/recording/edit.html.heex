@@ -8,7 +8,7 @@
           <.label for={f[:title]} class="col-sm-4 col-md-3 col-lg-3 col-form-label">Title</.label>
           <div class="col-sm-8 col-md-9 col-lg-9">
             <.input field={f[:title]} class="form-control" autofocus={true} />
-            <.error form={f} field={:title} />
+            <.error field={f[:title]} />
           </div>
         </div>
 
@@ -18,7 +18,7 @@
           </.label>
           <div class="col-sm-8 col-md-9 col-lg-9">
             <.input field={f[:description]} type="textarea" class="form-control" rows={10} />
-            <.error form={f} field={:description} />
+            <.error field={f[:description]} />
             <small class="form-text text-muted">Parsed as Markdown.</small>
           </div>
         </div>
@@ -35,7 +35,7 @@
               min={0.5}
               step={0.5}
             />
-            <.error form={f} field={:idle_time_limit} />
+            <.error field={f[:idle_time_limit]} />
             <small class="form-text text-muted">
               Limit terminal inactivity to a given number of seconds. Leave blank for no limit.
             </small>
@@ -53,7 +53,7 @@
               step={0.1}
               placeholder={1.0}
             />
-            <.error form={f} field={:speed} />
+            <.error field={f[:speed]} />
             <small class="form-text text-muted">
               Playback speed. 1.0 is the original speed, less is slower, more is faster.
             </small>
@@ -73,7 +73,7 @@
               step={1}
               placeholder={@asciicast.cols}
             />
-            <.error form={f} field={:cols_override} />
+            <.error field={f[:cols_override]} />
             <small class="form-text text-muted">
               Leave blank to use recording's original value.
             </small>
@@ -93,7 +93,7 @@
               step={1}
               placeholder={@asciicast.rows}
             />
-            <.error form={f} field={:rows_override} />
+            <.error field={f[:rows_override]} />
             <small class="form-text text-muted">
               Leave blank to use recording's original value.
             </small>
@@ -129,7 +129,7 @@
               step="any"
               placeholder="1.33333"
             />
-            <.error form={f} field={:terminal_line_height} />
+            <.error field={f[:terminal_line_height]} />
             <small class="form-text text-muted">
               Relative to the font size. Lowering it to ~1.1 helps with alignment of block characters such as ▀ ▄ █
             </small>
@@ -160,7 +160,7 @@
           </.label>
           <div class="col-sm-8 col-md-9 col-lg-9">
             <.input field={f[:snapshot_at]} type="number" class="form-control" min={0} step={0.1} />
-            <.error form={f} field={:snapshot_at} />
+            <.error field={f[:snapshot_at]} />
             <small class="form-text text-muted">
               Time of the frame to be displayed as snapshot/poster. For example: 10.5
             </small>
@@ -179,7 +179,7 @@
               rows={6}
               placeholder={"Example:\n\n" <> "5.0 - Intro\n11.3 - Installation\n32.0 - Configuration\n66.5 - Tips & Tricks"}
             />
-            <.error form={f} field={:markers} />
+            <.error field={f[:markers]} />
             <small class="form-text text-muted">
               Each line is a marker defined as <code>[time] - [label]</code>.
             </small>

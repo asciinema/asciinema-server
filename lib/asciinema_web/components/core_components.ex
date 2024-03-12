@@ -104,11 +104,10 @@ defmodule AsciinemaWeb.CoreComponents do
     """
   end
 
-  attr :form, :any, required: true
-  attr :field, :atom, required: true
+  attr :field, Phoenix.HTML.FormField, required: true
 
   def error(assigns) do
-    assigns = assign(assigns, :error, assigns.form.errors[assigns.field])
+    assigns = assign(assigns, :error, List.first(assigns.field.errors))
 
     ~H"""
     <small :if={@error} class="form-text text-danger"><%= translate_error(@error) %></small>

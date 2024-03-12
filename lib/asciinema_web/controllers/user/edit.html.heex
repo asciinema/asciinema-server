@@ -15,7 +15,7 @@
           <.label for={f[:email]} class="email required col-form-label col-3">Email</.label>
           <div class="col-9">
             <.input field={f[:email]} type="email" class="string email required form-control" />
-            <.error form={f} field={:email} />
+            <.error field={f[:email]} />
           </div>
         </div>
 
@@ -44,7 +44,7 @@
           </.label>
           <div class="col-9">
             <.input field={f[:username]} class="string optional form-control" />
-            <.error form={f} field={:username} />
+            <.error field={f[:username]} />
           </div>
         </div>
 
@@ -58,7 +58,7 @@
               class="string optional form-control"
               placeholder={@changeset.data.username}
             />
-            <.error form={f} field={:name} />
+            <.error field={f[:name]} />
           </div>
         </div>
 
