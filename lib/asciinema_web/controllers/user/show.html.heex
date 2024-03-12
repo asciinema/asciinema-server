@@ -62,18 +62,13 @@
             </p>
           <% {0, false} -> %>
           <% _ -> %>
-            <%= for asciicasts <- Enum.chunk_every(@page, 2, 2) do %>
-              <div class="row">
-                <%= for asciicast <- asciicasts do %>
-                  <div class="col-md-6">
-                    <%= render(AsciinemaWeb.RecordingView, "_card.html",
-                      conn: @conn,
-                      asciicast: asciicast
-                    ) %>
-                  </div>
-                <% end %>
-              </div>
-            <% end %>
+            <div :for={asciicasts <- Enum.chunk_every(@page, 2, 2)} class="row">
+              <%= for asciicast <- asciicasts do %>
+                <div class="col-md-6">
+                  <RecordingHTML.card asciicast={asciicast} />
+                </div>
+              <% end %>
+            </div>
         <% end %>
       </div>
     </div>

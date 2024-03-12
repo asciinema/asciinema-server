@@ -1,5 +1,6 @@
 defmodule AsciinemaWeb.CoreComponents do
   use Phoenix.Component
+  import AsciinemaWeb.ErrorHelpers
 
   attr :for, Phoenix.HTML.FormField
   attr :rest, :global
@@ -110,7 +111,7 @@ defmodule AsciinemaWeb.CoreComponents do
     assigns = assign(assigns, :error, assigns.form.errors[assigns.field])
 
     ~H"""
-    <small :if={@error} class="form-text text-danger"><%= @error %></small>
+    <small :if={@error} class="form-text text-danger"><%= translate_error(@error) %></small>
     """
   end
 end

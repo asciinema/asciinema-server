@@ -57,15 +57,12 @@ defmodule Asciinema.PngGenerator.Rsvg do
     png_path = Path.join(tmp_dir_path, "tmp.png")
 
     svg =
-      AsciinemaWeb.RecordingView.render(
-        "show.svg",
-        %{
-          asciicast: asciicast,
-          font_family: font_family(),
-          rx: 0,
-          ry: 0
-        }
-      )
+      AsciinemaWeb.RecordingSVG.show(%{
+        asciicast: asciicast,
+        font_family: font_family(),
+        rx: 0,
+        ry: 0
+      })
 
     File.write!(svg_path, svg)
 

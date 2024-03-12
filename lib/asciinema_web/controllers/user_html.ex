@@ -1,8 +1,11 @@
-defmodule AsciinemaWeb.UserView do
-  use AsciinemaWeb, :view
+defmodule AsciinemaWeb.UserHTML do
+  use AsciinemaWeb, :html
+  import AsciinemaWeb.ErrorHelpers
   import Scrivener.HTML
   alias Asciinema.{Fonts, Gravatar}
-  alias AsciinemaWeb.MediaView
+  alias AsciinemaWeb.{MediaView, RecordingHTML}
+
+  embed_templates "user/*"
 
   defdelegate theme_options, to: MediaView
   defdelegate font_family_options, to: MediaView

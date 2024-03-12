@@ -1,0 +1,83 @@
+<div class="modal fade" id="share-modal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Share this recording</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <h2>Link</h2>
+
+        <p>
+          <input
+            data-behavior="auto-select"
+            readonly=""
+            value={url(~p"/a/#{@asciicast}")}
+            type="text"
+          />
+        </p>
+
+        <p>
+          <span>
+            Append <code>?t=30 </code>to start the playback at 30s, <code>?t=3:20 </code>to start the playback at 3m 20s.
+          </span>
+        </p>
+
+        <h2>Embed image link</h2>
+
+        <p>
+          Use snippets below to display a screenshot linking to this recording.<br />
+          Useful in places where scripts are not allowed (e.g. in a project's README file).
+        </p>
+
+        <p>
+          <span>HTML:</span>
+          <br />
+          <input
+            data-behavior="auto-select"
+            readonly=""
+            value={"<a href=\"" <> url(~p"/a/#{@asciicast}") <> "\" target=\"_blank\"><img src=\"" <> url(~p"/a/#{@asciicast}") <> ".svg\" /></a>"}
+            type="text"
+          />
+        </p>
+
+        <p>
+          <span>Markdown:</span>
+          <br />
+          <input
+            data-behavior="auto-select"
+            readonly=""
+            value={"[![asciicast](" <> url(~p"/a/#{@asciicast}") <> ".svg)](" <> url(~p"/a/#{@asciicast}") <> ")"}
+            type="text"
+          />
+        </p>
+
+        <h2>Embed the player</h2>
+
+        <p>If you're embedding on your own page or on a site which permits script tags,
+          you can use the full player widget:</p>
+
+        <p>
+          <input
+            data-behavior="auto-select"
+            readonly=""
+            value={safe_to_string(embed_script(@asciicast))}
+            type="text"
+          />
+        </p>
+
+        <p>Paste the above script tag where you want the player to be displayed on your page.</p>
+
+        <hr />
+
+        <p>
+          See <a href="https://docs.asciinema.org/manual/server/embedding/">embedding docs</a>
+          for additional options.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

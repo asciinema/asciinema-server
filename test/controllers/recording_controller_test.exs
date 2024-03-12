@@ -142,7 +142,7 @@ defmodule Asciinema.RecordingControllerTest do
 
     test "embed iframe", %{conn: conn} do
       asciicast = fixture(:asciicast)
-      conn = get(conn, Routes.recording_path(conn, :iframe, asciicast))
+      conn = get(conn, ~p"/a/#{asciicast}/iframe")
       assert html_response(conn, 200) =~ ~r/iframe\.css/
       assert html_response(conn, 200) =~ ~r/iframe\.js/
       assert html_response(conn, 200) =~ ~r/window\.createPlayer/

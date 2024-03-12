@@ -1,7 +1,7 @@
 defmodule AsciinemaWeb.OembedView do
   use AsciinemaWeb, :view
   alias AsciinemaWeb.Endpoint
-  alias AsciinemaWeb.UserView
+  alias AsciinemaWeb.UserHTML
 
   def render("show.json", %{asciicast: asciicast, max_width: mw, max_height: mh}) do
     attrs(asciicast, mw, mh)
@@ -45,7 +45,7 @@ defmodule AsciinemaWeb.OembedView do
       type: "rich",
       version: 1.0,
       title: asciicast.title,
-      author_name: UserView.username(asciicast.user),
+      author_name: UserHTML.username(asciicast.user),
       author_url: profile_url(asciicast.user),
       provider_name: "asciinema",
       provider_url: root_url(),

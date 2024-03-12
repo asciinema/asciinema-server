@@ -9,8 +9,8 @@
     <link phx-track-static rel="stylesheet" href={Routes.static_path(@conn, "/css/app.css")} />
     <link rel="shortcut icon" href={Routes.static_path(@conn, "/images/favicon.png")} />
 
-    <%= if function_exported?(view_module(@conn), :meta, 2) do %>
-      <%= view_module(@conn).meta(view_template(@conn), assigns) %>
+    <%= if function_exported?(view_module(@conn), :head, 2) do %>
+      <%= view_module(@conn).head(view_template(@conn), assigns) %>
     <% end %>
   </head>
 

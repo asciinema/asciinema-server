@@ -12,19 +12,28 @@
         <p>
           <%= case @asciicast.version do %>
             <% 1 -> %>
-              You can download this recording in <a href="https://github.com/asciinema/asciinema/blob/main/doc/asciicast-v1.md">asciicast v1 format</a>, as a .json file.
+              You can download this recording in <a href="https://docs.asciinema.org/manual/asciicast/v1/">asciicast v1 format</a>, as a .json file.
             <% 2 -> %>
-              You can download this recording in <a href="https://github.com/asciinema/asciinema/blob/main/doc/asciicast-v2.md">asciicast v2 format</a>, as a .cast file.
+              You can download this recording in <a href="https://docs.asciinema.org/manual/asciicast/v2/">asciicast v2 format</a>, as a .cast file.
             <% _ -> %>
           <% end %>
         </p>
 
-        <a href="<%= asciicast_file_url(@asciicast) %>?dl=1" class="btn btn-primary" download="<%= download_filename(@asciicast) %>" rel="nofollow">Download</a>
+        <.link
+          href={asciicast_file_url(@asciicast) <> "?dl=1"}
+          class="btn btn-primary"
+          download={download_filename(@asciicast)}
+          rel="nofollow"
+        >
+          Download
+        </.link>
 
         <h2>Replay in terminal</h2>
 
         <p>
-          You can replay the downloaded recording in your terminal using the <code>asciinema play</code> command:
+          You can replay the downloaded recording in your terminal using the
+          <code>asciinema play</code>
+          command:
         </p>
 
         <pre><code>asciinema play <%= download_filename(@asciicast) %></code></pre>
@@ -36,8 +45,13 @@
         <h2>Use with stand-alone player on your website</h2>
 
         <p>
-          Download asciinema player from <a href="https://github.com/asciinema/asciinema-player/releases">player's releases page</a>
-          (you only need <code>.js</code> and <code>.css</code> file), then use it like this:
+          Download asciinema player from
+          <a href="https://github.com/asciinema/asciinema-player/releases">
+            the releases page
+          </a>
+          (you only need <code>.js</code>
+          and <code>.css</code>
+          file), then use it like this:
         </p>
 
         <pre><code>&lt;!DOCTYPE html>
@@ -58,7 +72,13 @@
 &lt;/body>
 &lt;/html></code></pre>
 
-        <p>See <a href="https://github.com/asciinema/asciinema-player">asciinema player README</a> for full usage instructions.</p>
+        <p>
+          See
+          <a href="https://docs.asciinema.org/manual/player/quick-start/">
+            asciinema player quick-start guide
+          </a>
+          for full usage instructions.
+        </p>
       </div>
     </div>
   </div>

@@ -106,5 +106,12 @@ defmodule Asciinema.UserControllerTest do
       assert response(conn, 302)
       assert location == "/user/edit"
     end
+
+    test "displays error when invalid input", %{conn: conn} do
+      user = insert(:user)
+      conn = log_in(conn, user)
+      conn = put conn, "/user", %{user: %{username: "R"}}
+      assert html_response(conn, 200) =~ "at least 2"
+    end
   end
 end

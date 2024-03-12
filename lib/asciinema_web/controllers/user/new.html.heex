@@ -6,8 +6,7 @@
   </div>
 </div>
 
-<%= form_for @conn, Routes.users_path(@conn, :create), [id: "login", as: :login], fn _f -> %>
-<% end %>
+<.form for={@conn} action={~p"/users"} id="login" as={:login}></.form>
 
 <script>
   document.forms.namedItem("login").submit();
