@@ -5,7 +5,7 @@ defmodule AsciinemaWeb.RecordingSVG do
     pattern: "**/*.svg",
     namespace: AsciinemaWeb
 
-  import AsciinemaWeb.RecordingHTML, only: [adjust_colors: 1, cols: 1, rows: 1]
+  import AsciinemaWeb.RecordingHTML, only: [cols: 1, rows: 1]
   import Phoenix.HTML
   alias Asciinema.Media
   alias Asciinema.Recordings.Snapshot
@@ -56,13 +56,13 @@ defmodule AsciinemaWeb.RecordingSVG do
   end
 
   def show(%{asciicast: asciicast} = assigns) do
-    lines = adjust_colors(asciicast.snapshot || [])
-    bg_lines = add_coords(lines)
+    snapshot = Snapshot.new(asciicast.snapshot)
+    bg_lines = Snapshot.coords(snapshot)
 
     text_lines =
-      lines
-      |> Snapshot.split_segments()
-      |> add_coords()
+      snapshot
+      |> Snapshot.regroup(:cells)
+      |> Snapshot.coords()
       |> remove_blank_segments()
 
     render(
@@ -76,21 +76,6 @@ defmodule AsciinemaWeb.RecordingSVG do
       font_family: assigns[:font_family],
       theme_name: Media.theme_name(asciicast)
     )
-  end
-
-  defp add_coords(lines) do
-    for {segments, y} <- Enum.with_index(lines) do
-      {_, segments} =
-        Enum.reduce(segments, {0, []}, fn {text, attrs}, {x, segments} ->
-          width = String.length(text)
-          segment = %{text: text, attrs: attrs, x: x, width: width}
-          {x + width, [segment | segments]}
-        end)
-
-      segments = Enum.reverse(segments)
-
-      %{y: y, segments: segments}
-    end
   end
 
   defp remove_blank_segments(lines) do

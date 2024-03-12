@@ -38,33 +38,33 @@ defmodule Asciinema.RecordingHTMLTest do
     test "taller terminal" do
       assert thumbnail_lines(
                [
-                 [["foobar", %{}]],
-                 [["bazquxquux", %{}]],
-                 [["alberto", %{}]],
-                 [["balsam", %{}]]
+                 [["foobar", %{}, 1]],
+                 [["bazquxquux", %{}, 1]],
+                 [["alberto", %{}, 1]],
+                 [["balsam", %{}, 1]]
                ],
                5,
                3
              ) == [
-               [{"bazqu", %{}}],
-               [{"alber", %{}}],
-               [{"balsa", %{}}]
+               [{"bazqu", %{}, 1}],
+               [{"alber", %{}, 1}],
+               [{"balsa", %{}, 1}]
              ]
     end
 
     test "taller terminal with trailing blank lines" do
       assert thumbnail_lines(
                [
-                 [["foobar", %{}]],
-                 [["bazquxquux", %{}]],
+                 [["foobar", %{}, 1]],
+                 [["bazquxquux", %{}, 1]],
                  [],
                  []
                ],
                5,
                3
              ) == [
-               [{"fooba", %{}}],
-               [{"bazqu", %{}}],
+               [{"fooba", %{}, 1}],
+               [{"bazqu", %{}, 1}],
                []
              ]
     end
@@ -72,15 +72,15 @@ defmodule Asciinema.RecordingHTMLTest do
     test "shorter terminal with trailing blank lines" do
       assert thumbnail_lines(
                [
-                 [["foobar", %{}]],
-                 [["bazquxquux", %{}]],
+                 [["foobar", %{}, 1]],
+                 [["bazquxquux", %{}, 1]],
                  []
                ],
                5,
                5
              ) == [
-               [{"fooba", %{}}],
-               [{"bazqu", %{}}],
+               [{"fooba", %{}, 1}],
+               [{"bazqu", %{}, 1}],
                [],
                [],
                []

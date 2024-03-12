@@ -60,73 +60,15 @@ defmodule AsciinemaWeb.RecordingHTML do
     end
   end
 
-  @csi_init "\x1b["
-  @sgr_reset "\x1b[0m"
-
   defp poster(nil), do: nil
 
   defp poster(snapshot) do
     text =
       snapshot
-      |> Enum.map(&line_to_text/1)
-      |> Enum.join("\r\n")
-      |> String.replace(~r/(\r\n\s+)+$/, "")
+      |> Snapshot.new()
+      |> Snapshot.seq()
 
-    "data:text/plain," <> text <> @csi_init <> "?25l"
-  end
-
-  defp line_to_text(segments) do
-    segments
-    |> Enum.map(&segment_to_text/1)
-    |> Enum.join("")
-    |> String.replace(~r/\e\[0m\s*$/, "\e[0m")
-  end
-
-  defp segment_to_text([text, attrs]) do
-    params =
-      attrs
-      |> Enum.reject(fn {_k, v} -> v == false end)
-      |> sgr_params()
-
-    case params do
-      [] ->
-        text
-
-      params ->
-        @csi_init <> Enum.join(params, ";") <> "m" <> text <> @sgr_reset
-    end
-  end
-
-  defp sgr_params([{k, v} | rest]) do
-    param =
-      case {k, v} do
-        {"fg", c} when is_number(c) and c < 8 -> "3#{c}"
-        {"fg", c} when is_number(c) -> "38;5;#{c}"
-        {"fg", "rgb(" <> _} -> "38;2;#{parse_rgb(v)}"
-        {"fg", [r, g, b]} -> "38;2;#{r};#{g};#{b}"
-        {"bg", c} when is_number(c) and c < 8 -> "4#{c}"
-        {"bg", c} when is_number(c) -> "48;5;#{c}"
-        {"bg", "rgb(" <> _} -> "48;2;#{parse_rgb(v)}"
-        {"bg", [r, g, b]} -> "48;2;#{r};#{g};#{b}"
-        {"bold", true} -> "1"
-        {"faint", true} -> "2"
-        {"italic", true} -> "3"
-        {"underline", true} -> "4"
-        {"blink", true} -> "5"
-        {"inverse", true} -> "7"
-        {"strikethrough", true} -> "9"
-      end
-
-    [param | sgr_params(rest)]
-  end
-
-  defp sgr_params([]), do: []
-
-  defp parse_rgb("rgb(" <> c) do
-    c
-    |> String.slice(0, String.length(c) - 1)
-    |> String.split(",")
-    |> Enum.join(";")
+    "data:text/plain," <> text
   end
 
   defp markers(nil), do: nil
@@ -139,105 +81,9 @@ defmodule AsciinemaWeb.RecordingHTML do
   end
 
   def thumbnail_lines(asciicast, width \\ 80, height \\ 15) do
-    lines = asciicast.snapshot || []
-
-    lines
-    |> drop_trailing_blank_lines()
-    |> fill_to_height(height)
-    |> take_last(height)
-    |> adjust_colors()
-    |> Snapshot.split_segments()
-    |> crop_to_width(width)
-    |> Snapshot.group_segments()
-  end
-
-  def drop_trailing_blank_lines(lines) do
-    lines
-    |> Enum.reverse()
-    |> Enum.drop_while(&blank_line?/1)
-    |> Enum.reverse()
-  end
-
-  def fill_to_height(lines, height) do
-    if height - Enum.count(lines) > 0 do
-      enums = [lines, Stream.cycle([[]])]
-
-      enums
-      |> Stream.concat()
-      |> Enum.take(height)
-    else
-      lines
-    end
-  end
-
-  def take_last(lines, height) do
-    lines
-    |> Enum.reverse()
-    |> Enum.take(height)
-    |> Enum.reverse()
-  end
-
-  def blank_line?(line) do
-    Enum.all?(line, &blank_segment?/1)
-  end
-
-  def blank_segment?(["", _attrs]), do: true
-
-  def blank_segment?([text, attrs]) do
-    String.trim(text) == "" && attrs == %{}
-  end
-
-  def adjust_colors(lines) do
-    Enum.map(lines, &adjust_line_colors/1)
-  end
-
-  def adjust_line_colors(segments) do
-    Enum.map(segments, &adjust_segment_colors/1)
-  end
-
-  def adjust_segment_colors([text, attrs]) do
-    {text, adjust_attrs_colors(attrs)}
-  end
-
-  def adjust_attrs_colors(attrs) do
-    attrs
-    |> adjust_fg()
-    |> adjust_bg()
-    |> invert_colors()
-  end
-
-  def adjust_fg(%{"bold" => true, "fg" => fg} = attrs)
-      when is_integer(fg) and fg < 8 do
-    Map.put(attrs, "fg", fg + 8)
-  end
-
-  def adjust_fg(attrs), do: attrs
-
-  def adjust_bg(%{"blink" => true, "bg" => bg} = attrs)
-      when is_integer(bg) and bg < 8 do
-    Map.put(attrs, "bg", bg + 8)
-  end
-
-  def adjust_bg(attrs), do: attrs
-
-  @default_fg_code 7
-  @default_bg_code 0
-
-  def invert_colors(%{"inverse" => true} = attrs) do
-    fg = attrs["bg"] || @default_bg_code
-    bg = attrs["fg"] || @default_fg_code
-
-    Map.merge(attrs, %{"fg" => fg, "bg" => bg})
-  end
-
-  def invert_colors(attrs), do: attrs
-
-  def crop_to_width(lines, width) do
-    Enum.map(lines, &crop_line_to_width(&1, width))
-  end
-
-  def crop_line_to_width(segments, width) do
-    Enum.take(segments, width)
+    asciicast.snapshot
+    |> Snapshot.new()
+    |> Snapshot.window(width, height)
   end
 
   def class(%{} = attrs) do

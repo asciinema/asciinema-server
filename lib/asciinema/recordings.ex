@@ -394,24 +394,10 @@ defmodule Asciinema.Recordings do
         Vt.dump_screen(vt)
       end)
 
-    lines =
-      case cursor do
-        {x, y} ->
-          lines
-          |> Snapshot.split_segments()
-          |> List.update_at(y, fn line ->
-            List.update_at(line, x, fn {text, attrs} ->
-              attrs = Map.put(attrs, "inverse", !(attrs["inverse"] || false))
-              {text, attrs}
-            end)
-          end)
-          |> Snapshot.group_segments()
-
-        _ ->
-          lines
-      end
-
-    Enum.map(lines, fn segments ->
+    {lines, cursor}
+    |> Snapshot.new()
+    |> Map.get(:lines)
+    |> Enum.map(fn segments ->
       Enum.map(segments, &Tuple.to_list/1)
     end)
   end

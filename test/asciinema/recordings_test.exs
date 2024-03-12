@@ -119,7 +119,11 @@ defmodule Asciinema.RecordingsTest do
     test "returns list of screen lines" do
       output = [{1.0, "a"}, {2.4, "b"}, {2.6, "c"}]
       snapshot = Recordings.generate_snapshot(output, 4, 2, 2.5)
-      assert snapshot == [[["ab", %{}], [" ", %{"inverse" => true}], [" ", %{}]], [["    ", %{}]]]
+
+      assert snapshot == [
+               [["ab", %{}, 1], [" ", %{"inverse" => true}, 1], [" ", %{}, 1]],
+               [["    ", %{}, 1]]
+             ]
     end
   end
 
