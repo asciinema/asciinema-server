@@ -63,11 +63,9 @@
           <% {0, false} -> %>
           <% _ -> %>
             <div :for={asciicasts <- Enum.chunk_every(@page, 2, 2)} class="row">
-              <%= for asciicast <- asciicasts do %>
-                <div class="col-md-6">
-                  <RecordingHTML.card asciicast={asciicast} />
-                </div>
-              <% end %>
+              <div :for={asciicast <- asciicasts} class="col-md-6">
+                <RecordingHTML.card asciicast={asciicast} />
+              </div>
             </div>
         <% end %>
       </div>
