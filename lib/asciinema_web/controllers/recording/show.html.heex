@@ -159,11 +159,9 @@
           More by <a href={author_profile_path(@asciicast)}><%= author_username(@asciicast) %></a>
         </h2>
 
-        <div class="asciicast-list">
-          <div :for={asciicast <- @author_asciicasts} class="row">
-            <div class="col-md-6">
-              <.card asciicast={asciicast} />
-            </div>
+        <div class="row asciicast-list">
+          <div :for={asciicast <- @author_asciicasts} class="col-md-6">
+            <.card asciicast={asciicast} />
           </div>
         </div>
 
