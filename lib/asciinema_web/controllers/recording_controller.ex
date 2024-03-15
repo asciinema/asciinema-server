@@ -108,7 +108,7 @@ defmodule AsciinemaWeb.RecordingController do
 
       conn
       |> put_status(410)
-      |> put_resp_header("content-type", "image/png")
+      |> put_resp_content_type("image/png")
       |> send_file(200, path)
     else
       render(conn, :show, asciicast: asciicast)
@@ -124,13 +124,13 @@ defmodule AsciinemaWeb.RecordingController do
 
       conn
       |> put_status(410)
-      |> put_resp_header("content-type", "image/png")
+      |> put_resp_content_type("image/png")
       |> send_file(200, path)
     else
       case PngGenerator.generate(asciicast) do
         {:ok, png_path} ->
           conn
-          |> put_resp_header("content-type", MIME.from_path(png_path))
+          |> put_resp_content_type(MIME.from_path(png_path))
           |> put_resp_header("cache-control", "public, max-age=#{@png_max_age}")
           |> send_file(200, png_path)
           |> halt
