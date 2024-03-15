@@ -82,7 +82,7 @@
         <h1>Example sessions recorded with asciinema</h1>
 
         <div class="asciicast-list">
-          <div :for={asciicasts <- Enum.chunk_every(@asciicasts ++ @asciicasts ++ @asciicasts ++ @asciicasts, 2, 2)} class="row">
+          <div :for={asciicasts <- Enum.chunk_every(@asciicasts, 2, 2)} class="row">
             <div :for={asciicast <- asciicasts} class="col-md-6">
               <RecordingHTML.card asciicast={asciicast} no_created_at={true} />
             </div>
