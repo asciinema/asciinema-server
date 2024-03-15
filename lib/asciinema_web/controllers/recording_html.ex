@@ -51,6 +51,16 @@ defmodule AsciinemaWeb.RecordingHTML do
     url(~p"/oembed?#{%{url: url(~p"/a/#{asciicast}"), format: format}}")
   end
 
+  def original_theme(asciicast) do
+    case Media.original_theme(asciicast) do
+      nil ->
+        []
+
+      theme ->
+        [%{fg: theme.fg, bg: theme.bg, palette: Enum.with_index(Tuple.to_list(theme.palette))}]
+    end
+  end
+
   def duration(asciicast) do
     if d = asciicast.duration do
       d = round(d)
