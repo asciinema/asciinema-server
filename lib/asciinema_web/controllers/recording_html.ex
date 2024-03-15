@@ -10,6 +10,7 @@ defmodule AsciinemaWeb.RecordingHTML do
   defdelegate author_username(asciicast), to: MediaView
   defdelegate author_avatar_url(asciicast), to: MediaView
   defdelegate author_profile_path(asciicast), to: MediaView
+  defdelegate theme(asciicast), to: Media
   defdelegate theme_name(asciicast), to: Media
   defdelegate theme_options, to: MediaView
   defdelegate font_family_options, to: MediaView
