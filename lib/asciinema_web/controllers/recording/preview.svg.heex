@@ -1,0 +1,73 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  width={(@cols + 2) * 8.433333333}
+  height={(@rows + 1) * 14 * 1.333333}
+  font-family={
+    {:safe,
+     @font_family ||
+       "Consolas, Menlo, 'Bitstream Vera Sans Mono', monospace, 'Powerline Symbols'"}
+  }
+  font-size="14px"
+>
+  <style>
+    .br { font-weight: bold }
+    .fa { fill-opacity: 0.5 }
+    .it { font-style: italic }
+    .un { text-decoration: underline }
+  </style>
+
+  <rect
+    width="100%"
+    height="100%"
+    style={"fill: " <> @theme.bg}
+    rx={assigns[:rx] || 4}
+    ry={assigns[:ry] || 4}
+  />
+
+  <svg
+    x={percent(1.0 * 100 / (@cols + 2))}
+    y={percent(0.5 * 100 / (@rows + 1))}
+    class="default-text-fill"
+  >
+    <g style="shape-rendering: optimizeSpeed">
+      <%= for %{y: y, segments: segments} <- background(@snapshot) do %>
+        <rect
+          :for={segment <- segments}
+          x={percent(100 * segment.x / (@cols + 2))}
+          y={percent(100 * y / (@rows + 1))}
+          width={percent(100 * segment.width / (@cols + 2))}
+          height="19.7"
+          style={bg_style(segment.attrs, @theme)}
+        />
+      <% end %>
+    </g>
+
+    <text style={"fill: " <> @theme.fg}>
+      <tspan
+        :for={%{y: y, segments: segments} <- text(@snapshot)}
+        y={percent(100 * y / (@rows + 1))}
+      >
+        <tspan
+          :for={{segment, i} <- Enum.with_index(segments)}
+          dy={
+            if i == 0 do
+              "1em"
+            end
+          }
+          x={percent(100 * segment.x / (@cols + 2))}
+          class={[text_class(segment.attrs)]}
+          style={text_style(segment.attrs, @theme)}
+        >
+          <%= html_escape(segment.text) %>
+        </tspan>
+      </tspan>
+    </text>
+  </svg>
+
+  <g :if={@logo} transform="translate(-50 -50)">
+    <svg x="50%" y="50%" width="100" height="100">
+      <.logo />
+    </svg>
+  </g>
+</svg>

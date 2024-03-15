@@ -1,5 +1,5 @@
 defmodule AsciinemaWeb.RecordingController do
-  use AsciinemaWeb, :controller
+  use AsciinemaWeb, :new_controller
   alias Asciinema.{Recordings, PngGenerator}
   alias Asciinema.Recordings.Asciicast
   alias AsciinemaWeb.PlayerOpts
@@ -52,13 +52,13 @@ defmodule AsciinemaWeb.RecordingController do
     if asciicast.archived_at do
       conn
       |> put_status(410)
-      |> render("deleted.html", ttl: Asciinema.unclaimed_recording_ttl())
+      |> render(:deleted, ttl: Asciinema.unclaimed_recording_ttl())
     else
       conn
       |> count_view(asciicast)
       |> render(
-        "show.html",
-        page_title: AsciinemaWeb.RecordingView.title(asciicast),
+        :show,
+        page_title: Recordings.title(asciicast),
         asciicast: asciicast,
         player_opts: player_opts(conn.params),
         actions: asciicast_actions(asciicast, conn.assigns.current_user),
@@ -108,10 +108,10 @@ defmodule AsciinemaWeb.RecordingController do
 
       conn
       |> put_status(410)
-      |> put_resp_header("content-type", "image/png")
+      |> put_resp_content_type("image/png")
       |> send_file(200, path)
     else
-      render(conn, "show.svg", asciicast: asciicast)
+      render(conn, :show, asciicast: asciicast)
     end
   end
 
@@ -124,13 +124,13 @@ defmodule AsciinemaWeb.RecordingController do
 
       conn
       |> put_status(410)
-      |> put_resp_header("content-type", "image/png")
+      |> put_resp_content_type("image/png")
       |> send_file(200, path)
     else
       case PngGenerator.generate(asciicast) do
         {:ok, png_path} ->
           conn
-          |> put_resp_header("content-type", MIME.from_path(png_path))
+          |> put_resp_content_type(MIME.from_path(png_path))
           |> put_resp_header("cache-control", "public, max-age=#{@png_max_age}")
           |> send_file(200, png_path)
           |> halt
@@ -168,7 +168,7 @@ defmodule AsciinemaWeb.RecordingController do
       {:ok, asciicast} ->
         conn
         |> put_flash(:info, "Asciicast updated.")
-        |> redirect(to: Routes.recording_path(conn, :show, asciicast))
+        |> redirect(to: ~p"/a/#{asciicast}")
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "edit.html", changeset: changeset)
@@ -187,7 +187,7 @@ defmodule AsciinemaWeb.RecordingController do
       {:error, _reason} ->
         conn
         |> put_flash(:error, "Oops, couldn't remove this asciicast.")
-        |> redirect(to: Routes.recording_path(conn, :show, asciicast))
+        |> redirect(to: ~p"/a/#{asciicast}")
     end
   end
 
@@ -240,7 +240,7 @@ defmodule AsciinemaWeb.RecordingController do
         case {asciicast.private, action_name(conn), get_format(conn), id == public_id} do
           {false, :show, "html", false} ->
             conn
-            |> redirect(to: Routes.recording_path(conn, :show, asciicast))
+            |> redirect(to: ~p"/a/#{asciicast}")
             |> halt()
 
           _ ->

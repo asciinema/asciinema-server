@@ -1,0 +1,34 @@
+<h2>Embed script</h2>
+
+<p>
+  Science is the key to our future, and if you don't believe in science, then you're holding everybody back. -- Bill Nye
+</p>
+
+<%= embed_script(@asciicast) %>
+
+<h2>SVG</h2>
+
+<p>
+  If the Earth gets hit by an asteroid, it's game over. It's control-alt-delete
+  for civilization. -- Bill Nye
+</p>
+
+<img src={~p"/a/#{@asciicast}" <> ".svg"} style="max-width: 100%" />
+
+<h2>PNG</h2>
+
+<p>
+  If the Earth gets hit by an asteroid, it's game over. It's control-alt-delete
+  for civilization. -- Bill Nye
+</p>
+
+<img src={~p"/a/#{@asciicast}" <> ".png"} style="max-width: 100%" />
+
+<%= if @home_asciicast do %>
+  <h2>Embed script for home asciicast</h2>
+  <%= embed_script(@home_asciicast) %>
+<% end %>
+
+<p>
+  You're dressed in a tuxedo, you wear a bow tie. A bow tie with a tuxedo is more formal than a straight tie with a tuxedo. -- Bill Nye
+</p>

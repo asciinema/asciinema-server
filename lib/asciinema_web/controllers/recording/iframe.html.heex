@@ -1,0 +1,29 @@
+<div id="player" style="width: 100%"></div>
+
+<p class="powered">
+  Recorded with <a href={url(~p"/")} target="_top">asciinema</a>
+</p>
+
+<script>
+  window.addEventListener('load', function() {
+    const opts = <%= safe_json(player_opts(@asciicast, @player_opts)) %>;
+
+    const player = window.createPlayer(
+      <%= safe_json(player_src(@asciicast)) %>,
+      document.getElementById('player'),
+      {
+        ...opts,
+        fit: 'width',
+        preload: true
+      }
+    );
+
+    if (window.parent !== window) {
+      player.el.addEventListener('resize', e => {
+        const w = e.detail.el.offsetWidth;
+        const h = Math.max(document.body.scrollHeight, document.body.offsetHeight);
+        window.parent.postMessage(['resize', { width: w, height: h }], '*');
+      });
+    }
+  });
+</script>

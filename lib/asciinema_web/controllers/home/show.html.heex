@@ -1,0 +1,113 @@
+<section class="cinema">
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-12 col-lg-5 headline">
+        <h1>Record and share your terminal sessions, the&nbsp;simple&nbsp;way.</h1>
+
+        <h2>
+          Forget screen recording apps and blurry video.
+          Experience a lightweight, text-based approach to terminal recording.
+        </h2>
+      </div>
+
+      <div class="col-sm-12 col-lg-7">
+        <div class="player-wrapper" id="player"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="even">
+  <div class="container">
+    <div class="row text-center about">
+      <div class="col-md-12">
+        <h3>
+          asciinema
+          <em>
+            <abbr title="from English ASCII + from Ancient Greek κίνημα (kínēma, “movement”)">
+              [as-kee-nuh-muh]
+            </abbr>
+          </em>
+          is a free and open source solution for recording terminal sessions and sharing them on the web. Read about <a href="https://docs.asciinema.org/how-it-works/">how it works</a>.
+        </h3>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="odd">
+  <div class="container">
+    <div class="row features">
+      <div class="col-md-4">
+        <h1>Easy recording</h1>
+
+        <p>
+          Record right where you work - in a terminal.
+          To start, run <code>asciinema rec demo.cast</code>, to end press <kbd>ctrl+d</kbd>
+          or type <code>exit</code>.
+        </p>
+
+        <p><a href="https://docs.asciinema.org/getting-started/">Get started »</a></p>
+      </div>
+
+      <div class="col-md-4">
+        <h1>Copy &amp; paste</h1>
+
+        <p>
+          When viewing a recording just pause the player and copy-paste the content you want. It's just text after all!
+        </p>
+      </div>
+
+      <div class="col-md-4">
+        <h1>Embedding</h1>
+
+        <p>
+          Easily embed asciinema player in your blog post, project documentation or in conference talk slides.
+        </p>
+
+        <p>
+          <a href="https://docs.asciinema.org/manual/server/embedding/">
+            See docs on embedding »
+          </a>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="even">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <h1>Example sessions recorded with asciinema</h1>
+
+        <div class="asciicast-list">
+          <div :for={asciicasts <- Enum.chunk_every(@asciicasts ++ @asciicasts ++ @asciicasts ++ @asciicasts, 2, 2)} class="row">
+            <div :for={asciicast <- asciicasts} class="col-md-6">
+              <RecordingHTML.card asciicast={asciicast} no_created_at={true} />
+            </div>
+          </div>
+        </div>
+
+        <p><.link class="btn btn-info" href={~p"/explore"}>Explore more</.link></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script :if={@asciicast}>
+  window.addEventListener('load', async function() {
+    const opts = <%= safe_json(player_opts(@asciicast, [])) %>;
+
+    const player = await window.createPlayer(
+      <%= safe_json(player_src(@asciicast)) %>,
+      document.getElementById('player'),
+      {
+        ...opts,
+        preload: true,
+        speed: 2,
+        logger: console
+      }
+    );
+  });
+</script>

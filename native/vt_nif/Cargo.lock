@@ -13,11 +13,13 @@ dependencies = [
 
 [[package]]
 name = "avt"
-version = "0.8.3"
-source = "git+https://github.com/asciinema/avt?tag=v0.8.3#28aed2b5a65a4ff07344fd6bc51b8ccb8542389c"
+version = "0.10.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "189deedff143407ea16df37f3f0075f3b2f12a0bec3f3a279844d849a9d5c87c"
 dependencies = [
  "rgb",
  "serde",
+ "unicode-width",
 ]
 
 [[package]]
@@ -157,6 +159,12 @@ name = "unicode-ident"
 version = "1.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "84a22b9f218b40614adcb3f4ff08b703773ad44fa9423e4e0d346d5db86e4ebc"
+
+[[package]]
+name = "unicode-width"
+version = "0.1.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e51733f11c9c4f72aa0c160008246859e340b00807569a0da0e7a1079b27ba85"
 
 [[package]]
 name = "unreachable"

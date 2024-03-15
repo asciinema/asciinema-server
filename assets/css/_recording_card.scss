@@ -1,6 +1,7 @@
 div.asciicast-card {
   margin-bottom: 30px;
   overflow: hidden;
+  border: 1px solid #eee;
 
   .thumbnail-link {
     display: block;
@@ -53,9 +54,9 @@ div.asciicast-card {
   }
 
   .thumbnail {
+    overflow: hidden;
     padding: 0;
     background-color: #000;
-    border: 0;
     border-radius: 3px;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
@@ -63,6 +64,10 @@ div.asciicast-card {
     .ap-terminal {
       .ap-line {
         height: 1.3333333333em;
+
+        span {
+          position: inherit;
+        }
       }
     }
   }
@@ -72,9 +77,8 @@ div.asciicast-card {
     padding: 10px;
     border-bottom-left-radius: 3px;
     border-bottom-right-radius: 3px;
-    border: 1px solid #eee;
     border-bottom: 1px solid #ddd;
-    border-top-width: 0;
+    border-top: 1px solid #eee;
 
     .author-avatar {
       float: left;

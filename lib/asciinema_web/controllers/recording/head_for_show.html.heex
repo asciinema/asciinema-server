@@ -1,0 +1,45 @@
+<!-- oEmbed -->
+<link
+  rel="alternate"
+  type="application/json+oembed"
+  href={asciicast_oembed_url(@asciicast, :json)}
+/>
+<link rel="alternate" type="text/xml+oembed" href={asciicast_oembed_url(@asciicast, :xml)} />
+<!-- Open Graph -->
+<meta property="og:title" content={title(@asciicast)} />
+<meta property="og:type" content="website" />
+<meta property="og:url" content={url(~p"/a/#{@asciicast}")} />
+<meta property="og:image" content={url(~p"/a/#{@asciicast}") <> ".png"} />
+<meta property="og:description" content={short_text_description(@asciicast)} />
+<meta property="og:site_name" content="asciinema.org" />
+<!-- Twitter card -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:site" content="@asciinema" />
+<meta name="twitter:title" content={title(@asciicast)} />
+<meta name="twitter:url" content={url(~p"/a/#{@asciicast}")} />
+<meta name="twitter:description" content={short_text_description(@asciicast)} />
+<meta name="twitter:image" content={url(~p"/a/#{@asciicast}") <> ".png"} />
+<!-- application/x-asciicast -->
+<link
+  rel="alternate"
+  type={alternate_link_type(@asciicast)}
+  href={asciicast_file_url(@asciicast)}
+/>
+
+<%= if @asciicast.private do %>
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="referrer" content="origin" />
+<% end %>
+
+<style :for={theme <- original_theme(@asciicast)}>
+  /* Keep the poster theme consistent with the playback theme */
+
+  div.ap-player {
+    --term-color-foreground: <%= theme.fg %>;
+    --term-color-background: <%= theme.bg %>;
+
+    <%= for {c, i} <- theme.palette do %>
+    --term-color-<%= i %>: <%= c %>;
+    <% end %>
+  }
+</style>

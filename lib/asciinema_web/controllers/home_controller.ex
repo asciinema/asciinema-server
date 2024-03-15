@@ -1,5 +1,5 @@
 defmodule AsciinemaWeb.HomeController do
-  use AsciinemaWeb, :controller
+  use AsciinemaWeb, :new_controller
   alias Asciinema.Recordings
 
   plug :clear_main_class
@@ -10,7 +10,7 @@ defmodule AsciinemaWeb.HomeController do
 
     render(
       conn,
-      "show.html",
+      :show,
       asciicast: asciicast,
       asciicasts: asciicasts
     )

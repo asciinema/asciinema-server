@@ -1,7 +1,7 @@
 defmodule AsciinemaWeb.MediaView do
   use AsciinemaWeb, :view
   alias Asciinema.{Fonts, Themes}
-  alias AsciinemaWeb.UserView
+  alias AsciinemaWeb.UserHTML
 
   @container_vertical_padding 2 * 4
   @approx_char_width 7
@@ -13,11 +13,11 @@ defmodule AsciinemaWeb.MediaView do
   end
 
   def author_username(%{user: user}) do
-    UserView.username(user)
+    UserHTML.username(user)
   end
 
   def author_avatar_url(%{user: user}) do
-    UserView.avatar_url(user)
+    UserHTML.avatar_url(user)
   end
 
   def author_profile_path(%{user: user}) do

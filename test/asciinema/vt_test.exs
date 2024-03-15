@@ -14,7 +14,8 @@ defmodule Asciinema.VtTest do
           Vt.dump_screen(vt)
         end)
 
-      assert {:ok, {[[{"foobar  ", %{}}], [{"bazqux  ", %{}}], [{"        ", %{}}]], {6, 1}}} =
+      assert {:ok,
+              {[[{"foobar  ", %{}, 1}], [{"bazqux  ", %{}, 1}], [{"        ", %{}, 1}]], {6, 1}}} =
                result
     end
 

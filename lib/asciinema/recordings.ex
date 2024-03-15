@@ -1,8 +1,9 @@
 defmodule Asciinema.Recordings do
   require Logger
+  import Ecto.Changeset
   import Ecto.Query, warn: false
   alias Asciinema.{FileStore, Fonts, Repo, Themes, Vt}
-  alias Asciinema.Recordings.{Asciicast, Output, Paths, SnapshotUpdater, Text}
+  alias Asciinema.Recordings.{Asciicast, Markers, Output, Paths, Snapshot, SnapshotUpdater, Text}
   alias Ecto.Changeset
 
   def fetch_asciicast(id) do
@@ -150,18 +151,22 @@ defmodule Asciinema.Recordings do
     :ok
   end
 
-  def create_asciicast(user, params, overrides \\ %{})
+  def create_asciicast(user, upload, overrides \\ %{})
 
   def create_asciicast(user, %Plug.Upload{filename: filename} = upload, overrides) do
-    asciicast = %Asciicast{
-      user_id: user.id,
-      filename: filename,
-      private: user.asciicasts_private_by_default
-    }
+    changeset =
+      change(
+        %Asciicast{
+          user_id: user.id,
+          filename: filename,
+          private: user.asciicasts_private_by_default,
+          secret_token: Crypto.random_token(25)
+        },
+        overrides
+      )
 
-    with {:ok, attrs} <- extract_metadata(upload),
-         attrs = Map.merge(attrs, overrides),
-         changeset = Asciicast.create_changeset(asciicast, attrs),
+    with {:ok, metadata} <- extract_metadata(upload),
+         changeset = apply_metadata(changeset, metadata),
          {:ok, %Asciicast{} = asciicast} <- do_create_asciicast(changeset, upload) do
       if asciicast.snapshot == nil do
         :ok = SnapshotUpdater.update_snapshot(asciicast)
@@ -256,6 +261,27 @@ defmodule Asciinema.Recordings do
     |> Enum.reduce(fn {t, _}, _prev_t -> t end)
   end
 
+  defp apply_metadata(changeset, metadata) do
+    changeset
+    |> put_change(:version, metadata.version)
+    |> cast(metadata, [
+      :duration,
+      :cols,
+      :rows,
+      :terminal_type,
+      :command,
+      :shell,
+      :uname,
+      :recorded_at,
+      :theme_fg,
+      :theme_bg,
+      :theme_palette,
+      :idle_time_limit,
+      :title
+    ])
+    |> validate_required([:duration, :cols, :rows])
+  end
+
   defp decode_json(json) do
     case Jason.decode(json) do
       {:ok, thing} -> {:ok, thing}
@@ -292,17 +318,37 @@ defmodule Asciinema.Recordings do
   end
 
   def change_asciicast(asciicast, attrs \\ %{}) do
-    Asciicast.update_changeset(asciicast, attrs)
+    asciicast
+    |> cast(attrs, [
+      :private,
+      :title,
+      :description,
+      :cols_override,
+      :rows_override,
+      :theme_name,
+      :idle_time_limit,
+      :speed,
+      :snapshot_at,
+      :terminal_line_height,
+      :terminal_font_family,
+      :markers
+    ])
+    |> validate_required([:private])
+    |> validate_number(:cols_override, greater_than: 0, less_than: 1024)
+    |> validate_number(:rows_override, greater_than: 0, less_than: 512)
+    |> validate_number(:idle_time_limit, greater_than_or_equal_to: 0.5)
+    |> validate_inclusion(:theme_name, Themes.terminal_themes())
+    |> validate_number(:terminal_line_height,
+      greater_than_or_equal_to: 1.0,
+      less_than_or_equal_to: 2.0
+    )
+    |> validate_inclusion(:terminal_font_family, Fonts.terminal_font_families())
+    |> validate_number(:snapshot_at, greater_than: 0)
+    |> validate_change(:markers, &Markers.validate/2)
   end
 
   def update_asciicast(asciicast, attrs \\ %{}) do
-    changeset =
-      Asciicast.update_changeset(
-        asciicast,
-        attrs,
-        Fonts.terminal_font_families(),
-        Themes.terminal_themes()
-      )
+    changeset = change_asciicast(asciicast, attrs)
 
     with {:ok, asciicast} <- Repo.update(changeset) do
       if stale_snapshot?(changeset) do
@@ -317,13 +363,6 @@ defmodule Asciinema.Recordings do
     changed?(changeset, :snapshot_at) ||
       changed?(changeset, :cols_override) ||
       changed?(changeset, :rows_override)
-  end
-
-  defp changed?(changeset, field) do
-    case Changeset.get_change(changeset, field, :none) do
-      :none -> false
-      _ -> true
-    end
   end
 
   def set_featured(asciicast, featured \\ true) do
@@ -381,26 +420,25 @@ defmodule Asciinema.Recordings do
         Vt.dump_screen(vt)
       end)
 
-    lines =
-      case cursor do
-        {x, y} ->
-          lines
-          |> AsciinemaWeb.RecordingView.split_chunks()
-          |> List.update_at(y, fn line ->
-            List.update_at(line, x, fn {text, attrs} ->
-              attrs = Map.put(attrs, "inverse", !(attrs["inverse"] || false))
-              {text, attrs}
-            end)
-          end)
-          |> AsciinemaWeb.RecordingView.group_chunks()
-
-        _ ->
-          lines
-      end
-
-    Enum.map(lines, fn chunks ->
-      Enum.map(chunks, &Tuple.to_list/1)
+    {lines, cursor}
+    |> Snapshot.new()
+    |> Map.get(:lines)
+    |> Enum.map(fn segments ->
+      Enum.map(segments, &Tuple.to_list/1)
     end)
+  end
+
+  def title(asciicast) do
+    cond do
+      asciicast.title not in [nil, ""] ->
+        asciicast.title
+
+      asciicast.command not in [nil, ""] && asciicast.command != asciicast.shell ->
+        asciicast.command
+
+      true ->
+        "untitled"
+    end
   end
 
   defdelegate text(asciicast), to: Text

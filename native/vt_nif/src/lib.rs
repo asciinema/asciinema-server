@@ -161,7 +161,7 @@ fn segment_to_term(segment: avt::Segment, env: Env) -> Term {
 
     let attrs = Term::map_from_pairs(env, &pairs).unwrap();
 
-    (txt, attrs).encode(env)
+    (txt, attrs, segment.char_width()).encode(env)
 }
 
 fn convert_err<T, E>(result: Result<T, E>, error: &'static str) -> Result<T, Error> {

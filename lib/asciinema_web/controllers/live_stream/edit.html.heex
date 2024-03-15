@@ -8,7 +8,7 @@
           <.label for={f[:title]} class="col-sm-4 col-md-3 col-lg-3 col-form-label">Title</.label>
           <div class="col-sm-8 col-md-9 col-lg-9">
             <.input field={f[:title]} class="form-control" autofocus={true} />
-            <.error form={f} field={:title} />
+            <.error field={f[:title]} />
           </div>
         </div>
 
@@ -18,7 +18,7 @@
           </.label>
           <div class="col-sm-8 col-md-9 col-lg-9">
             <.input type="textarea" field={f[:description]} class="form-control" rows={10} />
-            <.error form={f} field={:description} />
+            <.error field={f[:description]} />
             <small class="form-text text-muted">Parsed as Markdown.</small>
           </div>
         </div>
@@ -37,7 +37,7 @@
               step="any"
               placeholder="1.0"
             />
-            <.error form={f} field={:buffer_time} />
+            <.error field={f[:buffer_time]} />
             <small class="form-text text-muted">
               Player uses buffer duration (in
               seconds) to avoid animation lag from network jitter. Set to 0 to
@@ -75,7 +75,7 @@
               step="any"
               placeholder="1.33333"
             />
-            <.error form={f} field={:terminal_line_height} />
+            <.error field={f[:terminal_line_height]} />
             <small class="form-text text-muted">
               Relative to font size. Lowering it to ~1.1 helps with alignment of block characters like ▀ ▄ █
             </small>
