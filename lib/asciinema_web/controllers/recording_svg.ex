@@ -75,6 +75,8 @@ defmodule AsciinemaWeb.RecordingSVG do
       rows={15}
       theme={Media.theme(@asciicast)}
       font_family={assigns[:font_family]}
+      rx={0}
+      ry={0}
       logo={false}
     />
     """
