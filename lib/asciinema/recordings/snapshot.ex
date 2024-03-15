@@ -22,7 +22,7 @@ defmodule Asciinema.Recordings.Snapshot do
 
   defp coerce_segments(segments), do: Enum.map(segments, &coerce_segment/1)
 
-  defp coerce_segment([t, a]), do: {t, a, 1}
+  defp coerce_segment([t, a]), do: {t, normalize_colors(a), 1}
   defp coerce_segment([t, a, w]), do: {t, normalize_colors(a), w}
   defp coerce_segment({t, a, w}), do: {t, a, w}
 
