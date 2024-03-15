@@ -3,7 +3,7 @@ defmodule AsciinemaWeb.RecordingHTML do
   import Scrivener.HTML
   alias Asciinema.{Accounts, Fonts, Media, Recordings, Themes}
   alias Asciinema.Recordings.{Markers, Snapshot}
-  alias AsciinemaWeb.{MediaView, UserHTML}
+  alias AsciinemaWeb.{MediaView, RecordingSVG, UserHTML}
 
   embed_templates "recording/*.html"
 
@@ -79,47 +79,6 @@ defmodule AsciinemaWeb.RecordingHTML do
       {:error, _} -> nil
     end
   end
-
-  def thumbnail_lines(asciicast, width \\ 80, height \\ 15) do
-    asciicast.snapshot
-    |> Snapshot.new()
-    |> Snapshot.window(width, height)
-  end
-
-  def class(%{} = attrs) do
-    attrs
-    |> Enum.map(&class/1)
-    |> Enum.join(" ")
-  end
-
-  def class({"fg", fg}) when is_integer(fg), do: "fg-#{fg}"
-  def class({"bg", bg}) when is_integer(bg), do: "bg-#{bg}"
-  def class({"bold", true}), do: "bright"
-  def class({"faint", true}), do: "faint"
-  def class({"underline", true}), do: "underline"
-  def class(_), do: nil
-
-  def style(attrs) do
-    styles =
-      []
-      |> add_style("color", attrs["fg"])
-      |> add_style("background-color", attrs["bg"])
-
-    case styles do
-      [] -> nil
-      _ -> Enum.join(styles, ";")
-    end
-  end
-
-  defp add_style(styles, attr, "rgb(" <> _ = rgb) do
-    ["#{attr}:#{rgb}" | styles]
-  end
-
-  defp add_style(styles, attr, [r, g, b]) do
-    ["#{attr}:rgb(#{r},#{g},#{b})" | styles]
-  end
-
-  defp add_style(styles, _, _), do: styles
 
   def cols(asciicast), do: asciicast.cols_override || asciicast.cols
 

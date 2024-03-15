@@ -64,7 +64,7 @@ defmodule Asciinema.PngGenerator.Rsvg do
         ry: 0
       })
 
-    File.write!(svg_path, svg)
+    File.write!(svg_path, Phoenix.HTML.Safe.to_iodata(svg))
 
     args = [svg_path, png_path, "#{@zoom}"]
     opts = [stderr_to_stdout: true]

@@ -37,6 +37,7 @@ config :logger,
 config :phoenix, :json_library, Jason
 
 config :phoenix, :template_engines, md: PhoenixMarkdown.Engine
+config :phoenix_template, :format_encoders, svg: Phoenix.HTML.Engine
 
 config :sentry,
   dsn: "https://public:secret@sentry.io/1",

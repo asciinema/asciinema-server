@@ -1,16 +1,16 @@
-defmodule Asciinema.RecordingHTMLTest do
-  use AsciinemaWeb.ConnCase, async: true
-  alias AsciinemaWeb.RecordingHTML
-  alias Asciinema.Recordings.Asciicast
+defmodule Asciinema.Recordings.SnapshotTest do
+  use ExUnit.Case, async: true
+  alias Asciinema.Recordings.Snapshot
 
-  def thumbnail_lines(snapshot, w, h) do
-    asciicast = %Asciicast{snapshot: snapshot}
-    RecordingHTML.thumbnail_lines(asciicast, w, h)
+  def window(snapshot, cols, rows) do
+    snapshot
+    |> Snapshot.new()
+    |> Snapshot.window(cols, rows)
   end
 
-  describe "thumbnail_lines/3" do
+  describe "window/3" do
     test "blank taller terminal" do
-      assert thumbnail_lines(
+      assert window(
                [
                  [],
                  []
@@ -23,7 +23,7 @@ defmodule Asciinema.RecordingHTMLTest do
     end
 
     test "blank shorter terminal" do
-      assert thumbnail_lines(
+      assert window(
                [
                  []
                ],
@@ -36,7 +36,7 @@ defmodule Asciinema.RecordingHTMLTest do
     end
 
     test "taller terminal" do
-      assert thumbnail_lines(
+      assert window(
                [
                  [["foobar", %{}, 1]],
                  [["bazquxquux", %{}, 1]],
@@ -53,7 +53,7 @@ defmodule Asciinema.RecordingHTMLTest do
     end
 
     test "taller terminal with trailing blank lines" do
-      assert thumbnail_lines(
+      assert window(
                [
                  [["foobar", %{}, 1]],
                  [["bazquxquux", %{}, 1]],
@@ -70,7 +70,7 @@ defmodule Asciinema.RecordingHTMLTest do
     end
 
     test "shorter terminal with trailing blank lines" do
-      assert thumbnail_lines(
+      assert window(
                [
                  [["foobar", %{}, 1]],
                  [["bazquxquux", %{}, 1]],
