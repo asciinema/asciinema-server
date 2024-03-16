@@ -223,16 +223,66 @@ defmodule Asciinema.Recordings.Snapshot do
     |> regroup(mode)
   end
 
-  def coords(%__MODULE__{lines: lines}) do
-    for {segments, y} <- Enum.with_index(lines) do
-      {_, segments} =
-        Enum.reduce(segments, {0, []}, fn {text, attrs, char_width}, {x, segments} ->
-          width = String.length(text) * char_width
-          segment = %{text: text, attrs: attrs, x: x, width: width}
-          {x + width, [segment | segments]}
-        end)
+  def text_coords(snapshot) do
+    snapshot
+    |> regroup(:segments)
+    |> Map.get(:lines)
+    |> Enum.with_index()
+    |> Enum.map(&text_line_coords/1)
+    |> Enum.filter(&(length(&1.segments) > 0))
+  end
 
-      %{y: y, segments: Enum.reverse(segments)}
-    end
+  defp text_line_coords({segments, y}) do
+    {_, segments} =
+      segments
+      |> Enum.flat_map(&split_on_whitespace/1)
+      |> Enum.reduce({0, []}, fn {text, attrs, char_width}, {x, segments} ->
+        width = String.length(text) * char_width
+
+        segments =
+          case text do
+            " " <> _ -> segments
+            _ -> [%{text: text, attrs: attrs, x: x, width: width} | segments]
+          end
+
+        {x + width, segments}
+      end)
+
+    %{y: y, segments: Enum.reverse(segments)}
+  end
+
+  defp split_on_whitespace({text, attrs, 1}) do
+    ~r/\s+/
+    |> Regex.split(text, include_captures: true)
+    |> Enum.filter(&(String.length(&1) > 0))
+    |> Enum.map(&{&1, attrs, 1})
+  end
+
+  defp split_on_whitespace(segment), do: [segment]
+
+  def bg_coords(snapshot) do
+    snapshot
+    |> regroup(:segments)
+    |> Map.get(:lines)
+    |> Enum.with_index()
+    |> Enum.map(&bg_line_coords/1)
+    |> Enum.filter(&(length(&1.segments) > 0))
+  end
+
+  defp bg_line_coords({segments, y}) do
+    {_, segments} =
+      Enum.reduce(segments, {0, []}, fn {text, attrs, char_width}, {x, segments} ->
+        width = String.length(text) * char_width
+
+        segments =
+          case attrs["bg"] do
+            nil -> segments
+            _ -> [%{attrs: attrs, x: x, width: width} | segments]
+          end
+
+        {x + width, segments}
+      end)
+
+    %{y: y, segments: Enum.reverse(segments)}
   end
 end

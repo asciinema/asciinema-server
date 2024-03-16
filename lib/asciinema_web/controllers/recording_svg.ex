@@ -8,12 +8,20 @@ defmodule AsciinemaWeb.RecordingSVG do
   embed_templates "recording/*.svg"
   embed_templates "recording/themes/*.svg", suffix: "_theme"
 
-  def text_style(%{"fg" => fg}, theme) when is_integer(fg), do: "fill: #{Themes.color(theme, fg)}"
-  def text_style(%{"fg" => [_r, _g, _b] = c}, _theme), do: "fill: #{hex(c)}"
-  def text_style(%{"fg" => "rgb(" <> _ = c}, _theme), do: "fill: #{c}"
-  def text_style(_, _), do: nil
+  defdelegate text_coords(snapshot), to: Snapshot
+  defdelegate bg_coords(snapshot), to: Snapshot
 
-  def text_class(%{} = attrs) do
+  def text_extra_attrs(attrs, theme),
+    do: %{style: text_style(attrs, theme), class: text_class(attrs)}
+
+  defp text_style(%{"fg" => fg}, theme) when is_integer(fg),
+    do: "fill: #{Themes.color(theme, fg)}"
+
+  defp text_style(%{"fg" => [_r, _g, _b] = c}, _theme), do: "fill: #{hex(c)}"
+  defp text_style(%{"fg" => "rgb(" <> _ = c}, _theme), do: "fill: #{c}"
+  defp text_style(_, _), do: nil
+
+  defp text_class(%{} = attrs) do
     classes =
       attrs
       |> Enum.map(&text_class/1)
@@ -26,11 +34,11 @@ defmodule AsciinemaWeb.RecordingSVG do
     end
   end
 
-  def text_class({"bold", true}), do: "br"
-  def text_class({"faint", true}), do: "fa"
-  def text_class({"italic", true}), do: "it"
-  def text_class({"underline", true}), do: "un"
-  def text_class(_), do: nil
+  defp text_class({"bold", true}), do: "br"
+  defp text_class({"faint", true}), do: "fa"
+  defp text_class({"italic", true}), do: "it"
+  defp text_class({"underline", true}), do: "un"
+  defp text_class(_), do: nil
 
   def bg_style(%{"bg" => bg}, theme) when is_integer(bg), do: "fill: #{Themes.color(theme, bg)}"
   def bg_style(%{"bg" => [_r, _g, _b] = c}, _theme), do: "fill: #{hex(c)}"
@@ -91,35 +99,5 @@ defmodule AsciinemaWeb.RecordingSVG do
     |> Snapshot.new()
     |> Snapshot.window(cols, rows)
     |> Snapshot.new()
-  end
-
-  defp text(snapshot) do
-    snapshot
-    |> Snapshot.regroup(:cells)
-    |> Snapshot.coords()
-    |> remove_blank_text()
-  end
-
-  defp background(snapshot) do
-    snapshot
-    |> Snapshot.regroup(:segments)
-    |> Snapshot.coords()
-    |> remove_default_background()
-  end
-
-  defp remove_blank_text(lines) do
-    for line <- lines do
-      %{line | segments: Enum.reject(line.segments, &(String.trim(&1.text) == ""))}
-    end
-  end
-
-  defp remove_default_background(lines) when is_list(lines) do
-    lines
-    |> Enum.map(&remove_default_background/1)
-    |> Enum.filter(&(length(&1.segments) > 0))
-  end
-
-  defp remove_default_background(%{segments: segments} = line) do
-    %{line | segments: Enum.filter(segments, & &1.attrs["bg"])}
   end
 end
