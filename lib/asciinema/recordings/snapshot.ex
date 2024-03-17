@@ -5,19 +5,24 @@ defmodule Asciinema.Recordings.Snapshot do
   def new(lines, mode \\ :segments)
 
   def new({lines, {col, row} = _cursor}, mode) do
-    lines
-    |> new(mode)
+    lines = Enum.map(lines, &coerce_segments/1)
+
+    %__MODULE__{lines: lines, mode: mode}
+    |> regroup(:cells)
     |> invert_cell(col, row)
+    |> regroup(mode)
   end
 
   def new({lines, nil}, mode) do
-    new(lines, mode)
+    lines = Enum.map(lines, &coerce_segments/1)
+
+    %__MODULE__{lines: lines, mode: mode}
+    |> regroup(:cells)
+    |> regroup(mode)
   end
 
   def new(lines, mode) when is_list(lines) do
-    lines = Enum.map(lines || [], &coerce_segments/1)
-
-    %__MODULE__{lines: lines, mode: mode}
+    new({lines, nil}, mode)
   end
 
   defp coerce_segments(segments), do: Enum.map(segments, &coerce_segment/1)
@@ -90,17 +95,31 @@ defmodule Asciinema.Recordings.Snapshot do
 
   defp group_line_segments([first_segment | segments]) do
     {segments, last_segment} =
-      Enum.reduce(segments, {[], first_segment}, fn {text, attrs, char_width},
+      Enum.reduce(segments, {[], first_segment}, fn {char, attrs, char_width},
                                                     {segments,
-                                                     {prev_text, prev_attrs, prev_char_width}} ->
-        if attrs == prev_attrs && char_width == prev_char_width do
-          {segments, {prev_text <> text, attrs, char_width}}
+                                                     {prev_char, prev_attrs, prev_char_width}} ->
+        if attrs == prev_attrs && char_width == prev_char_width && char_width == 1 &&
+             !special_char(char) do
+          {segments, {prev_char <> char, attrs, char_width}}
         else
-          {[{prev_text, prev_attrs, prev_char_width} | segments], {text, attrs, char_width}}
+          {[{prev_char, prev_attrs, prev_char_width} | segments], {char, attrs, char_width}}
         end
       end)
 
     Enum.reverse([last_segment | segments])
+  end
+
+  @box_drawing_range Range.new(0x2500, 0x257F)
+  @block_elements_range Range.new(0x2580, 0x259F)
+  @braille_patterns_range Range.new(0x2800, 0x28FF)
+  @powerline_triangles_range Range.new(0xE0B0, 0xE0B3)
+
+  defp special_char(char) do
+    cp = char |> String.to_charlist() |> Enum.at(0)
+
+    Enum.member?(@box_drawing_range, cp) || Enum.member?(@block_elements_range, cp) ||
+      Enum.member?(@braille_patterns_range, cp) ||
+      Enum.member?(@powerline_triangles_range, cp)
   end
 
   @csi_init "\x1b["
@@ -172,7 +191,7 @@ defmodule Asciinema.Recordings.Snapshot do
     |> Enum.join(";")
   end
 
-  def window(snapshot, width, height, mode \\ :segments) do
+  def crop(snapshot, width, height, mode \\ :segments) do
     snapshot
     |> regroup(:cells)
     |> Map.get(:lines)
@@ -187,6 +206,7 @@ defmodule Asciinema.Recordings.Snapshot do
     |> Enum.reverse()
     |> Enum.take(height)
     |> Enum.reverse()
+    |> new(mode)
   end
 
   defp blank_line?(line) do

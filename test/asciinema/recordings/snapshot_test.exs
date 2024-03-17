@@ -2,15 +2,16 @@ defmodule Asciinema.Recordings.SnapshotTest do
   use ExUnit.Case, async: true
   alias Asciinema.Recordings.Snapshot
 
-  def window(snapshot, cols, rows) do
+  def crop(snapshot, cols, rows) do
     snapshot
     |> Snapshot.new()
-    |> Snapshot.window(cols, rows)
+    |> Snapshot.crop(cols, rows)
+    |> Map.get(:lines)
   end
 
-  describe "window/3" do
+  describe "crop/3" do
     test "blank taller terminal" do
-      assert window(
+      assert crop(
                [
                  [],
                  []
@@ -23,7 +24,7 @@ defmodule Asciinema.Recordings.SnapshotTest do
     end
 
     test "blank shorter terminal" do
-      assert window(
+      assert crop(
                [
                  []
                ],
@@ -36,7 +37,7 @@ defmodule Asciinema.Recordings.SnapshotTest do
     end
 
     test "taller terminal" do
-      assert window(
+      assert crop(
                [
                  [["foobar", %{}, 1]],
                  [["bazquxquux", %{}, 1]],
@@ -53,7 +54,7 @@ defmodule Asciinema.Recordings.SnapshotTest do
     end
 
     test "taller terminal with trailing blank lines" do
-      assert window(
+      assert crop(
                [
                  [["foobar", %{}, 1]],
                  [["bazquxquux", %{}, 1]],
@@ -70,7 +71,7 @@ defmodule Asciinema.Recordings.SnapshotTest do
     end
 
     test "shorter terminal with trailing blank lines" do
-      assert window(
+      assert crop(
                [
                  [["foobar", %{}, 1]],
                  [["bazquxquux", %{}, 1]],

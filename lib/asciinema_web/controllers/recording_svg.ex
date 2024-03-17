@@ -97,7 +97,6 @@ defmodule AsciinemaWeb.RecordingSVG do
   defp snapshot(asciicast, {cols, rows}) do
     (asciicast.snapshot || [])
     |> Snapshot.new()
-    |> Snapshot.window(cols, rows)
-    |> Snapshot.new()
+    |> Snapshot.crop(cols, rows)
   end
 end
