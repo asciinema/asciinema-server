@@ -77,6 +77,7 @@ defmodule AsciinemaWeb.RecordingSVG do
 
   def thumbnail(assigns) do
     ~H"""
+    <%= raw("<?xml version=\"1.0\"?>") %>
     <.preview
       snapshot={snapshot(@asciicast, {80, 15})}
       cols={80}
