@@ -3,7 +3,7 @@ defmodule AsciinemaWeb.RecordingHTML do
   import Scrivener.HTML
   alias Asciinema.{Accounts, Fonts, Media, Recordings, Themes}
   alias Asciinema.Recordings.{Markers, Snapshot}
-  alias AsciinemaWeb.{MediaView, RecordingSVG, UserHTML}
+  alias AsciinemaWeb.{MediaView, UserHTML}
 
   embed_templates "recording/*.html"
 
