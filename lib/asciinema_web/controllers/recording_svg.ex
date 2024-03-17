@@ -91,11 +91,11 @@ defmodule AsciinemaWeb.RecordingSVG do
   end
 
   defp snapshot(asciicast, nil) do
-    Snapshot.new(asciicast.snapshot)
+    Snapshot.new(asciicast.snapshot || [])
   end
 
   defp snapshot(asciicast, {cols, rows}) do
-    asciicast.snapshot
+    (asciicast.snapshot || [])
     |> Snapshot.new()
     |> Snapshot.window(cols, rows)
     |> Snapshot.new()
