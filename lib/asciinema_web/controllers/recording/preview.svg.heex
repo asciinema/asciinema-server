@@ -31,7 +31,7 @@
     class="default-text-fill"
   >
     <g style="shape-rendering: optimizeSpeed">
-      <%= for %{y: y, segments: segments} <- background(@snapshot) do %>
+      <%= for %{y: y, segments: segments} <- bg_coords(@snapshot) do %>
         <rect
           :for={segment <- segments}
           x={percent(100 * segment.x / (@cols + 2))}
@@ -45,7 +45,7 @@
 
     <text style={"fill: " <> @theme.fg}>
       <tspan
-        :for={%{y: y, segments: segments} <- text(@snapshot)}
+        :for={%{y: y, segments: segments} <- text_coords(@snapshot)}
         y={percent(100 * y / (@rows + 1))}
       >
         <tspan
@@ -56,8 +56,7 @@
             end
           }
           x={percent(100 * segment.x / (@cols + 2))}
-          class={[text_class(segment.attrs)]}
-          style={text_style(segment.attrs, @theme)}
+          {text_extra_attrs(segment.attrs, @theme)}
         >
           <%= html_escape(segment.text) %>
         </tspan>

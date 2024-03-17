@@ -1,6 +1,11 @@
 use avt::Vt;
 use rustler::{Atom, Binary, Encoder, Env, Error, NifResult, ResourceArc, Term};
-use std::sync::RwLock;
+use std::{ops::RangeInclusive, sync::RwLock};
+
+const BOX_DRAWING_RANGE: RangeInclusive<char> = '\u{2500}'..='\u{257f}';
+const BLOCK_ELEMENTS_RANGE: RangeInclusive<char> = '\u{2580}'..='\u{259f}';
+const BRAILLE_PATTERNS_RANGE: RangeInclusive<char> = '\u{2800}'..='\u{28ff}';
+const POWERLINE_TRIANGLES_RANGE: RangeInclusive<char> = '\u{e0b0}'..='\u{e0b3}';
 
 mod atoms {
     rustler::atoms! {
@@ -74,9 +79,15 @@ fn dump_screen(env: Env, resource: ResourceArc<VtResource>) -> NifResult<(Atom, 
         .view()
         .iter()
         .map(|line| {
-            line.segments()
-                .map(|segment| segment_to_term(segment, env))
-                .collect::<Vec<_>>()
+            line.group(|c, w| {
+                w > 1
+                    || BOX_DRAWING_RANGE.contains(c)
+                    || BRAILLE_PATTERNS_RANGE.contains(c)
+                    || BLOCK_ELEMENTS_RANGE.contains(c)
+                    || POWERLINE_TRIANGLES_RANGE.contains(c)
+            })
+            .map(|segment| segment_to_term(segment, env))
+            .collect::<Vec<_>>()
         })
         .collect::<Vec<_>>();
 
