@@ -58,7 +58,7 @@ defmodule Asciinema.Recordings.SnapshotTest do
                [
                  [["foobar", %{}, 1]],
                  [["bazquxquux", %{}, 1]],
-                 [],
+                 [[" ", %{fg: 5}, 1]],
                  []
                ],
                5,

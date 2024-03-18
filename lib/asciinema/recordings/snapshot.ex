@@ -214,7 +214,7 @@ defmodule Asciinema.Recordings.Snapshot do
   end
 
   defp blank_segment?({text, attrs, _char_width}) do
-    String.trim(text) == "" && attrs == %{}
+    String.trim(text) == "" && attrs["bg"] == nil
   end
 
   defp fill_to_height(lines, height) do
