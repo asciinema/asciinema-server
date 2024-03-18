@@ -1,3 +1,6 @@
-<div class="thumbnail" style={"border-right: 1ch solid #{theme(@asciicast).bg}"}>
+<div
+  class="thumbnail"
+  style={"background-color: #{theme(@asciicast).bg}; border-right: 1ch solid #{theme(@asciicast).bg}"}
+>
   <img src={~p"/a/#{@asciicast}" <> ".svg?v=t"} />
 </div>

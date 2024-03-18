@@ -55,22 +55,15 @@ div.asciicast-card {
   }
 
   .thumbnail {
+    min-height: calc(1.333333 * 16em);
+    font-size: 14px;
+    font-family: Consolas, Menlo, 'Bitstream Vera Sans Mono', monospace, 'Powerline Symbols';
     overflow: hidden;
     padding: 0;
     background-color: #000;
     border-radius: 3px;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
-
-    .ap-terminal {
-      .ap-line {
-        height: 1.3333333333em;
-
-        span {
-          position: inherit;
-        }
-      }
-    }
   }
 
   .info {
