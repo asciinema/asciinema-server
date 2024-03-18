@@ -272,7 +272,7 @@ defmodule Asciinema.Recordings.Snapshot do
   end
 
   defp split_on_whitespace({text, attrs, 1}) do
-    ~r/\s+/
+    ~r/(^\s+)|\s{2,}/
     |> Regex.split(text, include_captures: true)
     |> Enum.filter(&(String.length(&1) > 0))
     |> Enum.map(&{&1, attrs, 1})

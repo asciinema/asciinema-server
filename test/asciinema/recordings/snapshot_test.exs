@@ -90,8 +90,8 @@ defmodule Asciinema.Recordings.SnapshotTest do
   end
 
   @lines [
-    [[" foo bar ", %{"bg" => 2}, 1], ["!", %{"fg" => 1}, 1]],
-    [["baz", %{"bg" => 2}, 1], ["连", %{}, 2], ["接", %{}, 2]]
+    [[" foo bar  baz", %{"bg" => 2}, 1], ["!", %{"fg" => 1}, 1]],
+    [["qux", %{"bg" => 2}, 1], ["连", %{}, 2], ["接", %{}, 2]]
   ]
 
   describe "text_coords/1" do
@@ -105,15 +105,15 @@ defmodule Asciinema.Recordings.SnapshotTest do
                %{
                  y: 0,
                  segments: [
-                   %{text: "foo", attrs: %{"bg" => 2}, x: 1, width: 3},
-                   %{text: "bar", attrs: %{"bg" => 2}, x: 5, width: 3},
-                   %{text: "!", attrs: %{"fg" => 1}, x: 9, width: 1}
+                   %{text: "foo bar", attrs: %{"bg" => 2}, x: 1, width: 7},
+                   %{text: "baz", attrs: %{"bg" => 2}, x: 10, width: 3},
+                   %{text: "!", attrs: %{"fg" => 1}, x: 13, width: 1}
                  ]
                },
                %{
                  y: 1,
                  segments: [
-                   %{text: "baz", attrs: %{"bg" => 2}, x: 0, width: 3},
+                   %{text: "qux", attrs: %{"bg" => 2}, x: 0, width: 3},
                    %{text: "连", attrs: %{}, x: 3, width: 2},
                    %{text: "接", attrs: %{}, x: 5, width: 2}
                  ]
@@ -133,7 +133,7 @@ defmodule Asciinema.Recordings.SnapshotTest do
                %{
                  y: 0,
                  segments: [
-                   %{attrs: %{"bg" => 2}, x: 0, width: 9}
+                   %{attrs: %{"bg" => 2}, x: 0, width: 13}
                  ]
                },
                %{
