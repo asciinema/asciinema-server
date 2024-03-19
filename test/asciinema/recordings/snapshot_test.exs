@@ -9,6 +9,91 @@ defmodule Asciinema.Recordings.SnapshotTest do
     |> Map.get(:lines)
   end
 
+  describe "regroup/2" do
+    test "splits into individual chars" do
+      lines = [[[" foo bar ", %{fg: 1}, 1]]]
+
+      lines =
+        lines
+        |> Snapshot.new(:segments)
+        |> Snapshot.regroup(:cells)
+        |> Map.get(:lines)
+
+      assert lines == [
+               [
+                 {" ", %{fg: 1}, 1},
+                 {"f", %{fg: 1}, 1},
+                 {"o", %{fg: 1}, 1},
+                 {"o", %{fg: 1}, 1},
+                 {" ", %{fg: 1}, 1},
+                 {"b", %{fg: 1}, 1},
+                 {"a", %{fg: 1}, 1},
+                 {"r", %{fg: 1}, 1},
+                 {" ", %{fg: 1}, 1}
+               ]
+             ]
+    end
+
+    test "groups into multi-char segments" do
+      lines = [
+        [
+          [" ", %{fg: 1}, 1],
+          ["f", %{fg: 1}, 1],
+          ["o", %{fg: 2}, 1],
+          ["o", %{fg: 2}, 1],
+          [" ", %{fg: 1}, 1],
+          ["b", %{fg: 1}, 1],
+          ["a", %{fg: 1}, 1],
+          ["r", %{fg: 1}, 1],
+          ["连", %{fg: 1}, 2]
+        ]
+      ]
+
+      lines =
+        lines
+        |> Snapshot.new(:cells)
+        |> Snapshot.regroup(:segments)
+        |> Map.get(:lines)
+
+      assert lines == [[
+        {" f", %{fg: 1}, 1},
+        {"oo", %{fg: 2}, 1},
+        {" bar", %{fg: 1}, 1},
+        {"连", %{fg: 1}, 2},
+      ]]
+    end
+
+    test "keeps special chars in their own segments" do
+      lines = [
+        [
+          ["▚", %{}, 1],
+          ["f", %{}, 1],
+          ["o", %{}, 1],
+          ["o", %{}, 1],
+          ["▚", %{}, 1],
+          ["b", %{}, 1],
+          ["a", %{}, 1],
+          ["r", %{}, 1],
+          ["▚", %{}, 1]
+        ]
+      ]
+
+      lines =
+        lines
+        |> Snapshot.new(:cells)
+        |> Snapshot.regroup(:segments)
+        |> Map.get(:lines)
+
+      assert lines == [[
+        {"▚", %{}, 1},
+        {"foo", %{}, 1},
+        {"▚", %{}, 1},
+        {"bar", %{}, 1},
+        {"▚", %{}, 1},
+      ]]
+    end
+  end
+
   describe "crop/3" do
     test "blank taller terminal" do
       assert crop(
