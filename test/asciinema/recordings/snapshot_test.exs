@@ -55,12 +55,14 @@ defmodule Asciinema.Recordings.SnapshotTest do
         |> Snapshot.regroup(:segments)
         |> Map.get(:lines)
 
-      assert lines == [[
-        {" f", %{fg: 1}, 1},
-        {"oo", %{fg: 2}, 1},
-        {" bar", %{fg: 1}, 1},
-        {"连", %{fg: 1}, 2},
-      ]]
+      assert lines == [
+               [
+                 {" f", %{fg: 1}, 1},
+                 {"oo", %{fg: 2}, 1},
+                 {" bar", %{fg: 1}, 1},
+                 {"连", %{fg: 1}, 2}
+               ]
+             ]
     end
 
     test "keeps special chars in their own segments" do
@@ -84,13 +86,15 @@ defmodule Asciinema.Recordings.SnapshotTest do
         |> Snapshot.regroup(:segments)
         |> Map.get(:lines)
 
-      assert lines == [[
-        {"▚", %{}, 1},
-        {"foo", %{}, 1},
-        {"▚", %{}, 1},
-        {"bar", %{}, 1},
-        {"▚", %{}, 1},
-      ]]
+      assert lines == [
+               [
+                 {"▚", %{}, 1},
+                 {"foo", %{}, 1},
+                 {"▚", %{}, 1},
+                 {"bar", %{}, 1},
+                 {"▚", %{}, 1}
+               ]
+             ]
     end
   end
 
