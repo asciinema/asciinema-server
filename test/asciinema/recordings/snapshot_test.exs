@@ -183,12 +183,12 @@ defmodule Asciinema.Recordings.SnapshotTest do
     [["qux", %{"bg" => 2}, 1], ["连", %{}, 2], ["接", %{}, 2]]
   ]
 
-  describe "text_coords/1" do
+  describe "fg_coords/1" do
     test "excludes whitespace" do
       coords =
         @lines
         |> Snapshot.new()
-        |> Snapshot.text_coords()
+        |> Snapshot.fg_coords()
 
       assert coords == [
                %{

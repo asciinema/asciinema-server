@@ -132,6 +132,12 @@ defmodule Asciinema.Recordings.Snapshot do
       Enum.member?(@powerline_triangles_range, cp)
   end
 
+  def block_or_powerline_triangle?(char) do
+    cp = char |> String.to_charlist() |> Enum.at(0)
+
+    Enum.member?(@block_elements_range, cp) || Enum.member?(@powerline_triangles_range, cp)
+  end
+
   @csi_init "\x1b["
   @sgr_reset "\x1b[0m"
 
@@ -253,7 +259,7 @@ defmodule Asciinema.Recordings.Snapshot do
     |> regroup(mode)
   end
 
-  def text_coords(snapshot) do
+  def fg_coords(snapshot) do
     snapshot
     |> regroup(:segments)
     |> Map.get(:lines)
