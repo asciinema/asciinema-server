@@ -38,8 +38,8 @@ defmodule AsciinemaWeb.OembedView do
         max_height || image_height
       )
 
-    recording_url = Routes.recording_url(Endpoint, :show, asciicast)
-    thumbnail_url = recording_url <> ".png"
+    script_url = Routes.recording_url(Endpoint, :show, asciicast) <> ".js"
+    script_id = "asciicast-#{asciicast.id}"
 
     %{
       type: "rich",
@@ -52,17 +52,14 @@ defmodule AsciinemaWeb.OembedView do
       thumbnail_url: thumbnail_url,
       thumbnail_width: width,
       thumbnail_height: height,
-      html: html(recording_url, thumbnail_url, asciicast.title, width),
+      html: html(script_url, script_id),
       width: width,
       height: height
     }
   end
 
-  defp html(recording_url, thumbnail_url, title, width) do
-    safe =
-      content_tag(:a, href: recording_url, target: "_blank") do
-        img_tag(thumbnail_url, alt: title, width: width)
-      end
+  defp html(script_url, script_id) do
+    safe = content_tag(:script, src: script_url, id: script_id, async: true)
 
     Phoenix.HTML.safe_to_string(safe)
   end
