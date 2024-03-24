@@ -2,7 +2,7 @@ defmodule AsciinemaWeb.RecordingSVG do
   use Phoenix.Component
   import AsciinemaWeb.RecordingHTML, only: [cols: 1, rows: 1]
   import Phoenix.HTML
-  alias Asciinema.{Media, Themes}
+  alias Asciinema.{Colors, Media, Themes}
   alias Asciinema.Recordings.Snapshot
 
   embed_templates "recording/*.svg"
@@ -46,26 +46,17 @@ defmodule AsciinemaWeb.RecordingSVG do
 
   defp bg_color(attrs, theme, default_fallback \\ false)
   defp bg_color(%{"bg" => bg}, theme, _) when is_integer(bg), do: Themes.color(theme, bg)
-  defp bg_color(%{"bg" => [_r, _g, _b] = c}, _theme, _), do: hex(c)
+  defp bg_color(%{"bg" => [_r, _g, _b] = c}, _theme, _), do: Colors.hex(c)
   defp bg_color(%{"bg" => "rgb(" <> _ = c}, _theme, _), do: c
   defp bg_color(_, _, false), do: nil
   defp bg_color(_, theme, true), do: theme.bg
 
   defp fg_color(attrs, theme, default_fallback \\ false)
   defp fg_color(%{"fg" => fg}, theme, _) when is_integer(fg), do: Themes.color(theme, fg)
-  defp fg_color(%{"fg" => [_r, _g, _b] = c}, _theme, _), do: hex(c)
+  defp fg_color(%{"fg" => [_r, _g, _b] = c}, _theme, _), do: Colors.hex(c)
   defp fg_color(%{"fg" => "rgb(" <> _ = c}, _theme, _), do: c
   defp fg_color(_, _, false), do: nil
   defp fg_color(_, theme, true), do: theme.fg
-
-  defp hex(r, g, b), do: "##{hex(r)}#{hex(g)}#{hex(b)}"
-  defp hex([r, g, b]), do: hex(r, g, b)
-
-  defp hex(int) do
-    int
-    |> Integer.to_string(16)
-    |> String.pad_leading(2, "0")
-  end
 
   def percent(float) do
     "#{Decimal.round(Decimal.from_float(float), 3)}%"
@@ -246,7 +237,7 @@ defmodule AsciinemaWeb.RecordingSVG do
           y={y(@y)}
           width={w(1)}
           height={h(1)}
-          style={"fill: #{mix(fg_color(@attrs, @theme, true), bg_color(@attrs, @theme, true), 0.25)}"}
+          style={"fill: #{mix_colors(fg_color(@attrs, @theme, true), bg_color(@attrs, @theme, true), 0.25)}"}
         />
         """
 
@@ -258,7 +249,7 @@ defmodule AsciinemaWeb.RecordingSVG do
           y={y(@y)}
           width={w(1)}
           height={h(1)}
-          style={"fill: #{mix(fg_color(@attrs, @theme, true), bg_color(@attrs, @theme, true), 0.5)}"}
+          style={"fill: #{mix_colors(fg_color(@attrs, @theme, true), bg_color(@attrs, @theme, true), 0.5)}"}
         />
         """
 
@@ -270,7 +261,7 @@ defmodule AsciinemaWeb.RecordingSVG do
           y={y(@y)}
           width={w(1)}
           height={h(1)}
-          style={"fill: #{mix(fg_color(@attrs, @theme, true), bg_color(@attrs, @theme, true), 0.75)}"}
+          style={"fill: #{mix_colors(fg_color(@attrs, @theme, true), bg_color(@attrs, @theme, true), 0.75)}"}
         />
         """
 
@@ -420,23 +411,7 @@ defmodule AsciinemaWeb.RecordingSVG do
 
   defp fg(attrs, theme), do: "fill: #{fg_color(attrs, theme, true)}"
 
-  defp mix(
-         <<"#", r1::binary-size(2), g1::binary-size(2), b1::binary-size(2)>>,
-         <<"#", r2::binary-size(2), g2::binary-size(2), b2::binary-size(2)>>,
-         ratio
-       ) do
-    r1 = String.to_integer(r1, 16)
-    g1 = String.to_integer(g1, 16)
-    b1 = String.to_integer(b1, 16)
-    r2 = String.to_integer(r2, 16)
-    g2 = String.to_integer(g2, 16)
-    b2 = String.to_integer(b2, 16)
-    r = hex(floor(r1 * ratio + r2 * (1 - ratio)))
-    g = hex(floor(g1 * ratio + g2 * (1 - ratio)))
-    b = hex(floor(b1 * ratio + b2 * (1 - ratio)))
-
-    "##{r}#{g}#{b}"
-  end
+  def mix_colors(a, b, ratio), do: Colors.mix(a, b, ratio)
 
   defp snapshot(asciicast, nil) do
     Snapshot.new(asciicast.snapshot || [])
