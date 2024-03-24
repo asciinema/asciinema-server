@@ -9,6 +9,95 @@ defmodule Asciinema.Recordings.SnapshotTest do
     |> Map.get(:lines)
   end
 
+  describe "regroup/2" do
+    test "splits into individual chars" do
+      lines = [[[" foo bar ", %{fg: 1}, 1]]]
+
+      lines =
+        lines
+        |> Snapshot.new(:segments)
+        |> Snapshot.regroup(:cells)
+        |> Map.get(:lines)
+
+      assert lines == [
+               [
+                 {" ", %{fg: 1}, 1},
+                 {"f", %{fg: 1}, 1},
+                 {"o", %{fg: 1}, 1},
+                 {"o", %{fg: 1}, 1},
+                 {" ", %{fg: 1}, 1},
+                 {"b", %{fg: 1}, 1},
+                 {"a", %{fg: 1}, 1},
+                 {"r", %{fg: 1}, 1},
+                 {" ", %{fg: 1}, 1}
+               ]
+             ]
+    end
+
+    test "groups into multi-char segments" do
+      lines = [
+        [
+          [" ", %{fg: 1}, 1],
+          ["f", %{fg: 1}, 1],
+          ["o", %{fg: 2}, 1],
+          ["o", %{fg: 2}, 1],
+          [" ", %{fg: 1}, 1],
+          ["b", %{fg: 1}, 1],
+          ["a", %{fg: 1}, 1],
+          ["r", %{fg: 1}, 1],
+          ["连", %{fg: 1}, 2]
+        ]
+      ]
+
+      lines =
+        lines
+        |> Snapshot.new(:cells)
+        |> Snapshot.regroup(:segments)
+        |> Map.get(:lines)
+
+      assert lines == [
+               [
+                 {" f", %{fg: 1}, 1},
+                 {"oo", %{fg: 2}, 1},
+                 {" bar", %{fg: 1}, 1},
+                 {"连", %{fg: 1}, 2}
+               ]
+             ]
+    end
+
+    test "keeps special chars in their own segments" do
+      lines = [
+        [
+          ["▚", %{}, 1],
+          ["f", %{}, 1],
+          ["o", %{}, 1],
+          ["o", %{}, 1],
+          ["▚", %{}, 1],
+          ["b", %{}, 1],
+          ["a", %{}, 1],
+          ["r", %{}, 1],
+          ["▚", %{}, 1]
+        ]
+      ]
+
+      lines =
+        lines
+        |> Snapshot.new(:cells)
+        |> Snapshot.regroup(:segments)
+        |> Map.get(:lines)
+
+      assert lines == [
+               [
+                 {"▚", %{}, 1},
+                 {"foo", %{}, 1},
+                 {"▚", %{}, 1},
+                 {"bar", %{}, 1},
+                 {"▚", %{}, 1}
+               ]
+             ]
+    end
+  end
+
   describe "crop/3" do
     test "blank taller terminal" do
       assert crop(
@@ -90,30 +179,30 @@ defmodule Asciinema.Recordings.SnapshotTest do
   end
 
   @lines [
-    [[" foo bar ", %{"bg" => 2}, 1], ["!", %{"fg" => 1}, 1]],
-    [["baz", %{"bg" => 2}, 1], ["连", %{}, 2], ["接", %{}, 2]]
+    [[" foo bar  baz", %{"bg" => 2}, 1], ["!", %{"fg" => 1}, 1]],
+    [["qux", %{"bg" => 2}, 1], ["连", %{}, 2], ["接", %{}, 2]]
   ]
 
-  describe "text_coords/1" do
+  describe "fg_coords/1" do
     test "excludes whitespace" do
       coords =
         @lines
         |> Snapshot.new()
-        |> Snapshot.text_coords()
+        |> Snapshot.fg_coords()
 
       assert coords == [
                %{
                  y: 0,
                  segments: [
-                   %{text: "foo", attrs: %{"bg" => 2}, x: 1, width: 3},
-                   %{text: "bar", attrs: %{"bg" => 2}, x: 5, width: 3},
-                   %{text: "!", attrs: %{"fg" => 1}, x: 9, width: 1}
+                   %{text: "foo bar", attrs: %{"bg" => 2}, x: 1, width: 7},
+                   %{text: "baz", attrs: %{"bg" => 2}, x: 10, width: 3},
+                   %{text: "!", attrs: %{"fg" => 1}, x: 13, width: 1}
                  ]
                },
                %{
                  y: 1,
                  segments: [
-                   %{text: "baz", attrs: %{"bg" => 2}, x: 0, width: 3},
+                   %{text: "qux", attrs: %{"bg" => 2}, x: 0, width: 3},
                    %{text: "连", attrs: %{}, x: 3, width: 2},
                    %{text: "接", attrs: %{}, x: 5, width: 2}
                  ]
@@ -133,7 +222,7 @@ defmodule Asciinema.Recordings.SnapshotTest do
                %{
                  y: 0,
                  segments: [
-                   %{attrs: %{"bg" => 2}, x: 0, width: 9}
+                   %{attrs: %{"bg" => 2}, x: 0, width: 13}
                  ]
                },
                %{

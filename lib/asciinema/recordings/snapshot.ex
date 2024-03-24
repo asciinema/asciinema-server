@@ -93,20 +93,30 @@ defmodule Asciinema.Recordings.Snapshot do
 
   defp group_line_segments([]), do: []
 
-  defp group_line_segments([first_segment | segments]) do
+  defp group_line_segments(cells) do
     {segments, last_segment} =
-      Enum.reduce(segments, {[], first_segment}, fn {char, attrs, char_width},
-                                                    {segments,
-                                                     {prev_char, prev_attrs, prev_char_width}} ->
-        if attrs == prev_attrs && char_width == prev_char_width && char_width == 1 &&
-             !special_char(char) do
-          {segments, {prev_char <> char, attrs, char_width}}
+      Enum.reduce(cells, {[], nil}, fn {cur_char, cur_attrs, cur_char_width} = current,
+                                       {segments, prev} ->
+        if cur_char_width > 1 || special_char(cur_char) do
+          {[current, prev | segments], nil}
         else
-          {[{prev_char, prev_attrs, prev_char_width} | segments], {char, attrs, char_width}}
+          case prev do
+            {prev_chars, prev_attrs, prev_char_width} ->
+              if cur_attrs == prev_attrs && cur_char_width == prev_char_width do
+                {segments, {prev_chars <> cur_char, prev_attrs, prev_char_width}}
+              else
+                {[prev | segments], current}
+              end
+
+            nil ->
+              {segments, current}
+          end
         end
       end)
 
-    Enum.reverse([last_segment | segments])
+    [last_segment | segments]
+    |> Enum.filter(& &1)
+    |> Enum.reverse()
   end
 
   @box_drawing_range Range.new(0x2500, 0x257F)
@@ -120,6 +130,12 @@ defmodule Asciinema.Recordings.Snapshot do
     Enum.member?(@box_drawing_range, cp) || Enum.member?(@block_elements_range, cp) ||
       Enum.member?(@braille_patterns_range, cp) ||
       Enum.member?(@powerline_triangles_range, cp)
+  end
+
+  def block_or_powerline_triangle?(char) do
+    cp = char |> String.to_charlist() |> Enum.at(0)
+
+    Enum.member?(@block_elements_range, cp) || Enum.member?(@powerline_triangles_range, cp)
   end
 
   @csi_init "\x1b["
@@ -243,7 +259,7 @@ defmodule Asciinema.Recordings.Snapshot do
     |> regroup(mode)
   end
 
-  def text_coords(snapshot) do
+  def fg_coords(snapshot) do
     snapshot
     |> regroup(:segments)
     |> Map.get(:lines)
@@ -272,7 +288,7 @@ defmodule Asciinema.Recordings.Snapshot do
   end
 
   defp split_on_whitespace({text, attrs, 1}) do
-    ~r/\s+/
+    ~r/(^\s+)|\s{2,}/
     |> Regex.split(text, include_captures: true)
     |> Enum.filter(&(String.length(&1) > 0))
     |> Enum.map(&{&1, attrs, 1})
