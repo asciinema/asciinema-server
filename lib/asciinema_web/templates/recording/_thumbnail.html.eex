@@ -1,5 +1,0 @@
-<div class="thumbnail asciinema-theme-<%= theme_name(@asciicast) %>">
-  <pre class="ap-terminal font-small"><%= for line <- thumbnail(@asciicast) do %><span class="ap-line"><%= for {text, attrs} <- line do %><span class="<%= class(attrs) %>" style="<%= style(attrs) %>"><%= text %></span><% end %></span><% end %></pre>
-</div>
-<!-- The above <pre> has to be in one line, without extra spacing around for loops
-     in order to render terminal properly. -->

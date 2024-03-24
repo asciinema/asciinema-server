@@ -1,0 +1,33 @@
+<div class="modal fade" id="gif-modal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Generate GIF from this recording</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <p>
+          While this site doesn't offer GIF conversion at the moment, you can
+          still do it yourself with the help of asciinema GIF generator utility - <a href="https://docs.asciinema.org/manual/agg/">agg</a>.
+        </p>
+
+        <p>Once you have it installed run the following command to create GIF file:</p>
+
+        <pre><code>agg <%= url(~p"/a/#{@asciicast}") %> <%= @asciicast.id %>.gif</code></pre>
+
+        <p>Or, if you already downloaded the recording file:</p>
+
+        <pre><code>agg <%= download_filename(@asciicast) %> <%= @asciicast.id %>.gif</code></pre>
+
+        <p>Check <code>agg --help</code> for all available options. You can change font
+          family and size, select color theme, adjust speed and more.</p>
+
+        <p>See <a href="https://docs.asciinema.org/manual/agg/usage/">agg manual</a> for
+          full usage instructions.</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -44,7 +44,7 @@ defmodule AsciinemaWeb do
   def new_controller do
     quote do
       use Phoenix.Controller,
-        formats: [:html, :json]
+        formats: [:html, :json, :svg]
 
       import Plug.Conn
       import AsciinemaWeb.Gettext

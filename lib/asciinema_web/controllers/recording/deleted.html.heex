@@ -1,0 +1,18 @@
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <h2>This recording has been deleted</h2>
+
+      <%= if @ttl do %>
+        <p>
+          All unclaimed recordings are automatically deleted <%= @ttl %> days after upload.
+        </p>
+
+        <p>
+          See <a href="https://docs.asciinema.org/manual/cli/usage/#asciinema-auth">here</a>
+          for more details.
+        </p>
+      <% end %>
+    </div>
+  </div>
+</div>

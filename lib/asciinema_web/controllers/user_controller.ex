@@ -1,5 +1,5 @@
 defmodule AsciinemaWeb.UserController do
-  use AsciinemaWeb, :controller
+  use AsciinemaWeb, :new_controller
   alias Asciinema.Accounts
   alias Asciinema.Authorization, as: Authz
   alias Asciinema.Recordings
@@ -11,7 +11,7 @@ defmodule AsciinemaWeb.UserController do
   def new(conn, %{"t" => signup_token}) do
     conn
     |> put_session(:signup_token, signup_token)
-    |> redirect(to: Routes.users_path(conn, :new))
+    |> redirect(to: ~p"/users/new")
   end
 
   def new(conn, _params) do
@@ -27,22 +27,22 @@ defmodule AsciinemaWeb.UserController do
         conn
         |> Auth.log_in(user)
         |> put_flash(:info, "Welcome to asciinema!")
-        |> redirect(to: Routes.username_path(conn, :new))
+        |> redirect(to: ~p"/username/new")
 
       {:error, :token_invalid} ->
         conn
         |> put_flash(:error, "Invalid sign-up link.")
-        |> redirect(to: Routes.login_path(conn, :new))
+        |> redirect(to: ~p"/login/new")
 
       {:error, :token_expired} ->
         conn
         |> put_flash(:error, "This sign-up link has expired, sorry.")
-        |> redirect(to: Routes.login_path(conn, :new))
+        |> redirect(to: ~p"/login/new")
 
       {:error, :email_taken} ->
         conn
         |> put_flash(:error, "You already signed up with this email.")
-        |> redirect(to: Routes.login_path(conn, :new))
+        |> redirect(to: ~p"/login/new")
     end
   end
 
@@ -107,10 +107,10 @@ defmodule AsciinemaWeb.UserController do
     user = conn.assigns.current_user
 
     case Accounts.update_user(user, user_params) do
-      {:ok, user} ->
+      {:ok, _user} ->
         conn
-        |> put_flash(:info, "Account settings saved.")
-        |> redirect(to: profile_path(conn, user))
+        |> put_flash(:info, "Settings updated")
+        |> redirect(to: ~p"/user/edit")
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render_edit_form(conn, user, changeset)

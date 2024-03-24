@@ -1,6 +1,6 @@
 defmodule AsciinemaWeb.LayoutView do
   use AsciinemaWeb, :view
-  import AsciinemaWeb.UserView, only: [avatar_url: 1]
+  import AsciinemaWeb.UserHTML, only: [avatar_url: 1]
 
   def page_title(conn) do
     title = conn.assigns[:page_title] || "Record and share your terminal sessions, the simple way"

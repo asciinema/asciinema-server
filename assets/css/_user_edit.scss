@@ -1,5 +1,15 @@
 .c-user.a-edit {
   .user-form {
-    margin-bottom: 3em;
+    form {
+      margin-bottom: 2em;
+    }
+  }
+
+  .install-ids {
+    margin: 2em 0;
+
+    .revoked {
+      opacity: 0.7;
+    }
   }
 }

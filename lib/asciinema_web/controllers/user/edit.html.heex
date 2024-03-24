@@ -1,0 +1,245 @@
+<div class="container edit-page">
+  <div class="row user-form">
+    <div class="col-md-12 col-lg-9">
+      <.form
+        :let={f}
+        for={@changeset}
+        action={~p"/user"}
+        class="simple_form form-horizontal"
+        novalidate="novalidate"
+        role="form"
+      >
+        <legend>Account</legend>
+
+        <div class={["form-group row email required user_email", error_class(f, :email)]}>
+          <.label for={f[:email]} class="email required col-form-label col-3">Email</.label>
+          <div class="col-9">
+            <.input field={f[:email]} type="email" class="string email required form-control" />
+            <.error field={f[:email]} />
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-form-label col-3"></label>
+          <div class="col-offset-3 col-9">
+            <br />
+            <.button type="submit" class="btn btn-primary">Update</.button>
+          </div>
+        </div>
+      </.form>
+
+      <.form
+        :let={f}
+        for={@changeset}
+        action={~p"/user"}
+        class="simple_form form-horizontal"
+        novalidate="novalidate"
+        role="form"
+      >
+        <legend>Profile</legend>
+
+        <div class={["form-group row string optional user_username", error_class(f, :username)]}>
+          <.label for={f[:username]} class="string optional col-form-label col-3">
+            Username
+          </.label>
+          <div class="col-9">
+            <.input field={f[:username]} class="string optional form-control" />
+            <.error field={f[:username]} />
+          </div>
+        </div>
+
+        <div class={["form-group row string optional user_name", error_class(f, :name)]}>
+          <.label for={f[:name]} class="string optional col-form-label col-3">
+            Display name
+          </.label>
+          <div class="col-9">
+            <.input
+              field={f[:name]}
+              class="string optional form-control"
+              placeholder={@changeset.data.username}
+            />
+            <.error field={f[:name]} />
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-form-label col-3"></label>
+          <div class="col-offset-3 col-9">
+            <br />
+            <.button type="submit" class="btn btn-primary">Update</.button>
+          </div>
+        </div>
+      </.form>
+
+      <.form
+        :let={f}
+        for={@changeset}
+        action={~p"/user"}
+        class="simple_form form-horizontal"
+        novalidate="novalidate"
+        role="form"
+      >
+        <legend>Defaults</legend>
+
+        <p>
+          The settings below control the defaults for your uploaded recordings. <br />
+          <br />
+        </p>
+
+        <div class="form-group row radio_buttons optional user_asciicasts_private_by_default">
+          <.label
+            for={f[:asciicasts_private_by_default]}
+            class="col-3 radio_buttons optional col-form-label"
+          >
+            Recording visibility
+          </.label>
+          <div class="col-9">
+            <div class="form-check">
+              <input
+                type="radio"
+                name="user[asciicasts_private_by_default]"
+                id="user_asciicasts_private_by_default_false"
+                value="false"
+                checked={f[:asciicasts_private_by_default].value == false}
+                class="radio_buttons optional form-check-input"
+              />
+              <label for="user_asciicasts_private_by_default_false" class="form-check-label">
+                Public
+              </label>
+            </div>
+            <div class="form-check">
+              <input
+                type="radio"
+                name="user[asciicasts_private_by_default]"
+                id="user_asciicasts_private_by_default_true"
+                value="true"
+                checked={f[:asciicasts_private_by_default].value == true}
+                class="radio_buttons optional form-check-input"
+              />
+              <label for="user_asciicasts_private_by_default_true" class="form-check-label">
+                Secret - unlisted, accessible via secret link
+              </label>
+            </div>
+            <small class="form-text text-muted">
+              Applies to *new* uploads. Existing recordings are not affected by changes to this setting.
+            </small>
+          </div>
+        </div>
+
+        <div class="form-group row select optional user_theme_name">
+          <.label for={f[:theme_name]} class="col-3 select optional col-form-label">
+            Terminal theme
+          </.label>
+          <div class="col-9">
+            <.input
+              type="select"
+              field={f[:theme_name]}
+              options={theme_options()}
+              class="optional form-control"
+              prompt="Default (asciinema)"
+            />
+            <small class="form-text text-muted">
+              Applies to all your recordings that don't explicitly override this.
+            </small>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <.label for={f[:terminal_font_family]} class="col-sm-4 col-md-3 col-form-label">
+            Terminal font family
+          </.label>
+          <div class="col-sm-8 col-md-9">
+            <.input
+              type="select"
+              field={f[:terminal_font_family]}
+              options={font_family_options()}
+              class="form-control"
+              prompt={"Default (#{default_font_display_name()})"}
+            />
+            <small class="form-text text-muted">
+              Applies to all your recordings that don't explicitly override this.
+            </small>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-form-label col-3"></label>
+          <div class="col-offset-3 col-9">
+            <br />
+            <.button type="submit" class="btn btn-primary">Update</.button>
+          </div>
+        </div>
+      </.form>
+    </div>
+  </div>
+
+  <div class="row tokens-list">
+    <div class="col-md-12">
+      <form>
+        <legend>CLI</legend>
+
+        <p>To associate the uploaded recordings with your account, you need to
+          authenticate asciinema CLI on every new system from which you upload.</p>
+
+        <p>
+          Run <code>asciinema auth</code>
+          to do this. For more information see the <a href="https://docs.asciinema.org/manual/cli/usage/#asciinema-auth">documentation</a>.
+        </p>
+
+        <%= if present?(@api_tokens) do %>
+          <p>
+            The following asciinema CLI installations have been authenticated with your account:
+          </p>
+
+          <table class="table install-ids">
+            <thead>
+              <th>Installation ID</th>
+              <th>Registered at</th>
+              <th></th>
+            </thead>
+            <tbody>
+              <tr :for={t <- active_tokens(@api_tokens)}>
+                <td>
+                  <code><%= t.token %></code>
+                </td>
+                <td>
+                  <%= time_tag(t.inserted_at) %>
+                </td>
+                <td>
+                  <.link
+                    href={~p"/api_tokens/#{t}"}
+                    class="btn btn-danger btn-sm"
+                    method="delete"
+                    data-confirm="Are you sure? This will prevent future uploads from that system."
+                  >
+                    Revoke
+                  </.link>
+                </td>
+              </tr>
+
+              <tr :for={t <- revoked_tokens(@api_tokens)} class="revoked">
+                <td>
+                  <code><%= t.token %></code>
+                </td>
+                <td>
+                  <%= time_tag(t.inserted_at) %>
+                </td>
+                <td>
+                  Revoked <%= time_ago_tag(t.revoked_at) %>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p>
+            The installation ID of your local system is stored in the
+            <code>$HOME/.config/asciinema/install-id</code>
+            file.
+          </p>
+        <% else %>
+          <p>There is currently no CLI authenticated with this account.</p>
+        <% end %>
+      </form>
+    </div>
+  </div>
+</div>

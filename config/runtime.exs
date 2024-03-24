@@ -191,8 +191,8 @@ if config_env() in [:prod, :dev] do
   if ttls = env.("UNCLAIMED_RECORDING_TTL") do
     ttls =
       case String.split(ttls, ",", parts: 2) do
-        [hide_ttl] ->
-          [hide: String.to_integer(hide_ttl)]
+        [delete_ttl] ->
+          [delete: String.to_integer(delete_ttl)]
 
         [delete_ttl, delete_ttl] ->
           [delete: String.to_integer(delete_ttl)]

@@ -1,0 +1,71 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  width={w(@cols + 2)}
+  height={h(@rows + 1)}
+  font-family={
+    {:safe,
+     @font_family ||
+       "Consolas, Menlo, 'Bitstream Vera Sans Mono', monospace, 'Powerline Symbols'"}
+  }
+  font-size={"#{font_size()}px"}
+>
+  <style>
+    .br { font-weight: bold }
+    .fa { fill-opacity: 0.5 }
+    .it { font-style: italic }
+    .un { text-decoration: underline }
+  </style>
+
+  <rect
+    width="100%"
+    height="100%"
+    style={"fill: " <> @theme.bg}
+    rx={assigns[:rx] || 4}
+    ry={assigns[:ry] || 4}
+  />
+
+  <svg x={x(1)} y={y(0.5)} class="default-text-fill">
+    <g style="shape-rendering: optimizeSpeed">
+      <%= for %{y: y, segments: segments} <- @coords.bg do %>
+        <rect
+          :for={%{x: x, width: width, attrs: attrs} <- segments}
+          x={x(x)}
+          y={y(y)}
+          width={w(width)}
+          height={h(1)}
+          style={bg_style(attrs, @theme)}
+        />
+      <% end %>
+
+      <%= for %{y: y, segments: segments} <- @coords.special_chars do %>
+        <%= for %{x: x, text: char, attrs: attrs} <- segments do %>
+          <.special_char char={char} x={x} y={y} attrs={attrs} theme={@theme} />
+        <% end %>
+      <% end %>
+    </g>
+
+    <text style={"fill: " <> @theme.fg}>
+      <tspan :for={%{y: y, segments: segments} <- @coords.text} y={y(y)}>
+        <tspan
+          :for={{%{x: x, text: text, attrs: attrs}, i} <- Enum.with_index(segments)}
+          dy={
+            if i == 0 do
+              "1em"
+            end
+          }
+          x={x(x)}
+          {text_extra_attrs(attrs, @theme)}
+        >
+          <%= html_escape(text) %>
+        </tspan>
+      </tspan>
+    </text>
+  </svg>
+
+  <g :if={@logo} transform="translate(-50 -50)">
+    <svg x="50%" y="50%" width="100" height="100">
+      <.logo />
+    </svg>
+  </g>
+</svg>

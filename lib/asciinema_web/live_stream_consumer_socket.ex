@@ -113,27 +113,20 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   # Private
 
   @alis_version 1
-  @compression_algo_none 0
 
   @msg_type_reset 0x01
   @msg_type_output ?o
   @msg_type_offline 0x04
 
   defp header_message do
-    msg = <<
-      "ALiS"::binary,
-      @alis_version::unsigned-8,
-      @compression_algo_none::unsigned-8,
-      0x00,
-      0x00,
-      0x00,
-      0x00
-    >>
+    msg = <<"ALiS"::binary, @alis_version::unsigned-8>>
 
     {:binary, msg}
   end
 
   defp reset_message({{cols, rows}, init, time}) do
+    # TODO
+    theme_format = 0
     init = init || ""
     init_len = byte_size(init)
 
@@ -142,6 +135,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
       cols::little-16,
       rows::little-16,
       time::little-float-32,
+      theme_format::unsigned-8,
       init_len::little-32,
       init::binary
     >>

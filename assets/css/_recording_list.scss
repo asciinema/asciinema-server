@@ -1,5 +1,5 @@
 .c-recording {
-  &.a-category {
+  &.a-public, &.a-featured, &.a-auto {
     main {
       .nav {
         .nav-link {
@@ -17,6 +17,10 @@
         span {
           margin-right: 0.5rem;
           font-size: 0.875rem;
+        }
+
+        a {
+          border-color: #d3d9df;
         }
       }
 

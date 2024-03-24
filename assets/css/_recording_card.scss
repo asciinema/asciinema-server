@@ -1,6 +1,7 @@
 div.asciicast-card {
   margin-bottom: 30px;
   overflow: hidden;
+  border: 1px solid #eee;
 
   .thumbnail-link {
     display: block;
@@ -31,6 +32,7 @@ div.asciicast-card {
           width: 4rem;
           margin-left: -2rem;
           margin-top: -2rem;
+          filter: drop-shadow(0px 0px 5px rgba(0, 0, 0, 0.4));
         }
       }
     }
@@ -53,18 +55,15 @@ div.asciicast-card {
   }
 
   .thumbnail {
+    min-height: calc(1.333333 * 16em);
+    font-size: 14px;
+    font-family: Consolas, Menlo, 'Bitstream Vera Sans Mono', monospace, 'Powerline Symbols';
+    overflow: hidden;
     padding: 0;
     background-color: #000;
-    border: 0;
     border-radius: 3px;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
-
-    .ap-terminal {
-      .ap-line {
-        height: 1.3333333333em;
-      }
-    }
   }
 
   .info {
@@ -72,9 +71,8 @@ div.asciicast-card {
     padding: 10px;
     border-bottom-left-radius: 3px;
     border-bottom-right-radius: 3px;
-    border: 1px solid #eee;
     border-bottom: 1px solid #ddd;
-    border-top-width: 0;
+    border-top: 1px solid #eee;
 
     .author-avatar {
       float: left;

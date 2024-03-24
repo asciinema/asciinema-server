@@ -1,0 +1,35 @@
+<div class="asciicast-card">
+  <.link href={~p"/a/#{@asciicast}"} class="thumbnail-link">
+    <div class="play-button">
+      <span class="arrow">
+        <svg version="1.1" viewBox="0 0 12 12">
+          <path d="M1,0 L11,6 L1,12 Z" />
+        </svg>
+      </span>
+    </div>
+
+    <.thumbnail asciicast={@asciicast} />
+  </.link>
+
+  <div class="info">
+    <h3>
+      <.link href={~p"/a/#{@asciicast}"}><%= title(@asciicast) %></.link>
+      <.secret_badge :if={@asciicast.private} />
+      <.featured_badge :if={@asciicast.featured} />
+      <span class="duration"><%= duration(@asciicast) %></span>
+    </h3>
+
+    <span class="author-avatar">
+      <.link href={author_profile_path(@asciicast)} title={author_username(@asciicast)}>
+        <img src={author_avatar_url(@asciicast)} class="avatar" />
+      </.link>
+    </span>
+
+    <small>
+      by <.link href={author_profile_path(@asciicast)}><%= author_username(@asciicast) %></.link>
+      <%= if !assigns[:no_created_at] do %>
+        <%= time_ago_tag(@asciicast.inserted_at) %>
+      <% end %>
+    </small>
+  </div>
+</div>

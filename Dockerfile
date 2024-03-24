@@ -8,6 +8,7 @@ ARG ELIXIR_VERSION=1.14.3
 FROM docker.io/hexpm/elixir:${ELIXIR_VERSION}-erlang-${ERLANG_OTP_VERSION}-alpine-${ALPINE_VERSION} as builder
 
 ARG MIX_ENV=prod
+ENV ERL_FLAGS="+JPperf true"
 
 WORKDIR /opt/app
 
