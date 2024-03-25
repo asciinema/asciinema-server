@@ -5,10 +5,10 @@
 </p>
 
 <script>
-  window.addEventListener('load', function() {
+  window.addEventListener('load', async function() {
     const opts = <%= safe_json(player_opts(@asciicast, @player_opts)) %>;
 
-    const player = window.createPlayer(
+    const player = await window.createPlayer(
       <%= safe_json(player_src(@asciicast)) %>,
       document.getElementById('player'),
       {
