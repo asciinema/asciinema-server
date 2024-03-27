@@ -38,7 +38,7 @@ Notable features:
 - visibility control for recordings: unlisted (secret) or public,
 - editable recording metadata like title or long description (Markdown),
 - configurable terminal themes and font families,
-- ability to download pure text version (`.txt`) of a recording.
+- ability to download plain text version (`.txt`) of a recording.
 
 Refer to [asciinema server docs](https://docs.asciinema.org/manual/server/) for
 further details.
