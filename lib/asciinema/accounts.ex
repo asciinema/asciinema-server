@@ -75,6 +75,7 @@ defmodule Asciinema.Accounts do
       :name,
       :username,
       :theme_name,
+      :theme_prefer_original,
       :terminal_font_family,
       :asciicasts_private_by_default
     ])

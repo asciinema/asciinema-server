@@ -140,7 +140,7 @@ defmodule Asciinema.Recordings do
       )
 
     with {:ok, metadata} <- extract_metadata(upload),
-         changeset = apply_metadata(changeset, metadata),
+         changeset = apply_metadata(changeset, metadata, user.theme_prefer_original),
          {:ok, %Asciicast{} = asciicast} <- do_create_asciicast(changeset, upload) do
       if asciicast.snapshot == nil do
         :ok = SnapshotUpdater.update_snapshot(asciicast)
@@ -235,9 +235,12 @@ defmodule Asciinema.Recordings do
     |> Enum.reduce(fn {t, _}, _prev_t -> t end)
   end
 
-  defp apply_metadata(changeset, metadata) do
+  defp apply_metadata(changeset, metadata, prefer_original_theme) do
+    theme_name = if metadata[:theme_palette] && prefer_original_theme, do: "original"
+
     changeset
     |> put_change(:version, metadata.version)
+    |> put_change(:theme_name, theme_name)
     |> cast(metadata, [
       :duration,
       :cols,
@@ -311,7 +314,7 @@ defmodule Asciinema.Recordings do
     |> validate_number(:cols_override, greater_than: 0, less_than: 1024)
     |> validate_number(:rows_override, greater_than: 0, less_than: 512)
     |> validate_number(:idle_time_limit, greater_than_or_equal_to: 0.5)
-    |> validate_inclusion(:theme_name, Themes.terminal_themes())
+    |> validate_inclusion(:theme_name, Themes.terminal_themes() ++ ["original"])
     |> validate_number(:terminal_line_height,
       greater_than_or_equal_to: 1.0,
       less_than_or_equal_to: 2.0

@@ -108,7 +108,7 @@
             <.input
               type="select"
               field={f[:theme_name]}
-              options={theme_options()}
+              options={theme_options(@changeset.data)}
               class="form-control"
               prompt={default_theme_display_name(@changeset.data)}
             />
