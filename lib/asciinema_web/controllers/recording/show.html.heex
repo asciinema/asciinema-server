@@ -184,7 +184,7 @@
 
     const player = await window.createPlayer(
       <%= safe_json(player_src(@asciicast)) %>,
-      document.getElementById('cinema'),
+      container,
       {
         ...opts,
         fit: 'both',
