@@ -67,7 +67,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
 
   def handle_info(%LiveStreamServer.Update{event: e, data: data}, state)
       when e in [:info, :reset] do
-    {{cols, rows}, _, _} = data
+    {{cols, rows}, _, _, _} = data
     Logger.info("consumer/#{state.stream_id}: reset (#{cols}x#{rows})")
 
     {:push, reset_message(data), %{state | reset: true}}
@@ -124,18 +124,36 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     {:binary, msg}
   end
 
-  defp reset_message({{cols, rows}, init, time}) do
-    # TODO
-    theme_format = 0
+  defp reset_message({{cols, rows}, init, time, nil}) do
+    theme_absent = 0
     init = init || ""
     init_len = byte_size(init)
 
     msg = <<
-      @msg_type_reset,
+      @msg_type_reset::8,
       cols::little-16,
       rows::little-16,
       time::little-float-32,
-      theme_format::unsigned-8,
+      theme_absent::8,
+      init_len::little-32,
+      init::binary
+    >>
+
+    {:binary, msg}
+  end
+
+  defp reset_message({{cols, rows}, init, time, theme}) do
+    theme_present = 1
+    init = init || ""
+    init_len = byte_size(init)
+
+    msg = <<
+      @msg_type_reset::8,
+      cols::little-16,
+      rows::little-16,
+      time::little-float-32,
+      theme_present::8,
+      theme::binary-size(18 * 3),
       init_len::little-32,
       init::binary
     >>
