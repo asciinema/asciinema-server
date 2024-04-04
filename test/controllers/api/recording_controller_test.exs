@@ -26,15 +26,28 @@ defmodule Asciinema.Api.RecordingControllerTest do
       assert List.first(get_resp_header(conn, "location")) =~ @recording_url
     end
 
-    test "json file, v2 format", %{conn: conn} do
+    test "json file, v2 format, minimal", %{conn: conn} do
       upload = fixture(:upload, %{path: "2/minimal.cast"})
       conn = post conn, Routes.api_recording_path(conn, :create), %{"asciicast" => upload}
       assert text_response(conn, 201) =~ @successful_response
       assert List.first(get_resp_header(conn, "location")) =~ @recording_url
     end
 
-    test "json file, v1 format (missing required data)", %{conn: conn} do
+    test "json file, v2 format, full", %{conn: conn} do
+      upload = fixture(:upload, %{path: "2/full.cast"})
+      conn = post conn, Routes.api_recording_path(conn, :create), %{"asciicast" => upload}
+      assert text_response(conn, 201) =~ @successful_response
+      assert List.first(get_resp_header(conn, "location")) =~ @recording_url
+    end
+
+    test "json file, v1 format, missing required data", %{conn: conn} do
       upload = fixture(:upload, %{path: "1/invalid.json"})
+      conn = post conn, Routes.api_recording_path(conn, :create), %{"asciicast" => upload}
+      assert %{"errors" => _} = json_response(conn, 422)
+    end
+
+    test "json file, v2 format, invalid theme format", %{conn: conn} do
+      upload = fixture(:upload, %{path: "2/invalid-theme.cast"})
       conn = post conn, Routes.api_recording_path(conn, :create), %{"asciicast" => upload}
       assert %{"errors" => _} = json_response(conn, 422)
     end

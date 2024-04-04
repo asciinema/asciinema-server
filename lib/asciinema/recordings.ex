@@ -235,6 +235,9 @@ defmodule Asciinema.Recordings do
     |> Enum.reduce(fn {t, _}, _prev_t -> t end)
   end
 
+  @hex_color_re ~r/^#[0-9a-f]{6}$/
+  @hex_palette_re ~r/^(#[0-9a-f]{6}:){7}((#[0-9a-f]{6}:){8})?#[0-9a-f]{6}$/
+
   defp apply_metadata(changeset, metadata, prefer_original_theme) do
     theme_name = if metadata[:theme_palette] && prefer_original_theme, do: "original"
 
@@ -257,6 +260,9 @@ defmodule Asciinema.Recordings do
       :title
     ])
     |> validate_required([:duration, :cols, :rows])
+    |> validate_format(:theme_fg, @hex_color_re)
+    |> validate_format(:theme_bg, @hex_color_re)
+    |> validate_format(:theme_palette, @hex_palette_re)
   end
 
   defp decode_json(json) do
