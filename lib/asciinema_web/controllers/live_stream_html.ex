@@ -1,6 +1,6 @@
 defmodule AsciinemaWeb.LiveStreamHTML do
   use AsciinemaWeb, :html
-  alias Asciinema.{Fonts, Media, Themes}
+  alias Asciinema.{Accounts, Fonts, Media, Themes}
   alias AsciinemaWeb.{MediaView, RecordingView}
 
   embed_templates "live_stream/*"
@@ -24,12 +24,20 @@ defmodule AsciinemaWeb.LiveStreamHTML do
       cols: cols(stream),
       rows: rows(stream),
       autoplay: true,
-      theme: Media.theme_name(stream),
+      theme: theme_name(stream),
       terminalLineHeight: stream.terminal_line_height,
       customTerminalFontFamily: Media.font_family(stream)
     ]
     |> Keyword.merge(opts)
     |> Enum.into(%{})
+  end
+
+  defp theme_name(stream) do
+    if stream.theme_prefer_original do
+      "auto/#{Media.theme_name(stream)}"
+    else
+      Media.theme_name(stream)
+    end
   end
 
   def cinema_height(stream) do
@@ -38,12 +46,12 @@ defmodule AsciinemaWeb.LiveStreamHTML do
 
   def title(stream), do: stream.title || "#{author_username(stream)}'s live stream"
 
-  def default_theme_display_name(user) do
-    Themes.display_name(user.theme_name || "asciinema")
+  def default_theme_display_name(stream) do
+    "Account default (#{Themes.display_name(Accounts.default_theme_name(stream.user) || "asciinema")})"
   end
 
   def default_font_display_name(user) do
-    Fonts.display_name(user.terminal_font_family || "default")
+    Fonts.display_name(Accounts.default_font_family(user) || "default")
   end
 
   @http_to_ws %{"http" => "ws", "https" => "wss"}

@@ -262,7 +262,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
     last_stream_time + Timex.diff(Timex.now(), last_feed_time, :milliseconds) / 1000.0
   end
 
-  defp theme_fields(nil), do: []
+  defp theme_fields(nil), do: [theme_fg: nil, theme_bg: nil, theme_palette: nil]
 
   defp theme_fields(theme) when byte_size(theme) == 18 * 3 do
     colors = for <<r::8, g::8, b::8 <- theme>>, do: Colors.hex(r, g, b)

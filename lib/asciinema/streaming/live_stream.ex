@@ -16,6 +16,7 @@ defmodule Asciinema.Streaming.LiveStream do
     field :theme_fg, :string
     field :theme_bg, :string
     field :theme_palette, :string
+    field :theme_prefer_original, :boolean, default: true
     field :terminal_line_height, :float
     field :terminal_font_family, :string
     field :current_viewer_count, :integer
