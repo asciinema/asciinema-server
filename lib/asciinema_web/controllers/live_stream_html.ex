@@ -15,7 +15,7 @@ defmodule AsciinemaWeb.LiveStreamHTML do
     %{
       driver: "websocket",
       url: ws_consumer_url(stream),
-      bufferTime: stream.buffer_time || 1.0
+      bufferTime: stream.buffer_time
     }
   end
 
