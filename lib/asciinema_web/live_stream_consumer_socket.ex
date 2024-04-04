@@ -36,8 +36,9 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
 
         live_stream ->
           send(self(), :push_alis_header)
-          LiveStreamServer.subscribe(live_stream.id, :stream)
-          LiveStreamServer.subscribe(live_stream.id, :status)
+          LiveStreamServer.subscribe(live_stream.id, :reset)
+          LiveStreamServer.subscribe(live_stream.id, :feed)
+          LiveStreamServer.subscribe(live_stream.id, :offline)
           LiveStreamServer.request_info(live_stream.id)
           ViewerTracker.track(live_stream.id)
           Process.send_after(self(), :info_timeout, @info_timeout)
@@ -81,12 +82,8 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     {:ok, state}
   end
 
-  def handle_info(%LiveStreamServer.Update{event: :status, data: :offline}, state) do
+  def handle_info(%LiveStreamServer.Update{event: :offline}, state) do
     {:push, offline_message(), state}
-  end
-
-  def handle_info(%LiveStreamServer.Update{event: :status, data: :online}, state) do
-    {:ok, state}
   end
 
   def handle_info(:ping, state) do
