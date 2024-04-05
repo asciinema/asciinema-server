@@ -111,16 +111,16 @@
         <p class="text-danger">Do not share this with anyone. Use it only with
           the commands provided below to go live.</p>
 
-        <h3>Stream with asciinema (2.2+) + asp:</h3>
+        <h3>Stream with asciinema CLI (3.0+):</h3>
         <.input
           name="rec-cmd-asciinema-streamer"
           data-behavior="auto-select"
           readonly
-          value={"asciinema rec - | asp -f #{ws_producer_url(@stream)}"}
+          value={"asciinema stream -f #{ws_producer_url(@stream)}"}
         />
 
         <h3>
-          Stream with asciinema (2.2+) + <a href="https://github.com/vi/websocat">websocat</a>:
+          Stream with asciinema CLI (2.2+) + <a href="https://github.com/vi/websocat">websocat</a>:
         </h3>
         <.input
           name="rec-cmd-asciinema-websocat"
@@ -128,29 +128,6 @@
           readonly
           value={"asciinema rec - | websocat #{ws_producer_url(@stream)}"}
         />
-
-        <h3>
-          Stream with asciinema (&lt;2.2) + <a href="https://github.com/vi/websocat">websocat</a>:
-        </h3>
-        <pre><code>mkfifo live.pipe
-
-# in shell 1
-websocat <%= ws_producer_url(@stream) %> &lt;live.pipe
-
-# in shell 2
-asciinema rec live.pipe</code></pre>
-
-        <h3>
-          Stream with <a href="https://en.wikipedia.org/wiki/Script_(Unix)">script</a> + asp:
-        </h3>
-        <pre><code>mkfifo live.pipe
-
-# in shell 1
-asp --in-fmt raw -i live.pipe -f <%= ws_producer_url(@stream) %>&nbsp;
-
-# in shell 2
-script -f -O live.pipe
-</code></pre>
 
         <h3>
           Stream with <a href="https://en.wikipedia.org/wiki/Script_(Unix)">script</a>
