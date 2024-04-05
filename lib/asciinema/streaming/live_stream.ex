@@ -30,12 +30,6 @@ defmodule Asciinema.Streaming.LiveStream do
   end
 
   defimpl Phoenix.Param do
-    def to_param(%{private: true, secret_token: secret_token}) do
-      secret_token
-    end
-
-    def to_param(%{id: id}) do
-      Integer.to_string(id)
-    end
+    def to_param(%{secret_token: secret_token}), do: secret_token
   end
 end
