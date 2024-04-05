@@ -60,6 +60,24 @@
         </div>
 
         <div class="form-group row">
+          <.label for={f[:terminal_font_family]} class="col-sm-4 col-md-3 col-lg-3 col-form-label">
+            Terminal font family
+          </.label>
+          <div class="col-sm-8 col-md-9 col-lg-9">
+            <.input
+              type="select"
+              field={f[:terminal_font_family]}
+              options={font_family_options()}
+              class="form-control"
+              prompt={"Account default (#{default_font_display_name(@changeset.data.user)})"}
+            />
+            <small class="form-text text-muted">
+              Pick one of the Nerd Font variants if icons or other symbols in your stream are not visible.
+            </small>
+          </div>
+        </div>
+
+        <div class="form-group row">
           <.label for={f[:terminal_line_height]} class="col-sm-4 col-md-3 col-lg-3 col-form-label">
             Terminal line height
           </.label>
@@ -76,24 +94,6 @@
             <.error field={f[:terminal_line_height]} />
             <small class="form-text text-muted">
               Relative to the font size. Lowering it to ~1.1 helps with vertical alignment of ascii drawing characters such as └ | ┐
-            </small>
-          </div>
-        </div>
-
-        <div class="form-group row">
-          <.label for={f[:terminal_font_family]} class="col-sm-4 col-md-3 col-lg-3 col-form-label">
-            Terminal font family
-          </.label>
-          <div class="col-sm-8 col-md-9 col-lg-9">
-            <.input
-              type="select"
-              field={f[:terminal_font_family]}
-              options={font_family_options()}
-              class="form-control"
-              prompt={"Account default (#{default_font_display_name(@changeset.data.user)})"}
-            />
-            <small class="form-text text-muted">
-              Pick one of the Nerd Font variants if icons or other symbols in your stream are not visible.
             </small>
           </div>
         </div>
