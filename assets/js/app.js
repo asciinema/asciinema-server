@@ -25,8 +25,20 @@ $(function() {
       link.href = window.location.origin + window.location.pathname + '.txt';
     })
   });
-});
 
+  document.querySelectorAll('#flash-notice button[data-behavior=close], #flash-alert button[data-behavior=close]').forEach(button => {
+    button.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.target.closest('section').classList.add('hidden');
+    })
+  });
+
+  setTimeout(() => {
+    document.querySelectorAll('#flash-notice, #flash-alert').forEach(section => {
+      section.classList.add('hidden');
+    });
+  }, 5000);
+});
 
 import {Socket} from "phoenix";
 import {LiveSocket} from "phoenix_live_view";

@@ -1,4 +1,12 @@
 section.flash {
+  max-height: 200px;
+  overflow: hidden;
+  transition: max-height 0.2s ease-out;
+
+  &.hidden {
+    max-height: 0px;
+  }
+
   .container {
     padding-top: 10px;
     padding-bottom: 10px;
@@ -21,4 +29,8 @@ section.flash {
   padding: 0;
   border: 0;
   border-radius: 0;
+
+  .close {
+    color: white;
+  }
 }
