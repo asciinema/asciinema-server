@@ -173,7 +173,7 @@ defmodule AsciinemaWeb.RecordingController do
     case Recordings.update_asciicast(asciicast, asciicast_params) do
       {:ok, asciicast} ->
         conn
-        |> put_flash(:info, "Asciicast updated.")
+        |> put_flash(:info, "Recording updated.")
         |> redirect(to: ~p"/a/#{asciicast}")
 
       {:error, %Ecto.Changeset{} = changeset} ->
@@ -187,12 +187,12 @@ defmodule AsciinemaWeb.RecordingController do
     case Recordings.delete_asciicast(asciicast) do
       {:ok, _asciicast} ->
         conn
-        |> put_flash(:info, "Asciicast deleted.")
+        |> put_flash(:info, "Recording deleted.")
         |> redirect(to: profile_path(conn, conn.assigns.current_user))
 
       {:error, _reason} ->
         conn
-        |> put_flash(:error, "Oops, couldn't remove this asciicast.")
+        |> put_flash(:error, "Oops, couldn't remove this recording.")
         |> redirect(to: ~p"/a/#{asciicast}")
     end
   end
