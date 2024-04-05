@@ -176,13 +176,9 @@ script -f -O live.pipe</code></pre>
           Recordings by <a href={author_profile_path(@stream)}><%= author_username(@stream) %></a>
         </h2>
 
-        <div class="asciicast-list">
-          <div class="row">
-            <%= for asciicast <- @author_asciicasts do %>
-              <div class="col-md-6">
-                <%= render(RecordingView, "_card.html", conn: @conn, asciicast: asciicast) %>
-              </div>
-            <% end %>
+        <div class="row asciicast-list">
+          <div :for={asciicast <- @author_asciicasts} class="col-md-6">
+            <RecordingHTML.card asciicast={asciicast} />
           </div>
         </div>
 

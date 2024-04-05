@@ -1,7 +1,7 @@
 defmodule AsciinemaWeb.LiveStreamHTML do
   use AsciinemaWeb, :html
   alias Asciinema.{Accounts, Fonts, Media, Themes}
-  alias AsciinemaWeb.{MediaView, RecordingView}
+  alias AsciinemaWeb.{MediaView, RecordingHTML}
 
   embed_templates "live_stream/*"
 
