@@ -100,27 +100,16 @@
 
         <h2>How to stream</h2>
 
-        <h3>Producer endpoint:</h3>
-        <.input
-          name="producer-url"
-          data-behavior="auto-select"
-          readonly
-          value={ws_producer_url(@stream)}
-        />
-
-        <p class="text-danger">Do not share this with anyone. Use it only with
-          the commands provided below to go live.</p>
-
-        <h3>Stream with asciinema (2.2+) + asp:</h3>
+        <h3>Stream with asciinema CLI (3.0+):</h3>
         <.input
           name="rec-cmd-asciinema-streamer"
           data-behavior="auto-select"
           readonly
-          value={"asciinema rec - | asp -f #{ws_producer_url(@stream)}"}
+          value={"asciinema stream -f #{ws_producer_url(@stream)}"}
         />
 
         <h3>
-          Stream with asciinema (2.2+) + <a href="https://github.com/vi/websocat">websocat</a>:
+          Stream with asciinema CLI (2.2+) + <a href="https://github.com/vi/websocat">websocat</a>:
         </h3>
         <.input
           name="rec-cmd-asciinema-websocat"
@@ -128,29 +117,6 @@
           readonly
           value={"asciinema rec - | websocat #{ws_producer_url(@stream)}"}
         />
-
-        <h3>
-          Stream with asciinema (&lt;2.2) + <a href="https://github.com/vi/websocat">websocat</a>:
-        </h3>
-        <pre><code>mkfifo live.pipe
-
-# in shell 1
-websocat <%= ws_producer_url(@stream) %> &lt;live.pipe
-
-# in shell 2
-asciinema rec live.pipe</code></pre>
-
-        <h3>
-          Stream with <a href="https://en.wikipedia.org/wiki/Script_(Unix)">script</a> + asp:
-        </h3>
-        <pre><code>mkfifo live.pipe
-
-# in shell 1
-asp --in-fmt raw -i live.pipe -f <%= ws_producer_url(@stream) %>&nbsp;
-
-# in shell 2
-script -f -O live.pipe
-</code></pre>
 
         <h3>
           Stream with <a href="https://en.wikipedia.org/wiki/Script_(Unix)">script</a>
@@ -163,6 +129,17 @@ websocat --binary <%= ws_producer_url(@stream) %> &lt;live.pipe
 
 # in shell 2
 script -f -O live.pipe</code></pre>
+
+        <h3>Producer endpoint:</h3>
+        <.input
+          name="producer-url"
+          data-behavior="auto-select"
+          readonly
+          value={ws_producer_url(@stream)}
+        />
+
+        <p class="text-danger">Do not share this with anyone. Use it only with
+          the commands above to go live.</p>
       </div>
     </div>
   </div>
@@ -176,13 +153,9 @@ script -f -O live.pipe</code></pre>
           Recordings by <a href={author_profile_path(@stream)}><%= author_username(@stream) %></a>
         </h2>
 
-        <div class="asciicast-list">
-          <div class="row">
-            <%= for asciicast <- @author_asciicasts do %>
-              <div class="col-md-6">
-                <%= render(RecordingView, "_card.html", conn: @conn, asciicast: asciicast) %>
-              </div>
-            <% end %>
+        <div class="row asciicast-list">
+          <div :for={asciicast <- @author_asciicasts} class="col-md-6">
+            <RecordingHTML.card asciicast={asciicast} />
           </div>
         </div>
 

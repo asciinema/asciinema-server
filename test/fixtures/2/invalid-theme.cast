@@ -1,0 +1,4 @@
+{"version": 2, "width": 96, "height": 26, "theme": {"fg": "white", "bg": "000000", "palette": ""}}
+[1.234567, "o", "foo bar"]
+[5.678987, "o", "baz qux"]
+[8.456789, "o", "żółć jaźń"]

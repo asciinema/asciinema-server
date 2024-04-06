@@ -12,7 +12,7 @@ defmodule AsciinemaWeb.RecordingHTML do
   defdelegate author_profile_path(asciicast), to: MediaView
   defdelegate theme(asciicast), to: Media
   defdelegate theme_name(asciicast), to: Media
-  defdelegate theme_options, to: MediaView
+  defdelegate theme_options(asciicast), to: MediaView
   defdelegate font_family_options, to: MediaView
   defdelegate username(user), to: UserHTML
   defdelegate title(asciicast), to: Recordings
@@ -95,11 +95,9 @@ defmodule AsciinemaWeb.RecordingHTML do
 
   def rows(asciicast), do: asciicast.rows_override || asciicast.rows
 
-  def default_theme_display_name(%{theme_palette: nil} = asciicast) do
+  def default_theme_display_name(asciicast) do
     "Account default (#{Themes.display_name(Accounts.default_theme_name(asciicast.user) || "asciinema")})"
   end
-
-  def default_theme_display_name(_asciicast), do: "Original"
 
   def default_font_display_name(user) do
     Fonts.display_name(Accounts.default_font_family(user) || "default")

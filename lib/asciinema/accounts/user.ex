@@ -10,6 +10,7 @@ defmodule Asciinema.Accounts.User do
     field :name, :string
     field :auth_token, :string
     field :theme_name, :string
+    field :theme_prefer_original, :boolean, default: true
     field :terminal_font_family, :string
     field :asciicasts_private_by_default, :boolean, default: true
     field :last_login_at, :utc_datetime_usec

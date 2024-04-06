@@ -47,7 +47,11 @@ defmodule Asciinema.Streaming do
 
   def create_live_stream!(user) do
     %LiveStream{}
-    |> change(secret_token: generate_secret_token(), producer_token: generate_producer_token())
+    |> change(
+      secret_token: generate_secret_token(),
+      producer_token: generate_producer_token(),
+      theme_prefer_original: user.theme_prefer_original
+    )
     |> put_assoc(:user, user)
     |> Repo.insert!()
   end
@@ -61,6 +65,7 @@ defmodule Asciinema.Streaming do
       :description,
       :private,
       :theme_name,
+      :theme_prefer_original,
       :buffer_time,
       :terminal_line_height,
       :terminal_font_family
