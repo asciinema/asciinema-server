@@ -100,7 +100,7 @@
 
         <h2>How to stream</h2>
 
-        <h3>Stream with asciinema CLI (3.0+):</h3>
+        <h3>asciinema CLI (3.0+):</h3>
         <.input
           name="rec-cmd-asciinema-streamer"
           data-behavior="auto-select"
@@ -109,7 +109,7 @@
         />
 
         <h3>
-          Stream with asciinema CLI (2.2+) + <a href="https://github.com/vi/websocat">websocat</a>:
+          asciinema CLI (2.2+) + <a href="https://github.com/vi/websocat">websocat</a>:
         </h3>
         <.input
           name="rec-cmd-asciinema-websocat"
@@ -119,12 +119,11 @@
         />
 
         <h3>
-          Stream with <a href="https://en.wikipedia.org/wiki/Script_(Unix)">script</a>
+          <a href="https://en.wikipedia.org/wiki/Script_(Unix)">script</a>
           + <a href="https://github.com/vi/websocat">websocat</a>:
         </h3>
-        <pre><code>mkfifo live.pipe
-
-# in shell 1
+        <pre><code># in shell 1
+mkfifo live.pipe
 websocat --binary <%= ws_producer_url(@stream) %> &lt;live.pipe
 
 # in shell 2
