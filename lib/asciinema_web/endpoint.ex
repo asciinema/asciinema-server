@@ -14,7 +14,6 @@ defmodule AsciinemaWeb.Endpoint do
 
   socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]]
 
-  # compress helps at all?
   socket "/ws/S/:producer_token", AsciinemaWeb.LiveStreamProducerSocket,
     websocket: [path: "", compress: true]
 
