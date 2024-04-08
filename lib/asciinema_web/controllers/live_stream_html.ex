@@ -54,21 +54,6 @@ defmodule AsciinemaWeb.LiveStreamHTML do
     Fonts.display_name(Accounts.default_font_family(user) || "default")
   end
 
-  @http_to_ws %{"http" => "ws", "https" => "wss"}
-
-  defp ws_producer_url(live_stream) do
-    uri = AsciinemaWeb.Endpoint.struct_url()
-    scheme = @http_to_ws[uri.scheme]
-    path = "/ws/S/#{live_stream.producer_token}"
-
-    to_string(%{uri | scheme: scheme, path: path})
-  end
-
-  defp ws_consumer_url(live_stream) do
-    param = Phoenix.Param.to_param(live_stream)
-    String.replace(AsciinemaWeb.Endpoint.url() <> "/ws/s/#{param}", ~r/^http/, "ws")
-  end
-
   defp cols(stream), do: stream.cols || 80
 
   defp rows(stream), do: stream.rows || 24
