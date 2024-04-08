@@ -16,16 +16,8 @@ defmodule Asciinema.Streaming do
 
   def get_live_stream(id) when is_binary(id) do
     stream =
-      cond do
-        String.match?(id, ~r/[[:alpha:]]/) ->
-          Repo.one(from(s in LiveStream, where: s.secret_token == ^id))
-
-        String.match?(id, ~r/^\d+$/) ->
-          id = String.to_integer(id)
-          Repo.one(from(s in LiveStream, where: s.private == false and s.id == ^id))
-
-        true ->
-          nil
+      if String.match?(id, ~r/[[:alpha:]]/) do
+        Repo.one(from(s in LiveStream, where: s.secret_token == ^id))
       end
 
     Repo.preload(stream, :user)
