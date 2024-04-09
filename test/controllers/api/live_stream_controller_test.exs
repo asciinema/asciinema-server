@@ -12,37 +12,37 @@ defmodule Asciinema.Api.LiveStreamControllerTest do
     {:ok, conn: add_auth_header(conn, install_id), user: register_install_id(install_id, mode)}
   end
 
-  describe "show" do
+  describe "get default stream" do
     @tag install_id: nil
-    test "missing auth", %{conn: conn} do
+    test "responds with 401 when auth missing", %{conn: conn} do
       conn = get(conn, ~p"/api/stream")
       assert response(conn, 401)
     end
 
     @tag register: false
-    test "unknown CLI", %{conn: conn} do
+    test "responds with 401 when the install ID is unknown", %{conn: conn} do
       conn = get(conn, ~p"/api/stream")
       assert response(conn, 401)
     end
 
     @tag register: :revoked
-    test "revoked CLI", %{conn: conn} do
+    test "responds with 401 when the install ID has been revoked", %{conn: conn} do
       conn = get(conn, ~p"/api/stream")
       assert response(conn, 401)
     end
 
     @tag register: :tmp
-    test "unregistered CLI", %{conn: conn} do
+    test "responds with 401 when the user has not been verified", %{conn: conn} do
       conn = get(conn, ~p"/api/stream")
       assert json_response(conn, 401)
     end
 
-    test "no stream available", %{conn: conn} do
+    test "responds with 404 when no stream is available", %{conn: conn} do
       conn = get(conn, ~p"/api/stream")
       assert %{} = json_response(conn, 404)
     end
 
-    test "one stream available", %{conn: conn, user: user} do
+    test "responds with stream info when a stream is available", %{conn: conn, user: user} do
       %{producer_token: producer_token, secret_token: param} = Streaming.create_live_stream!(user)
       conn = get(conn, ~p"/api/stream")
 
