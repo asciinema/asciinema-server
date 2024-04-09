@@ -6,8 +6,8 @@ defmodule AsciinemaWeb.Api.LiveStreamController do
   plug :accepts, ~w(json)
   plug :authenticate
 
-  def show(conn, _params) do
-    if stream = Streaming.get_live_stream(conn.assigns.current_user) do
+  def show(conn, params) do
+    if stream = Streaming.get_live_stream(conn.assigns.current_user, params["id"]) do
       json(conn, %{
         url: url(~p"/s/#{stream}"),
         ws_producer_url: Routes.Extra.ws_producer_url(stream)

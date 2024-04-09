@@ -101,6 +101,7 @@ defmodule AsciinemaWeb.Router do
   scope "/api", AsciinemaWeb.Api, as: :api do
     post "/asciicasts", RecordingController, :create
     get "/stream", LiveStreamController, :show
+    get "/streams/:id", LiveStreamController, :show
   end
 
   scope "/dev" do

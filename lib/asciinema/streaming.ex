@@ -23,9 +23,17 @@ defmodule Asciinema.Streaming do
     Repo.preload(stream, :user)
   end
 
-  def get_live_stream(%{live_streams: _} = owner) do
+  def get_live_stream(%{live_streams: _} = owner, nil) do
     owner
     |> Ecto.assoc(:live_streams)
+    |> first()
+    |> Repo.one()
+  end
+
+  def get_live_stream(%{live_streams: _} = owner, id) do
+    owner
+    |> Ecto.assoc(:live_streams)
+    |> where([s], like(s.secret_token, ^"#{id}%"))
     |> first()
     |> Repo.one()
   end
