@@ -30,6 +30,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
       case Streaming.get_live_stream(state.stream_id) do
         nil ->
           Logger.warn("consumer: stream not found for ID #{state.stream_id}")
+          :timer.sleep(1000)
           send(self(), :not_found)
 
           state

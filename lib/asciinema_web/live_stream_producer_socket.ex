@@ -27,6 +27,7 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
     case Streaming.find_live_stream_by_producer_token(token) do
       nil ->
         Logger.warn("producer: stream not found for producer token #{token}")
+        :timer.sleep(1000)
 
         :error
 
