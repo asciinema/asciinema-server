@@ -168,7 +168,7 @@ defmodule AsciinemaWeb.Router.Helpers.Extra do
     to_string(%{uri | scheme: scheme, path: path})
   end
 
-  def ws_consumer_url(stream) do
+  def ws_public_url(stream) do
     uri = Endpoint.struct_url()
     scheme = @http_to_ws[uri.scheme]
     param = Phoenix.Param.to_param(stream)

@@ -1,7 +1,7 @@
 defmodule Asciinema.Api.LiveStreamControllerTest do
   use AsciinemaWeb.ConnCase
   import Asciinema.Factory
-  alias Asciinema.{Accounts, Streaming}
+  alias Asciinema.Accounts
 
   @default_install_id "9da34ff4-9bf7-45d4-aa88-98c933b15a3f"
 
@@ -43,12 +43,12 @@ defmodule Asciinema.Api.LiveStreamControllerTest do
     end
 
     test "responds with stream info when a stream is available", %{conn: conn, user: user} do
-      %{producer_token: producer_token, secret_token: param} = Streaming.create_live_stream!(user)
+      insert(:live_stream, user: user, public_token: "foobar", producer_token: "bazqux")
       conn = get(conn, ~p"/api/user/stream")
 
       assert %{
-               "url" => "http://localhost:4001/s/" <> ^param,
-               "ws_producer_url" => "ws://localhost:4001/ws/S/" <> ^producer_token
+               "url" => "http://localhost:4001/s/foobar",
+               "ws_producer_url" => "ws://localhost:4001/ws/S/bazqux"
              } = json_response(conn, 200)
     end
   end
@@ -93,7 +93,7 @@ defmodule Asciinema.Api.LiveStreamControllerTest do
 
     test "responds with stream info when a stream is found", %{conn: conn, user: user} do
       insert(:live_stream, user: user)
-      insert(:live_stream, user: user, secret_token: "foobar", producer_token: "bazqux")
+      insert(:live_stream, user: user, public_token: "foobar", producer_token: "bazqux")
       conn = get(conn, ~p"/api/user/streams/foobar")
 
       assert %{
@@ -106,7 +106,7 @@ defmodule Asciinema.Api.LiveStreamControllerTest do
       conn: conn,
       user: user
     } do
-      insert(:live_stream, user: user, secret_token: "foobar", producer_token: "bazqux")
+      insert(:live_stream, user: user, public_token: "foobar", producer_token: "bazqux")
       conn = get(conn, ~p"/api/user/streams/foo")
 
       assert %{

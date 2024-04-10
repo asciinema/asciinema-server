@@ -17,7 +17,7 @@ defmodule Asciinema.Streaming do
   def get_live_stream(id) when is_binary(id) do
     stream =
       if String.match?(id, ~r/[[:alpha:]]/) do
-        Repo.one(from(s in LiveStream, where: s.secret_token == ^id))
+        Repo.one(from(s in LiveStream, where: s.public_token == ^id))
       end
 
     Repo.preload(stream, :user)
@@ -33,7 +33,7 @@ defmodule Asciinema.Streaming do
   def get_live_stream(%{live_streams: _} = owner, id) do
     owner
     |> Ecto.assoc(:live_streams)
-    |> where([s], like(s.secret_token, ^"#{id}%"))
+    |> where([s], like(s.public_token, ^"#{id}%"))
     |> first()
     |> Repo.one()
   end
@@ -48,7 +48,7 @@ defmodule Asciinema.Streaming do
   def create_live_stream!(user) do
     %LiveStream{}
     |> change(
-      secret_token: generate_secret_token(),
+      public_token: generate_public_token(),
       producer_token: generate_producer_token(),
       theme_prefer_original: user.theme_prefer_original
     )
@@ -136,6 +136,6 @@ defmodule Asciinema.Streaming do
     count
   end
 
-  defp generate_producer_token, do: Crypto.random_token(25)
-  defp generate_secret_token, do: Crypto.random_token(25)
+  defp generate_public_token, do: Crypto.random_token(16)
+  defp generate_producer_token, do: Crypto.random_token(16)
 end
