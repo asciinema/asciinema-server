@@ -31,9 +31,9 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
 
         :error
 
-      live_stream ->
+      stream ->
         state = %{
-          stream_id: live_stream.id,
+          stream_id: stream.id,
           status: :new,
           parser: nil,
           bucket: %{

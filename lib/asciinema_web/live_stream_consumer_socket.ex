@@ -35,17 +35,17 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
 
           state
 
-        live_stream ->
+        stream ->
           send(self(), :push_alis_header)
-          LiveStreamServer.subscribe(live_stream.id, :reset)
-          LiveStreamServer.subscribe(live_stream.id, :feed)
-          LiveStreamServer.subscribe(live_stream.id, :offline)
-          LiveStreamServer.request_info(live_stream.id)
-          ViewerTracker.track(live_stream.id)
+          LiveStreamServer.subscribe(stream.id, :reset)
+          LiveStreamServer.subscribe(stream.id, :feed)
+          LiveStreamServer.subscribe(stream.id, :offline)
+          LiveStreamServer.request_info(stream.id)
+          ViewerTracker.track(stream.id)
           Process.send_after(self(), :info_timeout, @info_timeout)
           Process.send_after(self(), :ping, @ping_interval)
 
-          %{stream_id: live_stream.id, reset: false}
+          %{stream_id: stream.id, reset: false}
       end
 
     {:ok, state}
