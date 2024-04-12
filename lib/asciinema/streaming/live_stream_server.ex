@@ -71,6 +71,8 @@ defmodule Asciinema.Streaming.LiveStreamServer do
 
   @impl true
   def handle_call(:lead, {pid, _} = _from, state) do
+    state = reschedule_shutdown(state)
+
     {:reply, :ok, %{state | producer: pid}}
   end
 
