@@ -7,7 +7,9 @@ defmodule AsciinemaWeb.Api.LiveStreamController do
   plug :authenticate
 
   def show(conn, params) do
-    if stream = Streaming.get_live_stream(conn.assigns.current_user, params["id"]) do
+    id = params["id"]
+
+    if stream = Streaming.get_live_stream(conn.assigns.current_user, id) do
       json(conn, %{
         url: url(~p"/s/#{stream}"),
         ws_producer_url: Routes.Extra.ws_producer_url(stream)
@@ -15,7 +17,7 @@ defmodule AsciinemaWeb.Api.LiveStreamController do
     else
       conn
       |> put_status(404)
-      |> json(%{})
+      |> json(%{reason: not_found_reason(id)})
     end
   end
 
@@ -32,4 +34,7 @@ defmodule AsciinemaWeb.Api.LiveStreamController do
         |> halt()
     end
   end
+
+  defp not_found_reason(nil), do: "stream not available for this account"
+  defp not_found_reason(id), do: "stream #{id} not found"
 end
