@@ -8,9 +8,6 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
   @parser_check_timeout 5_000
   @client_ping_interval 15_000
   @server_heartbeat_interval 15_000
-  @default_bucket_fill_interval 100
-  @default_bucket_fill_amount 10_000
-  @default_bucket_size 60_000_000
 
   # Callbacks
 
@@ -25,19 +22,8 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
         handle_error({:stream_not_found, token}, %{stream_id: "?"})
 
       stream ->
-        state = %{
-          stream_id: stream.id,
-          status: :new,
-          parser: nil,
-          bucket: %{
-            size: config(:bucket_size, @default_bucket_size),
-            tokens: config(:bucket_size, @default_bucket_size),
-            fill_interval: config(:bucket_fill_interval, @default_bucket_fill_interval),
-            fill_amount: config(:bucket_fill_amount, @default_bucket_fill_amount)
-          }
-        }
-
-        Logger.info("producer/#{state.stream_id}: connected")
+        Logger.info("producer/#{stream.id}: connected")
+        state = build_state(stream.id)
         Process.send_after(self(), :parser_check, @parser_check_timeout)
         Process.send_after(self(), :client_ping, @client_ping_interval)
         Process.send_after(self(), :bucket_fill, state.bucket.fill_interval)
@@ -136,6 +122,24 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
   end
 
   # Private
+
+  @default_bucket_fill_interval 100
+  @default_bucket_fill_amount 10_000
+  @default_bucket_size 60_000_000
+
+  defp build_state(stream_id) do
+    %{
+      stream_id: stream_id,
+      status: :new,
+      parser: nil,
+      bucket: %{
+        size: config(:bucket_size, @default_bucket_size),
+        tokens: config(:bucket_size, @default_bucket_size),
+        fill_interval: config(:bucket_fill_interval, @default_bucket_fill_interval),
+        fill_amount: config(:bucket_fill_amount, @default_bucket_fill_amount)
+      }
+    }
+  end
 
   defp run_parser(%{impl: impl, state: state}, message) do
     with {:error, reason} <- impl.parse(message, state) do
