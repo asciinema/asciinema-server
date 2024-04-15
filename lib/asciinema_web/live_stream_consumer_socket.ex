@@ -47,7 +47,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   def websocket_info(%LiveStreamServer.Update{event: e, data: data}, state)
       when e in [:info, :reset] do
     {{cols, rows}, _, _, _} = data
-    Logger.info("consumer/#{state.stream_id}: reset (#{cols}x#{rows})")
+    Logger.debug("consumer/#{state.stream_id}: reset (#{cols}x#{rows})")
 
     {:reply, reset_message(data), %{state | reset: true}}
   end
