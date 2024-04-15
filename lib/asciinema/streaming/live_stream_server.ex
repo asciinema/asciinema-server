@@ -100,7 +100,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
   def handle_call({:reset, _vt_size, _vt_init, _stream_time, _theme}, _from, state) do
     Logger.info("stream/#{state.stream_id}: rejecting reset from non-leader producer")
 
-    {:reply, {:error, :not_a_leader}, state}
+    {:reply, {:error, :leadership_lost}, state}
   end
 
   def handle_call({:feed, {time, data} = event}, {pid, _} = _from, %{producer: pid} = state) do
@@ -125,7 +125,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
   def handle_call({:feed, _event}, _from, state) do
     Logger.info("stream/#{state.stream_id}: rejecting feed from non-leader producer")
 
-    {:reply, {:error, :not_a_leader}, state}
+    {:reply, {:error, :leadership_lost}, state}
   end
 
   def handle_call(:heartbeat, {pid, _} = _from, %{producer: pid} = state) do
@@ -137,7 +137,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
   def handle_call(:heartbeat, _from, state) do
     Logger.info("stream/#{state.stream_id}: rejecting heartbeat from non-leader producer")
 
-    {:reply, {:error, :not_a_leader}, state}
+    {:reply, {:error, :leadership_lost}, state}
   end
 
   @impl true

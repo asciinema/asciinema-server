@@ -204,7 +204,7 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
 
   defp handle_error(reason, state) do
     case reason do
-      :not_a_leader ->
+      :leadership_lost ->
         Logger.info("producer/#{state.stream_id}: leadership lost")
 
         {:reply, {:close, 4002, "leadership lost"}, state}
