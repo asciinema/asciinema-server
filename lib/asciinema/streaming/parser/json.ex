@@ -3,9 +3,9 @@ defmodule Asciinema.Streaming.Parser.Json do
 
   def init, do: %{first: true}
 
-  def parse({"\n", _opts}, state), do: {:ok, [], state}
+  def parse({:text, "\n"}, state), do: {:ok, [], state}
 
-  def parse({payload, _opts}, state) do
+  def parse({:text, payload}, state) do
     case Jason.decode(payload) do
       {:ok, message} ->
         handle_message(message, state)

@@ -3,11 +3,11 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
   alias Asciinema.Streaming.{LiveStreamServer, LiveStreamSupervisor, Parser}
   require Logger
 
-  @behaviour Phoenix.Socket.Transport
+  @behaviour :cowboy_websocket
 
   @parser_check_timeout 5_000
-  @ping_interval 15_000
-  @heartbeat_interval 15_000
+  @client_ping_interval 15_000
+  @server_heartbeat_interval 15_000
   @default_bucket_fill_interval 100
   @default_bucket_fill_amount 10_000
   @default_bucket_size 60_000_000
@@ -15,21 +15,14 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
   # Callbacks
 
   @impl true
-  def child_spec(_opts) do
-    # We won't spawn any process, so let's return a dummy task
-    %{id: __MODULE__, start: {Task, :start_link, [fn -> :ok end]}, restart: :transient}
-  end
+  def init(req, _opts),
+    do: {:cowboy_websocket, req, req.bindings[:producer_token], %{compress: true}}
 
   @impl true
-  def connect(state) do
-    token = state.params["producer_token"]
-
+  def websocket_init(token) do
     case Streaming.find_live_stream_by_producer_token(token) do
       nil ->
-        Logger.warn("producer: stream not found for producer token #{token}")
-        :timer.sleep(1000)
-
-        :error
+        handle_error({:stream_not_found, token}, %{stream_id: "?"})
 
       stream ->
         state = %{
@@ -44,73 +37,53 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
           }
         }
 
+        Logger.info("producer/#{state.stream_id}: connected")
+        Process.send_after(self(), :parser_check, @parser_check_timeout)
+        Process.send_after(self(), :client_ping, @client_ping_interval)
+        Process.send_after(self(), :bucket_fill, state.bucket.fill_interval)
+        Process.send_after(self(), :server_heartbeat, @server_heartbeat_interval)
+
         {:ok, state}
     end
   end
 
   @impl true
-  def init(state) do
-    Logger.info("producer/#{state.stream_id}: connected")
-    Process.send_after(self(), :parser_check, @parser_check_timeout)
-    Process.send_after(self(), :ping, @ping_interval)
-    Process.send_after(self(), :fill_bucket, state.bucket.fill_interval)
-    Process.send_after(self(), :heartbeat, @heartbeat_interval)
+  def websocket_handle(frame, state)
 
-    {:ok, state}
-  end
-
-  @impl true
-  def handle_in({"ALiS" <> _, [opcode: :binary]} = message, %{parser: nil} = state) do
+  def websocket_handle({:binary, "ALiS" <> _} = message, %{parser: nil} = state) do
     Logger.info("producer/#{state.stream_id}: activating ALiS parser")
     save_parser(state.stream_id, "alis")
-    handle_in(message, %{state | parser: Parser.get(:alis)})
+    websocket_handle(message, %{state | parser: Parser.get(:alis)})
   end
 
-  def handle_in({_, [opcode: :binary]} = message, %{parser: nil} = state) do
+  def websocket_handle({:binary, _} = message, %{parser: nil} = state) do
     Logger.info("producer/#{state.stream_id}: activating raw text parser")
     save_parser(state.stream_id, "raw")
-    handle_in(message, %{state | parser: Parser.get(:raw)})
+    websocket_handle(message, %{state | parser: Parser.get(:raw)})
   end
 
-  def handle_in({_, [opcode: :text]} = message, %{parser: nil} = state) do
+  def websocket_handle({:text, _} = message, %{parser: nil} = state) do
     Logger.info("producer/#{state.stream_id}: activating json parser")
     save_parser(state.stream_id, "json")
-    handle_in(message, %{state | parser: Parser.get(:json)})
+    websocket_handle(message, %{state | parser: Parser.get(:json)})
   end
 
-  def handle_in({payload, _} = message, %{parser: parser} = state) do
+  def websocket_handle({_, payload} = message, %{parser: parser} = state) do
     with {:ok, commands, new_parser_state} <- run_parser(parser, message),
          {:ok, state} <- run_commands(commands, state),
          {:ok, state} <- drain_bucket(state, byte_size(payload)) do
       {:ok, put_in(state, [:parser, :state], new_parser_state)}
     else
-      {:error, :not_a_leader} ->
-        Logger.info("producer/#{state.stream_id}: stream taken over by another producer")
-
-        {:stop, :normal, state}
-
-      {:error, {:invalid_vt_size, {cols, rows}}} ->
-        Logger.info("producer/#{state.stream_id}: invalid vt size: #{cols}x#{rows}")
-
-        {:stop, :normal, state}
-
-      {:error, :bucket_empty} ->
-        Logger.info("producer/#{state.stream_id}: byte budget exceeded")
-
-        # TODO use reason other than :normal to make producer reconnect
-        {:stop, :normal, state}
-
-      {:error, {:parser, reason}} ->
-        Logger.debug("producer/#{state.stream_id}: message: #{inspect(payload)}")
-        Logger.warn("producer/#{state.stream_id}: parser error: #{reason}")
-
-        {:stop, :normal, state}
+      {:error, reason} ->
+        handle_error(reason, state)
     end
   end
 
+  def websocket_handle(_message, state), do: {:ok, state}
+
   defp run_parser(%{impl: impl, state: state}, message) do
     with {:error, reason} <- impl.parse(message, state) do
-      {:error, {:parser, reason}}
+      {:error, {:parser, reason, message}}
     end
   end
 
@@ -153,13 +126,9 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
     end
   end
 
-  defp run_command({:resize, size}, _state) do
-    {:error, {:invalid_vt_size, size}}
-  end
+  defp run_command({:resize, size}, _state), do: {:error, {:invalid_vt_size, size}}
 
-  defp run_command({:status, :offline}, %{status: :new} = state) do
-    {:ok, state}
-  end
+  defp run_command({:status, :offline}, %{status: :new} = state), do: {:ok, state}
 
   defp run_command({:status, :offline}, %{status: :online} = state) do
     Logger.info("producer/#{state.stream_id}: stream went offline, stopping server")
@@ -174,68 +143,99 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
     Logger.info("producer/#{state.stream_id}: stream went online, starting server")
     {:ok, _pid} = LiveStreamSupervisor.ensure_child(state.stream_id)
     :ok = LiveStreamServer.lead(state.stream_id)
-    Process.send_after(self(), :heartbeat, @heartbeat_interval)
+    Process.send_after(self(), :server_heartbeat, @server_heartbeat_interval)
 
     %{state | status: :online}
   end
 
   @impl true
-  def handle_info(:ping, state) do
-    Process.send_after(self(), :ping, @ping_interval)
+  def websocket_info(:client_ping, state) do
+    Process.send_after(self(), :client_ping, @client_ping_interval)
 
-    {:push, {:ping, ""}, state}
+    {:reply, :ping, state}
   end
 
-  def handle_info(:heartbeat, state) do
-    Process.send_after(self(), :heartbeat, @heartbeat_interval)
+  def websocket_info(:server_heartbeat, state) do
+    Process.send_after(self(), :server_heartbeat, @server_heartbeat_interval)
 
-    send_heartbeat(state)
+    case state do
+      %{status: :online} ->
+        case LiveStreamServer.heartbeat(state.stream_id) do
+          :ok ->
+            {:ok, state}
+
+          {:error, reason} ->
+            handle_error(reason, state)
+        end
+
+      _ ->
+        {:ok, state}
+    end
   end
 
-  def handle_info(:parser_check, %{parser: nil} = state) do
-    Logger.info("producer/#{state.stream_id}: initial message timeout")
+  def websocket_info(:parser_check, %{parser: nil} = state),
+    do: handle_error(:header_timeout, state)
 
-    {:stop, :parser_timeout, state}
-  end
+  def websocket_info(:parser_check, state), do: {:ok, state}
 
-  def handle_info(:parser_check, state), do: {:ok, state}
-
-  def handle_info(:fill_bucket, %{bucket: bucket} = state) do
+  def websocket_info(:bucket_fill, %{bucket: bucket} = state) do
     tokens = min(bucket.size, bucket.tokens + bucket.fill_amount)
 
     if tokens > bucket.tokens && tokens < bucket.size do
       Logger.debug("producer/#{state.stream_id}: fill to #{tokens}")
     end
 
-    Process.send_after(self(), :fill_bucket, bucket.fill_interval)
+    Process.send_after(self(), :bucket_fill, bucket.fill_interval)
 
     {:ok, put_in(state, [:bucket, :tokens], tokens)}
   end
 
-  defp send_heartbeat(%{status: :online} = state) do
-    case LiveStreamServer.heartbeat(state.stream_id) do
-      :ok ->
-        {:ok, state}
-
-      {:error, :not_a_leader} ->
-        Logger.info("producer/#{state.stream_id}: stream taken over by another producer")
-
-        {:stop, :normal, state}
-    end
-  end
-
-  defp send_heartbeat(state), do: {:ok, state}
-
   @impl true
-  def terminate(reason, state) do
+  def terminate(reason, _req, state) do
     Logger.info("producer/#{state.stream_id}: terminating (#{inspect(reason)})")
     Logger.debug("producer/#{state.stream_id}: state: #{inspect(state)}")
 
-    if reason == :remote do
+    if reason == :remote || match?({:remote, _, _}, reason) do
       LiveStreamServer.stop(state.stream_id)
     end
 
     :ok
+  end
+
+  defp handle_error(reason, state) do
+    case reason do
+      :not_a_leader ->
+        Logger.info("producer/#{state.stream_id}: leadership lost")
+
+        {:reply, {:close, 4002, "leadership lost"}, state}
+
+      {:invalid_vt_size, {cols, rows}} ->
+        Logger.info("producer/#{state.stream_id}: invalid vt size: #{cols}x#{rows}")
+
+        {:reply, {:close, 4003, "invalid terminal size (#{cols}x#{rows})"}, state}
+
+      :bucket_empty ->
+        Logger.info("producer/#{state.stream_id}: byte budget exceeded")
+
+        {:reply, {:close, 4004, "bandwidth exceeded"}, state}
+
+      {:parser, reason, message} ->
+        Logger.debug("producer/#{state.stream_id}: message: #{inspect(message)}")
+        Logger.warn("producer/#{state.stream_id}: parser error: #{reason}")
+
+        {:reply, {:close, 4005, "message parsing error"}, state}
+
+      {:stream_not_found, token} ->
+        Logger.warn("producer: stream not found for producer token #{token}")
+        :timer.sleep(1000)
+
+        {:reply, {:close, 4040, "stream not found"}, state}
+
+      :header_timeout ->
+        Logger.info("producer/#{state.stream_id}: header timeout")
+
+        {:reply, {:close, 4101, "header timeout"}, state}
+    end
   end
 
   defp drain_bucket(state, drain_amount) do

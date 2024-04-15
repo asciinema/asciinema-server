@@ -14,6 +14,15 @@ config :asciinema, Asciinema.Repo, migration_timestamps: [type: :naive_datetime_
 
 # Configures the public endpoint
 config :asciinema, AsciinemaWeb.Endpoint,
+  http: [
+    dispatch: [
+      {:_,
+       [
+         {"/ws/S/:producer_token", AsciinemaWeb.LiveStreamProducerSocket, []},
+         {:_, Plug.Cowboy.Handler, {AsciinemaWeb.Endpoint, []}}
+       ]}
+    ]
+  ],
   url: [host: "localhost"],
   render_errors: [view: AsciinemaWeb.ErrorView, accepts: ~w(html json), layout: false],
   live_view: [signing_salt: "F3BMP7k9SZ-Y2SMJ"],

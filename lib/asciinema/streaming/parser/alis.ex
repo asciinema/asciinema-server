@@ -6,16 +6,17 @@ defmodule Asciinema.Streaming.Parser.Alis do
 
   def init, do: %{status: :new}
 
-  def parse({"ALiS\x01", _opts}, %{status: :new} = state) do
+  def parse({:binary, "ALiS\x01"}, %{status: :new} = state) do
     {:ok, [], %{state | status: :init}}
   end
 
-  def parse({"ALiS" <> rest, _opts}, %{status: :new}) do
+  def parse({:binary, "ALiS" <> rest}, %{status: :new}) do
     {:error, "unsupported ALiS version/configuration: #{inspect(rest)}"}
   end
 
   def parse(
         {
+          :binary,
           <<
             0x01,
             cols::little-16,
@@ -24,8 +25,7 @@ defmodule Asciinema.Streaming.Parser.Alis do
             @theme_absent::8,
             init_len::little-32,
             init::binary-size(init_len)
-          >>,
-          _opts
+          >>
         },
         %{status: status} = state
       )
@@ -36,6 +36,7 @@ defmodule Asciinema.Streaming.Parser.Alis do
 
   def parse(
         {
+          :binary,
           <<
             0x01,
             cols::little-16,
@@ -45,8 +46,7 @@ defmodule Asciinema.Streaming.Parser.Alis do
             theme::binary-size(18 * 3),
             init_len::little-32,
             init::binary-size(init_len)
-          >>,
-          _opts
+          >>
         },
         %{status: status} = state
       )
@@ -57,13 +57,13 @@ defmodule Asciinema.Streaming.Parser.Alis do
 
   def parse(
         {
+          :binary,
           <<
             ?o,
             time::little-float-32,
             data_len::little-32,
             data::binary-size(data_len)
-          >>,
-          _opts
+          >>
         },
         %{status: :online} = state
       ) do
@@ -72,24 +72,24 @@ defmodule Asciinema.Streaming.Parser.Alis do
 
   def parse(
         {
+          :binary,
           <<
             ?r,
             time::little-float-32,
             cols::little-16,
             rows::little-16
-          >>,
-          _opts
+          >>
         },
         %{status: :online} = state
       ) do
     {:ok, [resize: {time, {cols, rows}}], state}
   end
 
-  def parse({<<0x04>>, _opts}, %{status: status} = state) when status in [:init, :online] do
+  def parse({:binary, <<0x04>>}, %{status: status} = state) when status in [:init, :online] do
     {:ok, [status: :offline], %{state | status: :offline}}
   end
 
-  def parse({_payload, _opts}, _state) do
+  def parse({_type, _payload}, _state) do
     {:error, :message_invalid}
   end
 end
