@@ -14,7 +14,7 @@ defmodule AsciinemaWeb.LiveStreamHTML do
   def player_src(stream) do
     %{
       driver: "websocket",
-      url: ws_consumer_url(stream),
+      url: ws_public_url(stream),
       bufferTime: stream.buffer_time && stream.buffer_time * 1000.0
     }
   end
@@ -40,6 +40,10 @@ defmodule AsciinemaWeb.LiveStreamHTML do
     end
   end
 
+  defp short_public_token(stream) do
+    String.slice(stream.public_token, 0, 4)
+  end
+
   def cinema_height(stream) do
     MediaView.cinema_height(cols(stream), rows(stream))
   end
@@ -52,21 +56,6 @@ defmodule AsciinemaWeb.LiveStreamHTML do
 
   def default_font_display_name(user) do
     Fonts.display_name(Accounts.default_font_family(user) || "default")
-  end
-
-  @http_to_ws %{"http" => "ws", "https" => "wss"}
-
-  defp ws_producer_url(live_stream) do
-    uri = AsciinemaWeb.Endpoint.struct_url()
-    scheme = @http_to_ws[uri.scheme]
-    path = "/ws/S/#{live_stream.producer_token}"
-
-    to_string(%{uri | scheme: scheme, path: path})
-  end
-
-  defp ws_consumer_url(live_stream) do
-    param = Phoenix.Param.to_param(live_stream)
-    String.replace(AsciinemaWeb.Endpoint.url() <> "/ws/s/#{param}", ~r/^http/, "ws")
   end
 
   defp cols(stream), do: stream.cols || 80

@@ -13,7 +13,7 @@ defmodule AsciinemaWeb.Api.RecordingController do
 
     case Recordings.create_asciicast(user, upload, %{user_agent: user_agent}) do
       {:ok, asciicast} ->
-        url = Routes.recording_url(conn, :show, asciicast)
+        url = url(~p"/a/#{asciicast}")
 
         conn
         |> put_status(:created)

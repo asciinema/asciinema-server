@@ -153,6 +153,7 @@ defmodule AsciinemaWeb do
       use Phoenix.Component
       import Phoenix.View
       import AsciinemaWeb.ApplicationView
+      import AsciinemaWeb.Router.Helpers.Extra
 
       # Include general helpers for rendering HTML
       unquote(html_helpers())

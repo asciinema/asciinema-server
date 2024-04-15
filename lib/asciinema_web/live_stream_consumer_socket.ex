@@ -3,103 +3,81 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   alias Asciinema.Streaming.{LiveStreamServer, ViewerTracker}
   require Logger
 
-  @behaviour Phoenix.Socket.Transport
+  @behaviour :cowboy_websocket
 
   @info_timeout 1_000
-  @ping_interval 15_000
+  @client_ping_interval 15_000
 
   # Callbacks
 
   @impl true
-  def child_spec(_opts) do
-    # We won't spawn any process, so let's return a dummy task
-    %{id: __MODULE__, start: {Task, :start_link, [fn -> :ok end]}, restart: :transient}
+  def init(req, _opts),
+    do: {:cowboy_websocket, req, req.bindings[:public_token], %{compress: true}}
+
+  @impl true
+  def websocket_init(token) do
+    case Streaming.get_live_stream(token) do
+      nil ->
+        Logger.warn("consumer: stream not found for public token #{token}")
+        :timer.sleep(1000)
+
+        {:reply, :close, %{stream_id: "?"}}
+
+      stream ->
+        Logger.info("consumer/#{stream.id}: connected")
+        state = %{stream_id: stream.id, reset: false}
+        LiveStreamServer.subscribe(stream.id, :reset)
+        LiveStreamServer.subscribe(stream.id, :feed)
+        LiveStreamServer.subscribe(stream.id, :offline)
+        LiveStreamServer.request_info(stream.id)
+        ViewerTracker.track(stream.id)
+        Process.send_after(self(), :info_timeout, @info_timeout)
+        Process.send_after(self(), :client_ping, @client_ping_interval)
+
+        {:reply, header_message(), state}
+    end
   end
 
   @impl true
-  def connect(state) do
-    id = state.params["id"]
-    Logger.info("consumer/#{id}: connected")
-
-    {:ok, %{stream_id: id}}
-  end
+  def websocket_handle(_frame, state), do: {:ok, state}
 
   @impl true
-  def init(state) do
-    state =
-      case Streaming.get_live_stream(state.stream_id) do
-        nil ->
-          Logger.warn("consumer: stream not found for ID #{state.stream_id}")
-          send(self(), :not_found)
+  def websocket_info(message, state)
 
-          state
-
-        live_stream ->
-          send(self(), :push_alis_header)
-          LiveStreamServer.subscribe(live_stream.id, :reset)
-          LiveStreamServer.subscribe(live_stream.id, :feed)
-          LiveStreamServer.subscribe(live_stream.id, :offline)
-          LiveStreamServer.request_info(live_stream.id)
-          ViewerTracker.track(live_stream.id)
-          Process.send_after(self(), :info_timeout, @info_timeout)
-          Process.send_after(self(), :ping, @ping_interval)
-
-          %{stream_id: live_stream.id, reset: false}
-      end
-
-    {:ok, state}
-  end
-
-  @impl true
-  def handle_in({_text, _opts}, state) do
-    {:ok, state}
-  end
-
-  @impl true
-  def handle_info(:not_found, state) do
-    {:stop, :not_found, state}
-  end
-
-  def handle_info(:push_alis_header, state) do
-    Logger.debug("consumer/#{state.stream_id}: sending alis header")
-
-    {:push, header_message(), state}
-  end
-
-  def handle_info(%LiveStreamServer.Update{event: e, data: data}, state)
+  def websocket_info(%LiveStreamServer.Update{event: e, data: data}, state)
       when e in [:info, :reset] do
     {{cols, rows}, _, _, _} = data
-    Logger.info("consumer/#{state.stream_id}: reset (#{cols}x#{rows})")
+    Logger.debug("consumer/#{state.stream_id}: reset (#{cols}x#{rows})")
 
-    {:push, reset_message(data), %{state | reset: true}}
+    {:reply, reset_message(data), %{state | reset: true}}
   end
 
-  def handle_info(%LiveStreamServer.Update{event: :feed, data: data}, %{reset: true} = state) do
-    {:push, feed_message(data), state}
+  def websocket_info(%LiveStreamServer.Update{event: :feed, data: data}, %{reset: true} = state) do
+    {:reply, feed_message(data), state}
   end
 
-  def handle_info(%LiveStreamServer.Update{}, %{reset: false} = state) do
+  def websocket_info(%LiveStreamServer.Update{}, %{reset: false} = state) do
     {:ok, state}
   end
 
-  def handle_info(%LiveStreamServer.Update{event: :offline}, state) do
-    {:push, offline_message(), state}
+  def websocket_info(%LiveStreamServer.Update{event: :offline}, state) do
+    {:reply, offline_message(), state}
   end
 
-  def handle_info(:ping, state) do
-    Process.send_after(self(), :ping, @ping_interval)
+  def websocket_info(:client_ping, state) do
+    Process.send_after(self(), :client_ping, @client_ping_interval)
 
-    {:push, {:ping, ""}, state}
+    {:reply, :ping, state}
   end
 
-  def handle_info(:info_timeout, %{reset: false} = state) do
-    {:push, offline_message(), state}
+  def websocket_info(:info_timeout, %{reset: false} = state) do
+    {:reply, offline_message(), state}
   end
 
-  def handle_info(:info_timeout, %{reset: true} = state), do: {:ok, state}
+  def websocket_info(:info_timeout, %{reset: true} = state), do: {:ok, state}
 
   @impl true
-  def terminate(reason, state) do
+  def terminate(reason, _req, state) do
     Logger.info("consumer/#{state.stream_id}: terminating (#{inspect(reason)})")
     Logger.debug("consumer/#{state.stream_id}: state: #{inspect(state)}")
     ViewerTracker.untrack(state.stream_id)

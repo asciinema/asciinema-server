@@ -16,7 +16,6 @@ defmodule AsciinemaWeb.RecordingHTML do
   defdelegate font_family_options, to: MediaView
   defdelegate username(user), to: UserHTML
   defdelegate title(asciicast), to: Recordings
-  defdelegate asciicast_file_url(asciicast), to: AsciinemaWeb.Router.Helpers.Extra
 
   def player_src(asciicast), do: asciicast_file_url(asciicast)
 
