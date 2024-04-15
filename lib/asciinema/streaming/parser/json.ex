@@ -24,7 +24,7 @@ defmodule Asciinema.Streaming.Parser.Json do
 
   def handle_message(%{"width" => cols, "height" => rows}, state)
       when is_integer(cols) and is_integer(rows) do
-    commands = [reset: %{size: {cols, rows}, init: nil, time: nil}]
+    commands = [reset: %{size: {cols, rows}}]
 
     {:ok, commands, %{state | first: false}}
   end

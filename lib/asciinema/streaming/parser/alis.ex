@@ -30,8 +30,7 @@ defmodule Asciinema.Streaming.Parser.Alis do
         %{status: status} = state
       )
       when status in [:init, :offline] do
-    {:ok, [reset: %{size: {cols, rows}, init: init, time: time, theme: nil}],
-     %{state | status: :online}}
+    {:ok, [reset: %{size: {cols, rows}, init: init, time: time}], %{state | status: :online}}
   end
 
   def parse(
