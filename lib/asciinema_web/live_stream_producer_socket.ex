@@ -193,7 +193,7 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
     end
   end
 
-  defp run_command({:resize, size}, _state), do: {:error, {:invalid_vt_size, size}}
+  defp run_command({:resize, {_time, size}}, _state), do: {:error, {:invalid_vt_size, size}}
 
   defp run_command({:status, :offline}, %{status: :new} = state), do: {:ok, state}
 
