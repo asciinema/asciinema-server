@@ -1,6 +1,5 @@
 defmodule AsciinemaWeb.UserController do
   use AsciinemaWeb, :new_controller
-  alias Asciinema.Authorization, as: Authz
   alias Asciinema.{Accounts, Streaming, Recordings}
   alias AsciinemaWeb.Auth
 
