@@ -73,8 +73,9 @@ defmodule AsciinemaWeb.LiveStreamStatusLive do
     end
   end
 
-  def handle_info(%LiveStreamServer.Update{event: e, data: {_, _, time, _}}, socket)
+  def handle_info(%LiveStreamServer.Update{event: e} = update, socket)
       when e in [:info, :reset] do
+    {_, _, time, _} = update.data
     started_at = Timex.shift(Timex.now(), milliseconds: -round(time * 1000.0))
 
     socket =
