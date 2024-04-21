@@ -31,7 +31,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
     GenServer.call(via_tuple(stream_id), :heartbeat)
   end
 
-  def subscribe(stream_id, type) when type in [:reset, :feed, :offline] do
+  def subscribe(stream_id, type) when type in [:reset, :feed, :offline, :metadata] do
     PubSub.subscribe(topic_name(stream_id, type))
   end
 
@@ -165,12 +165,21 @@ defmodule Asciinema.Streaming.LiveStreamServer do
     stream =
       case state.vt_size do
         {cols, rows} ->
-          Streaming.update_live_stream(state.stream,
-            current_viewer_count: state.viewer_count,
-            cols: cols,
-            rows: rows,
-            snapshot: generate_snapshot(state.vt)
-          )
+          stream =
+            Streaming.update_live_stream(state.stream,
+              current_viewer_count: state.viewer_count,
+              cols: cols,
+              rows: rows,
+              snapshot: generate_snapshot(state.vt)
+            )
+
+          publish(state.stream_id, %Update{
+            stream_id: state.stream_id,
+            event: :metadata,
+            data: stream
+          })
+
+          stream
 
         nil ->
           state.stream
