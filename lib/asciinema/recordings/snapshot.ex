@@ -321,4 +321,10 @@ defmodule Asciinema.Recordings.Snapshot do
 
     %{y: y, segments: Enum.reverse(segments)}
   end
+
+  def unwrap(%__MODULE__{lines: lines}) do
+    Enum.map(lines, fn segments ->
+      Enum.map(segments, &Tuple.to_list/1)
+    end)
+  end
 end

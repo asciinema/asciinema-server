@@ -405,10 +405,7 @@ defmodule Asciinema.Recordings do
 
     {lines, cursor}
     |> Snapshot.new()
-    |> Map.get(:lines)
-    |> Enum.map(fn segments ->
-      Enum.map(segments, &Tuple.to_list/1)
-    end)
+    |> Snapshot.unwrap()
   end
 
   def title(asciicast) do
