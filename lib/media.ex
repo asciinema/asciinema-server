@@ -8,6 +8,10 @@ defmodule Asciinema.Media do
     end
   end
 
+  def theme(%{theme_prefer_original: true, theme_palette: p} = medium) when not is_nil(p) do
+    Themes.custom_theme(medium.theme_fg, medium.theme_bg, p)
+  end
+
   def theme(medium) do
     case theme_name(medium) do
       "original" ->

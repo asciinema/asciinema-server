@@ -1,8 +1,7 @@
 defmodule AsciinemaWeb.UserController do
   use AsciinemaWeb, :new_controller
-  alias Asciinema.Accounts
   alias Asciinema.Authorization, as: Authz
-  alias Asciinema.Recordings
+  alias Asciinema.{Accounts, Streaming, Recordings}
   alias AsciinemaWeb.Auth
 
   plug :clear_main_class
@@ -64,7 +63,13 @@ defmodule AsciinemaWeb.UserController do
         false -> :public
       end
 
-    page =
+    streams =
+      case user_is_self do
+        true -> Streaming.list_all_live_streams(user)
+        false -> Streaming.list_public_live_streams(user)
+      end
+
+    asciicasts =
       Recordings.paginate_asciicasts(
         {user.id, filter},
         :date,
@@ -79,8 +84,8 @@ defmodule AsciinemaWeb.UserController do
       "show.html",
       user: user,
       user_is_self: user_is_self,
-      asciicast_count: page.total_entries,
-      page: page,
+      streams: streams,
+      asciicasts: asciicasts
     )
   end
 

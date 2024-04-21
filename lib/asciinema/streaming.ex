@@ -45,6 +45,28 @@ defmodule Asciinema.Streaming do
     end
   end
 
+  def list_public_live_streams(owner, limit \\ 4) do
+    owner
+    |> live_streams_q(limit)
+    |> where([s], not s.private)
+    |> Repo.all()
+  end
+
+  def list_all_live_streams(owner, limit \\ 4) do
+    owner
+    |> live_streams_q(limit)
+    |> Repo.all()
+  end
+
+  defp live_streams_q(%{live_streams: _} = owner, limit) do
+    owner
+    |> Ecto.assoc(:live_streams)
+    |> where([s], s.online)
+    |> order_by(desc: :last_started_at)
+    |> limit(^limit)
+    |> preload(:user)
+  end
+
   def create_live_stream!(user) do
     %LiveStream{}
     |> change(
