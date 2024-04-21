@@ -1,5 +1,6 @@
 defmodule Asciinema.Streaming.LiveStreamServer do
   use GenServer, restart: :transient
+  alias Asciinema.Recordings.Snapshot
   alias Asciinema.Streaming.ViewerTracker
   alias Asciinema.{Colors, PubSub, Streaming, Vt}
   require Logger
@@ -169,7 +170,8 @@ defmodule Asciinema.Streaming.LiveStreamServer do
           Streaming.update_live_stream(state.stream,
             current_viewer_count: state.viewer_count,
             cols: cols,
-            rows: rows
+            rows: rows,
+            snapshot: generate_snapshot(state.vt)
           )
 
         nil ->
@@ -264,5 +266,13 @@ defmodule Asciinema.Streaming.LiveStreamServer do
       theme_bg: Enum.at(colors, 1),
       theme_palette: Enum.join(Enum.slice(colors, 2..-1), ":")
     ]
+  end
+
+  defp generate_snapshot(vt) do
+    {:ok, {lines, cursor}} = Vt.dump_screen(vt)
+
+    {lines, cursor}
+    |> Snapshot.new()
+    |> Snapshot.unwrap()
   end
 end

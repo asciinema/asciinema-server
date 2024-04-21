@@ -15,22 +15,50 @@
         <small>Joined on <%= joined_at(@user) %></small>
       </h1>
 
-      <p :if={@show_edit_link} class="actions">
+      <p :if={@user_is_self} class="actions">
         <a href={~p"/user/edit"}>Edit profile</a>
       </p>
     </div>
   </section>
 
   <div class="container">
+    <div :if={length(@streams) > 0}>
+      <%= if @user_is_self do %>
+        <%= if length(@streams) == 1 do %>
+          <h2>Your live stream</h2>
+        <% else %>
+          <h2>Your live streams</h2>
+        <% end %>
+      <% else %>
+        <%= if length(@streams) == 1 do %>
+          <h2>Live stream by <%= username(@user) %></h2>
+        <% else %>
+          <h2>Live streams by <%= username(@user) %></h2>
+        <% end %>
+      <% end %>
+
+      <div class="row asciicast-list">
+        <div class="col-md-12">
+          <div :for={streams <- Enum.chunk_every(@streams, 2, 2)} class="row">
+            <div :for={stream <- streams} class="col-md-6">
+              <LiveStreamHTML.card stream={stream} />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <%= if @user_is_self do %>
-      <%= if @asciicast_count > 0 do %>
-        <h2>You have <%= pluralize(@asciicast_count, "recording") %></h2>
+      <%= if @asciicasts.total_entries > 0 do %>
+        <h2>You have <%= pluralize(@asciicasts.total_entries, "recording") %></h2>
       <% else %>
         <h2>Record your first session</h2>
       <% end %>
     <% else %>
-      <%= if @asciicast_count > 0 do %>
-        <h2><%= pluralize(@asciicast_count, "public recording") %> by <%= username(@user) %></h2>
+      <%= if @asciicasts.total_entries > 0 do %>
+        <h2>
+          <%= pluralize(@asciicasts.total_entries, "public recording") %> by <%= username(@user) %>
+        </h2>
       <% else %>
         <h2><%= username(@user) %> has no public recordings</h2>
       <% end %>
@@ -38,7 +66,7 @@
 
     <div class="row asciicast-list">
       <div class="col-md-12">
-        <%= case {@asciicast_count, @user_is_self} do %>
+        <%= case {@asciicasts.total_entries, @user_is_self} do %>
           <% {0, true} -> %>
             <p>
               Make sure you have asciinema recorder <a href="https://docs.asciinema.org/manual/cli/installation/">installed</a>.
@@ -83,7 +111,7 @@
             </p>
           <% {0, false} -> %>
           <% _ -> %>
-            <div :for={asciicasts <- Enum.chunk_every(@page, 2, 2)} class="row">
+            <div :for={asciicasts <- Enum.chunk_every(@asciicasts, 2, 2)} class="row">
               <div :for={asciicast <- asciicasts} class="col-md-6">
                 <RecordingHTML.card asciicast={asciicast} />
               </div>
@@ -92,9 +120,9 @@
       </div>
     </div>
 
-    <div :if={@page.total_pages > 1} class="row">
+    <div :if={@asciicasts.total_pages > 1} class="row">
       <div class="col">
-        <%= pagination_links(@page) %>
+        <%= pagination_links(@asciicasts) %>
       </div>
     </div>
   </div>

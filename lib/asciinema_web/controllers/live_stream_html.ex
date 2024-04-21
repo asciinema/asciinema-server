@@ -1,13 +1,14 @@
 defmodule AsciinemaWeb.LiveStreamHTML do
   use AsciinemaWeb, :html
   alias Asciinema.{Accounts, Fonts, Media, Themes}
-  alias AsciinemaWeb.{MediaView, RecordingHTML}
+  alias AsciinemaWeb.{MediaView, RecordingHTML, RecordingSVG}
 
   embed_templates "live_stream/*"
 
   defdelegate author_username(stream), to: MediaView
   defdelegate author_avatar_url(stream), to: MediaView
   defdelegate author_profile_path(stream), to: MediaView
+  defdelegate theme(stream), to: Media
   defdelegate theme_options, to: MediaView
   defdelegate font_family_options, to: MediaView
 
@@ -52,6 +53,15 @@ defmodule AsciinemaWeb.LiveStreamHTML do
 
   def default_theme_display_name(stream) do
     "Account default (#{Themes.display_name(Accounts.default_theme_name(stream.user) || "asciinema")})"
+  end
+
+  def duration(stream) do
+    if t = stream.last_started_at do
+      d = Timex.diff(Timex.now(), t, :second)
+      minutes = div(d, 60)
+      seconds = rem(d, 60)
+      :io_lib.format("~2..0B:~2..0B", [minutes, seconds])
+    end
   end
 
   def default_font_display_name(user) do

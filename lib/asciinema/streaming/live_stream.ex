@@ -23,6 +23,7 @@ defmodule Asciinema.Streaming.LiveStream do
     field :peak_viewer_count, :integer
     field :buffer_time, :float
     field :parser, :string
+    field :snapshot, Asciinema.Ecto.Type.JsonArray
 
     timestamps()
 
