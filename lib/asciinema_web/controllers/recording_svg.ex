@@ -422,6 +422,4 @@ defmodule AsciinemaWeb.RecordingSVG do
     |> Snapshot.new()
     |> Snapshot.crop(cols, rows)
   end
-
-  defp snapshot(_, _), do: Snapshot.new([])
 end
