@@ -3,7 +3,7 @@ defmodule AsciinemaWeb.UserHTML do
   import AsciinemaWeb.ErrorHelpers
   import Scrivener.HTML
   alias Asciinema.{Fonts, Gravatar}
-  alias AsciinemaWeb.{LiveStreamHTML, MediaView, RecordingHTML}
+  alias AsciinemaWeb.{MediaView, RecordingHTML}
 
   embed_templates "user/*"
 

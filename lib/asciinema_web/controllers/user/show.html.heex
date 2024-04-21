@@ -41,7 +41,9 @@
         <div class="col-md-12">
           <div :for={streams <- Enum.chunk_every(@streams, 2, 2)} class="row">
             <div :for={stream <- streams} class="col-md-6">
-              <LiveStreamHTML.card stream={stream} />
+              <%= live_render(@conn, AsciinemaWeb.LiveStreamCardLive,
+                session: %{"stream_id" => stream.id}
+              ) %>
             </div>
           </div>
         </div>

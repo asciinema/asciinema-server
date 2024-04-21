@@ -20,7 +20,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
   end
 
   def reset(stream_id, {_, _} = vt_size, vt_init \\ nil, stream_time \\ nil, theme \\ nil) do
-    GenServer.call(via_tuple(stream_id), {:reset, vt_size, vt_init, stream_time, theme})
+    GenServer.call(via_tuple(stream_id), {:reset, {vt_size, vt_init, stream_time, theme}})
   end
 
   def feed(stream_id, event) do
@@ -31,7 +31,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
     GenServer.call(via_tuple(stream_id), :heartbeat)
   end
 
-  def subscribe(stream_id, type) when type in [:reset, :feed, :offline] do
+  def subscribe(stream_id, type) when type in [:reset, :feed, :offline, :metadata] do
     PubSub.subscribe(topic_name(stream_id, type))
   end
 
@@ -77,11 +77,8 @@ defmodule Asciinema.Streaming.LiveStreamServer do
     {:reply, :ok, %{state | producer: pid}}
   end
 
-  def handle_call(
-        {:reset, vt_size, vt_init, stream_time, theme},
-        {pid, _} = _from,
-        %{producer: pid} = state
-      ) do
+  def handle_call({:reset, args}, {pid, _} = _from, %{producer: pid} = state) do
+    {vt_size, vt_init, stream_time, theme} = args
     stream_time = stream_time || 0.0
     state = reset_stream(state, vt_size, stream_time, theme)
 
@@ -98,13 +95,14 @@ defmodule Asciinema.Streaming.LiveStreamServer do
     {:reply, :ok, state}
   end
 
-  def handle_call({:reset, _vt_size, _vt_init, _stream_time, _theme}, _from, state) do
+  def handle_call({:reset, _args}, _from, state) do
     Logger.info("stream/#{state.stream_id}: rejecting reset from non-leader producer")
 
     {:reply, {:error, :leadership_lost}, state}
   end
 
-  def handle_call({:feed, {time, data} = event}, {pid, _} = _from, %{producer: pid} = state) do
+  def handle_call({:feed, event}, {pid, _} = _from, %{producer: pid} = state) do
+    {time, data} = event
     new_size = Vt.feed(state.vt, data)
 
     publish(state.stream_id, %Update{
@@ -167,12 +165,21 @@ defmodule Asciinema.Streaming.LiveStreamServer do
     stream =
       case state.vt_size do
         {cols, rows} ->
-          Streaming.update_live_stream(state.stream,
-            current_viewer_count: state.viewer_count,
-            cols: cols,
-            rows: rows,
-            snapshot: generate_snapshot(state.vt)
-          )
+          stream =
+            Streaming.update_live_stream(state.stream,
+              current_viewer_count: state.viewer_count,
+              cols: cols,
+              rows: rows,
+              snapshot: generate_snapshot(state.vt)
+            )
+
+          publish(state.stream_id, %Update{
+            stream_id: state.stream_id,
+            event: :metadata,
+            data: stream
+          })
+
+          stream
 
         nil ->
           state.stream

@@ -97,7 +97,8 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
 
   def websocket_info(:parser_check, state), do: {:ok, state}
 
-  def websocket_info(:bucket_fill, %{bucket: bucket} = state) do
+  def websocket_info(:bucket_fill, state) do
+    bucket = state.bucket
     tokens = min(bucket.size, bucket.tokens + bucket.fill_amount)
 
     if tokens > bucket.tokens && tokens < bucket.size do
@@ -180,8 +181,8 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
     {:error, {:invalid_vt_size, size}}
   end
 
-  defp run_command({:feed, {time, data}}, %{status: :online} = state) do
-    with :ok <- LiveStreamServer.feed(state.stream_id, {time, data}) do
+  defp run_command({:feed, args}, %{status: :online} = state) do
+    with :ok <- LiveStreamServer.feed(state.stream_id, args) do
       {:ok, state}
     end
   end
@@ -193,7 +194,7 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
     end
   end
 
-  defp run_command({:resize, size}, _state), do: {:error, {:invalid_vt_size, size}}
+  defp run_command({:resize, {_time, size}}, _state), do: {:error, {:invalid_vt_size, size}}
 
   defp run_command({:status, :offline}, %{status: :new} = state), do: {:ok, state}
 

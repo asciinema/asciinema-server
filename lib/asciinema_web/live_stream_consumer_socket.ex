@@ -44,16 +44,16 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   @impl true
   def websocket_info(message, state)
 
-  def websocket_info(%LiveStreamServer.Update{event: e, data: data}, state)
+  def websocket_info(%LiveStreamServer.Update{event: e} = update, state)
       when e in [:info, :reset] do
-    {{cols, rows}, _, _, _} = data
+    {{cols, rows}, _, _, _} = update.data
     Logger.debug("consumer/#{state.stream_id}: reset (#{cols}x#{rows})")
 
-    {:reply, reset_message(data), %{state | reset: true}}
+    {:reply, reset_message(update.data), %{state | reset: true}}
   end
 
-  def websocket_info(%LiveStreamServer.Update{event: :feed, data: data}, %{reset: true} = state) do
-    {:reply, feed_message(data), state}
+  def websocket_info(%LiveStreamServer.Update{event: :feed} = update, %{reset: true} = state) do
+    {:reply, feed_message(update.data), state}
   end
 
   def websocket_info(%LiveStreamServer.Update{}, %{reset: false} = state) do
