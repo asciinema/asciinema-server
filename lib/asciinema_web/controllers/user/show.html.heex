@@ -15,7 +15,7 @@
         <small>Joined on <%= joined_at(@user) %></small>
       </h1>
 
-      <p :if={@show_edit_link} class="actions">
+      <p :if={@user_is_self} class="actions">
         <a href={~p"/user/edit"}>Edit profile</a>
       </p>
     </div>

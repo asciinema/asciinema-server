@@ -81,7 +81,6 @@ defmodule AsciinemaWeb.UserController do
       user_is_self: user_is_self,
       asciicast_count: page.total_entries,
       page: page,
-      show_edit_link: Authz.can?(current_user, :update, user)
     )
   end
 
