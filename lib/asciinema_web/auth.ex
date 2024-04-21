@@ -3,7 +3,7 @@ defmodule AsciinemaWeb.Auth do
   import Phoenix.Controller, only: [put_flash: 3, redirect: 2]
   import AsciinemaWeb.Plug.ReturnTo
   alias Plug.Conn
-  alias Asciinema.Accounts
+  alias Asciinema.{Accounts, Streaming}
   alias Asciinema.Accounts.User
   alias AsciinemaWeb.Endpoint
   alias AsciinemaWeb.Router.Helpers, as: Routes
@@ -19,6 +19,7 @@ defmodule AsciinemaWeb.Auth do
   def call(conn, _opts) do
     conn
     |> assign(:current_user, nil)
+    |> assign(:default_stream, nil)
     |> try_log_in_from_session()
     |> try_log_in_from_cookie()
     |> setup_sentry_context()
@@ -29,7 +30,9 @@ defmodule AsciinemaWeb.Auth do
 
     with user_id when not is_nil(user_id) <- user_id,
          user when not is_nil(user) <- Accounts.get_user(user_id) do
-      assign(conn, :current_user, user)
+      conn
+      |> assign(:current_user, user)
+      |> assign(:default_stream, user_stream(user))
     else
       _ -> conn
     end
@@ -96,6 +99,7 @@ defmodule AsciinemaWeb.Auth do
     |> put_session(@user_key, user.id)
     |> put_resp_cookie(@token_cookie_name, user.auth_token, max_age: @token_max_age)
     |> assign(:current_user, user)
+    |> assign(:default_stream, user_stream(user))
   end
 
   def log_out(conn) do
@@ -125,4 +129,6 @@ defmodule AsciinemaWeb.Auth do
     auth = Base.encode64("#{username}:#{password}")
     put_req_header(conn, "authorization", "Basic " <> auth)
   end
+
+  defp user_stream(user), do: Streaming.get_live_stream(user, nil)
 end
