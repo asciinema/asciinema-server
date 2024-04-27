@@ -45,8 +45,17 @@
                 @current_user.email %>
             </a>
             <div class="dropdown-menu">
+              <%= if @default_stream do %>
+                <a href={~p"/s/#{@default_stream}"} class="dropdown-item">
+                  <strong>Stream</strong>
+                </a>
+                <div class="dropdown-divider"></div>
+              <% end %>
+
               <a href={profile_path(@current_user)} class="dropdown-item">Profile</a>
               <a href={~p"/user/edit"} class="dropdown-item">Settings</a>
+              <div class="dropdown-divider"></div>
+
               <.link href={~p"/session"} class="dropdown-item logout" method="delete">
                 Log out
               </.link>

@@ -169,6 +169,7 @@ defmodule Asciinema.Themes do
 
   def terminal_themes, do: Map.keys(@themes)
 
+  def display_name("original"), do: "Original terminal theme"
   def display_name(theme), do: Map.fetch!(@themes, theme).name
 
   def named_theme(name) when is_binary(name), do: struct(Theme, Map.fetch!(@themes, name))

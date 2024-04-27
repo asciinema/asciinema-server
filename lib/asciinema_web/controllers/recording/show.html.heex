@@ -63,7 +63,7 @@
                 <strong>.<%= filename_ext(@asciicast) %></strong> - original recording
               </.link>
               <.link href="#" class="dropdown-item" rel="nofollow" id="download-txt">
-                <strong>.txt</strong> - pure text version
+                <strong>.txt</strong> - plain text version
               </.link>
               <.link href="#" class="dropdown-item" data-toggle="modal" data-target="#gif-modal">
                 <strong>.gif</strong> - animated GIF
@@ -184,7 +184,7 @@
 
     const player = await window.createPlayer(
       <%= safe_json(player_src(@asciicast)) %>,
-      document.getElementById('cinema'),
+      container,
       {
         ...opts,
         fit: 'both',

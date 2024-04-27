@@ -4,36 +4,19 @@ defmodule Asciinema.LiveStreamControllerTest do
   alias Asciinema.Authorization
 
   describe "show" do
-    test "HTML, private stream via ID", %{conn: conn} do
+    test "HTML, private stream", %{conn: conn} do
       stream = insert(:live_stream, private: true)
 
-      conn_2 = get(conn, "/s/#{stream.id}")
-
-      assert html_response(conn_2, 404)
-    end
-
-    test "HTML, private stream via secret token", %{conn: conn} do
-      stream = insert(:live_stream, private: true)
-
-      conn_2 = get(conn, "/s/#{stream.secret_token}")
+      conn_2 = get(conn, ~p"/s/#{stream}")
 
       assert html_response(conn_2, 200) =~ "createPlayer"
       assert response_content_type(conn_2, :html)
     end
 
-    test "HTML, public stream via ID", %{conn: conn} do
+    test "HTML, public stream", %{conn: conn} do
       stream = insert(:live_stream, private: false)
 
-      conn_2 = get(conn, "/s/#{stream.id}")
-
-      assert html_response(conn_2, 200) =~ "createPlayer"
-      assert response_content_type(conn_2, :html)
-    end
-
-    test "HTML, public stream via secret token", %{conn: conn} do
-      stream = insert(:live_stream, private: false)
-
-      conn_2 = get(conn, "/s/#{stream.secret_token}")
+      conn_2 = get(conn, ~p"/s/#{stream}")
 
       assert html_response(conn_2, 200) =~ "createPlayer"
       assert response_content_type(conn_2, :html)
@@ -43,15 +26,15 @@ defmodule Asciinema.LiveStreamControllerTest do
       user = insert(:user)
       stream = insert(:live_stream, user: user)
 
-      conn_2 = get(conn, "/s/#{stream.secret_token}")
+      conn_2 = get(conn, ~p"/s/#{stream}")
       refute html_response(conn_2, 200) =~ stream.producer_token
 
       conn_2 = log_in(conn, insert(:user))
-      conn_2 = get(conn_2, "/s/#{stream.secret_token}")
+      conn_2 = get(conn_2, ~p"/s/#{stream}")
       refute html_response(conn_2, 200) =~ stream.producer_token
 
       conn_2 = log_in(conn, user)
-      conn_2 = get(conn_2, "/s/#{stream.secret_token}")
+      conn_2 = get(conn_2, ~p"/s/#{stream}")
       assert html_response(conn_2, 200) =~ stream.producer_token
     end
   end

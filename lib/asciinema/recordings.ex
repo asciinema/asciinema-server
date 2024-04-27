@@ -140,7 +140,7 @@ defmodule Asciinema.Recordings do
       )
 
     with {:ok, metadata} <- extract_metadata(upload),
-         changeset = apply_metadata(changeset, metadata),
+         changeset = apply_metadata(changeset, metadata, user.theme_prefer_original),
          {:ok, %Asciicast{} = asciicast} <- do_create_asciicast(changeset, upload) do
       if asciicast.snapshot == nil do
         :ok = SnapshotUpdater.update_snapshot(asciicast)
@@ -235,9 +235,15 @@ defmodule Asciinema.Recordings do
     |> Enum.reduce(fn {t, _}, _prev_t -> t end)
   end
 
-  defp apply_metadata(changeset, metadata) do
+  @hex_color_re ~r/^#[0-9a-f]{6}$/
+  @hex_palette_re ~r/^(#[0-9a-f]{6}:){7}((#[0-9a-f]{6}:){8})?#[0-9a-f]{6}$/
+
+  defp apply_metadata(changeset, metadata, prefer_original_theme) do
+    theme_name = if metadata[:theme_palette] && prefer_original_theme, do: "original"
+
     changeset
     |> put_change(:version, metadata.version)
+    |> put_change(:theme_name, theme_name)
     |> cast(metadata, [
       :duration,
       :cols,
@@ -254,6 +260,9 @@ defmodule Asciinema.Recordings do
       :title
     ])
     |> validate_required([:duration, :cols, :rows])
+    |> validate_format(:theme_fg, @hex_color_re)
+    |> validate_format(:theme_bg, @hex_color_re)
+    |> validate_format(:theme_palette, @hex_palette_re)
   end
 
   defp decode_json(json) do
@@ -311,7 +320,7 @@ defmodule Asciinema.Recordings do
     |> validate_number(:cols_override, greater_than: 0, less_than: 1024)
     |> validate_number(:rows_override, greater_than: 0, less_than: 512)
     |> validate_number(:idle_time_limit, greater_than_or_equal_to: 0.5)
-    |> validate_inclusion(:theme_name, Themes.terminal_themes())
+    |> validate_inclusion(:theme_name, Themes.terminal_themes() ++ ["original"])
     |> validate_number(:terminal_line_height,
       greater_than_or_equal_to: 1.0,
       less_than_or_equal_to: 2.0
@@ -396,10 +405,7 @@ defmodule Asciinema.Recordings do
 
     {lines, cursor}
     |> Snapshot.new()
-    |> Map.get(:lines)
-    |> Enum.map(fn segments ->
-      Enum.map(segments, &Tuple.to_list/1)
-    end)
+    |> Snapshot.unwrap()
   end
 
   def title(asciicast) do

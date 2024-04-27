@@ -72,9 +72,17 @@ defmodule Asciinema.Factory do
   def live_stream_factory do
     %LiveStream{
       user: build(:user),
-      secret_token: sequence(:secret_token, &secret_token/1),
+      public_token: sequence(:public_token, &public_token/1),
       producer_token: sequence(:producer_token, &"token-#{&1}")
     }
+  end
+
+  defp public_token(n) do
+    "public-#{n}"
+    |> String.codepoints()
+    |> Stream.cycle()
+    |> Stream.take(16)
+    |> Enum.join("")
   end
 
   defp secret_token(n) do

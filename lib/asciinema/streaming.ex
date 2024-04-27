@@ -16,24 +16,24 @@ defmodule Asciinema.Streaming do
 
   def get_live_stream(id) when is_binary(id) do
     stream =
-      cond do
-        String.match?(id, ~r/[[:alpha:]]/) ->
-          Repo.one(from(s in LiveStream, where: s.secret_token == ^id))
-
-        String.match?(id, ~r/^\d+$/) ->
-          id = String.to_integer(id)
-          Repo.one(from(s in LiveStream, where: s.private == false and s.id == ^id))
-
-        true ->
-          nil
+      if String.match?(id, ~r/[[:alpha:]]/) do
+        Repo.one(from(s in LiveStream, where: s.public_token == ^id))
       end
 
     Repo.preload(stream, :user)
   end
 
-  def get_live_stream(%{live_streams: _} = owner) do
+  def get_live_stream(%{live_streams: _} = owner, nil) do
     owner
     |> Ecto.assoc(:live_streams)
+    |> first()
+    |> Repo.one()
+  end
+
+  def get_live_stream(%{live_streams: _} = owner, id) do
+    owner
+    |> Ecto.assoc(:live_streams)
+    |> where([s], like(s.public_token, ^"#{id}%"))
     |> first()
     |> Repo.one()
   end
@@ -45,9 +45,35 @@ defmodule Asciinema.Streaming do
     end
   end
 
+  def list_public_live_streams(owner, limit \\ 4) do
+    owner
+    |> live_streams_q(limit)
+    |> where([s], not s.private)
+    |> Repo.all()
+  end
+
+  def list_all_live_streams(owner, limit \\ 4) do
+    owner
+    |> live_streams_q(limit)
+    |> Repo.all()
+  end
+
+  defp live_streams_q(%{live_streams: _} = owner, limit) do
+    owner
+    |> Ecto.assoc(:live_streams)
+    |> where([s], s.online)
+    |> order_by(desc: :last_started_at)
+    |> limit(^limit)
+    |> preload(:user)
+  end
+
   def create_live_stream!(user) do
     %LiveStream{}
-    |> change(secret_token: generate_secret_token(), producer_token: generate_producer_token())
+    |> change(
+      public_token: generate_public_token(),
+      producer_token: generate_producer_token(),
+      theme_prefer_original: user.theme_prefer_original
+    )
     |> put_assoc(:user, user)
     |> Repo.insert!()
   end
@@ -61,6 +87,7 @@ defmodule Asciinema.Streaming do
       :description,
       :private,
       :theme_name,
+      :theme_prefer_original,
       :buffer_time,
       :terminal_line_height,
       :terminal_font_family
@@ -131,6 +158,6 @@ defmodule Asciinema.Streaming do
     count
   end
 
-  defp generate_producer_token, do: Crypto.random_token(25)
-  defp generate_secret_token, do: Crypto.random_token(25)
+  defp generate_public_token, do: Crypto.random_token(16)
+  defp generate_producer_token, do: Crypto.random_token(16)
 end
