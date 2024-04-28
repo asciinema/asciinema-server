@@ -1,4 +1,4 @@
-ARG ALPINE_VERSION=3.17.0
+ARG ALPINE_VERSION=3.18.0
 ARG ERLANG_OTP_VERSION=25.2.2
 ARG ELIXIR_VERSION=1.14.3
 
@@ -9,6 +9,9 @@ FROM docker.io/hexpm/elixir:${ELIXIR_VERSION}-erlang-${ERLANG_OTP_VERSION}-alpin
 
 ARG MIX_ENV=prod
 ENV ERL_FLAGS="+JPperf true"
+# Avoid "error 137" (out of memory) while building images
+# See https://github.com/rust-lang/cargo/issues/10781
+ENV CARGO_REGISTRIES_CRATES_IO_PROTOCOL="sparse"
 
 WORKDIR /opt/app
 
