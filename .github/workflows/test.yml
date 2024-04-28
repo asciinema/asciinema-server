@@ -14,7 +14,7 @@ env:
   otp: '25.2.2'
   elixir: '1.14.3'
   node: '18.x'
-  rust: '1.68.0'
+  rust: '1.71.0'
 
 jobs:
   test:
