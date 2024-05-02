@@ -38,8 +38,9 @@ defmodule Asciinema.Accounts do
     result =
       %User{}
       |> cast(attrs, [:email])
-      |> validate_format(:email, @valid_email_re)
       |> validate_required([:email])
+      |> update_change(:email, &String.downcase/1)
+      |> validate_format(:email, @valid_email_re)
       |> add_contraints()
       |> Repo.insert()
 
@@ -79,6 +80,8 @@ defmodule Asciinema.Accounts do
       :terminal_font_family,
       :asciicasts_private_by_default
     ])
+    |> validate_required([:email])
+    |> update_change(:email, &String.downcase/1)
     |> validate_format(:email, @valid_email_re)
     |> validate_format(:username, @valid_username_re)
     |> validate_length(:username, min: 2, max: 16)
@@ -100,7 +103,7 @@ defmodule Asciinema.Accounts do
 
     user
     |> change_user(params)
-    |> validate_required([:username, :email])
+    |> validate_required([:username])
     |> Repo.update()
   end
 
@@ -139,7 +142,7 @@ defmodule Asciinema.Accounts do
 
   def lookup_user(identifier) when is_binary(identifier) do
     if String.contains?(identifier, "@") do
-      {:email, Repo.get_by(User, email: identifier)}
+      {:email, Repo.get_by(User, email: String.downcase(identifier))}
     else
       {:username, find_user_by_username(identifier)}
     end

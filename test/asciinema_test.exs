@@ -8,6 +8,7 @@ defmodule AsciinemaTest do
     test "succeeds when email not taken" do
       assert {:ok, _} = Asciinema.create_user(%{email: "test@example.com"})
       assert {:error, :email_taken} = Asciinema.create_user(%{email: "test@example.com"})
+      assert {:error, :email_taken} = Asciinema.create_user(%{email: "TEST@EXAMPLE.COM"})
     end
   end
 
@@ -26,29 +27,29 @@ defmodule AsciinemaTest do
     end
 
     test "existing user, by email" do
-      user = insert(:user)
+      insert(:user, email: "test@example.com")
 
-      assert Asciinema.send_login_email(user.email, true, Routes) == :ok
+      assert Asciinema.send_login_email("TEST@EXAMPLE.COM", true, Routes) == :ok
 
       assert_enqueued(
         worker: Asciinema.Emails.Job,
-        args: %{"type" => "login", "to" => user.email, "url" => "http://login"}
+        args: %{"type" => "login", "to" => "test@example.com", "url" => "http://login"}
       )
     end
 
     test "existing user, by username" do
-      user = insert(:user)
+      insert(:user, username: "foobar", email: "foobar123@example.com")
 
-      assert Asciinema.send_login_email(user.username, true, Routes) == :ok
+      assert Asciinema.send_login_email("foobar", true, Routes) == :ok
 
       assert_enqueued(
         worker: Asciinema.Emails.Job,
-        args: %{"type" => "login", "to" => user.email, "url" => "http://login"}
+        args: %{"type" => "login", "to" => "foobar123@example.com", "url" => "http://login"}
       )
     end
 
     test "non-existing user, by email" do
-      assert Asciinema.send_login_email("new@example.com", true, Routes) ==
+      assert Asciinema.send_login_email("NEW@EXAMPLE.COM", true, Routes) ==
                :ok
 
       assert_enqueued(

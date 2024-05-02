@@ -1,4 +1,4 @@
-ARG ALPINE_VERSION=3.17.0
+ARG ALPINE_VERSION=3.18.0
 ARG ERLANG_OTP_VERSION=25.2.2
 ARG ELIXIR_VERSION=1.14.3
 
@@ -9,6 +9,9 @@ FROM docker.io/hexpm/elixir:${ELIXIR_VERSION}-erlang-${ERLANG_OTP_VERSION}-alpin
 
 ARG MIX_ENV=prod
 ENV ERL_FLAGS="+JPperf true"
+# Avoid "error 137" (out of memory) while building images
+# See https://github.com/rust-lang/cargo/issues/10781
+ENV CARGO_REGISTRIES_CRATES_IO_PROTOCOL="sparse"
 
 WORKDIR /opt/app
 
@@ -68,11 +71,11 @@ COPY --from=builder /opt/app/_build/prod/rel/asciinema .
 RUN chgrp -R 0 /opt/app && chmod -R g=u /opt/app
 COPY .iex.exs .
 
-ENV PORT 4000
-ENV ADMIN_BIND_ALL 1
-ENV DATABASE_URL "postgresql://postgres@postgres/postgres"
-ENV RSVG_FONT_FAMILY "Dejavu Sans Mono"
-ENV PATH "/opt/app/bin:${PATH}"
+ENV PORT=4000 \
+    ADMIN_BIND_ALL=1 \
+    DATABASE_URL=postgresql://postgres@postgres/postgres \
+    RSVG_FONT_FAMILY="Dejavu Sans Mono" \
+    PATH=/opt/app/bin:${PATH}
 
 ENTRYPOINT ["/sbin/tini", "--"]
 CMD ["/opt/app/bin/server"]
