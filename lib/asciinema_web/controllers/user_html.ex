@@ -12,8 +12,14 @@ defmodule AsciinemaWeb.UserHTML do
   defdelegate default_font_display_name, to: Fonts
 
   def avatar_url(user) do
-    username = username(user)
-    email = user.email || "#{username}+#{user.id}@asciinema.org"
+    avatar_url(user, Application.fetch_env!(:asciinema, :avatar_provider))
+  end
+
+  def avatar_url(user, :identicon), do: ~p"/u/#{user}/avatar"
+
+  def avatar_url(user, :gravatar) do
+    email = user.email || "#{user.id}@asciinema"
+
     Gravatar.gravatar_url(email)
   end
 
