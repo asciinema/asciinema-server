@@ -59,13 +59,16 @@ defmodule Asciinema.AccountsTest do
       %{user: fixture(:user)}
     end
 
-    def assert_success(user, attrs) do
-      assert {:ok, _} = Accounts.update_user(user, attrs)
+    def success(user, attrs) do
+      assert {:ok, user} = Accounts.update_user(user, attrs)
+
+      user
     end
 
     test "success", %{user: user} do
-      assert_success(user, %{email: "new@one.com"})
-      assert_success(user, %{username: "newone"})
+      assert success(user, %{email: "new@one.com"})
+      assert success(user, %{email: "ANOTHER@ONE.COM"}).email == "another@one.com"
+      assert success(user, %{username: "newone"})
     end
 
     def assert_validation_error(user, attrs) do
