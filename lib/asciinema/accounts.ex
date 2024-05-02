@@ -20,6 +20,16 @@ defmodule Asciinema.Accounts do
 
   def get_user(id), do: Repo.get(User, id)
 
+  def find_user(%User{} = user), do: user
+
+  def find_user(id) when is_integer(id), do: get_user(id)
+
+  def find_user(id) when is_binary(id) do
+    {_, user} = lookup_user(id)
+
+    user
+  end
+
   def find_user_by_username(username) do
     Repo.one(
       from(u in User,
