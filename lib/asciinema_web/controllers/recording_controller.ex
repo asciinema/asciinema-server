@@ -111,13 +111,13 @@ defmodule AsciinemaWeb.RecordingController do
       |> put_resp_content_type("image/png")
       |> send_file(200, path)
     else
-      case conn.params["v"] do
-        "t" ->
-          render(conn, :thumbnail, asciicast: asciicast)
+      variant =
+        case conn.params["v"] do
+          "t" -> :thumbnail
+          _ -> :show
+        end
 
-        _ ->
-          render(conn, :show, asciicast: asciicast)
-      end
+      render(conn, variant, asciicast: asciicast)
     end
   end
 
