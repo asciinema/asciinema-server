@@ -221,6 +221,9 @@ defmodule AsciinemaWeb.RecordingHTML do
     asciicast.views_count
   end
 
+  def svg_cache_key(asciicast),
+    do: Timex.to_unix(asciicast.updated_at) - Timex.to_unix(asciicast.inserted_at)
+
   def head("show.html", assigns), do: head_for_show(assigns)
   def head(_, _), do: nil
 end

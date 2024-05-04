@@ -52,6 +52,7 @@ defmodule AsciinemaWeb do
       import AsciinemaWeb.Auth, only: [require_current_user: 2]
       import AsciinemaWeb.Plug.ReturnTo
       import AsciinemaWeb.Plug.Authz
+      import AsciinemaWeb.Caching
 
       unquote(verified_routes())
 

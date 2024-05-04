@@ -3,6 +3,7 @@ defmodule AsciinemaWeb.RecordingController do
   alias Asciinema.{Recordings, PngGenerator}
   alias Asciinema.Recordings.Asciicast
   alias AsciinemaWeb.PlayerOpts
+  alias AsciinemaWeb.RecordingHTML
 
   plug :clear_main_class
   plug :load_asciicast when action in [:show, :edit, :update, :delete, :iframe]
@@ -102,6 +103,9 @@ defmodule AsciinemaWeb.RecordingController do
     end
   end
 
+  # 1 hour
+  @svg_max_age 3600
+
   def do_show(conn, "svg", asciicast) do
     if asciicast.archived_at do
       path = Application.app_dir(:asciinema, "priv/static/images/archived.png")
@@ -112,12 +116,15 @@ defmodule AsciinemaWeb.RecordingController do
       |> send_file(200, path)
     else
       variant =
-        case conn.params["v"] do
+        case conn.params["f"] do
           "t" -> :thumbnail
           _ -> :show
         end
 
-      render(conn, variant, asciicast: asciicast)
+      conn
+      |> put_resp_header("cache-control", "public, max-age=#{@svg_max_age}, must-revalidate")
+      |> put_etag(RecordingHTML.svg_cache_key(asciicast))
+      |> render(variant, asciicast: asciicast)
     end
   end
 
