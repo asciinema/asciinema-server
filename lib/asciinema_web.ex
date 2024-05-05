@@ -44,7 +44,7 @@ defmodule AsciinemaWeb do
   def new_controller do
     quote do
       use Phoenix.Controller,
-        formats: [:html, :json, :svg]
+        formats: [:html, :json, :svg, :xml, :text]
 
       import Plug.Conn
       import AsciinemaWeb.Gettext
@@ -181,6 +181,9 @@ defmodule AsciinemaWeb do
 
   def json do
     quote do
+      import AsciinemaWeb.ErrorHelpers
+      import AsciinemaWeb.Router.Helpers.Extra
+
       # Routes generation with the ~p sigil
       unquote(verified_routes())
     end

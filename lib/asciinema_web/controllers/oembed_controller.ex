@@ -1,5 +1,5 @@
 defmodule AsciinemaWeb.OembedController do
-  use AsciinemaWeb, :controller
+  use AsciinemaWeb, :new_controller
   alias Asciinema.Recordings
 
   plug :put_layout, nil

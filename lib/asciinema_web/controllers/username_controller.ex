@@ -1,5 +1,5 @@
 defmodule AsciinemaWeb.UsernameController do
-  use AsciinemaWeb, :controller
+  use AsciinemaWeb, :new_controller
   alias Asciinema.Accounts
 
   plug :require_current_user
