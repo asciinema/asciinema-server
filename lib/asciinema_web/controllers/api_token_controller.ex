@@ -55,7 +55,7 @@ defmodule AsciinemaWeb.ApiTokenController do
   defp redirect_to_profile(conn) do
     path =
       case conn.assigns.current_user do
-        %User{username: nil} -> "/username/new"
+        %User{username: nil} -> ~p"/username/new"
         %User{} = user -> profile_path(user)
       end
 
