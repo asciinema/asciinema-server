@@ -21,28 +21,6 @@ defmodule AsciinemaWeb do
 
   def controller do
     quote do
-      use Phoenix.Controller, namespace: AsciinemaWeb
-
-      import Plug.Conn
-      import AsciinemaWeb.Gettext
-      import AsciinemaWeb.Router.Helpers.Extra
-      import AsciinemaWeb.Auth, only: [require_current_user: 2]
-      import AsciinemaWeb.Plug.ReturnTo
-      import AsciinemaWeb.Plug.Authz
-      alias AsciinemaWeb.Router.Helpers, as: Routes
-
-      unquote(verified_routes())
-
-      action_fallback AsciinemaWeb.FallbackController
-
-      defp clear_main_class(conn, _) do
-        assign(conn, :main_class, "")
-      end
-    end
-  end
-
-  def new_controller do
-    quote do
       use Phoenix.Controller,
         formats: [:html, :json, :svg, :xml, :text]
 

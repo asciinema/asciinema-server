@@ -1,5 +1,5 @@
 defmodule AsciinemaWeb.LiveStreamController do
-  use AsciinemaWeb, :new_controller
+  use AsciinemaWeb, :controller
   alias Asciinema.{Authorization, Recordings, Streaming}
   alias AsciinemaWeb.PlayerOpts
 

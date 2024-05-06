@@ -1,5 +1,5 @@
 defmodule AsciinemaWeb.ApiTokenController do
-  use AsciinemaWeb, :new_controller
+  use AsciinemaWeb, :controller
   alias Asciinema.Accounts
   alias Asciinema.Accounts.User
 

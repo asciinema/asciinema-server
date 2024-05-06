@@ -1,5 +1,5 @@
 defmodule AsciinemaWeb.RecordingController do
-  use AsciinemaWeb, :new_controller
+  use AsciinemaWeb, :controller
   alias Asciinema.{Recordings, PngGenerator}
   alias Asciinema.Recordings.Asciicast
   alias AsciinemaWeb.PlayerOpts

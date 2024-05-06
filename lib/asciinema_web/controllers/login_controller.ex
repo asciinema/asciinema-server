@@ -1,5 +1,5 @@
 defmodule AsciinemaWeb.LoginController do
-  use AsciinemaWeb, :new_controller
+  use AsciinemaWeb, :controller
   require Logger
 
   plug :clear_main_class

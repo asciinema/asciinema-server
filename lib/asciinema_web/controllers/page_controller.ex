@@ -1,5 +1,5 @@
 defmodule AsciinemaWeb.PageController do
-  use AsciinemaWeb, :new_controller
+  use AsciinemaWeb, :controller
 
   def about(conn, _params) do
     render(

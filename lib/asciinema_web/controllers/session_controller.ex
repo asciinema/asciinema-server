@@ -1,5 +1,5 @@
 defmodule AsciinemaWeb.SessionController do
-  use AsciinemaWeb, :new_controller
+  use AsciinemaWeb, :controller
   alias AsciinemaWeb.Auth
   alias Asciinema.Accounts.User
 
