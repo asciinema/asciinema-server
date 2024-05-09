@@ -77,7 +77,7 @@ defmodule Asciinema.FileStore.S3 do
 
   @impl true
   def open_file(path, function \\ nil) do
-    response = bucket() |> S3.get_object(base_path() <> path) |> make_request
+    response = bucket() |> S3.get_object(base_path() <> path) |> make_request()
 
     with {:ok, %{headers: headers, body: body}} <- response do
       body =

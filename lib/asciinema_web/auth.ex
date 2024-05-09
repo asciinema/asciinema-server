@@ -69,10 +69,10 @@ defmodule AsciinemaWeb.Auth do
     msg = Keyword.get(opts, :flash, "Please log in first.")
 
     conn
-    |> save_return_path
+    |> save_return_path()
     |> put_flash(:info, msg)
     |> redirect(to: Routes.login_path(conn, :new))
-    |> halt
+    |> halt()
   end
 
   def require_admin(%Conn{assigns: %{current_user: %User{is_admin: true}}} = conn, _) do

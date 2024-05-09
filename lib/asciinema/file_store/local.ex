@@ -42,7 +42,7 @@ defmodule Asciinema.FileStore.Local do
     conn
     |> put_resp_header("content-type", MIME.from_path(path))
     |> send_file(200, full_path(path))
-    |> halt
+    |> halt()
   end
 
   @impl true

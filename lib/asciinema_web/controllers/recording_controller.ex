@@ -145,7 +145,7 @@ defmodule AsciinemaWeb.RecordingController do
           |> put_resp_content_type(MIME.from_path(png_path))
           |> put_resp_header("cache-control", "public, max-age=#{@png_max_age}")
           |> send_file(200, png_path)
-          |> halt
+          |> halt()
 
         {:error, :busy} ->
           conn
