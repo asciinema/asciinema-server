@@ -42,7 +42,7 @@ defmodule AsciinemaWeb.RecordingHTML do
 
   def embed_script(asciicast) do
     src = url(~p"/a/#{asciicast}") <> ".js"
-    id = "asciicast-#{asciicast.id}"
+    id = "asciicast-#{Phoenix.Param.to_param(asciicast)}"
 
     {:safe, "<script src=\"#{src}\" id=\"#{id}\" async=\"true\"></script>"}
   end
