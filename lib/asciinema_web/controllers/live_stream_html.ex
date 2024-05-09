@@ -41,10 +41,6 @@ defmodule AsciinemaWeb.LiveStreamHTML do
     end
   end
 
-  defp short_public_token(stream) do
-    String.slice(stream.public_token, 0, 4)
-  end
-
   def cinema_height(stream) do
     MediaView.cinema_height(cols(stream), rows(stream))
   end
