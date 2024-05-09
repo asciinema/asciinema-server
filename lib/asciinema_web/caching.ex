@@ -8,7 +8,7 @@ defmodule AsciinemaWeb.Caching do
     |> put_resp_header("etag", etag)
     |> register_before_send(fn conn ->
       if etag in get_req_header(conn, "if-none-match") do
-        send_resp(conn, 304, "")
+        resp(conn, 304, "")
       else
         conn
       end
