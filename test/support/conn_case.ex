@@ -35,7 +35,9 @@ defmodule AsciinemaWeb.ConnCase do
       end
 
       def log_in(conn, user) do
-        assign(conn, :current_user, user)
+        conn
+        |> assign(:current_user, user)
+        |> assign(:default_stream, nil)
       end
     end
   end
