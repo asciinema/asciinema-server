@@ -35,10 +35,6 @@ defmodule AsciinemaWeb do
       unquote(verified_routes())
 
       action_fallback AsciinemaWeb.FallbackController
-
-      defp clear_main_class(conn, _) do
-        assign(conn, :main_class, "")
-      end
     end
   end
 

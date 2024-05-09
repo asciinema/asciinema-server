@@ -5,7 +5,6 @@ defmodule AsciinemaWeb.RecordingController do
   alias AsciinemaWeb.PlayerOpts
   alias AsciinemaWeb.RecordingHTML
 
-  plug :clear_main_class
   plug :load_asciicast when action in [:show, :edit, :update, :delete, :iframe]
   plug :require_current_user when action in [:edit, :update, :delete]
   plug :authorize, :asciicast when action in [:edit, :update, :delete]

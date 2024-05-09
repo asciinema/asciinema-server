@@ -22,7 +22,7 @@ defmodule AsciinemaWeb.SessionController do
         conn
         |> Auth.log_in(user)
         |> put_flash(:info, "Welcome back!")
-        |> redirect_to_profile
+        |> redirect_to_profile()
 
       {:error, :token_invalid} ->
         conn
