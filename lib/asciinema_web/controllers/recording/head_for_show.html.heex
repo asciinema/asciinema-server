@@ -31,15 +31,4 @@
   <meta name="referrer" content="origin" />
 <% end %>
 
-<style :for={theme <- original_theme(@asciicast)}>
-  /* Keep the poster theme consistent with the playback theme */
-
-  div.ap-player {
-    --term-color-foreground: <%= theme.fg %>;
-    --term-color-background: <%= theme.bg %>;
-
-    <%= for {c, i} <- theme.palette do %>
-    --term-color-<%= i %>: <%= c %>;
-    <% end %>
-  }
-</style>
+<.original_theme_style asciicast={@asciicast} />
