@@ -6,8 +6,7 @@
   </div>
 </div>
 
-<%= form_for @conn, Routes.session_path(@conn, :create), [id: "login", as: :login], fn _f -> %>
-<% end %>
+<.form for={@conn} action={~p"/session"} id="login" as={:login}></.form>
 
 <script>
   document.forms.namedItem("login").submit();

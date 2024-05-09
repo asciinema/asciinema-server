@@ -1,9 +1,8 @@
 defmodule AsciinemaWeb.LiveStreamController do
-  use AsciinemaWeb, :new_controller
+  use AsciinemaWeb, :controller
   alias Asciinema.{Authorization, Recordings, Streaming}
   alias AsciinemaWeb.PlayerOpts
 
-  plug :clear_main_class
   plug :load_stream when action in [:show, :edit, :update]
   plug :require_current_user when action in [:edit, :update]
   plug :authorize, :stream when action in [:edit, :update]

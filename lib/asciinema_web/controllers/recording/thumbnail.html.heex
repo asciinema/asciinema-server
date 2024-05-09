@@ -2,5 +2,5 @@
   class="thumbnail"
   style={"background-color: #{theme(@asciicast).bg}; border-right: 1ch solid #{theme(@asciicast).bg}"}
 >
-  <img src={~p"/a/#{@asciicast}" <> ".svg?v=t"} />
+  <img src={~p"/a/#{@asciicast}" <> ".svg?f=t&v=#{svg_cache_key(@asciicast)}"} />
 </div>

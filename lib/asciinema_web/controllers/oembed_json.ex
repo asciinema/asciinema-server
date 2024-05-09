@@ -1,14 +1,10 @@
-defmodule AsciinemaWeb.OembedView do
-  use AsciinemaWeb, :view
-  alias AsciinemaWeb.Endpoint
+defmodule AsciinemaWeb.OembedJSON do
+  use AsciinemaWeb, :json
   alias AsciinemaWeb.UserHTML
+  alias Phoenix.HTML.Tag
 
-  def render("show.json", %{asciicast: asciicast, max_width: mw, max_height: mh}) do
+  def show(%{asciicast: asciicast, max_width: mw, max_height: mh}) do
     attrs(asciicast, mw, mh)
-  end
-
-  def render("show.xml", %{asciicast: asciicast, max_width: mw, max_height: mh}) do
-    render("_show.xml", attrs(asciicast, mw, mh))
   end
 
   @cell_width 7.22
@@ -38,7 +34,7 @@ defmodule AsciinemaWeb.OembedView do
         max_height || image_height
       )
 
-    recording_url = Routes.recording_url(Endpoint, :show, asciicast)
+    recording_url = url(~p"/a/#{asciicast}")
     thumbnail_url = recording_url <> ".png"
 
     %{
@@ -48,7 +44,7 @@ defmodule AsciinemaWeb.OembedView do
       author_name: UserHTML.username(asciicast.user),
       author_url: profile_url(asciicast.user),
       provider_name: "asciinema",
-      provider_url: root_url(),
+      provider_url: url(~p"/"),
       thumbnail_url: thumbnail_url,
       thumbnail_width: width,
       thumbnail_height: height,
@@ -60,8 +56,8 @@ defmodule AsciinemaWeb.OembedView do
 
   defp html(recording_url, thumbnail_url, title, width) do
     safe =
-      content_tag(:a, href: recording_url, target: "_blank") do
-        img_tag(thumbnail_url, alt: title, width: width)
+      Tag.content_tag :a, href: recording_url, target: "_blank" do
+        Tag.img_tag(thumbnail_url, alt: title, width: width)
       end
 
     Phoenix.HTML.safe_to_string(safe)

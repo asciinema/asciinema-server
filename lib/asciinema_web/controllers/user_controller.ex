@@ -1,9 +1,8 @@
 defmodule AsciinemaWeb.UserController do
-  use AsciinemaWeb, :new_controller
+  use AsciinemaWeb, :controller
   alias Asciinema.{Accounts, Streaming, Recordings}
   alias AsciinemaWeb.Auth
 
-  plug :clear_main_class
   plug :require_current_user when action in [:edit, :update]
 
   def new(conn, %{"t" => signup_token}) do
@@ -78,7 +77,6 @@ defmodule AsciinemaWeb.UserController do
 
     conn
     |> assign(:page_title, "#{user.username}'s profile")
-    |> assign(:main_class, "")
     |> render(
       "show.html",
       user: user,

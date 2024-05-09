@@ -1,8 +1,7 @@
 defmodule AsciinemaWeb.LoginController do
-  use AsciinemaWeb, :new_controller
+  use AsciinemaWeb, :controller
   require Logger
 
-  plug :clear_main_class
   plug :detect_bot when action == :create
 
   def new(conn, _params) do
