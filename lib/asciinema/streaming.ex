@@ -48,7 +48,7 @@ defmodule Asciinema.Streaming do
   def list_public_live_streams(owner, limit \\ 4) do
     owner
     |> live_streams_q(limit)
-    |> where([s], not s.private)
+    |> where([s], s.visibility == :public)
     |> Repo.all()
   end
 
@@ -85,7 +85,7 @@ defmodule Asciinema.Streaming do
     |> cast(attrs, [
       :title,
       :description,
-      :private,
+      :visibility,
       :theme_name,
       :theme_prefer_original,
       :buffer_time,
