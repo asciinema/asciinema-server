@@ -4,6 +4,7 @@ defmodule Asciinema.Authorization do
   alias Asciinema.Streaming.LiveStream
 
   defmodule Policy do
+    def can?(_user, :show, %LiveStream{visibility: v}) when v in [:public, :unlisted], do: true
     def can?(nil, _action, _thing), do: false
     def can?(%User{is_admin: true}, _action, _thing), do: true
     def can?(_user, :make_featured, %Asciicast{}), do: false

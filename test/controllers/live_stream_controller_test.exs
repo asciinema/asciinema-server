@@ -1,11 +1,10 @@
 defmodule Asciinema.LiveStreamControllerTest do
   use AsciinemaWeb.ConnCase
   import Asciinema.Factory
-  alias Asciinema.Authorization
 
   describe "show" do
-    test "HTML, private stream", %{conn: conn} do
-      stream = insert(:live_stream, private: true)
+    test "public stream", %{conn: conn} do
+      stream = insert(:live_stream, visibility: :public)
 
       conn_2 = get(conn, ~p"/s/#{stream}")
 
@@ -13,8 +12,8 @@ defmodule Asciinema.LiveStreamControllerTest do
       assert response_content_type(conn_2, :html)
     end
 
-    test "HTML, public stream", %{conn: conn} do
-      stream = insert(:live_stream, private: false)
+    test "unlisted stream", %{conn: conn} do
+      stream = insert(:live_stream, visibility: :unlisted)
 
       conn_2 = get(conn, ~p"/s/#{stream}")
 
@@ -22,7 +21,37 @@ defmodule Asciinema.LiveStreamControllerTest do
       assert response_content_type(conn_2, :html)
     end
 
-    test "HTML, streaming instructions", %{conn: conn} do
+    test "private stream, unauthenticated", %{conn: conn} do
+      user = insert(:user)
+      stream = insert(:live_stream, visibility: :private, user: user)
+
+      conn_2 = get(conn, ~p"/s/#{stream}")
+
+      assert redirected_to(conn_2, 302) == ~p"/login/new"
+    end
+
+    test "private stream, as non-owner", %{conn: conn} do
+      stream = insert(:live_stream, visibility: :private)
+      user = insert(:user)
+      conn = log_in(conn, user)
+
+      conn_2 = get(conn, ~p"/s/#{stream}")
+
+      assert html_response(conn_2, 403)
+    end
+
+    test "private stream, as owner", %{conn: conn} do
+      user = insert(:user)
+      stream = insert(:live_stream, visibility: :private, user: user)
+      conn = log_in(conn, user)
+
+      conn_2 = get(conn, ~p"/s/#{stream}")
+
+      assert html_response(conn_2, 200) =~ "createPlayer"
+      assert response_content_type(conn_2, :html)
+    end
+
+    test "streaming instructions", %{conn: conn} do
       user = insert(:user)
       stream = insert(:live_stream, user: user)
 
@@ -58,9 +87,9 @@ defmodule Asciinema.LiveStreamControllerTest do
     test "requires owner", %{conn: conn, stream: stream} do
       conn = log_in(conn, insert(:user))
 
-      assert_raise(Authorization.ForbiddenError, fn ->
-        get(conn, ~p"/s/#{stream}/edit")
-      end)
+      conn = get(conn, ~p"/s/#{stream}/edit")
+
+      assert html_response(conn, 403) =~ "access"
     end
 
     test "displays form", %{conn: conn, stream: stream, user: user} do

@@ -161,15 +161,16 @@ defmodule Asciinema.RecordingControllerTest do
 
     test "requires logged in user", %{conn: conn, asciicast: asciicast} do
       conn = get(conn, Routes.recording_path(conn, :edit, asciicast))
-      assert redirected_to(conn, 302) == "/login/new"
+
+      assert redirected_to(conn, 302) == ~p"/login/new"
     end
 
     test "requires author", %{conn: conn, asciicast: asciicast} do
       conn = log_in(conn, insert(:user))
 
-      assert_raise(Asciinema.Authorization.ForbiddenError, fn ->
-        get(conn, Routes.recording_path(conn, :edit, asciicast))
-      end)
+      conn = get(conn, Routes.recording_path(conn, :edit, asciicast))
+
+      assert html_response(conn, 403) =~ "access"
     end
 
     test "displays form", %{conn: conn, asciicast: asciicast, user: user} do
@@ -209,9 +210,9 @@ defmodule Asciinema.RecordingControllerTest do
     test "requires author", %{conn: conn, asciicast: asciicast} do
       conn = log_in(conn, insert(:user))
 
-      assert_raise(Asciinema.Authorization.ForbiddenError, fn ->
-        delete(conn, Routes.recording_path(conn, :delete, asciicast))
-      end)
+      conn = delete(conn, Routes.recording_path(conn, :delete, asciicast))
+
+      assert html_response(conn, 403) =~ "access"
     end
 
     test "removes and redirects", %{conn: conn, asciicast: asciicast, user: user} do

@@ -67,4 +67,8 @@ defmodule AsciinemaWeb.LiveStreamHTML do
   defp cols(stream), do: stream.cols || 80
 
   defp rows(stream), do: stream.rows || 24
+
+  defp owned_by_current_user?(stream, conn) do
+    conn.assigns[:current_user] && conn.assigns[:current_user].id == stream.user_id
+  end
 end
