@@ -23,16 +23,4 @@ defmodule Asciinema.Authorization do
 
     Policy.can?(user, action, thing)
   end
-
-  defmodule ForbiddenError do
-    defexception plug_status: 403, message: "Forbidden"
-  end
-
-  def can!(user, action, thing) do
-    if can?(user, action, thing) do
-      :ok
-    else
-      raise ForbiddenError
-    end
-  end
 end
