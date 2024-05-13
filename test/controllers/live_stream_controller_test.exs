@@ -81,7 +81,7 @@ defmodule Asciinema.LiveStreamControllerTest do
     test "requires logged in user", %{conn: conn, stream: stream} do
       conn = get(conn, ~p"/s/#{stream}/edit")
 
-      assert redirected_to(conn, 302) == "/login/new"
+      assert redirected_to(conn, 302) == ~p"/login/new"
     end
 
     test "requires owner", %{conn: conn, stream: stream} do
