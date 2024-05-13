@@ -1,7 +1,7 @@
 defmodule AsciinemaWeb.LiveStreamController do
   use AsciinemaWeb, :controller
   alias Asciinema.{Authorization, Recordings, Streaming}
-  alias AsciinemaWeb.PlayerOpts
+  alias AsciinemaWeb.{FallbackController, LiveStreamHTML, PlayerOpts}
 
   plug :load_stream when action in [:show, :edit, :update]
   plug :require_current_user when action in [:edit, :update]
@@ -15,7 +15,7 @@ defmodule AsciinemaWeb.LiveStreamController do
     render(
       conn,
       :show,
-      page_title: AsciinemaWeb.LiveStreamHTML.title(stream),
+      page_title: LiveStreamHTML.title(stream),
       player_opts: player_opts(params),
       actions: stream_actions(stream, current_user),
       user_is_self: user_is_self,
@@ -71,7 +71,7 @@ defmodule AsciinemaWeb.LiveStreamController do
 
       {:error, :not_found} ->
         conn
-        |> AsciinemaWeb.FallbackController.call({:error, :not_found})
+        |> FallbackController.call({:error, :not_found})
         |> halt()
     end
   end
