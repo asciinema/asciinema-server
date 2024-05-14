@@ -1,5 +1,5 @@
 defmodule Asciinema.Streaming.LiveStreamServer do
-  use GenServer, restart: :transient
+  use GenServer, restart: :temporary
   alias Asciinema.Recordings.Snapshot
   alias Asciinema.Streaming.ViewerTracker
   alias Asciinema.{Colors, PubSub, Streaming, Vt}

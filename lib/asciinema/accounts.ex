@@ -6,7 +6,7 @@ defmodule Asciinema.Accounts do
   alias Asciinema.{Fonts, Repo, Themes}
   alias Ecto.Changeset
 
-  @valid_email_re ~r/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i
+  @valid_email_re ~r/^[A-Z0-9._%+-]+@([A-Z0-9-]+\.)+[A-Z]{2,}$/i
   @valid_username_re ~r/^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]$/
 
   def fetch_user(id) do

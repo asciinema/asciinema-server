@@ -2,17 +2,9 @@ defmodule AsciinemaWeb.Endpoint do
   use Sentry.PlugCapture
   use Phoenix.Endpoint, otp_app: :asciinema
 
-  # The session will be stored in the cookie and signed,
-  # this means its contents can be read but not tampered with.
-  # Set :encryption_salt if you would also like to encrypt it.
-  @session_options [
-    store: :cookie,
-    key: "_asciinema_key",
-    signing_salt: "qJL+3s0T",
-    same_site: "Lax"
-  ]
+  @session_opts Application.compile_env!(:asciinema, :session_opts)
 
-  socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]]
+  socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_opts]]
 
   # Serve at "/" the static files from "priv/static" directory.
   #
@@ -49,7 +41,7 @@ defmodule AsciinemaWeb.Endpoint do
   plug Sentry.PlugContext
   plug Plug.MethodOverride
   plug Plug.Head
-  plug Plug.Session, @session_options
+  plug Plug.Session, @session_opts
   plug AsciinemaWeb.PlugAttack
   plug AsciinemaWeb.Router
 end
