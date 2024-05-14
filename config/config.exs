@@ -7,6 +7,12 @@
 # General application configuration
 import Config
 
+config :asciinema, :session_opts,
+  store: :cookie,
+  key: "_asciinema_key",
+  signing_salt: "qJL+3s0T",
+  same_site: "Lax"
+
 config :asciinema,
   ecto_repos: [Asciinema.Repo]
 

@@ -1,6 +1,7 @@
 defmodule AsciinemaWeb.LiveStreamConsumerSocket do
-  alias Asciinema.Streaming
+  alias Asciinema.{Accounts, Authorization, Streaming}
   alias Asciinema.Streaming.{LiveStreamServer, ViewerTracker}
+  alias AsciinemaWeb.Endpoint
   require Logger
 
   @behaviour :cowboy_websocket
@@ -11,30 +12,42 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   # Callbacks
 
   @impl true
-  def init(req, _opts),
-    do: {:cowboy_websocket, req, req.bindings[:public_token], %{compress: true}}
+  def init(req, _opts) do
+    state = %{
+      token: req.bindings[:public_token],
+      user_id: user_id_from_session(req),
+      stream_id: nil
+    }
+
+    {:cowboy_websocket, req, state, %{compress: true}}
+  end
 
   @impl true
-  def websocket_init(token) do
-    case Streaming.get_live_stream(token) do
-      nil ->
+  def websocket_init(%{token: token, user_id: user_id}) do
+    with {:ok, stream} <- fetch_live_stream(token),
+         :ok <- authorize(stream, user_id) do
+      Logger.info("consumer/#{stream.id}: connected")
+      state = %{stream_id: stream.id, reset: false}
+      LiveStreamServer.subscribe(stream.id, :reset)
+      LiveStreamServer.subscribe(stream.id, :feed)
+      LiveStreamServer.subscribe(stream.id, :offline)
+      LiveStreamServer.request_info(stream.id)
+      ViewerTracker.track(stream.id)
+      Process.send_after(self(), :info_timeout, @info_timeout)
+      Process.send_after(self(), :client_ping, @client_ping_interval)
+
+      {:reply, header_message(), state}
+    else
+      {:error, :stream_not_found} ->
         Logger.warn("consumer: stream not found for public token #{token}")
         :timer.sleep(1000)
 
         {:reply, :close, %{stream_id: "?"}}
 
-      stream ->
-        Logger.info("consumer/#{stream.id}: connected")
-        state = %{stream_id: stream.id, reset: false}
-        LiveStreamServer.subscribe(stream.id, :reset)
-        LiveStreamServer.subscribe(stream.id, :feed)
-        LiveStreamServer.subscribe(stream.id, :offline)
-        LiveStreamServer.request_info(stream.id)
-        ViewerTracker.track(stream.id)
-        Process.send_after(self(), :info_timeout, @info_timeout)
-        Process.send_after(self(), :client_ping, @client_ping_interval)
+      {:error, :forbidden} ->
+        Logger.warn("consumer: unauthorized connection attempt")
 
-        {:reply, header_message(), state}
+        {:reply, :close, %{stream_id: token}}
     end
   end
 
@@ -78,14 +91,48 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
 
   @impl true
   def terminate(reason, _req, state) do
-    Logger.info("consumer/#{state.stream_id}: terminating (#{inspect(reason)})")
-    Logger.debug("consumer/#{state.stream_id}: state: #{inspect(state)}")
-    ViewerTracker.untrack(state.stream_id)
+    if stream_id = state[:stream_id] do
+      Logger.info("consumer/#{stream_id}: terminating (#{inspect(reason)})")
+      Logger.debug("consumer/#{stream_id}: state: #{inspect(state)}")
+      ViewerTracker.untrack(stream_id)
+    end
 
     :ok
   end
 
   # Private
+
+  @session_key Keyword.fetch!(Application.compile_env!(:asciinema, :session_opts), :key)
+  @signing_salt Keyword.fetch!(Application.compile_env!(:asciinema, :session_opts), :signing_salt)
+
+  defp user_id_from_session(req) do
+    cookies = :cowboy_req.parse_cookies(req)
+
+    with {_, cookie} <- List.keyfind(cookies, @session_key, 0) do
+      secret_key_base = Application.fetch_env!(:asciinema, Endpoint)[:secret_key_base]
+      conn = %{secret_key_base: secret_key_base}
+      opts = Plug.Session.COOKIE.init(signing_salt: @signing_salt)
+      {:term, session} = Plug.Session.COOKIE.get(conn, cookie, opts)
+
+      session["user_id"]
+    end
+  end
+
+  defp fetch_live_stream(token) do
+    case Streaming.get_live_stream(token) do
+      nil -> {:error, :stream_not_found}
+      stream -> {:ok, stream}
+    end
+  end
+
+  defp authorize(stream, user_id) do
+    if Authorization.can?(nil, :show, stream) ||
+         Authorization.can?(Accounts.get_user(user_id), :show, stream) do
+      :ok
+    else
+      {:error, :forbidden}
+    end
+  end
 
   @alis_version 1
 
