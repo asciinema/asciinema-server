@@ -81,7 +81,6 @@ defmodule Asciinema.MixProject do
       {:scrivener_html, "~> 1.8"},
       {:sentry, "~> 8.0"},
       {:telemetry_metrics, "~> 0.6"},
-      {:telemetry_metrics_prometheus, "~> 1.1"},
       {:telemetry_poller, "~> 1.0"},
       {:timex, "~> 3.7"}
     ]

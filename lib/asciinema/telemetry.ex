@@ -11,10 +11,7 @@ defmodule Asciinema.Telemetry do
   end
 
   def init(_arg) do
-    children = [
-      {:telemetry_poller, period: 10_000},
-      {TelemetryMetricsPrometheus, metrics: metrics()}
-    ]
+    children = [{:telemetry_poller, period: 10_000}]
 
     Supervisor.init(children, strategy: :one_for_one)
   end
