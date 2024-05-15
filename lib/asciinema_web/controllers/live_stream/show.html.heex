@@ -20,7 +20,10 @@
         <small>
           by
           <.link navigate={author_profile_path(@stream)}><%= author_username(@stream) %></.link>
-          <.secret_badge :if={@stream.private} />
+          <.visibility_badge
+            :if={owned_by_current_user?(@stream, @conn)}
+            visibility={@stream.visibility}
+          />
         </small>
       </div>
 
@@ -108,7 +111,7 @@
           name="rec-cmd-asciinema-streamer"
           data-behavior="auto-select"
           readonly
-          value={"asciinema stream -r #{short_public_token(@stream)}"}
+          value="asciinema stream -r"
         />
 
         <h3>

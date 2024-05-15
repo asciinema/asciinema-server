@@ -4,6 +4,7 @@ defmodule Asciinema.Authorization do
   alias Asciinema.Streaming.LiveStream
 
   defmodule Policy do
+    def can?(_user, :show, %LiveStream{visibility: v}) when v in [:public, :unlisted], do: true
     def can?(nil, _action, _thing), do: false
     def can?(%User{is_admin: true}, _action, _thing), do: true
     def can?(_user, :make_featured, %Asciicast{}), do: false
@@ -22,17 +23,5 @@ defmodule Asciinema.Authorization do
       end
 
     Policy.can?(user, action, thing)
-  end
-
-  defmodule ForbiddenError do
-    defexception plug_status: 403, message: "Forbidden"
-  end
-
-  def can!(user, action, thing) do
-    if can?(user, action, thing) do
-      :ok
-    else
-      raise ForbiddenError
-    end
   end
 end

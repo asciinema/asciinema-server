@@ -6,7 +6,7 @@ defmodule AsciinemaWeb.SessionController do
   def new(conn, %{"t" => login_token}) do
     conn
     |> put_session(:login_token, login_token)
-    |> redirect(to: Routes.session_path(conn, :new))
+    |> redirect(to: ~p"/session/new")
   end
 
   def new(conn, _params) do
@@ -22,29 +22,29 @@ defmodule AsciinemaWeb.SessionController do
         conn
         |> Auth.log_in(user)
         |> put_flash(:info, "Welcome back!")
-        |> redirect_to_profile
+        |> redirect_to_profile()
 
       {:error, :token_invalid} ->
         conn
         |> put_flash(:error, "Invalid login link.")
-        |> redirect(to: Routes.login_path(conn, :new))
+        |> redirect(to: ~p"/login/new")
 
       {:error, :token_expired} ->
         conn
         |> put_flash(:error, "This login link has expired, sorry.")
-        |> redirect(to: Routes.login_path(conn, :new))
+        |> redirect(to: ~p"/login/new")
 
       {:error, :user_not_found} ->
         conn
         |> put_flash(:error, "This account has been removed.")
-        |> redirect(to: Routes.login_path(conn, :new))
+        |> redirect(to: ~p"/login/new")
     end
   end
 
   defp redirect_to_profile(conn) do
     case conn.assigns.current_user do
       %User{username: nil} ->
-        redirect(conn, to: Routes.username_path(conn, :new))
+        redirect(conn, to: ~p"/username/new")
 
       %User{} = user ->
         redirect_back_or(conn, to: profile_path(user))

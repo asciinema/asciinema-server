@@ -1,0 +1,39 @@
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <h1>Choose your username</h1>
+      <br />
+
+      <p>
+        Every asciinema user gets a profile page at <a href="#"><%= root_url() %>/~<strong>username</strong></a>.
+      </p>
+
+      <.form :let={f} for={@changeset} action={~p"/username"} class="username-form" method="post">
+        <div class="form-group">
+          <.label for={f[:username]}>Your username:</.label>
+          <.input field={f[:username]} class="form-control" data-behavior="focus" />
+
+          <%= case assigns[:error] do %>
+            <% nil -> %>
+            <% :username_invalid -> %>
+              <br />
+              <p class="text-danger">
+                Use only letters, digits and "-" character. <br /> Examples:
+                <em>johndoe, gosia3000, ultimate-debugger</em>
+              </p>
+            <% :username_taken -> %>
+              <br />
+              <p class="text-danger">
+                This username is already taken.
+              </p>
+          <% end %>
+        </div>
+
+        <div class="form-group">
+          <.button type="submit" class="btn btn-primary">Continue</.button>
+          <a href={~p"/username/skip"} class="btn">I'll do it later</a>
+        </div>
+      </.form>
+    </div>
+  </div>
+</div>

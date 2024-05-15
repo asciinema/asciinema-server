@@ -1,5 +1,5 @@
 defmodule AsciinemaWeb.WebFingerController do
-  use AsciinemaWeb, :new_controller
+  use AsciinemaWeb, :controller
   alias Asciinema.Accounts
 
   def show(conn, %{"resource" => resource}) do

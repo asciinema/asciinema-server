@@ -17,7 +17,7 @@ defmodule AsciinemaWeb.RecordingHTML do
   defdelegate username(user), to: UserHTML
   defdelegate title(asciicast), to: Recordings
 
-  def player_src(asciicast), do: asciicast_file_url(asciicast)
+  def player_src(asciicast), do: ~p"/a/#{asciicast}" <> ".#{filename_ext(asciicast)}"
 
   def player_opts(asciicast, opts) do
     [
@@ -42,7 +42,7 @@ defmodule AsciinemaWeb.RecordingHTML do
 
   def embed_script(asciicast) do
     src = url(~p"/a/#{asciicast}") <> ".js"
-    id = "asciicast-#{asciicast.id}"
+    id = "asciicast-#{Phoenix.Param.to_param(asciicast)}"
 
     {:safe, "<script src=\"#{src}\" id=\"#{id}\" async=\"true\"></script>"}
   end
@@ -220,6 +220,9 @@ defmodule AsciinemaWeb.RecordingHTML do
   def views_count(asciicast) do
     asciicast.views_count
   end
+
+  def svg_cache_key(asciicast),
+    do: Timex.to_unix(asciicast.updated_at) - Timex.to_unix(asciicast.inserted_at)
 
   def head("show.html", assigns), do: head_for_show(assigns)
   def head(_, _), do: nil

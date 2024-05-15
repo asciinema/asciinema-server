@@ -36,17 +36,23 @@ defmodule Asciinema.AccountsTest do
     end
 
     test "non-existing user, by email" do
-      assert Accounts.generate_login_url("new@example.com", true, Routes) ==
-               {:ok, {:signup, "http://signup", "new@example.com"}}
+      assert Accounts.generate_login_url("foo@example.com", true, Routes) ==
+               {:ok, {:signup, "http://signup", "foo@example.com"}}
+
+      assert Accounts.generate_login_url("foo@ex.ample.com", true, Routes) ==
+               {:ok, {:signup, "http://signup", "foo@ex.ample.com"}}
     end
 
     test "non-existing user, by email, when sign up is disabled" do
-      assert Accounts.generate_login_url("new@example.com", false, Routes) ==
+      assert Accounts.generate_login_url("foo@example.com", false, Routes) ==
                {:error, :user_not_found}
     end
 
     test "non-existing user, by email, when email is invalid" do
-      assert Accounts.generate_login_url("new@", true, Routes) == {:error, :email_invalid}
+      assert Accounts.generate_login_url("foo@", true, Routes) == {:error, :email_invalid}
+
+      assert Accounts.generate_login_url("foo@ex.ample..com", true, Routes) ==
+               {:error, :email_invalid}
     end
 
     test "non-existing user, by username" do
@@ -59,13 +65,16 @@ defmodule Asciinema.AccountsTest do
       %{user: fixture(:user)}
     end
 
-    def assert_success(user, attrs) do
-      assert {:ok, _} = Accounts.update_user(user, attrs)
+    def success(user, attrs) do
+      assert {:ok, user} = Accounts.update_user(user, attrs)
+
+      user
     end
 
     test "success", %{user: user} do
-      assert_success(user, %{email: "new@one.com"})
-      assert_success(user, %{username: "newone"})
+      assert success(user, %{email: "new@one.com"})
+      assert success(user, %{email: "ANOTHER@ONE.COM"}).email == "another@one.com"
+      assert success(user, %{username: "newone"})
     end
 
     def assert_validation_error(user, attrs) do

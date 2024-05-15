@@ -15,12 +15,12 @@ defmodule AsciinemaWeb.ApiTokenController do
       {:error, :token_invalid} ->
         conn
         |> put_flash(:error, "Invalid installation ID - make sure to paste the URL correctly")
-        |> redirect(to: root_path())
+        |> redirect(to: ~p"/")
 
       {:error, :token_revoked} ->
         conn
         |> put_flash(:error, "This CLI authentication has been revoked")
-        |> redirect(to: root_path())
+        |> redirect(to: ~p"/")
     end
   end
 
@@ -55,7 +55,7 @@ defmodule AsciinemaWeb.ApiTokenController do
   defp redirect_to_profile(conn) do
     path =
       case conn.assigns.current_user do
-        %User{username: nil} -> "/username/new"
+        %User{username: nil} -> ~p"/username/new"
         %User{} = user -> profile_path(user)
       end
 

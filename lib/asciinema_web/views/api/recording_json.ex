@@ -1,18 +1,14 @@
-defmodule AsciinemaWeb.Api.RecordingView do
-  use AsciinemaWeb, :view
+defmodule AsciinemaWeb.Api.RecordingJSON do
+  use AsciinemaWeb, :json
 
-  def render("created.text", assigns) do
-    message(assigns)
-  end
-
-  def render("created.json", assigns) do
+  def created(assigns) do
     %{
       url: assigns.url,
       message: message(assigns)
     }
   end
 
-  def render("error.json", %{changeset: changeset}) do
+  def error(%{changeset: changeset}) do
     %{errors: translate_errors(changeset)}
   end
 
@@ -28,6 +24,8 @@ defmodule AsciinemaWeb.Api.RecordingView do
 
     if is_tmp_user && ttl do
       hostname = AsciinemaWeb.instance_hostname()
+      # url = Routes.connect_url(conn, :show, install_id)
+      url = url(~p"/connect/#{install_id}")
 
       """
       #{message}
@@ -39,7 +37,7 @@ defmodule AsciinemaWeb.Api.RecordingView do
       If you want to preserve all recordings uploaded from this machine,
       authenticate this CLI with your #{hostname} account by opening the following link:
 
-          #{Routes.connect_url(conn, :show, install_id)}
+          #{url}
       """
     else
       message

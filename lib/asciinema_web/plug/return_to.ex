@@ -16,9 +16,9 @@ defmodule AsciinemaWeb.Plug.ReturnTo do
       end
 
     conn
-    |> clear_return_path
+    |> clear_return_path()
     |> redirect(target)
-    |> halt
+    |> halt()
   end
 
   def clear_return_path(conn) do

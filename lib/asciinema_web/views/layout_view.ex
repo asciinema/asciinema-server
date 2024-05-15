@@ -23,8 +23,4 @@ defmodule AsciinemaWeb.LayoutView do
 
     "c-#{controller} a-#{action}"
   end
-
-  def main_class(conn) do
-    conn.assigns[:main_class] || "container"
-  end
 end

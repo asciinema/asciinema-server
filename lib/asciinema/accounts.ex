@@ -6,7 +6,7 @@ defmodule Asciinema.Accounts do
   alias Asciinema.{Fonts, Repo, Themes}
   alias Ecto.Changeset
 
-  @valid_email_re ~r/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i
+  @valid_email_re ~r/^[A-Z0-9._%+-]+@([A-Z0-9-]+\.)+[A-Z]{2,}$/i
   @valid_username_re ~r/^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]$/
 
   def fetch_user(id) do
@@ -19,6 +19,16 @@ defmodule Asciinema.Accounts do
   def get_user([{_k, _v}] = kv), do: Repo.get_by(User, kv)
 
   def get_user(id), do: Repo.get(User, id)
+
+  def find_user(%User{} = user), do: user
+
+  def find_user(id) when is_integer(id), do: get_user(id)
+
+  def find_user(id) when is_binary(id) do
+    {_, user} = lookup_user(id)
+
+    user
+  end
 
   def find_user_by_username(username) do
     Repo.one(
@@ -38,8 +48,9 @@ defmodule Asciinema.Accounts do
     result =
       %User{}
       |> cast(attrs, [:email])
-      |> validate_format(:email, @valid_email_re)
       |> validate_required([:email])
+      |> update_change(:email, &String.downcase/1)
+      |> validate_format(:email, @valid_email_re)
       |> add_contraints()
       |> Repo.insert()
 
@@ -79,6 +90,8 @@ defmodule Asciinema.Accounts do
       :terminal_font_family,
       :asciicasts_private_by_default
     ])
+    |> validate_required([:email])
+    |> update_change(:email, &String.downcase/1)
     |> validate_format(:email, @valid_email_re)
     |> validate_format(:username, @valid_username_re)
     |> validate_length(:username, min: 2, max: 16)
@@ -100,7 +113,7 @@ defmodule Asciinema.Accounts do
 
     user
     |> change_user(params)
-    |> validate_required([:username, :email])
+    |> validate_required([:username])
     |> Repo.update()
   end
 
@@ -139,7 +152,7 @@ defmodule Asciinema.Accounts do
 
   def lookup_user(identifier) when is_binary(identifier) do
     if String.contains?(identifier, "@") do
-      {:email, Repo.get_by(User, email: identifier)}
+      {:email, Repo.get_by(User, email: String.downcase(identifier))}
     else
       {:username, find_user_by_username(identifier)}
     end

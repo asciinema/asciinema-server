@@ -41,10 +41,6 @@ defmodule AsciinemaWeb.LiveStreamHTML do
     end
   end
 
-  defp short_public_token(stream) do
-    String.slice(stream.public_token, 0, 4)
-  end
-
   def cinema_height(stream) do
     MediaView.cinema_height(cols(stream), rows(stream))
   end
@@ -57,10 +53,22 @@ defmodule AsciinemaWeb.LiveStreamHTML do
 
   def duration(stream) do
     if t = stream.last_started_at do
-      d = Timex.diff(Timex.now(), t, :second)
-      minutes = div(d, 60)
-      seconds = rem(d, 60)
-      :io_lib.format("~2..0B:~2..0B", [minutes, seconds])
+      seconds = Timex.diff(Timex.now(), t, :second)
+      days = div(seconds, 60 * 60 * 24)
+      seconds = rem(seconds, 60 * 60 * 24)
+      hours = div(seconds, 60 * 60)
+      seconds = rem(seconds, 60 * 60)
+      minutes = div(seconds, 60)
+      seconds = rem(seconds, 60)
+
+      cond do
+        days > 0 and hours > 0 -> "#{days}d #{hours}h"
+        days > 0 -> "#{days}d"
+        hours > 0 and minutes > 0 -> "#{hours}h #{minutes}m"
+        hours > 0 -> "#{hours}h"
+        minutes > 0 -> "#{minutes}m"
+        true -> "#{seconds}s"
+      end
     end
   end
 
@@ -71,4 +79,8 @@ defmodule AsciinemaWeb.LiveStreamHTML do
   defp cols(stream), do: stream.cols || 80
 
   defp rows(stream), do: stream.rows || 24
+
+  defp owned_by_current_user?(stream, conn) do
+    conn.assigns[:current_user] && conn.assigns[:current_user].id == stream.user_id
+  end
 end

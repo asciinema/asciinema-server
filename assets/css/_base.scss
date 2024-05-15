@@ -1,4 +1,4 @@
-@import "./_source_sans_pro.css";
+@import "./fonts/source_sans_pro.css";
 
 html {
   height: 100%;
@@ -141,6 +141,18 @@ form {
 
   .col-form-label {
     font-weight: 600;
+  }
+
+  .form-group.row {
+    margin-bottom: 1.5rem;
+  }
+
+  .form-check {
+      margin-bottom: 0.75em;
+  }
+
+  .visibility-radios {
+    padding-top: 0.375rem;
   }
 }
 

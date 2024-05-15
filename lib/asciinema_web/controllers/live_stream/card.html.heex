@@ -14,7 +14,6 @@
   <div class="info">
     <h3>
       <.link href={~p"/s/#{@stream}"}><%= title(@stream) %></.link>
-      <.secret_badge :if={@stream.private} />
       <span class="duration"><%= duration(@stream) %></span>
     </h3>
 
