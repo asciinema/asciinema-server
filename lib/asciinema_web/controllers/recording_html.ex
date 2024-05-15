@@ -17,7 +17,7 @@ defmodule AsciinemaWeb.RecordingHTML do
   defdelegate username(user), to: UserHTML
   defdelegate title(asciicast), to: Recordings
 
-  def player_src(asciicast), do: asciicast_file_url(asciicast)
+  def player_src(asciicast), do: ~p"/a/#{asciicast}" <> ".#{filename_ext(asciicast)}"
 
   def player_opts(asciicast, opts) do
     [
