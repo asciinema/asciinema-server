@@ -1,0 +1,17 @@
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <h1>Are you sure?</h1>
+
+      <p>This will permanently delete your account and all associated recordings.</p>
+
+      <.form for={@conn} method="delete" action={~p"/user"}>
+        <.input name="confirmed" type="hidden" value="1" />
+        <.input name="token" type="hidden" value={@token} />
+        <.button type="submit" class="btn btn-danger" data-confirm="There's no going back!">
+          Yes, delete my account
+        </.button>
+      </.form>
+    </div>
+  </div>
+</div>

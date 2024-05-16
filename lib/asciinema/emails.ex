@@ -16,6 +16,11 @@ defmodule Asciinema.Emails do
           job.args["to"]
           |> Email.login_email(job.args["url"])
           |> deliver()
+
+        "account_deletion" ->
+          job.args["to"]
+          |> Email.account_deletion_email(job.args["url"])
+          |> deliver()
       end
 
       :ok

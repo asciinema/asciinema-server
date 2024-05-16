@@ -255,4 +255,26 @@
       </form>
     </div>
   </div>
+
+  <div class="row danger-zone">
+    <div class="col-md-12 col-lg-9">
+      <form>
+        <legend>Delete account</legend>
+      </form>
+
+      <p>
+        If you ever decide to delete your <%= @conn.host %> account you can do so by clicking that big red button below.
+      </p>
+
+      <p>
+        <.link href={~p"/user"} class="btn btn-danger" method="delete">
+          Delete my account
+        </.link>
+      </p>
+
+      <p>
+        NOTE: You'll get a confirmation email sent to <%= @changeset.data.email %>. Open the link from the email to confirm account deletion.
+      </p>
+    </div>
+  </div>
 </div>
