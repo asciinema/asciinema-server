@@ -9,7 +9,7 @@ defmodule AsciinemaWeb.LoginController do
   end
 
   def create(%{assigns: %{bot: true}} = conn, params) do
-    Logger.warn("bot login attempt: #{inspect(params)}")
+    Logger.warning("bot login attempt: #{inspect(params)}")
 
     redirect(conn, to: ~p"/login/sent")
   end
@@ -20,8 +20,7 @@ defmodule AsciinemaWeb.LoginController do
     result =
       Asciinema.send_login_email(
         identifier,
-        Map.get(conn.assigns, :cfg_sign_up_enabled?, true),
-        AsciinemaWeb
+        Map.get(conn.assigns, :cfg_sign_up_enabled?, true)
       )
 
     case result do
@@ -36,6 +35,11 @@ defmodule AsciinemaWeb.LoginController do
 
       {:error, :email_missing} ->
         redirect(conn, to: ~p"/login/sent")
+
+      {:error, reason} ->
+        Logger.warning("email delivery error: #{inspect(reason)}")
+
+        render(conn, :new, error: "Error sending email, please try again later.")
     end
   end
 

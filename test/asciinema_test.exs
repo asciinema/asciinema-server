@@ -1,8 +1,9 @@
 defmodule AsciinemaTest do
   import Asciinema.Factory
+  import Bamboo.Test
   use Asciinema.DataCase
   use Oban.Testing, repo: Asciinema.Repo
-  alias Asciinema.{Accounts, Recordings}
+  alias Asciinema.Recordings
 
   describe "create_user/1" do
     test "succeeds when email not taken" do
@@ -15,68 +16,55 @@ defmodule AsciinemaTest do
   describe "create_user_from_signup_token/1" do
     test "succeeds when email not taken" do
       # TODO don't reach to Accounts
-      token = Accounts.signup_token("test@example.com")
+      {:ok, {:signup, token, _email}} =
+        Asciinema.Accounts.generate_login_token("test@example.com")
+
       assert {:ok, _} = Asciinema.create_user_from_signup_token(token)
     end
   end
 
   describe "send_login_email/3" do
-    defmodule Routes do
-      def signup_url(_), do: "http://signup"
-      def login_url(_), do: "http://login"
-    end
-
     test "existing user, by email" do
       insert(:user, email: "test@example.com")
 
-      assert Asciinema.send_login_email("TEST@EXAMPLE.COM", true, Routes) == :ok
+      assert Asciinema.send_login_email("TEST@EXAMPLE.COM") == :ok
 
-      assert_enqueued(
-        worker: Asciinema.Emails.Job,
-        args: %{"type" => "login", "to" => "test@example.com", "url" => "http://login"}
-      )
+      assert_email_delivered_with(to: [{nil, "test@example.com"}], subject: "Login to localhost")
     end
 
     test "existing user, by username" do
       insert(:user, username: "foobar", email: "foobar123@example.com")
 
-      assert Asciinema.send_login_email("foobar", true, Routes) == :ok
+      assert Asciinema.send_login_email("foobar") == :ok
 
-      assert_enqueued(
-        worker: Asciinema.Emails.Job,
-        args: %{"type" => "login", "to" => "foobar123@example.com", "url" => "http://login"}
+      assert_email_delivered_with(
+        to: [{nil, "foobar123@example.com"}],
+        subject: "Login to localhost"
       )
     end
 
     test "non-existing user, by email" do
-      assert Asciinema.send_login_email("NEW@EXAMPLE.COM", true, Routes) ==
-               :ok
+      assert Asciinema.send_login_email("NEW@EXAMPLE.COM") == :ok
 
-      assert_enqueued(
-        worker: Asciinema.Emails.Job,
-        args: %{"type" => "signup", "to" => "new@example.com", "url" => "http://signup"}
-      )
+      assert_email_delivered_with(to: [{nil, "new@example.com"}], subject: "Welcome to localhost")
     end
 
     test "non-existing user, by email, when sign up is disabled" do
-      assert Asciinema.send_login_email("new@example.com", false, Routes) ==
-               {:error, :user_not_found}
+      assert Asciinema.send_login_email("new@example.com", false) == {:error, :user_not_found}
 
-      refute_enqueued(worker: Asciinema.Emails.Job)
+      assert_no_emails_delivered()
     end
 
     test "non-existing user, by email, when email is invalid" do
-      assert Asciinema.send_login_email("new@", true, Routes) ==
-               {:error, :email_invalid}
+      assert Asciinema.send_login_email("new@") == {:error, :email_invalid}
 
-      refute_enqueued(worker: Asciinema.Emails.Job)
+      assert_no_emails_delivered()
     end
 
     test "non-existing user, by username" do
-      assert Asciinema.send_login_email("idontexist", true, Routes) ==
-               {:error, :user_not_found}
+      assert Asciinema.send_login_email("idontexist") == {:error, :user_not_found}
 
-      refute_enqueued(worker: Asciinema.Emails.Job)
+      assert_no_emails_delivered()
     end
   end
 

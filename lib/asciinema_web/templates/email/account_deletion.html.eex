@@ -2,7 +2,7 @@
 
 <p>If you wish to proceed, open the following link in your browser:</p>
 
-<p><a href="<%= @confirmation_url %>"><%= @confirmation_url %></a></p>
+<p><a href="<%= url(~p"/user/delete?t=#{@token}") %>"><%= url(~p"/user/delete?t=#{@token}") %></a></p>
 
 <p>
   <br>

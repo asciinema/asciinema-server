@@ -2,7 +2,7 @@
 
 <p>Click the following link to setup your new account:</p>
 
-<p><a href="<%= @signup_url %>"><%= @signup_url %></a></p>
+<p><a href="<%= url(~p"/users/new?t=#{@token}") %>"><%= url(~p"/users/new?t=#{@token}") %></a></p>
 
 <p>
   <br>
