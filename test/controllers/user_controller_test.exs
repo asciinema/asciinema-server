@@ -1,5 +1,6 @@
 defmodule Asciinema.UserControllerTest do
   use AsciinemaWeb.ConnCase
+  use Oban.Testing, repo: Asciinema.Repo
   import Asciinema.Factory
   alias Asciinema.Accounts
 
@@ -127,6 +128,38 @@ defmodule Asciinema.UserControllerTest do
       conn = put conn, ~p"/user", %{user: %{username: "R"}}
 
       assert html_response(conn, 200) =~ "at least 2"
+    end
+  end
+
+  describe "account deletion" do
+    test "phase 1", %{conn: conn} do
+      user = insert(:user)
+      conn = log_in(conn, user)
+
+      conn = delete(conn, ~p"/user")
+
+      assert response(conn, 302)
+      assert flash(conn, :info) =~ ~r/initiated/i
+      assert_enqueued(worker: Asciinema.Emails.Job, args: %{"type" => "account_deletion"})
+    end
+
+    test "phase 2", %{conn: conn} do
+      user = insert(:user)
+      token = Accounts.generate_deletion_token(user)
+
+      conn = get(conn, ~p"/user/delete", %{t: token})
+
+      assert html_response(conn, 200) =~ ~r/Yes, delete/
+    end
+
+    test "phase 3", %{conn: conn} do
+      user = insert(:user)
+      token = Accounts.generate_deletion_token(user)
+
+      conn = delete(conn, ~p"/user", %{token: token, confirmed: "1"})
+
+      assert response(conn, 302)
+      assert flash(conn, :info) =~ ~r/deleted/i
     end
   end
 end

@@ -87,6 +87,14 @@ body, main {
   }
 }
 
+.c-page {
+  main {
+    h1 {
+      margin-top: 4rem;
+    }
+  }
+}
+
 .c-page .container > h1 {
   margin-bottom: 2rem;
 }
@@ -174,22 +182,6 @@ form {
 
   .nav-link.active {
     font-weight: bold;
-  }
-}
-
-.c-doc {
-  main {
-    h1 {
-      margin-top: 0;
-      margin-bottom: 1em;
-    }
-  }
-
-  .content {
-    h2 {
-      margin-top: 2em;
-      margin-bottom: 1em;
-    }
   }
 }
 

@@ -195,4 +195,8 @@ defmodule AsciinemaWeb do
   def login_url(token) do
     Routes.session_url(Endpoint, :new, t: token)
   end
+
+  def account_deletion_url(token) do
+    Routes.user_deletion_url(Endpoint, :delete, t: token)
+  end
 end

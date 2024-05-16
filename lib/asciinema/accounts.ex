@@ -5,6 +5,7 @@ defmodule Asciinema.Accounts do
   alias Asciinema.Accounts.{User, ApiToken}
   alias Asciinema.{Fonts, Repo, Themes}
   alias Ecto.Changeset
+  alias Phoenix.Token
 
   @valid_email_re ~r/^[A-Z0-9._%+-]+@([A-Z0-9-]+\.)+[A-Z]{2,}$/i
   @valid_username_re ~r/^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]$/
@@ -158,8 +159,6 @@ defmodule Asciinema.Accounts do
     end
   end
 
-  alias Phoenix.Token
-
   def signup_token(email) do
     Token.sign(config(:secret), "signup", email)
   end
@@ -207,6 +206,23 @@ defmodule Asciinema.Accounts do
 
       _ ->
         {:error, :token_expired}
+    end
+  end
+
+  def generate_deletion_url(user, routes) do
+    user
+    |> generate_deletion_token()
+    |> routes.account_deletion_url()
+  end
+
+  def generate_deletion_token(%User{id: user_id}) do
+    Token.sign(config(:secret), "acct-delete", user_id)
+  end
+
+  def verify_deletion_token(token) do
+    case Token.verify(config(:secret), "acct-delete", token, max_age: 3600) do
+      {:ok, user_id} -> {:ok, user_id}
+      {:error, _} -> {:error, :token_invalid}
     end
   end
 

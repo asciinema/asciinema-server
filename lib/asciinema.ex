@@ -28,6 +28,13 @@ defmodule Asciinema do
     end
   end
 
+  def send_account_deletion_email(user, routes) do
+    url = Accounts.generate_deletion_url(user, routes)
+    Emails.send_email(:account_deletion, user.email, url)
+
+    :ok
+  end
+
   defdelegate verify_login_token(token), to: Accounts
 
   def merge_accounts(src_user, dst_user) do
