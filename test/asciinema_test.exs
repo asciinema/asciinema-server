@@ -1,5 +1,6 @@
 defmodule AsciinemaTest do
   import Asciinema.Factory
+  import Bamboo.Test
   use Asciinema.DataCase
   use Oban.Testing, repo: Asciinema.Repo
   alias Asciinema.Recordings
@@ -28,10 +29,7 @@ defmodule AsciinemaTest do
 
       assert Asciinema.send_login_email("TEST@EXAMPLE.COM") == :ok
 
-      assert_enqueued(
-        worker: Asciinema.Emails.Job,
-        args: %{"type" => "login", "to" => "test@example.com"}
-      )
+      assert_email_delivered_with(to: [{nil, "test@example.com"}], subject: "Login to localhost")
     end
 
     test "existing user, by username" do
@@ -39,37 +37,34 @@ defmodule AsciinemaTest do
 
       assert Asciinema.send_login_email("foobar") == :ok
 
-      assert_enqueued(
-        worker: Asciinema.Emails.Job,
-        args: %{"type" => "login", "to" => "foobar123@example.com"}
+      assert_email_delivered_with(
+        to: [{nil, "foobar123@example.com"}],
+        subject: "Login to localhost"
       )
     end
 
     test "non-existing user, by email" do
       assert Asciinema.send_login_email("NEW@EXAMPLE.COM") == :ok
 
-      assert_enqueued(
-        worker: Asciinema.Emails.Job,
-        args: %{"type" => "signup", "to" => "new@example.com"}
-      )
+      assert_email_delivered_with(to: [{nil, "new@example.com"}], subject: "Welcome to localhost")
     end
 
     test "non-existing user, by email, when sign up is disabled" do
       assert Asciinema.send_login_email("new@example.com", false) == {:error, :user_not_found}
 
-      refute_enqueued(worker: Asciinema.Emails.Job)
+      assert_no_emails_delivered()
     end
 
     test "non-existing user, by email, when email is invalid" do
       assert Asciinema.send_login_email("new@") == {:error, :email_invalid}
 
-      refute_enqueued(worker: Asciinema.Emails.Job)
+      assert_no_emails_delivered()
     end
 
     test "non-existing user, by username" do
       assert Asciinema.send_login_email("idontexist") == {:error, :user_not_found}
 
-      refute_enqueued(worker: Asciinema.Emails.Job)
+      assert_no_emails_delivered()
     end
   end
 

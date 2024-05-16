@@ -2,6 +2,7 @@ defmodule Asciinema.UserControllerTest do
   use AsciinemaWeb.ConnCase
   use Oban.Testing, repo: Asciinema.Repo
   import Asciinema.Factory
+  import Bamboo.Test
   alias Asciinema.Accounts
 
   describe "sign-up" do
@@ -133,14 +134,14 @@ defmodule Asciinema.UserControllerTest do
 
   describe "account deletion" do
     test "phase 1", %{conn: conn} do
-      user = insert(:user)
+      user = insert(:user, email: "test@example.com")
       conn = log_in(conn, user)
 
       conn = delete(conn, ~p"/user")
 
       assert response(conn, 302)
       assert flash(conn, :info) =~ ~r/initiated/i
-      assert_enqueued(worker: Asciinema.Emails.Job, args: %{"type" => "account_deletion"})
+      assert_email_delivered_with(to: [{nil, "test@example.com"}], subject: "Account deletion")
     end
 
     test "phase 2", %{conn: conn} do

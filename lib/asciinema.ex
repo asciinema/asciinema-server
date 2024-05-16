@@ -32,9 +32,8 @@ defmodule Asciinema do
 
   def send_account_deletion_email(user) do
     token = Accounts.generate_deletion_token(user)
-    Emails.send_email(:account_deletion, user.email, token)
 
-    :ok
+    Emails.send_email(:account_deletion, user.email, token)
   end
 
   defdelegate verify_login_token(token), to: Accounts
