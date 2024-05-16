@@ -18,19 +18,21 @@ defmodule Asciinema do
     end
   end
 
-  def send_login_email(identifier, sign_up_enabled?, routes) do
-    case Accounts.generate_login_url(identifier, sign_up_enabled?, routes) do
-      {:ok, {type, url, email}} ->
-        Emails.send_email(type, email, url)
+  def send_login_email(identifier, sign_up_enabled? \\ true)
+
+  def send_login_email(identifier, sign_up_enabled?) do
+    case Accounts.generate_login_token(identifier, sign_up_enabled?) do
+      {:ok, {type, token, email}} ->
+        Emails.send_email(type, email, token)
 
       {:error, _reason} = result ->
         result
     end
   end
 
-  def send_account_deletion_email(user, routes) do
-    url = Accounts.generate_deletion_url(user, routes)
-    Emails.send_email(:account_deletion, user.email, url)
+  def send_account_deletion_email(user) do
+    token = Accounts.generate_deletion_token(user)
+    Emails.send_email(:account_deletion, user.email, token)
 
     :ok
   end

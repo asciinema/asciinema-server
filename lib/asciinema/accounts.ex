@@ -124,24 +124,23 @@ defmodule Asciinema.Accounts do
     from(u in q, where: is_nil(u.email))
   end
 
-  def generate_login_url(identifier, sign_up_enabled?, routes) do
+  def generate_login_token(identifier, sign_up_enabled? \\ true)
+
+  def generate_login_token(identifier, sign_up_enabled?) do
     case {lookup_user(identifier), sign_up_enabled?} do
       {{_, %User{email: nil}}, _} ->
         {:error, :email_missing}
 
       {{_, %User{} = user}, _} ->
-        url = user |> login_token() |> routes.login_url()
-
-        {:ok, {:login, url, user.email}}
+        {:ok, {:login, login_token(user), user.email}}
 
       {{:email, nil}, true} ->
         changeset = change_user(%User{}, %{email: identifier})
 
         if changeset.valid? do
           email = changeset.changes.email
-          url = email |> signup_token() |> routes.signup_url()
 
-          {:ok, {:signup, url, email}}
+          {:ok, {:signup, signup_token(email), email}}
         else
           {:error, :email_invalid}
         end
@@ -207,12 +206,6 @@ defmodule Asciinema.Accounts do
       _ ->
         {:error, :token_expired}
     end
-  end
-
-  def generate_deletion_url(user, routes) do
-    user
-    |> generate_deletion_token()
-    |> routes.account_deletion_url()
   end
 
   def generate_deletion_token(%User{id: user_id}) do

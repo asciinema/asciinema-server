@@ -20,8 +20,7 @@ defmodule AsciinemaWeb.LoginController do
     result =
       Asciinema.send_login_email(
         identifier,
-        Map.get(conn.assigns, :cfg_sign_up_enabled?, true),
-        AsciinemaWeb
+        Map.get(conn.assigns, :cfg_sign_up_enabled?, true)
       )
 
     case result do

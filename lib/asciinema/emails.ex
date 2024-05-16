@@ -9,17 +9,17 @@ defmodule Asciinema.Emails do
       case job.args["type"] do
         "signup" ->
           job.args["to"]
-          |> Email.signup_email(job.args["url"])
+          |> Email.signup_email(job.args["token"])
           |> deliver()
 
         "login" ->
           job.args["to"]
-          |> Email.login_email(job.args["url"])
+          |> Email.login_email(job.args["token"])
           |> deliver()
 
         "account_deletion" ->
           job.args["to"]
-          |> Email.account_deletion_email(job.args["url"])
+          |> Email.account_deletion_email(job.args["token"])
           |> deliver()
       end
 
@@ -33,9 +33,8 @@ defmodule Asciinema.Emails do
     end
   end
 
-  def send_email(type, to, url) do
-    Job.new(%{type: type, to: to, url: url})
-    |> Oban.insert!()
+  def send_email(type, to, token) do
+    Oban.insert!(Job.new(%{type: type, to: to, token: token}))
 
     :ok
   end

@@ -2,7 +2,7 @@
 
 <p>Click the following link to log in to your <%= @hostname %> account:</p>
 
-<p><a href="<%= @login_url %>"><%= @login_url %></a></p>
+<p><a href="<%= url(~p"/session/new?t=#{@token}") %>"><%= url(~p"/session/new?t=#{@token}") %></a></p>
 
 <p>
   <br>

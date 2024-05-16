@@ -2,30 +2,30 @@ defmodule Asciinema.Emails.Email do
   use Bamboo.Phoenix, view: AsciinemaWeb.EmailView
   import Bamboo.Email
 
-  def signup_email(email_address, signup_url) do
+  def signup_email(email_address, token) do
     base_email()
     |> to(email_address)
     |> subject("Welcome to #{instance_hostname()}")
-    |> render("signup.text", signup_url: signup_url)
-    |> render("signup.html", signup_url: signup_url)
+    |> render("signup.text", token: token)
+    |> render("signup.html", token: token)
     |> fix_text_body()
   end
 
-  def login_email(email_address, login_url) do
+  def login_email(email_address, token) do
     base_email()
     |> to(email_address)
     |> subject("Login to #{instance_hostname()}")
-    |> render("login.text", login_url: login_url)
-    |> render("login.html", login_url: login_url)
+    |> render("login.text", token: token)
+    |> render("login.html", token: token)
     |> fix_text_body()
   end
 
-  def account_deletion_email(email_address, confirmation_url) do
+  def account_deletion_email(email_address, token) do
     base_email()
     |> to(email_address)
     |> subject("Account deletion")
-    |> render("account_deletion.text", confirmation_url: confirmation_url)
-    |> render("account_deletion.html", confirmation_url: confirmation_url)
+    |> render("account_deletion.text", token: token)
+    |> render("account_deletion.html", token: token)
     |> fix_text_body()
   end
 

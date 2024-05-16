@@ -152,7 +152,7 @@ defmodule AsciinemaWeb.UserController do
     user = conn.assigns.current_user
     address = user.email
 
-    :ok = Asciinema.send_account_deletion_email(user, AsciinemaWeb)
+    :ok = Asciinema.send_account_deletion_email(user)
 
     conn
     |> put_flash(:info, "Account removal initiated - check your inbox (#{address})")
