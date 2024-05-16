@@ -1,7 +1,5 @@
 defmodule Asciinema.Recordings.Asciicast do
   use Ecto.Schema
-  alias Asciinema.Accounts.User
-  alias Asciinema.Recordings.Asciicast
 
   @default_theme "asciinema"
 
@@ -44,28 +42,28 @@ defmodule Asciinema.Recordings.Asciicast do
 
     timestamps()
 
-    belongs_to :user, User
+    belongs_to :user, Asciinema.Accounts.User
 
     # legacy
     field :stdout_data, :string
     field :stdout_timing, :string
   end
 
-  defimpl Phoenix.Param, for: Asciicast do
-    def to_param(%Asciicast{private: true, secret_token: secret_token}) do
+  defimpl Phoenix.Param do
+    def to_param(%__MODULE__{private: true, secret_token: secret_token}) do
       secret_token
     end
 
-    def to_param(%Asciicast{id: id}) do
+    def to_param(%__MODULE__{id: id}) do
       Integer.to_string(id)
     end
   end
 
-  def snapshot_at(%Asciicast{snapshot_at: snapshot_at, duration: duration}) do
+  def snapshot_at(%__MODULE__{snapshot_at: snapshot_at, duration: duration}) do
     snapshot_at || duration / 2
   end
 
-  def theme_name(%Asciicast{theme_name: a_theme_name}, %User{theme_name: u_theme_name}) do
+  def theme_name(%__MODULE__{theme_name: a_theme_name}, %User{theme_name: u_theme_name}) do
     a_theme_name || u_theme_name || @default_theme
   end
 end
