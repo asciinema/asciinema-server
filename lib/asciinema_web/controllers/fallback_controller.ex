@@ -12,6 +12,7 @@ defmodule AsciinemaWeb.FallbackController do
     |> put_view(
       html: AsciinemaWeb.ErrorHTML,
       json: AsciinemaWeb.ErrorJSON,
+      cast: AsciinemaWeb.ErrorJSON,
       txt: AsciinemaWeb.ErrorTEXT,
       svg: AsciinemaWeb.ErrorTEXT,
       xml: AsciinemaWeb.ErrorTEXT
