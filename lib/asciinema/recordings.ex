@@ -380,7 +380,7 @@ defmodule Asciinema.Recordings do
   def update_snapshot(%Asciicast{} = asciicast) do
     cols = asciicast.cols_override || asciicast.cols
     rows = asciicast.rows_override || asciicast.rows
-    secs = Asciicast.snapshot_at(asciicast)
+    secs = asciicast.snapshot_at || asciicast.duration / 2
 
     snapshot =
       asciicast

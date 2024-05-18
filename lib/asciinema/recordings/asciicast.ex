@@ -55,10 +55,6 @@ defmodule Asciinema.Recordings.Asciicast do
     def to_param(%Asciicast{} = asciicast), do: asciicast.secret_token
   end
 
-  def snapshot_at(%Asciicast{snapshot_at: snapshot_at, duration: duration}) do
-    snapshot_at || duration / 2
-  end
-
   def theme_name(%Asciicast{theme_name: a_theme_name}, %{theme_name: u_theme_name}) do
     a_theme_name || u_theme_name || @default_theme
   end
