@@ -9,14 +9,8 @@ defmodule AsciinemaWeb.OembedController do
          {:ok, id} <- extract_id(path),
          {:ok, asciicast} <- Recordings.fetch_asciicast(id),
          :ok <- authorize(asciicast) do
-      mw = if params["maxwidth"], do: String.to_integer(params["maxwidth"])
-      mh = if params["maxheight"], do: String.to_integer(params["maxheight"])
-
-      format =
-        case params["format"] || get_format(conn) do
-          "xml" -> "xml"
-          _ -> "json"
-        end
+      {mw, mh} = get_size(params)
+      format = get_embed_format(conn)
 
       render(
         conn,
@@ -50,6 +44,20 @@ defmodule AsciinemaWeb.OembedController do
       {:error, :forbidden}
     else
       :ok
+    end
+  end
+
+  defp get_size(params) do
+    mw = if params["maxwidth"], do: String.to_integer(params["maxwidth"])
+    mh = if params["maxheight"], do: String.to_integer(params["maxheight"])
+
+    {mw, mh}
+  end
+
+  defp get_embed_format(conn) do
+    case conn.params["format"] || get_format(conn) do
+      "xml" -> "xml"
+      _ -> "json"
     end
   end
 end
