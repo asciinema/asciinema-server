@@ -31,7 +31,16 @@ config :asciinema, AsciinemaWeb.Endpoint,
     ]
   ],
   url: [host: "localhost"],
-  render_errors: [view: AsciinemaWeb.ErrorView, accepts: ~w(html json), layout: false],
+  render_errors: [
+    formats: [
+      html: AsciinemaWeb.ErrorHTML,
+      json: AsciinemaWeb.ErrorJSON,
+      txt: AsciinemaWeb.ErrorTEXT,
+      svg: AsciinemaWeb.ErrorTEXT,
+      xml: AsciinemaWeb.ErrorTEXT
+    ],
+    layout: false
+  ],
   live_view: [signing_salt: "F3BMP7k9SZ-Y2SMJ"],
   pubsub_server: Asciinema.PubSub
 

@@ -1,5 +1,5 @@
 defmodule AsciinemaWeb.FallbackController do
-  use Phoenix.Controller, namespace: AsciinemaWeb
+  use AsciinemaWeb, :controller
 
   def call(conn, {:error, :bad_request}), do: error(conn, 400)
   def call(conn, {:error, :forbidden}), do: error(conn, 403)
@@ -8,8 +8,14 @@ defmodule AsciinemaWeb.FallbackController do
   defp error(conn, status) do
     conn
     |> put_layout(:simple)
-    |> put_view(AsciinemaWeb.ErrorView)
     |> put_status(status)
+    |> put_view(
+      html: AsciinemaWeb.ErrorHTML,
+      json: AsciinemaWeb.ErrorJSON,
+      txt: AsciinemaWeb.ErrorTEXT,
+      svg: AsciinemaWeb.ErrorTEXT,
+      xml: AsciinemaWeb.ErrorTEXT
+    )
     |> render(:"#{status}")
   end
 end
