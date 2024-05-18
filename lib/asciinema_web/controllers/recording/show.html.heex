@@ -33,7 +33,7 @@
 
       <div class="col-lg-4 col-md-5 col-xs-12 text-right actions">
         <div class="btn-group pull-right">
-          <div>
+          <div :if={@asciicast.visibility != :private}>
             <.link
               href="#"
               class="btn btn-sm btn-secondary"
