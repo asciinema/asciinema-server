@@ -2,8 +2,6 @@ defmodule Asciinema.Recordings.Asciicast do
   use Ecto.Schema
   alias __MODULE__
 
-  @default_theme "asciinema"
-
   @timestamps_opts [type: :utc_datetime_usec]
 
   schema "asciicasts" do
@@ -53,9 +51,5 @@ defmodule Asciinema.Recordings.Asciicast do
   defimpl Phoenix.Param do
     def to_param(%Asciicast{visibility: :public} = asciicast), do: Integer.to_string(asciicast.id)
     def to_param(%Asciicast{} = asciicast), do: asciicast.secret_token
-  end
-
-  def theme_name(%Asciicast{theme_name: a_theme_name}, %{theme_name: u_theme_name}) do
-    a_theme_name || u_theme_name || @default_theme
   end
 end
