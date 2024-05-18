@@ -5,7 +5,7 @@ defmodule AsciinemaWeb.RecordingHTML do
   alias Asciinema.Recordings.{Markers, Snapshot}
   alias AsciinemaWeb.{MediaView, UserHTML}
 
-  embed_templates "recording/*.html"
+  embed_templates "recording_html/*"
 
   defdelegate author_username(asciicast), to: MediaView
   defdelegate author_avatar_url(asciicast), to: MediaView
