@@ -110,14 +110,6 @@ defmodule Asciinema.RecordingControllerTest do
       assert redirected_to(conn_2, 302) == ~p"/a/#{asciicast.id}"
     end
 
-    test "IFRAME, public recording via secret token", %{conn: conn} do
-      asciicast = insert(:asciicast, visibility: :public)
-
-      conn_2 = get(conn, ~p"/a/#{asciicast.secret_token}/iframe")
-
-      assert html_response(conn_2, 200) =~ "createPlayer"
-    end
-
     test "asciicast file, v1 format", %{conn: conn} do
       asciicast = fixture(:asciicast_v1)
       width = asciicast.cols
@@ -231,6 +223,32 @@ defmodule Asciinema.RecordingControllerTest do
       assert html =~ ~r/iframe\.css/
       assert html =~ ~r/iframe\.js/
       assert html =~ ~r/window\.createPlayer/
+    end
+  end
+
+  describe "iframe" do
+    test "public recording", %{conn: conn} do
+      asciicast = insert(:asciicast, visibility: :public)
+
+      conn = get(conn, ~p"/a/#{asciicast}/iframe")
+
+      assert html_response(conn, 200) =~ "createPlayer"
+    end
+
+    test "public recording via secret token", %{conn: conn} do
+      asciicast = insert(:asciicast, visibility: :public)
+
+      conn = get(conn, ~p"/a/#{asciicast.secret_token}/iframe")
+
+      assert html_response(conn, 200) =~ "createPlayer"
+    end
+
+    test "private recording", %{conn: conn} do
+      asciicast = insert(:asciicast, visibility: :private)
+
+      conn = get(conn, ~p"/a/#{asciicast}/iframe")
+
+      assert html_response(conn, 403)
     end
   end
 
