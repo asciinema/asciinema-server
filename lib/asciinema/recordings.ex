@@ -26,7 +26,7 @@ defmodule Asciinema.Recordings do
       else
         case Integer.parse(thing) do
           {id, ""} ->
-            from(a in Asciicast, where: a.private == false and a.id == ^id)
+            from(a in Asciicast, where: a.visibility == :public and a.id == ^id)
 
           _ ->
             from(a in Asciicast, where: false)
@@ -73,10 +73,10 @@ defmodule Asciinema.Recordings do
   defp do_filter(q, f) do
     case f do
       :featured ->
-        where(q, [a], a.featured == true and a.private == false)
+        where(q, [a], a.featured == true and a.visibility == :public)
 
       :public ->
-        where(q, [a], a.private == false)
+        where(q, [a], a.visibility == :public)
 
       :all ->
         q
@@ -117,7 +117,7 @@ defmodule Asciinema.Recordings do
 
       {:ok, _} =
         create_asciicast(user, upload, %{
-          private: false,
+          visibility: :public,
           snapshot_at: 106.0
         })
     end
@@ -133,7 +133,7 @@ defmodule Asciinema.Recordings do
         %Asciicast{
           user_id: user.id,
           filename: filename,
-          private: user.asciicasts_private_by_default,
+          visibility: user.default_asciicast_visibility,
           secret_token: Crypto.random_token(25)
         },
         overrides
@@ -303,7 +303,7 @@ defmodule Asciinema.Recordings do
   def change_asciicast(asciicast, attrs \\ %{}) do
     asciicast
     |> cast(attrs, [
-      :private,
+      :visibility,
       :title,
       :description,
       :cols_override,
@@ -316,7 +316,6 @@ defmodule Asciinema.Recordings do
       :terminal_font_family,
       :markers
     ])
-    |> validate_required([:private])
     |> validate_number(:cols_override, greater_than: 0, less_than: 1024)
     |> validate_number(:rows_override, greater_than: 0, less_than: 512)
     |> validate_number(:idle_time_limit, greater_than_or_equal_to: 0.5)

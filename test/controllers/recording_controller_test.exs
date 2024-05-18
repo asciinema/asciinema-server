@@ -3,9 +3,14 @@ defmodule Asciinema.RecordingControllerTest do
   import Asciinema.Factory
 
   describe "explore" do
-    test "auto", %{conn: conn} do
-      insert(:asciicast, featured: true, title: "Featured stuff")
+    setup do
+      insert(:asciicast, visibility: :public, featured: true, title: "Featured stuff")
+      insert(:asciicast, visibility: :public, title: "Good stuff")
 
+      :ok
+    end
+
+    test "auto", %{conn: conn} do
       conn = get(conn, ~p"/explore")
 
       html = html_response(conn, 200)
@@ -14,18 +19,14 @@ defmodule Asciinema.RecordingControllerTest do
     end
 
     test "public", %{conn: conn} do
-      insert(:asciicast, private: false, title: "Good stuff")
-
       conn = get(conn, ~p"/explore/public")
 
       html = html_response(conn, 200)
       assert html =~ "Good stuff"
-      refute html =~ "Featured stuff"
+      assert html =~ "Featured stuff"
     end
 
     test "featured", %{conn: conn} do
-      insert(:asciicast, featured: true, title: "Featured stuff")
-
       conn = get(conn, ~p"/explore/featured")
 
       html = html_response(conn, 200)
@@ -36,26 +37,73 @@ defmodule Asciinema.RecordingControllerTest do
 
   describe "show" do
     test "HTML", %{conn: conn} do
-      asciicast = insert(:asciicast, title: "Good stuff")
+      asciicast = insert(:asciicast)
       url = ~p"/a/#{asciicast}"
-
-      conn_2 = get(conn, url)
-
-      html = html_response(conn_2, 200)
-      assert html =~ "Good stuff"
-      assert html =~ "application/json+oembed"
-      assert html =~ "application/x-asciicast"
 
       conn_2 =
         conn
         |> put_req_header("accept", "*/*")
         |> get(url)
 
-      assert html_response(conn_2, 200) =~ "Good stuff"
+      html = html_response(conn_2, 200)
+      assert html =~ "createPlayer"
+      assert html =~ "application/json+oembed"
+      assert html =~ "application/x-asciicast"
+
+      conn_2 =
+        conn
+        |> put_req_header("accept", "text/html")
+        |> get(url)
+
+      assert html_response(conn_2, 200) =~ "createPlayer"
+    end
+
+    test "HTML, public recording", %{conn: conn} do
+      asciicast = insert(:asciicast, visibility: :public)
+
+      conn_2 = get(conn, ~p"/a/#{asciicast}")
+
+      assert html_response(conn_2, 200) =~ "createPlayer"
+    end
+
+    test "HTML, unlisted recording", %{conn: conn} do
+      asciicast = insert(:asciicast, visibility: :unlisted)
+
+      conn_2 = get(conn, ~p"/a/#{asciicast}")
+
+      assert html_response(conn_2, 200) =~ "createPlayer"
+    end
+
+    test "HTML, private recording, unauthenticated", %{conn: conn} do
+      asciicast = insert(:asciicast, visibility: :private)
+
+      conn_2 = get(conn, ~p"/a/#{asciicast}")
+
+      assert redirected_to(conn_2, 302) == ~p"/login/new"
+    end
+
+    test "HTML, private recording, as non-owner", %{conn: conn} do
+      asciicast = insert(:asciicast, visibility: :private)
+      user = insert(:user)
+      conn = log_in(conn, user)
+
+      conn_2 = get(conn, ~p"/a/#{asciicast}")
+
+      assert html_response(conn_2, 403)
+    end
+
+    test "HTML, private recording, as owner", %{conn: conn} do
+      user = insert(:user)
+      asciicast = insert(:asciicast, visibility: :private, user: user)
+      conn = log_in(conn, user)
+
+      conn_2 = get(conn, ~p"/a/#{asciicast}")
+
+      assert html_response(conn_2, 200) =~ "createPlayer"
     end
 
     test "HTML, public recording via secret token", %{conn: conn} do
-      asciicast = insert(:asciicast, private: false)
+      asciicast = insert(:asciicast, visibility: :public)
 
       conn_2 = get(conn, ~p"/a/#{asciicast.secret_token}")
 
@@ -63,7 +111,7 @@ defmodule Asciinema.RecordingControllerTest do
     end
 
     test "IFRAME, public recording via secret token", %{conn: conn} do
-      asciicast = insert(:asciicast, private: false)
+      asciicast = insert(:asciicast, visibility: :public)
 
       conn_2 = get(conn, ~p"/a/#{asciicast.secret_token}/iframe")
 

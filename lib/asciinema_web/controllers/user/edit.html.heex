@@ -84,42 +84,61 @@
           <br />
         </p>
 
-        <div class="form-group row radio_buttons optional user_asciicasts_private_by_default">
-          <.label
-            for={f[:asciicasts_private_by_default]}
-            class="col-3 radio_buttons optional col-form-label"
-          >
+        <div class="form-group row">
+          <.label for={f[:default_asciicast_visibility]} class="col-3 col-form-label">
             Recording visibility
           </.label>
           <div class="col-9 visibility-radios">
             <div class="form-check">
               <input
                 type="radio"
-                name="user[asciicasts_private_by_default]"
-                id="user_asciicasts_private_by_default_false"
-                value="false"
-                checked={f[:asciicasts_private_by_default].value == false}
-                class="radio_buttons optional form-check-input"
+                name="user[default_asciicast_visibility]"
+                id="user_default_asciicast_visibility_public"
+                value="public"
+                checked={f[:default_asciicast_visibility].value == :public}
+                class="form-check-input"
               />
-              <label for="user_asciicasts_private_by_default_false" class="form-check-label">
+              <label for="user_default_asciicast_visibility_public" class="form-check-label">
                 Public
               </label>
+              <small class="form-text text-muted">
+                Anyone can view, listed on your public profile
+              </small>
             </div>
             <div class="form-check">
               <input
                 type="radio"
-                name="user[asciicasts_private_by_default]"
-                id="user_asciicasts_private_by_default_true"
-                value="true"
-                checked={f[:asciicasts_private_by_default].value == true}
-                class="radio_buttons optional form-check-input"
+                name="user[default_asciicast_visibility]"
+                id="user_default_asciicast_visibility_unlisted"
+                value="unlisted"
+                checked={f[:default_asciicast_visibility].value == :unlisted}
+                class="form-check-input"
               />
-              <label for="user_asciicasts_private_by_default_true" class="form-check-label">
-                Secret - unlisted, accessible via secret link
+              <label for="user_default_asciicast_visibility_unlisted" class="form-check-label">
+                Unlisted
               </label>
+              <small class="form-text text-muted">
+                Only people with the link can view
+              </small>
+            </div>
+            <div class="form-check">
+              <input
+                type="radio"
+                name="user[default_asciicast_visibility]"
+                id="user_default_asciicast_visibility_private"
+                value="private"
+                checked={f[:default_asciicast_visibility].value == :private}
+                class="form-check-input"
+              />
+              <label for="user_default_asciicast_visibility_private" class="form-check-label">
+                Private
+              </label>
+              <small class="form-text text-muted">
+                Only accessible by you
+              </small>
             </div>
             <small class="form-text text-muted">
-              Applies to *new* uploads. Existing recordings are not affected by changes to this setting.
+              NOTE: This applies to *new* uploads. Existing recordings are not affected by changes to this setting.
             </small>
           </div>
         </div>

@@ -63,7 +63,7 @@
         <div class="col-md-12">
           <div :for={asciicasts <- Enum.chunk_every(@asciicasts, 2, 2)} class="row">
             <div :for={asciicast <- asciicasts} class="col-md-6">
-              <RecordingHTML.card asciicast={asciicast} />
+              <RecordingHTML.card asciicast={asciicast} conn={@conn} />
             </div>
           </div>
         </div>

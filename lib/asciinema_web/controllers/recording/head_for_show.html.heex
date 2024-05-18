@@ -26,7 +26,7 @@
   href={asciicast_file_url(@asciicast)}
 />
 
-<%= if @asciicast.private do %>
+<%= if @asciicast.visibility != :public do %>
   <meta name="robots" content="noindex, nofollow" />
   <meta name="referrer" content="origin" />
 <% end %>

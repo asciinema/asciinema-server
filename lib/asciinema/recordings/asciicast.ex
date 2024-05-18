@@ -1,5 +1,6 @@
 defmodule Asciinema.Recordings.Asciicast do
   use Ecto.Schema
+  alias __MODULE__
 
   @default_theme "asciinema"
 
@@ -14,7 +15,7 @@ defmodule Asciinema.Recordings.Asciicast do
     field :rows, :integer
     field :rows_override, :integer
     field :terminal_type, :string
-    field :private, :boolean
+    field :visibility, Ecto.Enum, values: [:private, :unlisted, :public], default: :unlisted
     field :featured, :boolean
     field :secret_token, :string
     field :duration, :float
@@ -50,20 +51,15 @@ defmodule Asciinema.Recordings.Asciicast do
   end
 
   defimpl Phoenix.Param do
-    def to_param(%__MODULE__{private: true, secret_token: secret_token}) do
-      secret_token
-    end
-
-    def to_param(%__MODULE__{id: id}) do
-      Integer.to_string(id)
-    end
+    def to_param(%Asciicast{visibility: :public} = asciicast), do: Integer.to_string(asciicast.id)
+    def to_param(%Asciicast{} = asciicast), do: asciicast.secret_token
   end
 
-  def snapshot_at(%__MODULE__{snapshot_at: snapshot_at, duration: duration}) do
+  def snapshot_at(%Asciicast{snapshot_at: snapshot_at, duration: duration}) do
     snapshot_at || duration / 2
   end
 
-  def theme_name(%__MODULE__{theme_name: a_theme_name}, %User{theme_name: u_theme_name}) do
+  def theme_name(%Asciicast{theme_name: a_theme_name}, %{theme_name: u_theme_name}) do
     a_theme_name || u_theme_name || @default_theme
   end
 end

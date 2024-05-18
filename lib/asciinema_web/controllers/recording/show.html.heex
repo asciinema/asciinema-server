@@ -23,8 +23,10 @@
             <%= author_username(@asciicast) %>
           </.link>
           <.time_ago time={@asciicast.inserted_at} />
-
-          <.secret_badge :if={@asciicast.private} />
+          <.visibility_badge
+            :if={owned_by_current_user?(@asciicast, @conn)}
+            visibility={@asciicast.visibility}
+          />
           <.featured_badge :if={@asciicast.featured} />
         </small>
       </div>
@@ -161,7 +163,7 @@
 
         <div class="row asciicast-list">
           <div :for={asciicast <- @author_asciicasts} class="col-md-6">
-            <.card asciicast={asciicast} />
+            <.card asciicast={asciicast} conn={@conn} />
           </div>
         </div>
 

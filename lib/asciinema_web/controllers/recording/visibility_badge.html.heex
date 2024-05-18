@@ -1,0 +1,17 @@
+<span
+  :if={@visibility == :public}
+  class="special-label"
+  title="Anyone can view, listed on your public profile"
+>
+  public
+</span>
+<span
+  :if={@visibility == :unlisted}
+  class="special-label"
+  title="Only people with the link can view"
+>
+  unlisted
+</span>
+<span :if={@visibility == :private} class="special-label" title="Only accessible by you">
+  private
+</span>
