@@ -20,8 +20,7 @@ defmodule Asciinema.LiveStreamControllerTest do
     end
 
     test "private stream, unauthenticated", %{conn: conn} do
-      user = insert(:user)
-      stream = insert(:live_stream, visibility: :private, user: user)
+      stream = insert(:live_stream, visibility: :private)
 
       conn_2 = get(conn, ~p"/s/#{stream}")
 
