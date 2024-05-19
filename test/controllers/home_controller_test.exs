@@ -11,8 +11,8 @@ defmodule Asciinema.HomeControllerTest do
 
     test "asciicast visibility", %{conn: conn} do
       user = insert(:user, username: "dracula3000")
-      insert(:asciicast, user: user, featured: true, title: "Featured stuff")
-      insert(:asciicast, user: user, featured: false, title: "Normal stuff")
+      insert(:asciicast, user: user, visibility: :public, featured: true, title: "Featured stuff")
+      insert(:asciicast, user: user, visibility: :public, featured: false, title: "Normal stuff")
 
       conn = get(conn, "/")
 
