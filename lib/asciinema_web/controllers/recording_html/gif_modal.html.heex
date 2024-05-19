@@ -10,17 +10,26 @@
 
       <div class="modal-body">
         <p>
-          While this site doesn't offer GIF conversion at the moment, you can
+          While this site doesn't provide GIF conversion at the moment, you can
           still do it yourself with the help of asciinema GIF generator utility - <a href="https://docs.asciinema.org/manual/agg/">agg</a>.
         </p>
 
-        <p>Once you have it installed run the following command to create GIF file:</p>
+        <%= if @asciicast.visibility == :private do %>
+          <p>Once you have it installed, download the recording
+            (<code>.cast</code> file), then generate a GIF with the following
+            command:</p>
 
-        <pre><code>agg <%= url(~p"/a/#{@asciicast}") %> <%= @asciicast.id %>.gif</code></pre>
+          <pre><code>agg demo.cast demo.gif</code></pre>
+        <% else %>
+          <p>Once you have it installed, generate a GIF with the following
+            command:</p>
 
-        <p>Or, if you already downloaded the recording file:</p>
+          <pre><code>agg <%= url(~p"/a/#{@asciicast}") %> demo.gif</code></pre>
 
-        <pre><code>agg <%= download_filename(@asciicast) %> <%= @asciicast.id %>.gif</code></pre>
+          <p>Or, if you already downloaded the recording file:</p>
+
+          <pre><code>agg demo.cast demo.gif</code></pre>
+        <% end %>
 
         <p>Check <code>agg --help</code> for all available options. You can change font
           family and size, select color theme, adjust speed and more.</p>

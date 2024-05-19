@@ -9,7 +9,6 @@ defmodule Asciinema.LiveStreamControllerTest do
       conn_2 = get(conn, ~p"/s/#{stream}")
 
       assert html_response(conn_2, 200) =~ "createPlayer"
-      assert response_content_type(conn_2, :html)
     end
 
     test "unlisted stream", %{conn: conn} do
@@ -18,12 +17,10 @@ defmodule Asciinema.LiveStreamControllerTest do
       conn_2 = get(conn, ~p"/s/#{stream}")
 
       assert html_response(conn_2, 200) =~ "createPlayer"
-      assert response_content_type(conn_2, :html)
     end
 
     test "private stream, unauthenticated", %{conn: conn} do
-      user = insert(:user)
-      stream = insert(:live_stream, visibility: :private, user: user)
+      stream = insert(:live_stream, visibility: :private)
 
       conn_2 = get(conn, ~p"/s/#{stream}")
 
@@ -48,7 +45,6 @@ defmodule Asciinema.LiveStreamControllerTest do
       conn_2 = get(conn, ~p"/s/#{stream}")
 
       assert html_response(conn_2, 200) =~ "createPlayer"
-      assert response_content_type(conn_2, :html)
     end
 
     test "streaming instructions", %{conn: conn} do

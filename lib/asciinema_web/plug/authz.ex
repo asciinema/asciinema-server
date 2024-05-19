@@ -4,7 +4,7 @@ defmodule AsciinemaWeb.Plug.Authz do
   alias Plug.Conn
 
   def authorize(conn, assign_key) do
-    user = conn.assigns.current_user
+    user = conn.assigns[:current_user]
     action = Phoenix.Controller.action_name(conn)
     resource = conn.assigns[assign_key]
 

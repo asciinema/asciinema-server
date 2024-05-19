@@ -5,8 +5,7 @@ defmodule AsciinemaWeb.RecordingSVG do
   alias Asciinema.{Colors, Media, Themes}
   alias Asciinema.Recordings.Snapshot
 
-  embed_templates "recording/*.svg"
-  embed_templates "recording/themes/*.svg", suffix: "_theme"
+  embed_templates "recording_svg/*"
 
   def text_extra_attrs(attrs, theme),
     do: %{style: text_style(attrs, theme), class: text_class(attrs)}

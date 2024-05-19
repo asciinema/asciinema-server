@@ -3,7 +3,7 @@ defmodule AsciinemaWeb.LiveStreamHTML do
   alias Asciinema.{Accounts, Fonts, Media, Themes}
   alias AsciinemaWeb.{MediaView, RecordingHTML, RecordingSVG}
 
-  embed_templates "live_stream/*"
+  embed_templates "live_stream_html/*"
 
   defdelegate author_username(stream), to: MediaView
   defdelegate author_avatar_url(stream), to: MediaView

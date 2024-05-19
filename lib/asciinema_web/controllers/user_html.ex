@@ -5,7 +5,7 @@ defmodule AsciinemaWeb.UserHTML do
   alias Asciinema.{Fonts, Gravatar}
   alias AsciinemaWeb.{MediaView, RecordingHTML}
 
-  embed_templates "user/*"
+  embed_templates "user_html/*"
 
   defdelegate theme_options, to: MediaView
   defdelegate font_family_options, to: MediaView

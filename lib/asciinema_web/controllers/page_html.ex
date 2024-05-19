@@ -1,7 +1,7 @@
 defmodule AsciinemaWeb.PageHTML do
   use AsciinemaWeb, :html
 
-  embed_templates "page/*"
+  embed_templates "page_html/*"
 
   def obfuscated_email(assigns) do
     [username, domain] = String.split(assigns[:address], "@")

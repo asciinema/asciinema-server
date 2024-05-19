@@ -14,7 +14,10 @@
   <div class="info">
     <h3>
       <.link href={~p"/a/#{@asciicast}"}><%= title(@asciicast) %></.link>
-      <.secret_badge :if={@asciicast.private} />
+      <.visibility_badge
+        :if={assigns[:conn] && owned_by_current_user?(@asciicast, @conn)}
+        visibility={@asciicast.visibility}
+      />
       <.featured_badge :if={@asciicast.featured} />
       <span class="duration"><%= duration(@asciicast) %></span>
     </h3>
