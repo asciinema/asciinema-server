@@ -13,8 +13,11 @@ defmodule AsciinemaWeb.FallbackController do
       html: AsciinemaWeb.ErrorHTML,
       json: AsciinemaWeb.ErrorJSON,
       cast: AsciinemaWeb.ErrorJSON,
+      js: AsciinemaWeb.ErrorTEXT,
       txt: AsciinemaWeb.ErrorTEXT,
       svg: AsciinemaWeb.ErrorTEXT,
+      png: AsciinemaWeb.ErrorTEXT,
+      gif: AsciinemaWeb.ErrorTEXT,
       xml: AsciinemaWeb.ErrorTEXT
     )
     |> render(:"#{status}")
