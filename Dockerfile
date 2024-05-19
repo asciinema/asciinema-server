@@ -39,6 +39,9 @@ RUN cd assets && \
 COPY config/config.exs config/
 COPY config/prod.exs config/
 
+# ensure mime is recompiled later with our additional mime types
+RUN mix deps.clean mime --build
+
 RUN mix phx.digest
 
 COPY config/*.exs config/
