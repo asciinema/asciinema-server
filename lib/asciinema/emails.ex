@@ -1,5 +1,6 @@
 defmodule Asciinema.Emails do
   alias Asciinema.Emails.{Email, Mailer}
+  require Logger
 
   def send_email(:signup, to, token) do
     to
@@ -27,7 +28,19 @@ defmodule Asciinema.Emails do
 
   defp deliver(email) do
     with {:ok, _metadata} <- Mailer.deliver(email) do
+      if Mailer.local_adapter?() do
+        for url <- extract_urls(email) do
+          Logger.info("url from email: #{url}")
+        end
+      end
+
       :ok
     end
+  end
+
+  defp extract_urls(email) do
+    ~r/"(https?:[^"]+)"/
+    |> Regex.scan(email.html_body)
+    |> Enum.map(&Enum.at(&1, 1))
   end
 end
