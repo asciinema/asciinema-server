@@ -88,7 +88,14 @@ defmodule Asciinema.Emails.Email do
     new()
     |> from({"asciinema", from_address()})
     |> header("Date", Timex.format!(Timex.now(), "{RFC1123}"))
+    |> header("Message-ID", message_id())
     |> reply_to(reply_to_address())
+  end
+
+  defp message_id do
+    id = Crypto.md5(:crypto.strong_rand_bytes(16))
+
+    "<#{id}@#{instance_hostname()}>"
   end
 
   defp body(email, template) do
