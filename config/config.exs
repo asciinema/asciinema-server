@@ -72,6 +72,8 @@ config :mime, :types, %{
   "application/x-asciicast" => ["cast"]
 }
 
+config :asciinema, Asciinema.Emails.Mailer, adapter: Swoosh.Adapters.Local
+
 config :sentry,
   dsn: "https://public:secret@sentry.io/1",
   environment_name: config_env(),
@@ -84,8 +86,6 @@ config :asciinema, :file_store, Asciinema.FileStore.Local
 config :asciinema, Asciinema.FileStore.Local, path: "uploads/"
 
 config :asciinema, Asciinema.FileCache, path: "cache/"
-
-config :asciinema, Asciinema.Emails.Mailer, adapter: Bamboo.LocalAdapter
 
 config :asciinema, :png_generator, Asciinema.PngGenerator.Rsvg
 

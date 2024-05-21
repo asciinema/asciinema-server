@@ -108,9 +108,10 @@ defmodule AsciinemaWeb.Router do
     end
   end
 
-  scope "/dev" do
-    if Application.compile_env(:asciinema, :dev_routes) do
-      forward "/mailbox", Bamboo.SentEmailViewerPlug
+  if Application.compile_env(:asciinema, :dev_routes) do
+    scope "/dev" do
+      pipe_through :browser
+      forward "/mailbox", Plug.Swoosh.MailboxPreview
     end
   end
 end

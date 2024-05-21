@@ -39,10 +39,6 @@ defmodule Asciinema.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:bamboo, "~> 2.2"},
-      {:bamboo_phoenix, "~> 1.0"},
-      {:bamboo_ses, "~> 0.4.2"},
-      {:bamboo_smtp, "~> 4.2"},
       {:briefly, "~> 0.3"},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:earmark, "~> 1.4"},
@@ -51,6 +47,7 @@ defmodule Asciinema.MixProject do
       {:ex_aws, "~> 2.2"},
       {:ex_aws_s3, "~> 2.1"},
       {:ex_machina, "~> 2.4", only: :test},
+      {:gen_smtp, "~> 1.2"},
       {:gettext, "~> 0.20"},
       {:hackney, "~> 1.18"},
       {:horde, "~> 0.8.7"},
@@ -80,6 +77,7 @@ defmodule Asciinema.MixProject do
       {:scrivener_ecto, "~> 2.4"},
       {:scrivener_html, "~> 1.8"},
       {:sentry, "~> 8.0"},
+      {:swoosh, "~> 1.16"},
       {:telemetry_metrics, "~> 0.6"},
       {:telemetry_poller, "~> 1.0"},
       {:timex, "~> 3.7"}

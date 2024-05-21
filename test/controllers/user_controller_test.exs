@@ -2,7 +2,7 @@ defmodule Asciinema.UserControllerTest do
   use AsciinemaWeb.ConnCase
   use Oban.Testing, repo: Asciinema.Repo
   import Asciinema.Factory
-  import Bamboo.Test
+  import Swoosh.TestAssertions
   alias Asciinema.Accounts
 
   describe "sign-up" do
@@ -145,7 +145,7 @@ defmodule Asciinema.UserControllerTest do
 
       assert response(conn, 302)
       assert flash(conn, :info) =~ ~r/initiated/i
-      assert_email_delivered_with(to: [{nil, "test@example.com"}], subject: "Account deletion")
+      assert_email_sent(to: [{nil, "test@example.com"}], subject: "Account deletion")
     end
 
     test "phase 2", %{conn: conn} do

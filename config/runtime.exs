@@ -143,8 +143,8 @@ if config_env() in [:prod, :dev] do
 
   if smtp_host = env.("SMTP_HOST") do
     config :asciinema, Asciinema.Emails.Mailer,
-      adapter: Bamboo.SMTPAdapter,
-      server: smtp_host,
+      adapter: Swoosh.Adapters.SMTP,
+      relay: smtp_host,
       port: String.to_integer(env.("SMTP_PORT") || "587")
 
     if username = env.("SMTP_USERNAME") do

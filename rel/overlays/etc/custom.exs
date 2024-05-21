@@ -3,8 +3,8 @@ import Config
 ## Use Mailgun for mail delivery:
 
 # config :asciinema, Asciinema.Mailer,
-#   adapter: Bamboo.SMTPAdapter,
-#   server: "smtp.mailgun.org",
+#   adapter: Swoosh.Adapters.SMTP,
+#   relay: "smtp.mailgun.org",
 #   port: 587,
 #   username: "postmaster@mg.yourdomain.com",
 #   password: "mailgun-password",
