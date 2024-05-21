@@ -26,7 +26,7 @@ defmodule Asciinema.Emails do
   end
 
   defp deliver(email) do
-    with {:ok, _email} <- Mailer.deliver_now(email) do
+    with {:ok, _metadata} <- Mailer.deliver(email) do
       :ok
     end
   end
