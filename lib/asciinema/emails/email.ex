@@ -127,11 +127,13 @@ defmodule Asciinema.Emails.Email do
   end
 
   defp from_address do
-    System.get_env("SMTP_FROM_ADDRESS") || "hello@#{instance_hostname()}"
+    System.get_env("MAIL_FROM_ADDRESS") || System.get_env("SMTP_FROM_ADDRESS") ||
+      "hello@#{instance_hostname()}"
   end
 
   defp reply_to_address do
-    System.get_env("SMTP_REPLY_TO_ADDRESS") || "admin@#{instance_hostname()}"
+    System.get_env("MAIL_REPLY_TO_ADDRESS") || System.get_env("SMTP_REPLY_TO_ADDRESS") ||
+      "admin@#{instance_hostname()}"
   end
 
   defp instance_hostname do
