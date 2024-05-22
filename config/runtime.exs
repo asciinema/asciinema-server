@@ -95,6 +95,19 @@ if config_env() in [:prod, :dev] do
     config :asciinema, Asciinema.FileCache, path: cache_path
   end
 
+  config :ex_aws,
+    region: [{:system, "S3_REGION"}, {:system, "AWS_REGION"}],
+    access_key_id: [
+      {:system, "S3_ACCESS_KEY_ID"},
+      {:system, "AWS_ACCESS_KEY_ID"},
+      :instance_role
+    ],
+    secret_access_key: [
+      {:system, "S3_SECRET_ACCESS_KEY"},
+      {:system, "AWS_SECRET_ACCESS_KEY"},
+      :instance_role
+    ]
+
   if bucket = env.("S3_BUCKET") do
     config :asciinema, Asciinema.FileStore.S3,
       bucket: bucket,
@@ -109,19 +122,6 @@ if config_env() in [:prod, :dev] do
 
     config :asciinema, Asciinema.FileStore.Local,
       path: Path.join(cache_path || "/var/cache/asciinema", "uploads")
-
-    config :ex_aws,
-      region: [{:system, "S3_REGION"}, {:system, "AWS_REGION"}],
-      access_key_id: [
-        {:system, "S3_ACCESS_KEY_ID"},
-        {:system, "AWS_ACCESS_KEY_ID"},
-        :instance_role
-      ],
-      secret_access_key: [
-        {:system, "S3_SECRET_ACCESS_KEY"},
-        {:system, "AWS_SECRET_ACCESS_KEY"},
-        :instance_role
-      ]
 
     if endpoint = env.("S3_ENDPOINT") do
       uri = URI.parse(endpoint)
