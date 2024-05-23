@@ -2,12 +2,12 @@ defmodule AsciinemaWeb.RecordingController do
   use AsciinemaWeb, :controller
   alias Asciinema.{Recordings, PngGenerator}
   alias Asciinema.Recordings.Asciicast
-  alias AsciinemaWeb.PlayerOpts
-  alias AsciinemaWeb.RecordingHTML
+  alias AsciinemaWeb.{Auth, PlayerOpts, RecordingHTML}
 
   plug :load_asciicast when action in [:show, :edit, :update, :delete, :iframe]
+  plug :require_current_user_when_private when action in [:show, :iframe]
   plug :require_current_user when action in [:edit, :update, :delete]
-  plug :authorize, :asciicast when action in [:edit, :update, :delete]
+  plug :authorize, :asciicast when action in [:show, :edit, :update, :delete, :iframe]
 
   def index(conn, params) do
     category = params[:category]
@@ -241,8 +241,8 @@ defmodule AsciinemaWeb.RecordingController do
       {:ok, asciicast} ->
         public_id = to_string(asciicast.id)
 
-        case {asciicast.private, action_name(conn), get_format(conn), id == public_id} do
-          {false, :show, "html", false} ->
+        case {asciicast.visibility, action_name(conn), get_format(conn), id == public_id} do
+          {:public, :show, "html", false} ->
             conn
             |> redirect(to: ~p"/a/#{asciicast}")
             |> halt()
@@ -274,8 +274,6 @@ defmodule AsciinemaWeb.RecordingController do
   @actions [
     :edit,
     :delete,
-    :make_private,
-    :make_public,
     :make_featured,
     :make_not_featured
   ]
@@ -288,8 +286,6 @@ defmodule AsciinemaWeb.RecordingController do
 
   defp action_applicable?(action, asciicast) do
     case action do
-      :make_private -> !asciicast.private
-      :make_public -> asciicast.private
       :make_featured -> !asciicast.featured
       :make_not_featured -> asciicast.featured
       _ -> true
@@ -300,5 +296,26 @@ defmodule AsciinemaWeb.RecordingController do
     params
     |> Ext.Map.rename(%{"t" => "startAt", "i" => "idleTimeLimit"})
     |> PlayerOpts.parse(:recording)
+  end
+
+  defp require_current_user_when_private(conn, _opts) do
+    case {action_name(conn), get_format(conn), conn.assigns.asciicast.visibility} do
+      {:show, "html", :private} ->
+        conn
+        |> fetch_session()
+        |> Auth.call([])
+        |> Auth.require_current_user([])
+
+      {:iframe, _format, :private} ->
+        conn
+
+      {_action, _format, :private} ->
+        conn
+        |> fetch_session()
+        |> Auth.call([])
+
+      _ ->
+        conn
+    end
   end
 end

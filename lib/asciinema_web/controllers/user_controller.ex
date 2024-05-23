@@ -2,6 +2,7 @@ defmodule AsciinemaWeb.UserController do
   use AsciinemaWeb, :controller
   alias Asciinema.{Accounts, Streaming, Recordings}
   alias AsciinemaWeb.Auth
+  require Logger
 
   plug :require_current_user when action in [:edit, :update]
 
@@ -125,5 +126,45 @@ defmodule AsciinemaWeb.UserController do
       changeset: changeset,
       api_tokens: api_tokens
     )
+  end
+
+  def delete(conn, %{"token" => token, "confirmed" => _}) do
+    with {:ok, user_id} <- Accounts.verify_deletion_token(token),
+         user when not is_nil(user) <- Accounts.get_user(user_id) do
+      :ok = Asciinema.delete_user!(user)
+
+      conn
+      |> Auth.log_out()
+      |> put_flash(:info, "Account deleted")
+      |> redirect(to: ~p"/")
+    else
+      _ ->
+        conn
+        |> put_flash(:error, "Invalid account deletion token")
+        |> redirect(to: ~p"/")
+    end
+  end
+
+  def delete(conn, %{"t" => token}) do
+    render(conn, :delete, token: token)
+  end
+
+  def delete(conn, _params) do
+    user = conn.assigns.current_user
+    address = user.email
+
+    case Asciinema.send_account_deletion_email(user) do
+      :ok ->
+        conn
+        |> put_flash(:info, "Account removal initiated - check your inbox (#{address})")
+        |> redirect(to: profile_path(conn))
+
+      {:error, reason} ->
+        Logger.warning("email delivery error: #{inspect(reason)}")
+
+        conn
+        |> put_flash(:error, "Error sending email, please try again later")
+        |> redirect(to: ~p"/user/edit")
+    end
   end
 end

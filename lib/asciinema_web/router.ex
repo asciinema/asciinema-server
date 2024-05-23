@@ -81,10 +81,11 @@ defmodule AsciinemaWeb.Router do
     resources "/login", LoginController, only: [:new, :create], singleton: true
     get "/login/sent", LoginController, :sent, as: :login
 
-    resources "/user", UserController, as: :user, only: [:edit, :update], singleton: true
+    resources "/user", UserController, as: :user, only: [:edit, :update, :delete], singleton: true
     resources "/users", UserController, as: :users, only: [:new, :create]
     get "/u/:id", UserController, :show
     get "/~:username", UserController, :show
+    get "/user/delete", UserController, :delete, as: :user_deletion
 
     resources "/username", UsernameController, only: [:new, :create], singleton: true
     get "/username/skip", UsernameController, :skip, as: :username
@@ -107,9 +108,10 @@ defmodule AsciinemaWeb.Router do
     end
   end
 
-  scope "/dev" do
-    if Application.compile_env(:asciinema, :dev_routes) do
-      forward "/mailbox", Bamboo.SentEmailViewerPlug
+  if Application.compile_env(:asciinema, :dev_routes) do
+    scope "/dev" do
+      pipe_through :browser
+      forward "/mailbox", Plug.Swoosh.MailboxPreview
     end
   end
 end

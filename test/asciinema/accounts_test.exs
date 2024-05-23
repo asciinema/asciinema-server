@@ -1,5 +1,5 @@
 defmodule Asciinema.AccountsTest do
-  import Asciinema.Fixtures
+  import Asciinema.Factory
   use Asciinema.DataCase
   use Oban.Testing, repo: Asciinema.Repo
   alias Asciinema.Accounts
@@ -10,81 +10,72 @@ defmodule Asciinema.AccountsTest do
     end
 
     test "valid token" do
-      token = Accounts.signup_token("test@example.com")
+      {:ok, {:signup, token, _email}} = Accounts.generate_login_token("test@example.com")
       assert {:ok, "test@example.com"} = Accounts.verify_signup_token(token)
     end
   end
 
   describe "generate_login_url/3" do
-    defmodule Routes do
-      def signup_url(_), do: "http://signup"
-      def login_url(_), do: "http://login"
-    end
-
     test "existing user, by email" do
-      user = fixture(:user)
+      insert(:user, email: "test@example.com")
 
-      assert Accounts.generate_login_url(user.email, true, Routes) ==
-               {:ok, {:login, "http://login", user.email}}
+      assert {:ok, {:login, _token, "test@example.com"}} =
+               Accounts.generate_login_token("test@example.com")
     end
 
     test "existing user, by username" do
-      user = fixture(:user)
+      insert(:user, username: "test", email: "test@example.com")
 
-      assert Accounts.generate_login_url(user.username, true, Routes) ==
-               {:ok, {:login, "http://login", user.email}}
+      assert {:ok, {:login, _token, "test@example.com"}} = Accounts.generate_login_token("test")
     end
 
     test "non-existing user, by email" do
-      assert Accounts.generate_login_url("foo@example.com", true, Routes) ==
-               {:ok, {:signup, "http://signup", "foo@example.com"}}
+      assert {:ok, {:signup, _token, "foo@example.com"}} =
+               Accounts.generate_login_token("foo@example.com")
 
-      assert Accounts.generate_login_url("foo@ex.ample.com", true, Routes) ==
-               {:ok, {:signup, "http://signup", "foo@ex.ample.com"}}
+      assert {:ok, {:signup, _token, "foo@ex.ample.com"}} =
+               Accounts.generate_login_token("foo@ex.ample.com")
     end
 
     test "non-existing user, by email, when sign up is disabled" do
-      assert Accounts.generate_login_url("foo@example.com", false, Routes) ==
-               {:error, :user_not_found}
+      assert Accounts.generate_login_token("foo@example.com", false) == {:error, :user_not_found}
     end
 
     test "non-existing user, by email, when email is invalid" do
-      assert Accounts.generate_login_url("foo@", true, Routes) == {:error, :email_invalid}
-
-      assert Accounts.generate_login_url("foo@ex.ample..com", true, Routes) ==
-               {:error, :email_invalid}
+      assert Accounts.generate_login_token("foo@") == {:error, :email_invalid}
+      assert Accounts.generate_login_token("foo@ex.ample..com") == {:error, :email_invalid}
     end
 
     test "non-existing user, by username" do
-      assert Accounts.generate_login_url("idontexist", true, Routes) == {:error, :user_not_found}
+      assert Accounts.generate_login_token("idontexist") == {:error, :user_not_found}
     end
   end
 
   describe "update_user/2" do
-    setup do
-      %{user: fixture(:user)}
-    end
+    test "success" do
+      user = insert(:user)
 
-    def success(user, attrs) do
-      assert {:ok, user} = Accounts.update_user(user, attrs)
-
-      user
-    end
-
-    test "success", %{user: user} do
       assert success(user, %{email: "new@one.com"})
       assert success(user, %{email: "ANOTHER@ONE.COM"}).email == "another@one.com"
       assert success(user, %{username: "newone"})
     end
 
-    def assert_validation_error(user, attrs) do
-      assert {:error, %Ecto.Changeset{}} = Accounts.update_user(user, attrs)
-    end
+    test "validation failures" do
+      user = insert(:user)
 
-    test "validation failures", %{user: user} do
       assert_validation_error(user, %{email: "newone.com"})
       assert_validation_error(user, %{email: ""})
       assert_validation_error(user, %{username: ""})
+    end
+
+    defp success(user, attrs) do
+      assert {:ok, user} = Accounts.update_user(user, attrs)
+
+      user
+    end
+
+    defp assert_validation_error(user, attrs) do
+      assert {:error, %Ecto.Changeset{}} = Accounts.update_user(user, attrs)
     end
   end
 end

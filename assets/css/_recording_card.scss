@@ -88,10 +88,12 @@ div.asciicast-card {
 
     h3 {
       margin: 0 0 6px 0;
-      font-size: 20px;
+      font-size: 18px;
+      display: flex;
 
       .duration {
-        float: right;
+        margin: auto 0 auto auto;
+        padding-left: 1em;
         font-size: 14px;
       }
     }
@@ -103,6 +105,10 @@ div.asciicast-card {
 
       abbr {
         border-bottom: 0;
+      }
+
+      .special-label {
+        float: right;
       }
     }
   }

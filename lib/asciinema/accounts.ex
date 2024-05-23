@@ -5,6 +5,7 @@ defmodule Asciinema.Accounts do
   alias Asciinema.Accounts.{User, ApiToken}
   alias Asciinema.{Fonts, Repo, Themes}
   alias Ecto.Changeset
+  alias Phoenix.Token
 
   @valid_email_re ~r/^[A-Z0-9._%+-]+@([A-Z0-9-]+\.)+[A-Z]{2,}$/i
   @valid_username_re ~r/^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]$/
@@ -88,7 +89,7 @@ defmodule Asciinema.Accounts do
       :theme_name,
       :theme_prefer_original,
       :terminal_font_family,
-      :asciicasts_private_by_default
+      :default_asciicast_visibility
     ])
     |> validate_required([:email])
     |> update_change(:email, &String.downcase/1)
@@ -123,24 +124,23 @@ defmodule Asciinema.Accounts do
     from(u in q, where: is_nil(u.email))
   end
 
-  def generate_login_url(identifier, sign_up_enabled?, routes) do
+  def generate_login_token(identifier, sign_up_enabled? \\ true)
+
+  def generate_login_token(identifier, sign_up_enabled?) do
     case {lookup_user(identifier), sign_up_enabled?} do
       {{_, %User{email: nil}}, _} ->
         {:error, :email_missing}
 
       {{_, %User{} = user}, _} ->
-        url = user |> login_token() |> routes.login_url()
-
-        {:ok, {:login, url, user.email}}
+        {:ok, {:login, login_token(user), user.email}}
 
       {{:email, nil}, true} ->
         changeset = change_user(%User{}, %{email: identifier})
 
         if changeset.valid? do
           email = changeset.changes.email
-          url = email |> signup_token() |> routes.signup_url()
 
-          {:ok, {:signup, url, email}}
+          {:ok, {:signup, signup_token(email), email}}
         else
           {:error, :email_invalid}
         end
@@ -157,8 +157,6 @@ defmodule Asciinema.Accounts do
       {:username, find_user_by_username(identifier)}
     end
   end
-
-  alias Phoenix.Token
 
   def signup_token(email) do
     Token.sign(config(:secret), "signup", email)
@@ -207,6 +205,17 @@ defmodule Asciinema.Accounts do
 
       _ ->
         {:error, :token_expired}
+    end
+  end
+
+  def generate_deletion_token(%User{id: user_id}) do
+    Token.sign(config(:secret), "acct-delete", user_id)
+  end
+
+  def verify_deletion_token(token) do
+    case Token.verify(config(:secret), "acct-delete", token, max_age: 3600) do
+      {:ok, user_id} -> {:ok, user_id}
+      {:error, _} -> {:error, :token_invalid}
     end
   end
 

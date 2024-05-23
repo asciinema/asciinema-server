@@ -1,8 +1,0 @@
-Welcome to <%= @hostname %>!
-
-Click the following link to setup your new account:
-
-<%= @signup_url %>
-
-
-If you did not initiate this request, just ignore this email. The request will expire shortly.

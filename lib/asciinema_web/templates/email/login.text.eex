@@ -1,8 +1,0 @@
-Welcome back!
-
-Click the following link to log in to your <%= @hostname %> account:
-
-<%= @login_url %>
-
-
-If you did not initiate this request, just ignore this email. The request will expire shortly.

@@ -5,7 +5,7 @@ defmodule AsciinemaWeb.RecordingHTML do
   alias Asciinema.Recordings.{Markers, Snapshot}
   alias AsciinemaWeb.{MediaView, UserHTML}
 
-  embed_templates "recording/*.html"
+  embed_templates "recording_html/*"
 
   defdelegate author_username(asciicast), to: MediaView
   defdelegate author_avatar_url(asciicast), to: MediaView
@@ -223,6 +223,10 @@ defmodule AsciinemaWeb.RecordingHTML do
 
   def svg_cache_key(asciicast),
     do: Timex.to_unix(asciicast.updated_at) - Timex.to_unix(asciicast.inserted_at)
+
+  defp owned_by_current_user?(asciicast, conn) do
+    conn.assigns[:current_user] && conn.assigns[:current_user].id == asciicast.user_id
+  end
 
   def head("show.html", assigns), do: head_for_show(assigns)
   def head(_, _), do: nil

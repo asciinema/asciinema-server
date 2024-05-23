@@ -31,7 +31,16 @@ config :asciinema, AsciinemaWeb.Endpoint,
     ]
   ],
   url: [host: "localhost"],
-  render_errors: [view: AsciinemaWeb.ErrorView, accepts: ~w(html json), layout: false],
+  render_errors: [
+    formats: [
+      html: AsciinemaWeb.ErrorHTML,
+      json: AsciinemaWeb.ErrorJSON,
+      txt: AsciinemaWeb.ErrorTEXT,
+      svg: AsciinemaWeb.ErrorTEXT,
+      xml: AsciinemaWeb.ErrorTEXT
+    ],
+    layout: false
+  ],
   live_view: [signing_salt: "F3BMP7k9SZ-Y2SMJ"],
   pubsub_server: Asciinema.PubSub
 
@@ -53,7 +62,17 @@ config :logger,
 config :phoenix, :json_library, Jason
 
 config :phoenix, :template_engines, md: PhoenixMarkdown.Engine
-config :phoenix_template, :format_encoders, svg: Phoenix.HTML.Engine, xml: Phoenix.HTML.Engine
+
+config :phoenix_template, :format_encoders,
+  cast: Jason,
+  svg: Phoenix.HTML.Engine,
+  xml: Phoenix.HTML.Engine
+
+config :mime, :types, %{
+  "application/x-asciicast" => ["cast"]
+}
+
+config :asciinema, Asciinema.Emails.Mailer, adapter: Swoosh.Adapters.Local
 
 config :sentry,
   dsn: "https://public:secret@sentry.io/1",
@@ -67,8 +86,6 @@ config :asciinema, :file_store, Asciinema.FileStore.Local
 config :asciinema, Asciinema.FileStore.Local, path: "uploads/"
 
 config :asciinema, Asciinema.FileCache, path: "cache/"
-
-config :asciinema, Asciinema.Emails.Mailer, adapter: Bamboo.LocalAdapter
 
 config :asciinema, :png_generator, Asciinema.PngGenerator.Rsvg
 

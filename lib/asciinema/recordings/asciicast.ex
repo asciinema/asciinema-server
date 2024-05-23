@@ -1,9 +1,6 @@
 defmodule Asciinema.Recordings.Asciicast do
   use Ecto.Schema
-  alias Asciinema.Accounts.User
-  alias Asciinema.Recordings.Asciicast
-
-  @default_theme "asciinema"
+  alias __MODULE__
 
   @timestamps_opts [type: :utc_datetime_usec]
 
@@ -16,7 +13,7 @@ defmodule Asciinema.Recordings.Asciicast do
     field :rows, :integer
     field :rows_override, :integer
     field :terminal_type, :string
-    field :private, :boolean
+    field :visibility, Ecto.Enum, values: [:private, :unlisted, :public], default: :unlisted
     field :featured, :boolean
     field :secret_token, :string
     field :duration, :float
@@ -44,28 +41,15 @@ defmodule Asciinema.Recordings.Asciicast do
 
     timestamps()
 
-    belongs_to :user, User
+    belongs_to :user, Asciinema.Accounts.User
 
     # legacy
     field :stdout_data, :string
     field :stdout_timing, :string
   end
 
-  defimpl Phoenix.Param, for: Asciicast do
-    def to_param(%Asciicast{private: true, secret_token: secret_token}) do
-      secret_token
-    end
-
-    def to_param(%Asciicast{id: id}) do
-      Integer.to_string(id)
-    end
-  end
-
-  def snapshot_at(%Asciicast{snapshot_at: snapshot_at, duration: duration}) do
-    snapshot_at || duration / 2
-  end
-
-  def theme_name(%Asciicast{theme_name: a_theme_name}, %User{theme_name: u_theme_name}) do
-    a_theme_name || u_theme_name || @default_theme
+  defimpl Phoenix.Param do
+    def to_param(%Asciicast{visibility: :public} = asciicast), do: Integer.to_string(asciicast.id)
+    def to_param(%Asciicast{} = asciicast), do: asciicast.secret_token
   end
 end

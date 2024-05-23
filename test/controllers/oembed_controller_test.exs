@@ -3,18 +3,17 @@ defmodule Asciinema.OembedControllerTest do
   import Asciinema.Factory
 
   describe "show" do
-    test "for JSON format", %{conn: conn} do
+    test "JSON format", %{conn: conn} do
       asciicast = insert(:asciicast)
       url = ~p"/a/#{asciicast}"
 
       conn =
         get(conn, ~p"/oembed?#{%{url: url, format: "json", maxwidth: "500", maxheight: "300"}}")
 
-      assert response(conn, 200)
-      assert response_content_type(conn, :json)
+      assert json_response(conn, 200)
     end
 
-    test "for XML format", %{conn: conn} do
+    test "XML format", %{conn: conn} do
       asciicast = insert(:asciicast)
       url = ~p"/a/#{asciicast}"
 
@@ -24,14 +23,23 @@ defmodule Asciinema.OembedControllerTest do
       assert response_content_type(conn, :xml)
     end
 
-    test "for maxwidth without maxheight", %{conn: conn} do
+    test "maxwidth without maxheight", %{conn: conn} do
       asciicast = insert(:asciicast)
       url = ~p"/a/#{asciicast}"
 
       conn = get(conn, ~p"/oembed?#{%{url: url, format: "json", maxwidth: "500"}}")
 
-      assert response(conn, 200)
-      assert response_content_type(conn, :json)
+      assert json_response(conn, 200)
+    end
+
+    test "private recording", %{conn: conn} do
+      asciicast = insert(:asciicast, visibility: :private)
+      url = ~p"/a/#{asciicast}"
+
+      conn =
+        get(conn, ~p"/oembed?#{%{url: url, format: "json", maxwidth: "500", maxheight: "300"}}")
+
+      assert json_response(conn, 403)
     end
   end
 end
