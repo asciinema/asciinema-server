@@ -38,3 +38,8 @@ $primary: #06989a;
     max-width: 200px;
   }
 }
+
+// temporary override, until this gets included in the released player CSS
+div.ap-control-bar .ap-progressbar .ap-bar .ap-gutter-empty {
+  background-color: color-mix(in oklab, var(--term-color-foreground) 15%, var(--term-color-background));
+}
