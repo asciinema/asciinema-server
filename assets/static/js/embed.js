@@ -77,6 +77,7 @@
     iframe.style.width = "100%";
     iframe.style.float = "none";
     iframe.style.visibility = "hidden";
+    iframe.title = "Terminal session recording"
     iframe.onload = function() { this.style.visibility = 'visible' };
 
     container.appendChild(iframe);
