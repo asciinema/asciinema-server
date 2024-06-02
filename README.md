@@ -56,6 +56,7 @@ asciinema is sponsored by:
 asciinema is sponsored by:
 
 - [Brightbox](https://www.brightbox.com/)
+- [DataDog](https://datadoghq.com/)
 
 ## Consulting
 
