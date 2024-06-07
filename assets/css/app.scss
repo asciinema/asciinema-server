@@ -40,7 +40,12 @@ $primary: #06989a;
   }
 }
 
-// temporary override, until this gets included in the released player CSS
-div.ap-control-bar .ap-progressbar .ap-bar .ap-gutter-empty {
-  background-color: color-mix(in oklab, var(--term-color-foreground) 20%, var(--term-color-background));
+// temporary overrides, until it gets included in the released player CSS
+
+div.ap-control-bar * {
+  box-sizing: inherit;
+}
+
+.ap-overlay-help kbd {
+  font-family: inherit;
 }
