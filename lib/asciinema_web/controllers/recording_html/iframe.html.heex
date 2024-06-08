@@ -28,4 +28,15 @@
       });
     }
   });
+
+  window.addEventListener("message", function(e) {
+    const name = e.data[0];
+    const data = e.data[1];
+
+    if (name === 'textStyle') {
+      console.log(data);
+      document.body.style.color = data.color;
+      document.body.style.fontFamily = `${data.fontFamily}, sans-serif`;
+    }
+  }, false);
 </script>

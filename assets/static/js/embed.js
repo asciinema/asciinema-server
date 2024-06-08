@@ -61,6 +61,7 @@
     container.style.overflow = 'hidden';
     container.style.padding = 0;
     container.style.margin = '20px 0';
+    container.style.colorScheme = 'light dark';
 
     insertAfter(script, container);
 
@@ -78,7 +79,23 @@
     iframe.style.float = "none";
     iframe.style.visibility = "hidden";
     iframe.title = "Terminal session recording"
-    iframe.onload = function() { this.style.visibility = 'visible' };
+
+    function syncTextStyle() {
+      const style = window.getComputedStyle(container);
+      const color = style.getPropertyValue("color");
+      const fontFamily = style.getPropertyValue("font-family");
+      iframe.contentWindow.postMessage(['textStyle', { color, fontFamily }]);
+    }
+
+    iframe.onload = function() {
+      syncTextStyle();
+      setTimeout(syncTextStyle, 1000);
+      this.style.visibility = 'visible'
+
+      if (window.matchMedia) {
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', syncTextStyle);
+      }
+    };
 
     container.appendChild(iframe);
 
