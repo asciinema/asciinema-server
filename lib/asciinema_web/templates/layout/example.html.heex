@@ -3,15 +3,32 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
 
     <style>
-      body { margin: 20px }
+      body {
+        font-family: 'Fira Sans', sans-serif;
+        margin: 20px;
+        color: #334;
+      }
+
       .content {
-        background-color: #ddd;
+        background-color: #dde;
         padding: 20px;
         max-width: 960px;
       }
-      p { font-family: serif; font-size: 16px }
+
+      p { font-size: 16px }
+
+      @media (prefers-color-scheme: dark) {
+        body {
+          color: #dde;
+        }
+
+        .content {
+          background-color: #334;
+        }
+      }
     </style>
   </head>
 
