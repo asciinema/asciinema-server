@@ -60,7 +60,7 @@
     container.style.float = 'none';
     container.style.overflow = 'hidden';
     container.style.padding = 0;
-    container.style.margin = '20px 0';
+    container.style.margin = '1.5em 0';
     container.style.colorScheme = 'light dark';
 
     insertAfter(script, container);
@@ -84,7 +84,8 @@
       const style = window.getComputedStyle(container);
       const color = style.getPropertyValue("color");
       const fontFamily = style.getPropertyValue("font-family");
-      iframe.contentWindow.postMessage({ type: 'textStyle', payload: { color, fontFamily } }, apiHost);
+      const fontSize = style.getPropertyValue("font-size");
+      iframe.contentWindow.postMessage({ type: 'textStyle', payload: { color, fontFamily, fontSize } }, apiHost);
     }
 
     iframe.onload = function() {

@@ -33,6 +33,7 @@
     if (e.data.type === 'textStyle') {
       document.body.style.color = e.data.payload.color;
       document.body.style.fontFamily = `${e.data.payload.fontFamily}, sans-serif`;
+      document.body.style.fontSize = e.data.payload.fontSize;
     }
   }, false);
 </script>
