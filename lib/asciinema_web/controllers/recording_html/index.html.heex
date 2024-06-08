@@ -1,6 +1,6 @@
 <div class="container">
   <div class="row">
-    <div :if={false && !@sidebar_hidden} class="col-md-2">
+    <div :if={!@sidebar_hidden} class="col-md-2">
       <h2>Explore</h2>
 
       <ul class="nav flex-column">
@@ -9,10 +9,10 @@
       </ul>
     </div>
 
-    <div class="col-md-12">
+    <div class={"col-md-#{if @sidebar_hidden, do: 12, else: 10}"}>
       <div class="row">
         <div class="col-md-6">
-          <h2>Explore recordings</h2>
+          <h2><%= @page_title %></h2>
         </div>
 
         <div class="col-md-6 text-right">
