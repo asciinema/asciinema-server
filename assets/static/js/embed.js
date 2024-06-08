@@ -84,7 +84,7 @@
       const style = window.getComputedStyle(container);
       const color = style.getPropertyValue("color");
       const fontFamily = style.getPropertyValue("font-family");
-      iframe.contentWindow.postMessage(['textStyle', { color, fontFamily }]);
+      iframe.contentWindow.postMessage({ type: 'textStyle', payload: { color, fontFamily } });
     }
 
     iframe.onload = function() {
@@ -99,16 +99,14 @@
 
     container.appendChild(iframe);
 
-    function receiveSize(e) {
-      const name = e.data[0];
-      const data = e.data[1];
+    window.addEventListener("message", (e) => {
+      if (e.origin !== apiHost || e.source !== iframe.contentWindow) return;
 
-      if (e.origin === apiHost && e.source === iframe.contentWindow && name === 'resize') {
-        iframe.style.height = '' + data.height + 'px';
+      if (e.data.type === 'bodySize') {
+        iframe.style.height = '' + e.data.payload.height + 'px';
       }
-    }
+    }, false);
 
-    window.addEventListener("message", receiveSize, false);
     script.dataset.initialized = '1';
   }
 
