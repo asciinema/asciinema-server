@@ -84,7 +84,7 @@
       const style = window.getComputedStyle(container);
       const color = style.getPropertyValue("color");
       const fontFamily = style.getPropertyValue("font-family");
-      iframe.contentWindow.postMessage({ type: 'textStyle', payload: { color, fontFamily } });
+      iframe.contentWindow.postMessage({ type: 'textStyle', payload: { color, fontFamily } }, apiHost);
     }
 
     iframe.onload = function() {
