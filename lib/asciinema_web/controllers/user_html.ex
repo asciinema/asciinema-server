@@ -12,7 +12,7 @@ defmodule AsciinemaWeb.UserHTML do
   defdelegate default_font_display_name, to: Fonts
 
   def avatar_url(user) do
-    avatar_url(user, Application.fetch_env!(:asciinema, :avatar_provider))
+    avatar_url(user, Application.fetch_env!(:asciinema, :default_avatar))
   end
 
   def avatar_url(user, :identicon), do: ~p"/u/#{user}/avatar"
