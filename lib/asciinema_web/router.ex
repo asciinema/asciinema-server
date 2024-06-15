@@ -85,6 +85,7 @@ defmodule AsciinemaWeb.Router do
     resources "/users", UserController, as: :users, only: [:new, :create]
     get "/u/:id", UserController, :show
     get "/~:username", UserController, :show
+    get "/u/:id/avatar", AvatarController, :show
     get "/user/delete", UserController, :delete, as: :user_deletion
 
     resources "/username", UsernameController, only: [:new, :create], singleton: true

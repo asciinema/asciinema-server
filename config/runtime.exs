@@ -212,6 +212,12 @@ if config_env() in [:prod, :dev] do
     config :asciinema, :sign_up_enabled?, false
   end
 
+  avatar = env.("DEFAULT_AVATAR")
+
+  if avatar in ["gravatar", "identicon"] do
+    config :asciinema, :default_avatar, String.to_existing_atom(avatar)
+  end
+
   if dsn = env.("SENTRY_DSN") do
     config :sentry, dsn: dsn
   else
