@@ -49,8 +49,9 @@ defmodule AsciinemaTest do
       assert_email_sent(to: [{nil, "new@example.com"}], subject: "Welcome to localhost")
     end
 
-    test "non-existing user, by email, when sign up is disabled" do
-      assert Asciinema.send_login_email("new@example.com", false) == {:error, :user_not_found}
+    test "non-existing user, by email, when registration is disabled" do
+      assert Asciinema.send_login_email("new@example.com", register: false) ==
+               {:error, :user_not_found}
 
       assert_no_email_sent()
     end

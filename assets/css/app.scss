@@ -39,13 +39,3 @@ $primary: #06989a;
     max-width: 200px;
   }
 }
-
-// temporary overrides, until it gets included in the released player CSS
-
-div.ap-control-bar * {
-  box-sizing: inherit;
-}
-
-.ap-overlay-help kbd {
-  font-family: inherit;
-}

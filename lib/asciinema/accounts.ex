@@ -124,9 +124,11 @@ defmodule Asciinema.Accounts do
     from(u in q, where: is_nil(u.email))
   end
 
-  def generate_login_token(identifier, sign_up_enabled? \\ true)
+  def sign_up_enabled?, do: config(:sign_up_enabled?, true)
 
-  def generate_login_token(identifier, sign_up_enabled?) do
+  def generate_login_token(identifier, opts \\ []) do
+    sign_up_enabled? = Keyword.get(opts, :register, sign_up_enabled?())
+
     case {lookup_user(identifier), sign_up_enabled?} do
       {{_, %User{email: nil}}, _} ->
         {:error, :email_missing}

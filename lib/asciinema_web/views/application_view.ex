@@ -1,5 +1,6 @@
 defmodule AsciinemaWeb.ApplicationView do
   import Phoenix.HTML.Tag, only: [content_tag: 3]
+  alias Asciinema.Accounts
 
   def present?([]), do: false
   def present?(nil), do: false
@@ -27,9 +28,7 @@ defmodule AsciinemaWeb.ApplicationView do
   def pluralize(1, thing), do: "1 #{thing}"
   def pluralize(n, thing), do: "#{n} #{Inflex.pluralize(thing)}"
 
-  def sign_up_enabled?(conn) do
-    Map.get(conn.assigns, :cfg_sign_up_enabled?, true)
-  end
+  def sign_up_enabled?, do: Accounts.sign_up_enabled?()
 
   def safe_json(value) do
     json =

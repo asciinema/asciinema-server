@@ -114,7 +114,7 @@ if config_env() in [:prod, :dev] do
       path: "uploads/",
       proxy: !!env.("S3_PROXY_ENABLED")
 
-    config :asciinema, :file_store, Asciinema.FileStore.Cached
+    config :asciinema, Asciinema.FileStore, adapter: Asciinema.FileStore.Cached
 
     config :asciinema, Asciinema.FileStore.Cached,
       remote_store: Asciinema.FileStore.S3,
@@ -209,7 +209,13 @@ if config_env() in [:prod, :dev] do
   end
 
   if env.("SIGN_UP_DISABLED") in ["1", "true"] do
-    config :asciinema, :sign_up_enabled?, false
+    config :asciinema, Asciinema.Accounts, sign_up_enabled?: false
+  end
+
+  avatar = env.("DEFAULT_AVATAR")
+
+  if avatar in ["gravatar", "identicon"] do
+    config :asciinema, :default_avatar, String.to_existing_atom(avatar)
   end
 
   if dsn = env.("SENTRY_DSN") do

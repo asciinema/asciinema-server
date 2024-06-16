@@ -45,30 +45,34 @@ defmodule Asciinema.FileStore do
   # Shortcuts
 
   def url(path) do
-    instance().url(path)
+    adapter().url(path)
   end
 
   def put_file(dst_path, src_local_path, content_type) do
-    instance().put_file(dst_path, src_local_path, content_type)
+    adapter().put_file(dst_path, src_local_path, content_type)
   end
 
   def move_file(from_path, to_path) do
-    instance().move_file(from_path, to_path)
+    adapter().move_file(from_path, to_path)
   end
 
   def open_file(path, f) do
-    instance().open_file(path, f)
+    adapter().open_file(path, f)
   end
 
   def download_file(store_path, local_path) do
-    instance().download_file(store_path, local_path)
+    adapter().download_file(store_path, local_path)
   end
 
   def delete_file(path) do
-    instance().delete_file(path)
+    adapter().delete_file(path)
   end
 
-  defp instance do
-    Application.get_env(:asciinema, :file_store)
+  def serve_file(conn, path, filename) do
+    adapter().serve_file(conn, path, filename)
+  end
+
+  defp adapter do
+    Keyword.fetch!(Application.get_env(:asciinema, __MODULE__), :adapter)
   end
 end

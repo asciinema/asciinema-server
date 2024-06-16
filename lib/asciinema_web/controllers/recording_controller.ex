@@ -1,6 +1,6 @@
 defmodule AsciinemaWeb.RecordingController do
   use AsciinemaWeb, :controller
-  alias Asciinema.{Recordings, PngGenerator}
+  alias Asciinema.{FileStore, Recordings, PngGenerator}
   alias Asciinema.Recordings.Asciicast
   alias AsciinemaWeb.{Auth, PlayerOpts, RecordingHTML}
 
@@ -75,7 +75,7 @@ defmodule AsciinemaWeb.RecordingController do
 
       conn
       |> put_resp_header("access-control-allow-origin", "*")
-      |> file_store().serve_file(asciicast.path, filename)
+      |> FileStore.serve_file(asciicast.path, filename)
     end
   end
 
@@ -236,10 +236,6 @@ defmodule AsciinemaWeb.RecordingController do
 
   defp download_filename(_asciicast, _params) do
     nil
-  end
-
-  defp file_store do
-    Application.get_env(:asciinema, :file_store)
   end
 
   defp load_asciicast(conn, _) do
