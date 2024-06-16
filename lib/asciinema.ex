@@ -18,10 +18,8 @@ defmodule Asciinema do
     end
   end
 
-  def send_login_email(identifier, sign_up_enabled? \\ true)
-
-  def send_login_email(identifier, sign_up_enabled?) do
-    case Accounts.generate_login_token(identifier, sign_up_enabled?) do
+  def send_login_email(identifier, opts \\ []) do
+    case Accounts.generate_login_token(identifier, opts) do
       {:ok, {type, token, email}} ->
         Emails.send_email(type, email, token)
 

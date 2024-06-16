@@ -15,13 +15,7 @@ defmodule AsciinemaWeb.LoginController do
   end
 
   def create(conn, %{"login" => %{"email" => identifier}}) do
-    identifier = String.trim(identifier)
-
-    result =
-      Asciinema.send_login_email(
-        identifier,
-        Map.get(conn.assigns, :cfg_sign_up_enabled?, true)
-      )
+    result = Asciinema.send_login_email(String.trim(identifier))
 
     case result do
       :ok ->

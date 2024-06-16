@@ -209,7 +209,7 @@ if config_env() in [:prod, :dev] do
   end
 
   if env.("SIGN_UP_DISABLED") in ["1", "true"] do
-    config :asciinema, :sign_up_enabled?, false
+    config :asciinema, Asciinema.Accounts, sign_up_enabled?: false
   end
 
   avatar = env.("DEFAULT_AVATAR")

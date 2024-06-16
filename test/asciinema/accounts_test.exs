@@ -38,7 +38,8 @@ defmodule Asciinema.AccountsTest do
     end
 
     test "non-existing user, by email, when sign up is disabled" do
-      assert Accounts.generate_login_token("foo@example.com", false) == {:error, :user_not_found}
+      assert Accounts.generate_login_token("foo@example.com", register: false) ==
+               {:error, :user_not_found}
     end
 
     test "non-existing user, by email, when email is invalid" do

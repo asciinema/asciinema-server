@@ -65,7 +65,7 @@
           <li :if={!@current_user} class="nav-item">
             <a href={~p"/login/new"} class="nav-link" id="log-in">
               Log in
-              <%= if sign_up_enabled?(@conn) do %>
+              <%= if sign_up_enabled?() do %>
                 / Sign up
               <% end %>
             </a>

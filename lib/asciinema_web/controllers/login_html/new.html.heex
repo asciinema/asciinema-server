@@ -40,7 +40,7 @@
     <div class="col-md-6">
       <h2><.info_outline_icon /> First time here?</h2>
 
-      <%= if sign_up_enabled?(@conn) do %>
+      <%= if sign_up_enabled?() do %>
         <p>We use email-based, passwordless login process. Enter your email
           address and you'll receive a one-time login link. After you click it
           you'll get in, and you'll be able to pick your username.</p>
