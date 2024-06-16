@@ -82,7 +82,7 @@ config :sentry,
   tags: %{env: config_env()},
   in_app_module_allow_list: [Asciinema]
 
-config :asciinema, :file_store, Asciinema.FileStore.Local
+config :asciinema, Asciinema.FileStore, adapter: Asciinema.FileStore.Local
 config :asciinema, Asciinema.FileStore.Local, path: "uploads/"
 
 config :asciinema, Asciinema.FileCache, path: "cache/"
