@@ -5,6 +5,6 @@ defmodule Asciinema.PngGenerator do
   @callback generate(asciicast :: %Asciicast{}) :: {:ok, String.t()} | {:error, term}
 
   def generate(asciicast) do
-    Application.get_env(:asciinema, :png_generator).generate(asciicast)
+    Keyword.fetch!(Application.get_env(:asciinema, __MODULE__), :adapter).generate(asciicast)
   end
 end

@@ -89,7 +89,7 @@ config :asciinema, Asciinema.FileCache, path: "cache/"
 
 config :asciinema, :default_avatar, :identicon
 
-config :asciinema, :png_generator, Asciinema.PngGenerator.Rsvg
+config :asciinema, Asciinema.PngGenerator, adapter: Asciinema.PngGenerator.Rsvg
 
 config :asciinema, Asciinema.PngGenerator.Rsvg,
   pool_size: 2,
