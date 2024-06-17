@@ -222,12 +222,12 @@ defmodule Asciinema.Accounts do
   end
 
   def get_user_with_api_token(token, tmp_username \\ nil) do
-    case get_api_token(token) do
-      {:ok, %ApiToken{user: user}} ->
-        {:ok, user}
+    case fetch_api_token(token) do
+      {:ok, api_token} ->
+        {:ok, api_token.user}
 
-      {:error, :token_revoked} = res ->
-        res
+      {:error, :token_revoked} = result ->
+        result
 
       {:error, :token_not_found} ->
         create_user_with_api_token(token, tmp_username)
@@ -272,19 +272,28 @@ defmodule Asciinema.Accounts do
     end
   end
 
-  def get_or_create_api_token(token, user) do
-    with {:ok, token} <- get_api_token(token) do
-      {:ok, token}
-    else
+  def register_api_token(user, token) do
+    case fetch_api_token(token) do
+      {:ok, api_token} ->
+        check_api_token_ownership(user, api_token)
+
+      {:error, :token_revoked} = result ->
+        result
+
       {:error, :token_not_found} ->
         create_api_token(user, token)
-
-      otherwise ->
-        otherwise
     end
   end
 
-  def get_api_token(token) do
+  defp check_api_token_ownership(user, api_token) do
+    cond do
+      user.id == api_token.user.id -> {:ok, api_token}
+      api_token.user.email -> {:error, :token_taken}
+      true -> {:error, {:needs_merge, api_token.user}}
+    end
+  end
+
+  def fetch_api_token(token) do
     api_token =
       ApiToken
       |> Repo.get_by(token: token)

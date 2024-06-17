@@ -23,7 +23,7 @@ defmodule AsciinemaWeb.Api.LiveStreamController do
 
   defp authenticate(conn, _opts) do
     with {_username, api_token} <- get_basic_auth(conn),
-         {:ok, token} <- Accounts.get_api_token(api_token),
+         {:ok, token} <- Accounts.fetch_api_token(api_token),
          false <- Accounts.temporary_user?(token.user) do
       assign(conn, :current_user, token.user)
     else

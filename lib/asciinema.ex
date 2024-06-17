@@ -36,6 +36,20 @@ defmodule Asciinema do
 
   defdelegate verify_login_token(token), to: Accounts
 
+  def register_cli(user, token) do
+    case Accounts.register_api_token(user, token) do
+      {:ok, _api_token} ->
+        :ok
+
+      {:error, {:needs_merge, tmp_user}} ->
+        merge_accounts(tmp_user, user)
+        :ok
+
+      {:error, _reason} = result ->
+        result
+    end
+  end
+
   def merge_accounts(src_user, dst_user) do
     src_user = Accounts.find_user(src_user)
     dst_user = Accounts.find_user(dst_user)
