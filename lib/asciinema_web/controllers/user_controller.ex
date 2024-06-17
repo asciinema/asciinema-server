@@ -54,16 +54,16 @@ defmodule AsciinemaWeb.UserController do
 
   defp do_show(conn, params, user) do
     current_user = conn.assigns.current_user
-    user_is_self = !!(current_user && current_user.id == user.id)
+    self = !!(current_user && current_user.id == user.id)
 
     filter =
-      case user_is_self do
+      case self do
         true -> :all
         false -> :public
       end
 
     streams =
-      case user_is_self do
+      case self do
         true -> Streaming.list_all_live_streams(user)
         false -> Streaming.list_public_live_streams(user)
       end
@@ -81,7 +81,7 @@ defmodule AsciinemaWeb.UserController do
     |> render(
       "show.html",
       user: user,
-      user_is_self: user_is_self,
+      self: self,
       streams: streams,
       asciicasts: asciicasts
     )
