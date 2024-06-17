@@ -2,8 +2,8 @@ defmodule AsciinemaWeb.UserHTML do
   use AsciinemaWeb, :html
   import AsciinemaWeb.ErrorHelpers
   import Scrivener.HTML
-  alias Asciinema.{Fonts, Gravatar}
-  alias AsciinemaWeb.{MediaView, RecordingHTML}
+  alias Asciinema.Fonts
+  alias AsciinemaWeb.{DefaultAvatar, MediaView, RecordingHTML}
 
   embed_templates "user_html/*"
 
@@ -12,15 +12,7 @@ defmodule AsciinemaWeb.UserHTML do
   defdelegate default_font_display_name, to: Fonts
 
   def avatar_url(user) do
-    avatar_url(user, Application.fetch_env!(:asciinema, :default_avatar))
-  end
-
-  def avatar_url(user, :identicon), do: ~p"/u/#{user}/avatar"
-
-  def avatar_url(user, :gravatar) do
-    email = user.email || "#{user.id}@asciinema"
-
-    Gravatar.gravatar_url(email)
+    DefaultAvatar.url(user)
   end
 
   def username(user) do

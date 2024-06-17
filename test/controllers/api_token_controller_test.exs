@@ -1,72 +1,109 @@
 defmodule Asciinema.ApiTokenControllerTest do
   use AsciinemaWeb.ConnCase
-  alias Asciinema.Accounts
-  alias Asciinema.Accounts.User
+  import Asciinema.Factory
 
-  @revoked_token "eb927b31-9ca3-4a6a-8a0c-dfba318e2e84"
-  @regular_user_token "c4ecd96a-9a16-464d-be6a-bc1f3c50c4ae"
-  @other_regular_user_token "b26c2fe0-603b-4b10-b0fa-f6ec85628831"
-  @tmp_user_token "863f6ae5-3f32-4ffc-8d47-284222d6225f"
+  describe "register" do
+    test "as a guest redirects to login page", %{conn: conn} do
+      conn = get(conn, ~p"/connect/00000000-0000-0000-0000-000000000000")
 
-  setup %{conn: conn} do
-    {:ok, %User{}} = Accounts.get_user_with_api_token(@revoked_token, "revoked")
-    @revoked_token |> Accounts.get_api_token!() |> Accounts.revoke_api_token!()
+      assert redirected_to(conn, 302) == ~p"/login/new"
+      assert flash(conn, :info)
+    end
 
-    regular_user = fixture(:user)
-    {:ok, _} = Accounts.create_api_token(regular_user, @regular_user_token)
+    test "with invalid token shows error", %{conn: conn} do
+      user = insert(:user)
+      conn = log_in(conn, user)
 
-    other_regular_user = fixture(:user, %{username: "other", email: "other@example.com"})
-    {:ok, _} = Accounts.create_api_token(other_regular_user, @other_regular_user_token)
+      conn = get(conn, ~p"/connect/nopenope")
 
-    {:ok, %User{} = tmp_user} = Accounts.get_user_with_api_token(@tmp_user_token, "tmp")
+      assert redirected_to(conn, 302) == "/"
+      assert flash(conn, :error) =~ ~r/invalid/i
+    end
 
-    conn = login_as(conn, regular_user)
+    test "with revoked token shows error", %{conn: conn} do
+      user = insert(:user)
+      api_token = insert(:revoked_api_token, user: user)
+      conn = log_in(conn, user)
 
-    {:ok, conn: conn, regular_user: regular_user, tmp_user: tmp_user}
+      conn = get(conn, ~p"/connect/#{api_token.token}")
+
+      assert redirected_to(conn, 302) == "/"
+      assert flash(conn, :error) =~ ~r/been revoked/i
+    end
+
+    test "with tmp user token shows notice, redirects to profile page", %{conn: conn} do
+      user = insert(:user, username: "test")
+      tmp_user = insert(:temporary_user)
+      api_token = insert(:api_token, user: tmp_user)
+      conn = log_in(conn, user)
+
+      conn = get(conn, ~p"/connect/#{api_token.token}")
+
+      assert redirected_to(conn, 302) == ~p"/~test"
+      assert flash(conn, :info) =~ ~r/successfully/
+    end
+
+    test "with their own token shows notice, redirects to profile page", %{conn: conn} do
+      user = insert(:user, username: "test")
+      api_token = insert(:api_token, user: user)
+      conn = log_in(conn, user)
+
+      conn = get(conn, ~p"/connect/#{api_token.token}")
+
+      assert redirected_to(conn, 302) == ~p"/~test"
+      assert flash(conn, :info) =~ ~r/successfully/
+    end
+
+    test "with other user's token shows error, redirects to profile page", %{conn: conn} do
+      user = insert(:user, username: "test")
+      api_token = insert(:api_token)
+      conn = log_in(conn, user)
+
+      conn = get(conn, ~p"/connect/#{api_token.token}")
+
+      assert redirected_to(conn, 302) == ~p"/~test"
+      assert flash(conn, :error) =~ ~r/different/
+    end
   end
 
-  test "as guest", %{conn: conn} do
-    conn = logout(conn)
-    conn = get(conn, "/connect/#{@tmp_user_token}")
-    assert redirected_to(conn, 302) == "/login/new"
-    assert flash(conn, :info)
-  end
+  describe "delete" do
+    test "as a guest redirects to login page", %{conn: conn} do
+      conn = delete(conn, ~p"/api_tokens/123")
 
-  test "with invalid token", %{conn: conn} do
-    conn = get(conn, "/connect/nopenope")
-    assert redirected_to(conn, 302) == "/"
-    assert flash(conn, :error) =~ ~r/invalid/i
-  end
+      assert redirected_to(conn, 302) == ~p"/login/new"
+      assert flash(conn, :info)
+    end
 
-  test "with revoked token", %{conn: conn} do
-    conn = get(conn, "/connect/#{@revoked_token}")
-    assert redirected_to(conn, 302) == "/"
-    assert flash(conn, :error) =~ ~r/been revoked/i
-  end
+    test "with user's own token shows notice, redirects to settings", %{conn: conn} do
+      user = insert(:user)
+      api_token = insert(:api_token, user: user)
+      conn = log_in(conn, user)
 
-  test "with tmp user token", %{conn: conn} do
-    conn = get(conn, "/connect/#{@tmp_user_token}")
-    assert redirected_to(conn, 302) == "/~test"
-    assert flash(conn, :info)
-  end
+      conn = delete(conn, ~p"/api_tokens/#{api_token.id}")
 
-  test "with his own token", %{conn: conn} do
-    conn = get(conn, "/connect/#{@regular_user_token}")
-    assert redirected_to(conn, 302) == "/~test"
-    assert flash(conn, :info) =~ ~r/successfully/
-  end
+      assert redirected_to(conn, 302) == ~p"/user/edit"
+      assert flash(conn, :info) =~ ~r/revoked/
+    end
 
-  test "regular user with other regular user token", %{conn: conn} do
-    conn = get(conn, "/connect/#{@other_regular_user_token}")
-    assert redirected_to(conn, 302) == "/~test"
-    assert flash(conn, :error) =~ ~r/different/
-  end
+    test "with other user's token shows error, redirects to settings", %{conn: conn} do
+      user = insert(:user)
+      api_token = insert(:api_token)
+      conn = log_in(conn, user)
 
-  defp login_as(conn, user) do
-    assign(conn, :current_user, user)
-  end
+      conn = delete(conn, ~p"/api_tokens/#{api_token.id}")
 
-  defp logout(conn) do
-    assign(conn, :current_user, nil)
+      assert redirected_to(conn, 302) == ~p"/user/edit"
+      assert flash(conn, :error) =~ ~r/not found/
+    end
+
+    test "with invalid token shows error, redirects to settings", %{conn: conn} do
+      user = insert(:user)
+      conn = log_in(conn, user)
+
+      conn = delete(conn, ~p"/api_tokens/123456789")
+
+      assert redirected_to(conn, 302) == ~p"/user/edit"
+      assert flash(conn, :error) =~ ~r/not found/
+    end
   end
 end

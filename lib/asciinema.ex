@@ -12,29 +12,52 @@ defmodule Asciinema do
   defdelegate change_user(user, params \\ %{}), to: Accounts
   defdelegate update_user(user, params), to: Accounts
 
-  def create_user_from_signup_token(token) do
-    with {:ok, email} <- Accounts.verify_signup_token(token) do
+  def create_user_from_sign_up_token(token) do
+    with {:ok, email} <- Accounts.verify_sign_up_token(token) do
       create_user(%{email: email})
     end
   end
 
-  def send_login_email(identifier, opts \\ []) do
+  def send_login_email(identifier, url_provider, opts \\ []) do
     case Accounts.generate_login_token(identifier, opts) do
       {:ok, {type, token, email}} ->
-        Emails.send_email(type, email, token)
+        Emails.send_email(type, email, token, url_provider)
 
       {:error, _reason} = result ->
         result
     end
   end
 
-  def send_account_deletion_email(user) do
+  def send_account_deletion_email(user, url_provider) do
     token = Accounts.generate_deletion_token(user)
 
-    Emails.send_email(:account_deletion, user.email, token)
+    Emails.send_email(:account_deletion, user.email, token, url_provider)
   end
 
   defdelegate verify_login_token(token), to: Accounts
+
+  def register_cli(user, token) do
+    case Accounts.register_api_token(user, token) do
+      {:ok, _api_token} ->
+        :ok
+
+      {:error, {:needs_merge, tmp_user}} ->
+        merge_accounts(tmp_user, user)
+        :ok
+
+      {:error, _reason} = result ->
+        result
+    end
+  end
+
+  def revoke_cli(user, id) do
+    if api_token = Accounts.get_api_token(user, id) do
+      Accounts.revoke_api_token!(api_token)
+      :ok
+    else
+      {:error, :not_found}
+    end
+  end
 
   def merge_accounts(src_user, dst_user) do
     src_user = Accounts.find_user(src_user)
@@ -48,6 +71,15 @@ defmodule Asciinema do
 
       {:ok, Accounts.get_user(dst_user.id)}
     end)
+  end
+
+  def delete_user(token) when is_binary(token) do
+    with {:ok, user_id} <- Accounts.verify_deletion_token(token),
+         user when not is_nil(user) <- Accounts.get_user(user_id) do
+      :ok = delete_user!(user)
+    else
+      _ -> {:error, :invalid_token}
+    end
   end
 
   def delete_user!(user) do

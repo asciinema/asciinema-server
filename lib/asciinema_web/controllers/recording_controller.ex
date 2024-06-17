@@ -2,7 +2,8 @@ defmodule AsciinemaWeb.RecordingController do
   use AsciinemaWeb, :controller
   alias Asciinema.{FileStore, Recordings, PngGenerator}
   alias Asciinema.Recordings.Asciicast
-  alias AsciinemaWeb.{Auth, PlayerOpts, RecordingHTML}
+  alias AsciinemaWeb.{PlayerOpts, RecordingHTML}
+  alias AsciinemaWeb.Plug.Authn
 
   plug :load_asciicast when action in [:show, :edit, :update, :delete, :iframe, :example]
   plug :require_current_user_when_private when action in [:show, :iframe]
@@ -307,8 +308,8 @@ defmodule AsciinemaWeb.RecordingController do
       {:show, "html", :private} ->
         conn
         |> fetch_session()
-        |> Auth.call([])
-        |> Auth.require_current_user([])
+        |> Authn.call([])
+        |> require_current_user([])
 
       {:iframe, _format, :private} ->
         conn
@@ -316,7 +317,7 @@ defmodule AsciinemaWeb.RecordingController do
       {_action, _format, :private} ->
         conn
         |> fetch_session()
-        |> Auth.call([])
+        |> Authn.call([])
 
       _ ->
         conn

@@ -1,7 +1,5 @@
 defmodule AsciinemaWeb.SessionController do
   use AsciinemaWeb, :controller
-  alias AsciinemaWeb.Auth
-  alias Asciinema.Accounts.User
 
   def new(conn, %{"t" => login_token}) do
     conn
@@ -20,7 +18,7 @@ defmodule AsciinemaWeb.SessionController do
     case Asciinema.verify_login_token(login_token) do
       {:ok, user} ->
         conn
-        |> Auth.log_in(user)
+        |> log_in(user)
         |> put_flash(:info, "Welcome back!")
         |> redirect_to_profile()
 
@@ -42,18 +40,18 @@ defmodule AsciinemaWeb.SessionController do
   end
 
   defp redirect_to_profile(conn) do
-    case conn.assigns.current_user do
-      %User{username: nil} ->
-        redirect(conn, to: ~p"/username/new")
+    user = conn.assigns.current_user
 
-      %User{} = user ->
-        redirect_back_or(conn, to: profile_path(user))
+    if user.username do
+      redirect_back_or(conn, to: profile_path(user))
+    else
+      redirect(conn, to: ~p"/username/new")
     end
   end
 
   def delete(conn, _params) do
     conn
-    |> Auth.log_out()
+    |> log_out()
     |> put_flash(:info, "See you later!")
     |> redirect(to: root_path())
   end

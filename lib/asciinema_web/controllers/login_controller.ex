@@ -15,7 +15,7 @@ defmodule AsciinemaWeb.LoginController do
   end
 
   def create(conn, %{"login" => %{"email" => identifier}}) do
-    result = Asciinema.send_login_email(String.trim(identifier))
+    result = Asciinema.send_login_email(String.trim(identifier), AsciinemaWeb.UrlProvider)
 
     case result do
       :ok ->

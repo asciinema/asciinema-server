@@ -1,6 +1,5 @@
 defmodule AsciinemaWeb.Api.RecordingController do
   use AsciinemaWeb, :controller
-  import AsciinemaWeb.Auth, only: [get_basic_auth: 1]
   alias Asciinema.{Recordings, Accounts}
   alias Asciinema.Accounts.User
 

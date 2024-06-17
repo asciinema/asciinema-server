@@ -15,7 +15,7 @@
         <small>Joined on <%= joined_at(@user) %></small>
       </h1>
 
-      <p :if={@user_is_self} class="actions">
+      <p :if={@self} class="actions">
         <a href={~p"/user/edit"}>Edit profile</a>
       </p>
     </div>
@@ -23,7 +23,7 @@
 
   <div class="container">
     <div :if={length(@streams) > 0}>
-      <%= if @user_is_self do %>
+      <%= if @self do %>
         <%= if length(@streams) == 1 do %>
           <h2>Your live stream</h2>
         <% else %>
@@ -51,7 +51,7 @@
     </div>
 
     <%= if @asciicasts.total_entries > 0 do %>
-      <%= if @user_is_self do %>
+      <%= if @self do %>
         <h2>You have <%= pluralize(@asciicasts.total_entries, "recording") %></h2>
       <% else %>
         <h2>
@@ -69,7 +69,7 @@
         </div>
       </div>
     <% else %>
-      <%= if @user_is_self do %>
+      <%= if @self do %>
         <div class="row">
           <div class={"col-md-#{if @default_stream, do: 6, else: 12}"}>
             <h2>Recording &amp; publishing</h2>
