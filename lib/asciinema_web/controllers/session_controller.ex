@@ -1,6 +1,5 @@
 defmodule AsciinemaWeb.SessionController do
   use AsciinemaWeb, :controller
-  alias Asciinema.Accounts.User
 
   def new(conn, %{"t" => login_token}) do
     conn
@@ -41,12 +40,12 @@ defmodule AsciinemaWeb.SessionController do
   end
 
   defp redirect_to_profile(conn) do
-    case conn.assigns.current_user do
-      %User{username: nil} ->
-        redirect(conn, to: ~p"/username/new")
+    user = conn.assigns.current_user
 
-      %User{} = user ->
-        redirect_back_or(conn, to: profile_path(user))
+    if user.username do
+      redirect_back_or(conn, to: profile_path(user))
+    else
+      redirect(conn, to: ~p"/username/new")
     end
   end
 
