@@ -1,6 +1,5 @@
 defmodule AsciinemaWeb.ApiTokenController do
   use AsciinemaWeb, :controller
-  alias Asciinema.Accounts
   alias Asciinema.Accounts.User
 
   plug :require_current_user
@@ -30,12 +29,17 @@ defmodule AsciinemaWeb.ApiTokenController do
   end
 
   def delete(conn, %{"id" => id}) do
-    api_token = Accounts.get_api_token!(conn.assigns.current_user, id)
-    Accounts.revoke_api_token!(api_token)
+    case Asciinema.revoke_cli(conn.assigns.current_user, id) do
+      :ok ->
+        conn
+        |> put_flash(:info, "CLI authentication revoked")
+        |> redirect(to: ~p"/user/edit")
 
-    conn
-    |> put_flash(:info, "CLI authentication revoked")
-    |> redirect(to: ~p"/user/edit")
+      {:error, :not_found} ->
+        conn
+        |> put_flash(:error, "CLI not found")
+        |> redirect(to: ~p"/user/edit")
+    end
   end
 
   defp redirect_to_profile(conn) do

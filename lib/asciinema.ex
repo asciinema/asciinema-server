@@ -50,6 +50,15 @@ defmodule Asciinema do
     end
   end
 
+  def revoke_cli(user, id) do
+    if api_token = Accounts.get_api_token(user, id) do
+      Accounts.revoke_api_token!(api_token)
+      :ok
+    else
+      {:error, :not_found}
+    end
+  end
+
   def merge_accounts(src_user, dst_user) do
     src_user = Accounts.find_user(src_user)
     dst_user = Accounts.find_user(dst_user)

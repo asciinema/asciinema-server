@@ -21,8 +21,8 @@ defmodule Asciinema.ApiTokenControllerTest do
   end
 
   describe "register" do
-    test "as guest redirects to login page", %{conn: conn} do
-      conn = get(conn, ~p"/connect/#{@tmp_user_token}")
+    test "as a guest redirects to login page", %{conn: conn} do
+      conn = get(conn, ~p"/connect/00000000-0000-0000-0000-000000000000")
 
       assert redirected_to(conn, 302) == ~p"/login/new"
       assert flash(conn, :info)
@@ -64,13 +64,54 @@ defmodule Asciinema.ApiTokenControllerTest do
       assert flash(conn, :info) =~ ~r/successfully/
     end
 
-    test "with other user's token shows error, redirects to profile page", %{conn: conn, user: user} do
+    test "with other user's token shows error, redirects to profile page", %{
+      conn: conn,
+      user: user
+    } do
       conn = log_in(conn, user)
 
       conn = get(conn, ~p"/connect/#{@other_regular_user_token}")
 
       assert redirected_to(conn, 302) == ~p"/~test"
       assert flash(conn, :error) =~ ~r/different/
+    end
+  end
+
+  describe "delete" do
+    test "as a guest redirects to login page", %{conn: conn} do
+      conn = delete(conn, ~p"/api_tokens/123")
+
+      assert redirected_to(conn, 302) == ~p"/login/new"
+      assert flash(conn, :info)
+    end
+
+    test "with user's own token shows notice, redirects to settings", %{conn: conn, user: user} do
+      conn = log_in(conn, user)
+      api_token = insert(:api_token, user: user)
+
+      conn = delete(conn, ~p"/api_tokens/#{api_token.id}")
+
+      assert redirected_to(conn, 302) == ~p"/user/edit"
+      assert flash(conn, :info) =~ ~r/revoked/
+    end
+
+    test "with other user's token shows error, redirects to settings", %{conn: conn, user: user} do
+      conn = log_in(conn, user)
+      api_token = insert(:api_token)
+
+      conn = delete(conn, ~p"/api_tokens/#{api_token.id}")
+
+      assert redirected_to(conn, 302) == ~p"/user/edit"
+      assert flash(conn, :error) =~ ~r/not found/
+    end
+
+    test "with invalid token shows error, redirects to settings", %{conn: conn, user: user} do
+      conn = log_in(conn, user)
+
+      conn = delete(conn, ~p"/api_tokens/123456789")
+
+      assert redirected_to(conn, 302) == ~p"/user/edit"
+      assert flash(conn, :error) =~ ~r/not found/
     end
   end
 end

@@ -306,8 +306,8 @@ defmodule Asciinema.Accounts do
     end
   end
 
-  def get_api_token!(user, id) do
-    Repo.get!(assoc(user, :api_tokens), id)
+  def get_api_token(user, id) do
+    Repo.get(assoc(user, :api_tokens), id)
   end
 
   def get_api_token!(token) do
