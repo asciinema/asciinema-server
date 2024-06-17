@@ -129,16 +129,14 @@ defmodule AsciinemaWeb.UserController do
   end
 
   def delete(conn, %{"token" => token, "confirmed" => _}) do
-    with {:ok, user_id} <- Accounts.verify_deletion_token(token),
-         user when not is_nil(user) <- Accounts.get_user(user_id) do
-      :ok = Asciinema.delete_user!(user)
+    case Asciinema.delete_user(token) do
+      :ok ->
+        conn
+        |> Auth.log_out()
+        |> put_flash(:info, "Account deleted")
+        |> redirect(to: ~p"/")
 
-      conn
-      |> Auth.log_out()
-      |> put_flash(:info, "Account deleted")
-      |> redirect(to: ~p"/")
-    else
-      _ ->
+      {:error, :invalid_token} ->
         conn
         |> put_flash(:error, "Invalid account deletion token")
         |> redirect(to: ~p"/")

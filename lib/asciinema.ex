@@ -50,6 +50,15 @@ defmodule Asciinema do
     end)
   end
 
+  def delete_user(token) when is_binary(token) do
+    with {:ok, user_id} <- Accounts.verify_deletion_token(token),
+         user when not is_nil(user) <- Accounts.get_user(user_id) do
+      :ok = delete_user!(user)
+    else
+      _ -> {:error, :invalid_token}
+    end
+  end
+
   def delete_user!(user) do
     result =
       Repo.transact(fn ->
