@@ -76,10 +76,10 @@ defmodule AsciinemaWeb.UserController do
         14
       )
 
-    conn
-    |> assign(:page_title, "#{user.username}'s profile")
-    |> render(
+    render(
+      conn,
       "show.html",
+      page_title: "#{user.username}'s profile",
       user: user,
       self: self,
       streams: streams,
