@@ -21,14 +21,14 @@ defmodule Asciinema.ApiTokenControllerTest do
   end
 
   describe "register" do
-    test "as guest", %{conn: conn} do
+    test "as guest redirects to login page", %{conn: conn} do
       conn = get(conn, ~p"/connect/#{@tmp_user_token}")
 
       assert redirected_to(conn, 302) == ~p"/login/new"
       assert flash(conn, :info)
     end
 
-    test "with invalid token", %{conn: conn, user: user} do
+    test "with invalid token shows error", %{conn: conn, user: user} do
       conn = log_in(conn, user)
 
       conn = get(conn, ~p"/connect/nopenope")
@@ -37,7 +37,7 @@ defmodule Asciinema.ApiTokenControllerTest do
       assert flash(conn, :error) =~ ~r/invalid/i
     end
 
-    test "with revoked token", %{conn: conn, user: user} do
+    test "with revoked token shows error", %{conn: conn, user: user} do
       conn = log_in(conn, user)
 
       conn = get(conn, ~p"/connect/#{@revoked_token}")
@@ -46,16 +46,16 @@ defmodule Asciinema.ApiTokenControllerTest do
       assert flash(conn, :error) =~ ~r/been revoked/i
     end
 
-    test "with tmp user token", %{conn: conn, user: user} do
+    test "with tmp user token shows notice, redirects to profile page", %{conn: conn, user: user} do
       conn = log_in(conn, user)
 
       conn = get(conn, ~p"/connect/#{@tmp_user_token}")
 
       assert redirected_to(conn, 302) == ~p"/~test"
-      assert flash(conn, :info)
+      assert flash(conn, :info) =~ ~r/successfully/
     end
 
-    test "with his own token", %{conn: conn, user: user} do
+    test "with their own token shows notice, redirects to profile page", %{conn: conn, user: user} do
       conn = log_in(conn, user)
 
       conn = get(conn, ~p"/connect/#{@regular_user_token}")
@@ -64,7 +64,7 @@ defmodule Asciinema.ApiTokenControllerTest do
       assert flash(conn, :info) =~ ~r/successfully/
     end
 
-    test "regular user with other regular user token", %{conn: conn, user: user} do
+    test "with other user's token shows error, redirects to profile page", %{conn: conn, user: user} do
       conn = log_in(conn, user)
 
       conn = get(conn, ~p"/connect/#{@other_regular_user_token}")
