@@ -24,6 +24,14 @@ defmodule Asciinema.Factory do
     }
   end
 
+  def revoked_api_token_factory do
+    %ApiToken{
+      user: build(:user),
+      token: sequence(:token, &"token-#{&1}"),
+      revoked_at: Timex.now()
+    }
+  end
+
   def asciicast_factory do
     build(:asciicast_v2)
   end
