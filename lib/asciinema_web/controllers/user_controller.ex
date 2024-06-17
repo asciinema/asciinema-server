@@ -1,7 +1,6 @@
 defmodule AsciinemaWeb.UserController do
   use AsciinemaWeb, :controller
   alias Asciinema.{Accounts, Streaming, Recordings}
-  alias AsciinemaWeb.Auth
   require Logger
 
   plug :require_current_user when action in [:edit, :update]
@@ -23,7 +22,7 @@ defmodule AsciinemaWeb.UserController do
     case Asciinema.create_user_from_sign_up_token(token) do
       {:ok, user} ->
         conn
-        |> Auth.log_in(user)
+        |> log_in(user)
         |> put_flash(:info, "Welcome to asciinema!")
         |> redirect(to: ~p"/username/new")
 
@@ -132,7 +131,7 @@ defmodule AsciinemaWeb.UserController do
     case Asciinema.delete_user(token) do
       :ok ->
         conn
-        |> Auth.log_out()
+        |> log_out()
         |> put_flash(:info, "Account deleted")
         |> redirect(to: ~p"/")
 
