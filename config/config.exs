@@ -87,13 +87,13 @@ config :asciinema, Asciinema.FileStore.Local, path: "uploads/"
 
 config :asciinema, Asciinema.FileCache, path: "cache/"
 
-config :asciinema, :default_avatar, :identicon
-
 config :asciinema, Asciinema.PngGenerator, adapter: Asciinema.PngGenerator.Rsvg
 
 config :asciinema, Asciinema.PngGenerator.Rsvg,
   pool_size: 2,
   font_family: "monospace"
+
+config :asciinema, AsciinemaWeb.DefaultAvatar, adapter: AsciinemaWeb.DefaultAvatar.Identicon
 
 config :asciinema, Oban,
   repo: Asciinema.Repo,
