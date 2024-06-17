@@ -44,7 +44,7 @@ defmodule AsciinemaWeb.UserController do
   end
 
   def show(conn, params) do
-    if user = fetch_user(params) do
+    if user = get_user(params) do
       do_show(conn, params, user)
     else
       {:error, :not_found}
@@ -86,7 +86,7 @@ defmodule AsciinemaWeb.UserController do
     )
   end
 
-  defp fetch_user(%{"id" => id}) do
+  defp get_user(%{"id" => id}) do
     if String.match?(id, ~r/^\d+$/) do
       Accounts.get_user(id)
     else
@@ -94,7 +94,7 @@ defmodule AsciinemaWeb.UserController do
     end
   end
 
-  defp fetch_user(%{"username" => username}) do
+  defp get_user(%{"username" => username}) do
     Accounts.find_user_by_username(username)
   end
 
