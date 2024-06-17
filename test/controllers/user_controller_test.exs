@@ -7,7 +7,7 @@ defmodule Asciinema.UserControllerTest do
 
   describe "sign-up" do
     test "success", %{conn: conn} do
-      conn = get conn, ~p"/users/new", t: Accounts.signup_token("test@example.com")
+      conn = get conn, ~p"/users/new", t: Accounts.sign_up_token("test@example.com")
       assert redirected_to(conn, 302) == ~p"/users/new"
 
       conn = get(conn, ~p"/users/new")
@@ -21,7 +21,7 @@ defmodule Asciinema.UserControllerTest do
     test "failure - email taken", %{conn: conn} do
       insert(:user, email: "test@example.com")
 
-      conn = get conn, ~p"/users/new", t: Accounts.signup_token("test@example.com")
+      conn = get conn, ~p"/users/new", t: Accounts.sign_up_token("test@example.com")
       assert redirected_to(conn, 302) == ~p"/users/new"
 
       conn = get(conn, ~p"/users/new")

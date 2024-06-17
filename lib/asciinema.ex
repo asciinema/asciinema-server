@@ -12,26 +12,26 @@ defmodule Asciinema do
   defdelegate change_user(user, params \\ %{}), to: Accounts
   defdelegate update_user(user, params), to: Accounts
 
-  def create_user_from_signup_token(token) do
-    with {:ok, email} <- Accounts.verify_signup_token(token) do
+  def create_user_from_sign_up_token(token) do
+    with {:ok, email} <- Accounts.verify_sign_up_token(token) do
       create_user(%{email: email})
     end
   end
 
-  def send_login_email(identifier, opts \\ []) do
+  def send_login_email(identifier, url_provider, opts \\ []) do
     case Accounts.generate_login_token(identifier, opts) do
       {:ok, {type, token, email}} ->
-        Emails.send_email(type, email, token)
+        Emails.send_email(type, email, token, url_provider)
 
       {:error, _reason} = result ->
         result
     end
   end
 
-  def send_account_deletion_email(user) do
+  def send_account_deletion_email(user, url_provider) do
     token = Accounts.generate_deletion_token(user)
 
-    Emails.send_email(:account_deletion, user.email, token)
+    Emails.send_email(:account_deletion, user.email, token, url_provider)
   end
 
   defdelegate verify_login_token(token), to: Accounts

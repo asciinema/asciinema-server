@@ -142,7 +142,7 @@ defmodule Asciinema.Accounts do
         if changeset.valid? do
           email = changeset.changes.email
 
-          {:ok, {:signup, signup_token(email), email}}
+          {:ok, {:sign_up, sign_up_token(email), email}}
         else
           {:error, :email_invalid}
         end
@@ -160,8 +160,8 @@ defmodule Asciinema.Accounts do
     end
   end
 
-  def signup_token(email) do
-    Token.sign(config(:secret), "signup", email)
+  def sign_up_token(email) do
+    Token.sign(config(:secret), "sign_up", email)
   end
 
   def login_token(%User{id: id, last_login_at: last_login_at}) do
@@ -169,11 +169,11 @@ defmodule Asciinema.Accounts do
     Token.sign(config(:secret), "login", {id, last_login_at})
   end
 
-  def verify_signup_token(token) do
+  def verify_sign_up_token(token) do
     result =
       Token.verify(
         config(:secret),
-        "signup",
+        "sign_up",
         token,
         max_age: config(:login_token_max_age, 60) * 60
       )

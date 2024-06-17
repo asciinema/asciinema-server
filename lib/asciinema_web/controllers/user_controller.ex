@@ -6,9 +6,9 @@ defmodule AsciinemaWeb.UserController do
 
   plug :require_current_user when action in [:edit, :update]
 
-  def new(conn, %{"t" => signup_token}) do
+  def new(conn, %{"t" => sign_up_token}) do
     conn
-    |> put_session(:signup_token, signup_token)
+    |> put_session(:sign_up_token, sign_up_token)
     |> redirect(to: ~p"/users/new")
   end
 
@@ -17,10 +17,10 @@ defmodule AsciinemaWeb.UserController do
   end
 
   def create(conn, _params) do
-    token = get_session(conn, :signup_token)
-    conn = delete_session(conn, :signup_token)
+    token = get_session(conn, :sign_up_token)
+    conn = delete_session(conn, :sign_up_token)
 
-    case Asciinema.create_user_from_signup_token(token) do
+    case Asciinema.create_user_from_sign_up_token(token) do
       {:ok, user} ->
         conn
         |> Auth.log_in(user)
@@ -153,7 +153,7 @@ defmodule AsciinemaWeb.UserController do
     user = conn.assigns.current_user
     address = user.email
 
-    case Asciinema.send_account_deletion_email(user) do
+    case Asciinema.send_account_deletion_email(user, AsciinemaWeb.UrlProvider) do
       :ok ->
         conn
         |> put_flash(:info, "Account removal initiated - check your inbox (#{address})")

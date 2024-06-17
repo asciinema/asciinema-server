@@ -1,24 +1,24 @@
 defmodule Asciinema.Emails.Email do
-  use AsciinemaWeb, :html
+  use Phoenix.Component
   import Swoosh.Email
 
-  def signup_email(email_address, token) do
+  def sign_up_email(email_address, url) do
     hostname = instance_hostname()
 
     base_email()
     |> to(email_address)
     |> subject("Welcome to #{hostname}")
-    |> body(signup_email_html(%{token: token, hostname: hostname}))
+    |> body(sign_up_email_html(%{url: url, hostname: hostname}))
   end
 
-  defp signup_email_html(assigns) do
+  defp sign_up_email_html(assigns) do
     ~H"""
     <.layout>
       <p>Welcome to <%= @hostname %>!</p>
 
       <p>Open the following link to setup your account:</p>
 
-      <p><a href={url(~p"/users/new?t=#{@token}")}><%= url(~p"/users/new?t=#{@token}") %></a></p>
+      <p><a href={@url}><%= @url %></a></p>
 
       <p>
         <br />
@@ -28,13 +28,13 @@ defmodule Asciinema.Emails.Email do
     """
   end
 
-  def login_email(email_address, token) do
+  def login_email(email_address, url) do
     hostname = instance_hostname()
 
     base_email()
     |> to(email_address)
     |> subject("Login to #{hostname}")
-    |> body(login_email_html(%{token: token, hostname: hostname}))
+    |> body(login_email_html(%{url: url, hostname: hostname}))
   end
 
   defp login_email_html(assigns) do
@@ -44,7 +44,7 @@ defmodule Asciinema.Emails.Email do
 
       <p>Open the following link to log in to your <%= @hostname %> account:</p>
 
-      <p><a href={url(~p"/session/new?t=#{@token}")}><%= url(~p"/session/new?t=#{@token}") %></a></p>
+      <p><a href={@url}><%= @url %></a></p>
 
       <p>
         <br />
@@ -54,11 +54,11 @@ defmodule Asciinema.Emails.Email do
     """
   end
 
-  def account_deletion_email(email_address, token) do
+  def account_deletion_email(email_address, url) do
     base_email()
     |> to(email_address)
     |> subject("Account deletion")
-    |> body(account_deletion_email_html(%{token: token, hostname: instance_hostname()}))
+    |> body(account_deletion_email_html(%{url: url, hostname: instance_hostname()}))
   end
 
   defp account_deletion_email_html(assigns) do
@@ -68,7 +68,7 @@ defmodule Asciinema.Emails.Email do
 
       <p>If you wish to proceed, open the following link in your browser:</p>
 
-      <p><a href={url(~p"/user/delete?t=#{@token}")}><%= url(~p"/user/delete?t=#{@token}") %></a></p>
+      <p><a href={@url}><%= @url %></a></p>
 
       <p>
         <br /> If you did not initiate this request, just ignore this email.
