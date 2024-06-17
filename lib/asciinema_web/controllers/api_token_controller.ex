@@ -5,7 +5,7 @@ defmodule AsciinemaWeb.ApiTokenController do
 
   plug :require_current_user
 
-  def show(conn, %{"api_token" => token}) do
+  def register(conn, %{"api_token" => token}) do
     case Asciinema.register_cli(conn.assigns.current_user, token) do
       :ok ->
         conn

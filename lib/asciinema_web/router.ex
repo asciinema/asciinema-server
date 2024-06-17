@@ -88,7 +88,7 @@ defmodule AsciinemaWeb.Router do
 
     resources "/session", SessionController, only: [:new, :create, :delete], singleton: true
 
-    get "/connect/:api_token", ApiTokenController, :show, as: :connect
+    get "/connect/:api_token", ApiTokenController, :register, as: :connect
 
     resources "/api_tokens", ApiTokenController, only: [:delete]
 
