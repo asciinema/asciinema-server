@@ -1,7 +1,7 @@
 defmodule AsciinemaWeb.LiveStreamController do
   use AsciinemaWeb, :controller
   alias Asciinema.{Authorization, Recordings, Streaming}
-  alias AsciinemaWeb.{Auth, FallbackController, LiveStreamHTML, PlayerOpts}
+  alias AsciinemaWeb.{FallbackController, LiveStreamHTML, PlayerOpts}
 
   plug :load_stream when action in [:show, :edit, :update]
   plug :require_current_user_when_private when action == :show
@@ -67,7 +67,7 @@ defmodule AsciinemaWeb.LiveStreamController do
 
   defp require_current_user_when_private(conn, _opts) do
     if conn.assigns.stream.visibility == :private do
-      Auth.require_current_user(conn, [])
+      require_current_user(conn, [])
     else
       conn
     end

@@ -1,4 +1,4 @@
-defmodule AsciinemaWeb.Auth do
+defmodule AsciinemaWeb.Authentication do
   import Plug.Conn
   import Phoenix.Controller, only: [put_flash: 3, redirect: 2]
   import AsciinemaWeb.Plug.ReturnTo
@@ -12,20 +12,7 @@ defmodule AsciinemaWeb.Auth do
   @token_cookie_name "auth_token"
   @token_max_age 90 * 24 * 60 * 60
 
-  def init(opts), do: opts
-
-  def call(%Conn{assigns: %{current_user: %User{}}} = conn, _opts), do: conn
-
-  def call(conn, _opts) do
-    conn
-    |> assign(:current_user, nil)
-    |> assign(:default_stream, nil)
-    |> try_log_in_from_session()
-    |> try_log_in_from_cookie()
-    |> setup_sentry_context()
-  end
-
-  defp try_log_in_from_session(conn) do
+  def try_log_in_from_session(conn) do
     user_id = get_session(conn, @user_key)
 
     with user_id when not is_nil(user_id) <- user_id,
@@ -38,7 +25,7 @@ defmodule AsciinemaWeb.Auth do
     end
   end
 
-  defp try_log_in_from_cookie(%Conn{assigns: %{current_user: nil}} = conn) do
+  def try_log_in_from_cookie(%Conn{assigns: %{current_user: nil}} = conn) do
     with auth_token when not is_nil(auth_token) <- conn.req_cookies[@token_cookie_name],
          user when not is_nil(user) <- Accounts.find_user_by_auth_token(auth_token) do
       refresh_session(conn, user)
@@ -47,19 +34,7 @@ defmodule AsciinemaWeb.Auth do
     end
   end
 
-  defp try_log_in_from_cookie(conn), do: conn
-
-  defp setup_sentry_context(%Conn{assigns: %{current_user: nil}} = conn), do: conn
-
-  defp setup_sentry_context(%Conn{assigns: %{current_user: user}} = conn) do
-    Sentry.Context.set_user_context(%{
-      id: user.id,
-      username: user.username,
-      email: user.email
-    })
-
-    conn
-  end
+  def try_log_in_from_cookie(conn), do: conn
 
   def require_current_user(%Conn{assigns: %{current_user: %User{}}} = conn, _) do
     conn
@@ -92,7 +67,7 @@ defmodule AsciinemaWeb.Auth do
     refresh_session(conn, user)
   end
 
-  defp refresh_session(conn, user) do
+  def refresh_session(conn, user) do
     user = Accounts.regenerate_auth_token(user)
 
     conn

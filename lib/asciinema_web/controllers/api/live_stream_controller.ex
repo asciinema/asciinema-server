@@ -1,6 +1,5 @@
 defmodule AsciinemaWeb.Api.LiveStreamController do
   use AsciinemaWeb, :controller
-  import AsciinemaWeb.Auth, only: [get_basic_auth: 1]
   alias Asciinema.{Accounts, Streaming}
   alias AsciinemaWeb.Router.Helpers.Extra, as: Routes
 

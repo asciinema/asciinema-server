@@ -8,7 +8,7 @@ defmodule AsciinemaWeb.Router do
     plug :fetch_live_flash
     plug :protect_from_forgery
     plug :put_secure_browser_headers
-    plug AsciinemaWeb.Auth
+    plug AsciinemaWeb.Plug.Authn
   end
 
   pipeline :asciicast do
@@ -27,7 +27,7 @@ defmodule AsciinemaWeb.Router do
     |> fetch_session([])
     |> fetch_flash([])
     |> protect_from_forgery([])
-    |> AsciinemaWeb.Auth.call([])
+    |> AsciinemaWeb.Plug.Authn.call([])
   end
 
   defp format_specific_plugs(conn, _other), do: conn
