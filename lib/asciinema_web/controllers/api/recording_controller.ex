@@ -1,7 +1,6 @@
 defmodule AsciinemaWeb.Api.RecordingController do
   use AsciinemaWeb, :controller
   alias Asciinema.{Recordings, Accounts}
-  alias Asciinema.Accounts.User
 
   plug :accepts, ~w(text json)
   plug :authenticate
@@ -38,7 +37,7 @@ defmodule AsciinemaWeb.Api.RecordingController do
 
   defp authenticate(conn, _opts) do
     with {username, api_token} <- get_basic_auth(conn),
-         {:ok, %User{} = user} <- Accounts.get_user_with_api_token(api_token, username) do
+         {:ok, user} <- Accounts.get_user_with_api_token(api_token, username) do
       conn
       |> assign(:install_id, api_token)
       |> assign(:current_user, user)
