@@ -1,6 +1,5 @@
 defmodule AsciinemaWeb.ApiTokenController do
   use AsciinemaWeb, :controller
-  alias Asciinema.Accounts.User
 
   plug :require_current_user
 
@@ -43,12 +42,12 @@ defmodule AsciinemaWeb.ApiTokenController do
   end
 
   defp redirect_to_profile(conn) do
-    path =
-      case conn.assigns.current_user do
-        %User{username: nil} -> ~p"/username/new"
-        %User{} = user -> profile_path(user)
-      end
+    user = conn.assigns.current_user
 
-    redirect(conn, to: path)
+    if user.username do
+      redirect(conn, to: profile_path(user))
+    else
+      redirect(conn, to: ~p"/username/new")
+    end
   end
 end
