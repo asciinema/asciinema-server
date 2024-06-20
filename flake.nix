@@ -35,7 +35,7 @@
             # this allows mix to work on the local directory
             mkdir -p .nix-mix .nix-hex
             export MIX_HOME=$PWD/.nix-mix
-            export HEX_HOME=$PWD/.nix-mix
+            export HEX_HOME=$PWD/.nix-hex
 
             # make hex from Nixpkgs available
             # `mix local.hex` will install hex into MIX_HOME and should take precedence
