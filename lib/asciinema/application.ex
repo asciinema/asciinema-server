@@ -37,7 +37,7 @@ defmodule Asciinema.Application do
       # Start rate limiter
       {PlugAttack.Storage.Ets, name: AsciinemaWeb.PlugAttack.Storage, clean_period: 60_000},
       # Start the public endpoint
-      AsciinemaWeb.Endpoint,
+      {AsciinemaWeb.Endpoint, endpoint_config()},
       # Start the admin endpoint
       AsciinemaWeb.Admin.Endpoint
     ]
@@ -59,4 +59,71 @@ defmodule Asciinema.Application do
   defp oban_config do
     Application.fetch_env!(:asciinema, Oban)
   end
+
+  defp endpoint_config do
+    defaults = take_app_env(AsciinemaWeb.Endpoint)
+
+    http = put_option([], :port, "PORT", &String.to_integer/1)
+
+    url =
+      []
+      |> put_option(:scheme, "URL_SCHEME")
+      |> put_option(:host, "URL_HOST")
+      |> put_option(:port, "URL_PORT", &String.to_integer/1)
+      |> put_option(:path, "URL_PATH")
+
+    url =
+      case Keyword.get(url, :scheme) do
+        "http" -> Keyword.put_new(url, :port, 80)
+        "https" -> Keyword.put_new(url, :port, 443)
+        nil -> url
+      end
+
+    overrides =
+      []
+      |> put_option(:server, "PHX_SERVER", fn _ -> true end)
+      |> put_option(:secret_key_base, "SECRET_KEY_BASE")
+      |> Keyword.merge(http: http, url: url)
+
+    config = deep_merge(defaults, overrides)
+
+    if System.get_env("INSPECT_CONFIG") do
+      IO.inspect(config, label: "public endpoint config")
+    end
+
+    config
+  end
+
+  defp take_app_env(app \\ :asciinema, key) do
+    env = Application.get_env(app, key)
+    Application.delete_env(app, key)
+    Application.put_env(app, key, [])
+
+    env
+  end
+
+  defp put_option(opts, key, var, coerce \\ nil, default \\ :none)
+
+  defp put_option(opts, key, var, nil, default),
+    do: put_option(opts, key, var, fn value -> value end, default)
+
+  defp put_option(opts, key, var, coerce, default) do
+    case System.get_env(var) do
+      nil ->
+        case default do
+          :none -> opts
+          value -> Keyword.put(opts, key, value)
+        end
+
+      value ->
+        Keyword.put(opts, key, coerce.(value))
+    end
+  end
+
+  def deep_merge(original, overrides) do
+    Keyword.merge(original, overrides, &on_conflict/3)
+  end
+
+  defp on_conflict(_key, a, b) when is_list(a) and is_list(b), do: deep_merge(a, b)
+  defp on_conflict(_key, _a, b), do: b
 end
