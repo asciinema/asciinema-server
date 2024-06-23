@@ -145,10 +145,6 @@ if config_env() in [:prod, :dev] do
     config :asciinema, :unclaimed_recording_ttl, ttls
   end
 
-  if String.downcase("#{env.("CRON")}") in ["0", "false", "no"] do
-    config :asciinema, Oban, plugins: [{Oban.Plugins.Cron, crontab: []}]
-  end
-
   if env.("SIGN_UP_DISABLED") in ["1", "true"] do
     config :asciinema, Asciinema.Accounts, sign_up_enabled?: false
   end

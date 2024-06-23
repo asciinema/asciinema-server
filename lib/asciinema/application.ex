@@ -56,7 +56,22 @@ defmodule Asciinema.Application do
 
   defp cluster_topologies, do: Application.get_env(:libcluster, :topologies, [])
 
-  defp oban_config, do: Application.fetch_env!(:asciinema, Oban)
+  defp oban_config do
+    defaults = Application.fetch_env!(:asciinema, Oban)
+
+    config =
+      if String.downcase("#{System.get_env("CRON")}") in ["0", "false"] do
+        deep_merge(defaults, plugins: [{Oban.Plugins.Cron, crontab: []}])
+      else
+        defaults
+      end
+
+    if System.get_env("INSPECT_CONFIG") do
+      IO.inspect(config, label: "oban config")
+    end
+
+    config
+  end
 
   defp public_endpoint_config do
     defaults = take_app_env(AsciinemaWeb.Endpoint)
@@ -151,6 +166,11 @@ defmodule Asciinema.Application do
     Keyword.merge(original, overrides, &on_conflict/3)
   end
 
-  defp on_conflict(_key, a, b) when is_list(a) and is_list(b), do: deep_merge(a, b)
-  defp on_conflict(_key, _a, b), do: b
+  defp on_conflict(_key, a, b) do
+    if Keyword.keyword?(a) and Keyword.keyword?(b) do
+      deep_merge(a, b)
+    else
+      b
+    end
+  end
 end
