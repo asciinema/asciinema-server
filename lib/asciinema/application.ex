@@ -10,14 +10,12 @@ defmodule Asciinema.Application do
     :ok = Oban.Telemetry.attach_default_logger()
     :ok = Asciinema.ObanErrorReporter.configure()
 
-    topologies = Application.get_env(:libcluster, :topologies, [])
-
     # List all child processes to be supervised
     children = [
       # Start task supervisor
       {Task.Supervisor, name: Asciinema.TaskSupervisor},
       # Start cluster supervisor
-      {Cluster.Supervisor, [topologies, [name: Asciinema.ClusterSupervisor]]},
+      {Cluster.Supervisor, [cluster_topologies(), [name: Asciinema.ClusterSupervisor]]},
       # Start the PubSub system
       {Phoenix.PubSub, [name: Asciinema.PubSub, adapter: Phoenix.PubSub.PG2]},
       # Start live stream viewer tracker
@@ -56,9 +54,9 @@ defmodule Asciinema.Application do
     :ok
   end
 
-  defp oban_config do
-    Application.fetch_env!(:asciinema, Oban)
-  end
+  defp cluster_topologies, do: Application.get_env(:libcluster, :topologies, [])
+
+  defp oban_config, do: Application.fetch_env!(:asciinema, Oban)
 
   defp public_endpoint_config do
     defaults = take_app_env(AsciinemaWeb.Endpoint)
