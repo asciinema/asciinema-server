@@ -37,9 +37,9 @@ defmodule Asciinema.Application do
       # Start rate limiter
       {PlugAttack.Storage.Ets, name: AsciinemaWeb.PlugAttack.Storage, clean_period: 60_000},
       # Start the public endpoint
-      {AsciinemaWeb.Endpoint, endpoint_config()},
+      {AsciinemaWeb.Endpoint, public_endpoint_config()},
       # Start the admin endpoint
-      AsciinemaWeb.Admin.Endpoint
+      {AsciinemaWeb.Admin.Endpoint, admin_endpoint_config()}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
@@ -60,7 +60,7 @@ defmodule Asciinema.Application do
     Application.fetch_env!(:asciinema, Oban)
   end
 
-  defp endpoint_config do
+  defp public_endpoint_config do
     defaults = take_app_env(AsciinemaWeb.Endpoint)
 
     http = put_option([], :port, "PORT", &String.to_integer/1)
@@ -89,6 +89,35 @@ defmodule Asciinema.Application do
 
     if System.get_env("INSPECT_CONFIG") do
       IO.inspect(config, label: "public endpoint config")
+    end
+
+    config
+  end
+
+  defp admin_endpoint_config do
+    defaults = take_app_env(AsciinemaWeb.Admin.Endpoint)
+
+    http =
+      []
+      |> put_option(:port, "ADMIN_PORT", &String.to_integer/1)
+      |> put_option(:ip, "ADMIN_BIND_ALL", fn _ -> {0, 0, 0, 0} end)
+
+    url =
+      []
+      |> put_option(:scheme, "ADMIN_URL_SCHEME")
+      |> put_option(:host, "ADMIN_URL_HOST")
+      |> put_option(:port, "ADMIN_URL_PORT", &String.to_integer/1)
+
+    overrides =
+      []
+      |> put_option(:server, "PHX_SERVER", fn _ -> true end)
+      |> put_option(:secret_key_base, "SECRET_KEY_BASE")
+      |> Keyword.merge(http: http, url: url)
+
+    config = deep_merge(defaults, overrides)
+
+    if System.get_env("INSPECT_CONFIG") do
+      IO.inspect(config, label: "admin endpoint config")
     end
 
     config

@@ -8,10 +8,6 @@ import Config
 
 env = &System.get_env/1
 
-if env.("PHX_SERVER") do
-  config :asciinema, AsciinemaWeb.Admin.Endpoint, server: true
-end
-
 if config_env() == :prod do
   database_url =
     System.get_env("DATABASE_URL") ||
@@ -25,28 +21,7 @@ end
 
 if config_env() in [:prod, :dev] do
   if secret_key_base = env.("SECRET_KEY_BASE") do
-    config :asciinema, AsciinemaWeb.Admin.Endpoint, secret_key_base: secret_key_base
     config :asciinema, Asciinema.Accounts, secret: secret_key_base
-  end
-
-  if env.("ADMIN_BIND_ALL") do
-    config :asciinema, AsciinemaWeb.Admin.Endpoint, http: [ip: {0, 0, 0, 0}]
-  end
-
-  if port = env.("ADMIN_PORT") do
-    config :asciinema, AsciinemaWeb.Admin.Endpoint, http: [port: String.to_integer(port)]
-  end
-
-  if url_scheme = env.("ADMIN_URL_SCHEME") do
-    config :asciinema, AsciinemaWeb.Admin.Endpoint, url: [scheme: url_scheme]
-  end
-
-  if url_host = env.("ADMIN_URL_HOST") do
-    config :asciinema, AsciinemaWeb.Admin.Endpoint, url: [host: url_host]
-  end
-
-  if url_port = env.("ADMIN_URL_PORT") do
-    config :asciinema, AsciinemaWeb.Admin.Endpoint, url: [port: String.to_integer(url_port)]
   end
 
   if ip_limit = env.("IP_RATE_LIMIT") do
