@@ -1,23 +1,23 @@
-@import "./fonts/source_sans_pro.css";
 @import "./fonts/fira-code-nerd-font.css";
 @import "./fonts/jetbrains-mono-nerd-font.css";
 @import "~asciinema-player/dist/bundle/asciinema-player.css";
 @import "./fonts/powerline-symbols.css";
 
 body.iframe {
+  color: #333;
   background-color: transparent;
   padding: 0;
   margin: 0;
+  font-family: sans-serif;
 
   .powered {
     margin: 8px 0 0 0;
     text-align: right;
-    font-size: 12px;
-    font-family: "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 13px;
 
     a {
+      color: inherit;
       font-weight: 600;
-      color: #06989a;
       text-decoration: none;
 
       &:hover {

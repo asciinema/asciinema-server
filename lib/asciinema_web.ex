@@ -27,7 +27,10 @@ defmodule AsciinemaWeb do
       import Plug.Conn
       import AsciinemaWeb.Gettext
       import AsciinemaWeb.Router.Helpers.Extra
-      import AsciinemaWeb.Auth, only: [require_current_user: 2]
+
+      import AsciinemaWeb.Authentication,
+        only: [require_current_user: 2, log_in: 2, log_out: 1, get_basic_auth: 1]
+
       import AsciinemaWeb.Plug.ReturnTo
       import AsciinemaWeb.Plug.Authz
       import AsciinemaWeb.Caching

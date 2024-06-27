@@ -4,14 +4,14 @@ defmodule Asciinema.AccountsTest do
   use Oban.Testing, repo: Asciinema.Repo
   alias Asciinema.Accounts
 
-  describe "verify_signup_token/1" do
+  describe "verify_sign_up_token/1" do
     test "invalid token" do
-      assert Accounts.verify_signup_token("invalid") == {:error, :token_invalid}
+      assert Accounts.verify_sign_up_token("invalid") == {:error, :token_invalid}
     end
 
     test "valid token" do
-      {:ok, {:signup, token, _email}} = Accounts.generate_login_token("test@example.com")
-      assert {:ok, "test@example.com"} = Accounts.verify_signup_token(token)
+      {:ok, {:sign_up, token, _email}} = Accounts.generate_login_token("test@example.com")
+      assert {:ok, "test@example.com"} = Accounts.verify_sign_up_token(token)
     end
   end
 
@@ -30,15 +30,16 @@ defmodule Asciinema.AccountsTest do
     end
 
     test "non-existing user, by email" do
-      assert {:ok, {:signup, _token, "foo@example.com"}} =
+      assert {:ok, {:sign_up, _token, "foo@example.com"}} =
                Accounts.generate_login_token("foo@example.com")
 
-      assert {:ok, {:signup, _token, "foo@ex.ample.com"}} =
+      assert {:ok, {:sign_up, _token, "foo@ex.ample.com"}} =
                Accounts.generate_login_token("foo@ex.ample.com")
     end
 
     test "non-existing user, by email, when sign up is disabled" do
-      assert Accounts.generate_login_token("foo@example.com", false) == {:error, :user_not_found}
+      assert Accounts.generate_login_token("foo@example.com", register: false) ==
+               {:error, :user_not_found}
     end
 
     test "non-existing user, by email, when email is invalid" do

@@ -2,21 +2,27 @@ defmodule Asciinema.Emails do
   alias Asciinema.Emails.{Email, Mailer}
   require Logger
 
-  def send_email(:signup, to, token) do
+  def send_email(:sign_up, to, token, url_provider) do
+    url = url_provider.sign_up(token)
+
     to
-    |> Email.signup_email(token)
+    |> Email.sign_up_email(url)
     |> deliver()
   end
 
-  def send_email(:login, to, token) do
+  def send_email(:login, to, token, url_provider) do
+    url = url_provider.login(token)
+
     to
-    |> Email.login_email(token)
+    |> Email.login_email(url)
     |> deliver()
   end
 
-  def send_email(:account_deletion, to, token) do
+  def send_email(:account_deletion, to, token, url_provider) do
+    url = url_provider.account_deletion(token)
+
     to
-    |> Email.account_deletion_email(token)
+    |> Email.account_deletion_email(url)
     |> deliver()
   end
 

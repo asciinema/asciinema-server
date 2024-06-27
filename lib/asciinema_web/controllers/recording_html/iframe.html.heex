@@ -24,8 +24,16 @@
       player.el.addEventListener('resize', e => {
         const w = e.detail.el.offsetWidth;
         const h = Math.max(document.body.scrollHeight, document.body.offsetHeight);
-        window.parent.postMessage(['resize', { width: w, height: h }], '*');
+        window.parent.postMessage({ type: 'bodySize', payload: { width: w, height: h } }, '*');
       });
     }
   });
+
+  window.addEventListener("message", (e) => {
+    if (e.data.type === 'textStyle') {
+      document.body.style.color = e.data.payload.color;
+      document.body.style.fontFamily = `${e.data.payload.fontFamily}, sans-serif`;
+      document.body.style.fontSize = e.data.payload.fontSize;
+    }
+  }, false);
 </script>

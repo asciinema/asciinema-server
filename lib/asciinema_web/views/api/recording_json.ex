@@ -24,7 +24,6 @@ defmodule AsciinemaWeb.Api.RecordingJSON do
 
     if is_tmp_user && ttl do
       hostname = AsciinemaWeb.instance_hostname()
-      # url = Routes.connect_url(conn, :show, install_id)
       url = url(~p"/connect/#{install_id}")
 
       """

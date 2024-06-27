@@ -124,9 +124,11 @@ defmodule Asciinema.Accounts do
     from(u in q, where: is_nil(u.email))
   end
 
-  def generate_login_token(identifier, sign_up_enabled? \\ true)
+  def sign_up_enabled?, do: config(:sign_up_enabled?, true)
 
-  def generate_login_token(identifier, sign_up_enabled?) do
+  def generate_login_token(identifier, opts \\ []) do
+    sign_up_enabled? = Keyword.get(opts, :register, sign_up_enabled?())
+
     case {lookup_user(identifier), sign_up_enabled?} do
       {{_, %User{email: nil}}, _} ->
         {:error, :email_missing}
@@ -140,7 +142,7 @@ defmodule Asciinema.Accounts do
         if changeset.valid? do
           email = changeset.changes.email
 
-          {:ok, {:signup, signup_token(email), email}}
+          {:ok, {:sign_up, sign_up_token(email), email}}
         else
           {:error, :email_invalid}
         end
@@ -158,8 +160,8 @@ defmodule Asciinema.Accounts do
     end
   end
 
-  def signup_token(email) do
-    Token.sign(config(:secret), "signup", email)
+  def sign_up_token(email) do
+    Token.sign(config(:secret), "sign_up", email)
   end
 
   def login_token(%User{id: id, last_login_at: last_login_at}) do
@@ -167,11 +169,11 @@ defmodule Asciinema.Accounts do
     Token.sign(config(:secret), "login", {id, last_login_at})
   end
 
-  def verify_signup_token(token) do
+  def verify_sign_up_token(token) do
     result =
       Token.verify(
         config(:secret),
-        "signup",
+        "sign_up",
         token,
         max_age: config(:login_token_max_age, 60) * 60
       )
@@ -220,12 +222,12 @@ defmodule Asciinema.Accounts do
   end
 
   def get_user_with_api_token(token, tmp_username \\ nil) do
-    case get_api_token(token) do
-      {:ok, %ApiToken{user: user}} ->
-        {:ok, user}
+    case fetch_api_token(token) do
+      {:ok, api_token} ->
+        {:ok, api_token.user}
 
-      {:error, :token_revoked} = res ->
-        res
+      {:error, :token_revoked} = result ->
+        result
 
       {:error, :token_not_found} ->
         create_user_with_api_token(token, tmp_username)
@@ -270,19 +272,28 @@ defmodule Asciinema.Accounts do
     end
   end
 
-  def get_or_create_api_token(token, user) do
-    with {:ok, token} <- get_api_token(token) do
-      {:ok, token}
-    else
+  def register_api_token(user, token) do
+    case fetch_api_token(token) do
+      {:ok, api_token} ->
+        check_api_token_ownership(user, api_token)
+
+      {:error, :token_revoked} = result ->
+        result
+
       {:error, :token_not_found} ->
         create_api_token(user, token)
-
-      otherwise ->
-        otherwise
     end
   end
 
-  def get_api_token(token) do
+  defp check_api_token_ownership(user, api_token) do
+    cond do
+      user.id == api_token.user.id -> {:ok, api_token}
+      api_token.user.email -> {:error, :token_taken}
+      true -> {:error, {:needs_merge, api_token.user}}
+    end
+  end
+
+  def fetch_api_token(token) do
     api_token =
       ApiToken
       |> Repo.get_by(token: token)
@@ -295,8 +306,8 @@ defmodule Asciinema.Accounts do
     end
   end
 
-  def get_api_token!(user, id) do
-    Repo.get!(assoc(user, :api_tokens), id)
+  def get_api_token(user, id) do
+    Repo.get(assoc(user, :api_tokens), id)
   end
 
   def get_api_token!(token) do

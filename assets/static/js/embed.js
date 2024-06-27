@@ -60,7 +60,8 @@
     container.style.float = 'none';
     container.style.overflow = 'hidden';
     container.style.padding = 0;
-    container.style.margin = '20px 0';
+    container.style.margin = '1.5em 0';
+    container.style.colorScheme = 'light dark';
 
     insertAfter(script, container);
 
@@ -77,20 +78,36 @@
     iframe.style.width = "100%";
     iframe.style.float = "none";
     iframe.style.visibility = "hidden";
-    iframe.onload = function() { this.style.visibility = 'visible' };
+    iframe.title = "Terminal session recording"
+
+    function syncTextStyle() {
+      const style = window.getComputedStyle(container);
+      const color = style.getPropertyValue("color");
+      const fontFamily = style.getPropertyValue("font-family");
+      const fontSize = style.getPropertyValue("font-size");
+      iframe.contentWindow.postMessage({ type: 'textStyle', payload: { color, fontFamily, fontSize } }, apiHost);
+    }
+
+    iframe.onload = function() {
+      syncTextStyle();
+      setTimeout(syncTextStyle, 1000);
+      this.style.visibility = 'visible'
+
+      if (window.matchMedia) {
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', syncTextStyle);
+      }
+    };
 
     container.appendChild(iframe);
 
-    function receiveSize(e) {
-      const name = e.data[0];
-      const data = e.data[1];
+    window.addEventListener("message", (e) => {
+      if (e.origin !== apiHost || e.source !== iframe.contentWindow) return;
 
-      if (e.origin === apiHost && e.source === iframe.contentWindow && name === 'resize') {
-        iframe.style.height = '' + data.height + 'px';
+      if (e.data.type === 'bodySize') {
+        iframe.style.height = '' + e.data.payload.height + 'px';
       }
-    }
+    }, false);
 
-    window.addEventListener("message", receiveSize, false);
     script.dataset.initialized = '1';
   }
 
