@@ -9,6 +9,9 @@ defmodule Asciinema.Application do
   def start(_type, _args) do
     :ok = Oban.Telemetry.attach_default_logger()
     :ok = Asciinema.ObanErrorReporter.configure()
+    # rr = take_app_env(Asciinema.Repo)
+    rr = Application.fetch_env!(:asciinema, Asciinema.Repo)
+    IO.inspect(rr, label: "rr")
 
     # List all child processes to be supervised
     children = [
@@ -23,7 +26,7 @@ defmodule Asciinema.Application do
       # Start telemetry reporters
       Asciinema.Telemetry,
       # Start the Ecto repository
-      Asciinema.Repo,
+      {Asciinema.Repo, rr},
       # Start PNG generator poolboy pool
       :poolboy.child_spec(:worker, Asciinema.PngGenerator.Rsvg.poolboy_config(), []),
       # Start Oban

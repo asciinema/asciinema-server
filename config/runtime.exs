@@ -8,17 +8,6 @@ import Config
 
 env = &System.get_env/1
 
-if config_env() == :prod do
-  database_url =
-    System.get_env("DATABASE_URL") ||
-      raise """
-      environment variable DATABASE_URL is missing.
-      For example: ecto://USER:PASS@HOST/DATABASE
-      """
-
-  config :asciinema, Asciinema.Repo, url: database_url
-end
-
 if config_env() in [:prod, :dev] do
   if secret_key_base = env.("SECRET_KEY_BASE") do
     config :asciinema, Asciinema.Accounts, secret: secret_key_base
@@ -72,14 +61,6 @@ if config_env() in [:prod, :dev] do
         host: uri.host,
         port: uri.port
     end
-  end
-
-  if db_pool_size = env.("DB_POOL_SIZE") do
-    config :asciinema, Asciinema.Repo, pool_size: String.to_integer(db_pool_size)
-  end
-
-  if env.("ECTO_IPV6") in ~w(true 1) do
-    config :asciinema, Asciinema.Repo, socket_options: [:inet6]
   end
 
   if smtp_host = env.("SMTP_HOST") do
