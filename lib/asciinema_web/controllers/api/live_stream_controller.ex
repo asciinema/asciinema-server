@@ -1,7 +1,7 @@
 defmodule AsciinemaWeb.Api.LiveStreamController do
   use AsciinemaWeb, :controller
   alias Asciinema.{Accounts, Streaming}
-  alias AsciinemaWeb.Router.Helpers.Extra, as: Routes
+  alias AsciinemaWeb.UrlHelpers
 
   plug :accepts, ~w(json)
   plug :authenticate
@@ -12,7 +12,7 @@ defmodule AsciinemaWeb.Api.LiveStreamController do
     if stream = Streaming.get_live_stream(conn.assigns.current_user, id) do
       json(conn, %{
         url: url(~p"/s/#{stream}"),
-        ws_producer_url: Routes.ws_producer_url(stream)
+        ws_producer_url: UrlHelpers.ws_producer_url(stream)
       })
     else
       conn

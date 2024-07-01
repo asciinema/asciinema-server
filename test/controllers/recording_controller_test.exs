@@ -113,16 +113,18 @@ defmodule Asciinema.RecordingControllerTest do
     test "asciicast file, v1 format", %{conn: conn} do
       asciicast = fixture(:asciicast_v1)
       width = asciicast.cols
+      url = ~p"/a/#{asciicast}"
 
-      conn = get(conn, asciicast_file_path(conn, asciicast))
+      conn = get(conn, url <> ".json")
 
       assert %{"version" => 1, "width" => ^width, "stdout" => [_ | _]} = json_response(conn, 200)
     end
 
     test "asciicast file, v2 format", %{conn: conn} do
       asciicast = fixture(:asciicast_v2)
+      url = ~p"/a/#{asciicast}"
 
-      conn = get(conn, asciicast_file_path(conn, asciicast))
+      conn = get(conn, url <> ".json")
 
       assert response(conn, 200)
     end

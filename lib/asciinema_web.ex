@@ -26,7 +26,7 @@ defmodule AsciinemaWeb do
 
       import Plug.Conn
       import AsciinemaWeb.Gettext
-      import AsciinemaWeb.Router.Helpers.Extra
+      import AsciinemaWeb.UrlHelpers
 
       import AsciinemaWeb.Authentication,
         only: [require_current_user: 2, log_in: 2, log_out: 1, get_basic_auth: 1]
@@ -118,7 +118,7 @@ defmodule AsciinemaWeb do
       import AsciinemaWeb.ErrorHelpers
       alias AsciinemaWeb.Router.Helpers, as: Routes
 
-      import AsciinemaWeb.Router.Helpers.Extra
+      import AsciinemaWeb.UrlHelpers
       import AsciinemaWeb.ApplicationView
 
       # Routes generation with the ~p sigil
@@ -131,7 +131,7 @@ defmodule AsciinemaWeb do
       use Phoenix.Component
       import Phoenix.View
       import AsciinemaWeb.ApplicationView
-      import AsciinemaWeb.Router.Helpers.Extra
+      import AsciinemaWeb.UrlHelpers
 
       # Include general helpers for rendering HTML
       unquote(html_helpers())
@@ -159,7 +159,7 @@ defmodule AsciinemaWeb do
   def json do
     quote do
       import AsciinemaWeb.ErrorHelpers
-      import AsciinemaWeb.Router.Helpers.Extra
+      import AsciinemaWeb.UrlHelpers
 
       # Routes generation with the ~p sigil
       unquote(verified_routes())
