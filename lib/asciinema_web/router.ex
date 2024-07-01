@@ -18,20 +18,6 @@ defmodule AsciinemaWeb.Router do
     plug :put_secure_browser_headers
   end
 
-  defp format_specific_plugs(conn, []) do
-    format_specific_plugs(conn, Phoenix.Controller.get_format(conn))
-  end
-
-  defp format_specific_plugs(conn, "html") do
-    conn
-    |> fetch_session([])
-    |> fetch_flash([])
-    |> protect_from_forgery([])
-    |> AsciinemaWeb.Plug.Authn.call([])
-  end
-
-  defp format_specific_plugs(conn, _other), do: conn
-
   pipeline :oembed do
     plug :accepts, ["json", "xml"]
     plug :put_secure_browser_headers
@@ -110,4 +96,18 @@ defmodule AsciinemaWeb.Router do
       forward "/mailbox", Plug.Swoosh.MailboxPreview
     end
   end
+
+  defp format_specific_plugs(conn, []) do
+    format_specific_plugs(conn, Phoenix.Controller.get_format(conn))
+  end
+
+  defp format_specific_plugs(conn, "html") do
+    conn
+    |> fetch_session([])
+    |> fetch_flash([])
+    |> protect_from_forgery([])
+    |> AsciinemaWeb.Plug.Authn.call([])
+  end
+
+  defp format_specific_plugs(conn, _other), do: conn
 end
