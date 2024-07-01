@@ -116,14 +116,6 @@ defmodule AsciinemaWeb.Router.Helpers.Extra do
   alias AsciinemaWeb.Router.Helpers, as: H
   alias AsciinemaWeb.Endpoint
 
-  def root_path do
-    Endpoint.path("/")
-  end
-
-  def root_url do
-    Endpoint.url()
-  end
-
   def profile_path(_conn, user) do
     profile_path(user)
   end
