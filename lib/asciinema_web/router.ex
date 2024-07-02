@@ -83,6 +83,7 @@ defmodule AsciinemaWeb.Router do
 
   scope "/api", AsciinemaWeb.Api, as: :api do
     post "/asciicasts", RecordingController, :create
+    post "/streams", LiveStreamController, :create
 
     scope "/user" do
       get "/stream", LiveStreamController, :show

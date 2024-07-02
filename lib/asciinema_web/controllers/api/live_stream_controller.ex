@@ -7,8 +7,15 @@ defmodule AsciinemaWeb.Api.LiveStreamController do
   plug :authenticate
 
   def show(conn, params) do
-    id = params["id"]
+    get_stream(conn, params["id"])
+  end
 
+  def create(conn, _params) do
+    # TODO add mode (config option) where new streams are actually created here
+    get_stream(conn, nil)
+  end
+
+  defp get_stream(conn, id) do
     if stream = Streaming.get_live_stream(conn.assigns.current_user, id) do
       json(conn, %{
         url: url(~p"/s/#{stream}"),
