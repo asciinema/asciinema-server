@@ -53,6 +53,6 @@ defmodule AsciinemaWeb.SessionController do
     conn
     |> log_out()
     |> put_flash(:info, "See you later!")
-    |> redirect(to: root_path())
+    |> redirect(to: ~p"/")
   end
 end

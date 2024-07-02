@@ -163,7 +163,7 @@ defmodule AsciinemaWeb.RecordingController do
       conn
       |> put_layout("simple.html")
       |> render("gif.html",
-        file_url: asciicast_file_url(conn, asciicast),
+        file_url: asciicast_file_url(asciicast),
         asciicast_id: asciicast.id
       )
     end

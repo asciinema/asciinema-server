@@ -26,7 +26,6 @@ defmodule AsciinemaWeb.ConnCase do
       import Plug.Conn
       import Phoenix.ConnTest
 
-      import AsciinemaWeb.Router.Helpers.Extra
       import Asciinema.Fixtures
       alias AsciinemaWeb.Router.Helpers, as: Routes
 
