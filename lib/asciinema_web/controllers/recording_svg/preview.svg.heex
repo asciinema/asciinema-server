@@ -16,10 +16,9 @@
     .it { font-style: italic }
     .un { text-decoration: underline }
 
-    @font-face {
-      font-family: "Consolas";
-      src: local("Consolas");
-      size-adjust: 109.3%;
+    text {
+      font-size-adjust: ch-width <%= char_width() %>;
+      font-variant-ligatures: none;
     }
   </style>
 
@@ -60,7 +59,7 @@
               "1em"
             end
           }
-          x={x(x)}
+          x={x_per_grapheme(x, text)}
           {text_extra_attrs(attrs, @theme)}
         >
           <%= html_escape(text) %>
