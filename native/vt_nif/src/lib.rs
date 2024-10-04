@@ -55,7 +55,7 @@ fn new(
 #[rustler::nif]
 fn feed(resource: ResourceArc<VtResource>, input: Binary) -> NifResult<Option<(usize, usize)>> {
     let mut vt = convert_err(resource.vt.write(), "rw_lock")?;
-    let (_, resized) = vt.feed_str(&String::from_utf8_lossy(&input));
+    let resized = vt.feed_str(&String::from_utf8_lossy(&input)).resized;
 
     if resized {
         Ok(Some(vt.size()))
