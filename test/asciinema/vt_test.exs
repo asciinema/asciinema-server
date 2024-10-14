@@ -10,13 +10,16 @@ defmodule Asciinema.VtTest do
         Vt.with_vt(8, 3, fn vt ->
           Vt.feed(vt, "foobar\r\n")
           Vt.feed(vt, "baz")
-          Vt.feed(vt, "qux")
+          Vt.feed(vt, "全")
           Vt.dump_screen(vt)
         end)
 
       assert {:ok,
-              {[[{"foobar  ", %{}, 1}], [{"bazqux  ", %{}, 1}], [{"        ", %{}, 1}]], {6, 1}}} =
-               result
+              {[
+                 [{"foobar  ", %{}, 1}],
+                 [{"baz", %{}, 1}, {"全", %{}, 2}, {"    ", %{}, 1}],
+                 [{"        ", %{}, 1}]
+               ], {4, 1}}} = result
     end
 
     test "feeding it a lot of data" do
