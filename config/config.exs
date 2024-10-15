@@ -112,6 +112,9 @@ config :asciinema, Oban,
 config :scrivener_html,
   view_style: :bootstrap_v4
 
+# set tzdata data_dir out of the app dir for tzdata self-update mechanism
+config :tzdata, :data_dir, Path.expand("/tmp/tzdata")
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
