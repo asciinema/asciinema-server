@@ -180,11 +180,13 @@ defmodule Asciinema.Recordings.Snapshot do
       case {k, v} do
         {"fg", c} when is_number(c) and c < 8 -> "3#{c}"
         {"fg", c} when is_number(c) -> "38;5;#{c}"
-        {"fg", "rgb(" <> _} -> "38;2;#{parse_rgb(v)}"
+        {"fg", "#" <> _} -> "38;2;#{parse_hex_color(v)}"
+        {"fg", "rgb(" <> _} -> "38;2;#{parse_rgb_color(v)}"
         {"fg", [r, g, b]} -> "38;2;#{r};#{g};#{b}"
         {"bg", c} when is_number(c) and c < 8 -> "4#{c}"
         {"bg", c} when is_number(c) -> "48;5;#{c}"
-        {"bg", "rgb(" <> _} -> "48;2;#{parse_rgb(v)}"
+        {"bg", "#" <> _} -> "48;2;#{parse_hex_color(v)}"
+        {"bg", "rgb(" <> _} -> "48;2;#{parse_rgb_color(v)}"
         {"bg", [r, g, b]} -> "48;2;#{r};#{g};#{b}"
         {"bold", true} -> "1"
         {"faint", true} -> "2"
@@ -200,7 +202,15 @@ defmodule Asciinema.Recordings.Snapshot do
 
   defp sgr_params([]), do: []
 
-  defp parse_rgb("rgb(" <> c) do
+  defp parse_hex_color(<<"#", r::binary-size(2), g::binary-size(2), b::binary-size(2)>>) do
+    r = String.to_integer(r, 16)
+    g = String.to_integer(g, 16)
+    b = String.to_integer(b, 16)
+
+    "#{r};#{g};#{b}"
+  end
+
+  defp parse_rgb_color("rgb(" <> c) do
     c
     |> String.slice(0, String.length(c) - 1)
     |> String.split(",")

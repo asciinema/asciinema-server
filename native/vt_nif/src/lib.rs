@@ -129,7 +129,7 @@ fn chunk_to_term(cells: Vec<avt::Cell>, env: Env) -> Term {
         }
 
         Some(avt::Color::RGB(c)) => {
-            let c = format!("rgb({},{},{})", c.r, c.g, c.b);
+            let c = format!("#{:02x}{:02x}{:02x}", c.r, c.g, c.b);
             pairs.push(("fg".to_owned(), c.encode(env)));
         }
 
@@ -142,7 +142,7 @@ fn chunk_to_term(cells: Vec<avt::Cell>, env: Env) -> Term {
         }
 
         Some(avt::Color::RGB(c)) => {
-            let c = format!("rgb({},{},{})", c.r, c.g, c.b);
+            let c = format!("#{:02x}{:02x}{:02x}", c.r, c.g, c.b);
             pairs.push(("bg".to_owned(), c.encode(env)));
         }
 

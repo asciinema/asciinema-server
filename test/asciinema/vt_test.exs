@@ -10,7 +10,8 @@ defmodule Asciinema.VtTest do
         Vt.with_vt(8, 3, fn vt ->
           Vt.feed(vt, "foobar\r\n")
           Vt.feed(vt, "baz")
-          Vt.feed(vt, "全")
+          Vt.feed(vt, "全\r\n")
+          Vt.feed(vt, "\x1b[1;38:2:16:32:48mqux")
           Vt.dump_screen(vt)
         end)
 
@@ -18,8 +19,8 @@ defmodule Asciinema.VtTest do
               {[
                  [{"foobar  ", %{}, 1}],
                  [{"baz", %{}, 1}, {"全", %{}, 2}, {"    ", %{}, 1}],
-                 [{"        ", %{}, 1}]
-               ], {4, 1}}} = result
+                 [{"qux", %{"bold" => true, "fg" => "#102030"}, 1}, {"     ", %{}, 1}]
+               ], {3, 2}}} = result
     end
 
     test "feeding it a lot of data" do
