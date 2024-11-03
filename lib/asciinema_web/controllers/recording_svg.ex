@@ -45,6 +45,7 @@ defmodule AsciinemaWeb.RecordingSVG do
 
   defp bg_color(attrs, theme, default_fallback \\ false)
   defp bg_color(%{"bg" => bg}, theme, _) when is_integer(bg), do: Themes.color(theme, bg)
+  defp bg_color(%{"bg" => "#" <> _ = c}, _theme, _), do: c
   defp bg_color(%{"bg" => [_r, _g, _b] = c}, _theme, _), do: Colors.hex(c)
   defp bg_color(%{"bg" => "rgb(" <> _ = c}, _theme, _), do: c
   defp bg_color(_, _, false), do: nil
@@ -52,6 +53,7 @@ defmodule AsciinemaWeb.RecordingSVG do
 
   defp fg_color(attrs, theme, default_fallback \\ false)
   defp fg_color(%{"fg" => fg}, theme, _) when is_integer(fg), do: Themes.color(theme, fg)
+  defp fg_color(%{"fg" => "#" <> _ = c}, _theme, _), do: c
   defp fg_color(%{"fg" => [_r, _g, _b] = c}, _theme, _), do: Colors.hex(c)
   defp fg_color(%{"fg" => "rgb(" <> _ = c}, _theme, _), do: c
   defp fg_color(_, _, false), do: nil
