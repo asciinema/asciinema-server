@@ -78,22 +78,28 @@ fn dump_screen(env: Env, resource: ResourceArc<VtResource>) -> NifResult<(Atom, 
     let lines = vt
         .view()
         .iter()
-        .map(|line| {
-            line.group(|c, w| {
-                w > 1
-                    || BOX_DRAWING_RANGE.contains(c)
-                    || BRAILLE_PATTERNS_RANGE.contains(c)
-                    || BLOCK_ELEMENTS_RANGE.contains(c)
-                    || POWERLINE_TRIANGLES_RANGE.contains(c)
-            })
-            .map(|segment| segment_to_term(segment, env))
-            .collect::<Vec<_>>()
-        })
+        .map(|line| line_to_terms(line, env))
         .collect::<Vec<_>>();
 
     let cursor: Option<(usize, usize)> = vt.cursor().into();
 
     Ok((atoms::ok(), (lines, cursor).encode(env)))
+}
+
+fn line_to_terms<'a>(line: &avt::Line, env: Env<'a>) -> Vec<Term<'a>> {
+    line.chunks(|c1, c2| c1.pen() != c2.pen() || is_special_char(c1) || is_special_char(c2))
+        .map(|cells| chunk_to_term(cells, env))
+        .collect::<Vec<_>>()
+}
+
+fn is_special_char(cell: &avt::Cell) -> bool {
+    let ch = &cell.char();
+
+    cell.width() > 1
+        || BOX_DRAWING_RANGE.contains(ch)
+        || BRAILLE_PATTERNS_RANGE.contains(ch)
+        || BLOCK_ELEMENTS_RANGE.contains(ch)
+        || POWERLINE_TRIANGLES_RANGE.contains(ch)
 }
 
 #[rustler::nif]
@@ -112,67 +118,68 @@ fn text(resource: ResourceArc<VtResource>) -> NifResult<String> {
     Ok(text.join(""))
 }
 
-fn segment_to_term(segment: avt::Segment, env: Env) -> Term {
-    let txt = segment.text();
+fn chunk_to_term(cells: Vec<avt::Cell>, env: Env) -> Term {
+    let txt: String = cells.iter().map(|c| c.char()).collect();
+    let pen = cells[0].pen();
     let mut pairs: Vec<(String, Term)> = Vec::new();
 
-    match segment.foreground() {
+    match pen.foreground() {
         Some(avt::Color::Indexed(c)) => {
             pairs.push(("fg".to_owned(), c.encode(env)));
         }
 
         Some(avt::Color::RGB(c)) => {
-            let c = format!("rgb({},{},{})", c.r, c.g, c.b);
+            let c = format!("#{:02x}{:02x}{:02x}", c.r, c.g, c.b);
             pairs.push(("fg".to_owned(), c.encode(env)));
         }
 
         None => (),
     }
 
-    match segment.background() {
+    match pen.background() {
         Some(avt::Color::Indexed(c)) => {
             pairs.push(("bg".to_owned(), c.encode(env)));
         }
 
         Some(avt::Color::RGB(c)) => {
-            let c = format!("rgb({},{},{})", c.r, c.g, c.b);
+            let c = format!("#{:02x}{:02x}{:02x}", c.r, c.g, c.b);
             pairs.push(("bg".to_owned(), c.encode(env)));
         }
 
         None => (),
     }
 
-    if segment.is_bold() {
+    if pen.is_bold() {
         pairs.push(("bold".to_owned(), true.encode(env)));
     }
 
-    if segment.is_faint() {
+    if pen.is_faint() {
         pairs.push(("faint".to_owned(), true.encode(env)));
     }
 
-    if segment.is_italic() {
+    if pen.is_italic() {
         pairs.push(("italic".to_owned(), true.encode(env)));
     }
 
-    if segment.is_underline() {
+    if pen.is_underline() {
         pairs.push(("underline".to_owned(), true.encode(env)));
     }
 
-    if segment.is_strikethrough() {
+    if pen.is_strikethrough() {
         pairs.push(("strikethrough".to_owned(), true.encode(env)));
     }
 
-    if segment.is_blink() {
+    if pen.is_blink() {
         pairs.push(("blink".to_owned(), true.encode(env)));
     }
 
-    if segment.is_inverse() {
+    if pen.is_inverse() {
         pairs.push(("inverse".to_owned(), true.encode(env)));
     }
 
     let attrs = Term::map_from_pairs(env, &pairs).unwrap();
 
-    (txt, attrs, segment.char_width()).encode(env)
+    (txt, attrs, cells[0].width()).encode(env)
 }
 
 fn convert_err<T, E>(result: Result<T, E>, error: &'static str) -> Result<T, Error> {
