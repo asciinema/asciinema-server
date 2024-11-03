@@ -24,10 +24,6 @@ defmodule AsciinemaWeb.MediaView do
     profile_path(user)
   end
 
-  def author_profile_url(%{user: user}) do
-    profile_url(user)
-  end
-
   def theme_options do
     for theme <- Themes.terminal_themes() do
       {Themes.display_name(theme), theme}

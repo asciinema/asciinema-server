@@ -9,10 +9,6 @@ config :asciinema, Asciinema.Repo,
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: 10
 
-if db_url = System.get_env("TEST_DATABASE_URL") do
-  System.put_env("DATABASE_URL", db_url)
-end
-
 # In test we don't send emails.
 config :asciinema, Asciinema.Emails.Mailer, adapter: Swoosh.Adapters.Test
 

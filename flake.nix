@@ -25,8 +25,9 @@
         devShells.default = pkgs.mkShell {
           nativeBuildInputs = with pkgs; [
             otp.elixir_1_14
+            otp.elixir-ls
             nodejs_18
-            (rust-bin.stable."1.78.0".default)
+            (rust-bin.stable."1.78.0".default.override { extensions = [ "rust-src" "rust-analyzer" ]; })
             inotify-tools
             librsvg
           ];

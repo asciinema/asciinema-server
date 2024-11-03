@@ -180,7 +180,7 @@ defmodule Asciinema.Recordings.SnapshotTest do
 
   @lines [
     [[" foo bar  baz", %{"bg" => 2}, 1], ["!", %{"fg" => 1}, 1]],
-    [["qux", %{"bg" => 2}, 1], ["连", %{}, 2], ["接", %{}, 2]]
+    [["qux", %{"bg" => "#102030"}, 1], ["连", %{}, 2], ["接", %{}, 2]]
   ]
 
   describe "fg_coords/1" do
@@ -202,7 +202,7 @@ defmodule Asciinema.Recordings.SnapshotTest do
                %{
                  y: 1,
                  segments: [
-                   %{text: "qux", attrs: %{"bg" => 2}, x: 0, width: 3},
+                   %{text: "qux", attrs: %{"bg" => "#102030"}, x: 0, width: 3},
                    %{text: "连", attrs: %{}, x: 3, width: 2},
                    %{text: "接", attrs: %{}, x: 5, width: 2}
                  ]
@@ -228,10 +228,21 @@ defmodule Asciinema.Recordings.SnapshotTest do
                %{
                  y: 1,
                  segments: [
-                   %{attrs: %{"bg" => 2}, x: 0, width: 3}
+                   %{attrs: %{"bg" => "#102030"}, x: 0, width: 3}
                  ]
                }
              ]
+    end
+  end
+
+  describe "seq/1" do
+    test "dumps snapshot as an ANSI sequence" do
+      seq =
+        @lines
+        |> Snapshot.new()
+        |> Snapshot.seq()
+
+      assert seq == "\e[42m foo bar  baz\e[0m\e[31m!\e[0m\r\n\e[48;2;16;32;48mqux\e[0m连接\e[?25l"
     end
   end
 end
