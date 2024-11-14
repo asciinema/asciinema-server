@@ -7,6 +7,7 @@ ARG ELIXIR_VERSION=1.14.3
 # https://github.com/hexpm/bob#docker-images
 FROM docker.io/hexpm/elixir:${ELIXIR_VERSION}-erlang-${ERLANG_OTP_VERSION}-alpine-${ALPINE_VERSION} as builder
 
+ARG VERSION
 ARG MIX_ENV=prod
 ENV ERL_FLAGS="+JPperf true"
 # Avoid "error 137" (out of memory) while building images
