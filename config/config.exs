@@ -7,6 +7,8 @@
 # General application configuration
 import Config
 
+config :asciinema, version: System.get_env("VERSION")
+
 config :asciinema, :session_opts,
   store: :cookie,
   key: "_asciinema_key",

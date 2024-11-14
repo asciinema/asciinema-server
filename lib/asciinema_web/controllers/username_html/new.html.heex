@@ -5,7 +5,7 @@
       <br />
 
       <p>
-        Every asciinema user gets a profile page at <a href="#"><%= url(~p"/") %>/~<strong>username</strong></a>.
+        Every asciinema user gets a profile page at <a href="#"><%= url(~p"/") %>~<strong>username</strong></a>.
       </p>
 
       <.form :let={f} for={@changeset} action={~p"/username"} class="username-form" method="post">

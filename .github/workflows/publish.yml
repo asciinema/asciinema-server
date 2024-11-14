@@ -26,13 +26,16 @@ jobs:
           IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
           # Change all uppercase to lowercase
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-          # Strip git ref prefix from version
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          IMAGE_TAG="${{ github.ref_name }}"
           # Strip "v" prefix from tag name
-          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          [[ "${{ github.ref_type }}" == "tag" ]] && IMAGE_TAG=$(echo $IMAGE_TAG | sed -e 's/^v//')
           # Use Docker `latest` tag convention
-          [ "$VERSION" == "main" ] && VERSION=latest
+          [ "$IMAGE_TAG" == "main" ] && IMAGE_TAG=latest
+          VERSION="${{ github.sha }}"
+          [[ "${{ github.ref_type }}" == "tag" ]] && VERSION="${{ github.ref_name }}"
+          [[ "${{ github.ref_type }}" == "branch" ]] && VERSION="${{ github.ref_name }}-${{ github.sha }}"
           echo IMAGE_ID=$IMAGE_ID >> $GITHUB_OUTPUT
+          echo IMAGE_TAG=$IMAGE_TAG >> $GITHUB_OUTPUT
           echo VERSION=$VERSION >> $GITHUB_OUTPUT
 
       - name: Set up Docker Buildx
@@ -50,8 +53,10 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ steps.vars.outputs.IMAGE_ID }}:${{ steps.vars.outputs.VERSION }}
+          tags: ${{ steps.vars.outputs.IMAGE_ID }}:${{ steps.vars.outputs.IMAGE_TAG }}
           labels: runnumber=${{ github.run_id }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64,linux/arm64
+          build-args: |
+            VERSION=${{ steps.vars.outputs.VERSION }}

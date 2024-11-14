@@ -1,8 +1,15 @@
-<h1>About <%= @conn.host %></h1>
+<h1>About <%= @server_name %></h1>
 
 <p>
-  <strong><%= @conn.host %></strong> is a platform for hosting and sharing
-  terminal session recordings, powered by <a href="https://docs.asciinema.org/manual/server/">asciinema server</a>.
+  <strong><%= @server_name %></strong>
+  is a platform for hosting and sharing
+  terminal session recordings, powered by
+  <%= if @server_version do %>
+    <a href="https://docs.asciinema.org/manual/server/">asciinema server</a>
+    (<%= @server_version %>).
+  <% else %>
+    <a href="https://docs.asciinema.org/manual/server/">asciinema server</a>.
+  <% end %>
 </p>
 
 <%= if @contact_email_address do %>
@@ -22,7 +29,7 @@
     <li>account access problems,</li>
     <li>recording recovery,</li>
     <li>content reporting,</li>
-    <li>security vulnerability, which may affect <%= @conn.host %> users.</li>
+    <li>security vulnerability, which may affect <%= @server_name %> users.</li>
   </ul>
 
   <p>
