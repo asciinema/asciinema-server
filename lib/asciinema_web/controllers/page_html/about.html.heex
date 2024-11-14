@@ -1,8 +1,13 @@
 <h1>About <%= @server_name %></h1>
 
 <p>
-  <strong><%= @server_name %></strong> is a platform for hosting and sharing
-  terminal session recordings, powered by <a href="https://docs.asciinema.org/manual/server/">asciinema server</a>.
+  <strong><%= @server_name %></strong>
+  is a platform for hosting and sharing
+  terminal session recordings, powered by
+  <a href="https://docs.asciinema.org/manual/server/">asciinema server</a>
+  <%= if @server_version do %>
+    (<%= @server_version %>)
+  <% end %>.
 </p>
 
 <%= if @contact_email_address do %>
