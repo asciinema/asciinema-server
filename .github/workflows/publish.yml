@@ -50,8 +50,6 @@ jobs:
 
       - name: Build image
         uses: docker/build-push-action@v5
-        env:
-          VERSION: "${{ steps.vars.outputs.VERSION }}"
         with:
           context: .
           push: true
@@ -60,3 +58,5 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64,linux/arm64
+          build-args: |
+            VERSION=${{ steps.vars.outputs.VERSION }}
