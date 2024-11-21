@@ -8,11 +8,9 @@
     .row {
       .headline {
         margin-bottom: 0;
-      }
 
-      @media (min-width: 992px) {
-        .headline {
-          margin-bottom: 3rem;
+        h2 {
+          font-size: 1.4rem;
         }
       }
 
