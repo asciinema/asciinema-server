@@ -8,7 +8,7 @@ config :asciinema, Asciinema.Repo,
   database: "asciinema_development",
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
-  pool_size: 10
+  pool_size: 11
 
 secret_key_base = "60BnXnzGGwwiZj91YA9XYKF9BCiM7lQ/1um8VXcWWLSdUp9OcPZV6YnQv7eFTYSY"
 
