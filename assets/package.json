@@ -9,7 +9,7 @@
   "browserslist": [
     "defaults"
   ],
-  "devDependencies": {
+  "dependencies": {
     "@babel/core": "^7.21.0",
     "@babel/preset-env": "^7.20.2",
     "asciinema-player": "3.8.1",
