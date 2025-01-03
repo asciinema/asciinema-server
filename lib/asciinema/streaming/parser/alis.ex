@@ -66,7 +66,7 @@ defmodule Asciinema.Streaming.Parser.Alis do
         },
         %{status: :online} = state
       ) do
-    {:ok, [feed: {time, data}], state}
+    {:ok, [output: {time, data}], state}
   end
 
   def parse(

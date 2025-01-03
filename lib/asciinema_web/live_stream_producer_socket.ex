@@ -181,15 +181,15 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
     {:error, {:invalid_vt_size, size}}
   end
 
-  defp run_command({:feed, args}, %{status: :online} = state) do
-    with :ok <- LiveStreamServer.feed(state.stream_id, args) do
+  defp run_command({:output, args}, %{status: :online} = state) do
+    with :ok <- LiveStreamServer.output(state.stream_id, args) do
       {:ok, state}
     end
   end
 
   defp run_command({:resize, {time, {cols, rows}}}, state)
        when cols > 0 and rows > 0 and cols <= @max_cols and rows <= @max_rows do
-    with :ok <- LiveStreamServer.feed(state.stream_id, {time, resize_seq(cols, rows)}) do
+    with :ok <- LiveStreamServer.output(state.stream_id, {time, resize_seq(cols, rows)}) do
       {:ok, state}
     end
   end

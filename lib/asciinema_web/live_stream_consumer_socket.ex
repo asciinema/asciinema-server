@@ -29,7 +29,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
       Logger.info("consumer/#{stream.id}: connected")
       state = %{stream_id: stream.id, reset: false}
       LiveStreamServer.subscribe(stream.id, :reset)
-      LiveStreamServer.subscribe(stream.id, :feed)
+      LiveStreamServer.subscribe(stream.id, :output)
       LiveStreamServer.subscribe(stream.id, :offline)
       LiveStreamServer.request_info(stream.id)
       ViewerTracker.track(stream.id)
@@ -65,8 +65,8 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     {:reply, reset_message(update.data), %{state | reset: true}}
   end
 
-  def websocket_info(%LiveStreamServer.Update{event: :feed} = update, %{reset: true} = state) do
-    {:reply, feed_message(update.data), state}
+  def websocket_info(%LiveStreamServer.Update{event: :output} = update, %{reset: true} = state) do
+    {:reply, output_message(update.data), state}
   end
 
   def websocket_info(%LiveStreamServer.Update{}, %{reset: false} = state) do
@@ -183,7 +183,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     {:binary, msg}
   end
 
-  defp feed_message({time, data}) do
+  defp output_message({time, data}) do
     data_len = byte_size(data)
 
     msg = <<

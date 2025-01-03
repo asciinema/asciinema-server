@@ -34,7 +34,7 @@ defmodule Asciinema.Streaming.Parser.Json do
   end
 
   def handle_message([time, "o", data], state) when is_number(time) and is_binary(data) do
-    {:ok, [feed: {time, data}], state}
+    {:ok, [output: {time, data}], state}
   end
 
   def handle_message([time, "r", data], state) when is_number(time) and is_binary(data) do

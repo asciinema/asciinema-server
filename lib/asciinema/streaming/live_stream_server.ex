@@ -23,15 +23,15 @@ defmodule Asciinema.Streaming.LiveStreamServer do
     GenServer.call(via_tuple(stream_id), {:reset, {vt_size, vt_init, stream_time, theme}})
   end
 
-  def feed(stream_id, event) do
-    GenServer.call(via_tuple(stream_id), {:feed, event})
+  def output(stream_id, event) do
+    GenServer.call(via_tuple(stream_id), {:output, event})
   end
 
   def heartbeat(stream_id) do
     GenServer.call(via_tuple(stream_id), :heartbeat)
   end
 
-  def subscribe(stream_id, type) when type in [:reset, :feed, :offline, :metadata] do
+  def subscribe(stream_id, type) when type in [:reset, :output, :offline, :metadata] do
     PubSub.subscribe(topic_name(stream_id, type))
   end
 
@@ -101,13 +101,13 @@ defmodule Asciinema.Streaming.LiveStreamServer do
     {:reply, {:error, :leadership_lost}, state}
   end
 
-  def handle_call({:feed, event}, {pid, _} = _from, %{producer: pid} = state) do
+  def handle_call({:output, event}, {pid, _} = _from, %{producer: pid} = state) do
     {time, data} = event
     new_size = Vt.feed(state.vt, data)
 
     publish(state.stream_id, %Update{
       stream_id: state.stream_id,
-      event: :feed,
+      event: :output,
       data: event
     })
 
@@ -121,8 +121,8 @@ defmodule Asciinema.Streaming.LiveStreamServer do
     {:reply, :ok, state}
   end
 
-  def handle_call({:feed, _event}, _from, state) do
-    Logger.info("stream/#{state.stream_id}: rejecting feed from non-leader producer")
+  def handle_call({:output, _event}, _from, state) do
+    Logger.info("stream/#{state.stream_id}: rejecting event from non-leader producer")
 
     {:reply, {:error, :leadership_lost}, state}
   end
