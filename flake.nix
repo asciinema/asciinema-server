@@ -158,7 +158,7 @@
                 in {
                   Environment = "PORT=${
                       builtins.toString cfg.port
-                    } DATABASE_URL=postgres://${cfg.dbUser}:${cfg.dbPassword}@127.0.0.1/asciinema_server SECRET_KEY_BASE=${cfg.secretKeyBase} RELEASE_COOKIE=${cfg.releaseCookie} UPLOAD_SIZE_LIMIT=${cfg.uploadSizeLimit";
+                    } DATABASE_URL=postgres://${cfg.dbUser}:${cfg.dbPassword}@127.0.0.1/asciinema_server SECRET_KEY_BASE=${cfg.secretKeyBase} RELEASE_COOKIE=${cfg.releaseCookie} UPLOAD_SIZE_LIMIT=${cfg.uploadSizeLimit}";
                   ExecStart = "${pkg}/bin/server";
                   WorkingDirectory = "${pkg}/";
                 };
