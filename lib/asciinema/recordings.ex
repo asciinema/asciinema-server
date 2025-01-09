@@ -3,7 +3,17 @@ defmodule Asciinema.Recordings do
   import Ecto.Changeset
   import Ecto.Query, warn: false
   alias Asciinema.{FileStore, Fonts, Repo, Themes, Vt}
-  alias Asciinema.Recordings.{Asciicast, Markers, Output, Paths, Snapshot, SnapshotUpdater, Text}
+
+  alias Asciinema.Recordings.{
+    Asciicast,
+    Markers,
+    Paths,
+    Snapshot,
+    SnapshotUpdater,
+    EventStream,
+    Text
+  }
+
   alias Ecto.Changeset
 
   def fetch_asciicast(id) do
@@ -230,9 +240,8 @@ defmodule Asciinema.Recordings do
 
   defp get_v2_duration(path) do
     path
-    # TODO use any last event, not specifically output
-    |> Output.stream()
-    |> Enum.reduce(fn {t, _}, _prev_t -> t end)
+    |> EventStream.new()
+    |> EventStream.duration()
   end
 
   @hex_color_re ~r/^#[0-9a-f]{6}$/
@@ -384,7 +393,8 @@ defmodule Asciinema.Recordings do
 
     snapshot =
       asciicast
-      |> Output.stream()
+      |> EventStream.new()
+      |> EventStream.output()
       |> generate_snapshot(cols, rows, secs)
 
     asciicast
@@ -392,11 +402,11 @@ defmodule Asciinema.Recordings do
     |> Repo.update()
   end
 
-  def generate_snapshot(stdout_stream, cols, rows, secs) do
-    frames = Stream.take_while(stdout_stream, &frame_before_or_at?(&1, secs))
+  def generate_snapshot(output_stream, cols, rows, secs) do
+    frames = Stream.take_while(output_stream, &frame_before_or_at?(&1, secs))
 
     {:ok, {lines, cursor}} =
-      Vt.with_vt(cols, rows, [resizable: false, scrollback_limit: 0], fn vt ->
+      Vt.with_vt(cols, rows, [scrollback_limit: 0], fn vt ->
         Enum.each(frames, fn {_, text} -> Vt.feed(vt, text) end)
 
         Vt.dump_screen(vt)
@@ -459,7 +469,8 @@ defmodule Asciinema.Recordings do
 
     v2_path =
       asciicast
-      |> Output.stream()
+      |> EventStream.new()
+      |> EventStream.output()
       |> write_v2_file(header)
 
     upload = %Plug.Upload{path: v2_path, content_type: "application/octet-stream"}
@@ -510,14 +521,14 @@ defmodule Asciinema.Recordings do
     header |> Enum.filter(fn {_k, v} -> v end) |> Enum.into(%{})
   end
 
-  def write_v2_file(stdout_stream, %{width: _, height: _} = header) do
+  def write_v2_file(output_stream, %{width: _, height: _} = header) do
     {:ok, tmp_path} = Briefly.create()
     header = Map.put(header, :version, 2)
 
     File.open!(tmp_path, [:write, :utf8], fn f ->
       :ok = IO.write(f, "#{Jason.encode!(header, pretty: false)}\n")
 
-      for {t, s} <- stdout_stream do
+      for {t, s} <- output_stream do
         event = [t, "o", s]
         :ok = IO.write(f, "#{Jason.encode!(event, pretty: false)}\n")
       end

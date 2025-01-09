@@ -23,15 +23,19 @@ defmodule Asciinema.Streaming.LiveStreamServer do
     GenServer.call(via_tuple(stream_id), {:reset, {vt_size, vt_init, stream_time, theme}})
   end
 
-  def output(stream_id, event) do
-    GenServer.call(via_tuple(stream_id), {:output, event})
+  def output(stream_id, {time, data}) do
+    GenServer.call(via_tuple(stream_id), {:output, {time, data}})
+  end
+
+  def resize(stream_id, {time, vt_size}) do
+    GenServer.call(via_tuple(stream_id), {:resize, {time, vt_size}})
   end
 
   def heartbeat(stream_id) do
     GenServer.call(via_tuple(stream_id), :heartbeat)
   end
 
-  def subscribe(stream_id, type) when type in [:reset, :output, :offline, :metadata] do
+  def subscribe(stream_id, type) when type in [:reset, :output, :resize, :offline, :metadata] do
     PubSub.subscribe(topic_name(stream_id, type))
   end
 
@@ -60,7 +64,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
       vt_size: nil,
       theme: nil,
       last_stream_time: nil,
-      last_feed_time: nil,
+      last_event_time: nil,
       shutdown_timer: nil,
       viewer_count: viewer_count
     }
@@ -103,7 +107,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
 
   def handle_call({:output, event}, {pid, _} = _from, %{producer: pid} = state) do
     {time, data} = event
-    new_size = Vt.feed(state.vt, data)
+    Vt.feed(state.vt, data)
 
     publish(state.stream_id, %Update{
       stream_id: state.stream_id,
@@ -114,14 +118,40 @@ defmodule Asciinema.Streaming.LiveStreamServer do
     state = %{
       state
       | last_stream_time: time,
-        last_feed_time: Timex.now(),
-        vt_size: new_size || state.vt_size
+        last_event_time: Timex.now()
     }
 
     {:reply, :ok, state}
   end
 
   def handle_call({:output, _event}, _from, state) do
+    Logger.info("stream/#{state.stream_id}: rejecting event from non-leader producer")
+
+    {:reply, {:error, :leadership_lost}, state}
+  end
+
+  def handle_call({:resize, event}, {pid, _} = _from, %{producer: pid} = state) do
+    {time, {cols, rows} = vt_size} = event
+
+    Vt.resize(state.vt, cols, rows)
+
+    publish(state.stream_id, %Update{
+      stream_id: state.stream_id,
+      event: :resize,
+      data: event
+    })
+
+    state = %{
+      state
+      | last_stream_time: time,
+        last_event_time: Timex.now(),
+        vt_size: vt_size
+    }
+
+    {:reply, :ok, state}
+  end
+
+  def handle_call({:resize, _event}, _from, state) do
     Logger.info("stream/#{state.stream_id}: rejecting event from non-leader producer")
 
     {:reply, {:error, :leadership_lost}, state}
@@ -141,7 +171,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
 
   @impl true
   def handle_cast({:info, pid}, state) do
-    stream_time = current_stream_time(state.last_stream_time, state.last_feed_time)
+    stream_time = current_stream_time(state.last_stream_time, state.last_event_time)
 
     send(pid, %Update{
       stream_id: state.stream_id,
@@ -222,7 +252,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
   defp topic_name(stream_id, type), do: "stream:#{stream_id}:#{type}"
 
   defp reset_stream(state, {cols, rows} = vt_size, time, theme) do
-    {:ok, vt} = Vt.new(cols, rows, true, 100)
+    {:ok, vt} = Vt.new(cols, rows, 100)
 
     stream =
       Streaming.update_live_stream(
@@ -245,7 +275,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
         stream: stream,
         theme: theme,
         last_stream_time: time,
-        last_feed_time: Timex.now()
+        last_event_time: Timex.now()
     }
   end
 
@@ -259,8 +289,8 @@ defmodule Asciinema.Streaming.LiveStreamServer do
     %{state | shutdown_timer: timer}
   end
 
-  defp current_stream_time(last_stream_time, last_feed_time) do
-    last_stream_time + Timex.diff(Timex.now(), last_feed_time, :milliseconds) / 1000.0
+  defp current_stream_time(last_stream_time, last_event_time) do
+    last_stream_time + Timex.diff(Timex.now(), last_event_time, :milliseconds) / 1000.0
   end
 
   defp theme_fields(nil), do: [theme_fg: nil, theme_bg: nil, theme_palette: nil]

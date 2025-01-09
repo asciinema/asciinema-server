@@ -78,7 +78,7 @@ defmodule Asciinema.RecordingsTest do
                version: 2,
                cols: 96,
                rows: 26,
-               duration: 6.234567,
+               duration: 7.34567,
                command: "/bin/bash -l",
                shell: "/bin/zsh",
                terminal_type: "screen-256color",
@@ -141,7 +141,7 @@ defmodule Asciinema.RecordingsTest do
 
       stream_v0 =
         asciicast
-        |> Recordings.Output.stream()
+        |> Recordings.EventStream.new()
         |> Enum.to_list()
 
       asciicast = Recordings.upgrade(asciicast)
@@ -150,7 +150,7 @@ defmodule Asciinema.RecordingsTest do
 
       stream_v2 =
         asciicast
-        |> Recordings.Output.stream()
+        |> Recordings.EventStream.new()
         |> Enum.to_list()
 
       assert stream_v0 == stream_v2

@@ -1,5 +1,5 @@
 {"version": 2, "width": 96, "height": 26, "timestamp": 1506410422, "command": "/bin/bash -l", "title": "bashing :)", "idle_time_limit": 2.5, "env": {"TERM": "screen-256color", "SHELL": "/bin/zsh"}, "theme": {"fg": "#aaaaaa", "bg": "#bbbbbb", "palette": "#151515:#ac4142:#7e8e50:#e5b567:#6c99bb:#9f4e85:#7dd6cf:#d0d0d0:#505050:#ac4142:#7e8e50:#e5b567:#6c99bb:#9f4e85:#7dd6cf:#f5f5f5"}}
 [1.234567, "o", "foo bar"]
-[2.345678, "i", "\r"]
+[2.345670, "i", "\r"]
 [5.678987, "o", "baz qux"]
 [8.456789, "o", "żółć jaźń"]
