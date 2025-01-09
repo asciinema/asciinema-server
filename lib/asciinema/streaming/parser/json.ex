@@ -17,14 +17,26 @@ defmodule Asciinema.Streaming.Parser.Json do
 
   def handle_message(%{"cols" => cols, "rows" => rows} = header, state)
       when is_integer(cols) and is_integer(rows) do
-    commands = [reset: %{size: {cols, rows}, init: header["init"], time: header["time"]}]
+    commands = [
+      reset: %{
+        size: {cols, rows},
+        init: header["init"],
+        time: header["time"],
+        theme: parse_theme(header["theme"])
+      }
+    ]
 
     {:ok, commands, %{state | first: false}}
   end
 
-  def handle_message(%{"width" => cols, "height" => rows}, state)
+  def handle_message(%{"width" => cols, "height" => rows} = header, state)
       when is_integer(cols) and is_integer(rows) do
-    commands = [reset: %{size: {cols, rows}}]
+    commands = [
+      reset: %{
+        size: {cols, rows},
+        theme: parse_theme(header["theme"])
+      }
+    ]
 
     {:ok, commands, %{state | first: false}}
   end
@@ -52,5 +64,15 @@ defmodule Asciinema.Streaming.Parser.Json do
 
   def handle_message(_message, _state) do
     {:error, :message_invalid}
+  end
+
+  defp parse_theme(nil), do: nil
+
+  defp parse_theme(%{"fg" => fg, "bg" => bg, "palette" => palette}) do
+    %{
+      fg: fg,
+      bg: bg,
+      palette: String.split(palette, ":")
+    }
   end
 end

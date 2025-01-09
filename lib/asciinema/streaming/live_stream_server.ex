@@ -2,7 +2,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
   use GenServer, restart: :temporary
   alias Asciinema.Recordings.Snapshot
   alias Asciinema.Streaming.ViewerTracker
-  alias Asciinema.{Colors, PubSub, Streaming, Vt}
+  alias Asciinema.{PubSub, Streaming, Vt}
   require Logger
 
   defmodule Update do
@@ -295,13 +295,11 @@ defmodule Asciinema.Streaming.LiveStreamServer do
 
   defp theme_fields(nil), do: [theme_fg: nil, theme_bg: nil, theme_palette: nil]
 
-  defp theme_fields(theme) when byte_size(theme) == 18 * 3 do
-    colors = for <<r::8, g::8, b::8 <- theme>>, do: Colors.hex(r, g, b)
-
+  defp theme_fields(theme) do
     [
-      theme_fg: Enum.at(colors, 0),
-      theme_bg: Enum.at(colors, 1),
-      theme_palette: Enum.join(Enum.slice(colors, 2..-1), ":")
+      theme_fg: theme.fg,
+      theme_bg: theme.bg,
+      theme_palette: Enum.join(theme.palette, ":")
     ]
   end
 

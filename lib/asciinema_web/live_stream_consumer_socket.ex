@@ -1,5 +1,5 @@
 defmodule AsciinemaWeb.LiveStreamConsumerSocket do
-  alias Asciinema.{Accounts, Authorization, Streaming}
+  alias Asciinema.{Accounts, Authorization, Colors, Streaming}
   alias Asciinema.Streaming.{LiveStreamServer, ViewerTracker}
   alias AsciinemaWeb.Endpoint
   require Logger
@@ -174,6 +174,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   defp reset_message({vt_size, init, time, theme}) do
     {cols, rows} = vt_size
     theme_presence = 1
+    theme = encode_theme(theme)
     init = init || ""
     init_len = byte_size(init)
 
@@ -220,5 +221,13 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
 
   defp offline_message do
     {:binary, <<@msg_type_offline>>}
+  end
+
+  defp encode_theme(%{fg: fg, bg: bg, palette: palette}) do
+    for color <- [fg, bg | palette], into: <<>> do
+      {r, g, b} = Colors.parse(color)
+
+      <<r::8, g::8, b::8>>
+    end
   end
 end

@@ -1,4 +1,6 @@
 defmodule Asciinema.Streaming.Parser.Alis do
+  alias Asciinema.Colors
+
   @behaviour Asciinema.Streaming.Parser
 
   @theme_absent 0x00
@@ -50,6 +52,8 @@ defmodule Asciinema.Streaming.Parser.Alis do
         %{status: status} = state
       )
       when status in [:init, :offline] do
+    theme = parse_theme(theme)
+
     {:ok, [reset: %{size: {cols, rows}, init: init, time: time, theme: theme}],
      %{state | status: :online}}
   end
@@ -90,5 +94,15 @@ defmodule Asciinema.Streaming.Parser.Alis do
 
   def parse({_type, _payload}, _state) do
     {:error, :message_invalid}
+  end
+
+  defp parse_theme(theme) do
+    colors = for <<r::8, g::8, b::8 <- theme>>, do: Colors.hex(r, g, b)
+
+    %{
+      fg: Enum.at(colors, 0),
+      bg: Enum.at(colors, 1),
+      palette: Enum.slice(colors, 2..-1)
+    }
   end
 end
