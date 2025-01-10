@@ -29,7 +29,8 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
       Logger.info("consumer/#{stream.id}: connected")
       state = %{stream_id: stream.id, reset: false}
       LiveStreamServer.subscribe(stream.id, :reset)
-      LiveStreamServer.subscribe(stream.id, :feed)
+      LiveStreamServer.subscribe(stream.id, :output)
+      LiveStreamServer.subscribe(stream.id, :resize)
       LiveStreamServer.subscribe(stream.id, :offline)
       LiveStreamServer.request_info(stream.id)
       ViewerTracker.track(stream.id)
@@ -65,12 +66,16 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     {:reply, reset_message(update.data), %{state | reset: true}}
   end
 
-  def websocket_info(%LiveStreamServer.Update{event: :feed} = update, %{reset: true} = state) do
-    {:reply, feed_message(update.data), state}
-  end
-
   def websocket_info(%LiveStreamServer.Update{}, %{reset: false} = state) do
     {:ok, state}
+  end
+
+  def websocket_info(%LiveStreamServer.Update{event: :output} = update, state) do
+    {:reply, output_message(update.data), state}
+  end
+
+  def websocket_info(%LiveStreamServer.Update{event: :resize} = update, state) do
+    {:reply, resize_message(update.data), state}
   end
 
   def websocket_info(%LiveStreamServer.Update{event: :offline}, state) do
@@ -138,6 +143,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
 
   @msg_type_reset 0x01
   @msg_type_output ?o
+  @msg_type_resize ?r
   @msg_type_offline 0x04
 
   defp header_message do
@@ -146,8 +152,9 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     {:binary, msg}
   end
 
-  defp reset_message({{cols, rows}, init, time, nil}) do
-    theme_absent = 0
+  defp reset_message({vt_size, init, time, nil}) do
+    {cols, rows} = vt_size
+    theme_presence = 0
     init = init || ""
     init_len = byte_size(init)
 
@@ -156,7 +163,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
       cols::little-16,
       rows::little-16,
       time::little-float-32,
-      theme_absent::8,
+      theme_presence::8,
       init_len::little-32,
       init::binary
     >>
@@ -164,8 +171,10 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     {:binary, msg}
   end
 
-  defp reset_message({{cols, rows}, init, time, theme}) do
-    theme_present = 1
+  defp reset_message({vt_size, init, time, theme}) do
+    {cols, rows} = vt_size
+    theme_presence = 1
+    theme = encode_theme(theme)
     init = init || ""
     init_len = byte_size(init)
 
@@ -174,8 +183,8 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
       cols::little-16,
       rows::little-16,
       time::little-float-32,
-      theme_present::8,
-      theme::binary-size(18 * 3),
+      theme_presence::8,
+      theme::binary,
       init_len::little-32,
       init::binary
     >>
@@ -183,7 +192,8 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     {:binary, msg}
   end
 
-  defp feed_message({time, data}) do
+  defp output_message(event) do
+    {time, data} = event
     data_len = byte_size(data)
 
     msg = <<
@@ -196,7 +206,26 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     {:binary, msg}
   end
 
+  defp resize_message(event) do
+    {time, {cols, rows}} = event
+
+    msg = <<
+      @msg_type_resize,
+      time::little-float-32,
+      cols::little-16,
+      rows::little-16
+    >>
+
+    {:binary, msg}
+  end
+
   defp offline_message do
     {:binary, <<@msg_type_offline>>}
+  end
+
+  defp encode_theme(%{fg: fg, bg: bg, palette: palette}) do
+    for {r, g, b} <- [fg, bg | palette], into: <<>> do
+      <<r::8, g::8, b::8>>
+    end
   end
 end

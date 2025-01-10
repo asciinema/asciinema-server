@@ -1,4 +1,6 @@
 defmodule Asciinema.Streaming.Parser.Json do
+  alias Asciinema.Colors
+
   @behaviour Asciinema.Streaming.Parser
 
   def init, do: %{first: true}
@@ -17,14 +19,26 @@ defmodule Asciinema.Streaming.Parser.Json do
 
   def handle_message(%{"cols" => cols, "rows" => rows} = header, state)
       when is_integer(cols) and is_integer(rows) do
-    commands = [reset: %{size: {cols, rows}, init: header["init"], time: header["time"]}]
+    commands = [
+      reset: %{
+        size: {cols, rows},
+        init: header["init"],
+        time: header["time"],
+        theme: parse_theme(header["theme"])
+      }
+    ]
 
     {:ok, commands, %{state | first: false}}
   end
 
-  def handle_message(%{"width" => cols, "height" => rows}, state)
+  def handle_message(%{"width" => cols, "height" => rows} = header, state)
       when is_integer(cols) and is_integer(rows) do
-    commands = [reset: %{size: {cols, rows}}]
+    commands = [
+      reset: %{
+        size: {cols, rows},
+        theme: parse_theme(header["theme"])
+      }
+    ]
 
     {:ok, commands, %{state | first: false}}
   end
@@ -34,7 +48,7 @@ defmodule Asciinema.Streaming.Parser.Json do
   end
 
   def handle_message([time, "o", data], state) when is_number(time) and is_binary(data) do
-    {:ok, [feed: {time, data}], state}
+    {:ok, [output: {time, data}], state}
   end
 
   def handle_message([time, "r", data], state) when is_number(time) and is_binary(data) do
@@ -52,5 +66,22 @@ defmodule Asciinema.Streaming.Parser.Json do
 
   def handle_message(_message, _state) do
     {:error, :message_invalid}
+  end
+
+  defp parse_theme(nil), do: nil
+
+  defp parse_theme(%{"fg" => fg, "bg" => bg, "palette" => palette}) do
+    palette =
+      palette
+      |> String.split(":")
+      |> Enum.map(&Colors.parse/1)
+
+    true = length(palette) == 8 or length(palette) == 16
+
+    %{
+      fg: Colors.parse(fg),
+      bg: Colors.parse(bg),
+      palette: palette
+    }
   end
 end

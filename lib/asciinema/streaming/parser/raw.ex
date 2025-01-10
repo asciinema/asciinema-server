@@ -17,7 +17,7 @@ defmodule Asciinema.Streaming.Parser.Raw do
   def parse({:binary, payload}, state) do
     time = Timex.diff(Timex.now(), state.start_time, :microsecond) / 1_000_000
 
-    {:ok, [feed: {time, payload}], state}
+    {:ok, [output: {time, payload}], state}
   end
 
   defp size_from_resize_seq(text) do
