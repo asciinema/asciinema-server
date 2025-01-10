@@ -1,4 +1,6 @@
 defmodule Asciinema.Streaming.Parser.Json do
+  alias Asciinema.Colors
+
   @behaviour Asciinema.Streaming.Parser
 
   def init, do: %{first: true}
@@ -69,10 +71,17 @@ defmodule Asciinema.Streaming.Parser.Json do
   defp parse_theme(nil), do: nil
 
   defp parse_theme(%{"fg" => fg, "bg" => bg, "palette" => palette}) do
+    palette =
+      palette
+      |> String.split(":")
+      |> Enum.map(&Colors.parse/1)
+
+    true = length(palette) == 8 or length(palette) == 16
+
     %{
-      fg: fg,
-      bg: bg,
-      palette: String.split(palette, ":")
+      fg: Colors.parse(fg),
+      bg: Colors.parse(bg),
+      palette: palette
     }
   end
 end

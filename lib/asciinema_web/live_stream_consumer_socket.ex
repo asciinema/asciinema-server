@@ -1,5 +1,5 @@
 defmodule AsciinemaWeb.LiveStreamConsumerSocket do
-  alias Asciinema.{Accounts, Authorization, Colors, Streaming}
+  alias Asciinema.{Accounts, Authorization, Streaming}
   alias Asciinema.Streaming.{LiveStreamServer, ViewerTracker}
   alias AsciinemaWeb.Endpoint
   require Logger
@@ -184,7 +184,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
       rows::little-16,
       time::little-float-32,
       theme_presence::8,
-      theme::binary-size(18 * 3),
+      theme::binary,
       init_len::little-32,
       init::binary
     >>
@@ -224,9 +224,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   end
 
   defp encode_theme(%{fg: fg, bg: bg, palette: palette}) do
-    for color <- [fg, bg | palette], into: <<>> do
-      {r, g, b} = Colors.parse(color)
-
+    for {r, g, b} <- [fg, bg | palette], into: <<>> do
       <<r::8, g::8, b::8>>
     end
   end

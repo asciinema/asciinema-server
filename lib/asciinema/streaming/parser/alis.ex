@@ -1,10 +1,5 @@
 defmodule Asciinema.Streaming.Parser.Alis do
-  alias Asciinema.Colors
-
   @behaviour Asciinema.Streaming.Parser
-
-  @theme_absent 0x00
-  @theme_present 0x01
 
   def init, do: %{status: :new}
 
@@ -24,38 +19,36 @@ defmodule Asciinema.Streaming.Parser.Alis do
             cols::little-16,
             rows::little-16,
             time::little-float-32,
-            @theme_absent::8,
-            init_len::little-32,
-            init::binary-size(init_len)
+            palette_len::8,
+            rest::binary
           >>
         },
         %{status: status} = state
       )
       when status in [:init, :offline] do
-    {:ok, [reset: %{size: {cols, rows}, init: init, time: time}], %{state | status: :online}}
-  end
+    palette_len =
+      case palette_len do
+        0 -> 0
+        # TODO: legacy, used by RC CLIs, remove after release of final CLI 3.0
+        1 -> 16
+        8 -> 8
+        16 -> 16
+      end
 
-  def parse(
-        {
-          :binary,
-          <<
-            0x01,
-            cols::little-16,
-            rows::little-16,
-            time::little-float-32,
-            @theme_present::8,
-            theme::binary-size(18 * 3),
-            init_len::little-32,
-            init::binary-size(init_len)
-          >>
-        },
-        %{status: status} = state
-      )
-      when status in [:init, :offline] do
+    theme_len = (2 + palette_len) * 3
+    <<theme::binary-size(theme_len), init_len::little-32, init::binary-size(init_len)>> = rest
     theme = parse_theme(theme)
 
-    {:ok, [reset: %{size: {cols, rows}, init: init, time: time, theme: theme}],
-     %{state | status: :online}}
+    commands = [
+      reset: %{
+        size: {cols, rows},
+        init: init,
+        time: time,
+        theme: theme
+      }
+    ]
+
+    {:ok, commands, %{state | status: :online}}
   end
 
   def parse(
@@ -97,7 +90,7 @@ defmodule Asciinema.Streaming.Parser.Alis do
   end
 
   defp parse_theme(theme) do
-    colors = for <<r::8, g::8, b::8 <- theme>>, do: Colors.hex(r, g, b)
+    colors = for <<r::8, g::8, b::8 <- theme>>, do: {r, g, b}
 
     %{
       fg: Enum.at(colors, 0),

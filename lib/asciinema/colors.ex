@@ -10,9 +10,10 @@ defmodule Asciinema.Colors do
   end
 
   def hex(r, g, b), do: "##{hex(r)}#{hex(g)}#{hex(b)}"
+  def hex({r, g, b}), do: hex(r, g, b)
   def hex([r, g, b]), do: hex(r, g, b)
 
-  def hex(int) do
+  def hex(int) when is_integer(int) do
     int
     |> Integer.to_string(16)
     |> String.pad_leading(2, "0")
