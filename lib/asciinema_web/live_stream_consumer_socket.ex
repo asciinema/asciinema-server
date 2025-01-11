@@ -168,7 +168,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
 
   defp reset_message({vt_size, init, time, theme}) do
     {cols, rows} = vt_size
-    theme_presence = 1
+    theme_format = length(theme.palette)
     theme = encode_theme(theme)
     init = init || ""
     init_len = byte_size(init)
@@ -182,7 +182,8 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
       rows::little-16,
       # current stream time
       time::little-float-32,
-      theme_presence::8,
+      # theme format: 8 or 16
+      theme_format::8,
       # theme colors
       theme::binary,
       # length of the vt init payload
