@@ -139,32 +139,27 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     end
   end
 
-  @alis_version 1
-
-  @msg_type_reset 0x01
-  @msg_type_output ?o
-  @msg_type_resize ?r
-  @msg_type_offline 0x04
-
-  defp header_message do
-    msg = <<"ALiS"::binary, @alis_version::unsigned-8>>
-
-    {:binary, msg}
-  end
+  defp header_message, do: {:binary, "ALiS\x01"}
 
   defp reset_message({vt_size, init, time, nil}) do
     {cols, rows} = vt_size
-    theme_presence = 0
     init = init || ""
     init_len = byte_size(init)
 
     msg = <<
-      @msg_type_reset::8,
+      # message type: reset
+      1::8,
+      # terminal width in columns
       cols::little-16,
+      # terminal height in rows
       rows::little-16,
+      # current stream time
       time::little-float-32,
-      theme_presence::8,
+      # theme format: none
+      0::8,
+      # length of the vt init payload
       init_len::little-32,
+      # vt init payload
       init::binary
     >>
 
@@ -179,13 +174,20 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     init_len = byte_size(init)
 
     msg = <<
-      @msg_type_reset::8,
+      # message type: reset
+      1::8,
+      # terminal width in columns
       cols::little-16,
+      # terminal height in rows
       rows::little-16,
+      # current stream time
       time::little-float-32,
       theme_presence::8,
+      # theme colors
       theme::binary,
+      # length of the vt init payload
       init_len::little-32,
+      # vt init payload
       init::binary
     >>
 
@@ -197,9 +199,13 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     data_len = byte_size(data)
 
     msg = <<
-      @msg_type_output,
+      # message type: output
+      ?o,
+      # current stream time
       time::little-float-32,
+      # output length
       data_len::little-32,
+      # output payload
       data::binary
     >>
 
@@ -210,9 +216,13 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     {time, {cols, rows}} = event
 
     msg = <<
-      @msg_type_resize,
+      # message type: resize
+      ?r,
+      # current stream time
       time::little-float-32,
+      # terminal width in columns
       cols::little-16,
+      # terminal height in rows
       rows::little-16
     >>
 
@@ -220,7 +230,12 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   end
 
   defp offline_message do
-    {:binary, <<@msg_type_offline>>}
+    msg = <<
+      # message type: offline (EOT, 0x04)
+      0x04::8
+    >>
+
+    {:binary, msg}
   end
 
   defp encode_theme(%{fg: fg, bg: bg, palette: palette}) do
