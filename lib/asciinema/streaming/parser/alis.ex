@@ -15,38 +15,86 @@ defmodule Asciinema.Streaming.Parser.Alis do
         {
           :binary,
           <<
-            0x01,
+            1::8,
             cols::little-16,
             rows::little-16,
             time::little-float-32,
-            palette_len::8,
-            rest::binary
+            0::8,
+            init_len::little-32,
+            init::binary-size(init_len)
           >>
         },
         %{status: status} = state
       )
       when status in [:init, :offline] do
-    palette_len =
-      case palette_len do
-        0 -> 0
-        # TODO: legacy, used by RC CLIs, remove after release of final CLI 3.0
-        1 -> 16
-        8 -> 8
-        16 -> 16
-      end
+    commands = [reset: %{size: {cols, rows}, init: init, time: time, theme: nil}]
 
-    theme_len = (2 + palette_len) * 3
-    <<theme::binary-size(theme_len), init_len::little-32, init::binary-size(init_len)>> = rest
-    theme = parse_theme(theme)
+    {:ok, commands, %{state | status: :online}}
+  end
 
-    commands = [
-      reset: %{
-        size: {cols, rows},
-        init: init,
-        time: time,
-        theme: theme
-      }
-    ]
+  # TODO: theme format "1" is legacy, used by RC CLIs, remove after release of the final CLI 3.0
+  def parse(
+        {
+          :binary,
+          <<
+            1::8,
+            cols::little-16,
+            rows::little-16,
+            time::little-float-32,
+            1::8,
+            theme::binary-size((2 + 16) * 3),
+            init_len::little-32,
+            init::binary-size(init_len)
+          >>
+        },
+        %{status: status} = state
+      )
+      when status in [:init, :offline] do
+    commands = [reset: %{size: {cols, rows}, init: init, time: time, theme: parse_theme(theme)}]
+
+    {:ok, commands, %{state | status: :online}}
+  end
+
+  def parse(
+        {
+          :binary,
+          <<
+            1::8,
+            cols::little-16,
+            rows::little-16,
+            time::little-float-32,
+            8::8,
+            theme::binary-size((2 + 8) * 3),
+            init_len::little-32,
+            init::binary-size(init_len)
+          >>
+        },
+        %{status: status} = state
+      )
+      when status in [:init, :offline] do
+    commands = [reset: %{size: {cols, rows}, init: init, time: time, theme: parse_theme(theme)}]
+
+    {:ok, commands, %{state | status: :online}}
+  end
+
+  def parse(
+        {
+          :binary,
+          <<
+            1::8,
+            cols::little-16,
+            rows::little-16,
+            time::little-float-32,
+            16::8,
+            theme::binary-size((2 + 16) * 3),
+            init_len::little-32,
+            init::binary-size(init_len)
+          >>
+        },
+        %{status: status} = state
+      )
+      when status in [:init, :offline] do
+    commands = [reset: %{size: {cols, rows}, init: init, time: time, theme: parse_theme(theme)}]
 
     {:ok, commands, %{state | status: :online}}
   end
