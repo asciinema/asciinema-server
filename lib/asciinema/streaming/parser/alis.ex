@@ -15,38 +15,26 @@ defmodule Asciinema.Streaming.Parser.Alis do
         {
           :binary,
           <<
-            0x01,
+            # message type: reset
+            1::8,
+            # terminal width in columns
             cols::little-16,
+            # terminal height in rows
             rows::little-16,
+            # current stream time
             time::little-float-32,
-            palette_len::8,
-            rest::binary
+            # theme format: none
+            0::8,
+            # length of the vt init payload
+            init_len::little-32,
+            # vt init payload
+            init::binary-size(init_len)
           >>
         },
         %{status: status} = state
       )
       when status in [:init, :offline] do
-    palette_len =
-      case palette_len do
-        0 -> 0
-        # TODO: legacy, used by RC CLIs, remove after release of final CLI 3.0
-        1 -> 16
-        8 -> 8
-        16 -> 16
-      end
-
-    theme_len = (2 + palette_len) * 3
-    <<theme::binary-size(theme_len), init_len::little-32, init::binary-size(init_len)>> = rest
-    theme = parse_theme(theme)
-
-    commands = [
-      reset: %{
-        size: {cols, rows},
-        init: init,
-        time: time,
-        theme: theme
-      }
-    ]
+    commands = [reset: %{size: {cols, rows}, init: init, time: time, theme: nil}]
 
     {:ok, commands, %{state | status: :online}}
   end
@@ -55,9 +43,104 @@ defmodule Asciinema.Streaming.Parser.Alis do
         {
           :binary,
           <<
-            ?o,
+            # message type: reset
+            1::8,
+            # terminal width in columns
+            cols::little-16,
+            # terminal height in rows
+            rows::little-16,
+            # current stream time
             time::little-float-32,
+            # theme format: 16 color palette, legacy variant, used by RC CLIs
+            # TODO: remove after release of the final CLI 3.0
+            1::8,
+            # theme colors
+            theme::binary-size((2 + 16) * 3),
+            # length of the vt init payload
+            init_len::little-32,
+            # vt init payload
+            init::binary-size(init_len)
+          >>
+        },
+        %{status: status} = state
+      )
+      when status in [:init, :offline] do
+    commands = [reset: %{size: {cols, rows}, init: init, time: time, theme: parse_theme(theme)}]
+
+    {:ok, commands, %{state | status: :online}}
+  end
+
+  def parse(
+        {
+          :binary,
+          <<
+            # message type: reset
+            1::8,
+            # terminal width in columns
+            cols::little-16,
+            # terminal height in rows
+            rows::little-16,
+            # current stream time
+            time::little-float-32,
+            # theme format: 8 color palette
+            8::8,
+            # theme colors
+            theme::binary-size((2 + 8) * 3),
+            # length of the vt init payload
+            init_len::little-32,
+            # vt init payload
+            init::binary-size(init_len)
+          >>
+        },
+        %{status: status} = state
+      )
+      when status in [:init, :offline] do
+    commands = [reset: %{size: {cols, rows}, init: init, time: time, theme: parse_theme(theme)}]
+
+    {:ok, commands, %{state | status: :online}}
+  end
+
+  def parse(
+        {
+          :binary,
+          <<
+            # message type: reset
+            1::8,
+            # terminal width in columns
+            cols::little-16,
+            # terminal height in rows
+            rows::little-16,
+            # current stream time
+            time::little-float-32,
+            # theme format: 16 color palette
+            16::8,
+            # theme colors
+            theme::binary-size((2 + 16) * 3),
+            # length of the vt init payload
+            init_len::little-32,
+            # vt init payload
+            init::binary-size(init_len)
+          >>
+        },
+        %{status: status} = state
+      )
+      when status in [:init, :offline] do
+    commands = [reset: %{size: {cols, rows}, init: init, time: time, theme: parse_theme(theme)}]
+
+    {:ok, commands, %{state | status: :online}}
+  end
+
+  def parse(
+        {
+          :binary,
+          <<
+            # message type: output
+            ?o,
+            # current stream time
+            time::little-float-32,
+            # output length
             data_len::little-32,
+            # output payload
             data::binary-size(data_len)
           >>
         },
@@ -70,9 +153,13 @@ defmodule Asciinema.Streaming.Parser.Alis do
         {
           :binary,
           <<
+            # message type: resize
             ?r,
+            # current stream time
             time::little-float-32,
+            # terminal width in columns
             cols::little-16,
+            # terminal height in rows
             rows::little-16
           >>
         },
