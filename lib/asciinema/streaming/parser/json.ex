@@ -51,12 +51,20 @@ defmodule Asciinema.Streaming.Parser.Json do
     {:ok, [output: {time, data}], state}
   end
 
+  def handle_message([time, "i", data], state) when is_number(time) and is_binary(data) do
+    {:ok, [input: {time, data}], state}
+  end
+
   def handle_message([time, "r", data], state) when is_number(time) and is_binary(data) do
     [cols, rows] = String.split(data, "x")
     cols = String.to_integer(cols)
     rows = String.to_integer(rows)
 
     {:ok, [resize: {time, {cols, rows}}], state}
+  end
+
+  def handle_message([time, "m", data], state) when is_number(time) and is_binary(data) do
+    {:ok, [marker: {time, data}], state}
   end
 
   def handle_message([time, type, data], state)

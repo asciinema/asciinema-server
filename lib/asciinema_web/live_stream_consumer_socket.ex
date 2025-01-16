@@ -30,7 +30,9 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
       state = %{stream_id: stream.id, reset: false}
       LiveStreamServer.subscribe(stream.id, :reset)
       LiveStreamServer.subscribe(stream.id, :output)
+      LiveStreamServer.subscribe(stream.id, :input)
       LiveStreamServer.subscribe(stream.id, :resize)
+      LiveStreamServer.subscribe(stream.id, :marker)
       LiveStreamServer.subscribe(stream.id, :offline)
       LiveStreamServer.request_info(stream.id)
       ViewerTracker.track(stream.id)
@@ -74,8 +76,16 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     {:reply, output_message(update.data), state}
   end
 
+  def websocket_info(%LiveStreamServer.Update{event: :input} = update, state) do
+    {:reply, input_message(update.data), state}
+  end
+
   def websocket_info(%LiveStreamServer.Update{event: :resize} = update, state) do
     {:reply, resize_message(update.data), state}
+  end
+
+  def websocket_info(%LiveStreamServer.Update{event: :marker} = update, state) do
+    {:reply, marker_message(update.data), state}
   end
 
   def websocket_info(%LiveStreamServer.Update{event: :offline}, state) do
@@ -213,6 +223,24 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     {:binary, msg}
   end
 
+  defp input_message(event) do
+    {time, data} = event
+    data_len = byte_size(data)
+
+    msg = <<
+      # message type: input
+      ?i,
+      # current stream time
+      time::little-float-32,
+      # input length
+      data_len::little-32,
+      # input payload
+      data::binary
+    >>
+
+    {:binary, msg}
+  end
+
   defp resize_message(event) do
     {time, {cols, rows}} = event
 
@@ -225,6 +253,24 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
       cols::little-16,
       # terminal height in rows
       rows::little-16
+    >>
+
+    {:binary, msg}
+  end
+
+  defp marker_message(event) do
+    {time, data} = event
+    data_len = byte_size(data)
+
+    msg = <<
+      # message type: marker
+      ?m,
+      # current stream time
+      time::little-float-32,
+      # marker label length
+      data_len::little-32,
+      # marker label payload
+      data::binary
     >>
 
     {:binary, msg}

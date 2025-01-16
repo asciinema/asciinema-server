@@ -27,15 +27,24 @@ defmodule Asciinema.Streaming.LiveStreamServer do
     GenServer.call(via_tuple(stream_id), {:output, {time, data}})
   end
 
+  def input(stream_id, {time, data}) do
+    GenServer.call(via_tuple(stream_id), {:input, {time, data}})
+  end
+
   def resize(stream_id, {time, vt_size}) do
     GenServer.call(via_tuple(stream_id), {:resize, {time, vt_size}})
+  end
+
+  def marker(stream_id, {time, data}) do
+    GenServer.call(via_tuple(stream_id), {:marker, {time, data}})
   end
 
   def heartbeat(stream_id) do
     GenServer.call(via_tuple(stream_id), :heartbeat)
   end
 
-  def subscribe(stream_id, type) when type in [:reset, :output, :resize, :offline, :metadata] do
+  def subscribe(stream_id, type)
+      when type in [:reset, :output, :input, :resize, :marker, :offline, :metadata] do
     PubSub.subscribe(topic_name(stream_id, type))
   end
 
@@ -130,6 +139,30 @@ defmodule Asciinema.Streaming.LiveStreamServer do
     {:reply, {:error, :leadership_lost}, state}
   end
 
+  def handle_call({:input, event}, {pid, _} = _from, %{producer: pid} = state) do
+    {time, _data} = event
+
+    publish(state.stream_id, %Update{
+      stream_id: state.stream_id,
+      event: :input,
+      data: event
+    })
+
+    state = %{
+      state
+      | last_stream_time: time,
+        last_event_time: Timex.now()
+    }
+
+    {:reply, :ok, state}
+  end
+
+  def handle_call({:input, _event}, _from, state) do
+    Logger.info("stream/#{state.stream_id}: rejecting event from non-leader producer")
+
+    {:reply, {:error, :leadership_lost}, state}
+  end
+
   def handle_call({:resize, event}, {pid, _} = _from, %{producer: pid} = state) do
     {time, {cols, rows} = vt_size} = event
 
@@ -152,6 +185,30 @@ defmodule Asciinema.Streaming.LiveStreamServer do
   end
 
   def handle_call({:resize, _event}, _from, state) do
+    Logger.info("stream/#{state.stream_id}: rejecting event from non-leader producer")
+
+    {:reply, {:error, :leadership_lost}, state}
+  end
+
+  def handle_call({:marker, event}, {pid, _} = _from, %{producer: pid} = state) do
+    {time, _data} = event
+
+    publish(state.stream_id, %Update{
+      stream_id: state.stream_id,
+      event: :marker,
+      data: event
+    })
+
+    state = %{
+      state
+      | last_stream_time: time,
+        last_event_time: Timex.now()
+    }
+
+    {:reply, :ok, state}
+  end
+
+  def handle_call({:marker, _event}, _from, state) do
     Logger.info("stream/#{state.stream_id}: rejecting event from non-leader producer")
 
     {:reply, {:error, :leadership_lost}, state}

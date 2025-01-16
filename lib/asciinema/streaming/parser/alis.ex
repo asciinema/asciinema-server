@@ -153,6 +153,25 @@ defmodule Asciinema.Streaming.Parser.Alis do
         {
           :binary,
           <<
+            # message type: input
+            ?i,
+            # current stream time
+            time::little-float-32,
+            # input length
+            data_len::little-32,
+            # input payload
+            data::binary-size(data_len)
+          >>
+        },
+        %{status: :online} = state
+      ) do
+    {:ok, [input: {time, data}], state}
+  end
+
+  def parse(
+        {
+          :binary,
+          <<
             # message type: resize
             ?r,
             # current stream time
@@ -166,6 +185,25 @@ defmodule Asciinema.Streaming.Parser.Alis do
         %{status: :online} = state
       ) do
     {:ok, [resize: {time, {cols, rows}}], state}
+  end
+
+  def parse(
+        {
+          :binary,
+          <<
+            # message type: marker
+            ?m,
+            # current stream time
+            time::little-float-32,
+            # marker label length
+            data_len::little-32,
+            # marker label payload
+            data::binary-size(data_len)
+          >>
+        },
+        %{status: :online} = state
+      ) do
+    {:ok, [marker: {time, data}], state}
   end
 
   def parse({:binary, <<0x04>>}, %{status: status} = state) when status in [:init, :online] do
