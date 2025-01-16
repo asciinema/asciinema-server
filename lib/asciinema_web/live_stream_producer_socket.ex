@@ -182,31 +182,31 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
   end
 
   defp run_command({:output, args}, %{status: :online} = state) do
-    with :ok <- LiveStreamServer.output(state.stream_id, args) do
+    with :ok <- LiveStreamServer.event(state.stream_id, :output, args) do
       {:ok, state}
     end
   end
 
   defp run_command({:input, args}, %{status: :online} = state) do
-    with :ok <- LiveStreamServer.input(state.stream_id, args) do
+    with :ok <- LiveStreamServer.event(state.stream_id, :input, args) do
       {:ok, state}
     end
   end
 
   defp run_command({:resize, {_time, {cols, rows}} = args}, state)
        when cols > 0 and rows > 0 and cols <= @max_cols and rows <= @max_rows do
-    with :ok <- LiveStreamServer.resize(state.stream_id, args) do
-      {:ok, state}
-    end
-  end
-
-  defp run_command({:marker, args}, %{status: :online} = state) do
-    with :ok <- LiveStreamServer.marker(state.stream_id, args) do
+    with :ok <- LiveStreamServer.event(state.stream_id, :resize, args) do
       {:ok, state}
     end
   end
 
   defp run_command({:resize, {_time, size}}, _state), do: {:error, {:invalid_vt_size, size}}
+
+  defp run_command({:marker, args}, %{status: :online} = state) do
+    with :ok <- LiveStreamServer.event(state.stream_id, :marker, args) do
+      {:ok, state}
+    end
+  end
 
   defp run_command({:status, :offline}, %{status: :new} = state), do: {:ok, state}
 

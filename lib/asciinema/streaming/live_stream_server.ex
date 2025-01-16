@@ -23,24 +23,16 @@ defmodule Asciinema.Streaming.LiveStreamServer do
     GenServer.call(via_tuple(stream_id), {:reset, {vt_size, vt_init, stream_time, theme}})
   end
 
-  def output(stream_id, {time, data}) do
-    GenServer.call(via_tuple(stream_id), {:output, {time, data}})
-  end
-
-  def input(stream_id, {time, data}) do
-    GenServer.call(via_tuple(stream_id), {:input, {time, data}})
-  end
-
-  def resize(stream_id, {time, vt_size}) do
-    GenServer.call(via_tuple(stream_id), {:resize, {time, vt_size}})
-  end
-
-  def marker(stream_id, {time, data}) do
-    GenServer.call(via_tuple(stream_id), {:marker, {time, data}})
+  def event(stream_id, event_type, payload) do
+    GenServer.call(via_tuple(stream_id), {:event, {event_type, payload}})
   end
 
   def heartbeat(stream_id) do
     GenServer.call(via_tuple(stream_id), :heartbeat)
+  end
+
+  def subscribe(stream_id, types) when is_list(types) do
+    Enum.each(types, &subscribe(stream_id, &1))
   end
 
   def subscribe(stream_id, type)
@@ -90,7 +82,13 @@ defmodule Asciinema.Streaming.LiveStreamServer do
     {:reply, :ok, %{state | producer: pid}}
   end
 
-  def handle_call({:reset, args}, {pid, _} = _from, %{producer: pid} = state) do
+  def handle_call(_message, {pid1, _}, %{producer: pid2} = state) when pid1 != pid2 do
+    Logger.info("stream/#{state.stream_id}: rejecting call from non-leader producer")
+
+    {:reply, {:error, :leadership_lost}, state}
+  end
+
+  def handle_call({:reset, args}, _from, state) do
     {vt_size, vt_init, stream_time, theme} = args
     stream_time = stream_time || 0.0
     state = reset_stream(state, vt_size, stream_time, theme)
@@ -99,131 +97,53 @@ defmodule Asciinema.Streaming.LiveStreamServer do
       Vt.feed(state.vt, vt_init)
     end
 
-    publish(state.stream_id, %Update{
-      stream_id: state.stream_id,
-      event: :reset,
-      data: {vt_size, vt_init, stream_time, theme}
-    })
+    publish(state.stream_id, :reset, {vt_size, vt_init, stream_time, theme})
 
     {:reply, :ok, state}
   end
 
-  def handle_call({:reset, _args}, _from, state) do
-    Logger.info("stream/#{state.stream_id}: rejecting reset from non-leader producer")
-
-    {:reply, {:error, :leadership_lost}, state}
-  end
-
-  def handle_call({:output, event}, {pid, _} = _from, %{producer: pid} = state) do
+  def handle_call({:event, {:output, event}}, _from, state) do
     {time, data} = event
     Vt.feed(state.vt, data)
-
-    publish(state.stream_id, %Update{
-      stream_id: state.stream_id,
-      event: :output,
-      data: event
-    })
-
-    state = %{
-      state
-      | last_stream_time: time,
-        last_event_time: Timex.now()
-    }
+    publish(state.stream_id, :output, event)
+    state = update_time(state, time)
 
     {:reply, :ok, state}
   end
 
-  def handle_call({:output, _event}, _from, state) do
-    Logger.info("stream/#{state.stream_id}: rejecting event from non-leader producer")
-
-    {:reply, {:error, :leadership_lost}, state}
-  end
-
-  def handle_call({:input, event}, {pid, _} = _from, %{producer: pid} = state) do
+  def handle_call({:event, {:input, event}}, _from, state) do
     {time, _data} = event
-
-    publish(state.stream_id, %Update{
-      stream_id: state.stream_id,
-      event: :input,
-      data: event
-    })
-
-    state = %{
-      state
-      | last_stream_time: time,
-        last_event_time: Timex.now()
-    }
+    publish(state.stream_id, :input, event)
+    state = update_time(state, time)
 
     {:reply, :ok, state}
   end
 
-  def handle_call({:input, _event}, _from, state) do
-    Logger.info("stream/#{state.stream_id}: rejecting event from non-leader producer")
-
-    {:reply, {:error, :leadership_lost}, state}
-  end
-
-  def handle_call({:resize, event}, {pid, _} = _from, %{producer: pid} = state) do
+  def handle_call({:event, {:resize, event}}, _from, state) do
     {time, {cols, rows} = vt_size} = event
-
     Vt.resize(state.vt, cols, rows)
+    publish(state.stream_id, :resize, event)
 
-    publish(state.stream_id, %Update{
-      stream_id: state.stream_id,
-      event: :resize,
-      data: event
-    })
-
-    state = %{
+    state =
       state
-      | last_stream_time: time,
-        last_event_time: Timex.now(),
-        vt_size: vt_size
-    }
+      |> update_time(time)
+      |> Map.put(:vt_size, vt_size)
 
     {:reply, :ok, state}
   end
 
-  def handle_call({:resize, _event}, _from, state) do
-    Logger.info("stream/#{state.stream_id}: rejecting event from non-leader producer")
-
-    {:reply, {:error, :leadership_lost}, state}
-  end
-
-  def handle_call({:marker, event}, {pid, _} = _from, %{producer: pid} = state) do
+  def handle_call({:event, {:marker, event}}, _from, state) do
     {time, _data} = event
-
-    publish(state.stream_id, %Update{
-      stream_id: state.stream_id,
-      event: :marker,
-      data: event
-    })
-
-    state = %{
-      state
-      | last_stream_time: time,
-        last_event_time: Timex.now()
-    }
-
-    {:reply, :ok, state}
-  end
-
-  def handle_call({:marker, _event}, _from, state) do
-    Logger.info("stream/#{state.stream_id}: rejecting event from non-leader producer")
-
-    {:reply, {:error, :leadership_lost}, state}
-  end
-
-  def handle_call(:heartbeat, {pid, _} = _from, %{producer: pid} = state) do
-    state = reschedule_shutdown(state)
+    publish(state.stream_id, :marker, event)
+    state = update_time(state, time)
 
     {:reply, :ok, state}
   end
 
   def handle_call(:heartbeat, _from, state) do
-    Logger.info("stream/#{state.stream_id}: rejecting heartbeat from non-leader producer")
+    state = reschedule_shutdown(state)
 
-    {:reply, {:error, :leadership_lost}, state}
+    {:reply, :ok, state}
   end
 
   @impl true
@@ -260,11 +180,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
               snapshot: generate_snapshot(state.vt)
             )
 
-          publish(state.stream_id, %Update{
-            stream_id: state.stream_id,
-            event: :metadata,
-            data: stream
-          })
+          publish(state.stream_id, :metadata, stream)
 
           stream
 
@@ -286,12 +202,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
     Logger.info("stream/#{state.stream_id}: terminating (#{inspect(reason)})")
     Logger.debug("stream/#{state.stream_id}: state: #{inspect(state)}")
 
-    publish(state.stream_id, %Update{
-      stream_id: state.stream_id,
-      event: :offline,
-      data: nil
-    })
-
+    publish(state.stream_id, :offline)
     Streaming.update_live_stream(state.stream, online: false)
 
     :ok
@@ -302,8 +213,18 @@ defmodule Asciinema.Streaming.LiveStreamServer do
   defp via_tuple(stream_id),
     do: {:via, Horde.Registry, {Asciinema.Streaming.LiveStreamRegistry, stream_id}}
 
-  defp publish(stream_id, update) do
-    PubSub.broadcast(topic_name(stream_id, update.event), update)
+  defp update_time(state, time) do
+    %{state | last_stream_time: time, last_event_time: Timex.now()}
+  end
+
+  defp publish(stream_id, event, data \\ nil) do
+    update = %Update{
+      stream_id: stream_id,
+      event: event,
+      data: data
+    }
+
+    PubSub.broadcast(topic_name(stream_id, event), update)
   end
 
   defp topic_name(stream_id, type), do: "stream:#{stream_id}:#{type}"
@@ -330,10 +251,9 @@ defmodule Asciinema.Streaming.LiveStreamServer do
       | vt: vt,
         vt_size: vt_size,
         stream: stream,
-        theme: theme,
-        last_stream_time: time,
-        last_event_time: Timex.now()
+        theme: theme
     }
+    |> update_time(time)
   end
 
   defp reschedule_shutdown(state) do

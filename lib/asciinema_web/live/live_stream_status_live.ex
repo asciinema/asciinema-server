@@ -41,8 +41,7 @@ defmodule AsciinemaWeb.LiveStreamStatusLive do
   @impl true
   def mount(_params, %{"stream_id" => stream_id}, socket) do
     if connected?(socket) do
-      LiveStreamServer.subscribe(stream_id, :reset)
-      LiveStreamServer.subscribe(stream_id, :offline)
+      LiveStreamServer.subscribe(stream_id, [:reset, :offline])
       LiveStreamServer.request_info(stream_id)
       ViewerTracker.subscribe(stream_id)
       Process.send_after(self(), :info_timeout, @info_timeout)
