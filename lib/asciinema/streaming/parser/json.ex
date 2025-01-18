@@ -17,26 +17,13 @@ defmodule Asciinema.Streaming.Parser.Json do
     end
   end
 
-  def handle_message(%{"cols" => cols, "rows" => rows} = header, state)
-      when is_integer(cols) and is_integer(rows) do
-    commands = [
-      reset: %{
-        size: {cols, rows},
-        init: header["init"],
-        time: header["time"],
-        theme: parse_theme(header["theme"])
-      }
-    ]
-
-    {:ok, commands, %{state | first: false}}
-  end
-
   def handle_message(%{"width" => cols, "height" => rows} = header, state)
       when is_integer(cols) and is_integer(rows) do
     commands = [
       reset: %{
-        size: {cols, rows},
-        theme: parse_theme(header["theme"])
+        term_size: {cols, rows},
+        term_theme: parse_theme(header["theme"]),
+        time: 0.0
       }
     ]
 

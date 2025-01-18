@@ -34,7 +34,7 @@ defmodule Asciinema.Streaming.Parser.Alis do
         %{status: status} = state
       )
       when status in [:init, :offline] do
-    commands = [reset: %{size: {cols, rows}, init: init, time: time, theme: nil}]
+    commands = [reset: %{term_size: {cols, rows}, term_init: init, time: time}]
 
     {:ok, commands, %{state | status: :online}}
   end
@@ -65,7 +65,14 @@ defmodule Asciinema.Streaming.Parser.Alis do
         %{status: status} = state
       )
       when status in [:init, :offline] do
-    commands = [reset: %{size: {cols, rows}, init: init, time: time, theme: parse_theme(theme)}]
+    commands = [
+      reset: %{
+        term_size: {cols, rows},
+        term_init: init,
+        term_theme: parse_theme(theme),
+        time: time
+      }
+    ]
 
     {:ok, commands, %{state | status: :online}}
   end
@@ -95,7 +102,14 @@ defmodule Asciinema.Streaming.Parser.Alis do
         %{status: status} = state
       )
       when status in [:init, :offline] do
-    commands = [reset: %{size: {cols, rows}, init: init, time: time, theme: parse_theme(theme)}]
+    commands = [
+      reset: %{
+        term_size: {cols, rows},
+        term_init: init,
+        term_theme: parse_theme(theme),
+        time: time
+      }
+    ]
 
     {:ok, commands, %{state | status: :online}}
   end
@@ -125,7 +139,14 @@ defmodule Asciinema.Streaming.Parser.Alis do
         %{status: status} = state
       )
       when status in [:init, :offline] do
-    commands = [reset: %{size: {cols, rows}, init: init, time: time, theme: parse_theme(theme)}]
+    commands = [
+      reset: %{
+        term_size: {cols, rows},
+        term_init: init,
+        term_theme: parse_theme(theme),
+        time: time
+      }
+    ]
 
     {:ok, commands, %{state | status: :online}}
   end

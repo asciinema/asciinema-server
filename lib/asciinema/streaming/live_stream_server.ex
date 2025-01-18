@@ -19,8 +19,8 @@ defmodule Asciinema.Streaming.LiveStreamServer do
     GenServer.call(via_tuple(stream_id), :lead)
   end
 
-  def reset(stream_id, {_, _} = vt_size, vt_init \\ nil, stream_time \\ nil, theme \\ nil) do
-    GenServer.call(via_tuple(stream_id), {:reset, {vt_size, vt_init, stream_time, theme}})
+  def reset(stream_id, meta) do
+    GenServer.call(via_tuple(stream_id), {:reset, meta})
   end
 
   def event(stream_id, event_type, payload) do
@@ -88,16 +88,14 @@ defmodule Asciinema.Streaming.LiveStreamServer do
     {:reply, {:error, :leadership_lost}, state}
   end
 
-  def handle_call({:reset, args}, _from, state) do
-    {vt_size, vt_init, stream_time, theme} = args
-    stream_time = stream_time || 0.0
-    state = reset_stream(state, vt_size, stream_time, theme)
+  def handle_call({:reset, meta}, _from, state) do
+    state = reset_stream(state, meta.term_size, meta.time, meta[:term_theme])
 
-    if vt_init do
-      Vt.feed(state.vt, vt_init)
+    if term_init = meta[:term_init] do
+      Vt.feed(state.vt, term_init)
     end
 
-    publish(state.stream_id, :reset, {vt_size, vt_init, stream_time, theme})
+    publish(state.stream_id, :reset, meta)
 
     {:reply, :ok, state}
   end
@@ -153,7 +151,12 @@ defmodule Asciinema.Streaming.LiveStreamServer do
     send(pid, %Update{
       stream_id: state.stream_id,
       event: :info,
-      data: {state.vt_size, Vt.dump(state.vt), stream_time, state.theme}
+      data: %{
+        term_size: state.vt_size,
+        term_init: Vt.dump(state.vt),
+        term_theme: state.theme,
+        time: stream_time
+      }
     })
 
     {:noreply, state}

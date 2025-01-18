@@ -68,19 +68,27 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   end
 
   def websocket_info(%LiveStreamServer.Update{event: :output} = update, state) do
-    {:reply, output_message(update.data), state}
+    {time, text} = update.data
+
+    {:reply, output_message(time, text), state}
   end
 
   def websocket_info(%LiveStreamServer.Update{event: :input} = update, state) do
-    {:reply, input_message(update.data), state}
+    {time, text} = update.data
+
+    {:reply, input_message(time, text), state}
   end
 
   def websocket_info(%LiveStreamServer.Update{event: :resize} = update, state) do
-    {:reply, resize_message(update.data), state}
+    {time, term_size} = update.data
+
+    {:reply, resize_message(time, term_size), state}
   end
 
   def websocket_info(%LiveStreamServer.Update{event: :marker} = update, state) do
-    {:reply, marker_message(update.data), state}
+    {time, label} = update.data
+
+    {:reply, marker_message(time, label), state}
   end
 
   def websocket_info(%LiveStreamServer.Update{event: :offline}, state) do
@@ -200,9 +208,8 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     {:binary, msg}
   end
 
-  defp output_message(event) do
-    {time, data} = event
-    data_len = byte_size(data)
+  defp output_message(time, text) do
+    text_len = byte_size(text)
 
     msg = <<
       # message type: output
@@ -210,17 +217,16 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
       # current stream time
       time::little-float-32,
       # output length
-      data_len::little-32,
+      text_len::little-32,
       # output payload
-      data::binary
+      text::binary
     >>
 
     {:binary, msg}
   end
 
-  defp input_message(event) do
-    {time, data} = event
-    data_len = byte_size(data)
+  defp input_message(time, text) do
+    text_len = byte_size(text)
 
     msg = <<
       # message type: input
@@ -228,16 +234,16 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
       # current stream time
       time::little-float-32,
       # input length
-      data_len::little-32,
+      text_len::little-32,
       # input payload
-      data::binary
+      text::binary
     >>
 
     {:binary, msg}
   end
 
-  defp resize_message(event) do
-    {time, {cols, rows}} = event
+  defp resize_message(time, term_size) do
+    {cols, rows} = term_size
 
     msg = <<
       # message type: resize
@@ -253,9 +259,8 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     {:binary, msg}
   end
 
-  defp marker_message(event) do
-    {time, data} = event
-    data_len = byte_size(data)
+  defp marker_message(time, label) do
+    label_len = byte_size(label)
 
     msg = <<
       # message type: marker
@@ -263,9 +268,9 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
       # current stream time
       time::little-float-32,
       # marker label length
-      data_len::little-32,
+      label_len::little-32,
       # marker label payload
-      data::binary
+      label::binary
     >>
 
     {:binary, msg}

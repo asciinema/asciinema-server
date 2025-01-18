@@ -159,25 +159,18 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
   @max_cols 720
   @max_rows 200
 
-  defp run_command({:reset, %{size: {cols, rows}} = params}, state)
+  defp run_command({:reset, %{term_size: {cols, rows}} = meta}, state)
        when cols > 0 and rows > 0 and cols <= @max_cols and rows <= @max_rows do
     Logger.info("producer/#{state.stream_id}: reset (#{cols}x#{rows})")
 
     state = ensure_server(state)
 
-    with :ok <-
-           LiveStreamServer.reset(
-             state.stream_id,
-             {cols, rows},
-             params[:init],
-             params[:time],
-             params[:theme]
-           ) do
+    with :ok <- LiveStreamServer.reset(state.stream_id, meta) do
       {:ok, state}
     end
   end
 
-  defp run_command({:reset, %{size: size}}, _state) do
+  defp run_command({:reset, %{term_size: size}}, _state) do
     {:error, {:invalid_vt_size, size}}
   end
 
