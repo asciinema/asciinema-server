@@ -3,12 +3,14 @@ defmodule Asciinema.Streaming.Parser.Raw do
 
   @default_size {80, 24}
 
+  def name, do: "raw"
+
   def init, do: %{first: true, start_time: nil}
 
   def parse({:binary, text}, %{first: true} = state) do
     size = size_from_resize_seq(text) || size_from_script_start_message(text) || @default_size
 
-    commands = [reset: %{term_size: size, term_init: text, time: 0.0}]
+    commands = [reset: %{time: 0.0, term_size: size, term_init: text}]
 
     {:ok, commands, %{state | first: false, start_time: Timex.now()}}
   end

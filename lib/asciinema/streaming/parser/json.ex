@@ -1,7 +1,13 @@
 defmodule Asciinema.Streaming.Parser.Json do
+  @moduledoc """
+  asciicast v2 compatible stream protocol parser.
+  """
+
   alias Asciinema.Colors
 
   @behaviour Asciinema.Streaming.Parser
+
+  def name, do: "v2.asciicast"
 
   def init, do: %{first: true}
 
@@ -21,9 +27,9 @@ defmodule Asciinema.Streaming.Parser.Json do
       when is_integer(cols) and is_integer(rows) do
     commands = [
       reset: %{
+        time: 0.0,
         term_size: {cols, rows},
-        term_theme: parse_theme(header["theme"]),
-        time: 0.0
+        term_theme: parse_theme(header["theme"])
       }
     ]
 

@@ -5,6 +5,7 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
 
   @behaviour :cowboy_websocket
 
+  @ws_opts %{compress: true}
   @parser_check_timeout 5_000
   @client_ping_interval 15_000
   @server_heartbeat_interval 15_000
@@ -12,22 +13,49 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
   # Callbacks
 
   @impl true
-  def init(req, _opts),
-    do: {:cowboy_websocket, req, req.bindings[:producer_token], %{compress: true}}
+  def init(req, opts) do
+    params = %{token: req.bindings[:producer_token], parser: nil}
+
+    case :cowboy_req.parse_header("sec-websocket-protocol", req) do
+      :undefined ->
+        {:cowboy_websocket, req, params, @ws_opts}
+
+      protos ->
+        case select_protocol(protos) do
+          nil ->
+            req = :cowboy_req.reply(400, req)
+            {:ok, req, opts}
+
+          protocol ->
+            req = :cowboy_req.set_resp_header("sec-websocket-protocol", protocol, req)
+            parser = Parser.get(protocol)
+            {:cowboy_websocket, req, %{params | parser: parser}, @ws_opts}
+        end
+    end
+  end
 
   @impl true
-  def websocket_init(token) do
+  def websocket_init(params) do
+    %{token: token, parser: parser} = params
+
     case Streaming.find_live_stream_by_producer_token(token) do
       nil ->
         handle_error({:stream_not_found, token}, %{stream_id: "?"})
 
       stream ->
         Logger.info("producer/#{stream.id}: connected")
-        state = build_state(stream.id)
+        state = build_state(stream.id, parser)
         Process.send_after(self(), :parser_check, @parser_check_timeout)
         Process.send_after(self(), :client_ping, @client_ping_interval)
         Process.send_after(self(), :bucket_fill, state.bucket.fill_interval)
         Process.send_after(self(), :server_heartbeat, @server_heartbeat_interval)
+
+        if parser do
+          Logger.info("producer/#{stream.id}: negotiated #{parser.impl.name()} protocol")
+          save_protocol(state.stream_id, parser.impl.name())
+        else
+          Logger.info("producer/#{stream.id}: no protocol negotiated (legacy client)")
+        end
 
         {:ok, state}
     end
@@ -36,22 +64,13 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
   @impl true
   def websocket_handle(frame, state)
 
-  def websocket_handle({:binary, "ALiS" <> _} = message, %{parser: nil} = state) do
-    Logger.info("producer/#{state.stream_id}: activating ALiS parser")
-    save_parser(state.stream_id, "alis")
-    websocket_handle(message, %{state | parser: Parser.get(:alis)})
-  end
-
-  def websocket_handle({:binary, _} = message, %{parser: nil} = state) do
-    Logger.info("producer/#{state.stream_id}: activating raw text parser")
-    save_parser(state.stream_id, "raw")
-    websocket_handle(message, %{state | parser: Parser.get(:raw)})
-  end
-
-  def websocket_handle({:text, _} = message, %{parser: nil} = state) do
-    Logger.info("producer/#{state.stream_id}: activating json parser")
-    save_parser(state.stream_id, "json")
-    websocket_handle(message, %{state | parser: Parser.get(:json)})
+  # legacy clause for CLI 3.0 RC 3 and earlier, which doesn't do protocol negotiation
+  # TODO: remove after release of the final CLI 3.0
+  def websocket_handle(message, %{parser: nil} = state) do
+    parser = Parser.get(detect_protocol(message))
+    Logger.info("producer/#{state.stream_id}: detected #{parser.impl.name()} protocol")
+    save_protocol(state.stream_id, parser.impl.name())
+    websocket_handle(message, %{state | parser: parser})
   end
 
   def websocket_handle({_, payload} = message, %{parser: parser} = state) do
@@ -112,8 +131,8 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
 
   @impl true
   def terminate(reason, _req, state) do
-    Logger.info("producer/#{state.stream_id}: terminating (#{inspect(reason)})")
-    Logger.debug("producer/#{state.stream_id}: state: #{inspect(state)}")
+    Logger.info("producer/#{state[:stream_id] || "?"}: terminating (#{inspect(reason)})")
+    Logger.debug("producer/#{state[:stream_id] || "?"}: state: #{inspect(state)}")
 
     if reason == :remote || match?({:remote, _, _}, reason) do
       LiveStreamServer.stop(state.stream_id)
@@ -128,11 +147,11 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
   @default_bucket_fill_amount 10_000
   @default_bucket_size 60_000_000
 
-  defp build_state(stream_id) do
+  defp build_state(stream_id, parser) do
     %{
       stream_id: stream_id,
       status: :new,
-      parser: nil,
+      parser: parser,
       bucket: %{
         size: config(:bucket_size, @default_bucket_size),
         tokens: config(:bucket_size, @default_bucket_size),
@@ -267,11 +286,25 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
     end
   end
 
-  defp save_parser(stream_id, parser_name) do
+  @protos ~w(v1.alis v2.asciicast raw)
+
+  defp select_protocol(protos) do
+    # choose common protos between the client and the server
+    # using client preferred order 
+    common = protos -- protos -- @protos
+
+    List.first(common)
+  end
+
+  defp detect_protocol({:binary, "ALiS" <> _}), do: "v0.alis"
+  defp detect_protocol({:binary, _}), do: "raw"
+  defp detect_protocol({:text, _}), do: "v2.asciicast"
+
+  defp save_protocol(stream_id, protocol) do
     Task.Supervisor.start_child(Asciinema.TaskSupervisor, fn ->
       stream_id
       |> Streaming.get_live_stream()
-      |> Streaming.update_live_stream(parser: parser_name)
+      |> Streaming.update_live_stream(protocol: protocol)
     end)
   end
 

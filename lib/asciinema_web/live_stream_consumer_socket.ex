@@ -34,7 +34,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
       Process.send_after(self(), :info_timeout, @info_timeout)
       Process.send_after(self(), :client_ping, @client_ping_interval)
 
-      {:reply, header_message(), state}
+      {:reply, magic_string(), state}
     else
       {:error, :stream_not_found} ->
         Logger.warn("consumer: stream not found for public token #{token}")
@@ -57,10 +57,16 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
 
   def websocket_info(%LiveStreamServer.Update{event: e} = update, state)
       when e in [:info, :reset] do
-    {{cols, rows}, _, _, _} = update.data
+    %{term_size: {cols, rows}} = update.data
     Logger.debug("consumer/#{state.stream_id}: reset (#{cols}x#{rows})")
 
-    {:reply, reset_message(update.data), %{state | reset: true}}
+    {:reply,
+     init_message(
+       update.data.time,
+       update.data.term_size,
+       update.data[:term_init],
+       update.data[:term_theme]
+     ), %{state | reset: true}}
   end
 
   def websocket_info(%LiveStreamServer.Update{}, %{reset: false} = state) do
@@ -152,15 +158,15 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     end
   end
 
-  defp header_message, do: {:binary, "ALiS\x01"}
+  defp magic_string, do: {:binary, "ALiS\x01"}
 
-  defp reset_message({vt_size, init, time, nil}) do
-    {cols, rows} = vt_size
-    init = init || ""
-    init_len = byte_size(init)
+  defp init_message(time, term_size, term_init, nil) do
+    {cols, rows} = term_size
+    term_init = term_init || ""
+    term_init_len = byte_size(term_init)
 
     msg = <<
-      # message type: reset
+      # message type: init
       1::8,
       # terminal width in columns
       cols::little-16,
@@ -171,23 +177,23 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
       # theme format: none
       0::8,
       # length of the vt init payload
-      init_len::little-32,
+      term_init_len::little-32,
       # vt init payload
-      init::binary
+      term_init::binary
     >>
 
     {:binary, msg}
   end
 
-  defp reset_message({vt_size, init, time, theme}) do
-    {cols, rows} = vt_size
+  defp init_message(time, term_size, term_init, theme) do
+    {cols, rows} = term_size
     theme_format = length(theme.palette)
     theme = encode_theme(theme)
-    init = init || ""
-    init_len = byte_size(init)
+    term_init = term_init || ""
+    term_init_len = byte_size(term_init)
 
     msg = <<
-      # message type: reset
+      # message type: init
       1::8,
       # terminal width in columns
       cols::little-16,
@@ -200,9 +206,9 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
       # theme colors
       theme::binary,
       # length of the vt init payload
-      init_len::little-32,
+      term_init_len::little-32,
       # vt init payload
-      init::binary
+      term_init::binary
     >>
 
     {:binary, msg}
