@@ -13,7 +13,7 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
   # Callbacks
 
   @impl true
-  def init(req, opts) do
+  def init(req, _opts) do
     params = %{token: req.bindings[:producer_token], parser: nil}
 
     case :cowboy_req.parse_header("sec-websocket-protocol", req) do
@@ -24,7 +24,7 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
         case select_protocol(protos) do
           nil ->
             req = :cowboy_req.reply(400, req)
-            {:ok, req, opts}
+            {:ok, req, params}
 
           protocol ->
             req = :cowboy_req.set_resp_header("sec-websocket-protocol", protocol, req)
@@ -131,8 +131,9 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
 
   @impl true
   def terminate(reason, _req, state) do
-    Logger.info("producer/#{state[:stream_id] || "?"}: terminating (#{inspect(reason)})")
-    Logger.debug("producer/#{state[:stream_id] || "?"}: state: #{inspect(state)}")
+    stream_id = state[:stream_id] || state[:token] || "?"
+    Logger.info("producer/#{stream_id}: terminating (#{inspect(reason)})")
+    Logger.debug("producer/#{stream_id}: state: #{inspect(state)}")
 
     if reason == :remote || match?({:remote, _, _}, reason) do
       LiveStreamServer.stop(state.stream_id)
