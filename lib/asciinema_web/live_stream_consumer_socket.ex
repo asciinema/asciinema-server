@@ -6,6 +6,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
 
   @behaviour :cowboy_websocket
 
+  @protocol "v1.alis"
   @info_timeout 1_000
   @client_ping_interval 15_000
 
@@ -13,16 +14,32 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
 
   @impl true
   def init(req, _opts) do
-    state = %{
+    params = %{
       token: req.bindings[:public_token],
       user_id: user_id_from_session(req),
-      stream_id: nil
+      stream_id: nil,
+      protocol: nil
     }
 
-    {:cowboy_websocket, req, state, %{compress: true}}
+    case :cowboy_req.parse_header("sec-websocket-protocol", req) do
+      :undefined ->
+        {:cowboy_websocket, req, params}
+
+      protos ->
+        if Enum.member?(protos, @protocol) do
+          req = :cowboy_req.set_resp_header("sec-websocket-protocol", @protocol, req)
+          {:cowboy_websocket, req, %{params | protocol: @protocol}, %{compress: true}}
+        else
+          {:cowboy_websocket, req, params}
+        end
+    end
   end
 
   @impl true
+  def websocket_init(%{protocol: nil} = state) do
+    {:reply, {:close, 1002, "protocol negotiation failed"}, state}
+  end
+
   def websocket_init(%{token: token, user_id: user_id}) do
     with {:ok, stream} <- fetch_live_stream(token),
          :ok <- authorize(stream, user_id) do
@@ -115,9 +132,11 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
 
   @impl true
   def terminate(reason, _req, state) do
+    stream_id = state[:stream_id] || state[:token] || "?"
+    Logger.info("consumer/#{stream_id}: terminating (#{inspect(reason)})")
+    Logger.debug("consumer/#{stream_id}: state: #{inspect(state)}")
+
     if stream_id = state[:stream_id] do
-      Logger.info("consumer/#{stream_id}: terminating (#{inspect(reason)})")
-      Logger.debug("consumer/#{stream_id}: state: #{inspect(state)}")
       ViewerTracker.untrack(stream_id)
     end
 
