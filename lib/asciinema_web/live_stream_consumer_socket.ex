@@ -207,6 +207,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   defp init_message(time, term_size, term_init, theme) do
     {cols, rows} = term_size
     theme_format = length(theme.palette)
+    true = theme_format in [8, 16]
     theme = encode_theme(theme)
     term_init = term_init || ""
     term_init_len = byte_size(term_init)

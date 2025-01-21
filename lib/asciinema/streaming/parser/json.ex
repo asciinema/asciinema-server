@@ -77,7 +77,7 @@ defmodule Asciinema.Streaming.Parser.Json do
       |> String.split(":")
       |> Enum.map(&Colors.parse/1)
 
-    true = length(palette) == 8 or length(palette) == 16
+    true = length(palette) in [8, 16]
 
     %{
       fg: Colors.parse(fg),
