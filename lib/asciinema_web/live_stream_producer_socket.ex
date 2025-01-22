@@ -179,19 +179,18 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
   @max_cols 720
   @max_rows 200
 
-  defp run_command({:reset, %{term_size: {cols, rows}} = meta}, state)
-       when cols > 0 and rows > 0 and cols <= @max_cols and rows <= @max_rows do
+  defp run_command({:reset, %{term_size: {cols, rows}} = meta}, %{status: s} = state) when s != :online do
     Logger.info("producer/#{state.stream_id}: reset (#{cols}x#{rows})")
 
-    ensure_server(state.stream_id)
+    if cols > 0 and rows > 0 and cols <= @max_cols and rows <= @max_rows do
+      ensure_server(state.stream_id)
 
-    with :ok <- LiveStreamServer.reset(state.stream_id, meta) do
-      {:ok, %{state | status: :online}}
+      with :ok <- LiveStreamServer.reset(state.stream_id, meta) do
+        {:ok, %{state | status: :online}}
+      end
+    else
+      {:error, {:invalid_vt_size, {cols, rows}}}
     end
-  end
-
-  defp run_command({:reset, %{term_size: size}}, _state) do
-    {:error, {:invalid_vt_size, size}}
   end
 
   defp run_command({:output, args}, %{status: :online} = state) do
@@ -220,8 +219,6 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
       {:ok, state}
     end
   end
-
-  defp run_command({:status, :offline}, %{status: :new} = state), do: {:ok, state}
 
   defp run_command({:status, :offline}, %{status: :online} = state) do
     Logger.info("producer/#{state.stream_id}: stream went offline, stopping server")

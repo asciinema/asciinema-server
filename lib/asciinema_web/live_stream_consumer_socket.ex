@@ -7,7 +7,6 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   @behaviour :cowboy_websocket
 
   @protocol "v1.alis"
-  @info_timeout 1_000
   @client_ping_interval 15_000
 
   # Callbacks
@@ -48,7 +47,6 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
       LiveStreamServer.subscribe(stream.id, [:output, :input, :resize, :marker, :offline, :reset])
       LiveStreamServer.request_info(stream.id)
       ViewerTracker.track(stream.id)
-      Process.send_after(self(), :info_timeout, @info_timeout)
       Process.send_after(self(), :client_ping, @client_ping_interval)
 
       {:reply, magic_string(), state}
@@ -139,12 +137,6 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
 
     {:reply, :ping, state}
   end
-
-  def websocket_info(:info_timeout, %{reset: false} = state) do
-    {:reply, offline_message(), state}
-  end
-
-  def websocket_info(:info_timeout, %{reset: true} = state), do: {:ok, state}
 
   @impl true
   def terminate(reason, _req, state) do
