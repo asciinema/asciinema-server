@@ -195,12 +195,12 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     msg = <<
       # message type: init
       1::8,
+      # current stream time
+      time::little-64,
       # terminal width in columns
       cols::little-16,
       # terminal height in rows
       rows::little-16,
-      # current stream time
-      time::little-float-32,
       # theme format: none
       0::8,
       # length of the vt init payload
@@ -223,12 +223,12 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     msg = <<
       # message type: init
       1::8,
+      # current stream time
+      time::little-64,
       # terminal width in columns
       cols::little-16,
       # terminal height in rows
       rows::little-16,
-      # current stream time
-      time::little-float-32,
       # theme format: 8 or 16
       theme_format::8,
       # theme colors
@@ -249,7 +249,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
       # message type: output
       ?o,
       # current stream time
-      time::little-float-32,
+      time::little-64,
       # output length
       text_len::little-32,
       # output payload
@@ -266,7 +266,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
       # message type: input
       ?i,
       # current stream time
-      time::little-float-32,
+      time::little-64,
       # input length
       text_len::little-32,
       # input payload
@@ -283,7 +283,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
       # message type: resize
       ?r,
       # current stream time
-      time::little-float-32,
+      time::little-64,
       # terminal width in columns
       cols::little-16,
       # terminal height in rows
@@ -300,7 +300,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
       # message type: marker
       ?m,
       # current stream time
-      time::little-float-32,
+      time::little-64,
       # marker label length
       label_len::little-32,
       # marker label payload

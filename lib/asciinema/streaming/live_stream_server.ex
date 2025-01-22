@@ -272,7 +272,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
   end
 
   defp current_stream_time(last_stream_time, last_event_time) do
-    last_stream_time + Timex.diff(Timex.now(), last_event_time, :milliseconds) / 1000.0
+    last_stream_time + Timex.diff(Timex.now(), last_event_time, :microseconds)
   end
 
   defp theme_fields(nil), do: [theme_fg: nil, theme_bg: nil, theme_palette: nil]
