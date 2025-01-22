@@ -42,7 +42,7 @@ defmodule Asciinema.Streaming.Parser.AlisV0 do
         },
         %{status: status} = state
       )
-      when status in [:init, :offline] do
+      when status in [:init, :eot] do
     commands = [reset: %{time: time, term_size: {cols, rows}, term_init: init}]
 
     {:ok, commands, %{state | status: :online}}
@@ -72,7 +72,7 @@ defmodule Asciinema.Streaming.Parser.AlisV0 do
         },
         %{status: status} = state
       )
-      when status in [:init, :offline] do
+      when status in [:init, :eot] do
     commands = [
       reset: %{
         time: time,
@@ -162,7 +162,7 @@ defmodule Asciinema.Streaming.Parser.AlisV0 do
   end
 
   def parse({:binary, <<0x04>>}, %{status: status} = state) when status in [:init, :online] do
-    {:ok, [status: :offline], %{state | status: :offline}}
+    {:ok, [eot: %{}], %{state | status: :eot}}
   end
 
   def parse({_type, _payload}, _state) do

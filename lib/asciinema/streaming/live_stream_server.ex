@@ -36,7 +36,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
   end
 
   def subscribe(stream_id, type)
-      when type in [:reset, :output, :input, :resize, :marker, :offline, :metadata] do
+      when type in [:reset, :output, :input, :resize, :marker, :end, :metadata] do
     PubSub.subscribe(topic_name(stream_id, type))
   end
 
@@ -207,7 +207,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
     Logger.info("stream/#{state.stream_id}: terminating (#{inspect(reason)})")
     Logger.debug("stream/#{state.stream_id}: state: #{inspect(state)}")
 
-    publish(state.stream_id, :offline)
+    publish(state.stream_id, :end)
     Streaming.update_live_stream(state.stream, online: false)
 
     :ok

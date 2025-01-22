@@ -44,7 +44,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
          :ok <- authorize(stream, user_id) do
       Logger.info("consumer/#{stream.id}: connected")
       state = %{stream_id: stream.id, reset: false}
-      LiveStreamServer.subscribe(stream.id, [:output, :input, :resize, :marker, :offline, :reset])
+      LiveStreamServer.subscribe(stream.id, [:output, :input, :resize, :marker, :end, :reset])
       LiveStreamServer.request_info(stream.id)
       ViewerTracker.track(stream.id)
       Process.send_after(self(), :client_ping, @client_ping_interval)
@@ -128,8 +128,8 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     {:reply, marker_message(time, label), state}
   end
 
-  def websocket_info(%LiveStreamServer.Update{event: :offline}, state) do
-    {:reply, offline_message(), state}
+  def websocket_info(%LiveStreamServer.Update{event: :end}, state) do
+    {:reply, eot_message(), state}
   end
 
   def websocket_info(:client_ping, state) do
@@ -310,9 +310,9 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     {:binary, msg}
   end
 
-  defp offline_message do
+  defp eot_message do
     msg = <<
-      # message type: offline (EOT, 0x04)
+      # message type: EOT
       0x04::8
     >>
 
