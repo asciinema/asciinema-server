@@ -72,8 +72,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   @impl true
   def websocket_info(message, state)
 
-  def websocket_info(%LiveStreamServer.Update{event: e} = update, state)
-      when e in [:info, :reset] do
+  def websocket_info(%LiveStreamServer.Update{event: :reset} = update, state) do
     %{term_size: {cols, rows}} = update.data
     Logger.debug("consumer/#{state.stream_id}: reset (#{cols}x#{rows})")
 
@@ -84,6 +83,23 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
        update.data[:term_init],
        update.data[:term_theme]
      ), %{state | reset: true}}
+  end
+
+  def websocket_info(%LiveStreamServer.Update{event: :info} = update, %{reset: false} = state) do
+    %{term_size: {cols, rows}} = update.data
+    Logger.debug("consumer/#{state.stream_id}: info (#{cols}x#{rows})")
+
+    {:reply,
+     init_message(
+       update.data.time,
+       update.data.term_size,
+       update.data.term_init,
+       update.data.term_theme
+     ), %{state | reset: true}}
+  end
+
+  def websocket_info(%LiveStreamServer.Update{event: :info}, state) do
+    {:ok, state}
   end
 
   def websocket_info(%LiveStreamServer.Update{}, %{reset: false} = state) do
