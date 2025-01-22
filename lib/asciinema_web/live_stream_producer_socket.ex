@@ -183,10 +183,10 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
        when cols > 0 and rows > 0 and cols <= @max_cols and rows <= @max_rows do
     Logger.info("producer/#{state.stream_id}: reset (#{cols}x#{rows})")
 
-    state = ensure_server(state)
+    ensure_server(state.stream_id)
 
     with :ok <- LiveStreamServer.reset(state.stream_id, meta) do
-      {:ok, state}
+      {:ok, %{state | status: :online}}
     end
   end
 
@@ -232,13 +232,11 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
 
   defp ensure_server(%{status: :online} = state), do: state
 
-  defp ensure_server(state) do
-    Logger.info("producer/#{state.stream_id}: stream went online, starting server")
-    {:ok, _pid} = LiveStreamSupervisor.ensure_child(state.stream_id)
-    :ok = LiveStreamServer.lead(state.stream_id)
+  defp ensure_server(stream_id) do
+    Logger.info("producer/#{stream_id}: stream went online, starting server")
+    {:ok, _pid} = LiveStreamSupervisor.ensure_child(stream_id)
+    :ok = LiveStreamServer.lead(stream_id)
     Process.send_after(self(), :server_heartbeat, @server_heartbeat_interval)
-
-    %{state | status: :online}
   end
 
   defp handle_error(reason, state) do
