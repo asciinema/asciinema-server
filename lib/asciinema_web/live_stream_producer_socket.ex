@@ -93,23 +93,19 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
     {:reply, :ping, state}
   end
 
-  def websocket_info(:server_heartbeat, state) do
+  def websocket_info(:server_heartbeat, %{status: :online} = state) do
     Process.send_after(self(), :server_heartbeat, @server_heartbeat_interval)
 
-    case state do
-      %{status: :online} ->
-        case LiveStreamServer.heartbeat(state.stream_id) do
-          :ok ->
-            {:ok, state}
-
-          {:error, reason} ->
-            handle_error(reason, state)
-        end
-
-      _ ->
+    case LiveStreamServer.heartbeat(state.stream_id) do
+      :ok ->
         {:ok, state}
+
+      {:error, reason} ->
+        handle_error(reason, state)
     end
   end
+
+  def websocket_info(:server_heartbeat, state), do: {:ok, state}
 
   def websocket_info(:parser_check, %{parser: nil} = state),
     do: handle_error(:header_timeout, state)
