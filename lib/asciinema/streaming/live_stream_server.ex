@@ -145,6 +145,8 @@ defmodule Asciinema.Streaming.LiveStreamServer do
   end
 
   @impl true
+  def handle_cast({:info, _from}, %{last_stream_time: nil} = state), do: {:noreply, state}
+
   def handle_cast({:info, pid}, state) do
     stream_time = current_stream_time(state.last_stream_time, state.last_event_time)
 
