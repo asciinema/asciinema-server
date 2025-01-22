@@ -45,7 +45,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
          :ok <- authorize(stream, user_id) do
       Logger.info("consumer/#{stream.id}: connected")
       state = %{stream_id: stream.id, reset: false}
-      LiveStreamServer.subscribe(stream.id, [:reset, :output, :input, :resize, :marker, :offline])
+      LiveStreamServer.subscribe(stream.id, [:output, :input, :resize, :marker, :offline, :reset])
       LiveStreamServer.request_info(stream.id)
       ViewerTracker.track(stream.id)
       Process.send_after(self(), :info_timeout, @info_timeout)
