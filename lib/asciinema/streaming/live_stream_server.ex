@@ -207,7 +207,8 @@ defmodule Asciinema.Streaming.LiveStreamServer do
     Logger.info("stream/#{state.stream_id}: terminating (#{inspect(reason)})")
     Logger.debug("stream/#{state.stream_id}: state: #{inspect(state)}")
 
-    publish(state.stream_id, :end)
+    time = current_stream_time(state.last_stream_time, state.last_event_time) || 0.0
+    publish(state.stream_id, :end, %{time: time})
     Streaming.update_live_stream(state.stream, online: false)
 
     :ok
@@ -222,7 +223,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
     %{state | last_stream_time: time, last_event_time: Timex.now()}
   end
 
-  defp publish(stream_id, event, data \\ nil) do
+  defp publish(stream_id, event, data) do
     update = %Update{
       stream_id: stream_id,
       event: event,
@@ -270,6 +271,8 @@ defmodule Asciinema.Streaming.LiveStreamServer do
 
     %{state | shutdown_timer: timer}
   end
+
+  defp current_stream_time(nil, nil), do: nil
 
   defp current_stream_time(last_stream_time, last_event_time) do
     last_stream_time + Timex.diff(Timex.now(), last_event_time, :microseconds)

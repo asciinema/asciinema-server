@@ -128,8 +128,10 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     {:reply, marker_message(time, label), state}
   end
 
-  def websocket_info(%LiveStreamServer.Update{event: :end}, state) do
-    {:reply, eot_message(), state}
+  def websocket_info(%LiveStreamServer.Update{event: :end} = update, state) do
+    %{time: time} = update.data
+
+    {:reply, eot_message(time), state}
   end
 
   def websocket_info(:client_ping, state) do
@@ -310,10 +312,12 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     {:binary, msg}
   end
 
-  defp eot_message do
+  defp eot_message(time) do
     msg = <<
       # message type: EOT
-      0x04::8
+      0x04::8,
+      # current stream time
+      time::little-64
     >>
 
     {:binary, msg}
