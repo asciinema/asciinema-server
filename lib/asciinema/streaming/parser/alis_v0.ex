@@ -43,7 +43,13 @@ defmodule Asciinema.Streaming.Parser.AlisV0 do
         %{status: status} = state
       )
       when status in [:init, :eot] do
-    commands = [reset: %{time: time, term_size: {cols, rows}, term_init: init}]
+    commands = [
+      reset: %{
+        time: time_as_micros(time),
+        term_size: {cols, rows},
+        term_init: init
+      }
+    ]
 
     {:ok, commands, %{state | status: :online}}
   end
@@ -75,7 +81,7 @@ defmodule Asciinema.Streaming.Parser.AlisV0 do
       when status in [:init, :eot] do
     commands = [
       reset: %{
-        time: time,
+        time: time_as_micros(time),
         term_size: {cols, rows},
         term_init: init,
         term_theme: parse_theme(theme)
@@ -101,7 +107,7 @@ defmodule Asciinema.Streaming.Parser.AlisV0 do
         },
         %{status: :online} = state
       ) do
-    {:ok, [output: {time, text}], state}
+    {:ok, [output: {time_as_micros(time), text}], state}
   end
 
   def parse(
@@ -120,7 +126,7 @@ defmodule Asciinema.Streaming.Parser.AlisV0 do
         },
         %{status: :online} = state
       ) do
-    {:ok, [input: {time, text}], state}
+    {:ok, [input: {time_as_micros(time), text}], state}
   end
 
   def parse(
@@ -139,7 +145,7 @@ defmodule Asciinema.Streaming.Parser.AlisV0 do
         },
         %{status: :online} = state
       ) do
-    {:ok, [resize: {time, {cols, rows}}], state}
+    {:ok, [resize: {time_as_micros(time), {cols, rows}}], state}
   end
 
   def parse(
@@ -158,7 +164,7 @@ defmodule Asciinema.Streaming.Parser.AlisV0 do
         },
         %{status: :online} = state
       ) do
-    {:ok, [marker: {time, label}], state}
+    {:ok, [marker: {time_as_micros(time), label}], state}
   end
 
   def parse({:binary, <<0x04>>}, %{status: status} = state) when status in [:init, :online] do
@@ -178,4 +184,6 @@ defmodule Asciinema.Streaming.Parser.AlisV0 do
       palette: Enum.slice(colors, 2..-1)
     }
   end
+
+  defp time_as_micros(time), do: round(time * 1_000_000)
 end
