@@ -44,7 +44,7 @@ defmodule Asciinema.Streaming.Parser.AlisV0 do
       )
       when status in [:init, :eot] do
     commands = [
-      reset: %{
+      init: %{
         time: time_as_micros(time),
         term_size: {cols, rows},
         term_init: init
@@ -80,7 +80,7 @@ defmodule Asciinema.Streaming.Parser.AlisV0 do
       )
       when status in [:init, :eot] do
     commands = [
-      reset: %{
+      init: %{
         time: time_as_micros(time),
         term_size: {cols, rows},
         term_init: init,

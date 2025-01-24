@@ -26,7 +26,7 @@ defmodule Asciinema.Streaming.Parser.Json do
   def handle_message(%{"width" => cols, "height" => rows} = header, state)
       when is_integer(cols) and is_integer(rows) do
     commands = [
-      reset: %{
+      init: %{
         time: 0.0,
         term_size: {cols, rows},
         term_theme: parse_theme(header["theme"])
@@ -37,7 +37,7 @@ defmodule Asciinema.Streaming.Parser.Json do
   end
 
   def handle_message(_message, %{first: true}) do
-    {:error, :reset_expected}
+    {:error, :init_expected}
   end
 
   def handle_message([time, "o", data], state) when is_number(time) and is_binary(data) do

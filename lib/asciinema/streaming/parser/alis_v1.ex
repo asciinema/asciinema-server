@@ -41,7 +41,7 @@ defmodule Asciinema.Streaming.Parser.AlisV1 do
         %{status: status} = state
       )
       when status in [:init, :eot] do
-    commands = [reset: %{time: time, term_size: {cols, rows}, term_init: init}]
+    commands = [init: %{time: time, term_size: {cols, rows}, term_init: init}]
 
     {:ok, commands, %{state | status: :online, time_offset: time}}
   end
@@ -73,7 +73,7 @@ defmodule Asciinema.Streaming.Parser.AlisV1 do
       )
       when status in [:init, :eot] do
     commands = [
-      reset: %{
+      init: %{
         time: time,
         term_size: {cols, rows},
         term_init: init,
@@ -111,7 +111,7 @@ defmodule Asciinema.Streaming.Parser.AlisV1 do
       )
       when status in [:init, :eot] do
     commands = [
-      reset: %{
+      init: %{
         time: time,
         term_size: {cols, rows},
         term_init: init,

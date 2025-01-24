@@ -175,9 +175,9 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
   @max_cols 720
   @max_rows 200
 
-  defp run_command({:reset, %{term_size: {cols, rows}} = meta}, %{status: s} = state)
+  defp run_command({:init, %{term_size: {cols, rows}, time: time} = meta}, %{status: s} = state)
        when s != :online do
-    Logger.info("producer/#{state.stream_id}: reset (#{cols}x#{rows})")
+    Logger.info("producer/#{state.stream_id}: init (#{cols}x#{rows} @#{time / 1_000_000.0})")
 
     if cols > 0 and rows > 0 and cols <= @max_cols and rows <= @max_rows do
       ensure_server(state.stream_id)
