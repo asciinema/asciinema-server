@@ -7,7 +7,7 @@ defmodule Asciinema.Streaming.Parser.AlisV1 do
 
   def name, do: "v1.alis"
 
-  def init, do: %{status: :new}
+  def init, do: %{status: :new, time_offset: 0}
 
   def parse({:binary, "ALiS\x01"}, %{status: :new} = state) do
     {:ok, [], %{state | status: :init}}
@@ -24,7 +24,8 @@ defmodule Asciinema.Streaming.Parser.AlisV1 do
             # message type: init
             1::8,
             # current stream time
-            time::little-64,
+            time_len::8,
+            time::little-size(time_len * 8),
             # terminal width in columns
             cols::little-16,
             # terminal height in rows
@@ -42,7 +43,7 @@ defmodule Asciinema.Streaming.Parser.AlisV1 do
       when status in [:init, :eot] do
     commands = [reset: %{time: time, term_size: {cols, rows}, term_init: init}]
 
-    {:ok, commands, %{state | status: :online}}
+    {:ok, commands, %{state | status: :online, time_offset: time}}
   end
 
   def parse(
@@ -52,7 +53,8 @@ defmodule Asciinema.Streaming.Parser.AlisV1 do
             # message type: init
             1::8,
             # current stream time
-            time::little-64,
+            time_len::8,
+            time::little-size(time_len * 8),
             # terminal width in columns
             cols::little-16,
             # terminal height in rows
@@ -79,7 +81,7 @@ defmodule Asciinema.Streaming.Parser.AlisV1 do
       }
     ]
 
-    {:ok, commands, %{state | status: :online}}
+    {:ok, commands, %{state | status: :online, time_offset: time}}
   end
 
   def parse(
@@ -89,7 +91,8 @@ defmodule Asciinema.Streaming.Parser.AlisV1 do
             # message type: init
             1::8,
             # current stream time
-            time::little-64,
+            time_len::8,
+            time::little-size(time_len * 8),
             # terminal width in columns
             cols::little-16,
             # terminal height in rows
@@ -116,7 +119,7 @@ defmodule Asciinema.Streaming.Parser.AlisV1 do
       }
     ]
 
-    {:ok, commands, %{state | status: :online}}
+    {:ok, commands, %{state | status: :online, time_offset: time}}
   end
 
   def parse(
@@ -126,7 +129,8 @@ defmodule Asciinema.Streaming.Parser.AlisV1 do
             # message type: output
             ?o,
             # current stream time
-            time::little-64,
+            time_len::8,
+            time::little-size(time_len * 8),
             # output length
             text_len::little-32,
             # output payload
@@ -134,8 +138,10 @@ defmodule Asciinema.Streaming.Parser.AlisV1 do
           >>
         },
         %{status: :online} = state
-      ) do
-    {:ok, [output: {time, text}], state}
+      )
+      when time_len in [1, 2, 4, 8] do
+    time = state.time_offset + time
+    {:ok, [output: {time, text}], %{state | time_offset: time}}
   end
 
   def parse(
@@ -145,7 +151,8 @@ defmodule Asciinema.Streaming.Parser.AlisV1 do
             # message type: input
             ?i,
             # current stream time
-            time::little-64,
+            time_len::8,
+            time::little-size(time_len * 8),
             # input length
             text_len::little-32,
             # input payload
@@ -153,8 +160,10 @@ defmodule Asciinema.Streaming.Parser.AlisV1 do
           >>
         },
         %{status: :online} = state
-      ) do
-    {:ok, [input: {time, text}], state}
+      )
+      when time_len in [1, 2, 4, 8] do
+    time = state.time_offset + time
+    {:ok, [input: {time, text}], %{state | time_offset: time}}
   end
 
   def parse(
@@ -164,7 +173,8 @@ defmodule Asciinema.Streaming.Parser.AlisV1 do
             # message type: resize
             ?r,
             # current stream time
-            time::little-64,
+            time_len::8,
+            time::little-size(time_len * 8),
             # terminal width in columns
             cols::little-16,
             # terminal height in rows
@@ -172,8 +182,10 @@ defmodule Asciinema.Streaming.Parser.AlisV1 do
           >>
         },
         %{status: :online} = state
-      ) do
-    {:ok, [resize: {time, {cols, rows}}], state}
+      )
+      when time_len in [1, 2, 4, 8] do
+    time = state.time_offset + time
+    {:ok, [resize: {time, {cols, rows}}], %{state | time_offset: time}}
   end
 
   def parse(
@@ -183,7 +195,8 @@ defmodule Asciinema.Streaming.Parser.AlisV1 do
             # message type: marker
             ?m,
             # current stream time
-            time::little-64,
+            time_len::8,
+            time::little-size(time_len * 8),
             # marker label length
             label_len::little-32,
             # marker label payload
@@ -191,8 +204,10 @@ defmodule Asciinema.Streaming.Parser.AlisV1 do
           >>
         },
         %{status: :online} = state
-      ) do
-    {:ok, [marker: {time, label}], state}
+      )
+      when time_len in [1, 2, 4, 8] do
+    time = state.time_offset + time
+    {:ok, [marker: {time, label}], %{state | time_offset: time}}
   end
 
   def parse({:binary, <<0x04>>}, %{status: status} = state) when status in [:init, :online] do

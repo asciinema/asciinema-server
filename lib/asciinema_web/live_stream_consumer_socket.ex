@@ -43,7 +43,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     with {:ok, stream} <- fetch_live_stream(token),
          :ok <- authorize(stream, user_id) do
       Logger.info("consumer/#{stream.id}: connected")
-      state = %{stream_id: stream.id, reset: false}
+      state = %{stream_id: stream.id, reset: false, last_event_time: 0.0}
       LiveStreamServer.subscribe(stream.id, [:output, :input, :resize, :marker, :end, :reset])
       LiveStreamServer.request_info(stream.id)
       ViewerTracker.track(stream.id)
@@ -80,7 +80,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
        update.data.term_size,
        update.data[:term_init],
        update.data[:term_theme]
-     ), %{state | reset: true}}
+     ), %{state | reset: true, last_event_time: update.data.time}}
   end
 
   def websocket_info(%LiveStreamServer.Update{event: :info} = update, %{reset: false} = state) do
@@ -93,7 +93,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
        update.data.term_size,
        update.data.term_init,
        update.data.term_theme
-     ), %{state | reset: true}}
+     ), %{state | reset: true, last_event_time: update.data.time}}
   end
 
   def websocket_info(%LiveStreamServer.Update{event: :info}, state) do
@@ -106,32 +106,47 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
 
   def websocket_info(%LiveStreamServer.Update{event: :output} = update, state) do
     {time, text} = update.data
+    rel_time = time - state.last_event_time
+    msg = output_message(rel_time, text)
+    state = %{state | last_event_time: time}
 
-    {:reply, output_message(time, text), state}
+    {:reply, msg, state}
   end
 
   def websocket_info(%LiveStreamServer.Update{event: :input} = update, state) do
     {time, text} = update.data
+    rel_time = time - state.last_event_time
+    msg = input_message(rel_time, text)
+    state = %{state | last_event_time: time}
 
-    {:reply, input_message(time, text), state}
+    {:reply, msg, state}
   end
 
   def websocket_info(%LiveStreamServer.Update{event: :resize} = update, state) do
     {time, term_size} = update.data
+    rel_time = time - state.last_event_time
+    msg = resize_message(rel_time, term_size)
+    state = %{state | last_event_time: time}
 
-    {:reply, resize_message(time, term_size), state}
+    {:reply, msg, state}
   end
 
   def websocket_info(%LiveStreamServer.Update{event: :marker} = update, state) do
     {time, label} = update.data
+    rel_time = time - state.last_event_time
+    msg = marker_message(rel_time, label)
+    state = %{state | last_event_time: time}
 
-    {:reply, marker_message(time, label), state}
+    {:reply, msg, state}
   end
 
   def websocket_info(%LiveStreamServer.Update{event: :end} = update, state) do
     %{time: time} = update.data
+    rel_time = time - state.last_event_time
+    msg = eot_message(rel_time)
+    state = %{state | last_event_time: time}
 
-    {:reply, eot_message(time), state}
+    {:reply, msg, state}
   end
 
   def websocket_info(:client_ping, state) do
@@ -194,22 +209,21 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     term_init = term_init || ""
     term_init_len = byte_size(term_init)
 
-    msg = <<
-      # message type: init
-      1::8,
-      # current stream time
-      time::little-64,
-      # terminal width in columns
-      cols::little-16,
-      # terminal height in rows
-      rows::little-16,
-      # theme format: none
-      0::8,
-      # length of the vt init payload
-      term_init_len::little-32,
-      # vt init payload
-      term_init::binary
-    >>
+    msg =
+      <<1::8>> <>
+        encode_rel_time(time) <>
+        <<
+          # terminal width in columns
+          cols::little-16,
+          # terminal height in rows
+          rows::little-16,
+          # theme format: none
+          0::8,
+          # length of the vt init payload
+          term_init_len::little-32,
+          # vt init payload
+          term_init::binary
+        >>
 
     {:binary, msg}
   end
@@ -222,106 +236,101 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     term_init = term_init || ""
     term_init_len = byte_size(term_init)
 
-    msg = <<
-      # message type: init
-      1::8,
-      # current stream time
-      time::little-64,
-      # terminal width in columns
-      cols::little-16,
-      # terminal height in rows
-      rows::little-16,
-      # theme format: 8 or 16
-      theme_format::8,
-      # theme colors
-      theme::binary,
-      # length of the vt init payload
-      term_init_len::little-32,
-      # vt init payload
-      term_init::binary
-    >>
+    msg =
+      <<1::8>> <>
+        encode_rel_time(time) <>
+        <<
+          # terminal width in columns
+          cols::little-16,
+          # terminal height in rows
+          rows::little-16,
+          # theme format: 8 or 16
+          theme_format::8,
+          # theme colors
+          theme::binary,
+          # length of the vt init payload
+          term_init_len::little-32,
+          # vt init payload
+          term_init::binary
+        >>
 
     {:binary, msg}
   end
 
-  defp output_message(time, text) do
+  defp output_message(rel_time, text) do
     text_len = byte_size(text)
 
-    msg = <<
-      # message type: output
-      ?o,
-      # current stream time
-      time::little-64,
-      # output length
-      text_len::little-32,
-      # output payload
-      text::binary
-    >>
+    msg =
+      <<?o>> <>
+        encode_rel_time(rel_time) <>
+        <<
+          # output text length
+          text_len::little-32,
+          # output text payload
+          text::binary
+        >>
 
     {:binary, msg}
   end
 
-  defp input_message(time, text) do
+  defp input_message(rel_time, text) do
     text_len = byte_size(text)
 
-    msg = <<
-      # message type: input
-      ?i,
-      # current stream time
-      time::little-64,
-      # input length
-      text_len::little-32,
-      # input payload
-      text::binary
-    >>
+    msg =
+      <<?i>> <>
+        encode_rel_time(rel_time) <>
+        <<
+          # input text length
+          text_len::little-32,
+          # input text payload
+          text::binary
+        >>
 
     {:binary, msg}
   end
 
-  defp resize_message(time, term_size) do
+  defp resize_message(rel_time, term_size) do
     {cols, rows} = term_size
 
-    msg = <<
-      # message type: resize
-      ?r,
-      # current stream time
-      time::little-64,
-      # terminal width in columns
-      cols::little-16,
-      # terminal height in rows
-      rows::little-16
-    >>
+    msg =
+      <<?r>> <>
+        encode_rel_time(rel_time) <>
+        <<
+          # terminal width in columns
+          cols::little-16,
+          # terminal height in rows
+          rows::little-16
+        >>
 
     {:binary, msg}
   end
 
-  defp marker_message(time, label) do
+  defp marker_message(rel_time, label) do
     label_len = byte_size(label)
 
-    msg = <<
-      # message type: marker
-      ?m,
-      # current stream time
-      time::little-64,
-      # marker label length
-      label_len::little-32,
-      # marker label payload
-      label::binary
-    >>
+    msg =
+      <<?m>> <>
+        encode_rel_time(rel_time) <>
+        <<
+          # marker label length
+          label_len::little-32,
+          # marker label payload
+          label::binary
+        >>
 
     {:binary, msg}
   end
 
-  defp eot_message(time) do
-    msg = <<
-      # message type: EOT
-      0x04::8,
-      # current stream time
-      time::little-64
-    >>
+  defp eot_message(rel_time) do
+    msg = <<0x04::8>> <> encode_rel_time(rel_time)
 
     {:binary, msg}
   end
+
+  defp encode_rel_time(rel_time) when rel_time < 256, do: <<0x01, rel_time::8>>
+  defp encode_rel_time(rel_time) when rel_time < 65536, do: <<0x02, rel_time::little-16>>
+  defp encode_rel_time(rel_time) when rel_time < 4_294_967_296, do: <<0x04, rel_time::little-32>>
+  defp encode_rel_time(rel_time), do: <<0x08, rel_time::little-64>>
 
   defp encode_theme(%{fg: fg, bg: bg, palette: palette}) do
     for {r, g, b} <- [fg, bg | palette], into: <<>> do
