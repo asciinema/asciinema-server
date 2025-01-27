@@ -3,6 +3,8 @@ defmodule Asciinema.Streaming.Parser.AlisV1 do
   asciinema live stream protocol v1 parser.
   """
 
+  alias Asciinema.Leb128
+
   @behaviour Asciinema.Streaming.Parser
 
   def name, do: "v1.alis"
@@ -17,205 +19,117 @@ defmodule Asciinema.Streaming.Parser.AlisV1 do
     {:error, "unsupported ALiS version/configuration: #{inspect(rest)}"}
   end
 
-  def parse(
-        {
-          :binary,
-          <<
-            # message type: init
-            1::8,
-            # current stream time
-            time_len::8,
-            time::little-size(time_len * 8),
-            # terminal width in columns
-            cols::little-16,
-            # terminal height in rows
-            rows::little-16,
-            # theme format: none
-            0::8,
-            # length of the vt init payload
-            init_len::little-32,
-            # vt init payload
-            init::binary-size(init_len)
-          >>
-        },
-        %{status: status} = state
-      )
+  def parse({:binary, <<0x01::8, rest::binary>>}, %{status: status} = state)
       when status in [:init, :eot] do
-    commands = [init: %{time: time, term_size: {cols, rows}, term_init: init}]
+    init = parse_init(rest)
 
-    {:ok, commands, %{state | status: :online, time_offset: time}}
+    {:ok, [init: init], %{state | status: :online, time_offset: init.time}}
   end
 
-  def parse(
-        {
-          :binary,
-          <<
-            # message type: init
-            1::8,
-            # current stream time
-            time_len::8,
-            time::little-size(time_len * 8),
-            # terminal width in columns
-            cols::little-16,
-            # terminal height in rows
-            rows::little-16,
-            # theme format: 8 color palette
-            8::8,
-            # theme colors
-            theme::binary-size((2 + 8) * 3),
-            # length of the vt init payload
-            init_len::little-32,
-            # vt init payload
-            init::binary-size(init_len)
-          >>
-        },
-        %{status: status} = state
-      )
-      when status in [:init, :eot] do
-    commands = [
-      init: %{
-        time: time,
-        term_size: {cols, rows},
-        term_init: init,
-        term_theme: parse_theme(theme)
-      }
-    ]
-
-    {:ok, commands, %{state | status: :online, time_offset: time}}
-  end
-
-  def parse(
-        {
-          :binary,
-          <<
-            # message type: init
-            1::8,
-            # current stream time
-            time_len::8,
-            time::little-size(time_len * 8),
-            # terminal width in columns
-            cols::little-16,
-            # terminal height in rows
-            rows::little-16,
-            # theme format: 16 color palette
-            16::8,
-            # theme colors
-            theme::binary-size((2 + 16) * 3),
-            # length of the vt init payload
-            init_len::little-32,
-            # vt init payload
-            init::binary-size(init_len)
-          >>
-        },
-        %{status: status} = state
-      )
-      when status in [:init, :eot] do
-    commands = [
-      init: %{
-        time: time,
-        term_size: {cols, rows},
-        term_init: init,
-        term_theme: parse_theme(theme)
-      }
-    ]
-
-    {:ok, commands, %{state | status: :online, time_offset: time}}
-  end
-
-  def parse(
-        {
-          :binary,
-          <<
-            # message type: output
-            ?o,
-            # current stream time
-            time_len::8,
-            time::little-size(time_len * 8),
-            # output length
-            text_len::little-32,
-            # output payload
-            text::binary-size(text_len)
-          >>
-        },
-        %{status: :online} = state
-      )
-      when time_len in [1, 2, 4, 8] do
+  def parse({:binary, <<?o, rest::binary>>}, %{status: :online} = state) do
+    {time, text} = parse_output(rest)
     time = state.time_offset + time
+
     {:ok, [output: {time, text}], %{state | time_offset: time}}
   end
 
-  def parse(
-        {
-          :binary,
-          <<
-            # message type: input
-            ?i,
-            # current stream time
-            time_len::8,
-            time::little-size(time_len * 8),
-            # input length
-            text_len::little-32,
-            # input payload
-            text::binary-size(text_len)
-          >>
-        },
-        %{status: :online} = state
-      )
-      when time_len in [1, 2, 4, 8] do
+  def parse({:binary, <<?i, rest::binary>>}, %{status: :online} = state) do
+    {time, text} = parse_input(rest)
     time = state.time_offset + time
+
     {:ok, [input: {time, text}], %{state | time_offset: time}}
   end
 
-  def parse(
-        {
-          :binary,
-          <<
-            # message type: resize
-            ?r,
-            # current stream time
-            time_len::8,
-            time::little-size(time_len * 8),
-            # terminal width in columns
-            cols::little-16,
-            # terminal height in rows
-            rows::little-16
-          >>
-        },
-        %{status: :online} = state
-      )
-      when time_len in [1, 2, 4, 8] do
+  def parse({:binary, <<?r, rest::binary>>}, %{status: :online} = state) do
+    {time, size} = parse_resize(rest)
     time = state.time_offset + time
-    {:ok, [resize: {time, {cols, rows}}], %{state | time_offset: time}}
+
+    {:ok, [resize: {time, size}], %{state | time_offset: time}}
   end
 
-  def parse(
-        {
-          :binary,
-          <<
-            # message type: marker
-            ?m,
-            # current stream time
-            time_len::8,
-            time::little-size(time_len * 8),
-            # marker label length
-            label_len::little-32,
-            # marker label payload
-            label::binary-size(label_len)
-          >>
-        },
-        %{status: :online} = state
-      )
-      when time_len in [1, 2, 4, 8] do
+  def parse({:binary, <<?m, rest::binary>>}, %{status: :online} = state) do
+    {time, label} = parse_marker(rest)
     time = state.time_offset + time
+
     {:ok, [marker: {time, label}], %{state | time_offset: time}}
   end
 
-  def parse({:binary, <<0x04>>}, %{status: status} = state) when status in [:init, :online] do
-    {:ok, [eot: %{}], %{state | status: :eot}}
+  def parse({:binary, <<0x04, rest::binary>>}, %{status: status} = state)
+      when status in [:init, :online] do
+    time = parse_eot(rest)
+
+    {:ok, [eot: {time, %{}}], %{state | status: :eot}}
   end
 
   def parse({_type, _payload}, _state) do
     {:error, :message_invalid}
+  end
+
+  defp parse_init(bytes) do
+    {time, bytes} = decode_varint(bytes)
+    {cols, bytes} = decode_varint(bytes)
+    {rows, bytes} = decode_varint(bytes)
+
+    {theme, bytes} =
+      case bytes do
+        <<0::8, rest::binary>> ->
+          {nil, rest}
+
+        <<8::8, theme::binary-size((2 + 8) * 3), rest::binary>> ->
+          {parse_theme(theme), rest}
+
+        <<16::8, theme::binary-size((2 + 16) * 3), rest::binary>> ->
+          {parse_theme(theme), rest}
+      end
+
+    {term_init_len, bytes} = decode_varint(bytes)
+    <<term_init::binary-size(term_init_len)>> = bytes
+
+    %{time: time, term_size: {cols, rows}, term_init: term_init, term_theme: theme}
+  end
+
+  defp parse_output(bytes) do
+    {time, bytes} = decode_varint(bytes)
+    {text_len, bytes} = decode_varint(bytes)
+    <<text::binary-size(text_len)>> = bytes
+
+    {time, text}
+  end
+
+  defp parse_input(bytes) do
+    {time, bytes} = decode_varint(bytes)
+    {text_len, bytes} = decode_varint(bytes)
+    <<text::binary-size(text_len)>> = bytes
+
+    {time, text}
+  end
+
+  defp parse_resize(bytes) do
+    {time, bytes} = decode_varint(bytes)
+    {cols, bytes} = decode_varint(bytes)
+    {rows, ""} = decode_varint(bytes)
+
+    {time, {cols, rows}}
+  end
+
+  defp parse_marker(bytes) do
+    {time, bytes} = decode_varint(bytes)
+    {label_len, bytes} = decode_varint(bytes)
+    <<label::binary-size(label_len)>> = bytes
+
+    {time, label}
+  end
+
+  defp parse_eot(bytes) do
+    {time, ""} = decode_varint(bytes)
+
+    time
+  end
+
+  defp decode_varint(bytes) do
+    {value, rest} = Leb128.decode(bytes)
+
+    {value, rest}
   end
 
   defp parse_theme(theme) do

@@ -1,5 +1,5 @@
 defmodule AsciinemaWeb.LiveStreamConsumerSocket do
-  alias Asciinema.{Accounts, Authorization, Streaming}
+  alias Asciinema.{Accounts, Authorization, Leb128, Streaming}
   alias Asciinema.Streaming.{LiveStreamServer, ViewerTracker}
   alias AsciinemaWeb.Endpoint
   require Logger
@@ -75,7 +75,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     Logger.debug("consumer/#{state.stream_id}: init (#{cols}x#{rows})")
 
     {:reply,
-     init_message(
+     serialize_init(
        update.data.time,
        update.data.term_size,
        update.data[:term_init],
@@ -88,7 +88,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     Logger.debug("consumer/#{state.stream_id}: info (#{cols}x#{rows})")
 
     {:reply,
-     init_message(
+     serialize_init(
        update.data.time,
        update.data.term_size,
        update.data.term_init,
@@ -107,7 +107,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   def websocket_info(%LiveStreamServer.Update{event: :output} = update, state) do
     {time, text} = update.data
     rel_time = time - state.last_event_time
-    msg = output_message(rel_time, text)
+    msg = serialize_output(rel_time, text)
     state = %{state | last_event_time: time}
 
     {:reply, msg, state}
@@ -116,7 +116,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   def websocket_info(%LiveStreamServer.Update{event: :input} = update, state) do
     {time, text} = update.data
     rel_time = time - state.last_event_time
-    msg = input_message(rel_time, text)
+    msg = serialize_input(rel_time, text)
     state = %{state | last_event_time: time}
 
     {:reply, msg, state}
@@ -125,7 +125,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   def websocket_info(%LiveStreamServer.Update{event: :resize} = update, state) do
     {time, term_size} = update.data
     rel_time = time - state.last_event_time
-    msg = resize_message(rel_time, term_size)
+    msg = serialize_resize(rel_time, term_size)
     state = %{state | last_event_time: time}
 
     {:reply, msg, state}
@@ -134,7 +134,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   def websocket_info(%LiveStreamServer.Update{event: :marker} = update, state) do
     {time, label} = update.data
     rel_time = time - state.last_event_time
-    msg = marker_message(rel_time, label)
+    msg = serialize_marker(rel_time, label)
     state = %{state | last_event_time: time}
 
     {:reply, msg, state}
@@ -143,7 +143,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   def websocket_info(%LiveStreamServer.Update{event: :end} = update, state) do
     %{time: time} = update.data
     rel_time = time - state.last_event_time
-    msg = eot_message(rel_time)
+    msg = serialize_eot(rel_time)
     state = %{state | last_event_time: time}
 
     {:reply, msg, state}
@@ -204,135 +204,81 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
 
   defp magic_string, do: {:binary, "ALiS\x01"}
 
-  defp init_message(time, term_size, term_init, nil) do
+  defp serialize_init(time, term_size, term_init, nil) do
     {cols, rows} = term_size
     term_init = term_init || ""
     term_init_len = byte_size(term_init)
 
     msg =
       <<1::8>> <>
-        encode_rel_time(time) <>
-        <<
-          # terminal width in columns
-          cols::little-16,
-          # terminal height in rows
-          rows::little-16,
-          # theme format: none
-          0::8,
-          # length of the vt init payload
-          term_init_len::little-32,
-          # vt init payload
-          term_init::binary
-        >>
+        encode_varint(time) <>
+        encode_varint(cols) <>
+        encode_varint(rows) <>
+        <<0::8>> <>
+        encode_varint(term_init_len) <>
+        term_init
 
     {:binary, msg}
   end
 
-  defp init_message(time, term_size, term_init, theme) do
+  defp serialize_init(time, term_size, term_init, theme) do
     {cols, rows} = term_size
     theme_format = length(theme.palette)
     true = theme_format in [8, 16]
-    theme = encode_theme(theme)
+    theme = serialize_theme(theme)
     term_init = term_init || ""
     term_init_len = byte_size(term_init)
 
     msg =
       <<1::8>> <>
-        encode_rel_time(time) <>
-        <<
-          # terminal width in columns
-          cols::little-16,
-          # terminal height in rows
-          rows::little-16,
-          # theme format: 8 or 16
-          theme_format::8,
-          # theme colors
-          theme::binary,
-          # length of the vt init payload
-          term_init_len::little-32,
-          # vt init payload
-          term_init::binary
-        >>
+        encode_varint(time) <>
+        encode_varint(cols) <>
+        encode_varint(rows) <>
+        <<theme_format::8>> <>
+        theme <>
+        encode_varint(term_init_len) <>
+        term_init
 
     {:binary, msg}
   end
 
-  defp output_message(rel_time, text) do
+  defp serialize_output(time, text) do
     text_len = byte_size(text)
-
-    msg =
-      <<?o>> <>
-        encode_rel_time(rel_time) <>
-        <<
-          # output text length
-          text_len::little-32,
-          # output text payload
-          text::binary
-        >>
+    msg = <<?o>> <> encode_varint(time) <> encode_varint(text_len) <> text
 
     {:binary, msg}
   end
 
-  defp input_message(rel_time, text) do
+  defp serialize_input(time, text) do
     text_len = byte_size(text)
-
-    msg =
-      <<?i>> <>
-        encode_rel_time(rel_time) <>
-        <<
-          # input text length
-          text_len::little-32,
-          # input text payload
-          text::binary
-        >>
+    msg = <<?i>> <> encode_varint(time) <> encode_varint(text_len) <> text
 
     {:binary, msg}
   end
 
-  defp resize_message(rel_time, term_size) do
+  defp serialize_resize(time, term_size) do
     {cols, rows} = term_size
-
-    msg =
-      <<?r>> <>
-        encode_rel_time(rel_time) <>
-        <<
-          # terminal width in columns
-          cols::little-16,
-          # terminal height in rows
-          rows::little-16
-        >>
+    msg = <<?r>> <> encode_varint(time) <> encode_varint(cols) <> encode_varint(rows)
 
     {:binary, msg}
   end
 
-  defp marker_message(rel_time, label) do
+  defp serialize_marker(time, label) do
     label_len = byte_size(label)
-
-    msg =
-      <<?m>> <>
-        encode_rel_time(rel_time) <>
-        <<
-          # marker label length
-          label_len::little-32,
-          # marker label payload
-          label::binary
-        >>
+    msg = <<?m>> <> encode_varint(time) <> encode_varint(label_len) <> label
 
     {:binary, msg}
   end
 
-  defp eot_message(rel_time) do
-    msg = <<0x04::8>> <> encode_rel_time(rel_time)
+  defp serialize_eot(time) do
+    msg = <<0x04::8>> <> encode_varint(time)
 
     {:binary, msg}
   end
 
-  defp encode_rel_time(rel_time) when rel_time < 256, do: <<0x01, rel_time::8>>
-  defp encode_rel_time(rel_time) when rel_time < 65536, do: <<0x02, rel_time::little-16>>
-  defp encode_rel_time(rel_time) when rel_time < 4_294_967_296, do: <<0x04, rel_time::little-32>>
-  defp encode_rel_time(rel_time), do: <<0x08, rel_time::little-64>>
+  defp encode_varint(value), do: Leb128.encode(value)
 
-  defp encode_theme(%{fg: fg, bg: bg, palette: palette}) do
+  defp serialize_theme(%{fg: fg, bg: bg, palette: palette}) do
     for {r, g, b} <- [fg, bg | palette], into: <<>> do
       <<r::8, g::8, b::8>>
     end
