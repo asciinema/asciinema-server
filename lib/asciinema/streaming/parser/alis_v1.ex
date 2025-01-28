@@ -69,37 +69,22 @@ defmodule Asciinema.Streaming.Parser.AlisV1 do
     {time, bytes} = decode_varint(bytes)
     {cols, bytes} = decode_varint(bytes)
     {rows, bytes} = decode_varint(bytes)
-
-    {theme, bytes} =
-      case bytes do
-        <<0::8, rest::binary>> ->
-          {nil, rest}
-
-        <<8::8, theme::binary-size((2 + 8) * 3), rest::binary>> ->
-          {parse_theme(theme), rest}
-
-        <<16::8, theme::binary-size((2 + 16) * 3), rest::binary>> ->
-          {parse_theme(theme), rest}
-      end
-
-    {term_init_len, bytes} = decode_varint(bytes)
-    <<term_init::binary-size(term_init_len)>> = bytes
+    {theme, bytes} = parse_theme(bytes)
+    {term_init, ""} = parse_string(bytes)
 
     %{time: time, term_size: {cols, rows}, term_init: term_init, term_theme: theme}
   end
 
   defp parse_output(bytes) do
     {time, bytes} = decode_varint(bytes)
-    {text_len, bytes} = decode_varint(bytes)
-    <<text::binary-size(text_len)>> = bytes
+    {text, ""} = parse_string(bytes)
 
     {time, text}
   end
 
   defp parse_input(bytes) do
     {time, bytes} = decode_varint(bytes)
-    {text_len, bytes} = decode_varint(bytes)
-    <<text::binary-size(text_len)>> = bytes
+    {text, ""} = parse_string(bytes)
 
     {time, text}
   end
@@ -114,8 +99,7 @@ defmodule Asciinema.Streaming.Parser.AlisV1 do
 
   defp parse_marker(bytes) do
     {time, bytes} = decode_varint(bytes)
-    {label_len, bytes} = decode_varint(bytes)
-    <<label::binary-size(label_len)>> = bytes
+    {label, ""} = parse_string(bytes)
 
     {time, label}
   end
@@ -126,13 +110,29 @@ defmodule Asciinema.Streaming.Parser.AlisV1 do
     time
   end
 
-  defp decode_varint(bytes) do
-    {value, rest} = Leb128.decode(bytes)
+  defp decode_varint(bytes), do: Leb128.decode(bytes)
 
-    {value, rest}
+  defp parse_string(bytes) do
+    {len, bytes} = decode_varint(bytes)
+    <<text::binary-size(len), rest::binary>> = bytes
+
+    {text, rest}
   end
 
-  defp parse_theme(theme) do
+  defp parse_theme(bytes) do
+    case bytes do
+      <<0::8, rest::binary>> ->
+        {nil, rest}
+
+      <<8::8, theme::binary-size((2 + 8) * 3), rest::binary>> ->
+        {do_parse_theme(theme), rest}
+
+      <<16::8, theme::binary-size((2 + 16) * 3), rest::binary>> ->
+        {do_parse_theme(theme), rest}
+    end
+  end
+
+  defp do_parse_theme(theme) do
     colors = for <<r::8, g::8, b::8 <- theme>>, do: {r, g, b}
 
     %{

@@ -204,54 +204,29 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
 
   defp magic_string, do: {:binary, "ALiS\x01"}
 
-  defp serialize_init(time, term_size, term_init, nil) do
-    {cols, rows} = term_size
-    term_init = term_init || ""
-    term_init_len = byte_size(term_init)
-
-    msg =
-      <<1::8>> <>
-        encode_varint(time) <>
-        encode_varint(cols) <>
-        encode_varint(rows) <>
-        <<0::8>> <>
-        encode_varint(term_init_len) <>
-        term_init
-
-    {:binary, msg}
-  end
-
   defp serialize_init(time, term_size, term_init, theme) do
     {cols, rows} = term_size
-    theme_format = length(theme.palette)
-    true = theme_format in [8, 16]
-    theme = serialize_theme(theme)
     term_init = term_init || ""
-    term_init_len = byte_size(term_init)
 
     msg =
       <<1::8>> <>
         encode_varint(time) <>
         encode_varint(cols) <>
         encode_varint(rows) <>
-        <<theme_format::8>> <>
-        theme <>
-        encode_varint(term_init_len) <>
-        term_init
+        serialize_theme(theme) <>
+        serialize_string(term_init)
 
     {:binary, msg}
   end
 
   defp serialize_output(time, text) do
-    text_len = byte_size(text)
-    msg = <<?o>> <> encode_varint(time) <> encode_varint(text_len) <> text
+    msg = <<?o>> <> encode_varint(time) <> serialize_string(text)
 
     {:binary, msg}
   end
 
   defp serialize_input(time, text) do
-    text_len = byte_size(text)
-    msg = <<?i>> <> encode_varint(time) <> encode_varint(text_len) <> text
+    msg = <<?i>> <> encode_varint(time) <> serialize_string(text)
 
     {:binary, msg}
   end
@@ -264,8 +239,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   end
 
   defp serialize_marker(time, label) do
-    label_len = byte_size(label)
-    msg = <<?m>> <> encode_varint(time) <> encode_varint(label_len) <> label
+    msg = <<?m>> <> encode_varint(time) <> serialize_string(label)
 
     {:binary, msg}
   end
@@ -278,7 +252,18 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
 
   defp encode_varint(value), do: Leb128.encode(value)
 
-  defp serialize_theme(%{fg: fg, bg: bg, palette: palette}) do
+  defp serialize_string(text), do: encode_varint(byte_size(text)) <> text
+
+  defp serialize_theme(nil), do: <<0::8>>
+
+  defp serialize_theme(theme) do
+    format = length(theme.palette)
+    true = format in [8, 16]
+
+    <<format::8>> <> do_serialize_theme(theme)
+  end
+
+  defp do_serialize_theme(%{fg: fg, bg: bg, palette: palette}) do
     for {r, g, b} <- [fg, bg | palette], into: <<>> do
       <<r::8, g::8, b::8>>
     end
