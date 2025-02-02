@@ -1,43 +1,55 @@
 defmodule AsciinemaWeb.LiveStreamConsumerSocket do
-  alias Asciinema.{Accounts, Authorization, Streaming}
+  alias Asciinema.{Accounts, Authorization, Leb128, Streaming}
   alias Asciinema.Streaming.{LiveStreamServer, ViewerTracker}
   alias AsciinemaWeb.Endpoint
   require Logger
 
   @behaviour :cowboy_websocket
 
-  @info_timeout 1_000
+  @protocol "v1.alis"
   @client_ping_interval 15_000
 
   # Callbacks
 
   @impl true
   def init(req, _opts) do
-    state = %{
+    params = %{
       token: req.bindings[:public_token],
       user_id: user_id_from_session(req),
-      stream_id: nil
+      stream_id: nil,
+      protocol: nil
     }
 
-    {:cowboy_websocket, req, state, %{compress: true}}
+    case :cowboy_req.parse_header("sec-websocket-protocol", req) do
+      :undefined ->
+        {:cowboy_websocket, req, params}
+
+      protos ->
+        if Enum.member?(protos, @protocol) do
+          req = :cowboy_req.set_resp_header("sec-websocket-protocol", @protocol, req)
+          {:cowboy_websocket, req, %{params | protocol: @protocol}, %{compress: true}}
+        else
+          {:cowboy_websocket, req, params}
+        end
+    end
   end
 
   @impl true
+  def websocket_init(%{protocol: nil} = state) do
+    {:reply, {:close, 1002, "protocol negotiation failed"}, state}
+  end
+
   def websocket_init(%{token: token, user_id: user_id}) do
     with {:ok, stream} <- fetch_live_stream(token),
          :ok <- authorize(stream, user_id) do
       Logger.info("consumer/#{stream.id}: connected")
-      state = %{stream_id: stream.id, reset: false}
-      LiveStreamServer.subscribe(stream.id, :reset)
-      LiveStreamServer.subscribe(stream.id, :output)
-      LiveStreamServer.subscribe(stream.id, :resize)
-      LiveStreamServer.subscribe(stream.id, :offline)
+      state = %{stream_id: stream.id, init: false, last_event_time: 0.0}
+      LiveStreamServer.subscribe(stream.id, [:output, :input, :resize, :marker, :end, :reset])
       LiveStreamServer.request_info(stream.id)
       ViewerTracker.track(stream.id)
-      Process.send_after(self(), :info_timeout, @info_timeout)
       Process.send_after(self(), :client_ping, @client_ping_interval)
 
-      {:reply, header_message(), state}
+      {:reply, magic_string(), state}
     else
       {:error, :stream_not_found} ->
         Logger.warn("consumer: stream not found for public token #{token}")
@@ -58,28 +70,83 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   @impl true
   def websocket_info(message, state)
 
-  def websocket_info(%LiveStreamServer.Update{event: e} = update, state)
-      when e in [:info, :reset] do
-    {{cols, rows}, _, _, _} = update.data
-    Logger.debug("consumer/#{state.stream_id}: reset (#{cols}x#{rows})")
+  def websocket_info(%LiveStreamServer.Update{event: :reset} = update, state) do
+    %{term_size: {cols, rows}} = update.data
+    Logger.debug("consumer/#{state.stream_id}: init (#{cols}x#{rows})")
 
-    {:reply, reset_message(update.data), %{state | reset: true}}
+    {:reply,
+     serialize_init(
+       update.data.time,
+       update.data.term_size,
+       update.data[:term_init],
+       update.data[:term_theme]
+     ), %{state | init: true, last_event_time: update.data.time}}
   end
 
-  def websocket_info(%LiveStreamServer.Update{}, %{reset: false} = state) do
+  def websocket_info(%LiveStreamServer.Update{event: :info} = update, %{init: false} = state) do
+    %{term_size: {cols, rows}} = update.data
+    Logger.debug("consumer/#{state.stream_id}: info (#{cols}x#{rows})")
+
+    {:reply,
+     serialize_init(
+       update.data.time,
+       update.data.term_size,
+       update.data.term_init,
+       update.data.term_theme
+     ), %{state | init: true, last_event_time: update.data.time}}
+  end
+
+  def websocket_info(%LiveStreamServer.Update{event: :info}, state) do
+    {:ok, state}
+  end
+
+  def websocket_info(%LiveStreamServer.Update{}, %{init: false} = state) do
     {:ok, state}
   end
 
   def websocket_info(%LiveStreamServer.Update{event: :output} = update, state) do
-    {:reply, output_message(update.data), state}
+    {time, text} = update.data
+    rel_time = time - state.last_event_time
+    msg = serialize_output(rel_time, text)
+    state = %{state | last_event_time: time}
+
+    {:reply, msg, state}
+  end
+
+  def websocket_info(%LiveStreamServer.Update{event: :input} = update, state) do
+    {time, text} = update.data
+    rel_time = time - state.last_event_time
+    msg = serialize_input(rel_time, text)
+    state = %{state | last_event_time: time}
+
+    {:reply, msg, state}
   end
 
   def websocket_info(%LiveStreamServer.Update{event: :resize} = update, state) do
-    {:reply, resize_message(update.data), state}
+    {time, term_size} = update.data
+    rel_time = time - state.last_event_time
+    msg = serialize_resize(rel_time, term_size)
+    state = %{state | last_event_time: time}
+
+    {:reply, msg, state}
   end
 
-  def websocket_info(%LiveStreamServer.Update{event: :offline}, state) do
-    {:reply, offline_message(), state}
+  def websocket_info(%LiveStreamServer.Update{event: :marker} = update, state) do
+    {time, label} = update.data
+    rel_time = time - state.last_event_time
+    msg = serialize_marker(rel_time, label)
+    state = %{state | last_event_time: time}
+
+    {:reply, msg, state}
+  end
+
+  def websocket_info(%LiveStreamServer.Update{event: :end} = update, state) do
+    %{time: time} = update.data
+    rel_time = time - state.last_event_time
+    msg = serialize_eot(rel_time)
+    state = %{state | last_event_time: time}
+
+    {:reply, msg, state}
   end
 
   def websocket_info(:client_ping, state) do
@@ -88,17 +155,13 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     {:reply, :ping, state}
   end
 
-  def websocket_info(:info_timeout, %{reset: false} = state) do
-    {:reply, offline_message(), state}
-  end
-
-  def websocket_info(:info_timeout, %{reset: true} = state), do: {:ok, state}
-
   @impl true
   def terminate(reason, _req, state) do
+    stream_id = state[:stream_id] || state[:token] || "?"
+    Logger.info("consumer/#{stream_id}: terminating (#{inspect(reason)})")
+    Logger.debug("consumer/#{stream_id}: state: #{inspect(state)}")
+
     if stream_id = state[:stream_id] do
-      Logger.info("consumer/#{stream_id}: terminating (#{inspect(reason)})")
-      Logger.debug("consumer/#{stream_id}: state: #{inspect(state)}")
       ViewerTracker.untrack(stream_id)
     end
 
@@ -139,102 +202,68 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     end
   end
 
-  defp header_message, do: {:binary, "ALiS\x01"}
+  defp magic_string, do: {:binary, "ALiS\x01"}
 
-  defp reset_message({vt_size, init, time, nil}) do
-    {cols, rows} = vt_size
-    init = init || ""
-    init_len = byte_size(init)
+  defp serialize_init(time, term_size, term_init, theme) do
+    {cols, rows} = term_size
+    term_init = term_init || ""
 
-    msg = <<
-      # message type: reset
-      1::8,
-      # terminal width in columns
-      cols::little-16,
-      # terminal height in rows
-      rows::little-16,
-      # current stream time
-      time::little-float-32,
-      # theme format: none
-      0::8,
-      # length of the vt init payload
-      init_len::little-32,
-      # vt init payload
-      init::binary
-    >>
+    msg =
+      <<1::8>> <>
+        encode_varint(time) <>
+        encode_varint(cols) <>
+        encode_varint(rows) <>
+        serialize_theme(theme) <>
+        serialize_string(term_init)
 
     {:binary, msg}
   end
 
-  defp reset_message({vt_size, init, time, theme}) do
-    {cols, rows} = vt_size
-    theme_format = length(theme.palette)
-    theme = encode_theme(theme)
-    init = init || ""
-    init_len = byte_size(init)
-
-    msg = <<
-      # message type: reset
-      1::8,
-      # terminal width in columns
-      cols::little-16,
-      # terminal height in rows
-      rows::little-16,
-      # current stream time
-      time::little-float-32,
-      # theme format: 8 or 16
-      theme_format::8,
-      # theme colors
-      theme::binary,
-      # length of the vt init payload
-      init_len::little-32,
-      # vt init payload
-      init::binary
-    >>
+  defp serialize_output(time, text) do
+    msg = <<?o>> <> encode_varint(time) <> serialize_string(text)
 
     {:binary, msg}
   end
 
-  defp output_message(event) do
-    {time, data} = event
-    data_len = byte_size(data)
-
-    msg = <<
-      # message type: output
-      ?o,
-      # current stream time
-      time::little-float-32,
-      # output length
-      data_len::little-32,
-      # output payload
-      data::binary
-    >>
+  defp serialize_input(time, text) do
+    msg = <<?i>> <> encode_varint(time) <> serialize_string(text)
 
     {:binary, msg}
   end
 
-  defp resize_message(event) do
-    {time, {cols, rows}} = event
-
-    msg = <<
-      # message type: resize
-      ?r,
-      # current stream time
-      time::little-float-32,
-      # terminal width in columns
-      cols::little-16,
-      # terminal height in rows
-      rows::little-16
-    >>
+  defp serialize_resize(time, term_size) do
+    {cols, rows} = term_size
+    msg = <<?r>> <> encode_varint(time) <> encode_varint(cols) <> encode_varint(rows)
 
     {:binary, msg}
   end
 
-  defp offline_message do
-    {:binary, <<4::8>>}
+  defp serialize_marker(time, label) do
+    msg = <<?m>> <> encode_varint(time) <> serialize_string(label)
+
+    {:binary, msg}
   end
 
-  defp encode_theme(%{fg: fg, bg: bg, palette: palette}) do
+  defp serialize_eot(time) do
+    msg = <<0x04::8>> <> encode_varint(time)
+
+    {:binary, msg}
+  end
+
+  defp encode_varint(value), do: Leb128.encode(value)
+
+  defp serialize_string(text), do: encode_varint(byte_size(text)) <> text
+
+  defp serialize_theme(nil), do: <<0::8>>
+
+  defp serialize_theme(theme) do
+    format = length(theme.palette)
+    true = format in [8, 16]
+
+    <<format::8>> <> do_serialize_theme(theme)
+  end
+
+  defp do_serialize_theme(%{fg: fg, bg: bg, palette: palette}) do
     for {r, g, b} <- [fg, bg | palette], into: <<>> do
       <<r::8, g::8, b::8>>
     end

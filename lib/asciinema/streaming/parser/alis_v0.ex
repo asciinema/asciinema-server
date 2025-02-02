@@ -1,5 +1,14 @@
-defmodule Asciinema.Streaming.Parser.Alis do
+defmodule Asciinema.Streaming.Parser.AlisV0 do
+  @moduledoc """
+  asciinema live stream protocol v0 parser.
+
+  A prototype protocol, used by 3.0 RC CLI. 
+  TODO: Remove after release of the final CLI 3.0
+  """
+
   @behaviour Asciinema.Streaming.Parser
+
+  def name, do: "v0.alis"
 
   def init, do: %{status: :new}
 
@@ -15,7 +24,7 @@ defmodule Asciinema.Streaming.Parser.Alis do
         {
           :binary,
           <<
-            # message type: reset
+            # message type: init
             1::8,
             # terminal width in columns
             cols::little-16,
@@ -33,8 +42,14 @@ defmodule Asciinema.Streaming.Parser.Alis do
         },
         %{status: status} = state
       )
-      when status in [:init, :offline] do
-    commands = [reset: %{size: {cols, rows}, init: init, time: time, theme: nil}]
+      when status in [:init, :eot] do
+    commands = [
+      init: %{
+        time: time_as_micros(time),
+        term_size: {cols, rows},
+        term_init: init
+      }
+    ]
 
     {:ok, commands, %{state | status: :online}}
   end
@@ -43,7 +58,7 @@ defmodule Asciinema.Streaming.Parser.Alis do
         {
           :binary,
           <<
-            # message type: reset
+            # message type: init
             1::8,
             # terminal width in columns
             cols::little-16,
@@ -52,7 +67,6 @@ defmodule Asciinema.Streaming.Parser.Alis do
             # current stream time
             time::little-float-32,
             # theme format: 16 color palette, legacy variant, used by RC CLIs
-            # TODO: remove after release of the final CLI 3.0
             1::8,
             # theme colors
             theme::binary-size((2 + 16) * 3),
@@ -64,68 +78,15 @@ defmodule Asciinema.Streaming.Parser.Alis do
         },
         %{status: status} = state
       )
-      when status in [:init, :offline] do
-    commands = [reset: %{size: {cols, rows}, init: init, time: time, theme: parse_theme(theme)}]
-
-    {:ok, commands, %{state | status: :online}}
-  end
-
-  def parse(
-        {
-          :binary,
-          <<
-            # message type: reset
-            1::8,
-            # terminal width in columns
-            cols::little-16,
-            # terminal height in rows
-            rows::little-16,
-            # current stream time
-            time::little-float-32,
-            # theme format: 8 color palette
-            8::8,
-            # theme colors
-            theme::binary-size((2 + 8) * 3),
-            # length of the vt init payload
-            init_len::little-32,
-            # vt init payload
-            init::binary-size(init_len)
-          >>
-        },
-        %{status: status} = state
-      )
-      when status in [:init, :offline] do
-    commands = [reset: %{size: {cols, rows}, init: init, time: time, theme: parse_theme(theme)}]
-
-    {:ok, commands, %{state | status: :online}}
-  end
-
-  def parse(
-        {
-          :binary,
-          <<
-            # message type: reset
-            1::8,
-            # terminal width in columns
-            cols::little-16,
-            # terminal height in rows
-            rows::little-16,
-            # current stream time
-            time::little-float-32,
-            # theme format: 16 color palette
-            16::8,
-            # theme colors
-            theme::binary-size((2 + 16) * 3),
-            # length of the vt init payload
-            init_len::little-32,
-            # vt init payload
-            init::binary-size(init_len)
-          >>
-        },
-        %{status: status} = state
-      )
-      when status in [:init, :offline] do
-    commands = [reset: %{size: {cols, rows}, init: init, time: time, theme: parse_theme(theme)}]
+      when status in [:init, :eot] do
+    commands = [
+      init: %{
+        time: time_as_micros(time),
+        term_size: {cols, rows},
+        term_init: init,
+        term_theme: parse_theme(theme)
+      }
+    ]
 
     {:ok, commands, %{state | status: :online}}
   end
@@ -139,14 +100,33 @@ defmodule Asciinema.Streaming.Parser.Alis do
             # current stream time
             time::little-float-32,
             # output length
-            data_len::little-32,
+            text_len::little-32,
             # output payload
-            data::binary-size(data_len)
+            text::binary-size(text_len)
           >>
         },
         %{status: :online} = state
       ) do
-    {:ok, [output: {time, data}], state}
+    {:ok, [output: {time_as_micros(time), text}], state}
+  end
+
+  def parse(
+        {
+          :binary,
+          <<
+            # message type: input
+            ?i,
+            # current stream time
+            time::little-float-32,
+            # input length
+            text_len::little-32,
+            # input payload
+            text::binary-size(text_len)
+          >>
+        },
+        %{status: :online} = state
+      ) do
+    {:ok, [input: {time_as_micros(time), text}], state}
   end
 
   def parse(
@@ -165,11 +145,30 @@ defmodule Asciinema.Streaming.Parser.Alis do
         },
         %{status: :online} = state
       ) do
-    {:ok, [resize: {time, {cols, rows}}], state}
+    {:ok, [resize: {time_as_micros(time), {cols, rows}}], state}
+  end
+
+  def parse(
+        {
+          :binary,
+          <<
+            # message type: marker
+            ?m,
+            # current stream time
+            time::little-float-32,
+            # marker label length
+            label_len::little-32,
+            # marker label payload
+            label::binary-size(label_len)
+          >>
+        },
+        %{status: :online} = state
+      ) do
+    {:ok, [marker: {time_as_micros(time), label}], state}
   end
 
   def parse({:binary, <<0x04>>}, %{status: status} = state) when status in [:init, :online] do
-    {:ok, [status: :offline], %{state | status: :offline}}
+    {:ok, [eot: %{}], %{state | status: :eot}}
   end
 
   def parse({_type, _payload}, _state) do
@@ -185,4 +184,6 @@ defmodule Asciinema.Streaming.Parser.Alis do
       palette: Enum.slice(colors, 2..-1)
     }
   end
+
+  defp time_as_micros(time), do: round(time * 1_000_000)
 end

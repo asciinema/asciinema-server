@@ -1,6 +1,7 @@
 use avt::Vt;
 use rustler::{Atom, Binary, Encoder, Env, Error, NifResult, ResourceArc, Term};
 use std::{ops::RangeInclusive, sync::RwLock};
+use std::str;
 
 const BOX_DRAWING_RANGE: RangeInclusive<char> = '\u{2500}'..='\u{257f}';
 const BLOCK_ELEMENTS_RANGE: RangeInclusive<char> = '\u{2580}'..='\u{259f}';
@@ -54,7 +55,16 @@ fn new(
 #[rustler::nif]
 fn feed(resource: ResourceArc<VtResource>, input: Binary) -> NifResult<Atom> {
     let mut vt = convert_err(resource.vt.write(), "rw_lock")?;
-    vt.feed_str(&String::from_utf8_lossy(&input));
+
+    match str::from_utf8(&input) {
+        Ok(s) => {
+            vt.feed_str(s);
+        }
+
+        Err(_) => {
+            vt.feed_str(&String::from_utf8_lossy(&input));
+        }
+    };
 
     Ok(atoms::ok())
 }

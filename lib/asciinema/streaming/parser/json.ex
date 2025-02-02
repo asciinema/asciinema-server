@@ -1,7 +1,13 @@
 defmodule Asciinema.Streaming.Parser.Json do
+  @moduledoc """
+  asciicast v2 compatible stream protocol parser.
+  """
+
   alias Asciinema.Colors
 
   @behaviour Asciinema.Streaming.Parser
+
+  def name, do: "v2.asciicast"
 
   def init, do: %{first: true}
 
@@ -17,26 +23,13 @@ defmodule Asciinema.Streaming.Parser.Json do
     end
   end
 
-  def handle_message(%{"cols" => cols, "rows" => rows} = header, state)
-      when is_integer(cols) and is_integer(rows) do
-    commands = [
-      reset: %{
-        size: {cols, rows},
-        init: header["init"],
-        time: header["time"],
-        theme: parse_theme(header["theme"])
-      }
-    ]
-
-    {:ok, commands, %{state | first: false}}
-  end
-
   def handle_message(%{"width" => cols, "height" => rows} = header, state)
       when is_integer(cols) and is_integer(rows) do
     commands = [
-      reset: %{
-        size: {cols, rows},
-        theme: parse_theme(header["theme"])
+      init: %{
+        time: 0.0,
+        term_size: {cols, rows},
+        term_theme: parse_theme(header["theme"])
       }
     ]
 
@@ -44,11 +37,15 @@ defmodule Asciinema.Streaming.Parser.Json do
   end
 
   def handle_message(_message, %{first: true}) do
-    {:error, :reset_expected}
+    {:error, :init_expected}
   end
 
   def handle_message([time, "o", data], state) when is_number(time) and is_binary(data) do
     {:ok, [output: {time, data}], state}
+  end
+
+  def handle_message([time, "i", data], state) when is_number(time) and is_binary(data) do
+    {:ok, [input: {time, data}], state}
   end
 
   def handle_message([time, "r", data], state) when is_number(time) and is_binary(data) do
@@ -57,6 +54,10 @@ defmodule Asciinema.Streaming.Parser.Json do
     rows = String.to_integer(rows)
 
     {:ok, [resize: {time, {cols, rows}}], state}
+  end
+
+  def handle_message([time, "m", data], state) when is_number(time) and is_binary(data) do
+    {:ok, [marker: {time, data}], state}
   end
 
   def handle_message([time, type, data], state)
@@ -76,7 +77,7 @@ defmodule Asciinema.Streaming.Parser.Json do
       |> String.split(":")
       |> Enum.map(&Colors.parse/1)
 
-    true = length(palette) == 8 or length(palette) == 16
+    true = length(palette) in [8, 16]
 
     %{
       fg: Colors.parse(fg),
