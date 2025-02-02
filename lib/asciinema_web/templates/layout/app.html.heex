@@ -28,6 +28,7 @@
     </main>
 
     <%= render("_footer.html", conn: @conn) %>
+    <script>window.__asciinema__workerUrl = '<%= Routes.static_path(@conn, "/js/player-worker.min.js") %>';</script>
     <script phx-track-static src={Routes.static_path(@conn, "/js/app.js")}>
     </script>
   </body>
