@@ -83,4 +83,7 @@ defmodule AsciinemaWeb.LiveStreamHTML do
   defp owned_by_current_user?(stream, conn) do
     conn.assigns[:current_user] && conn.assigns[:current_user].id == stream.user_id
   end
+
+  def head("show.html", assigns), do: head_for_show(assigns)
+  def head(_, _), do: nil
 end
