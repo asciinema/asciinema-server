@@ -9,7 +9,9 @@
 
   <body class="iframe">
     <%= @inner_content %>
-    <script>window.__asciinema__workerUrl = '<%= Routes.static_path(@conn, "/js/player-worker.min.js") %>';</script>
+    <script>
+      window.__asciinema__workerUrl = '<%= Routes.static_path(@conn, "/js/player-worker.min.js") %>';
+    </script>
     <script src={Routes.static_path(@conn, "/js/iframe.js")}>
     </script>
   </body>
