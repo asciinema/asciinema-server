@@ -1,0 +1,10 @@
+<style>
+  section.cinema, div.ap-player {
+    --term-color-foreground: <%= @theme.fg %>;
+    --term-color-background: <%= @theme.bg %>;
+
+    <%= for {c, i} <- Enum.with_index(Tuple.to_list(@theme.palette)) do %>
+    --term-color-<%= i %>: <%= c %>;
+    <% end %>
+  }
+</style>
