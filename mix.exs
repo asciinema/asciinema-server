@@ -64,7 +64,7 @@ defmodule Asciinema.MixProject do
       # override for scrivener_html
       {:phoenix_view, "~> 2.0.3"},
       {:phoenix_html, "~> 3.3.3", override: true},
-      {:phoenix_live_dashboard, "~> 0.8.3"},
+      {:phoenix_live_dashboard, "~> 0.8.6"},
       {:phoenix_live_reload, "~> 1.5", only: :dev},
       {:phoenix_live_view, "~> 1.0.4"},
       {:phoenix_markdown, "~> 1.0"},
