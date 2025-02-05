@@ -1,7 +1,7 @@
 use avt::Vt;
 use rustler::{Atom, Binary, Encoder, Env, Error, NifResult, ResourceArc, Term};
-use std::{ops::RangeInclusive, sync::RwLock};
 use std::str;
+use std::{ops::RangeInclusive, sync::RwLock};
 
 const BOX_DRAWING_RANGE: RangeInclusive<char> = '\u{2500}'..='\u{257f}';
 const BLOCK_ELEMENTS_RANGE: RangeInclusive<char> = '\u{2580}'..='\u{259f}';
