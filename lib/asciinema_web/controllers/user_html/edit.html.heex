@@ -232,10 +232,10 @@
             <tbody>
               <tr :for={t <- active_tokens(@api_tokens)}>
                 <td>
-                  <code><%= t.token %></code>
+                  <code>{t.token}</code>
                 </td>
                 <td>
-                  <%= time_tag(t.inserted_at) %>
+                  {time_tag(t.inserted_at)}
                 </td>
                 <td>
                   <.link
@@ -251,13 +251,13 @@
 
               <tr :for={t <- revoked_tokens(@api_tokens)} class="revoked">
                 <td>
-                  <code><%= t.token %></code>
+                  <code>{t.token}</code>
                 </td>
                 <td>
-                  <%= time_tag(t.inserted_at) %>
+                  {time_tag(t.inserted_at)}
                 </td>
                 <td>
-                  Revoked <%= time_ago_tag(t.revoked_at) %>
+                  Revoked {time_ago_tag(t.revoked_at)}
                 </td>
               </tr>
             </tbody>
@@ -282,7 +282,7 @@
       </form>
 
       <p>
-        If you ever decide to delete your <%= @conn.host %> account you can do so by clicking that big red button below.
+        If you ever decide to delete your {@conn.host} account you can do so by clicking that big red button below.
       </p>
 
       <p>
@@ -292,7 +292,7 @@
       </p>
 
       <p>
-        NOTE: You'll get a confirmation email sent to <%= @changeset.data.email %>. Open the link from the email to confirm account deletion.
+        NOTE: You'll get a confirmation email sent to {@changeset.data.email}. Open the link from the email to confirm account deletion.
       </p>
     </div>
   </div>

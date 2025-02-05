@@ -13,8 +13,8 @@
 
   <div class="info">
     <h3>
-      <.link href={~p"/a/#{@asciicast}"}><%= title(@asciicast) %></.link>
-      <span class="duration"><%= duration(@asciicast) %></span>
+      <.link href={~p"/a/#{@asciicast}"}>{title(@asciicast)}</.link>
+      <span class="duration">{duration(@asciicast)}</span>
     </h3>
 
     <span class="author-avatar">
@@ -24,9 +24,9 @@
     </span>
 
     <small>
-      by <.link href={author_profile_path(@asciicast)}><%= author_username(@asciicast) %></.link>
+      by <.link href={author_profile_path(@asciicast)}>{author_username(@asciicast)}</.link>
       <%= if !assigns[:no_created_at] do %>
-        <%= time_ago_tag(@asciicast.inserted_at) %>
+        {time_ago_tag(@asciicast.inserted_at)}
       <% end %>
       <.visibility_badge
         :if={assigns[:conn] && owned_by_current_user?(@asciicast, @conn)}

@@ -283,11 +283,7 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
 
   defp select_protocol(protos) do
     # Choose common protos between the client and the server using client preferred order.
-    common = protos -- protos -- @protos
-    # Note the --/2 operator is right associative,
-    # and this would be more clearly expressed as 
-    #   common = protos -- (protos -- @protos)
-    # but mix.format removes the parenthesis ¯\_(ツ)_/¯
+    common = protos -- (protos -- @protos)
 
     List.first(common)
   end

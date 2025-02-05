@@ -16,14 +16,14 @@ defmodule AsciinemaWeb.LiveStreamStatusLive do
             <.live_icon />
 
             <%= if @duration do %>
-              Streaming for <%= @duration %>
+              Streaming for {@duration}
             <% else %>
               Stream just started
             <% end %>
           </span>
 
           <span class="status-line-item">
-            <.eye_solid_icon /> <%= @viewer_count %> watching
+            <.eye_solid_icon /> {@viewer_count} watching
           </span>
         <% {false, nil} -> %>
           <span class="status-line-item">

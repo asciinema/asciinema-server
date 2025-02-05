@@ -16,6 +16,6 @@ defmodule AsciinemaWeb.Admin.Router do
     pipe_through :browser
 
     live_dashboard "/dashboard", metrics: Asciinema.Telemetry
-    oban_dashboard "/oban"
+    oban_dashboard("/oban")
   end
 end

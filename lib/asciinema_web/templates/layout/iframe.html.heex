@@ -8,7 +8,7 @@
   </head>
 
   <body class="iframe">
-    <%= @inner_content %>
+    {@inner_content}
     <script>
       window.__asciinema__workerUrl = '<%= Routes.static_path(@conn, "/js/player-worker.min.js") %>';
     </script>

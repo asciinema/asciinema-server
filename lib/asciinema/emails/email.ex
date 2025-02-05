@@ -14,11 +14,11 @@ defmodule Asciinema.Emails.Email do
   defp sign_up_email_html(assigns) do
     ~H"""
     <.layout>
-      <p>Welcome to <%= @hostname %>!</p>
+      <p>Welcome to {@hostname}!</p>
 
       <p>Open the following link to setup your account:</p>
 
-      <p><a href={@url}><%= @url %></a></p>
+      <p><a href={@url}>{@url}</a></p>
 
       <p>
         <br />
@@ -42,9 +42,9 @@ defmodule Asciinema.Emails.Email do
     <.layout>
       <p>Welcome back!</p>
 
-      <p>Open the following link to log in to your <%= @hostname %> account:</p>
+      <p>Open the following link to log in to your {@hostname} account:</p>
 
-      <p><a href={@url}><%= @url %></a></p>
+      <p><a href={@url}>{@url}</a></p>
 
       <p>
         <br />
@@ -64,11 +64,11 @@ defmodule Asciinema.Emails.Email do
   defp account_deletion_email_html(assigns) do
     ~H"""
     <.layout>
-      <p>It seems you have requested deletion of your <%= @hostname %> account.</p>
+      <p>It seems you have requested deletion of your {@hostname} account.</p>
 
       <p>If you wish to proceed, open the following link in your browser:</p>
 
-      <p><a href={@url}><%= @url %></a></p>
+      <p><a href={@url}>{@url}</a></p>
 
       <p>
         <br /> If you did not initiate this request, just ignore this email.
@@ -120,7 +120,7 @@ defmodule Asciinema.Emails.Email do
         </style>
       </head>
       <body>
-        <%= render_slot(@inner_block) %>
+        {render_slot(@inner_block)}
       </body>
     </html>
     """

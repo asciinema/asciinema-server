@@ -65,7 +65,7 @@ defmodule AsciinemaWeb.RecordingSVG do
 
   def show(assigns) do
     ~H"""
-    <%= raw("<?xml version=\"1.0\"?>") %>
+    {raw("<?xml version=\"1.0\"?>")}
     <.preview
       coords={coords(@asciicast, nil)}
       cols={cols(@asciicast)}
@@ -81,7 +81,7 @@ defmodule AsciinemaWeb.RecordingSVG do
 
   def thumbnail(assigns) do
     ~H"""
-    <%= raw("<?xml version=\"1.0\"?>") %>
+    {raw("<?xml version=\"1.0\"?>")}
     <.preview
       coords={coords(@asciicast, {80, 15})}
       cols={80}
