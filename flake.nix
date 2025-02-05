@@ -19,15 +19,15 @@
       let
         overlays = [ (import rust-overlay) ];
         pkgs = import nixpkgs { inherit system overlays; };
-        otp = pkgs.beam.packages.erlang_25;
+        otp = pkgs.beam.packages.erlang_26;
       in
       {
         devShells.default = pkgs.mkShell {
           nativeBuildInputs = with pkgs; [
-            otp.elixir_1_14
+            otp.elixir_1_18
             otp.elixir-ls
             nodejs_18
-            (rust-bin.stable."1.78.0".default.override { extensions = [ "rust-src" "rust-analyzer" ]; })
+            (rust-bin.stable."1.83.0".default.override { extensions = [ "rust-src" "rust-analyzer" ]; })
             inotify-tools
             librsvg
           ];

@@ -202,7 +202,7 @@ defmodule Asciinema.Recordings do
         {:error, {:unsupported_format, version}}
 
       otherwise ->
-        Logger.warn("error extracting v1 metadata: #{inspect(otherwise)}")
+        Logger.warning("error extracting v1 metadata: #{inspect(otherwise)}")
         {:error, :unknown_format}
     end
   end
@@ -232,7 +232,7 @@ defmodule Asciinema.Recordings do
         {:error, {:unsupported_format, version}}
 
       otherwise ->
-        Logger.warn("error extracting v2 metadata: #{inspect(otherwise)}")
+        Logger.warning("error extracting v2 metadata: #{inspect(otherwise)}")
         {:error, :unknown_format}
     end
   end
