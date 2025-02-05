@@ -74,7 +74,7 @@ defmodule Asciinema.MixProject do
       {:poolboy, "~> 1.5"},
       {:postgrex, ">= 0.0.0"},
       {:remote_ip, "~> 1.1"},
-      {:rustler, "~> 0.27.0"},
+      {:rustler, "~> 0.36.1"},
       {:scrivener_ecto, "~> 2.4"},
       {:scrivener_html, "~> 1.8"},
       {:sentry, "~> 8.0"},
