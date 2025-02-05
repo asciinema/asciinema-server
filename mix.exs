@@ -78,6 +78,7 @@ defmodule Asciinema.MixProject do
       {:scrivener_ecto, "~> 2.4"},
       {:scrivener_html, "~> 1.8"},
       {:sentry, "~> 8.0"},
+      {:stream_data, "~> 1.0", only: :test},
       {:swoosh, "~> 1.16"},
       {:telemetry_metrics, "~> 0.6"},
       {:telemetry_poller, "~> 1.0"},
