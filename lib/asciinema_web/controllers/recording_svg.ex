@@ -415,12 +415,10 @@ defmodule AsciinemaWeb.RecordingSVG do
   def mix_colors(a, b, ratio), do: Colors.mix(a, b, ratio)
 
   defp snapshot(%{snapshot: snapshot}, nil) do
-    Snapshot.new(snapshot || [])
+    snapshot || Snapshot.new([])
   end
 
   defp snapshot(%{snapshot: snapshot}, {cols, rows}) do
-    (snapshot || [])
-    |> Snapshot.new()
-    |> Snapshot.crop(cols, rows)
+    Snapshot.crop(snapshot || Snapshot.new([]), cols, rows)
   end
 end

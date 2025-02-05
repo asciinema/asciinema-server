@@ -73,12 +73,7 @@ defmodule AsciinemaWeb.RecordingHTML do
   defp poster(nil), do: nil
 
   defp poster(snapshot) do
-    text =
-      snapshot
-      |> Snapshot.new()
-      |> Snapshot.seq()
-
-    "data:text/plain," <> text
+    "data:text/plain," <> Snapshot.seq(snapshot)
   end
 
   defp markers(nil), do: nil

@@ -1,6 +1,5 @@
 defmodule Asciinema.Streaming.LiveStreamServer do
   use GenServer, restart: :temporary
-  alias Asciinema.Recordings.Snapshot
   alias Asciinema.Streaming.ViewerTracker
   alias Asciinema.{Colors, PubSub, Streaming, Vt}
   require Logger
@@ -244,7 +243,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
         Keyword.merge(
           [
             online: true,
-            last_started_at: Timex.shift(Timex.now(), milliseconds: -round(time * 1000.0)),
+            last_started_at: Timex.shift(Timex.now(), microseconds: -round(time)),
             cols: cols,
             rows: rows
           ],
@@ -297,7 +296,5 @@ defmodule Asciinema.Streaming.LiveStreamServer do
     {:ok, {lines, cursor}} = Vt.dump_screen(vt)
 
     {lines, cursor}
-    |> Snapshot.new()
-    |> Snapshot.unwrap()
   end
 end
