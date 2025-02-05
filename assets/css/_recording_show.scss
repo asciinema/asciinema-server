@@ -10,6 +10,11 @@
 
     .ap-player {
       box-shadow: color-mix(in oklab, var(--term-color-background) 50%, black) 0px 0px 60px 5px;
+      border: 1px solid color-mix(in oklab,var(--term-color-background) 90%,var(--term-color-foreground));
+
+      .ap-control-bar {
+        border-top: 2px solid color-mix(in oklab,var(--term-color-background) 80%,var(--term-color-foreground));
+      }
     }
 
     div.ap-wrapper:fullscreen {
