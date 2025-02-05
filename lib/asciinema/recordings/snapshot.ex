@@ -66,9 +66,11 @@ defmodule Asciinema.Recordings.Snapshot do
 
   defp invert_colors(attrs), do: attrs
 
-  def regroup(%__MODULE__{mode: mode} = snapshot, mode), do: snapshot
+  def regroup(snapshot, mode, opts \\ [])
 
-  def regroup(%__MODULE__{lines: lines}, :cells) do
+  def regroup(%__MODULE__{mode: mode} = snapshot, mode, _opts), do: snapshot
+
+  def regroup(%__MODULE__{lines: lines}, :cells, _opts) do
     lines =
       Enum.map(lines, fn line ->
         Enum.flat_map(line, &split_segment/1)
@@ -77,8 +79,9 @@ defmodule Asciinema.Recordings.Snapshot do
     %__MODULE__{lines: lines, mode: :cells}
   end
 
-  def regroup(%__MODULE__{lines: lines}, :segments) do
-    lines = Enum.map(lines, &group_line_segments/1)
+  def regroup(%__MODULE__{lines: lines}, :segments, opts) do
+    split_specials = Keyword.get(opts, :split_specials, true)
+    lines = Enum.map(lines, &group_line_segments(&1, split_specials))
 
     %__MODULE__{lines: lines, mode: :segments}
   end
@@ -91,13 +94,13 @@ defmodule Asciinema.Recordings.Snapshot do
     |> Enum.map(&{&1, attrs, char_width})
   end
 
-  defp group_line_segments([]), do: []
+  defp group_line_segments([], _split_specials), do: []
 
-  defp group_line_segments(cells) do
+  defp group_line_segments(cells, split_specials) do
     {segments, last_segment} =
       Enum.reduce(cells, {[], nil}, fn {cur_char, cur_attrs, cur_char_width} = current,
                                        {segments, prev} ->
-        if cur_char_width > 1 || special_char(cur_char) do
+        if split_specials && (cur_char_width > 1 || special_char(cur_char)) do
           {[current, prev | segments], nil}
         else
           case prev do

@@ -12,13 +12,15 @@ defmodule Asciinema.Ecto.Type.Snapshot do
     snapshot =
       value
       |> Jason.decode!()
-      |> Snapshot.new()
+      |> Snapshot.new(:segments)
 
     {:ok, snapshot}
   end
 
   def dump(%Snapshot{} = value) do
     value
+    |> Snapshot.regroup(:cells)
+    |> Snapshot.regroup(:segments, split_specials: false)
     |> Snapshot.unwrap()
     |> Jason.encode()
   end
