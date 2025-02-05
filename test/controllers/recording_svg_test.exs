@@ -1,11 +1,13 @@
 defmodule Asciinema.RecordingSvgTest do
   use ExUnit.Case, async: true
+  alias Asciinema.Recordings.Snapshot
   alias AsciinemaWeb.RecordingSVG
   import Asciinema.Factory
 
   describe "show/1" do
     test "renders SVG document" do
-      asciicast = build(:asciicast, snapshot: [[["foobar", %{}]], [["bazqux", %{}]]])
+      asciicast =
+        build(:asciicast, snapshot: Snapshot.new([[["foobar", %{}]], [["bazqux", %{}]]]))
 
       svg = render_svg(asciicast)
 
@@ -15,10 +17,11 @@ defmodule Asciinema.RecordingSvgTest do
     test "supports RGB color in fg/bg text attrs" do
       asciicast =
         build(:asciicast,
-          snapshot: [
-            [["foo", %{"fg" => [16, 32, 48]}], ["bar", %{"bg" => "rgb(64,80,96)"}]],
-            [["baz", %{"fg" => "#708090"}]]
-          ]
+          snapshot:
+            Snapshot.new([
+              [["foo", %{"fg" => [16, 32, 48]}], ["bar", %{"bg" => "rgb(64,80,96)"}]],
+              [["baz", %{"fg" => "#708090"}]]
+            ])
         )
 
       svg = render_svg(asciicast)

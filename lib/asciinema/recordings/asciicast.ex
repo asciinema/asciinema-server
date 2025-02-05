@@ -24,7 +24,7 @@ defmodule Asciinema.Recordings.Asciicast do
     field :theme_bg, :string
     field :theme_palette, :string
     field :snapshot_at, :float
-    field :snapshot, Asciinema.Ecto.Type.JsonArray
+    field :snapshot, Asciinema.Ecto.Type.Snapshot
     field :command, :string
     field :shell, :string
     field :uname, :string

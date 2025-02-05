@@ -8,7 +8,6 @@ defmodule Asciinema.Recordings do
     Asciicast,
     Markers,
     Paths,
-    Snapshot,
     SnapshotUpdater,
     EventStream,
     Text
@@ -413,8 +412,6 @@ defmodule Asciinema.Recordings do
       end)
 
     {lines, cursor}
-    |> Snapshot.new()
-    |> Snapshot.unwrap()
   end
 
   def title(asciicast) do
