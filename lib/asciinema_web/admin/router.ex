@@ -17,5 +17,7 @@ defmodule AsciinemaWeb.Admin.Router do
 
     live_dashboard "/dashboard", metrics: Asciinema.Telemetry
     oban_dashboard("/oban")
+
+    get "/", HomeController, :show
   end
 end
