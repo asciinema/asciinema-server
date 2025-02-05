@@ -243,7 +243,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
         Keyword.merge(
           [
             online: true,
-            last_started_at: Timex.shift(Timex.now(), milliseconds: -round(time * 1000.0)),
+            last_started_at: Timex.shift(Timex.now(), microseconds: -round(time)),
             cols: cols,
             rows: rows
           ],
