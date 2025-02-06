@@ -33,3 +33,5 @@ config :asciinema, Asciinema.Repo,
 
 config :asciinema, Asciinema.FileStore.Local, path: "/var/opt/asciinema/uploads"
 config :asciinema, Asciinema.FileCache, path: "/var/cache/asciinema"
+
+config :asciinema, Oban, notifier: Oban.Notifiers.PG
