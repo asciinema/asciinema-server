@@ -11,14 +11,14 @@ on:
       - main
 
 env:
-  otp: '25.2.2'
-  elixir: '1.14.3'
+  otp: '26.2.5.7'
+  elixir: '1.18.2'
   node: '18.x'
-  rust: '1.71.0'
+  rust: '1.83.0'
 
 jobs:
   test:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     services:
       postgres:
