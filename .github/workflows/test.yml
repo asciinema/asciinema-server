@@ -78,7 +78,7 @@ jobs:
             ~/.cargo
           key: ${{ runner.os }}-rust-${{ env.rust }}-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
-            ${{ runner.os }}-rust-
+            ${{ runner.os }}-rust-${{ env.rust }}-
       - name: Install mix dependencies
         run: mix deps.get
       - name: Check formatting
