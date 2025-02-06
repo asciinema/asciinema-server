@@ -15,12 +15,12 @@
           </.link>
         </span>
 
-        <h2><%= title(@asciicast) %></h2>
+        <h2>{title(@asciicast)}</h2>
 
         <small>
           by
           <.link href={author_profile_path(@asciicast)}>
-            <%= author_username(@asciicast) %>
+            {author_username(@asciicast)}
           </.link>
           <.time_ago time={@asciicast.inserted_at} />
           <.visibility_badge
@@ -62,7 +62,7 @@
                 data-toggle="modal"
                 data-target="#download-modal"
               >
-                <strong>.<%= filename_ext(@asciicast) %></strong> - original recording
+                <strong>.{filename_ext(@asciicast)}</strong> - original recording
               </.link>
               <.link href="#" class="dropdown-item" rel="nofollow" id="download-txt">
                 <strong>.txt</strong> - plain text version
@@ -136,17 +136,17 @@
             class="status-line-item"
             title="Terminal environment"
           >
-            <.terminal_solid_icon /> <%= m %>
+            <.terminal_solid_icon /> {m}
           </span>
 
           <span class="status-line-item" title="Total views">
-            <.eye_solid_icon /> <%= views_count(@asciicast) %> views
+            <.eye_solid_icon /> {views_count(@asciicast)} views
           </span>
         </div>
 
         <%= if desc = render_markdown(@asciicast.description) do %>
           <hr />
-          <div class="description"><%= desc %></div>
+          <div class="description">{desc}</div>
         <% end %>
       </div>
     </div>
@@ -158,7 +158,7 @@
     <div class="row other-asciicasts">
       <div class="col-md-12">
         <h2>
-          More by <a href={author_profile_path(@asciicast)}><%= author_username(@asciicast) %></a>
+          More by <a href={author_profile_path(@asciicast)}>{author_username(@asciicast)}</a>
         </h2>
 
         <div class="row asciicast-list">

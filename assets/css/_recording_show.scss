@@ -10,10 +10,11 @@
 
     .ap-player {
       box-shadow: color-mix(in oklab, var(--term-color-background) 50%, black) 0px 0px 60px 5px;
-      border: 1px solid color-mix(in oklab,var(--term-color-background) 90%,var(--term-color-foreground));
+      border: 1px solid color-mix(in oklab,var(--term-color-background) 90%, var(--term-color-foreground));
 
+      // TODO: remove after upgrading the player to the newer version
       .ap-control-bar {
-        border-top: 2px solid color-mix(in oklab,var(--term-color-background) 80%,var(--term-color-foreground));
+        border-top: 2px solid color-mix(in oklab,var(--term-color-background) 80%, var(--term-color-foreground));
       }
     }
 

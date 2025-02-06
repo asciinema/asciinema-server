@@ -57,8 +57,8 @@
 
           <li :if={@current_user} class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">
-              <img class="avatar" src={avatar_url(@current_user)} /><%= @current_user.username ||
-                @current_user.email %>
+              <img class="avatar" src={avatar_url(@current_user)} />{@current_user.username ||
+                @current_user.email}
             </a>
             <div class="dropdown-menu">
               <%= if @default_stream do %>

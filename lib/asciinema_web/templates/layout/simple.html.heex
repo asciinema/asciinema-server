@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title><%= page_title(@conn) %></title>
+    <title>{page_title(@conn)}</title>
     <link rel="stylesheet" href={Routes.static_path(@conn, "/css/app.css")} />
     <link rel="shortcut icon" href={Routes.static_path(@conn, "/images/favicon.png")} />
   </head>
@@ -13,7 +13,7 @@
     <div class="container">
       <div class="row">
         <div class="col-md-12">
-          <%= @inner_content %>
+          {@inner_content}
         </div>
       </div>
     </div>

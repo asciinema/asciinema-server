@@ -1,11 +1,11 @@
-ARG ALPINE_VERSION=3.18.0
-ARG ERLANG_OTP_VERSION=25.2.2
-ARG ELIXIR_VERSION=1.14.3
+ARG ALPINE_VERSION=3.21.2
+ARG ERLANG_OTP_VERSION=26.2.5.7
+ARG ELIXIR_VERSION=1.18.2
 
 ## Release building image
 
 # https://github.com/hexpm/bob#docker-images
-FROM docker.io/hexpm/elixir:${ELIXIR_VERSION}-erlang-${ERLANG_OTP_VERSION}-alpine-${ALPINE_VERSION} as builder
+FROM docker.io/hexpm/elixir:${ELIXIR_VERSION}-erlang-${ERLANG_OTP_VERSION}-alpine-${ALPINE_VERSION} AS builder
 
 ARG VERSION
 ARG MIX_ENV=prod

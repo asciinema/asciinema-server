@@ -1,5 +1,6 @@
 defmodule AsciinemaWeb.Admin.Router do
   use AsciinemaWeb, :router
+  import Oban.Web.Router
   import Phoenix.LiveDashboard.Router
 
   pipeline :browser do
@@ -15,5 +16,8 @@ defmodule AsciinemaWeb.Admin.Router do
     pipe_through :browser
 
     live_dashboard "/dashboard", metrics: Asciinema.Telemetry
+    oban_dashboard("/oban")
+
+    get "/", HomeController, :show
   end
 end

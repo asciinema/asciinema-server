@@ -5,29 +5,29 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
     <meta name="csrf-token" content={Plug.CSRFProtection.get_csrf_token()} />
-    <title><%= page_title(@conn) %></title>
+    <title>{page_title(@conn)}</title>
     <link phx-track-static rel="stylesheet" href={Routes.static_path(@conn, "/css/app.css")} />
     <link rel="shortcut icon" href={Routes.static_path(@conn, "/images/favicon.png")} />
 
     <%= if function_exported?(view_module(@conn), :head, 2) do %>
-      <%= view_module(@conn).head(view_template(@conn), assigns) %>
+      {view_module(@conn).head(view_template(@conn), assigns)}
     <% end %>
   </head>
 
   <body class={"l-app " <> body_class(@conn)}>
-    <%= render("_header.html",
+    {render("_header.html",
       conn: @conn,
       current_user: @current_user,
       default_stream: assigns[:default_stream]
-    ) %>
+    )}
 
-    <%= render("_flash.html", flash: @flash) %>
+    {render("_flash.html", flash: @flash)}
 
     <main role="main" class={assigns[:main_class]}>
-      <%= @inner_content %>
+      {@inner_content}
     </main>
 
-    <%= render("_footer.html", conn: @conn) %>
+    {render("_footer.html", conn: @conn)}
     <script>
       window.__asciinema__workerUrl = '<%= Routes.static_path(@conn, "/js/player-worker.min.js") %>';
     </script>

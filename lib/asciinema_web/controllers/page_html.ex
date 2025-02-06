@@ -10,7 +10,7 @@ defmodule AsciinemaWeb.PageHTML do
 
     ~H"""
     <span class="email">
-      <%= @username %>@<%= @domain_1 %><b><%= @domain_2 %></b><%= @domain_2 %>
+      {@username}@{@domain_1}<b><%= @domain_2 %></b>{@domain_2}
     </span>
     """
   end

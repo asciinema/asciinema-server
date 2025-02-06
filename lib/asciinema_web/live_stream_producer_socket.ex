@@ -251,13 +251,13 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
         {:reply, {:close, 4004, "bandwidth exceeded"}, state}
 
       {:parser, reason, message} ->
-        Logger.warn("producer/#{state.stream_id}: parser error: #{reason}")
+        Logger.warning("producer/#{state.stream_id}: parser error: #{reason}")
         Logger.debug("producer/#{state.stream_id}: message: #{inspect(message)}")
 
         {:reply, {:close, 4005, "message parsing error"}, state}
 
       {:stream_not_found, token} ->
-        Logger.warn("producer: stream not found for producer token #{token}")
+        Logger.warning("producer: stream not found for producer token #{token}")
         :timer.sleep(1000)
 
         {:reply, {:close, 4040, "stream not found"}, state}
@@ -283,11 +283,7 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
 
   defp select_protocol(protos) do
     # Choose common protos between the client and the server using client preferred order.
-    common = protos -- protos -- @protos
-    # Note the --/2 operator is right associative,
-    # and this would be more clearly expressed as 
-    #   common = protos -- (protos -- @protos)
-    # but mix.format removes the parenthesis ¯\_(ツ)_/¯
+    common = protos -- (protos -- @protos)
 
     List.first(common)
   end

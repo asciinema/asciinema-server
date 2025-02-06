@@ -52,13 +52,13 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
       {:reply, magic_string(), state}
     else
       {:error, :stream_not_found} ->
-        Logger.warn("consumer: stream not found for public token #{token}")
+        Logger.warning("consumer: stream not found for public token #{token}")
         :timer.sleep(1000)
 
         {:reply, :close, %{stream_id: "?"}}
 
       {:error, :forbidden} ->
-        Logger.warn("consumer: unauthorized connection attempt")
+        Logger.warning("consumer: unauthorized connection attempt")
 
         {:reply, :close, %{stream_id: token}}
     end

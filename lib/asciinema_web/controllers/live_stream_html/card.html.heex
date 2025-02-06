@@ -13,8 +13,8 @@
 
   <div class="info">
     <h3>
-      <.link href={~p"/s/#{@stream}"}><%= title(@stream) %></.link>
-      <span class="duration"><%= duration(@stream) %></span>
+      <.link href={~p"/s/#{@stream}"}>{title(@stream)}</.link>
+      <span class="duration">{duration(@stream)}</span>
     </h3>
 
     <span class="author-avatar">
@@ -24,7 +24,7 @@
     </span>
 
     <small>
-      by <.link href={author_profile_path(@stream)}><%= author_username(@stream) %></.link>
+      by <.link href={author_profile_path(@stream)}>{author_username(@stream)}</.link>
     </small>
   </div>
 </div>

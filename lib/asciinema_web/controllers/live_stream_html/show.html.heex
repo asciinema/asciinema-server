@@ -15,11 +15,10 @@
           </.link>
         </span>
 
-        <h2><%= title(@stream) %></h2>
+        <h2>{title(@stream)}</h2>
 
         <small>
-          by
-          <.link navigate={author_profile_path(@stream)}><%= author_username(@stream) %></.link>
+          by <.link navigate={author_profile_path(@stream)}>{author_username(@stream)}</.link>
           <.visibility_badge
             :if={owned_by_current_user?(@stream, @conn)}
             visibility={@stream.visibility}
@@ -70,15 +69,15 @@
   <div class="container">
     <div class="row">
       <div class="col-md-12 col-xs-12">
-        <%= live_render(@conn, AsciinemaWeb.LiveStreamStatusLive,
+        {live_render(@conn, AsciinemaWeb.LiveStreamStatusLive,
           session: %{"stream_id" => @stream.id}
-        ) %>
+        )}
 
         <%= if desc = render_markdown(@stream.description) do %>
           <hr />
 
           <div class="description">
-            <%= desc %>
+            {desc}
           </div>
         <% end %>
       </div>
@@ -158,7 +157,7 @@ script -f -O live.pipe</code></pre>
     <div class="row other-asciicasts">
       <div class="col-md-12">
         <h2>
-          Recordings by <a href={author_profile_path(@stream)}><%= author_username(@stream) %></a>
+          Recordings by <a href={author_profile_path(@stream)}>{author_username(@stream)}</a>
         </h2>
 
         <div class="row asciicast-list">

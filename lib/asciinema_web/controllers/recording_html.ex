@@ -153,7 +153,7 @@ defmodule AsciinemaWeb.RecordingHTML do
       end
 
     ~H"""
-    <.link href={@href} class={@class} {@rest}><%= @title %></.link>
+    <.link href={@href} class={@class} {@rest}>{@title}</.link>
     """
   end
 
