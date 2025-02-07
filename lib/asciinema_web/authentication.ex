@@ -19,7 +19,7 @@ defmodule AsciinemaWeb.Authentication do
          user when not is_nil(user) <- Accounts.get_user(user_id) do
       conn
       |> assign(:current_user, user)
-      |> assign(:default_stream, user_stream(user))
+      |> assign(:default_stream, user_default_stream(user))
     else
       _ -> conn
     end
@@ -74,7 +74,7 @@ defmodule AsciinemaWeb.Authentication do
     |> put_session(@user_key, user.id)
     |> put_resp_cookie(@token_cookie_name, user.auth_token, max_age: @token_max_age)
     |> assign(:current_user, user)
-    |> assign(:default_stream, user_stream(user))
+    |> assign(:default_stream, user_default_stream(user))
   end
 
   def log_out(conn) do
@@ -105,5 +105,10 @@ defmodule AsciinemaWeb.Authentication do
     put_req_header(conn, "authorization", "Basic " <> auth)
   end
 
-  defp user_stream(user), do: Streaming.get_live_stream(user, nil)
+  defp user_default_stream(user) do
+    case Streaming.fetch_default_live_stream(user) do
+      {:ok, stream} -> stream
+      _ -> nil
+    end
+  end
 end

@@ -3,7 +3,9 @@ defmodule Asciinema do
 
   def create_user(params) do
     with {:ok, user} <- Accounts.create_user(params) do
-      Streaming.create_live_stream!(user)
+      if Streaming.mode() == :static do
+        Streaming.create_live_stream!(user)
+      end
 
       {:ok, user}
     end

@@ -223,6 +223,12 @@ if config_env() in [:prod, :dev] do
       :ok
   end
 
+  mode = env.("STREAMING_MODE")
+
+  if mode in ["static", "dynamic", "disabled"] do
+    config :asciinema, Asciinema.Streaming, mode: String.to_atom(mode)
+  end
+
   if dsn = env.("SENTRY_DSN") do
     config :sentry, dsn: dsn
   else
