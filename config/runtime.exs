@@ -8,79 +8,9 @@ import Config
 
 env = &System.get_env/1
 
-if env.("PHX_SERVER") do
-  config :asciinema, AsciinemaWeb.Endpoint, server: true
-  config :asciinema, AsciinemaWeb.Admin.Endpoint, server: true
-end
-
-if config_env() == :prod do
-  database_url =
-    System.get_env("DATABASE_URL") ||
-      raise """
-      environment variable DATABASE_URL is missing.
-      For example: ecto://USER:PASS@HOST/DATABASE
-      """
-
-  config :asciinema, Asciinema.Repo, url: database_url
-end
-
 if config_env() in [:prod, :dev] do
   if secret_key_base = env.("SECRET_KEY_BASE") do
-    config :asciinema, AsciinemaWeb.Endpoint, secret_key_base: secret_key_base
-    config :asciinema, AsciinemaWeb.Admin.Endpoint, secret_key_base: secret_key_base
     config :asciinema, Asciinema.Accounts, secret: secret_key_base
-  end
-
-  if port = env.("PORT") do
-    config :asciinema, AsciinemaWeb.Endpoint, http: [port: String.to_integer(port)]
-  end
-
-  if url_scheme = env.("URL_SCHEME") do
-    config :asciinema, AsciinemaWeb.Endpoint, url: [scheme: url_scheme]
-
-    case url_scheme do
-      "http" ->
-        config :asciinema, AsciinemaWeb.Endpoint, url: [port: 80]
-
-      "https" ->
-        config :asciinema, AsciinemaWeb.Endpoint, url: [port: 443]
-
-      _ ->
-        :ok
-    end
-  end
-
-  if url_host = env.("URL_HOST") do
-    config :asciinema, AsciinemaWeb.Endpoint, url: [host: url_host]
-  end
-
-  if url_path = env.("URL_PATH") do
-    config :asciinema, AsciinemaWeb.Endpoint, url: [path: url_path]
-    # this requires path prefix stripping at reverse proxy (nginx) level
-  end
-
-  if url_port = env.("URL_PORT") do
-    config :asciinema, AsciinemaWeb.Endpoint, url: [port: String.to_integer(url_port)]
-  end
-
-  if env.("ADMIN_BIND_ALL") do
-    config :asciinema, AsciinemaWeb.Admin.Endpoint, http: [ip: {0, 0, 0, 0}]
-  end
-
-  if port = env.("ADMIN_PORT") do
-    config :asciinema, AsciinemaWeb.Admin.Endpoint, http: [port: String.to_integer(port)]
-  end
-
-  if url_scheme = env.("ADMIN_URL_SCHEME") do
-    config :asciinema, AsciinemaWeb.Admin.Endpoint, url: [scheme: url_scheme]
-  end
-
-  if url_host = env.("ADMIN_URL_HOST") do
-    config :asciinema, AsciinemaWeb.Admin.Endpoint, url: [host: url_host]
-  end
-
-  if url_port = env.("ADMIN_URL_PORT") do
-    config :asciinema, AsciinemaWeb.Admin.Endpoint, url: [port: String.to_integer(url_port)]
   end
 
   if ip_limit = env.("IP_RATE_LIMIT") do
@@ -131,14 +61,6 @@ if config_env() in [:prod, :dev] do
         host: uri.host,
         port: uri.port
     end
-  end
-
-  if db_pool_size = env.("DB_POOL_SIZE") do
-    config :asciinema, Asciinema.Repo, pool_size: String.to_integer(db_pool_size)
-  end
-
-  if env.("ECTO_IPV6") in ~w(true 1) do
-    config :asciinema, Asciinema.Repo, socket_options: [:inet6]
   end
 
   if smtp_host = env.("SMTP_HOST") do
@@ -202,10 +124,6 @@ if config_env() in [:prod, :dev] do
       end
 
     config :asciinema, :unclaimed_recording_ttl, ttls
-  end
-
-  if String.downcase("#{env.("CRON")}") in ["0", "false", "no"] do
-    config :asciinema, Oban, plugins: [{Oban.Plugins.Cron, crontab: []}]
   end
 
   if env.("SIGN_UP_DISABLED") in ["1", "true"] do
