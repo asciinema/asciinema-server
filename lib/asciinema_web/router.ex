@@ -74,9 +74,9 @@ defmodule AsciinemaWeb.Router do
 
     resources "/session", SessionController, only: [:new, :create, :delete], singleton: true
 
-    get "/connect/:api_token", ApiTokenController, :register, as: :connect
+    get "/connect/:install_id", CliController, :register, as: :connect
 
-    resources "/api_tokens", ApiTokenController, only: [:delete]
+    resources "/clis", CliController, only: [:delete]
 
     get "/about", PageController, :about
   end

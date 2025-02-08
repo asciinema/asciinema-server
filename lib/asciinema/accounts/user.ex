@@ -25,6 +25,6 @@ defmodule Asciinema.Accounts.User do
 
     has_many :asciicasts, Asciinema.Recordings.Asciicast
     has_many :live_streams, Asciinema.Streaming.LiveStream
-    has_many :api_tokens, Asciinema.Accounts.ApiToken
+    has_many :clis, Asciinema.Accounts.Cli
   end
 end

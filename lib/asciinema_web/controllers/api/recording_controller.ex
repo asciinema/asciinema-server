@@ -67,17 +67,17 @@ defmodule AsciinemaWeb.Api.RecordingController do
   defp authenticate(conn) do
     %{install_id: install_id, username: username} = conn.assigns
 
-    with {:ok, api_token} <- Accounts.fetch_api_token(install_id) do
-      {:ok, api_token.user}
+    with {:ok, cli} <- Accounts.fetch_cli(install_id) do
+      {:ok, cli.user}
     else
-      {:error, :token_revoked} = result ->
+      {:error, :cli_revoked} = result ->
         result
 
       {:error, :token_not_found} = result ->
         if config(:upload_auth_required, false) do
           result
         else
-          Accounts.create_user_with_api_token(install_id, username)
+          Accounts.create_user_with_cli(install_id, username)
         end
     end
   end
@@ -85,5 +85,5 @@ defmodule AsciinemaWeb.Api.RecordingController do
   defp error_message(:token_missing), do: "Missing recorder token"
   defp error_message(:token_not_found), do: "Unregistered recorder token"
   defp error_message(:token_invalid), do: "Invalid recorder token"
-  defp error_message(:token_revoked), do: "Revoked recorder token"
+  defp error_message(:cli_revoked), do: "Revoked recorder token"
 end

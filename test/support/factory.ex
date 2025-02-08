@@ -1,6 +1,6 @@
 defmodule Asciinema.Factory do
   use ExMachina.Ecto, repo: Asciinema.Repo
-  alias Asciinema.Accounts.{ApiToken, User}
+  alias Asciinema.Accounts.{Cli, User}
   alias Asciinema.FileStore
   alias Asciinema.Recordings.Asciicast
   alias Asciinema.Streaming.LiveStream
@@ -17,15 +17,15 @@ defmodule Asciinema.Factory do
     %{user_factory() | email: nil}
   end
 
-  def api_token_factory do
-    %ApiToken{
+  def cli_factory do
+    %Cli{
       user: build(:user),
       token: sequence(:token, &"token-#{&1}")
     }
   end
 
-  def revoked_api_token_factory do
-    %ApiToken{
+  def revoked_cli_factory do
+    %Cli{
       user: build(:user),
       token: sequence(:token, &"token-#{&1}"),
       revoked_at: Timex.now()

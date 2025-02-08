@@ -86,7 +86,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
     end
 
     test "authenticated user when auth is not required", %{conn: conn, token: token} do
-      insert(:api_token, token: token)
+      insert(:cli, token: token)
       upload = fixture(:upload, %{path: "1/asciicast.json"})
 
       conn = upload(conn, upload)
@@ -97,7 +97,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
     test "authenticated user when auth is required", %{conn: conn, token: token} do
       require_upload_auth()
-      insert(:api_token, token: token)
+      insert(:cli, token: token)
       upload = fixture(:upload, %{path: "2/minimal.cast"})
 
       conn = upload(conn, upload)
@@ -125,8 +125,8 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
     end
 
     test "authentication with revoked token", %{conn: conn, token: token} do
-      insert(:api_token, token: token)
-      token |> Accounts.get_api_token!() |> Accounts.revoke_api_token!()
+      insert(:cli, token: token)
+      token |> Accounts.get_cli!() |> Accounts.revoke_cli!()
       upload = fixture(:upload, %{path: "1/asciicast.json"})
 
       conn = upload(conn, upload)
