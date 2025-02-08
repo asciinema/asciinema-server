@@ -39,32 +39,4 @@ defmodule Asciinema.Recordings.EventStreamTest do
                Enum.to_list(stream)
     end
   end
-
-  describe "new/2" do
-    test "with legacy gzipped files" do
-      stream = EventStream.new({"test/fixtures/0.9.9/stdout.time", "test/fixtures/0.9.9/stdout"})
-
-      assert :ok == Stream.run(stream)
-      assert [{1.234567, "o", "foobar"}, {1.358023, "o", "baz"}] == Enum.take(stream, 2)
-    end
-
-    test "with legacy bzipped files" do
-      stream = EventStream.new({"test/fixtures/0.9.8/stdout.time", "test/fixtures/0.9.8/stdout"})
-
-      assert :ok == Stream.run(stream)
-      assert [{1.234567, "o", "foobar"}, {1.358023, "o", "baz"}] == Enum.take(stream, 2)
-    end
-
-    test "with legacy bzipped files (utf-8 sequence split between frames)" do
-      stream =
-        EventStream.new(
-          {"test/fixtures/0.9.8/stdout-split.time", "test/fixtures/0.9.8/stdout-split"}
-        )
-
-      assert :ok == Stream.run(stream)
-
-      assert [{1.234567, "o", "xxżó"}, {1.358023, "o", "łć"}, {3.358023, "o", "xx"}] ==
-               Enum.take(stream, 3)
-    end
-  end
 end

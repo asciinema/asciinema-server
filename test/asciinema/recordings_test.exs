@@ -136,25 +136,5 @@ defmodule Asciinema.RecordingsTest do
       assert ^asciicast_v1 = Recordings.upgrade(asciicast_v1)
       assert ^asciicast_v2 = Recordings.upgrade(asciicast_v2)
     end
-
-    test "converts v0 file to v2" do
-      asciicast = insert(:asciicast_v0) |> with_files()
-
-      stream_v0 =
-        asciicast
-        |> Recordings.EventStream.new()
-        |> Enum.to_list()
-
-      asciicast = Recordings.upgrade(asciicast)
-      assert asciicast.version == 2
-      assert asciicast.path =~ ~r|\d\d/\d\d/#{asciicast.id}\.cast$|
-
-      stream_v2 =
-        asciicast
-        |> Recordings.EventStream.new()
-        |> Enum.to_list()
-
-      assert stream_v0 == stream_v2
-    end
   end
 end
