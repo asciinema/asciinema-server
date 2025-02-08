@@ -1,4 +1,4 @@
-defmodule Asciinema.LiveStreamControllerTest do
+defmodule AsciinemaWeb.LiveStreamControllerTest do
   use AsciinemaWeb.ConnCase
   import Asciinema.Factory
 
