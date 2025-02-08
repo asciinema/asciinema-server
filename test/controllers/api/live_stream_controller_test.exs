@@ -5,8 +5,8 @@ defmodule Asciinema.Api.LiveStreamControllerTest do
   @default_install_id "9da34ff4-9bf7-45d4-aa88-98c933b15a3f"
 
   setup do
-    opts = Application.get_env(:asciinema, Asciinema.Streaming)
-    on_exit(fn -> Application.put_env(:asciinema, Asciinema.Streaming, opts) end)
+    on_exit_restore_config(Asciinema.Streaming)
+
     :ok
   end
 

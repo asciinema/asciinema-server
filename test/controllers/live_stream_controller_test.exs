@@ -3,8 +3,8 @@ defmodule Asciinema.LiveStreamControllerTest do
   import Asciinema.Factory
 
   setup do
-    opts = Application.get_env(:asciinema, Asciinema.Streaming)
-    on_exit(fn -> Application.put_env(:asciinema, Asciinema.Streaming, opts) end)
+    on_exit_restore_config(Asciinema.Streaming)
+
     :ok
   end
 
