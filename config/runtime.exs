@@ -229,6 +229,10 @@ if config_env() in [:prod, :dev] do
     config :asciinema, Asciinema.Streaming, mode: String.to_atom(mode)
   end
 
+  if env.("UPLOAD_AUTH_REQUIRED") in ["1", "true"] do
+    config :asciinema, AsciinemaWeb.Api.RecordingController, upload_auth_required: true
+  end
+
   if dsn = env.("SENTRY_DSN") do
     config :sentry, dsn: dsn
   else

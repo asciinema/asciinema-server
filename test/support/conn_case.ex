@@ -38,6 +38,11 @@ defmodule AsciinemaWeb.ConnCase do
         |> assign(:current_user, user)
         |> assign(:default_stream, nil)
       end
+
+      def on_exit_restore_config(module) do
+        config = Application.get_env(:asciinema, module, [])
+        on_exit(fn -> Application.put_env(:asciinema, module, config) end)
+      end
     end
   end
 

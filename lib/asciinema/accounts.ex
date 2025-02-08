@@ -221,19 +221,6 @@ defmodule Asciinema.Accounts do
     end
   end
 
-  def get_user_with_api_token(token, tmp_username \\ nil) do
-    case fetch_api_token(token) do
-      {:ok, api_token} ->
-        {:ok, api_token.user}
-
-      {:error, :token_revoked} = result ->
-        result
-
-      {:error, :token_not_found} ->
-        create_user_with_api_token(token, tmp_username)
-    end
-  end
-
   def create_user_with_api_token(token, tmp_username) do
     import Ecto.Changeset
 
