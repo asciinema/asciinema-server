@@ -1,5 +1,5 @@
 defmodule Asciinema.Fixtures do
-  alias Asciinema.{Repo, Recordings}
+  alias Asciinema.Repo
   alias Asciinema.Accounts
   alias Asciinema.Accounts.User
 
@@ -41,23 +41,5 @@ defmodule Asciinema.Fixtures do
     %User{}
     |> Accounts.change_user(attrs)
     |> Repo.insert!()
-  end
-
-  def fixture(:asciicast, attrs) do
-    fixture(:asciicast_v2, attrs)
-  end
-
-  def fixture(:asciicast_v1, _attrs) do
-    user = fixture(:user)
-    upload = fixture(:upload_v1)
-    {:ok, asciicast} = Recordings.create_asciicast(user, upload)
-    asciicast
-  end
-
-  def fixture(:asciicast_v2, _attrs) do
-    user = fixture(:user)
-    upload = fixture(:upload_v2)
-    {:ok, asciicast} = Recordings.create_asciicast(user, upload)
-    asciicast
   end
 end

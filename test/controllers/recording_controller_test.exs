@@ -111,7 +111,7 @@ defmodule Asciinema.RecordingControllerTest do
     end
 
     test "asciicast file, v1 format", %{conn: conn} do
-      asciicast = fixture(:asciicast_v1)
+      asciicast = insert(:asciicast_v1) |> with_file()
       width = asciicast.cols
       url = ~p"/a/#{asciicast}"
 
@@ -121,7 +121,7 @@ defmodule Asciinema.RecordingControllerTest do
     end
 
     test "asciicast file, v2 format", %{conn: conn} do
-      asciicast = fixture(:asciicast_v2)
+      asciicast = insert(:asciicast_v2)
       url = ~p"/a/#{asciicast}"
 
       conn = get(conn, url <> ".json")
@@ -217,7 +217,7 @@ defmodule Asciinema.RecordingControllerTest do
     end
 
     test "embed iframe", %{conn: conn} do
-      asciicast = fixture(:asciicast)
+      asciicast = insert(:asciicast)
 
       conn = get(conn, ~p"/a/#{asciicast}/iframe")
 

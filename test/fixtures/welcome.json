@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "width": 81,
+  "width": 80,
   "height": 20,
   "duration": 128.978812,
   "command": "PS1=\"\u003e \" bash",
