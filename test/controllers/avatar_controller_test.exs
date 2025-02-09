@@ -1,4 +1,4 @@
-defmodule Asciinema.AvatarControllerTest do
+defmodule AsciinemaWeb.AvatarControllerTest do
   use AsciinemaWeb.ConnCase
   import Asciinema.Factory
 

@@ -1,4 +1,4 @@
-defmodule Asciinema.WebFingerControllerTest do
+defmodule AsciinemaWeb.WebFingerControllerTest do
   use AsciinemaWeb.ConnCase
   import Asciinema.Factory
 

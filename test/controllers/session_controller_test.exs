@@ -1,4 +1,4 @@
-defmodule Asciinema.SessionControllerTest do
+defmodule AsciinemaWeb.SessionControllerTest do
   use AsciinemaWeb.ConnCase
   import Asciinema.Factory
   alias Asciinema.Repo

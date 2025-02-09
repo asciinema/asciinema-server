@@ -1,4 +1,4 @@
-defmodule Asciinema.LayoutViewTest do
+defmodule AsciinemaWeb.LayoutViewTest do
   use AsciinemaWeb.ConnCase, async: true
 
   # When testing helpers, you may want to import Phoenix.HTML and

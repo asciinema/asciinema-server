@@ -1,4 +1,4 @@
-defmodule Asciinema.RecordingControllerTest do
+defmodule AsciinemaWeb.RecordingControllerTest do
   use AsciinemaWeb.ConnCase
   import Asciinema.Factory
 

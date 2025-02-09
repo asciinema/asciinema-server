@@ -1,4 +1,4 @@
-defmodule Asciinema.RecordingSvgTest do
+defmodule AsciinemaWeb.RecordingSvgTest do
   use ExUnit.Case, async: true
   alias Asciinema.Recordings.Snapshot
   alias AsciinemaWeb.RecordingSVG

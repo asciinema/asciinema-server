@@ -1,4 +1,4 @@
-defmodule Asciinema.OembedControllerTest do
+defmodule AsciinemaWeb.OembedControllerTest do
   use AsciinemaWeb.ConnCase
   import Asciinema.Factory
 
