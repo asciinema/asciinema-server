@@ -2,18 +2,6 @@ defmodule Asciinema.Recordings.EventStream do
   alias Asciinema.{FileStore, StringUtils}
   alias Asciinema.Recordings.Asciicast
 
-  def new(%Asciicast{version: 0} = asciicast) do
-    {:ok, tmp_dir_path} = Briefly.create(directory: true)
-    local_timing_path = tmp_dir_path <> "/timing"
-    local_data_path = tmp_dir_path <> "/data"
-    store_timing_path = "asciicast/stdout_timing/#{asciicast.id}/#{asciicast.stdout_timing}"
-    store_data_path = "asciicast/stdout/#{asciicast.id}/#{asciicast.stdout_data}"
-    :ok = FileStore.download_file(store_timing_path, local_timing_path)
-    :ok = FileStore.download_file(store_data_path, local_data_path)
-
-    new({local_timing_path, local_data_path})
-  end
-
   def new(%Asciicast{} = asciicast) do
     {:ok, local_path} = Briefly.create()
     :ok = FileStore.download_file(asciicast.path, local_path)

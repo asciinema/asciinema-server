@@ -3,7 +3,9 @@ defmodule Asciinema do
 
   def create_user(params) do
     with {:ok, user} <- Accounts.create_user(params) do
-      Streaming.create_live_stream!(user)
+      if Streaming.mode() == :static do
+        Streaming.create_live_stream!(user)
+      end
 
       {:ok, user}
     end
@@ -37,8 +39,8 @@ defmodule Asciinema do
   defdelegate verify_login_token(token), to: Accounts
 
   def register_cli(user, token) do
-    case Accounts.register_api_token(user, token) do
-      {:ok, _api_token} ->
+    case Accounts.register_cli(user, token) do
+      {:ok, _cli} ->
         :ok
 
       {:error, {:needs_merge, tmp_user}} ->
@@ -51,8 +53,8 @@ defmodule Asciinema do
   end
 
   def revoke_cli(user, id) do
-    if api_token = Accounts.get_api_token(user, id) do
-      Accounts.revoke_api_token!(api_token)
+    if cli = Accounts.get_cli(user, id) do
+      Accounts.revoke_cli!(cli)
       :ok
     else
       {:error, :not_found}
@@ -66,7 +68,7 @@ defmodule Asciinema do
     Repo.transact(fn ->
       Recordings.reassign_asciicasts(src_user.id, dst_user.id)
       Streaming.reassign_live_streams(src_user.id, dst_user.id)
-      Accounts.reassign_api_tokens(src_user.id, dst_user.id)
+      Accounts.reassign_clis(src_user.id, dst_user.id)
       Accounts.delete_user!(src_user)
 
       {:ok, Accounts.get_user(dst_user.id)}

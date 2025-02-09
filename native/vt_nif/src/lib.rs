@@ -1,5 +1,5 @@
 use avt::Vt;
-use rustler::{Atom, Binary, Encoder, Env, Error, NifResult, ResourceArc, Term};
+use rustler::{Atom, Binary, Encoder, Env, Error, NifResult, Resource, ResourceArc, Term};
 use std::str;
 use std::{ops::RangeInclusive, sync::RwLock};
 
@@ -20,10 +20,10 @@ pub struct VtResource {
     vt: RwLock<Vt>,
 }
 
-fn load(env: Env, _info: Term) -> bool {
-    rustler::resource!(VtResource, env);
+impl Resource for VtResource {}
 
-    true
+fn load(env: Env, _term: Term) -> bool {
+    env.register::<VtResource>().is_ok()
 }
 
 #[rustler::nif]
@@ -202,8 +202,4 @@ fn convert_err<T, E>(result: Result<T, E>, error: &'static str) -> Result<T, Err
     }
 }
 
-rustler::init!(
-    "Elixir.Asciinema.Vt",
-    [new, feed, resize, dump, dump_screen, text],
-    load = load
-);
+rustler::init!("Elixir.Asciinema.Vt", load = load);

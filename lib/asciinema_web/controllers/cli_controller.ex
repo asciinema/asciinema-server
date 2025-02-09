@@ -1,10 +1,10 @@
-defmodule AsciinemaWeb.ApiTokenController do
+defmodule AsciinemaWeb.CliController do
   use AsciinemaWeb, :controller
 
   plug :require_current_user
 
-  def register(conn, %{"api_token" => token}) do
-    case Asciinema.register_cli(conn.assigns.current_user, token) do
+  def register(conn, %{"install_id" => install_id}) do
+    case Asciinema.register_cli(conn.assigns.current_user, install_id) do
       :ok ->
         conn
         |> put_flash(:info, "CLI successfully authenticated with your account")
@@ -20,7 +20,7 @@ defmodule AsciinemaWeb.ApiTokenController do
         |> put_flash(:error, "Invalid installation ID - make sure to paste the URL correctly")
         |> redirect(to: ~p"/")
 
-      {:error, :token_revoked} ->
+      {:error, :cli_revoked} ->
         conn
         |> put_flash(:error, "This CLI authentication has been revoked")
         |> redirect(to: ~p"/")

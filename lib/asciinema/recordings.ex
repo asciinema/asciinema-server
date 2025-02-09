@@ -1,5 +1,6 @@
 defmodule Asciinema.Recordings do
   require Logger
+  import Ecto, only: [build_assoc: 2]
   import Ecto.Changeset
   import Ecto.Query, warn: false
   alias Asciinema.{FileStore, Fonts, Repo, Themes, Vt}
@@ -160,19 +161,23 @@ defmodule Asciinema.Recordings do
     :ok
   end
 
-  def create_asciicast(user, upload, overrides \\ %{})
+  def create_asciicast(cli, %Plug.Upload{filename: filename} = upload, overrides \\ %{}) do
+    user = cli.user
 
-  def create_asciicast(user, %Plug.Upload{filename: filename} = upload, overrides) do
-    changeset =
-      change(
-        %Asciicast{
-          user_id: user.id,
+    attrs =
+      Map.merge(
+        %{
           filename: filename,
           visibility: user.default_asciicast_visibility,
           secret_token: Crypto.random_token(25)
         },
         overrides
       )
+
+    changeset =
+      cli
+      |> build_assoc(:asciicasts)
+      |> change(attrs)
 
     with {:ok, metadata} <- extract_metadata(upload),
          changeset = apply_metadata(changeset, metadata, user.theme_prefer_original),
@@ -481,37 +486,8 @@ defmodule Asciinema.Recordings do
 
   def upgrade(%Asciicast{} = asciicast) do
     asciicast
-    |> upgrade_from_v0()
     |> upgrade_file_path()
   end
-
-  defp upgrade_from_v0(%Asciicast{version: 0} = asciicast) do
-    Logger.info("upgrading asciicast ##{asciicast.id} from version 0 to version 2...")
-
-    header = v2_header(asciicast)
-
-    v2_path =
-      asciicast
-      |> EventStream.new()
-      |> EventStream.output()
-      |> write_v2_file(header)
-
-    upload = %Plug.Upload{path: v2_path, content_type: "application/octet-stream"}
-    path = Paths.sharded_path(%{asciicast | version: 2})
-
-    changeset =
-      Changeset.change(asciicast,
-        version: 2,
-        filename: "0.cast",
-        path: path
-      )
-
-    save_file(path, upload)
-
-    Repo.update!(changeset)
-  end
-
-  defp upgrade_from_v0(asciicast), do: asciicast
 
   defp upgrade_file_path(%Asciicast{path: "asciicast/file/" <> _ = old_path} = asciicast) do
     Logger.info("upgrading asciicast ##{asciicast.id} file path...")
@@ -529,20 +505,6 @@ defmodule Asciinema.Recordings do
   end
 
   defp upgrade_file_path(asciicast), do: asciicast
-
-  defp v2_header(asciicast) do
-    header = %{
-      width: asciicast.cols,
-      height: asciicast.rows,
-      timestamp: asciicast.inserted_at |> Timex.to_unix(),
-      duration: asciicast.duration,
-      title: asciicast.title,
-      command: asciicast.command,
-      env: %{"TERM" => asciicast.terminal_type, "SHELL" => asciicast.shell}
-    }
-
-    header |> Enum.filter(fn {_k, v} -> v end) |> Enum.into(%{})
-  end
 
   def write_v2_file(output_stream, %{width: _, height: _} = header) do
     {:ok, tmp_path} = Briefly.create()

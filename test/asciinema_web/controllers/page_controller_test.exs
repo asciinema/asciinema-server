@@ -1,4 +1,4 @@
-defmodule Asciinema.PageControllerTest do
+defmodule AsciinemaWeb.PageControllerTest do
   use AsciinemaWeb.ConnCase
 
   test "static pages", %{conn: conn} do

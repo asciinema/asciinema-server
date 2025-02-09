@@ -1,4 +1,4 @@
-defmodule Asciinema.UsernameControllerTest do
+defmodule AsciinemaWeb.UsernameControllerTest do
   use AsciinemaWeb.ConnCase
   import Asciinema.Factory
 

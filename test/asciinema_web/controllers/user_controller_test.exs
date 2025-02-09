@@ -1,4 +1,4 @@
-defmodule Asciinema.UserControllerTest do
+defmodule AsciinemaWeb.UserControllerTest do
   use AsciinemaWeb.ConnCase
   use Oban.Testing, repo: Asciinema.Repo
   import Asciinema.Factory

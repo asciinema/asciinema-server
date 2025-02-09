@@ -119,11 +119,11 @@ defmodule AsciinemaWeb.UserController do
   end
 
   defp render_edit_form(conn, user, changeset) do
-    api_tokens = Accounts.list_api_tokens(user)
+    clis = Accounts.list_clis(user)
 
     render(conn, "edit.html",
       changeset: changeset,
-      api_tokens: api_tokens
+      clis: clis
     )
   end
 

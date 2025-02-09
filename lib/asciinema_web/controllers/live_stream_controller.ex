@@ -58,7 +58,7 @@ defmodule AsciinemaWeb.LiveStreamController do
       {:ok, stream} ->
         assign(conn, :stream, stream)
 
-      {:error, :not_found} ->
+      {:error, _} ->
         conn
         |> FallbackController.call({:error, :not_found})
         |> halt()

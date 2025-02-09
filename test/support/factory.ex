@@ -1,6 +1,6 @@
 defmodule Asciinema.Factory do
   use ExMachina.Ecto, repo: Asciinema.Repo
-  alias Asciinema.Accounts.{ApiToken, User}
+  alias Asciinema.Accounts.{Cli, User}
   alias Asciinema.FileStore
   alias Asciinema.Recordings.Asciicast
   alias Asciinema.Streaming.LiveStream
@@ -17,15 +17,15 @@ defmodule Asciinema.Factory do
     %{user_factory() | email: nil}
   end
 
-  def api_token_factory do
-    %ApiToken{
+  def cli_factory do
+    %Cli{
       user: build(:user),
       token: sequence(:token, &"token-#{&1}")
     }
   end
 
-  def revoked_api_token_factory do
-    %ApiToken{
+  def revoked_cli_factory do
+    %Cli{
       user: build(:user),
       token: sequence(:token, &"token-#{&1}"),
       revoked_at: Timex.now()
@@ -34,21 +34,6 @@ defmodule Asciinema.Factory do
 
   def asciicast_factory do
     build(:asciicast_v2)
-  end
-
-  def asciicast_v0_factory do
-    %Asciicast{
-      user: build(:user),
-      version: 0,
-      path: nil,
-      stdout_data: "stdout",
-      stdout_timing: "stdout.time",
-      duration: 123.45,
-      cols: 80,
-      rows: 24,
-      secret_token: sequence(:secret_token, &"sekrit-#{&1}"),
-      snapshot: [[["foo", %{}]], [["bar", %{}]]]
-    }
   end
 
   def asciicast_v1_factory do
@@ -111,22 +96,5 @@ defmodule Asciinema.Factory do
     :ok = FileStore.put_file(asciicast.path, "test/fixtures/#{src}", "application/json")
 
     asciicast
-  end
-
-  def with_files(%{version: 0} = asciicast) do
-    src = "test/fixtures/0.9.9/stdout"
-    ct = "application/octet-stream"
-    :ok = FileStore.put_file("asciicast/stdout/#{asciicast.id}/stdout", src, ct)
-
-    src = "test/fixtures/0.9.9/stdout.time"
-    ct = "application/octet-stream"
-
-    :ok = FileStore.put_file("asciicast/stdout_timing/#{asciicast.id}/stdout.time", src, ct)
-
-    asciicast
-  end
-
-  def with_files(asciicast) do
-    with_file(asciicast)
   end
 end

@@ -23,13 +23,6 @@ defmodule Asciinema.Streaming do
     Repo.preload(stream, :user)
   end
 
-  def get_live_stream(%{live_streams: _} = owner, nil) do
-    owner
-    |> Ecto.assoc(:live_streams)
-    |> first()
-    |> Repo.one()
-  end
-
   def get_live_stream(%{live_streams: _} = owner, id) do
     owner
     |> Ecto.assoc(:live_streams)
@@ -39,11 +32,45 @@ defmodule Asciinema.Streaming do
   end
 
   def fetch_live_stream(id) do
-    case get_live_stream(id) do
-      nil -> {:error, :not_found}
-      stream -> {:ok, stream}
+    with {:ok, stream} <- wrap(get_live_stream(id)),
+         :ok <- authorize(stream.user) do
+      {:ok, stream}
     end
   end
+
+  def fetch_live_stream(owner, id) do
+    with :ok <- authorize(owner),
+         {:ok, stream} <- wrap(get_live_stream(owner, id)) do
+      {:ok, stream}
+    end
+  end
+
+  def fetch_default_live_stream(%{live_streams: _} = owner) do
+    with :ok <- authorize(owner) do
+      streams =
+        owner
+        |> Ecto.assoc(:live_streams)
+        |> limit(2)
+        |> Repo.all()
+
+      case streams do
+        [] -> {:error, :not_found}
+        [stream] -> {:ok, stream}
+        _ -> {:error, :too_many}
+      end
+    end
+  end
+
+  defp authorize(owner) do
+    if mode() == :disabled || !owner.streaming_enabled do
+      {:error, :disabled}
+    else
+      :ok
+    end
+  end
+
+  defp wrap(nil), do: {:error, :not_found}
+  defp wrap(value), do: {:ok, value}
 
   def list_public_live_streams(owner, limit \\ 4) do
     owner
@@ -77,6 +104,18 @@ defmodule Asciinema.Streaming do
     |> put_assoc(:user, user)
     |> Repo.insert!()
   end
+
+  def create_live_stream(user) do
+    with :ok <- authorize(user) do
+      if mode() == :dynamic do
+        {:ok, create_live_stream!(user)}
+      else
+        fetch_default_live_stream(user)
+      end
+    end
+  end
+
+  def mode, do: config(:mode, :dynamic)
 
   def change_live_stream(stream, attrs \\ %{})
 
@@ -160,4 +199,9 @@ defmodule Asciinema.Streaming do
 
   defp generate_public_token, do: Crypto.random_token(16)
   defp generate_producer_token, do: Crypto.random_token(16)
+
+  defp config(key, default) do
+    opts = Application.get_env(:asciinema, __MODULE__) || []
+    Keyword.get(opts, key, default)
+  end
 end

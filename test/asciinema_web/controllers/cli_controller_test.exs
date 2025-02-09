@@ -1,4 +1,4 @@
-defmodule Asciinema.ApiTokenControllerTest do
+defmodule AsciinemaWeb.CliControllerTest do
   use AsciinemaWeb.ConnCase
   import Asciinema.Factory
 
@@ -10,7 +10,7 @@ defmodule Asciinema.ApiTokenControllerTest do
       assert flash(conn, :info)
     end
 
-    test "with invalid token shows error", %{conn: conn} do
+    test "with invalid install_id shows error", %{conn: conn} do
       user = insert(:user)
       conn = log_in(conn, user)
 
@@ -20,46 +20,46 @@ defmodule Asciinema.ApiTokenControllerTest do
       assert flash(conn, :error) =~ ~r/invalid/i
     end
 
-    test "with revoked token shows error", %{conn: conn} do
+    test "with revoked install_id shows error", %{conn: conn} do
       user = insert(:user)
-      api_token = insert(:revoked_api_token, user: user)
+      cli = insert(:revoked_cli, user: user)
       conn = log_in(conn, user)
 
-      conn = get(conn, ~p"/connect/#{api_token.token}")
+      conn = get(conn, ~p"/connect/#{cli.token}")
 
       assert redirected_to(conn, 302) == "/"
       assert flash(conn, :error) =~ ~r/been revoked/i
     end
 
-    test "with tmp user token shows notice, redirects to profile page", %{conn: conn} do
+    test "with tmp user install_id shows notice, redirects to profile page", %{conn: conn} do
       user = insert(:user, username: "test")
       tmp_user = insert(:temporary_user)
-      api_token = insert(:api_token, user: tmp_user)
+      cli = insert(:cli, user: tmp_user)
       conn = log_in(conn, user)
 
-      conn = get(conn, ~p"/connect/#{api_token.token}")
+      conn = get(conn, ~p"/connect/#{cli.token}")
 
       assert redirected_to(conn, 302) == ~p"/~test"
       assert flash(conn, :info) =~ ~r/successfully/
     end
 
-    test "with their own token shows notice, redirects to profile page", %{conn: conn} do
+    test "with their own install_id shows notice, redirects to profile page", %{conn: conn} do
       user = insert(:user, username: "test")
-      api_token = insert(:api_token, user: user)
+      cli = insert(:cli, user: user)
       conn = log_in(conn, user)
 
-      conn = get(conn, ~p"/connect/#{api_token.token}")
+      conn = get(conn, ~p"/connect/#{cli.token}")
 
       assert redirected_to(conn, 302) == ~p"/~test"
       assert flash(conn, :info) =~ ~r/successfully/
     end
 
-    test "with other user's token shows error, redirects to profile page", %{conn: conn} do
+    test "with other user's install_id shows error, redirects to profile page", %{conn: conn} do
       user = insert(:user, username: "test")
-      api_token = insert(:api_token)
+      cli = insert(:cli)
       conn = log_in(conn, user)
 
-      conn = get(conn, ~p"/connect/#{api_token.token}")
+      conn = get(conn, ~p"/connect/#{cli.token}")
 
       assert redirected_to(conn, 302) == ~p"/~test"
       assert flash(conn, :error) =~ ~r/different/
@@ -68,39 +68,39 @@ defmodule Asciinema.ApiTokenControllerTest do
 
   describe "delete" do
     test "as a guest redirects to login page", %{conn: conn} do
-      conn = delete(conn, ~p"/api_tokens/123")
+      conn = delete(conn, ~p"/clis/123")
 
       assert redirected_to(conn, 302) == ~p"/login/new"
       assert flash(conn, :info)
     end
 
-    test "with user's own token shows notice, redirects to settings", %{conn: conn} do
+    test "with user's own install_id shows notice, redirects to settings", %{conn: conn} do
       user = insert(:user)
-      api_token = insert(:api_token, user: user)
+      cli = insert(:cli, user: user)
       conn = log_in(conn, user)
 
-      conn = delete(conn, ~p"/api_tokens/#{api_token.id}")
+      conn = delete(conn, ~p"/clis/#{cli.id}")
 
       assert redirected_to(conn, 302) == ~p"/user/edit"
       assert flash(conn, :info) =~ ~r/revoked/
     end
 
-    test "with other user's token shows error, redirects to settings", %{conn: conn} do
+    test "with other user's install_id shows error, redirects to settings", %{conn: conn} do
       user = insert(:user)
-      api_token = insert(:api_token)
+      cli = insert(:cli)
       conn = log_in(conn, user)
 
-      conn = delete(conn, ~p"/api_tokens/#{api_token.id}")
+      conn = delete(conn, ~p"/clis/#{cli.id}")
 
       assert redirected_to(conn, 302) == ~p"/user/edit"
       assert flash(conn, :error) =~ ~r/not found/
     end
 
-    test "with invalid token shows error, redirects to settings", %{conn: conn} do
+    test "with invalid install_id shows error, redirects to settings", %{conn: conn} do
       user = insert(:user)
       conn = log_in(conn, user)
 
-      conn = delete(conn, ~p"/api_tokens/123456789")
+      conn = delete(conn, ~p"/clis/123456789")
 
       assert redirected_to(conn, 302) == ~p"/user/edit"
       assert flash(conn, :error) =~ ~r/not found/

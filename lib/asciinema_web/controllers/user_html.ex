@@ -29,14 +29,14 @@ defmodule AsciinemaWeb.UserHTML do
     Timex.format!(user.inserted_at, "{Mfull} {D}, {YYYY}")
   end
 
-  def active_tokens(api_tokens) do
-    api_tokens
+  def active_clis(clis) do
+    clis
     |> Enum.reject(& &1.revoked_at)
     |> Enum.sort_by(&(-Timex.to_unix(&1.inserted_at)))
   end
 
-  def revoked_tokens(api_tokens) do
-    api_tokens
+  def revoked_clis(clis) do
+    clis
     |> Enum.filter(& &1.revoked_at)
     |> Enum.sort_by(&(-Timex.to_unix(&1.inserted_at)))
   end

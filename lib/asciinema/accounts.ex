@@ -2,7 +2,7 @@ defmodule Asciinema.Accounts do
   use Asciinema.Config
   import Ecto.Query, warn: false
   import Ecto, only: [assoc: 2, build_assoc: 2]
-  alias Asciinema.Accounts.{User, ApiToken}
+  alias Asciinema.Accounts.{Cli, User}
   alias Asciinema.{Fonts, Repo, Themes}
   alias Ecto.Changeset
   alias Phoenix.Token
@@ -221,113 +221,109 @@ defmodule Asciinema.Accounts do
     end
   end
 
-  def get_user_with_api_token(token, tmp_username \\ nil) do
-    case fetch_api_token(token) do
-      {:ok, api_token} ->
-        {:ok, api_token.user}
+  @uuid4 ~r/\A[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}\z/
 
-      {:error, :token_revoked} = result ->
-        result
+  defp create_cli(%User{} = user, install_id) do
+    import Changeset
 
-      {:error, :token_not_found} ->
-        create_user_with_api_token(token, tmp_username)
-    end
-  end
-
-  def create_user_with_api_token(token, tmp_username) do
-    import Ecto.Changeset
-
-    changeset = change(%User{}, %{temporary_username: tmp_username})
-
-    Repo.transaction(fn ->
-      with {:ok, %User{} = user} <- Repo.insert(changeset),
-           {:ok, %ApiToken{}} <- create_api_token(user, token) do
-        user
-      else
-        {:error, %Ecto.Changeset{}} ->
-          Repo.rollback(:token_invalid)
-
-        {:error, reason} ->
-          Repo.rollback(reason)
-
-        result ->
-          Repo.rollback(result)
-      end
-    end)
-  end
-
-  def create_api_token(%User{} = user, token) do
     result =
       user
-      |> build_assoc(:api_tokens)
-      |> ApiToken.create_changeset(token)
+      |> build_assoc(:clis)
+      |> change(%{token: install_id})
+      |> validate_format(:token, @uuid4)
+      |> unique_constraint(:token, name: "clis_token_index")
       |> Repo.insert()
 
     case result do
-      {:ok, api_token} ->
-        {:ok, %{api_token | user: user}}
+      {:ok, cli} ->
+        {:ok, %{cli | user: user}}
 
       {:error, %Ecto.Changeset{}} ->
         {:error, :token_invalid}
     end
   end
 
-  def register_api_token(user, token) do
-    case fetch_api_token(token) do
-      {:ok, api_token} ->
-        check_api_token_ownership(user, api_token)
+  def register_cli(%User{} = user, install_id) do
+    case fetch_cli(install_id) do
+      {:ok, cli} ->
+        check_cli_ownership(user, cli)
 
-      {:error, :token_revoked} = result ->
+      {:error, :cli_revoked} = result ->
         result
 
       {:error, :token_not_found} ->
-        create_api_token(user, token)
+        create_cli(user, install_id)
     end
   end
 
-  defp check_api_token_ownership(user, api_token) do
+  def register_cli(username, install_id) when is_binary(username) do
+    case fetch_cli(install_id) do
+      {:ok, cli} ->
+        {:ok, cli}
+
+      {:error, :cli_revoked} = result ->
+        result
+
+      {:error, :token_not_found} = result ->
+        if config(:upload_auth_required, false) do
+          result
+        else
+          create_cli(create_tmp_user(username), install_id)
+        end
+    end
+  end
+
+  defp create_tmp_user(username) do
+    username = String.slice(username, 0, 16)
+
+    Repo.insert!(%User{temporary_username: username})
+  end
+
+  defp check_cli_ownership(user, cli) do
     cond do
-      user.id == api_token.user.id -> {:ok, api_token}
-      api_token.user.email -> {:error, :token_taken}
-      true -> {:error, {:needs_merge, api_token.user}}
+      user.id == cli.user.id -> {:ok, cli}
+      cli.user.email -> {:error, :token_taken}
+      true -> {:error, {:needs_merge, cli.user}}
     end
   end
 
-  def fetch_api_token(token) do
-    api_token =
-      ApiToken
+  def fetch_cli(token) do
+    cli =
+      Cli
       |> Repo.get_by(token: token)
       |> Repo.preload(:user)
 
-    case api_token do
+    case cli do
       nil -> {:error, :token_not_found}
-      %ApiToken{revoked_at: nil} -> {:ok, api_token}
-      %ApiToken{} -> {:error, :token_revoked}
+      %Cli{revoked_at: nil} -> {:ok, cli}
+      %Cli{} -> {:error, :cli_revoked}
     end
   end
 
-  def get_api_token(user, id) do
-    Repo.get(assoc(user, :api_tokens), id)
+  def get_cli(user, id) do
+    Repo.get(assoc(user, :clis), id)
   end
 
-  def get_api_token!(token) do
-    Repo.get_by!(ApiToken, token: token)
+  def get_cli!(token) do
+    Repo.get_by!(Cli, token: token)
   end
 
-  def revoke_api_token!(api_token) do
-    api_token
-    |> ApiToken.revoke_changeset()
+  def revoke_cli!(%Cli{revoked_at: nil} = cli) do
+    cli
+    |> Changeset.change(%{revoked_at: Timex.now()})
     |> Repo.update!()
   end
 
-  def list_api_tokens(%User{} = user) do
+  def revoke_cli!(cli), do: cli
+
+  def list_clis(%User{} = user) do
     user
-    |> assoc(:api_tokens)
+    |> assoc(:clis)
     |> Repo.all()
   end
 
-  def reassign_api_tokens(src_user_id, dst_user_id) do
-    q = from(at in ApiToken, where: at.user_id == ^src_user_id)
+  def reassign_clis(src_user_id, dst_user_id) do
+    q = from(at in Cli, where: at.user_id == ^src_user_id)
     Repo.update_all(q, set: [user_id: dst_user_id, updated_at: Timex.now()])
   end
 
@@ -354,7 +350,7 @@ defmodule Asciinema.Accounts do
   end
 
   def delete_user!(%User{} = user) do
-    Repo.delete_all(assoc(user, :api_tokens))
+    Repo.delete_all(assoc(user, :clis))
     Repo.delete!(user)
 
     :ok

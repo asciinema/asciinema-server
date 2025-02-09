@@ -205,7 +205,7 @@
     </div>
   </div>
 
-  <div class="row tokens-list">
+  <div class="row clis-list">
     <div class="col-md-12">
       <form>
         <legend>CLI</legend>
@@ -218,7 +218,7 @@
           to do this. For more information see the <a href="https://docs.asciinema.org/manual/cli/usage/#asciinema-auth">documentation</a>.
         </p>
 
-        <%= if present?(@api_tokens) do %>
+        <%= if present?(@clis) do %>
           <p>
             The following asciinema CLI installations have been authenticated with your account:
           </p>
@@ -230,7 +230,7 @@
               <th></th>
             </thead>
             <tbody>
-              <tr :for={t <- active_tokens(@api_tokens)}>
+              <tr :for={t <- active_clis(@clis)}>
                 <td>
                   <code>{t.token}</code>
                 </td>
@@ -239,7 +239,7 @@
                 </td>
                 <td>
                   <.link
-                    href={~p"/api_tokens/#{t}"}
+                    href={~p"/clis/#{t}"}
                     class="btn btn-danger btn-sm"
                     method="delete"
                     data-confirm="Are you sure? This will prevent future uploads from that system."
@@ -249,7 +249,7 @@
                 </td>
               </tr>
 
-              <tr :for={t <- revoked_tokens(@api_tokens)} class="revoked">
+              <tr :for={t <- revoked_clis(@clis)} class="revoked">
                 <td>
                   <code>{t.token}</code>
                 </td>

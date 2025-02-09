@@ -1,6 +1,12 @@
-defmodule Asciinema.LiveStreamControllerTest do
+defmodule AsciinemaWeb.LiveStreamControllerTest do
   use AsciinemaWeb.ConnCase
   import Asciinema.Factory
+
+  setup do
+    on_exit_restore_config(Asciinema.Streaming)
+
+    :ok
+  end
 
   describe "show" do
     test "public stream", %{conn: conn} do
@@ -61,6 +67,24 @@ defmodule Asciinema.LiveStreamControllerTest do
       conn_2 = log_in(conn, user)
       conn_2 = get(conn_2, ~p"/s/#{stream}")
       assert html_response(conn_2, 200) =~ stream.producer_token
+    end
+
+    test "when user has streaming disabled", %{conn: conn} do
+      user = insert(:user, streaming_enabled: false)
+      stream = insert(:live_stream, user: user)
+
+      conn_2 = get(conn, ~p"/s/#{stream}")
+
+      assert html_response(conn_2, 404)
+    end
+
+    test "when streaming is disabled system-wide", %{conn: conn} do
+      Application.put_env(:asciinema, Asciinema.Streaming, mode: :disabled)
+      stream = insert(:live_stream)
+
+      conn_2 = get(conn, ~p"/s/#{stream}")
+
+      assert html_response(conn_2, 404)
     end
   end
 

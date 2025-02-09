@@ -77,8 +77,8 @@ defmodule AsciinemaTest do
       id2 = user2.id
       insert(:asciicast, user: user1)
       insert(:asciicast, user: user2)
-      insert(:api_token, user: user1)
-      insert(:api_token, user: user2)
+      insert(:cli, user: user1)
+      insert(:cli, user: user2)
       insert(:live_stream, user: user1)
       insert(:live_stream, user: user2)
 
@@ -90,7 +90,7 @@ defmodule AsciinemaTest do
     test "succeeds" do
       user = insert(:user)
       insert(:asciicast, user: user)
-      insert(:api_token, user: user)
+      insert(:cli, user: user)
       insert(:live_stream, user: user)
 
       assert :ok = Asciinema.delete_user!(user)

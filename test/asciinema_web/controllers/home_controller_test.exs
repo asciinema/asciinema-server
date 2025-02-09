@@ -1,4 +1,4 @@
-defmodule Asciinema.HomeControllerTest do
+defmodule AsciinemaWeb.HomeControllerTest do
   use AsciinemaWeb.ConnCase
   import Asciinema.Factory
 

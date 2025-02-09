@@ -1,4 +1,4 @@
-defmodule Asciinema.LoginControllerTest do
+defmodule AsciinemaWeb.LoginControllerTest do
   use AsciinemaWeb.ConnCase
   use Oban.Testing, repo: Asciinema.Repo
   import Swoosh.TestAssertions

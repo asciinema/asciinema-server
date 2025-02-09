@@ -42,10 +42,7 @@ defmodule Asciinema.Recordings.Asciicast do
     timestamps()
 
     belongs_to :user, Asciinema.Accounts.User
-
-    # legacy
-    field :stdout_data, :string
-    field :stdout_timing, :string
+    belongs_to :cli, Asciinema.Accounts.Cli
   end
 
   defimpl Phoenix.Param do

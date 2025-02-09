@@ -223,6 +223,16 @@ if config_env() in [:prod, :dev] do
       :ok
   end
 
+  mode = env.("STREAMING_MODE")
+
+  if mode in ["static", "dynamic", "disabled"] do
+    config :asciinema, Asciinema.Streaming, mode: String.to_atom(mode)
+  end
+
+  if env.("UPLOAD_AUTH_REQUIRED") in ["1", "true"] do
+    config :asciinema, Asciinema.Accounts, upload_auth_required: true
+  end
+
   if dsn = env.("SENTRY_DSN") do
     config :sentry, dsn: dsn
   else
