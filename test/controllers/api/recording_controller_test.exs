@@ -112,7 +112,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = upload(conn, upload)
 
-      assert text_response(conn, 401) == "Unregistered recorder token"
+      assert text_response(conn, 401) == "Unregistered install ID"
     end
 
     @tag token: nil
@@ -121,7 +121,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = upload(conn, upload)
 
-      assert text_response(conn, 401) == "Missing recorder token"
+      assert text_response(conn, 401) == "Missing install ID"
     end
 
     test "authentication with revoked token", %{conn: conn, token: token} do
@@ -131,7 +131,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = upload(conn, upload)
 
-      assert text_response(conn, 401) == "Revoked recorder token"
+      assert text_response(conn, 401) == "Revoked install ID"
     end
 
     @tag token: "invalid-lol"
@@ -140,7 +140,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = upload(conn, upload)
 
-      assert text_response(conn, 401) == "Invalid recorder token"
+      assert text_response(conn, 401) == "Invalid install ID"
     end
 
     test "requesting json response", %{conn: conn} do

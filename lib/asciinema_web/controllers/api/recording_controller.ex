@@ -66,8 +66,8 @@ defmodule AsciinemaWeb.Api.RecordingController do
     end
   end
 
-  defp error_message(:token_missing), do: "Missing recorder token"
-  defp error_message(:token_not_found), do: "Unregistered recorder token"
-  defp error_message(:token_invalid), do: "Invalid recorder token"
-  defp error_message(:cli_revoked), do: "Revoked recorder token"
+  defp error_message(:token_missing), do: "Missing install ID"
+  defp error_message(:token_not_found), do: "Unregistered install ID"
+  defp error_message(:token_invalid), do: "Invalid install ID"
+  defp error_message(:cli_revoked), do: "Revoked install ID"
 end
