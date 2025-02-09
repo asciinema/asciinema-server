@@ -243,11 +243,17 @@ defmodule Asciinema.Accounts do
     end)
   end
 
+  @uuid4 ~r/\A[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}\z/
+
   def create_cli(%User{} = user, token) do
+    import Changeset
+
     result =
       user
       |> build_assoc(:clis)
-      |> Cli.create_changeset(token)
+      |> change(%{token: token})
+      |> validate_format(:token, @uuid4)
+      |> unique_constraint(:token, name: "clis_token_index")
       |> Repo.insert()
 
     case result do
@@ -301,11 +307,13 @@ defmodule Asciinema.Accounts do
     Repo.get_by!(Cli, token: token)
   end
 
-  def revoke_cli!(cli) do
+  def revoke_cli!(%Cli{revoked_at: nil} = cli) do
     cli
-    |> Cli.revoke_changeset()
+    |> Changeset.change(%{revoked_at: Timex.now()})
     |> Repo.update!()
   end
+
+  def revoke_cli!(cli), do: cli
 
   def list_clis(%User{} = user) do
     user
