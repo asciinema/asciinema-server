@@ -167,6 +167,7 @@ defmodule Asciinema.Recordings do
     attrs =
       Map.merge(
         %{
+          cli_id: cli.id,
           filename: filename,
           visibility: user.default_asciicast_visibility,
           secret_token: Crypto.random_token(25)
@@ -175,7 +176,7 @@ defmodule Asciinema.Recordings do
       )
 
     changeset =
-      cli
+      user
       |> build_assoc(:asciicasts)
       |> change(attrs)
 
