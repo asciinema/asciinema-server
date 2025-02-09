@@ -5,13 +5,13 @@ defmodule AsciinemaWeb.Api.RecordingController do
 
   plug :accepts, ~w(text json)
   plug :assign_install_id
-  plug :assign_current_user
+  plug :assign_cli
 
   def create(conn, %{"asciicast" => %Plug.Upload{} = upload}) do
-    user = conn.assigns.current_user
+    cli = conn.assigns.cli
     user_agent = conn |> get_req_header("user-agent") |> List.first()
 
-    case Recordings.create_asciicast(user, upload, %{user_agent: user_agent}) do
+    case Recordings.create_asciicast(cli, upload, %{user_agent: user_agent}) do
       {:ok, asciicast} ->
         url = url(~p"/a/#{asciicast}")
 
@@ -52,33 +52,17 @@ defmodule AsciinemaWeb.Api.RecordingController do
     end
   end
 
-  defp assign_current_user(conn, _opts) do
-    with {:ok, user} <- authenticate(conn) do
-      assign(conn, :current_user, user)
+  defp assign_cli(conn, _opts) do
+    %{install_id: install_id, username: username} = conn.assigns
+
+    with {:ok, cli} <- Accounts.register_cli(username, install_id) do
+      assign(conn, :cli, cli)
     else
       {:error, reason} ->
         conn
         |> put_status(401)
         |> text(error_message(reason))
         |> halt()
-    end
-  end
-
-  defp authenticate(conn) do
-    %{install_id: install_id, username: username} = conn.assigns
-
-    with {:ok, cli} <- Accounts.fetch_cli(install_id) do
-      {:ok, cli.user}
-    else
-      {:error, :cli_revoked} = result ->
-        result
-
-      {:error, :token_not_found} = result ->
-        if config(:upload_auth_required, false) do
-          result
-        else
-          Accounts.create_user_with_cli(install_id, username)
-        end
     end
   end
 

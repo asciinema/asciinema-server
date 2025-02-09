@@ -1,5 +1,6 @@
 defmodule Asciinema.Recordings do
   require Logger
+  import Ecto, only: [build_assoc: 2]
   import Ecto.Changeset
   import Ecto.Query, warn: false
   alias Asciinema.{FileStore, Fonts, Repo, Themes, Vt}
@@ -134,19 +135,23 @@ defmodule Asciinema.Recordings do
     :ok
   end
 
-  def create_asciicast(user, upload, overrides \\ %{})
+  def create_asciicast(cli, %Plug.Upload{filename: filename} = upload, overrides \\ %{}) do
+    user = cli.user
 
-  def create_asciicast(user, %Plug.Upload{filename: filename} = upload, overrides) do
-    changeset =
-      change(
-        %Asciicast{
-          user_id: user.id,
+    attrs =
+      Map.merge(
+        %{
           filename: filename,
           visibility: user.default_asciicast_visibility,
           secret_token: Crypto.random_token(25)
         },
         overrides
       )
+
+    changeset =
+      cli
+      |> build_assoc(:asciicasts)
+      |> change(attrs)
 
     with {:ok, metadata} <- extract_metadata(upload),
          changeset = apply_metadata(changeset, metadata, user.theme_prefer_original),

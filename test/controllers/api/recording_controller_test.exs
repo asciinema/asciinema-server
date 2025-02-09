@@ -13,7 +13,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
         conn
       end
 
-    on_exit_restore_config(AsciinemaWeb.Api.RecordingController)
+    on_exit_restore_config(Asciinema.Accounts)
 
     {:ok, conn: conn, token: token}
   end
@@ -155,8 +155,6 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
   end
 
   defp require_upload_auth do
-    Application.put_env(:asciinema, AsciinemaWeb.Api.RecordingController,
-      upload_auth_required: true
-    )
+    Application.put_env(:asciinema, Asciinema.Accounts, upload_auth_required: true)
   end
 end

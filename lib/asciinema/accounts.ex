@@ -221,37 +221,15 @@ defmodule Asciinema.Accounts do
     end
   end
 
-  def create_user_with_cli(token, tmp_username) do
-    import Ecto.Changeset
-
-    changeset = change(%User{}, %{temporary_username: tmp_username})
-
-    Repo.transaction(fn ->
-      with {:ok, %User{} = user} <- Repo.insert(changeset),
-           {:ok, %Cli{}} <- create_cli(user, token) do
-        user
-      else
-        {:error, %Ecto.Changeset{}} ->
-          Repo.rollback(:token_invalid)
-
-        {:error, reason} ->
-          Repo.rollback(reason)
-
-        result ->
-          Repo.rollback(result)
-      end
-    end)
-  end
-
   @uuid4 ~r/\A[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}\z/
 
-  def create_cli(%User{} = user, token) do
+  defp create_cli(%User{} = user, install_id) do
     import Changeset
 
     result =
       user
       |> build_assoc(:clis)
-      |> change(%{token: token})
+      |> change(%{token: install_id})
       |> validate_format(:token, @uuid4)
       |> unique_constraint(:token, name: "clis_token_index")
       |> Repo.insert()
@@ -265,8 +243,8 @@ defmodule Asciinema.Accounts do
     end
   end
 
-  def register_cli(user, token) do
-    case fetch_cli(token) do
+  def register_cli(%User{} = user, install_id) do
+    case fetch_cli(install_id) do
       {:ok, cli} ->
         check_cli_ownership(user, cli)
 
@@ -274,8 +252,31 @@ defmodule Asciinema.Accounts do
         result
 
       {:error, :token_not_found} ->
-        create_cli(user, token)
+        create_cli(user, install_id)
     end
+  end
+
+  def register_cli(username, install_id) when is_binary(username) do
+    case fetch_cli(install_id) do
+      {:ok, cli} ->
+        {:ok, cli}
+
+      {:error, :cli_revoked} = result ->
+        result
+
+      {:error, :token_not_found} = result ->
+        if config(:upload_auth_required, false) do
+          result
+        else
+          create_cli(create_tmp_user(username), install_id)
+        end
+    end
+  end
+
+  defp create_tmp_user(username) do
+    username = String.slice(username, 0, 16)
+
+    Repo.insert!(%User{temporary_username: username})
   end
 
   defp check_cli_ownership(user, cli) do

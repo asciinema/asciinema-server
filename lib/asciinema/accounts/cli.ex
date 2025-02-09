@@ -1,6 +1,5 @@
 defmodule Asciinema.Accounts.Cli do
   use Ecto.Schema
-  alias Asciinema.Accounts.User
 
   @timestamps_opts [type: :utc_datetime_usec]
 
@@ -10,6 +9,7 @@ defmodule Asciinema.Accounts.Cli do
 
     timestamps()
 
-    belongs_to :user, User
+    belongs_to :user, Asciinema.Accounts.User
+    has_many :asciicasts, Asciinema.Recordings.Asciicast
   end
 end

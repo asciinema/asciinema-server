@@ -42,6 +42,7 @@ defmodule Asciinema.Recordings.Asciicast do
     timestamps()
 
     belongs_to :user, Asciinema.Accounts.User
+    belongs_to :cli, Asciinema.Accounts.Cli
   end
 
   defimpl Phoenix.Param do

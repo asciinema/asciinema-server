@@ -1,8 +1,4 @@
 defmodule Asciinema.Fixtures do
-  alias Asciinema.Repo
-  alias Asciinema.Accounts
-  alias Asciinema.Accounts.User
-
   def fixture(what, attrs \\ %{})
 
   def fixture(:upload, attrs) do
@@ -29,17 +25,5 @@ defmodule Asciinema.Fixtures do
       filename: filename,
       content_type: "application/octet-stream"
     }
-  end
-
-  def fixture(:user, attrs) do
-    attrs =
-      Map.merge(
-        %{username: "test", email: "test@example.com"},
-        attrs
-      )
-
-    %User{}
-    |> Accounts.change_user(attrs)
-    |> Repo.insert!()
   end
 end

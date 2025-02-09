@@ -12,14 +12,16 @@ defmodule AsciinemaWeb.Api.RecordingJSON do
     %{errors: translate_errors(changeset)}
   end
 
-  defp message(%{conn: conn, url: url, install_id: install_id}) do
+  defp message(%{cli: cli, url: url}) do
+    %{user: user, token: install_id} = cli
+
     message = """
     View the recording at:
 
         #{url}
     """
 
-    is_tmp_user = Asciinema.Accounts.temporary_user?(conn.assigns.current_user)
+    is_tmp_user = Asciinema.Accounts.temporary_user?(user)
     ttl = Asciinema.unclaimed_recording_ttl()
 
     if is_tmp_user && ttl do
