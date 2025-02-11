@@ -1,7 +1,7 @@
-defmodule AsciinemaWeb.LiveStreamController do
+defmodule AsciinemaWeb.StreamController do
   use AsciinemaWeb, :controller
   alias Asciinema.{Authorization, Recordings, Streaming}
-  alias AsciinemaWeb.{FallbackController, LiveStreamHTML, PlayerOpts}
+  alias AsciinemaWeb.{FallbackController, StreamHTML, PlayerOpts}
 
   plug :load_stream when action in [:show, :edit, :update]
   plug :require_current_user_when_private when action == :show
@@ -16,7 +16,7 @@ defmodule AsciinemaWeb.LiveStreamController do
     render(
       conn,
       :show,
-      page_title: LiveStreamHTML.title(stream),
+      page_title: StreamHTML.title(stream),
       player_opts: player_opts(params),
       actions: stream_actions(stream, current_user),
       user_is_self: user_is_self,
@@ -25,15 +25,15 @@ defmodule AsciinemaWeb.LiveStreamController do
   end
 
   def edit(conn, _params) do
-    changeset = Streaming.change_live_stream(conn.assigns.stream)
+    changeset = Streaming.change_stream(conn.assigns.stream)
     render(conn, :edit, changeset: changeset)
   end
 
-  def update(conn, %{"live_stream" => params}) do
-    case Streaming.update_live_stream(conn.assigns.stream, params) do
+  def update(conn, %{"stream" => params}) do
+    case Streaming.update_stream(conn.assigns.stream, params) do
       {:ok, stream} ->
         conn
-        |> put_flash(:info, "Live stream updated.")
+        |> put_flash(:info, "Stream updated.")
         |> redirect(to: ~p"/s/#{stream}")
 
       {:error, %Ecto.Changeset{} = changeset} ->
@@ -42,7 +42,7 @@ defmodule AsciinemaWeb.LiveStreamController do
   end
 
   defp player_opts(params) do
-    PlayerOpts.parse(params, :live_stream)
+    PlayerOpts.parse(params, :stream)
   end
 
   defp stream_actions(stream, user) do
@@ -54,7 +54,7 @@ defmodule AsciinemaWeb.LiveStreamController do
   end
 
   defp load_stream(conn, _) do
-    case Streaming.fetch_live_stream(conn.params["id"]) do
+    case Streaming.fetch_stream(conn.params["id"]) do
       {:ok, stream} ->
         assign(conn, :stream, stream)
 

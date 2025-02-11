@@ -1,6 +1,6 @@
-defmodule AsciinemaWeb.LiveStreamConsumerSocket do
+defmodule AsciinemaWeb.StreamConsumerSocket do
   alias Asciinema.{Accounts, Authorization, Leb128, Streaming}
-  alias Asciinema.Streaming.{LiveStreamServer, ViewerTracker}
+  alias Asciinema.Streaming.{StreamServer, ViewerTracker}
   alias AsciinemaWeb.Endpoint
   require Logger
 
@@ -40,12 +40,12 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   end
 
   def websocket_init(%{token: token, user_id: user_id}) do
-    with {:ok, stream} <- fetch_live_stream(token),
+    with {:ok, stream} <- fetch_stream(token),
          :ok <- authorize(stream, user_id) do
       Logger.info("consumer/#{stream.id}: connected")
       state = %{stream_id: stream.id, init: false, last_event_time: 0.0}
-      LiveStreamServer.subscribe(stream.id, [:output, :input, :resize, :marker, :end, :reset])
-      LiveStreamServer.request_info(stream.id)
+      StreamServer.subscribe(stream.id, [:output, :input, :resize, :marker, :end, :reset])
+      StreamServer.request_info(stream.id)
       ViewerTracker.track(stream.id)
       Process.send_after(self(), :client_ping, @client_ping_interval)
 
@@ -70,7 +70,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   @impl true
   def websocket_info(message, state)
 
-  def websocket_info(%LiveStreamServer.Update{event: :reset} = update, state) do
+  def websocket_info(%StreamServer.Update{event: :reset} = update, state) do
     %{term_size: {cols, rows}} = update.data
     Logger.debug("consumer/#{state.stream_id}: init (#{cols}x#{rows})")
 
@@ -83,7 +83,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
      ), %{state | init: true, last_event_time: update.data.time}}
   end
 
-  def websocket_info(%LiveStreamServer.Update{event: :info} = update, %{init: false} = state) do
+  def websocket_info(%StreamServer.Update{event: :info} = update, %{init: false} = state) do
     %{term_size: {cols, rows}} = update.data
     Logger.debug("consumer/#{state.stream_id}: info (#{cols}x#{rows})")
 
@@ -96,15 +96,15 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
      ), %{state | init: true, last_event_time: update.data.time}}
   end
 
-  def websocket_info(%LiveStreamServer.Update{event: :info}, state) do
+  def websocket_info(%StreamServer.Update{event: :info}, state) do
     {:ok, state}
   end
 
-  def websocket_info(%LiveStreamServer.Update{}, %{init: false} = state) do
+  def websocket_info(%StreamServer.Update{}, %{init: false} = state) do
     {:ok, state}
   end
 
-  def websocket_info(%LiveStreamServer.Update{event: :output} = update, state) do
+  def websocket_info(%StreamServer.Update{event: :output} = update, state) do
     {time, text} = update.data
     rel_time = time - state.last_event_time
     msg = serialize_output(rel_time, text)
@@ -113,7 +113,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     {:reply, msg, state}
   end
 
-  def websocket_info(%LiveStreamServer.Update{event: :input} = update, state) do
+  def websocket_info(%StreamServer.Update{event: :input} = update, state) do
     {time, text} = update.data
     rel_time = time - state.last_event_time
     msg = serialize_input(rel_time, text)
@@ -122,7 +122,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     {:reply, msg, state}
   end
 
-  def websocket_info(%LiveStreamServer.Update{event: :resize} = update, state) do
+  def websocket_info(%StreamServer.Update{event: :resize} = update, state) do
     {time, term_size} = update.data
     rel_time = time - state.last_event_time
     msg = serialize_resize(rel_time, term_size)
@@ -131,7 +131,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     {:reply, msg, state}
   end
 
-  def websocket_info(%LiveStreamServer.Update{event: :marker} = update, state) do
+  def websocket_info(%StreamServer.Update{event: :marker} = update, state) do
     {time, label} = update.data
     rel_time = time - state.last_event_time
     msg = serialize_marker(rel_time, label)
@@ -140,7 +140,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     {:reply, msg, state}
   end
 
-  def websocket_info(%LiveStreamServer.Update{event: :end} = update, state) do
+  def websocket_info(%StreamServer.Update{event: :end} = update, state) do
     %{time: time} = update.data
     rel_time = time - state.last_event_time
     msg = serialize_eot(rel_time)
@@ -186,8 +186,8 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     end
   end
 
-  defp fetch_live_stream(token) do
-    case Streaming.get_live_stream(token) do
+  defp fetch_stream(token) do
+    case Streaming.get_stream(token) do
       nil -> {:error, :stream_not_found}
       stream -> {:ok, stream}
     end

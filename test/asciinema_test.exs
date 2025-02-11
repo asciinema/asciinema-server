@@ -79,8 +79,8 @@ defmodule AsciinemaTest do
       insert(:asciicast, user: user2)
       insert(:cli, user: user1)
       insert(:cli, user: user2)
-      insert(:live_stream, user: user1)
-      insert(:live_stream, user: user2)
+      insert(:stream, user: user1)
+      insert(:stream, user: user2)
 
       assert {:ok, %{id: ^id2}} = Asciinema.merge_accounts(user1, user2)
     end
@@ -91,7 +91,7 @@ defmodule AsciinemaTest do
       user = insert(:user)
       insert(:asciicast, user: user)
       insert(:cli, user: user)
-      insert(:live_stream, user: user)
+      insert(:stream, user: user)
 
       assert :ok = Asciinema.delete_user!(user)
     end

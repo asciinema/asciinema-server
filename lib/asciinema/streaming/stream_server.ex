@@ -1,4 +1,4 @@
-defmodule Asciinema.Streaming.LiveStreamServer do
+defmodule Asciinema.Streaming.StreamServer do
   use GenServer, restart: :temporary
   alias Asciinema.Streaming.ViewerTracker
   alias Asciinema.{Colors, PubSub, Streaming, Vt}
@@ -54,7 +54,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
     Process.send_after(self(), :update_stream, 1_000)
     ViewerTracker.subscribe(stream_id)
     viewer_count = ViewerTracker.count(stream_id)
-    stream = Streaming.get_live_stream(stream_id)
+    stream = Streaming.get_stream(stream_id)
 
     state = %{
       stream: stream,
@@ -177,7 +177,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
       case state.vt_size do
         {cols, rows} ->
           stream =
-            Streaming.update_live_stream(state.stream,
+            Streaming.update_stream(state.stream,
               current_viewer_count: state.viewer_count,
               cols: cols,
               rows: rows,
@@ -208,7 +208,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
 
     time = current_stream_time(state.last_stream_time, state.last_event_time) || 0.0
     publish(state.stream_id, :end, %{time: time})
-    Streaming.update_live_stream(state.stream, online: false)
+    Streaming.update_stream(state.stream, online: false)
 
     :ok
   end
@@ -216,7 +216,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
   # Private
 
   defp via_tuple(stream_id),
-    do: {:via, Horde.Registry, {Asciinema.Streaming.LiveStreamRegistry, stream_id}}
+    do: {:via, Horde.Registry, {Asciinema.Streaming.StreamRegistry, stream_id}}
 
   defp update_time(state, time) do
     %{state | last_stream_time: time, last_event_time: Timex.now()}
@@ -238,7 +238,7 @@ defmodule Asciinema.Streaming.LiveStreamServer do
     {:ok, vt} = Vt.new(cols, rows, 100)
 
     stream =
-      Streaming.update_live_stream(
+      Streaming.update_stream(
         state.stream,
         Keyword.merge(
           [

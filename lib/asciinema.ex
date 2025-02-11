@@ -4,7 +4,7 @@ defmodule Asciinema do
   def create_user(params) do
     with {:ok, user} <- Accounts.create_user(params) do
       if Streaming.mode() == :static do
-        Streaming.create_live_stream!(user)
+        Streaming.create_stream!(user)
       end
 
       {:ok, user}
@@ -67,7 +67,7 @@ defmodule Asciinema do
 
     Repo.transact(fn ->
       Recordings.reassign_asciicasts(src_user.id, dst_user.id)
-      Streaming.reassign_live_streams(src_user.id, dst_user.id)
+      Streaming.reassign_streams(src_user.id, dst_user.id)
       Accounts.reassign_clis(src_user.id, dst_user.id)
       Accounts.delete_user!(src_user)
 
@@ -88,14 +88,14 @@ defmodule Asciinema do
     result =
       Repo.transact(fn ->
         Recordings.delete_asciicasts(user)
-        Streaming.delete_live_streams(user)
+        Streaming.delete_streams(user)
         Accounts.delete_user!(user)
       end)
 
     with {:ok, _} <- result, do: :ok
   end
 
-  defdelegate get_live_stream(id_or_owner), to: Streaming
+  defdelegate get_stream(id_or_owner), to: Streaming
 
   def unclaimed_recording_ttl(mode \\ nil)
 

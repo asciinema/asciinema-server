@@ -43,7 +43,7 @@
 
             <.link
               :if={:make_private in @actions}
-              href={~p"/s/#{@stream}?live_stream[private]=1"}
+              href={~p"/s/#{@stream}?stream[private]=1"}
               class="dropdown-item"
               method="put"
             >
@@ -52,7 +52,7 @@
 
             <.link
               :if={:make_public in @actions}
-              href={~p"/s/#{@stream}?live_stream[private]=0"}
+              href={~p"/s/#{@stream}?stream[private]=0"}
               class="dropdown-item"
               method="put"
             >
@@ -69,9 +69,7 @@
   <div class="container">
     <div class="row">
       <div class="col-md-12 col-xs-12">
-        {live_render(@conn, AsciinemaWeb.LiveStreamStatusLive,
-          session: %{"stream_id" => @stream.id}
-        )}
+        {live_render(@conn, AsciinemaWeb.StreamStatusLive, session: %{"stream_id" => @stream.id})}
 
         <%= if desc = render_markdown(@stream.description) do %>
           <hr />
@@ -97,7 +95,7 @@
           value={url(~p"/s/#{@stream}")}
         />
 
-        <p class="text-success">This is your unique live stream URL. Share this
+        <p class="text-success">This is your unique stream URL. Share this
           freely with your viewers.</p>
 
         <h2>How to stream</h2>

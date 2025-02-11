@@ -1,4 +1,4 @@
-defmodule AsciinemaWeb.Api.LiveStreamControllerTest do
+defmodule AsciinemaWeb.Api.StreamControllerTest do
   use AsciinemaWeb.ConnCase
   import Asciinema.Factory
 
@@ -14,7 +14,7 @@ defmodule AsciinemaWeb.Api.LiveStreamControllerTest do
     test "responds with default stream info when a fixed stream is available", %{conn: conn} do
       set_streaming_mode(:fixed)
       user = insert(:user)
-      insert(:live_stream, user: user, public_token: "foobar", producer_token: "bazqux")
+      insert(:stream, user: user, public_token: "foobar", producer_token: "bazqux")
       conn = add_auth_header(conn, insert(:cli, user: user))
 
       conn = post(conn, ~p"/api/streams")
@@ -70,7 +70,7 @@ defmodule AsciinemaWeb.Api.LiveStreamControllerTest do
 
     test "responds with 403 when user has streaming disabled", %{conn: conn} do
       user = insert(:user, streaming_enabled: false)
-      insert(:live_stream, user: user)
+      insert(:stream, user: user)
       conn = add_auth_header(conn, insert(:cli, user: user))
 
       conn = post(conn, ~p"/api/streams")
@@ -100,7 +100,7 @@ defmodule AsciinemaWeb.Api.LiveStreamControllerTest do
     test "responds with 422 when more than one fixed stream is available", %{conn: conn} do
       set_streaming_mode(:fixed)
       user = insert(:user)
-      insert_list(2, :live_stream, user: user)
+      insert_list(2, :stream, user: user)
       conn = add_auth_header(conn, insert(:cli, user: user))
 
       conn = post(conn, ~p"/api/streams")
@@ -112,7 +112,7 @@ defmodule AsciinemaWeb.Api.LiveStreamControllerTest do
   describe "get default stream" do
     test "responds with stream info when a stream is available", %{conn: conn} do
       user = insert(:user)
-      insert(:live_stream, user: user, public_token: "foobar", producer_token: "bazqux")
+      insert(:stream, user: user, public_token: "foobar", producer_token: "bazqux")
       conn = add_auth_header(conn, insert(:cli, user: user))
 
       conn = get(conn, ~p"/api/user/stream")
@@ -155,7 +155,7 @@ defmodule AsciinemaWeb.Api.LiveStreamControllerTest do
 
     test "responds with 403 when user has streaming disabled", %{conn: conn} do
       user = insert(:user, streaming_enabled: false)
-      insert(:live_stream, user: user)
+      insert(:stream, user: user)
       conn = add_auth_header(conn, insert(:cli, user: user))
 
       conn = get(conn, ~p"/api/user/stream")
@@ -184,7 +184,7 @@ defmodule AsciinemaWeb.Api.LiveStreamControllerTest do
     test "responds with 422 when more than one fixed stream is available", %{conn: conn} do
       set_streaming_mode(:fixed)
       user = insert(:user)
-      insert_list(2, :live_stream, user: user)
+      insert_list(2, :stream, user: user)
       conn = add_auth_header(conn, insert(:cli, user: user))
 
       conn = get(conn, ~p"/api/user/stream")
@@ -197,8 +197,8 @@ defmodule AsciinemaWeb.Api.LiveStreamControllerTest do
     test "responds with stream info when a stream is found", %{conn: conn} do
       user = insert(:user)
       conn = add_auth_header(conn, insert(:cli, user: user))
-      insert(:live_stream, user: user)
-      insert(:live_stream, user: user, public_token: "foobar", producer_token: "bazqux")
+      insert(:stream, user: user)
+      insert(:stream, user: user, public_token: "foobar", producer_token: "bazqux")
 
       conn = get(conn, ~p"/api/user/streams/foobar")
 
@@ -211,7 +211,7 @@ defmodule AsciinemaWeb.Api.LiveStreamControllerTest do
     test "responds with stream info when a stream is found by token prefix", %{conn: conn} do
       user = insert(:user)
       conn = add_auth_header(conn, insert(:cli, user: user))
-      insert(:live_stream, user: user, public_token: "foobar", producer_token: "bazqux")
+      insert(:stream, user: user, public_token: "foobar", producer_token: "bazqux")
 
       conn = get(conn, ~p"/api/user/streams/foo")
 
@@ -253,7 +253,7 @@ defmodule AsciinemaWeb.Api.LiveStreamControllerTest do
 
     test "responds with 403 when user has streaming disabled", %{conn: conn} do
       user = insert(:user, streaming_enabled: false)
-      insert(:live_stream, user: user)
+      insert(:stream, user: user)
       conn = add_auth_header(conn, insert(:cli, user: user))
 
       conn = get(conn, ~p"/api/user/streams/x")
@@ -281,7 +281,7 @@ defmodule AsciinemaWeb.Api.LiveStreamControllerTest do
 
     test "responds with 404 when stream belongs to another user", %{conn: conn} do
       conn = add_auth_header(conn, insert(:cli))
-      insert(:live_stream, public_token: "foobar")
+      insert(:stream, public_token: "foobar")
 
       conn = get(conn, ~p"/api/user/streams/foobar")
 

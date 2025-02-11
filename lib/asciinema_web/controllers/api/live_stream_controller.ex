@@ -1,4 +1,4 @@
-defmodule AsciinemaWeb.Api.LiveStreamController do
+defmodule AsciinemaWeb.Api.StreamController do
   use AsciinemaWeb, :controller
   alias Asciinema.{Accounts, Streaming}
   alias AsciinemaWeb.UrlHelpers
@@ -8,20 +8,20 @@ defmodule AsciinemaWeb.Api.LiveStreamController do
 
   def show(conn, %{"id" => id}) do
     conn.assigns.current_user
-    |> Streaming.fetch_live_stream(id)
+    |> Streaming.fetch_stream(id)
     |> stream_json(conn, id)
   end
 
   # TODO: remove after the release of the final CLI 3.0
   def show(conn, _params) do
     conn.assigns.current_user
-    |> Streaming.fetch_default_live_stream()
+    |> Streaming.fetch_default_stream()
     |> stream_json(conn, "default")
   end
 
   def create(conn, _params) do
     conn.assigns.current_user
-    |> Streaming.create_live_stream()
+    |> Streaming.create_stream()
     |> stream_json(conn)
   end
 

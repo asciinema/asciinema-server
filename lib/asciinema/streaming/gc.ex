@@ -5,7 +5,7 @@ defmodule Asciinema.Streaming.GC do
 
   @impl Oban.Worker
   def perform(_job) do
-    count = Streaming.mark_inactive_live_streams_offline()
+    count = Streaming.mark_inactive_streams_offline()
 
     if count > 0 do
       Logger.info("marked #{count} streams offline")

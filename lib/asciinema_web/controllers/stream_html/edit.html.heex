@@ -2,7 +2,7 @@
   <div class="row">
     <div class="col-md-12 col-lg-9">
       <.form :let={f} for={@changeset} action={~p"/s/#{@changeset.data}"}>
-        <legend>Live stream settings</legend>
+        <legend>Stream settings</legend>
 
         <div class="form-group row">
           <.label for={f[:visibility]} class="col-3 col-form-label">
@@ -12,13 +12,13 @@
             <div class="form-check">
               <input
                 type="radio"
-                name="live_stream[visibility]"
-                id="live_stream_visibility_public"
+                name="stream[visibility]"
+                id="stream_visibility_public"
                 value="public"
                 checked={f[:visibility].value == :public}
                 class="form-check-input"
               />
-              <label for="live_stream_visibility_public" class="form-check-label">
+              <label for="stream_visibility_public" class="form-check-label">
                 Public
               </label>
               <small class="form-text text-muted">
@@ -28,13 +28,13 @@
             <div class="form-check">
               <input
                 type="radio"
-                name="live_stream[visibility]"
-                id="live_stream_visibility_unlisted"
+                name="stream[visibility]"
+                id="stream_visibility_unlisted"
                 value="unlisted"
                 checked={f[:visibility].value == :unlisted}
                 class="form-check-input"
               />
-              <label for="live_stream_visibility_unlisted" class="form-check-label">
+              <label for="stream_visibility_unlisted" class="form-check-label">
                 Unlisted
               </label>
               <small class="form-text text-muted">
@@ -44,13 +44,13 @@
             <div class="form-check">
               <input
                 type="radio"
-                name="live_stream[visibility]"
-                id="live_stream_visibility_private"
+                name="stream[visibility]"
+                id="stream_visibility_private"
                 value="private"
                 checked={f[:visibility].value == :private}
                 class="form-check-input"
               />
-              <label for="live_stream_visibility_private" class="form-check-label">
+              <label for="stream_visibility_private" class="form-check-label">
                 Private
               </label>
               <small class="form-text text-muted">
@@ -67,7 +67,7 @@
               field={f[:title]}
               class="form-control"
               autofocus={true}
-              placeholder={"#{author_username(@stream)}'s live stream"}
+              placeholder={"#{author_username(@stream)}'s stream"}
             />
             <.error field={f[:title]} />
           </div>

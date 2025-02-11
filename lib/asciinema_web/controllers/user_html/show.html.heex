@@ -41,7 +41,7 @@
         <div class="col-md-12">
           <div :for={streams <- Enum.chunk_every(@streams, 2, 2)} class="row">
             <div :for={stream <- streams} class="col-md-6">
-              {live_render(@conn, AsciinemaWeb.LiveStreamCardLive,
+              {live_render(@conn, AsciinemaWeb.StreamCardLive,
                 session: %{"stream_id" => stream.id}
               )}
             </div>
@@ -123,14 +123,14 @@
 
           <%= if @default_stream do %>
             <div class="col-md-6">
-              <h2>Live streaming</h2>
+              <h2>Streaming</h2>
 
               <p>
                 Live terminal streaming is a feature of the <a href="https://github.com/asciinema/asciinema/releases/tag/v3.0.0-rc.2">upcoming
               asciinema CLI 3.0</a>.
               </p>
 
-              <p>To start the live streaming session and expose it via {@conn.host}, run:</p>
+              <p>To start the streaming session and expose it via {@conn.host}, run:</p>
 
               <pre><code>asciinema stream -r</code></pre>
 

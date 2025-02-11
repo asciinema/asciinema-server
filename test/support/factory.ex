@@ -3,7 +3,7 @@ defmodule Asciinema.Factory do
   alias Asciinema.Accounts.{Cli, User}
   alias Asciinema.FileStore
   alias Asciinema.Recordings.Asciicast
-  alias Asciinema.Streaming.LiveStream
+  alias Asciinema.Streaming.Stream
 
   def user_factory do
     %User{
@@ -62,8 +62,8 @@ defmodule Asciinema.Factory do
     }
   end
 
-  def live_stream_factory do
-    %LiveStream{
+  def stream_factory do
+    %Stream{
       user: build(:user),
       public_token: sequence(:public_token, &public_token/1),
       producer_token: sequence(:producer_token, &"token-#{&1}")
@@ -73,16 +73,16 @@ defmodule Asciinema.Factory do
   defp public_token(n) do
     "public-#{n}"
     |> String.codepoints()
-    |> Stream.cycle()
-    |> Stream.take(16)
+    |> Elixir.Stream.cycle()
+    |> Elixir.Stream.take(16)
     |> Enum.join("")
   end
 
   defp secret_token(n) do
     "sekrit-#{n}"
     |> String.codepoints()
-    |> Stream.cycle()
-    |> Stream.take(25)
+    |> Elixir.Stream.cycle()
+    |> Elixir.Stream.take(25)
     |> Enum.join("")
   end
 

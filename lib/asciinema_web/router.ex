@@ -57,7 +57,7 @@ defmodule AsciinemaWeb.Router do
     get "/a/:id/iframe", RecordingController, :iframe
     get "/a/:id/example", RecordingController, :example
 
-    resources "/s", LiveStreamController, only: [:show, :edit, :update]
+    resources "/s", StreamController, only: [:show, :edit, :update]
 
     resources "/login", LoginController, only: [:new, :create], singleton: true
     get "/login/sent", LoginController, :sent, as: :login
@@ -83,11 +83,11 @@ defmodule AsciinemaWeb.Router do
 
   scope "/api", AsciinemaWeb.Api, as: :api do
     post "/asciicasts", RecordingController, :create
-    post "/streams", LiveStreamController, :create
+    post "/streams", StreamController, :create
 
     scope "/user" do
-      get "/stream", LiveStreamController, :show
-      get "/streams/:id", LiveStreamController, :show
+      get "/stream", StreamController, :show
+      get "/streams/:id", StreamController, :show
     end
   end
 

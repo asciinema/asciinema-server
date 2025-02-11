@@ -26,8 +26,8 @@ config :asciinema, AsciinemaWeb.Endpoint,
     dispatch: [
       {:_,
        [
-         {"/ws/s/:public_token", AsciinemaWeb.LiveStreamConsumerSocket, []},
-         {"/ws/S/:producer_token", AsciinemaWeb.LiveStreamProducerSocket, []},
+         {"/ws/s/:public_token", AsciinemaWeb.StreamConsumerSocket, []},
+         {"/ws/S/:producer_token", AsciinemaWeb.StreamProducerSocket, []},
          {:_, Plug.Cowboy.Handler, {AsciinemaWeb.Endpoint, []}}
        ]}
     ]

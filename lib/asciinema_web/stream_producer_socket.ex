@@ -1,6 +1,6 @@
-defmodule AsciinemaWeb.LiveStreamProducerSocket do
+defmodule AsciinemaWeb.StreamProducerSocket do
   alias Asciinema.Streaming
-  alias Asciinema.Streaming.{LiveStreamServer, LiveStreamSupervisor, Parser}
+  alias Asciinema.Streaming.{StreamServer, StreamSupervisor, Parser}
   require Logger
 
   @behaviour :cowboy_websocket
@@ -38,7 +38,7 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
   def websocket_init(params) do
     %{token: token, parser: parser} = params
 
-    case Streaming.find_live_stream_by_producer_token(token) do
+    case Streaming.find_stream_by_producer_token(token) do
       nil ->
         handle_error({:stream_not_found, token}, %{stream_id: "?"})
 
@@ -96,7 +96,7 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
   def websocket_info(:server_heartbeat, %{status: :online} = state) do
     Process.send_after(self(), :server_heartbeat, @server_heartbeat_interval)
 
-    case LiveStreamServer.heartbeat(state.stream_id) do
+    case StreamServer.heartbeat(state.stream_id) do
       :ok ->
         {:ok, state}
 
@@ -132,7 +132,7 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
     Logger.debug("producer/#{stream_id}: state: #{inspect(state)}")
 
     if reason == :remote || match?({:remote, _, _}, reason) do
-      LiveStreamServer.stop(state.stream_id)
+      StreamServer.stop(state.stream_id)
     end
 
     :ok
@@ -182,7 +182,7 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
     if cols > 0 and rows > 0 and cols <= @max_cols and rows <= @max_rows do
       ensure_server(state.stream_id)
 
-      with :ok <- LiveStreamServer.reset(state.stream_id, meta) do
+      with :ok <- StreamServer.reset(state.stream_id, meta) do
         {:ok, %{state | status: :online}}
       end
     else
@@ -191,20 +191,20 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
   end
 
   defp run_command({:output, args}, %{status: :online} = state) do
-    with :ok <- LiveStreamServer.event(state.stream_id, :output, args) do
+    with :ok <- StreamServer.event(state.stream_id, :output, args) do
       {:ok, state}
     end
   end
 
   defp run_command({:input, args}, %{status: :online} = state) do
-    with :ok <- LiveStreamServer.event(state.stream_id, :input, args) do
+    with :ok <- StreamServer.event(state.stream_id, :input, args) do
       {:ok, state}
     end
   end
 
   defp run_command({:resize, {_time, {cols, rows}} = args}, state)
        when cols > 0 and rows > 0 and cols <= @max_cols and rows <= @max_rows do
-    with :ok <- LiveStreamServer.event(state.stream_id, :resize, args) do
+    with :ok <- StreamServer.event(state.stream_id, :resize, args) do
       {:ok, state}
     end
   end
@@ -212,14 +212,14 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
   defp run_command({:resize, {_time, size}}, _state), do: {:error, {:invalid_vt_size, size}}
 
   defp run_command({:marker, args}, %{status: :online} = state) do
-    with :ok <- LiveStreamServer.event(state.stream_id, :marker, args) do
+    with :ok <- StreamServer.event(state.stream_id, :marker, args) do
       {:ok, state}
     end
   end
 
   defp run_command({:eot, _}, %{status: :online} = state) do
     Logger.info("producer/#{state.stream_id}: stream ended, stopping the server")
-    LiveStreamServer.stop(state.stream_id)
+    StreamServer.stop(state.stream_id)
 
     {:ok, %{state | status: :eot}}
   end
@@ -228,8 +228,8 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
 
   defp ensure_server(stream_id) do
     Logger.info("producer/#{stream_id}: stream went online, starting server")
-    {:ok, _pid} = LiveStreamSupervisor.ensure_child(stream_id)
-    :ok = LiveStreamServer.lead(stream_id)
+    {:ok, _pid} = StreamSupervisor.ensure_child(stream_id)
+    :ok = StreamServer.lead(stream_id)
     Process.send_after(self(), :server_heartbeat, @server_heartbeat_interval)
   end
 
@@ -295,12 +295,12 @@ defmodule AsciinemaWeb.LiveStreamProducerSocket do
   defp save_protocol(stream_id, protocol) do
     Task.Supervisor.start_child(Asciinema.TaskSupervisor, fn ->
       stream_id
-      |> Streaming.get_live_stream()
-      |> Streaming.update_live_stream(protocol: protocol)
+      |> Streaming.get_stream()
+      |> Streaming.update_stream(protocol: protocol)
     end)
   end
 
   defp config(key, default) do
-    Application.get_env(:asciinema, :"live_stream_producer_#{key}", default)
+    Application.get_env(:asciinema, :"stream_producer_#{key}", default)
   end
 end
