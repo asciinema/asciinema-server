@@ -24,7 +24,7 @@ defmodule Asciinema.RecordingsTest do
                user_agent: "a/user/agent"
              } = asciicast
 
-      assert asciicast.path =~ ~r|\d\d/\d\d/#{asciicast.id}\.json$|
+      assert asciicast.path =~ ~r|^recordings/.+\.json$|
     end
 
     test "json file, v1 format (missing required data)" do
@@ -65,7 +65,7 @@ defmodule Asciinema.RecordingsTest do
                user_agent: "a/user/agent"
              } = asciicast
 
-      assert asciicast.path =~ ~r|\d\d/\d\d/#{asciicast.id}\.cast$|
+      assert asciicast.path =~ ~r|^recordings/.+\.cast$|
     end
 
     test "cast file, v2 format, full" do
@@ -92,7 +92,7 @@ defmodule Asciinema.RecordingsTest do
                user_agent: "a/user/agent"
              } = asciicast
 
-      assert asciicast.path =~ ~r|\d\d/\d\d/#{asciicast.id}\.cast$|
+      assert asciicast.path =~ ~r|^recordings/.+\.cast$|
       assert DateTime.to_unix(asciicast.recorded_at) == 1_506_410_422
     end
 

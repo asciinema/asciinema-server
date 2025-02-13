@@ -1,7 +1,7 @@
 defmodule Asciinema.Recordings.Paths do
   use Asciinema.Config
 
-  @default_asciicast_tpl "asciicasts/{shard}/{recording_id}.{ext}"
+  @default_asciicast_tpl "recordings/{username}/{year}/{month}/{day}/{id}.{ext}"
 
   def path(asciicast, ext \\ nil) do
     :recording
@@ -10,11 +10,16 @@ defmodule Asciinema.Recordings.Paths do
   end
 
   defp path(tpl, asciicast, overrides) do
+    time = asciicast.inserted_at
+
     vars =
       Map.merge(
         %{
           "{username}" => asciicast.user.username || "_user#{asciicast.user_id}",
-          "{recording_id}" => to_string(asciicast.id),
+          "{id}" => to_string(asciicast.id),
+          "{year}" => to_string(time.year),
+          "{month}" => to_string(time.month),
+          "{day}" => to_string(time.day),
           "{shard}" => shard(asciicast.id),
           "{ext}" => ext(asciicast.version)
         },

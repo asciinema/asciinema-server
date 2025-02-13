@@ -11,23 +11,25 @@ defmodule Asciinema.Recordings.PathsTest do
 
   describe "path/1" do
     test "returns path with json ext for asciicast v1" do
-      asciicast = build_asciicast(version: 1)
+      now = Timex.now()
+      asciicast = build_asciicast(version: 1, inserted_at: now)
 
       path = Paths.path(asciicast)
 
-      assert path == "recordings/foo/123.json"
+      assert path == "recordings/foo/#{now.year}/#{now.month}/#{now.day}/123.json"
     end
 
     test "returns path with cast ext for asciicast v2" do
-      asciicast = build_asciicast(version: 2)
+      now = Timex.now()
+      asciicast = build_asciicast(version: 2, inserted_at: now)
 
       path = Paths.path(asciicast)
 
-      assert path == "recordings/foo/123.cast"
+      assert path == "recordings/foo/#{now.year}/#{now.month}/#{now.day}/123.cast"
     end
 
     test "uses last 4 digits (reversed) for {shard} token - short id" do
-      Application.put_env(:asciinema, Paths, recording: "asciicasts/{shard}/{recording_id}.{ext}")
+      Application.put_env(:asciinema, Paths, recording: "asciicasts/{shard}/{id}.{ext}")
       asciicast = build_asciicast(id: 1)
 
       path = Paths.path(asciicast)
@@ -36,7 +38,7 @@ defmodule Asciinema.Recordings.PathsTest do
     end
 
     test "uses last 4 digits (reversed) for {shard} token - long id" do
-      Application.put_env(:asciinema, Paths, recording: "asciicasts/{shard}/{recording_id}.{ext}")
+      Application.put_env(:asciinema, Paths, recording: "asciicasts/{shard}/{id}.{ext}")
       asciicast = build_asciicast(id: 12345)
 
       path = Paths.path(asciicast)
@@ -47,16 +49,22 @@ defmodule Asciinema.Recordings.PathsTest do
 
   describe "path/2" do
     test "returns paths with overriden ext" do
-      asciicast = build_asciicast()
+      now = Timex.now()
+      asciicast = build_asciicast(inserted_at: now)
 
       path = Paths.path(asciicast, "txt")
 
-      assert path == "recordings/foo/123.txt"
+      assert path == "recordings/foo/#{now.year}/#{now.month}/#{now.day}/123.txt"
     end
   end
 
-  defp build_asciicast(overrides \\ []) do
-    attrs = Keyword.merge([id: 123, version: 2, user: build(:user, username: "foo")], overrides)
+  defp build_asciicast(overrides) do
+    attrs =
+      Keyword.merge(
+        [id: 123, version: 2, inserted_at: Timex.now(), user: build(:user, username: "foo")],
+        overrides
+      )
+
     build(:asciicast, attrs)
   end
 end
