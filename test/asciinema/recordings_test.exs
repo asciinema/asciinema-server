@@ -128,13 +128,28 @@ defmodule Asciinema.RecordingsTest do
     end
   end
 
-  describe "upgrade/1" do
-    test "keeps v1 and v2 intact" do
-      asciicast_v1 = insert(:asciicast_v1)
-      asciicast_v2 = insert(:asciicast_v2)
+  describe "migrate_file/1" do
+    test "is noop when the file path is up to date" do
+      asciicast =
+        :asciicast
+        |> insert()
+        |> Recordings.assign_path()
+        |> with_file()
 
-      assert ^asciicast_v1 = Recordings.upgrade(asciicast_v1)
-      assert ^asciicast_v2 = Recordings.upgrade(asciicast_v2)
+      assert ^asciicast = Recordings.migrate_file(asciicast)
+    end
+
+    test "moves the file when the path is stale" do
+      asciicast =
+        :asciicast
+        |> insert()
+        |> with_file()
+
+      old_path = asciicast.path
+
+      asciicast = Recordings.migrate_file(asciicast)
+
+      assert asciicast.path != old_path
     end
   end
 end

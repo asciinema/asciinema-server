@@ -107,7 +107,7 @@ defmodule AsciinemaWeb.UserController do
   def update(conn, %{"user" => user_params}) do
     user = conn.assigns.current_user
 
-    case Accounts.update_user(user, user_params) do
+    case Asciinema.update_user(user, user_params) do
       {:ok, _user} ->
         conn
         |> put_flash(:info, "Settings updated")

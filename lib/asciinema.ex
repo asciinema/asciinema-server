@@ -12,7 +12,14 @@ defmodule Asciinema do
   end
 
   defdelegate change_user(user, params \\ %{}), to: Accounts
-  defdelegate update_user(user, params), to: Accounts
+
+  def update_user(user, params) do
+    with {:ok, user} <- Accounts.update_user(user, params) do
+      Recordings.migrate_files(user)
+
+      {:ok, user}
+    end
+  end
 
   def create_user_from_sign_up_token(token) do
     with {:ok, email} <- Accounts.verify_sign_up_token(token) do

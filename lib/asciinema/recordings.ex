@@ -4,7 +4,7 @@ defmodule Asciinema.Recordings do
   import Ecto.Changeset
   import Ecto.Query, warn: false
   alias Asciinema.{FileStore, Fonts, Repo, Themes, Vt}
-  alias Asciinema.Workers.UpdateSnapshot
+  alias Asciinema.Workers.{MigrateRecordingFiles, UpdateSnapshot}
 
   alias Asciinema.Recordings.{
     Asciicast,
@@ -289,28 +289,23 @@ defmodule Asciinema.Recordings do
   end
 
   defp do_create_asciicast(changeset, file) do
-    {_, result} =
-      Repo.transaction(fn ->
-        case Repo.insert(changeset) do
-          {:ok, asciicast} ->
-            asciicast = Repo.preload(asciicast, :user)
-            path = Paths.path(asciicast)
+    Repo.transact(fn ->
+      with {:ok, asciicast} <- Repo.insert(changeset) do
+        asciicast = assign_path(asciicast)
+        save_file(asciicast.path, file)
 
-            asciicast =
-              asciicast
-              |> Changeset.change(path: path)
-              |> Repo.update!()
+        {:ok, asciicast}
+      end
+    end)
+  end
 
-            save_file(path, file)
+  def assign_path(asciicast) do
+    asciicast = Repo.preload(asciicast, :user)
+    path = Paths.path(asciicast)
 
-            {:ok, asciicast}
-
-          otherwise ->
-            otherwise
-        end
-      end)
-
-    result
+    asciicast
+    |> Changeset.change(path: path)
+    |> Repo.update!()
   end
 
   defp save_file(path, %{path: tmp_path, content_type: content_type}) do
@@ -448,39 +443,62 @@ defmodule Asciinema.Recordings do
     |> Repo.update_all(inc: [views_count: 1])
   end
 
-  def upgradable do
-    from(a in Asciicast, where: a.version == 0 or like(a.path, "asciicast/file/%"))
+  def stream_migratable_asciicasts do
+    from(a in Asciicast, preload: :user)
+    |> stream_asciicasts()
+    |> Stream.filter(&stale_path?/1)
+  end
+
+  def stream_migratable_asciicasts(user_id) do
+    from(a in Asciicast, where: a.user_id == ^user_id, preload: :user)
+    |> stream_asciicasts()
+    |> Stream.filter(&stale_path?/1)
+  end
+
+  defp stream_asciicasts(query) do
+    query
     |> Repo.pages(100)
     |> Stream.flat_map(& &1)
   end
 
-  def upgrade(id) when is_integer(id) do
+  defp stale_path?(asciicast) do
+    asciicast.path != Paths.path(asciicast)
+  end
+
+  def migrate_files(user) do
+    %{user_id: user.id}
+    |> MigrateRecordingFiles.new()
+    |> Oban.insert!()
+
+    :ok
+  end
+
+  def migrate_file(id) when is_integer(id) do
     id
     |> get_asciicast()
-    |> upgrade()
+    |> migrate_file()
   end
 
-  def upgrade(%Asciicast{} = asciicast) do
-    asciicast
-    |> upgrade_file_path()
+  def migrate_file(asciicast) do
+    cur_path = asciicast.path
+    new_path = Paths.path(asciicast)
+
+    if cur_path != new_path do
+      changeset = change(asciicast, path: new_path)
+
+      {:ok, asciicast} =
+        Repo.transact(fn ->
+          asciicast = Repo.update!(changeset)
+          :ok = FileStore.move_file(cur_path, new_path)
+
+          {:ok, asciicast}
+        end)
+
+      asciicast
+    else
+      asciicast
+    end
   end
-
-  defp upgrade_file_path(%Asciicast{path: "asciicast/file/" <> _ = old_path} = asciicast) do
-    Logger.info("upgrading asciicast ##{asciicast.id} file path...")
-
-    {:ok, asciicast} =
-      Repo.transaction(fn ->
-        new_path = Paths.path(asciicast)
-        asciicast = Repo.update!(Changeset.change(asciicast, path: new_path))
-        :ok = FileStore.move_file(old_path, new_path)
-
-        asciicast
-      end)
-
-    asciicast
-  end
-
-  defp upgrade_file_path(asciicast), do: asciicast
 
   def write_v2_file(output_stream, %{width: _, height: _} = header) do
     {:ok, tmp_path} = Briefly.create()
