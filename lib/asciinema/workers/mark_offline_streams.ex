@@ -1,5 +1,10 @@
-defmodule Asciinema.Streaming.GC do
-  use Oban.Worker
+defmodule Asciinema.Workers.MarkOfflineStreams do
+  use Oban.Worker,
+    unique: [
+      period: :infinity,
+      states: [:scheduled, :available, :executing, :retryable]
+    ]
+
   alias Asciinema.Streaming
   require Logger
 

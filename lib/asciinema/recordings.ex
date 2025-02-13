@@ -4,12 +4,12 @@ defmodule Asciinema.Recordings do
   import Ecto.Changeset
   import Ecto.Query, warn: false
   alias Asciinema.{FileStore, Fonts, Repo, Themes, Vt}
+  alias Asciinema.Workers.UpdateSnapshot
 
   alias Asciinema.Recordings.{
     Asciicast,
     Markers,
     Paths,
-    SnapshotUpdater,
     EventStream,
     Text
   }
@@ -158,7 +158,9 @@ defmodule Asciinema.Recordings do
          changeset = apply_metadata(changeset, metadata, user.theme_prefer_original),
          {:ok, %Asciicast{} = asciicast} <- do_create_asciicast(changeset, upload) do
       if asciicast.snapshot == nil do
-        :ok = SnapshotUpdater.update_snapshot(asciicast)
+        %{asciicast_id: asciicast.id}
+        |> UpdateSnapshot.new()
+        |> Oban.insert!()
       end
 
       {:ok, asciicast}

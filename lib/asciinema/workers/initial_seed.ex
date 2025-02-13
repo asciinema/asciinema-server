@@ -1,5 +1,5 @@
-defmodule Asciinema.Upgrades.InitialSeed do
-  use Asciinema.Upgrades.Worker
+defmodule Asciinema.Workers.InitialSeed do
+  use Oban.Worker
   require Logger
 
   @impl Oban.Worker
