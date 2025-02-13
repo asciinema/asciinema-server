@@ -181,7 +181,7 @@ defmodule Asciinema.Streaming.Parser.AlisV0 do
     %{
       fg: Enum.at(colors, 0),
       bg: Enum.at(colors, 1),
-      palette: Enum.slice(colors, 2..-1//-1)
+      palette: Enum.drop(colors, 2)
     }
   end
 
