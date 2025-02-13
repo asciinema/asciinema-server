@@ -18,8 +18,8 @@ defmodule Asciinema.Recordings.Paths do
           "{username}" => asciicast.user.username || "_user#{asciicast.user_id}",
           "{id}" => to_string(asciicast.id),
           "{year}" => to_string(time.year),
-          "{month}" => to_string(time.month),
-          "{day}" => to_string(time.day),
+          "{month}" => String.pad_leading(to_string(time.month), 2, "0"),
+          "{day}" => String.pad_leading(to_string(time.day), 2, "0"),
           "{shard}" => shard(asciicast.id),
           "{ext}" => ext(asciicast.version)
         },
