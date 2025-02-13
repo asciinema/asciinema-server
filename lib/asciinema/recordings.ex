@@ -443,8 +443,6 @@ defmodule Asciinema.Recordings do
     time <= secs
   end
 
-  def asciicast_file_path(asciicast), do: asciicast.path
-
   def inc_views_count(asciicast) do
     from(a in Asciicast, where: a.id == ^asciicast.id)
     |> Repo.update_all(inc: [views_count: 1])
