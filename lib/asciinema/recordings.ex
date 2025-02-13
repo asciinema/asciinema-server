@@ -291,7 +291,8 @@ defmodule Asciinema.Recordings do
       Repo.transaction(fn ->
         case Repo.insert(changeset) do
           {:ok, asciicast} ->
-            path = Paths.sharded_path(asciicast)
+            asciicast = Repo.preload(asciicast, :user)
+            path = Paths.path(asciicast)
 
             asciicast =
               asciicast
@@ -469,7 +470,7 @@ defmodule Asciinema.Recordings do
 
     {:ok, asciicast} =
       Repo.transaction(fn ->
-        new_path = Paths.sharded_path(asciicast)
+        new_path = Paths.path(asciicast)
         asciicast = Repo.update!(Changeset.change(asciicast, path: new_path))
         :ok = FileStore.move_file(old_path, new_path)
 

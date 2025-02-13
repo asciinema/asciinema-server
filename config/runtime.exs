@@ -233,6 +233,10 @@ if config_env() in [:prod, :dev] do
     config :asciinema, Asciinema.Accounts, upload_auth_required: true
   end
 
+  if tpl = env.("UPLOAD_PATH_TEMPLATE") do
+    config :asciinema, Asciinema.Recordings.Paths, recording: tpl
+  end
+
   if dsn = env.("SENTRY_DSN") do
     config :sentry, dsn: dsn
   else
