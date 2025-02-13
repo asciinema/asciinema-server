@@ -1,4 +1,5 @@
 defmodule Asciinema.FileStore.S3 do
+  use Asciinema.Config
   use Asciinema.FileStore
   import Phoenix.Controller, only: [redirect: 2]
   import Plug.Conn
@@ -107,19 +108,9 @@ defmodule Asciinema.FileStore.S3 do
     ExAws.request(request)
   end
 
-  defp config do
-    Application.get_env(:asciinema, __MODULE__)
-  end
+  defp bucket, do: config(:bucket)
 
-  defp bucket do
-    Keyword.get(config(), :bucket)
-  end
+  defp proxy?, do: config(:proxy, false)
 
-  defp proxy? do
-    Keyword.get(config(), :proxy, false)
-  end
-
-  defp base_path do
-    Keyword.get(config(), :path)
-  end
+  defp base_path, do: config(:path)
 end
