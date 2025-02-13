@@ -21,12 +21,14 @@ defmodule AsciinemaWeb.ConnCase do
       @endpoint AsciinemaWeb.Endpoint
 
       use AsciinemaWeb, :verified_routes
+      use Asciinema.OnExit
 
       # Import conveniences for testing with connections
       import Plug.Conn
       import Phoenix.ConnTest
 
       import Asciinema.Fixtures
+
       alias AsciinemaWeb.Router.Helpers, as: Routes
 
       defp flash(conn, key) do
@@ -37,11 +39,6 @@ defmodule AsciinemaWeb.ConnCase do
         conn
         |> assign(:current_user, user)
         |> assign(:default_stream, nil)
-      end
-
-      def on_exit_restore_config(module) do
-        config = Application.get_env(:asciinema, module, [])
-        on_exit(fn -> Application.put_env(:asciinema, module, config) end)
       end
     end
   end
