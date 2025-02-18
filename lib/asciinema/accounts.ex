@@ -89,7 +89,8 @@ defmodule Asciinema.Accounts do
       :theme_name,
       :theme_prefer_original,
       :terminal_font_family,
-      :default_asciicast_visibility
+      :default_asciicast_visibility,
+      :stream_recording_enabled
     ])
     |> validate_required([:email])
     |> update_change(:email, &String.downcase/1)

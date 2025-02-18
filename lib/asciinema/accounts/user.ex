@@ -13,6 +13,7 @@ defmodule Asciinema.Accounts.User do
     field :theme_prefer_original, :boolean, default: true
     field :terminal_font_family, :string
     field :streaming_enabled, :boolean, default: true
+    field :stream_recording_enabled, :boolean, default: true
 
     field :default_asciicast_visibility, Ecto.Enum,
       values: [:private, :unlisted, :public],

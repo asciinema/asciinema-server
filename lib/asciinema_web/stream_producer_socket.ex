@@ -14,7 +14,12 @@ defmodule AsciinemaWeb.StreamProducerSocket do
 
   @impl true
   def init(req, _opts) do
-    params = %{token: req.bindings[:producer_token], parser: nil}
+    params = %{
+      token: req.bindings[:producer_token],
+      user_agent: req.headers["user-agent"],
+      query: URI.decode_query(req.qs),
+      parser: nil
+    }
 
     case :cowboy_req.parse_header("sec-websocket-protocol", req) do
       :undefined ->
@@ -36,7 +41,7 @@ defmodule AsciinemaWeb.StreamProducerSocket do
 
   @impl true
   def websocket_init(params) do
-    %{token: token, parser: parser} = params
+    %{token: token, parser: parser, user_agent: user_agent, query: query} = params
 
     case Streaming.find_stream_by_producer_token(token) do
       nil ->
@@ -44,7 +49,7 @@ defmodule AsciinemaWeb.StreamProducerSocket do
 
       stream ->
         Logger.info("producer/#{stream.id}: connected")
-        state = build_state(stream.id, parser)
+        state = build_state(stream.id, parser, user_agent, query)
         Process.send_after(self(), :parser_check, @parser_check_timeout)
         Process.send_after(self(), :client_ping, @client_ping_interval)
         Process.send_after(self(), :bucket_fill, state.bucket.fill_interval)
@@ -144,10 +149,12 @@ defmodule AsciinemaWeb.StreamProducerSocket do
   @default_bucket_fill_amount 10_000
   @default_bucket_size 60_000_000
 
-  defp build_state(stream_id, parser) do
+  defp build_state(stream_id, parser, user_agent, query) do
     %{
       stream_id: stream_id,
       status: :new,
+      user_agent: user_agent,
+      query: query,
       parser: parser,
       bucket: %{
         size: config(:bucket_size, @default_bucket_size),
@@ -175,14 +182,14 @@ defmodule AsciinemaWeb.StreamProducerSocket do
   @max_cols 720
   @max_rows 200
 
-  defp run_command({:init, %{term_size: {cols, rows}, time: time} = meta}, %{status: s} = state)
+  defp run_command({:init, %{term_size: {cols, rows}, time: time} = args}, %{status: s} = state)
        when s != :online do
     Logger.info("producer/#{state.stream_id}: init (#{cols}x#{rows} @#{time / 1_000_000.0})")
 
     if cols > 0 and rows > 0 and cols <= @max_cols and rows <= @max_rows do
       ensure_server(state.stream_id)
 
-      with :ok <- StreamServer.reset(state.stream_id, meta) do
+      with :ok <- StreamServer.reset(state.stream_id, args, state.user_agent, state.query) do
         {:ok, %{state | status: :online}}
       end
     else

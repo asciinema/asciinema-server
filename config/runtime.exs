@@ -229,6 +229,12 @@ if config_env() in [:prod, :dev] do
     config :asciinema, Asciinema.Streaming, mode: String.to_atom(mode)
   end
 
+  mode = env.("STREAM_RECORDING")
+
+  if mode in ["forced", "allowed", "disabled"] do
+    config :asciinema, Asciinema.Streaming.StreamServer, recording: String.to_atom(mode)
+  end
+
   if env.("UPLOAD_AUTH_REQUIRED") in ["1", "true"] do
     config :asciinema, Asciinema.Accounts, upload_auth_required: true
   end

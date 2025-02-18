@@ -43,6 +43,7 @@ defmodule Asciinema.Recordings.Asciicast do
 
     belongs_to :user, Asciinema.Accounts.User
     belongs_to :cli, Asciinema.Accounts.Cli
+    belongs_to :stream, Asciinema.Streaming.Stream
   end
 
   defimpl Phoenix.Param do

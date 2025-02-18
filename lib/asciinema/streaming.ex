@@ -2,7 +2,9 @@ defmodule Asciinema.Streaming do
   import Ecto.Changeset
   import Ecto.Query
   alias Asciinema.{Fonts, Repo}
-  alias Asciinema.Streaming.Stream
+  alias Asciinema.Streaming.{Stream, StreamServer}
+
+  defdelegate recording_mode, to: StreamServer
 
   def find_stream_by_producer_token(token) do
     Repo.get_by(Stream, producer_token: token)
