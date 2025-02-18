@@ -54,11 +54,12 @@ defmodule AsciinemaWeb.StreamController do
   end
 
   defp load_stream(conn, _) do
-    case Streaming.fetch_stream(conn.params["id"]) do
-      {:ok, stream} ->
-        assign(conn, :stream, stream)
-
-      {:error, _} ->
+    with stream when not is_nil(stream) <- Streaming.get_stream(conn.params["id"]),
+         true <- stream.user.streaming_enabled,
+         true <- Streaming.mode() != :disabled do
+      assign(conn, :stream, stream)
+    else
+      _ ->
         conn
         |> FallbackController.call({:error, :not_found})
         |> halt()

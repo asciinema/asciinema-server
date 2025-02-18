@@ -5,6 +5,7 @@ defmodule AsciinemaWeb.Api.StreamController do
 
   plug :accepts, ~w(json)
   plug :authenticate
+  plug :check_streaming_enabled
 
   def show(conn, %{"id" => id}) do
     conn.assigns.current_user
@@ -40,12 +41,6 @@ defmodule AsciinemaWeb.Api.StreamController do
     |> json(%{reason: "stream #{id} not found"})
   end
 
-  defp stream_json({:error, :disabled}, conn, _id) do
-    conn
-    |> put_status(403)
-    |> json(%{reason: "streaming disabled"})
-  end
-
   defp stream_json({:error, :too_many}, conn, _id) do
     conn
     |> put_status(422)
@@ -63,6 +58,17 @@ defmodule AsciinemaWeb.Api.StreamController do
         |> put_status(401)
         |> json(%{})
         |> halt()
+    end
+  end
+
+  defp check_streaming_enabled(conn, _opts) do
+    if conn.assigns.current_user.streaming_enabled && Streaming.mode() != :disabled do
+      conn
+    else
+      conn
+      |> put_status(403)
+      |> json(%{reason: "streaming disabled"})
+      |> halt()
     end
   end
 end

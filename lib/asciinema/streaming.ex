@@ -31,41 +31,19 @@ defmodule Asciinema.Streaming do
     |> Repo.one()
   end
 
-  def fetch_stream(id) do
-    with {:ok, stream} <- wrap(get_stream(id)),
-         :ok <- authorize(stream.user) do
-      {:ok, stream}
-    end
-  end
-
-  def fetch_stream(owner, id) do
-    with :ok <- authorize(owner),
-         {:ok, stream} <- wrap(get_stream(owner, id)) do
-      {:ok, stream}
-    end
-  end
+  def fetch_stream(owner, id), do: wrap(get_stream(owner, id))
 
   def fetch_default_stream(%{streams: _} = owner) do
-    with :ok <- authorize(owner) do
-      streams =
-        owner
-        |> Ecto.assoc(:streams)
-        |> limit(2)
-        |> Repo.all()
+    streams =
+      owner
+      |> Ecto.assoc(:streams)
+      |> limit(2)
+      |> Repo.all()
 
-      case streams do
-        [] -> {:error, :not_found}
-        [stream] -> {:ok, stream}
-        _ -> {:error, :too_many}
-      end
-    end
-  end
-
-  defp authorize(owner) do
-    if mode() == :disabled || !owner.streaming_enabled do
-      {:error, :disabled}
-    else
-      :ok
+    case streams do
+      [] -> {:error, :not_found}
+      [stream] -> {:ok, stream}
+      _ -> {:error, :too_many}
     end
   end
 
@@ -106,12 +84,10 @@ defmodule Asciinema.Streaming do
   end
 
   def create_stream(user) do
-    with :ok <- authorize(user) do
-      if mode() == :dynamic do
-        {:ok, create_stream!(user)}
-      else
-        fetch_default_stream(user)
-      end
+    if mode() == :dynamic do
+      {:ok, create_stream!(user)}
+    else
+      fetch_default_stream(user)
     end
   end
 
