@@ -28,7 +28,7 @@ defmodule Asciinema.Streaming.Parser.Json do
     commands = [
       init: %{
         last_id: state.last_event_id,
-        time: 0.0,
+        time: 0,
         term_size: {cols, rows},
         term_theme: parse_theme(header["theme"])
       }
@@ -43,18 +43,21 @@ defmodule Asciinema.Streaming.Parser.Json do
 
   def handle_message([time, "o", text], state) when is_number(time) and is_binary(text) do
     {id, state} = get_next_id(state)
+    time = time_as_micros(time)
 
     {:ok, [output: %{id: id, time: time, text: text}], state}
   end
 
   def handle_message([time, "i", text], state) when is_number(time) and is_binary(text) do
     {id, state} = get_next_id(state)
+    time = time_as_micros(time)
 
     {:ok, [input: %{id: id, time: time, text: text}], state}
   end
 
   def handle_message([time, "r", data], state) when is_number(time) and is_binary(data) do
     {id, state} = get_next_id(state)
+    time = time_as_micros(time)
     [cols, rows] = String.split(data, "x")
     cols = String.to_integer(cols)
     rows = String.to_integer(rows)
@@ -64,6 +67,7 @@ defmodule Asciinema.Streaming.Parser.Json do
 
   def handle_message([time, "m", label], state) when is_number(time) and is_binary(label) do
     {id, state} = get_next_id(state)
+    time = time_as_micros(time)
 
     {:ok, [marker: %{id: id, time: time, label: label}], state}
   end
@@ -99,4 +103,6 @@ defmodule Asciinema.Streaming.Parser.Json do
 
     {id, %{state | last_event_id: id}}
   end
+
+  defp time_as_micros(time), do: round(time * 1_000_000)
 end
