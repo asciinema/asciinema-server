@@ -224,7 +224,7 @@ defmodule Asciinema.Streaming.StreamServer do
     Logger.info("stream/#{state.stream_id}: terminating (#{inspect(reason)})")
     Logger.debug("stream/#{state.stream_id}: state: #{inspect(state)}")
 
-    time = current_stream_time(state.last_stream_time, state.last_event_time) || 0.0
+    time = current_stream_time(state.last_stream_time, state.last_event_time) || 0
     publish(state.stream_id, :end, %{time: time})
     Streaming.update_stream(state.stream, online: false)
 
