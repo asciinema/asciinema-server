@@ -11,7 +11,7 @@ defmodule AsciinemaWeb.Api.RecordingController do
     cli = conn.assigns.cli
     user_agent = conn |> get_req_header("user-agent") |> List.first()
 
-    case Recordings.create_asciicast(cli, upload, %{user_agent: user_agent}) do
+    case Recordings.create_asciicast(cli.user, upload, %{cli_id: cli.id, user_agent: user_agent}) do
       {:ok, asciicast} ->
         url = url(~p"/a/#{asciicast}")
 

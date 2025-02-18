@@ -135,18 +135,15 @@ defmodule Asciinema.Recordings do
     :ok
   end
 
-  def create_asciicast(cli, %Plug.Upload{filename: filename} = upload, overrides \\ %{}) do
-    user = cli.user
-
+  def create_asciicast(user, %Plug.Upload{filename: filename} = upload, fields \\ %{}) do
     attrs =
       Map.merge(
         %{
-          cli_id: cli.id,
           filename: filename,
           visibility: user.default_asciicast_visibility,
           secret_token: Crypto.random_token(25)
         },
-        overrides
+        fields
       )
 
     changeset =

@@ -6,10 +6,13 @@ defmodule Asciinema.RecordingsTest do
 
   describe "create_asciicast/3" do
     test "json file, v1 format" do
-      cli = insert(:cli)
+      user = insert(:user)
+      cli = insert(:cli, user: user)
+      cli_id = cli.id
       upload = fixture(:upload, %{path: "1/asciicast.json"})
 
-      {:ok, asciicast} = Recordings.create_asciicast(cli, upload, %{user_agent: "a/user/agent"})
+      {:ok, asciicast} =
+        Recordings.create_asciicast(user, upload, %{cli_id: cli_id, user_agent: "a/user/agent"})
 
       assert %Asciicast{
                version: 1,
@@ -21,31 +24,35 @@ defmodule Asciinema.RecordingsTest do
                rows: 26,
                title: "bashing :)",
                uname: nil,
-               user_agent: "a/user/agent"
+               user_agent: "a/user/agent",
+               cli_id: ^cli_id
              } = asciicast
 
       assert asciicast.path =~ ~r|^recordings/.+\.json$|
     end
 
     test "json file, v1 format (missing required data)" do
-      cli = insert(:cli)
+      user = insert(:user)
       upload = fixture(:upload, %{path: "1/invalid.json"})
 
-      assert {:error, %Ecto.Changeset{}} = Recordings.create_asciicast(cli, upload)
+      assert {:error, %Ecto.Changeset{}} = Recordings.create_asciicast(user, upload)
     end
 
     test "json file, unsupported version number" do
-      cli = insert(:cli)
+      user = insert(:user)
       upload = fixture(:upload, %{path: "5/asciicast.json"})
 
-      assert {:error, {:unsupported_format, 5}} = Recordings.create_asciicast(cli, upload)
+      assert {:error, {:unsupported_format, 5}} = Recordings.create_asciicast(user, upload)
     end
 
     test "cast file, v2 format, minimal" do
-      cli = insert(:cli)
+      user = insert(:user)
+      cli = insert(:cli, user: user)
+      cli_id = cli.id
       upload = fixture(:upload, %{path: "2/minimal.cast"})
 
-      {:ok, asciicast} = Recordings.create_asciicast(cli, upload, %{user_agent: "a/user/agent"})
+      {:ok, asciicast} =
+        Recordings.create_asciicast(user, upload, %{cli_id: cli_id, user_agent: "a/user/agent"})
 
       assert %Asciicast{
                version: 2,
@@ -62,17 +69,18 @@ defmodule Asciinema.RecordingsTest do
                theme_palette: nil,
                idle_time_limit: nil,
                uname: nil,
-               user_agent: "a/user/agent"
+               user_agent: "a/user/agent",
+               cli_id: ^cli_id
              } = asciicast
 
       assert asciicast.path =~ ~r|^recordings/.+\.cast$|
     end
 
     test "cast file, v2 format, full" do
-      cli = insert(:cli)
+      user = insert(:user)
       upload = fixture(:upload, %{path: "2/full.cast"})
 
-      {:ok, asciicast} = Recordings.create_asciicast(cli, upload, %{user_agent: "a/user/agent"})
+      {:ok, asciicast} = Recordings.create_asciicast(user, upload, %{user_agent: "a/user/agent"})
 
       assert %Asciicast{
                version: 2,
@@ -97,10 +105,18 @@ defmodule Asciinema.RecordingsTest do
     end
 
     test "unknown file format" do
-      cli = insert(:cli)
+      user = insert(:user)
       upload = fixture(:upload, %{path: "new-logo-bars.png"})
 
-      assert {:error, :unknown_format} = Recordings.create_asciicast(cli, upload)
+      assert {:error, :unknown_format} = Recordings.create_asciicast(user, upload)
+    end
+  end
+
+  describe "ensure_welcome_asciicast/1" do
+    test "works" do
+      user = insert(:user)
+
+      assert Recordings.ensure_welcome_asciicast(user) == :ok
     end
   end
 
