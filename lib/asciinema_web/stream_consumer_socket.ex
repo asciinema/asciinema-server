@@ -76,6 +76,7 @@ defmodule AsciinemaWeb.StreamConsumerSocket do
 
     {:reply,
      serialize_init(
+       update.data.last_id,
        update.data.time,
        update.data.term_size,
        update.data[:term_init],
@@ -89,6 +90,7 @@ defmodule AsciinemaWeb.StreamConsumerSocket do
 
     {:reply,
      serialize_init(
+       update.data.last_id,
        update.data.time,
        update.data.term_size,
        update.data.term_init,
@@ -105,34 +107,34 @@ defmodule AsciinemaWeb.StreamConsumerSocket do
   end
 
   def websocket_info(%StreamServer.Update{event: :output} = update, state) do
-    {time, text} = update.data
+    %{id: id, time: time, text: text} = update.data
     rel_time = time - state.last_event_time
-    msg = serialize_output(rel_time, text)
+    msg = serialize_output(id, rel_time, text)
     state = %{state | last_event_time: time}
 
     {:reply, msg, state}
   end
 
   def websocket_info(%StreamServer.Update{event: :input} = update, state) do
-    {time, text} = update.data
+    %{id: id, time: time, text: text} = update.data
     rel_time = time - state.last_event_time
-    msg = serialize_input(rel_time, text)
+    msg = serialize_input(id, rel_time, text)
     state = %{state | last_event_time: time}
 
     {:reply, msg, state}
   end
 
   def websocket_info(%StreamServer.Update{event: :resize} = update, state) do
-    {time, term_size} = update.data
+    %{id: id, time: time, term_size: term_size} = update.data
     rel_time = time - state.last_event_time
-    msg = serialize_resize(rel_time, term_size)
+    msg = serialize_resize(id, rel_time, term_size)
     state = %{state | last_event_time: time}
 
     {:reply, msg, state}
   end
 
   def websocket_info(%StreamServer.Update{event: :marker} = update, state) do
-    {time, label} = update.data
+    %{time: time, label: label} = update.data
     rel_time = time - state.last_event_time
     msg = serialize_marker(rel_time, label)
     state = %{state | last_event_time: time}
@@ -204,12 +206,13 @@ defmodule AsciinemaWeb.StreamConsumerSocket do
 
   defp magic_string, do: {:binary, "ALiS\x01"}
 
-  defp serialize_init(time, term_size, term_init, theme) do
+  defp serialize_init(id, time, term_size, term_init, theme) do
     {cols, rows} = term_size
     term_init = term_init || ""
 
     msg =
       <<1::8>> <>
+        encode_varint(id) <>
         encode_varint(time) <>
         encode_varint(cols) <>
         encode_varint(rows) <>
@@ -219,21 +222,24 @@ defmodule AsciinemaWeb.StreamConsumerSocket do
     {:binary, msg}
   end
 
-  defp serialize_output(time, text) do
-    msg = <<?o>> <> encode_varint(time) <> serialize_string(text)
+  defp serialize_output(id, time, text) do
+    msg = <<?o>> <> encode_varint(id) <> encode_varint(time) <> serialize_string(text)
 
     {:binary, msg}
   end
 
-  defp serialize_input(time, text) do
-    msg = <<?i>> <> encode_varint(time) <> serialize_string(text)
+  defp serialize_input(id, time, text) do
+    msg = <<?i>> <> encode_varint(id) <> encode_varint(time) <> serialize_string(text)
 
     {:binary, msg}
   end
 
-  defp serialize_resize(time, term_size) do
+  defp serialize_resize(id, time, term_size) do
     {cols, rows} = term_size
-    msg = <<?r>> <> encode_varint(time) <> encode_varint(cols) <> encode_varint(rows)
+
+    msg =
+      <<?r>> <>
+        encode_varint(id) <> encode_varint(time) <> encode_varint(cols) <> encode_varint(rows)
 
     {:binary, msg}
   end

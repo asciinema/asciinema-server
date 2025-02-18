@@ -63,6 +63,7 @@ defmodule Asciinema.Streaming.StreamServer do
       vt: nil,
       vt_size: nil,
       theme: nil,
+      last_event_id: 0,
       last_stream_time: nil,
       last_event_time: nil,
       shutdown_timer: nil,
@@ -88,7 +89,10 @@ defmodule Asciinema.Streaming.StreamServer do
   end
 
   def handle_call({:reset, meta}, _from, state) do
-    state = reset_stream(state, meta.term_size, meta.time, meta[:term_theme])
+    state =
+      state
+      |> reset_stream(meta.term_size, meta.time, meta[:term_theme])
+      |> save_event_id(meta.last_id)
 
     if term_init = meta[:term_init] do
       Vt.feed(state.vt, term_init)
@@ -99,40 +103,53 @@ defmodule Asciinema.Streaming.StreamServer do
     {:reply, :ok, state}
   end
 
-  def handle_call({:event, {:output, event}}, _from, state) do
-    {time, data} = event
-    Vt.feed(state.vt, data)
-    publish(state.stream_id, :output, event)
-    state = update_time(state, time)
+  def handle_call({:event, {:output, data}}, _from, state) do
+    %{id: id, time: time, text: text} = data
+    Vt.feed(state.vt, text)
+    publish(state.stream_id, :output, data)
+
+    state =
+      state
+      |> update_time(time)
+      |> save_event_id(id)
 
     {:reply, :ok, state}
   end
 
-  def handle_call({:event, {:input, event}}, _from, state) do
-    {time, _data} = event
-    publish(state.stream_id, :input, event)
-    state = update_time(state, time)
+  def handle_call({:event, {:input, data}}, _from, state) do
+    %{id: id, time: time} = data
+    publish(state.stream_id, :input, data)
+
+    state =
+      state
+      |> update_time(time)
+      |> save_event_id(id)
 
     {:reply, :ok, state}
   end
 
-  def handle_call({:event, {:resize, event}}, _from, state) do
-    {time, {cols, rows} = vt_size} = event
+  def handle_call({:event, {:resize, data}}, _from, state) do
+    %{id: id, time: time, term_size: {cols, rows} = vt_size} = data
     Vt.resize(state.vt, cols, rows)
-    publish(state.stream_id, :resize, event)
+    publish(state.stream_id, :resize, data)
 
     state =
       state
       |> update_time(time)
       |> Map.put(:vt_size, vt_size)
+      |> save_event_id(id)
 
     {:reply, :ok, state}
   end
 
-  def handle_call({:event, {:marker, event}}, _from, state) do
-    {time, _data} = event
-    publish(state.stream_id, :marker, event)
-    state = update_time(state, time)
+  def handle_call({:event, {:marker, data}}, _from, state) do
+    %{id: id, time: time} = data
+    publish(state.stream_id, :marker, data)
+
+    state =
+      state
+      |> update_time(time)
+      |> save_event_id(id)
 
     {:reply, :ok, state}
   end
@@ -153,6 +170,7 @@ defmodule Asciinema.Streaming.StreamServer do
       stream_id: state.stream_id,
       event: :info,
       data: %{
+        last_id: state.last_event_id,
         term_size: state.vt_size,
         term_init: Vt.dump(state.vt),
         term_theme: state.theme,
@@ -260,6 +278,8 @@ defmodule Asciinema.Streaming.StreamServer do
     }
     |> update_time(time)
   end
+
+  defp save_event_id(state, id), do: %{state | last_event_id: id}
 
   defp reschedule_shutdown(state) do
     if state.shutdown_timer do

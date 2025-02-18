@@ -202,14 +202,14 @@ defmodule AsciinemaWeb.StreamProducerSocket do
     end
   end
 
-  defp run_command({:resize, {_time, {cols, rows}} = args}, state)
+  defp run_command({:resize, %{term_size: {cols, rows}} = args}, state)
        when cols > 0 and rows > 0 and cols <= @max_cols and rows <= @max_rows do
     with :ok <- StreamServer.event(state.stream_id, :resize, args) do
       {:ok, state}
     end
   end
 
-  defp run_command({:resize, {_time, size}}, _state), do: {:error, {:invalid_vt_size, size}}
+  defp run_command({:resize, %{term_size: size}}, _state), do: {:error, {:invalid_vt_size, size}}
 
   defp run_command({:marker, args}, %{status: :online} = state) do
     with :ok <- StreamServer.event(state.stream_id, :marker, args) do
