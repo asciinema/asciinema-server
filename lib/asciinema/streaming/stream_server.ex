@@ -108,11 +108,12 @@ defmodule Asciinema.Streaming.StreamServer do
       )
 
     state =
-      %{state | theme: theme, base_stream_time: time, user_agent: user_agent}
+      %{state | theme: theme, user_agent: user_agent}
       |> reset_vt(cols, rows)
+      |> update_base_stream_time(last_id, time)
       |> update_last_stream_time(time)
       |> update_schema(schema_changes)
-      |> start_recording(cols, rows, args[:term_init], theme, query)
+      |> restart_recording(last_id, cols, rows, args[:term_init], theme, query)
       |> save_event_id(last_id)
 
     if term_init = args[:term_init] do
@@ -248,12 +249,8 @@ defmodule Asciinema.Streaming.StreamServer do
 
     time = current_stream_time(state.last_stream_time, state.last_event_time) || 0
     publish(state.stream_id, :end, %{time: time})
-    Streaming.update_stream(state.stream, online: false)
-
-    if state.file do
-      :ok = File.close(state.file)
-      create_recording(state)
-    end
+    update_schema(state, online: false)
+    end_recording(state)
 
     :ok
   end
@@ -264,6 +261,14 @@ defmodule Asciinema.Streaming.StreamServer do
 
   defp via_tuple(stream_id),
     do: {:via, Horde.Registry, {Asciinema.Streaming.StreamRegistry, stream_id}}
+
+  defp update_base_stream_time(state, last_event_id, time) do
+    if in_sync?(state, last_event_id) do
+      state
+    else
+      %{state | base_stream_time: time}
+    end
+  end
 
   defp update_last_stream_time(state, time) do
     %{state | last_stream_time: time, last_event_time: Timex.now()}
@@ -293,18 +298,51 @@ defmodule Asciinema.Streaming.StreamServer do
     %{state | vt: vt, vt_size: {cols, rows}}
   end
 
+  defp restart_recording(state, last_event_id, cols, rows, term_init, theme, query) do
+    if in_sync?(state, last_event_id) do
+      state
+    else
+      state
+      |> end_recording()
+      |> start_recording(cols, rows, term_init, theme, query)
+    end
+  end
+
   defp start_recording(state, cols, rows, term_init, theme, query) do
     mode = recording_mode()
     user = state.stream.user
 
     if mode == :forced or (mode == :allowed && user.stream_recording_enabled) do
-      create_asciicast_file(state, cols, rows, term_init, theme, query)
+      create_asciicast_v2_file(state, cols, rows, term_init, theme, query)
     else
       state
     end
   end
 
-  defp create_asciicast_file(state, cols, rows, term_init, theme, query) do
+  defp end_recording(%{file: nil} = state), do: state
+
+  defp end_recording(%{file: file} = state) do
+    Logger.info("stream/#{state.stream_id}: creating recording")
+    :ok = File.close(file)
+
+    upload = %Plug.Upload{
+      path: state.path,
+      content_type: "application/x-asciicast",
+      filename: "stream.cast"
+    }
+
+    fields = %{
+      stream_id: state.stream_id,
+      user_agent: state.user_agent
+    }
+
+    {:ok, _} = Recordings.create_asciicast(state.stream.user, upload, fields)
+    File.rm(state.path)
+
+    %{state | path: nil, file: nil}
+  end
+
+  defp create_asciicast_v2_file(state, cols, rows, term_init, theme, query) do
     path = Briefly.create!()
     file = File.open!(path, [:write, :utf8])
     state = %{state | path: path, file: file}
@@ -349,6 +387,9 @@ defmodule Asciinema.Streaming.StreamServer do
     :ok = IO.write(file, event <> "\n")
   end
 
+  defp in_sync?(state, last_event_id),
+    do: last_event_id != 0 and last_event_id == state.last_event_id
+
   defp serialize_time(time) do
     whole = div(time, 1_000_000)
 
@@ -369,23 +410,6 @@ defmodule Asciinema.Streaming.StreamServer do
   end
 
   defp save_event_id(state, id), do: %{state | last_event_id: id}
-
-  defp create_recording(state) do
-    Logger.info("stream/#{state.stream_id}: creating recording")
-
-    upload = %Plug.Upload{
-      path: state.path,
-      content_type: "application/x-asciicast",
-      filename: "stream.cast"
-    }
-
-    fields = %{
-      stream_id: state.stream_id,
-      user_agent: state.user_agent
-    }
-
-    {:ok, _} = Recordings.create_asciicast(state.stream.user, upload, fields)
-  end
 
   defp reschedule_shutdown(state) do
     if state.shutdown_timer do
