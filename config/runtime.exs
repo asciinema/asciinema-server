@@ -239,7 +239,7 @@ if config_env() in [:prod, :dev] do
     config :asciinema, Asciinema.Accounts, upload_auth_required: true
   end
 
-  if tpl = env.("UPLOAD_PATH_TEMPLATE") do
+  if tpl = env.("UPLOAD_PATH_TPL") do
     config :asciinema, Asciinema.Recordings.Paths, recording: tpl
   end
 
