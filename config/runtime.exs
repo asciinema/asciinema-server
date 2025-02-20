@@ -112,7 +112,7 @@ if config_env() in [:prod, :dev] do
     config :asciinema, Asciinema.FileStore.S3,
       bucket: bucket,
       path: "uploads/",
-      proxy: !!env.("S3_PROXY_ENABLED")
+      proxy_path_prefix: env.("S3_PROXY_PATH_PREFIX")
 
     config :asciinema, Asciinema.FileStore, adapter: Asciinema.FileStore.Cached
 
