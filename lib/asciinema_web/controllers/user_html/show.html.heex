@@ -31,9 +31,9 @@
         <% end %>
       <% else %>
         <%= if length(@streams) == 1 do %>
-          <h2>Live stream by {username(@user)}</h2>
+          <h2>{username(@user)}'s live stream</h2>
         <% else %>
-          <h2>Live streams by {username(@user)}</h2>
+          <h2>{username(@user)}'s live streams</h2>
         <% end %>
       <% end %>
 
