@@ -150,17 +150,40 @@ script -f -O live.pipe</code></pre>
   </div>
 </section>
 
-<section :if={!@user_is_self && length(@author_asciicasts) > 0} class="even">
+<section :if={length(@stream_asciicasts) > 0} class="even">
   <div class="container">
     <div class="row other-asciicasts">
       <div class="col-md-12">
         <h2>
-          Recordings by <a href={author_profile_path(@stream)}>{author_username(@stream)}</a>
+          Past recordings of this stream
         </h2>
 
         <div class="row asciicast-list">
-          <div :for={asciicast <- @author_asciicasts} class="col-md-6">
-            <RecordingHTML.card asciicast={asciicast} />
+          <div :for={asciicast <- @stream_asciicasts} class="col-md-6">
+            <RecordingHTML.card asciicast={asciicast} conn={@conn} />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section :if={!@user_is_self && length(@other_asciicasts) > 0} class="even">
+  <div class="container">
+    <div class="row other-asciicasts">
+      <div class="col-md-12">
+        <h2 :if={length(@stream_asciicasts) == 0}>
+          Recordings by <a href={author_profile_path(@stream)}>{author_username(@stream)}</a>
+        </h2>
+
+        <h2 :if={length(@stream_asciicasts) > 0}>
+          Other recordings by
+          <a href={author_profile_path(@stream)}>{author_username(@stream)}</a>
+        </h2>
+
+        <div class="row asciicast-list">
+          <div :for={asciicast <- @other_asciicasts} class="col-md-6">
+            <RecordingHTML.card asciicast={asciicast} conn={@conn} />
           </div>
         </div>
 

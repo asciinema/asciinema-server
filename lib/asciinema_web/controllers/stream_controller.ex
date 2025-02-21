@@ -1,5 +1,6 @@
 defmodule AsciinemaWeb.StreamController do
   use AsciinemaWeb, :controller
+  alias Asciinema.Authorization
   alias Asciinema.{Authorization, Recordings, Streaming}
   alias AsciinemaWeb.{FallbackController, StreamHTML, PlayerOpts}
 
@@ -13,6 +14,18 @@ defmodule AsciinemaWeb.StreamController do
     current_user = conn.assigns.current_user
     user_is_self = match?({%{id: id}, %{id: id}}, {current_user, stream.user})
 
+    stream_asciicasts =
+      Recordings.query(user_id: stream.user_id, stream_id: stream.id)
+      |> Authorization.scope(:asciicasts, current_user)
+      |> Recordings.paginate(1, 4)
+      |> Map.get(:entries)
+
+    other_asciicasts =
+      Recordings.query(user_id: stream.user_id, stream_id: {:not_eq, stream.id})
+      |> Authorization.scope(:asciicasts, current_user)
+      |> Recordings.paginate(1, 4)
+      |> Map.get(:entries)
+
     render(
       conn,
       :show,
@@ -20,7 +33,8 @@ defmodule AsciinemaWeb.StreamController do
       player_opts: player_opts(params),
       actions: stream_actions(stream, current_user),
       user_is_self: user_is_self,
-      author_asciicasts: Recordings.list_public_asciicasts(stream.user)
+      stream_asciicasts: stream_asciicasts,
+      other_asciicasts: other_asciicasts
     )
   end
 

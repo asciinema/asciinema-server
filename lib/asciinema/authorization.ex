@@ -19,4 +19,18 @@ defmodule Asciinema.Authorization do
   def can?(user, :edit, thing), do: can?(user, :update, thing)
   def can?(user, :iframe, thing), do: can?(user, :show, thing)
   def can?(user, action, thing), do: Policy.can?(user, action, thing)
+
+  defmodule Scope do
+    import Ecto.Query
+
+    def filter(query, :asciicasts, %User{id: user_id}) do
+      where(query, [a], a.visibility == :public or a.user_id == ^user_id)
+    end
+
+    def filter(query, :asciicasts, nil) do
+      where(query, [s], s.visibility == :public)
+    end
+  end
+
+  def scope(query, relations, user), do: Scope.filter(query, relations, user)
 end

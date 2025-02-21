@@ -115,6 +115,37 @@ defmodule Asciinema.Recordings do
     |> Repo.count()
   end
 
+  def query(filters \\ []) do
+    filters = Enum.uniq(filters)
+
+    from(Asciicast)
+    |> where([a], is_nil(a.archived_at))
+    |> apply_filters(filters)
+  end
+
+  def paginate(%Ecto.Query{} = query, page, page_size) do
+    query
+    |> preload(:user)
+    |> Repo.paginate(page: page, page_size: page_size)
+  end
+
+  defp apply_filters(q, filters) do
+    Enum.reduce(filters, q, &apply_filter/2)
+  end
+
+  defp apply_filter(filter, q) do
+    case filter do
+      {:stream_id, stream_id} when is_integer(stream_id) ->
+        where(q, [a], a.stream_id == ^stream_id)
+
+      {:stream_id, {:not_eq, stream_id}} ->
+        where(q, [a], is_nil(a.stream_id) or a.stream_id != ^stream_id)
+
+      {:user_id, user_id} ->
+        where(q, [a], a.user_id == ^user_id)
+    end
+  end
+
   def ensure_welcome_asciicast(user) do
     if Repo.count(Ecto.assoc(user, :asciicasts)) == 0 do
       cast_path = Path.join(:code.priv_dir(:asciinema), "welcome.cast")
