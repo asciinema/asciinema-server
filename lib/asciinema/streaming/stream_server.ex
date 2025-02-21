@@ -207,7 +207,7 @@ defmodule Asciinema.Streaming.StreamServer do
     {:noreply, state}
   end
 
-  @update_schema_interval 10_000
+  @update_schema_interval 5_000
 
   @impl true
   def handle_info(%ViewerTracker.Update{viewer_count: c}, state) do
