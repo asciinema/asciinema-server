@@ -20,7 +20,7 @@ defmodule Asciinema.Application do
       {Cluster.Supervisor, [topologies, [name: Asciinema.ClusterSupervisor]]},
       # Start the PubSub system
       {Phoenix.PubSub, [name: Asciinema.PubSub, adapter: Phoenix.PubSub.PG2]},
-      # Start live stream viewer tracker
+      # Start stream viewer tracker
       {Asciinema.Streaming.ViewerTracker, [pubsub_server: Asciinema.PubSub]},
       # Start telemetry reporters
       Asciinema.Telemetry,
@@ -31,9 +31,8 @@ defmodule Asciinema.Application do
       # Start Oban
       {Oban, oban_config()},
       # Start distributed registry
-      {Horde.Registry,
-       [name: Asciinema.Streaming.LiveStreamRegistry, keys: :unique, members: :auto]},
-      Asciinema.Streaming.LiveStreamSupervisor,
+      {Horde.Registry, [name: Asciinema.Streaming.StreamRegistry, keys: :unique, members: :auto]},
+      Asciinema.Streaming.StreamSupervisor,
       # Start rate limiter
       {PlugAttack.Storage.Ets, name: AsciinemaWeb.PlugAttack.Storage, clean_period: 60_000},
       # Start the public endpoint

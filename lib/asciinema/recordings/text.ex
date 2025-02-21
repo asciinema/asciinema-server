@@ -29,7 +29,7 @@ defmodule Asciinema.Recordings.Text do
   def text_file_path(asciicast) do
     FileCache.full_path(
       :txt,
-      Paths.sharded_path(asciicast, ".txt"),
+      Paths.path(asciicast, "txt"),
       fn -> text(asciicast) end
     )
   end

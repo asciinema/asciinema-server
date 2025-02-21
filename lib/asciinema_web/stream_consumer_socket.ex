@@ -1,6 +1,6 @@
-defmodule AsciinemaWeb.LiveStreamConsumerSocket do
+defmodule AsciinemaWeb.StreamConsumerSocket do
   alias Asciinema.{Accounts, Authorization, Leb128, Streaming}
-  alias Asciinema.Streaming.{LiveStreamServer, ViewerTracker}
+  alias Asciinema.Streaming.{StreamServer, ViewerTracker}
   alias AsciinemaWeb.Endpoint
   require Logger
 
@@ -40,12 +40,12 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   end
 
   def websocket_init(%{token: token, user_id: user_id}) do
-    with {:ok, stream} <- fetch_live_stream(token),
+    with {:ok, stream} <- fetch_stream(token),
          :ok <- authorize(stream, user_id) do
       Logger.info("consumer/#{stream.id}: connected")
       state = %{stream_id: stream.id, init: false, last_event_time: 0.0}
-      LiveStreamServer.subscribe(stream.id, [:output, :input, :resize, :marker, :end, :reset])
-      LiveStreamServer.request_info(stream.id)
+      StreamServer.subscribe(stream.id, [:output, :input, :resize, :marker, :end, :reset])
+      StreamServer.request_info(stream.id)
       ViewerTracker.track(stream.id)
       Process.send_after(self(), :client_ping, @client_ping_interval)
 
@@ -70,12 +70,13 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
   @impl true
   def websocket_info(message, state)
 
-  def websocket_info(%LiveStreamServer.Update{event: :reset} = update, state) do
+  def websocket_info(%StreamServer.Update{event: :reset} = update, state) do
     %{term_size: {cols, rows}} = update.data
     Logger.debug("consumer/#{state.stream_id}: init (#{cols}x#{rows})")
 
     {:reply,
      serialize_init(
+       update.data.last_id,
        update.data.time,
        update.data.term_size,
        update.data[:term_init],
@@ -83,12 +84,13 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
      ), %{state | init: true, last_event_time: update.data.time}}
   end
 
-  def websocket_info(%LiveStreamServer.Update{event: :info} = update, %{init: false} = state) do
+  def websocket_info(%StreamServer.Update{event: :info} = update, %{init: false} = state) do
     %{term_size: {cols, rows}} = update.data
     Logger.debug("consumer/#{state.stream_id}: info (#{cols}x#{rows})")
 
     {:reply,
      serialize_init(
+       update.data.last_id,
        update.data.time,
        update.data.term_size,
        update.data.term_init,
@@ -96,43 +98,43 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
      ), %{state | init: true, last_event_time: update.data.time}}
   end
 
-  def websocket_info(%LiveStreamServer.Update{event: :info}, state) do
+  def websocket_info(%StreamServer.Update{event: :info}, state) do
     {:ok, state}
   end
 
-  def websocket_info(%LiveStreamServer.Update{}, %{init: false} = state) do
+  def websocket_info(%StreamServer.Update{}, %{init: false} = state) do
     {:ok, state}
   end
 
-  def websocket_info(%LiveStreamServer.Update{event: :output} = update, state) do
-    {time, text} = update.data
+  def websocket_info(%StreamServer.Update{event: :output} = update, state) do
+    %{id: id, time: time, text: text} = update.data
     rel_time = time - state.last_event_time
-    msg = serialize_output(rel_time, text)
+    msg = serialize_output(id, rel_time, text)
     state = %{state | last_event_time: time}
 
     {:reply, msg, state}
   end
 
-  def websocket_info(%LiveStreamServer.Update{event: :input} = update, state) do
-    {time, text} = update.data
+  def websocket_info(%StreamServer.Update{event: :input} = update, state) do
+    %{id: id, time: time, text: text} = update.data
     rel_time = time - state.last_event_time
-    msg = serialize_input(rel_time, text)
+    msg = serialize_input(id, rel_time, text)
     state = %{state | last_event_time: time}
 
     {:reply, msg, state}
   end
 
-  def websocket_info(%LiveStreamServer.Update{event: :resize} = update, state) do
-    {time, term_size} = update.data
+  def websocket_info(%StreamServer.Update{event: :resize} = update, state) do
+    %{id: id, time: time, term_size: term_size} = update.data
     rel_time = time - state.last_event_time
-    msg = serialize_resize(rel_time, term_size)
+    msg = serialize_resize(id, rel_time, term_size)
     state = %{state | last_event_time: time}
 
     {:reply, msg, state}
   end
 
-  def websocket_info(%LiveStreamServer.Update{event: :marker} = update, state) do
-    {time, label} = update.data
+  def websocket_info(%StreamServer.Update{event: :marker} = update, state) do
+    %{time: time, label: label} = update.data
     rel_time = time - state.last_event_time
     msg = serialize_marker(rel_time, label)
     state = %{state | last_event_time: time}
@@ -140,7 +142,7 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     {:reply, msg, state}
   end
 
-  def websocket_info(%LiveStreamServer.Update{event: :end} = update, state) do
+  def websocket_info(%StreamServer.Update{event: :end} = update, state) do
     %{time: time} = update.data
     rel_time = time - state.last_event_time
     msg = serialize_eot(rel_time)
@@ -186,8 +188,8 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     end
   end
 
-  defp fetch_live_stream(token) do
-    case Streaming.get_live_stream(token) do
+  defp fetch_stream(token) do
+    case Streaming.get_stream(token) do
       nil -> {:error, :stream_not_found}
       stream -> {:ok, stream}
     end
@@ -204,12 +206,13 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
 
   defp magic_string, do: {:binary, "ALiS\x01"}
 
-  defp serialize_init(time, term_size, term_init, theme) do
+  defp serialize_init(id, time, term_size, term_init, theme) do
     {cols, rows} = term_size
     term_init = term_init || ""
 
     msg =
       <<1::8>> <>
+        encode_varint(id) <>
         encode_varint(time) <>
         encode_varint(cols) <>
         encode_varint(rows) <>
@@ -219,21 +222,24 @@ defmodule AsciinemaWeb.LiveStreamConsumerSocket do
     {:binary, msg}
   end
 
-  defp serialize_output(time, text) do
-    msg = <<?o>> <> encode_varint(time) <> serialize_string(text)
+  defp serialize_output(id, time, text) do
+    msg = <<?o>> <> encode_varint(id) <> encode_varint(time) <> serialize_string(text)
 
     {:binary, msg}
   end
 
-  defp serialize_input(time, text) do
-    msg = <<?i>> <> encode_varint(time) <> serialize_string(text)
+  defp serialize_input(id, time, text) do
+    msg = <<?i>> <> encode_varint(id) <> encode_varint(time) <> serialize_string(text)
 
     {:binary, msg}
   end
 
-  defp serialize_resize(time, term_size) do
+  defp serialize_resize(id, time, term_size) do
     {cols, rows} = term_size
-    msg = <<?r>> <> encode_varint(time) <> encode_varint(cols) <> encode_varint(rows)
+
+    msg =
+      <<?r>> <>
+        encode_varint(id) <> encode_varint(time) <> encode_varint(cols) <> encode_varint(rows)
 
     {:binary, msg}
   end

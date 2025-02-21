@@ -1,7 +1,7 @@
-defmodule Asciinema.Streaming.LiveStream do
+defmodule Asciinema.Streaming.Stream do
   use Ecto.Schema
 
-  schema "live_streams" do
+  schema "streams" do
     field :public_token, :string
     field :producer_token, :string
     field :visibility, Ecto.Enum, values: [:private, :unlisted, :public], default: :unlisted

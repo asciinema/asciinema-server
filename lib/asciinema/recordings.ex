@@ -4,12 +4,12 @@ defmodule Asciinema.Recordings do
   import Ecto.Changeset
   import Ecto.Query, warn: false
   alias Asciinema.{FileStore, Fonts, Repo, Themes, Vt}
+  alias Asciinema.Workers.{MigrateRecordingFiles, UpdateSnapshot}
 
   alias Asciinema.Recordings.{
     Asciicast,
     Markers,
     Paths,
-    SnapshotUpdater,
     EventStream,
     Text
   }
@@ -48,76 +48,50 @@ defmodule Asciinema.Recordings do
     |> Repo.preload(:user)
   end
 
-  def get_homepage_asciicast do
-    asciicast =
-      if id = Application.get_env(:asciinema, :home_asciicast_id) do
-        Repo.get(Asciicast, id)
-      else
-        Asciicast
-        |> filter(:public)
-        |> first()
-        |> Repo.one()
-      end
+  def query(filters \\ [], order \\ nil)
 
-    Repo.preload(asciicast, :user)
-  end
-
-  def list_homepage_asciicasts() do
-    year_ago = Timex.now() |> Timex.shift(years: -2)
-
-    Asciicast
-    |> filter(:featured)
-    |> where([a], a.inserted_at > ^year_ago)
-    |> sort(:random)
-    |> limit(6)
-    |> preload(:user)
-    |> Repo.all()
-  end
-
-  def list_public_asciicasts(%{asciicasts: _} = owner, limit \\ 4) do
-    owner
-    |> Ecto.assoc(:asciicasts)
-    |> filter(:public)
-    |> sort(:random)
-    |> limit(^limit)
-    |> preload(:user)
-    |> Repo.all()
-  end
-
-  def list_other_public_asciicasts(asciicast, limit \\ 4) do
-    Asciicast
-    |> filter({asciicast.user_id, :public})
-    |> where([a], a.id != ^asciicast.id)
-    |> sort(:random)
-    |> limit(^limit)
-    |> preload(:user)
-    |> Repo.all()
-  end
-
-  defp filter(q, filters) do
-    q
+  def query(filters, order) do
+    from(Asciicast)
     |> where([a], is_nil(a.archived_at))
-    |> do_filter(filters)
+    |> apply_filters(filters)
+    |> sort(order)
   end
 
-  defp do_filter(q, {user_id, f}) do
-    q
-    |> where([a], a.user_id == ^user_id)
-    |> do_filter(f)
+  defp apply_filters(q, filters) when is_list(filters) do
+    filters = Enum.uniq(filters)
+
+    Enum.reduce(filters, q, &apply_filter/2)
   end
 
-  defp do_filter(q, f) do
-    case f do
+  defp apply_filters(q, filter), do: apply_filters(q, List.wrap(filter))
+
+  defp apply_filter(filter, q) do
+    case filter do
+      {:id, {:not_eq, id}} ->
+        where(q, [a], a.id != ^id)
+
+      {:user_id, user_id} ->
+        where(q, [a], a.user_id == ^user_id)
+
+      {:stream_id, stream_id} when is_integer(stream_id) ->
+        where(q, [a], a.stream_id == ^stream_id)
+
+      {:stream_id, {:not_eq, stream_id}} ->
+        where(q, [a], is_nil(a.stream_id) or a.stream_id != ^stream_id)
+
       :featured ->
         where(q, [a], a.featured == true and a.visibility == :public)
 
       :public ->
         where(q, [a], a.visibility == :public)
 
-      :all ->
-        q
+      :from_last_2_years ->
+        past = Timex.now() |> Timex.shift(years: -2)
+        where(q, [a], a.inserted_at > ^past)
     end
   end
+
+  defp sort(q, nil), do: q
 
   defp sort(q, order) do
     case order do
@@ -127,19 +101,20 @@ defmodule Asciinema.Recordings do
     end
   end
 
-  def paginate_asciicasts(filters, order, page, page_size) do
-    from(Asciicast)
-    |> filter(filters)
-    |> sort(order)
+  def paginate(%Ecto.Query{} = query, page, page_size) do
+    query
     |> preload(:user)
     |> Repo.paginate(page: page, page_size: page_size)
   end
 
-  def count_featured_asciicasts do
-    from(Asciicast)
-    |> filter(:featured)
-    |> Repo.count()
+  def list(q, limit) do
+    q
+    |> limit(^limit)
+    |> preload(:user)
+    |> Repo.all()
   end
+
+  def count(q), do: Repo.count(q)
 
   def ensure_welcome_asciicast(user) do
     if Repo.count(Ecto.assoc(user, :asciicasts)) == 0 do
@@ -161,18 +136,15 @@ defmodule Asciinema.Recordings do
     :ok
   end
 
-  def create_asciicast(cli, %Plug.Upload{filename: filename} = upload, overrides \\ %{}) do
-    user = cli.user
-
+  def create_asciicast(user, %Plug.Upload{filename: filename} = upload, fields \\ %{}) do
     attrs =
       Map.merge(
         %{
-          cli_id: cli.id,
           filename: filename,
           visibility: user.default_asciicast_visibility,
           secret_token: Crypto.random_token(25)
         },
-        overrides
+        fields
       )
 
     changeset =
@@ -184,7 +156,9 @@ defmodule Asciinema.Recordings do
          changeset = apply_metadata(changeset, metadata, user.theme_prefer_original),
          {:ok, %Asciicast{} = asciicast} <- do_create_asciicast(changeset, upload) do
       if asciicast.snapshot == nil do
-        :ok = SnapshotUpdater.update_snapshot(asciicast)
+        %{asciicast_id: asciicast.id}
+        |> UpdateSnapshot.new()
+        |> Oban.insert!()
       end
 
       {:ok, asciicast}
@@ -313,27 +287,23 @@ defmodule Asciinema.Recordings do
   end
 
   defp do_create_asciicast(changeset, file) do
-    {_, result} =
-      Repo.transaction(fn ->
-        case Repo.insert(changeset) do
-          {:ok, asciicast} ->
-            path = Paths.sharded_path(asciicast)
+    Repo.transact(fn ->
+      with {:ok, asciicast} <- Repo.insert(changeset) do
+        asciicast = assign_path(asciicast)
+        save_file(asciicast.path, file)
 
-            asciicast =
-              asciicast
-              |> Changeset.change(path: path)
-              |> Repo.update!()
+        {:ok, asciicast}
+      end
+    end)
+  end
 
-            save_file(path, file)
+  def assign_path(asciicast) do
+    asciicast = Repo.preload(asciicast, :user)
+    path = Paths.path(asciicast)
 
-            {:ok, asciicast}
-
-          otherwise ->
-            otherwise
-        end
-      end)
-
-    result
+    asciicast
+    |> Changeset.change(path: path)
+    |> Repo.update!()
   end
 
   defp save_file(path, %{path: tmp_path, content_type: content_type}) do
@@ -466,46 +436,67 @@ defmodule Asciinema.Recordings do
     time <= secs
   end
 
-  def asciicast_file_path(asciicast), do: asciicast.path
-
   def inc_views_count(asciicast) do
     from(a in Asciicast, where: a.id == ^asciicast.id)
     |> Repo.update_all(inc: [views_count: 1])
   end
 
-  def upgradable do
-    from(a in Asciicast, where: a.version == 0 or like(a.path, "asciicast/file/%"))
+  def stream_migratable_asciicasts do
+    from(a in Asciicast, preload: :user)
+    |> stream_asciicasts()
+    |> Stream.filter(&stale_path?/1)
+  end
+
+  def stream_migratable_asciicasts(user_id) do
+    from(a in Asciicast, where: a.user_id == ^user_id, preload: :user)
+    |> stream_asciicasts()
+    |> Stream.filter(&stale_path?/1)
+  end
+
+  defp stream_asciicasts(query) do
+    query
     |> Repo.pages(100)
     |> Stream.flat_map(& &1)
   end
 
-  def upgrade(id) when is_integer(id) do
+  defp stale_path?(asciicast) do
+    asciicast.path != Paths.path(asciicast)
+  end
+
+  def migrate_files(user) do
+    %{user_id: user.id}
+    |> MigrateRecordingFiles.new()
+    |> Oban.insert!()
+
+    :ok
+  end
+
+  def migrate_file(id) when is_integer(id) do
     id
     |> get_asciicast()
-    |> upgrade()
+    |> migrate_file()
   end
 
-  def upgrade(%Asciicast{} = asciicast) do
-    asciicast
-    |> upgrade_file_path()
+  def migrate_file(asciicast) do
+    cur_path = asciicast.path
+    new_path = Paths.path(asciicast)
+
+    if cur_path != new_path do
+      changeset = change(asciicast, path: new_path)
+
+      {:ok, asciicast} =
+        Repo.transact(fn ->
+          asciicast = Repo.update!(changeset)
+          :ok = FileStore.move_file(cur_path, new_path)
+
+          {:ok, asciicast}
+        end)
+
+      asciicast
+    else
+      asciicast
+    end
   end
-
-  defp upgrade_file_path(%Asciicast{path: "asciicast/file/" <> _ = old_path} = asciicast) do
-    Logger.info("upgrading asciicast ##{asciicast.id} file path...")
-
-    {:ok, asciicast} =
-      Repo.transaction(fn ->
-        new_path = Paths.sharded_path(asciicast)
-        asciicast = Repo.update!(Changeset.change(asciicast, path: new_path))
-        :ok = FileStore.move_file(old_path, new_path)
-
-        asciicast
-      end)
-
-    asciicast
-  end
-
-  defp upgrade_file_path(asciicast), do: asciicast
 
   def write_v2_file(output_stream, %{width: _, height: _} = header) do
     {:ok, tmp_path} = Briefly.create()

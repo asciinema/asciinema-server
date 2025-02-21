@@ -1,27 +1,28 @@
-defmodule AsciinemaWeb.Api.LiveStreamController do
+defmodule AsciinemaWeb.Api.StreamController do
   use AsciinemaWeb, :controller
   alias Asciinema.{Accounts, Streaming}
   alias AsciinemaWeb.UrlHelpers
 
   plug :accepts, ~w(json)
   plug :authenticate
+  plug :check_streaming_enabled
 
   def show(conn, %{"id" => id}) do
     conn.assigns.current_user
-    |> Streaming.fetch_live_stream(id)
+    |> Streaming.fetch_stream(id)
     |> stream_json(conn, id)
   end
 
   # TODO: remove after the release of the final CLI 3.0
   def show(conn, _params) do
     conn.assigns.current_user
-    |> Streaming.fetch_default_live_stream()
+    |> Streaming.fetch_default_stream()
     |> stream_json(conn, "default")
   end
 
   def create(conn, _params) do
     conn.assigns.current_user
-    |> Streaming.create_live_stream()
+    |> Streaming.create_stream()
     |> stream_json(conn)
   end
 
@@ -38,12 +39,6 @@ defmodule AsciinemaWeb.Api.LiveStreamController do
     conn
     |> put_status(404)
     |> json(%{reason: "stream #{id} not found"})
-  end
-
-  defp stream_json({:error, :disabled}, conn, _id) do
-    conn
-    |> put_status(403)
-    |> json(%{reason: "streaming disabled"})
   end
 
   defp stream_json({:error, :too_many}, conn, _id) do
@@ -63,6 +58,17 @@ defmodule AsciinemaWeb.Api.LiveStreamController do
         |> put_status(401)
         |> json(%{})
         |> halt()
+    end
+  end
+
+  defp check_streaming_enabled(conn, _opts) do
+    if conn.assigns.current_user.streaming_enabled && Streaming.mode() != :disabled do
+      conn
+    else
+      conn
+      |> put_status(403)
+      |> json(%{reason: "streaming disabled"})
+      |> halt()
     end
   end
 end

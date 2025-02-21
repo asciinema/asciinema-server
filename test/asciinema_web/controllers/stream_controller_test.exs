@@ -1,4 +1,4 @@
-defmodule AsciinemaWeb.LiveStreamControllerTest do
+defmodule AsciinemaWeb.StreamControllerTest do
   use AsciinemaWeb.ConnCase
   import Asciinema.Factory
 
@@ -10,7 +10,7 @@ defmodule AsciinemaWeb.LiveStreamControllerTest do
 
   describe "show" do
     test "public stream", %{conn: conn} do
-      stream = insert(:live_stream, visibility: :public)
+      stream = insert(:stream, visibility: :public)
 
       conn_2 = get(conn, ~p"/s/#{stream}")
 
@@ -18,7 +18,7 @@ defmodule AsciinemaWeb.LiveStreamControllerTest do
     end
 
     test "unlisted stream", %{conn: conn} do
-      stream = insert(:live_stream, visibility: :unlisted)
+      stream = insert(:stream, visibility: :unlisted)
 
       conn_2 = get(conn, ~p"/s/#{stream}")
 
@@ -26,7 +26,7 @@ defmodule AsciinemaWeb.LiveStreamControllerTest do
     end
 
     test "private stream, unauthenticated", %{conn: conn} do
-      stream = insert(:live_stream, visibility: :private)
+      stream = insert(:stream, visibility: :private)
 
       conn_2 = get(conn, ~p"/s/#{stream}")
 
@@ -34,7 +34,7 @@ defmodule AsciinemaWeb.LiveStreamControllerTest do
     end
 
     test "private stream, as non-owner", %{conn: conn} do
-      stream = insert(:live_stream, visibility: :private)
+      stream = insert(:stream, visibility: :private)
       user = insert(:user)
       conn = log_in(conn, user)
 
@@ -45,7 +45,7 @@ defmodule AsciinemaWeb.LiveStreamControllerTest do
 
     test "private stream, as owner", %{conn: conn} do
       user = insert(:user)
-      stream = insert(:live_stream, visibility: :private, user: user)
+      stream = insert(:stream, visibility: :private, user: user)
       conn = log_in(conn, user)
 
       conn_2 = get(conn, ~p"/s/#{stream}")
@@ -55,7 +55,7 @@ defmodule AsciinemaWeb.LiveStreamControllerTest do
 
     test "streaming instructions", %{conn: conn} do
       user = insert(:user)
-      stream = insert(:live_stream, user: user)
+      stream = insert(:stream, user: user)
 
       conn_2 = get(conn, ~p"/s/#{stream}")
       refute html_response(conn_2, 200) =~ stream.producer_token
@@ -71,7 +71,7 @@ defmodule AsciinemaWeb.LiveStreamControllerTest do
 
     test "when user has streaming disabled", %{conn: conn} do
       user = insert(:user, streaming_enabled: false)
-      stream = insert(:live_stream, user: user)
+      stream = insert(:stream, user: user)
 
       conn_2 = get(conn, ~p"/s/#{stream}")
 
@@ -80,7 +80,7 @@ defmodule AsciinemaWeb.LiveStreamControllerTest do
 
     test "when streaming is disabled system-wide", %{conn: conn} do
       Application.put_env(:asciinema, Asciinema.Streaming, mode: :disabled)
-      stream = insert(:live_stream)
+      stream = insert(:stream)
 
       conn_2 = get(conn, ~p"/s/#{stream}")
 
@@ -94,7 +94,7 @@ defmodule AsciinemaWeb.LiveStreamControllerTest do
 
       Map.merge(ctx, %{
         user: user,
-        stream: insert(:live_stream, user: user)
+        stream: insert(:stream, user: user)
       })
     end
 
@@ -123,7 +123,7 @@ defmodule AsciinemaWeb.LiveStreamControllerTest do
     test "updates title", %{conn: conn, stream: stream, user: user} do
       conn = log_in(conn, user)
 
-      attrs = %{live_stream: %{title: "Haha!"}}
+      attrs = %{stream: %{title: "Haha!"}}
       conn = put conn, ~p"/s/#{stream}", attrs
 
       location = List.first(get_resp_header(conn, "location"))

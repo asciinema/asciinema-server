@@ -26,8 +26,8 @@ config :asciinema, AsciinemaWeb.Endpoint,
     dispatch: [
       {:_,
        [
-         {"/ws/s/:public_token", AsciinemaWeb.LiveStreamConsumerSocket, []},
-         {"/ws/S/:producer_token", AsciinemaWeb.LiveStreamProducerSocket, []},
+         {"/ws/s/:public_token", AsciinemaWeb.StreamConsumerSocket, []},
+         {"/ws/S/:producer_token", AsciinemaWeb.StreamProducerSocket, []},
          {:_, Plug.Cowboy.Handler, {AsciinemaWeb.Endpoint, []}}
        ]}
     ]
@@ -99,13 +99,14 @@ config :asciinema, AsciinemaWeb.DefaultAvatar, adapter: AsciinemaWeb.DefaultAvat
 
 config :asciinema, Oban,
   repo: Asciinema.Repo,
-  queues: [default: 10, emails: 10, upgrades: 1],
+  queues: [default: 10, emails: 10],
   plugins: [
     {Oban.Plugins.Pruner, max_age: 604_800},
     {Oban.Plugins.Cron,
      crontab: [
-       {"0 * * * *", Asciinema.GC},
-       {"* * * * *", Asciinema.Streaming.GC}
+       {"0 * * * *", Asciinema.Workers.DeleteUnclaimedRecordings},
+       {"* * * * *", Asciinema.Workers.MarkOfflineStreams},
+       {"@daily", Asciinema.Workers.MigrateRecordingFiles}
      ]},
     Oban.Plugins.Lifeline,
     Oban.Plugins.Reindexer

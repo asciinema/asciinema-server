@@ -1,10 +1,10 @@
-.c-live-stream.a-show {
+.c-stream.a-show {
   section.cinema {
     transition: background-color 0.2s;
   }
 }
 
-.c-recording.a-show, .c-live-stream.a-show {
+.c-recording.a-show, .c-stream.a-show {
   section.cinema {
     background-color: color-mix(in oklab, var(--term-color-background) 80%, black);
 

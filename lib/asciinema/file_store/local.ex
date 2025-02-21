@@ -1,4 +1,5 @@
 defmodule Asciinema.FileStore.Local do
+  use Asciinema.Config
   use Asciinema.FileStore
   import Plug.Conn
 
@@ -66,11 +67,5 @@ defmodule Asciinema.FileStore.Local do
 
   defp full_path(path), do: Path.join(base_path(), path)
 
-  defp base_path do
-    Keyword.get(config(), :path)
-  end
-
-  defp config do
-    Application.get_env(:asciinema, __MODULE__)
-  end
+  defp base_path, do: config(:path)
 end

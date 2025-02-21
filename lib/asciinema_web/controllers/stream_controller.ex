@@ -1,7 +1,8 @@
-defmodule AsciinemaWeb.LiveStreamController do
+defmodule AsciinemaWeb.StreamController do
   use AsciinemaWeb, :controller
+  alias Asciinema.Authorization
   alias Asciinema.{Authorization, Recordings, Streaming}
-  alias AsciinemaWeb.{FallbackController, LiveStreamHTML, PlayerOpts}
+  alias AsciinemaWeb.{FallbackController, StreamHTML, PlayerOpts}
 
   plug :load_stream when action in [:show, :edit, :update]
   plug :require_current_user_when_private when action == :show
@@ -13,27 +14,40 @@ defmodule AsciinemaWeb.LiveStreamController do
     current_user = conn.assigns.current_user
     user_is_self = match?({%{id: id}, %{id: id}}, {current_user, stream.user})
 
+    stream_asciicasts =
+      [user_id: stream.user_id, stream_id: stream.id]
+      |> Recordings.query(:date)
+      |> Authorization.scope(:asciicasts, current_user)
+      |> Recordings.list(4)
+
+    other_asciicasts =
+      [user_id: stream.user_id, stream_id: {:not_eq, stream.id}]
+      |> Recordings.query(:random)
+      |> Authorization.scope(:asciicasts, current_user)
+      |> Recordings.list(4)
+
     render(
       conn,
       :show,
-      page_title: LiveStreamHTML.title(stream),
+      page_title: StreamHTML.title(stream),
       player_opts: player_opts(params),
       actions: stream_actions(stream, current_user),
       user_is_self: user_is_self,
-      author_asciicasts: Recordings.list_public_asciicasts(stream.user)
+      stream_asciicasts: stream_asciicasts,
+      other_asciicasts: other_asciicasts
     )
   end
 
   def edit(conn, _params) do
-    changeset = Streaming.change_live_stream(conn.assigns.stream)
+    changeset = Streaming.change_stream(conn.assigns.stream)
     render(conn, :edit, changeset: changeset)
   end
 
-  def update(conn, %{"live_stream" => params}) do
-    case Streaming.update_live_stream(conn.assigns.stream, params) do
+  def update(conn, %{"stream" => params}) do
+    case Streaming.update_stream(conn.assigns.stream, params) do
       {:ok, stream} ->
         conn
-        |> put_flash(:info, "Live stream updated.")
+        |> put_flash(:info, "Stream updated.")
         |> redirect(to: ~p"/s/#{stream}")
 
       {:error, %Ecto.Changeset{} = changeset} ->
@@ -42,7 +56,7 @@ defmodule AsciinemaWeb.LiveStreamController do
   end
 
   defp player_opts(params) do
-    PlayerOpts.parse(params, :live_stream)
+    PlayerOpts.parse(params, :stream)
   end
 
   defp stream_actions(stream, user) do
@@ -54,11 +68,12 @@ defmodule AsciinemaWeb.LiveStreamController do
   end
 
   defp load_stream(conn, _) do
-    case Streaming.fetch_live_stream(conn.params["id"]) do
-      {:ok, stream} ->
-        assign(conn, :stream, stream)
-
-      {:error, _} ->
+    with stream when not is_nil(stream) <- Streaming.get_stream(conn.params["id"]),
+         true <- stream.user.streaming_enabled,
+         true <- Streaming.mode() != :disabled do
+      assign(conn, :stream, stream)
+    else
+      _ ->
         conn
         |> FallbackController.call({:error, :not_found})
         |> halt()

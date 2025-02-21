@@ -1,6 +1,6 @@
-defmodule AsciinemaWeb.LiveStreamStatusLive do
+defmodule AsciinemaWeb.StreamStatusLive do
   alias Asciinema.Streaming
-  alias Asciinema.Streaming.{LiveStreamServer, ViewerTracker}
+  alias Asciinema.Streaming.{StreamServer, ViewerTracker}
   use AsciinemaWeb, :live_view
 
   @info_timeout 1_000
@@ -41,13 +41,13 @@ defmodule AsciinemaWeb.LiveStreamStatusLive do
   @impl true
   def mount(_params, %{"stream_id" => stream_id}, socket) do
     if connected?(socket) do
-      LiveStreamServer.subscribe(stream_id, [:reset, :end])
-      LiveStreamServer.request_info(stream_id)
+      StreamServer.subscribe(stream_id, [:reset, :end])
+      StreamServer.request_info(stream_id)
       ViewerTracker.subscribe(stream_id)
       Process.send_after(self(), :info_timeout, @info_timeout)
     end
 
-    stream = Streaming.get_live_stream(stream_id)
+    stream = Streaming.get_stream(stream_id)
 
     socket =
       socket
@@ -72,7 +72,7 @@ defmodule AsciinemaWeb.LiveStreamStatusLive do
     end
   end
 
-  def handle_info(%LiveStreamServer.Update{event: e} = update, socket)
+  def handle_info(%StreamServer.Update{event: e} = update, socket)
       when e in [:info, :reset] do
     %{time: time} = update.data
     started_at = Timex.shift(Timex.now(), microseconds: -time)
@@ -85,7 +85,7 @@ defmodule AsciinemaWeb.LiveStreamStatusLive do
     {:noreply, socket}
   end
 
-  def handle_info(%LiveStreamServer.Update{event: :end}, socket) do
+  def handle_info(%StreamServer.Update{event: :end}, socket) do
     {:noreply, assign(socket, online: false)}
   end
 

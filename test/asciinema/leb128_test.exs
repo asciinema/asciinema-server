@@ -1,5 +1,6 @@
 defmodule Asciinema.Leb128Test do
   use ExUnit.Case, async: true
+  use ExUnitProperties
   alias Asciinema.Leb128
 
   describe "encode/1" do
@@ -30,9 +31,15 @@ defmodule Asciinema.Leb128Test do
     end
   end
 
-  describe "round trip" do
-    test "foo" do
+  describe "roundtrip" do
+    test "example values" do
       for i <- [0, 1, 127, 128, 200, 500, 1000, 10000, 100_000, 1_000_000, 10_000_000] do
+        assert Leb128.decode(Leb128.encode(i)) == {i, ""}
+      end
+    end
+
+    property "decode(encode(i)) == i" do
+      check all(i <- positive_integer()) do
         assert Leb128.decode(Leb128.encode(i)) == {i, ""}
       end
     end

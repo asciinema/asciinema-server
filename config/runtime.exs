@@ -112,7 +112,7 @@ if config_env() in [:prod, :dev] do
     config :asciinema, Asciinema.FileStore.S3,
       bucket: bucket,
       path: "uploads/",
-      proxy: !!env.("S3_PROXY_ENABLED")
+      proxy_path_prefix: env.("S3_PROXY_PATH_PREFIX")
 
     config :asciinema, Asciinema.FileStore, adapter: Asciinema.FileStore.Cached
 
@@ -229,8 +229,18 @@ if config_env() in [:prod, :dev] do
     config :asciinema, Asciinema.Streaming, mode: String.to_atom(mode)
   end
 
+  mode = env.("STREAM_RECORDING")
+
+  if mode in ["forced", "allowed", "disabled"] do
+    config :asciinema, Asciinema.Streaming.StreamServer, recording: String.to_atom(mode)
+  end
+
   if env.("UPLOAD_AUTH_REQUIRED") in ["1", "true"] do
     config :asciinema, Asciinema.Accounts, upload_auth_required: true
+  end
+
+  if tpl = env.("UPLOAD_PATH_TPL") do
+    config :asciinema, Asciinema.Recordings.Paths, recording: tpl
   end
 
   if dsn = env.("SENTRY_DSN") do

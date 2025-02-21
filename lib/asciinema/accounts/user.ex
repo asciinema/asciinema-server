@@ -13,6 +13,7 @@ defmodule Asciinema.Accounts.User do
     field :theme_prefer_original, :boolean, default: true
     field :terminal_font_family, :string
     field :streaming_enabled, :boolean, default: true
+    field :stream_recording_enabled, :boolean, default: true
 
     field :default_asciicast_visibility, Ecto.Enum,
       values: [:private, :unlisted, :public],
@@ -24,7 +25,7 @@ defmodule Asciinema.Accounts.User do
     timestamps()
 
     has_many :asciicasts, Asciinema.Recordings.Asciicast
-    has_many :live_streams, Asciinema.Streaming.LiveStream
+    has_many :streams, Asciinema.Streaming.Stream
     has_many :clis, Asciinema.Accounts.Cli
   end
 end

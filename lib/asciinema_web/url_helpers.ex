@@ -21,10 +21,6 @@ defmodule AsciinemaWeb.UrlHelpers do
     Endpoint.url() <> profile_path(user)
   end
 
-  def asciicast_file_path(asciicast) do
-    ~p"/a/#{asciicast}" <> "." <> ext(asciicast)
-  end
-
   def asciicast_file_url(asciicast) do
     url(~p"/a/#{asciicast}") <> "." <> ext(asciicast)
   end

@@ -10,7 +10,7 @@ defmodule Asciinema.Streaming.Parser.AlisV0 do
 
   def name, do: "v0.alis"
 
-  def init, do: %{status: :new}
+  def init, do: %{status: :new, last_event_id: 0}
 
   def parse({:binary, "ALiS\x01"}, %{status: :new} = state) do
     {:ok, [], %{state | status: :init}}
@@ -45,6 +45,7 @@ defmodule Asciinema.Streaming.Parser.AlisV0 do
       when status in [:init, :eot] do
     commands = [
       init: %{
+        last_id: state.last_event_id,
         time: time_as_micros(time),
         term_size: {cols, rows},
         term_init: init
@@ -81,6 +82,7 @@ defmodule Asciinema.Streaming.Parser.AlisV0 do
       when status in [:init, :eot] do
     commands = [
       init: %{
+        last_id: state.last_event_id,
         time: time_as_micros(time),
         term_size: {cols, rows},
         term_init: init,
@@ -107,7 +109,9 @@ defmodule Asciinema.Streaming.Parser.AlisV0 do
         },
         %{status: :online} = state
       ) do
-    {:ok, [output: {time_as_micros(time), text}], state}
+    {id, state} = get_next_id(state)
+
+    {:ok, [output: %{id: id, time: time_as_micros(time), text: text}], state}
   end
 
   def parse(
@@ -126,7 +130,9 @@ defmodule Asciinema.Streaming.Parser.AlisV0 do
         },
         %{status: :online} = state
       ) do
-    {:ok, [input: {time_as_micros(time), text}], state}
+    {id, state} = get_next_id(state)
+
+    {:ok, [input: %{id: id, time: time_as_micros(time), text: text}], state}
   end
 
   def parse(
@@ -145,7 +151,9 @@ defmodule Asciinema.Streaming.Parser.AlisV0 do
         },
         %{status: :online} = state
       ) do
-    {:ok, [resize: {time_as_micros(time), {cols, rows}}], state}
+    {id, state} = get_next_id(state)
+
+    {:ok, [resize: %{id: id, time: time_as_micros(time), term_size: {cols, rows}}], state}
   end
 
   def parse(
@@ -164,7 +172,9 @@ defmodule Asciinema.Streaming.Parser.AlisV0 do
         },
         %{status: :online} = state
       ) do
-    {:ok, [marker: {time_as_micros(time), label}], state}
+    {id, state} = get_next_id(state)
+
+    {:ok, [marker: %{id: id, time: time_as_micros(time), label: label}], state}
   end
 
   def parse({:binary, <<0x04>>}, %{status: status} = state) when status in [:init, :online] do
@@ -181,8 +191,14 @@ defmodule Asciinema.Streaming.Parser.AlisV0 do
     %{
       fg: Enum.at(colors, 0),
       bg: Enum.at(colors, 1),
-      palette: Enum.slice(colors, 2..-1//-1)
+      palette: Enum.drop(colors, 2)
     }
+  end
+
+  defp get_next_id(state) do
+    id = state.last_event_id + 1
+
+    {id, %{state | last_event_id: id}}
   end
 
   defp time_as_micros(time), do: round(time * 1_000_000)

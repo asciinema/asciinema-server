@@ -1,5 +1,10 @@
-defmodule Asciinema.GC do
-  use Oban.Worker
+defmodule Asciinema.Workers.DeleteUnclaimedRecordings do
+  use Oban.Worker,
+    unique: [
+      period: :infinity,
+      states: [:scheduled, :available, :executing, :retryable]
+    ]
+
   require Logger
 
   @impl Oban.Worker

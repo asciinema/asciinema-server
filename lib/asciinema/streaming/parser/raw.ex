@@ -5,20 +5,23 @@ defmodule Asciinema.Streaming.Parser.Raw do
 
   def name, do: "raw"
 
-  def init, do: %{first: true, start_time: nil}
+  def init, do: %{first: true, start_time: nil, last_event_id: 0}
 
   def parse({:binary, text}, %{first: true} = state) do
     size = size_from_resize_seq(text) || size_from_script_start_message(text) || @default_size
 
-    commands = [init: %{time: 0.0, term_size: size, term_init: text}]
+    commands = [
+      init: %{last_id: state.last_event_id, time: 0, term_size: size, term_init: text}
+    ]
 
     {:ok, commands, %{state | first: false, start_time: Timex.now()}}
   end
 
   def parse({:binary, text}, state) do
-    time = Timex.diff(Timex.now(), state.start_time, :microsecond) / 1_000_000
+    {id, state} = get_next_id(state)
+    time = stream_time(state)
 
-    {:ok, [output: {time, text}], state}
+    {:ok, [output: %{id: id, time: time, text: text}], state}
   end
 
   defp size_from_resize_seq(text) do
@@ -32,4 +35,12 @@ defmodule Asciinema.Streaming.Parser.Raw do
       {String.to_integer(cols), String.to_integer(rows)}
     end
   end
+
+  defp get_next_id(state) do
+    id = state.last_event_id + 1
+
+    {id, %{state | last_event_id: id}}
+  end
+
+  defp stream_time(state), do: Timex.diff(Timex.now(), state.start_time, :microsecond)
 end

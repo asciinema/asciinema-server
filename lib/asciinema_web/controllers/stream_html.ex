@@ -1,9 +1,9 @@
-defmodule AsciinemaWeb.LiveStreamHTML do
+defmodule AsciinemaWeb.StreamHTML do
   use AsciinemaWeb, :html
   alias Asciinema.{Accounts, Fonts, Media, Themes}
   alias AsciinemaWeb.{MediaView, RecordingHTML, RecordingSVG}
 
-  embed_templates "live_stream_html/*"
+  embed_templates "stream_html/*"
 
   defdelegate author_username(stream), to: MediaView
   defdelegate author_avatar_url(stream), to: MediaView
@@ -45,7 +45,7 @@ defmodule AsciinemaWeb.LiveStreamHTML do
     MediaView.cinema_height(cols(stream), rows(stream))
   end
 
-  def title(stream), do: stream.title || "#{author_username(stream)}'s live stream"
+  def title(stream), do: stream.title || "#{author_username(stream)}'s stream"
 
   def default_theme_display_name(stream) do
     "Account default (#{Themes.display_name(Accounts.default_theme_name(stream.user) || "asciinema")})"

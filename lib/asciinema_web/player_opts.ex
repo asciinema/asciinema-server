@@ -74,7 +74,7 @@ defmodule AsciinemaWeb.PlayerOpts do
     parse(attrs, __MODULE__.__schema__(:fields))
   end
 
-  def parse(attrs, :live_stream) do
+  def parse(attrs, :stream) do
     parse(attrs, [:autoplay, :cols, :poster, :rows, :theme])
   end
 

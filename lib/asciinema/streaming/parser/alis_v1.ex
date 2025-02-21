@@ -27,36 +27,41 @@ defmodule Asciinema.Streaming.Parser.AlisV1 do
   end
 
   def parse({:binary, <<?o, rest::binary>>}, %{status: :online} = state) do
-    {time, text} = parse_output(rest)
-    time = state.time_offset + time
+    data = parse_output(rest)
+    time = state.time_offset + data.time
+    data = %{data | time: time}
 
-    {:ok, [output: {time, text}], %{state | time_offset: time}}
+    {:ok, [output: data], %{state | time_offset: time}}
   end
 
   def parse({:binary, <<?i, rest::binary>>}, %{status: :online} = state) do
-    {time, text} = parse_input(rest)
-    time = state.time_offset + time
+    data = parse_input(rest)
+    time = state.time_offset + data.time
+    data = %{data | time: time}
 
-    {:ok, [input: {time, text}], %{state | time_offset: time}}
+    {:ok, [input: data], %{state | time_offset: time}}
   end
 
   def parse({:binary, <<?r, rest::binary>>}, %{status: :online} = state) do
-    {time, size} = parse_resize(rest)
-    time = state.time_offset + time
+    data = parse_resize(rest)
+    time = state.time_offset + data.time
+    data = %{data | time: time}
 
-    {:ok, [resize: {time, size}], %{state | time_offset: time}}
+    {:ok, [resize: data], %{state | time_offset: time}}
   end
 
   def parse({:binary, <<?m, rest::binary>>}, %{status: :online} = state) do
-    {time, label} = parse_marker(rest)
-    time = state.time_offset + time
+    data = parse_marker(rest)
+    time = state.time_offset + data.time
+    data = %{data | time: time}
 
-    {:ok, [marker: {time, label}], %{state | time_offset: time}}
+    {:ok, [marker: data], %{state | time_offset: time}}
   end
 
   def parse({:binary, <<0x04, rest::binary>>}, %{status: status} = state)
       when status in [:init, :online] do
-    time = parse_eot(rest)
+    %{time: time} = parse_eot(rest)
+    time = state.time_offset + time
 
     {:ok, [eot: {time, %{}}], %{state | status: :eot}}
   end
@@ -66,48 +71,59 @@ defmodule Asciinema.Streaming.Parser.AlisV1 do
   end
 
   defp parse_init(bytes) do
+    {last_id, bytes} = decode_varint(bytes)
     {time, bytes} = decode_varint(bytes)
     {cols, bytes} = decode_varint(bytes)
     {rows, bytes} = decode_varint(bytes)
     {theme, bytes} = parse_theme(bytes)
     {term_init, ""} = parse_string(bytes)
 
-    %{time: time, term_size: {cols, rows}, term_init: term_init, term_theme: theme}
+    %{
+      last_id: last_id,
+      time: time,
+      term_size: {cols, rows},
+      term_init: term_init,
+      term_theme: theme
+    }
   end
 
   defp parse_output(bytes) do
+    {id, bytes} = decode_varint(bytes)
     {time, bytes} = decode_varint(bytes)
     {text, ""} = parse_string(bytes)
 
-    {time, text}
+    %{id: id, time: time, text: text}
   end
 
   defp parse_input(bytes) do
+    {id, bytes} = decode_varint(bytes)
     {time, bytes} = decode_varint(bytes)
     {text, ""} = parse_string(bytes)
 
-    {time, text}
+    %{id: id, time: time, text: text}
   end
 
   defp parse_resize(bytes) do
+    {id, bytes} = decode_varint(bytes)
     {time, bytes} = decode_varint(bytes)
     {cols, bytes} = decode_varint(bytes)
     {rows, ""} = decode_varint(bytes)
 
-    {time, {cols, rows}}
+    %{id: id, time: time, term_size: {cols, rows}}
   end
 
   defp parse_marker(bytes) do
+    {id, bytes} = decode_varint(bytes)
     {time, bytes} = decode_varint(bytes)
     {label, ""} = parse_string(bytes)
 
-    {time, label}
+    %{id: id, time: time, label: label}
   end
 
   defp parse_eot(bytes) do
     {time, ""} = decode_varint(bytes)
 
-    time
+    %{time: time}
   end
 
   defp decode_varint(bytes), do: Leb128.decode(bytes)
@@ -138,7 +154,7 @@ defmodule Asciinema.Streaming.Parser.AlisV1 do
     %{
       fg: Enum.at(colors, 0),
       bg: Enum.at(colors, 1),
-      palette: Enum.slice(colors, 2..-1//-1)
+      palette: Enum.drop(colors, 2)
     }
   end
 end

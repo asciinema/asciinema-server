@@ -106,7 +106,7 @@ defmodule AsciinemaWeb.Authentication do
   end
 
   defp user_default_stream(user) do
-    case Streaming.fetch_default_live_stream(user) do
+    case Streaming.fetch_default_stream(user) do
       {:ok, stream} -> stream
       _ -> nil
     end

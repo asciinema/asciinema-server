@@ -153,7 +153,7 @@
   </div>
 </section>
 
-<section :if={length(@author_asciicasts) > 0} class="even">
+<section :if={length(@other_asciicasts) > 0} class="even">
   <div class="container">
     <div class="row other-asciicasts">
       <div class="col-md-12">
@@ -162,7 +162,7 @@
         </h2>
 
         <div class="row asciicast-list">
-          <div :for={asciicast <- @author_asciicasts} class="col-md-6">
+          <div :for={asciicast <- @other_asciicasts} class="col-md-6">
             <.card asciicast={asciicast} conn={@conn} />
           </div>
         </div>

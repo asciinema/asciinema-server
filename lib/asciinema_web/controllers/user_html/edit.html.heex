@@ -202,6 +202,57 @@
           </div>
         </div>
       </.form>
+
+      <.form
+        :let={f}
+        :if={@stream_recording_mode != :disabled}
+        for={@changeset}
+        action={~p"/user"}
+        class="simple_form form-horizontal"
+        novalidate="novalidate"
+        role="form"
+      >
+        <legend>Streaming</legend>
+
+        <div class="form-group row">
+          <.label for={f[:terminal_font_family]} class="col-sm-4 col-md-3 col-form-label">
+            Recording
+          </.label>
+          <div class="col-sm-8 col-9">
+            <div class="form-check form-checkbox">
+              <.input
+                :if={@stream_recording_mode == :allowed}
+                type="checkbox"
+                field={f[:stream_recording_enabled]}
+                class="form-check-input"
+              />
+              <.input
+                :if={@stream_recording_mode == :forced}
+                type="checkbox"
+                field={f[:stream_recording_enabled]}
+                class="form-check-input"
+                value={true}
+                disabled={true}
+              />
+              <.label for={f[:stream_recording_enabled]} class="form-check-label">
+                Record all streams automatically
+              </.label>
+            </div>
+            <small class="form-text text-muted">
+              Every live stream will be saved into a regular recording. The
+              <strong>Recording visibility</strong>
+              option above also applies to recordings created from streams.
+            </small>
+          </div>
+        </div>
+
+        <div :if={@stream_recording_mode == :allowed} class="form-group row">
+          <div class="offset-3 col-9">
+            <br />
+            <.button type="submit" class="btn btn-primary">Update</.button>
+          </div>
+        </div>
+      </.form>
     </div>
   </div>
 
