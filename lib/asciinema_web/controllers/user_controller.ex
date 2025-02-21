@@ -1,5 +1,6 @@
 defmodule AsciinemaWeb.UserController do
   use AsciinemaWeb, :controller
+  alias Asciinema.Authorization
   alias Asciinema.{Accounts, Streaming, Recordings}
   require Logger
 
@@ -55,12 +56,6 @@ defmodule AsciinemaWeb.UserController do
     current_user = conn.assigns.current_user
     self = !!(current_user && current_user.id == user.id)
 
-    filter =
-      case self do
-        true -> :all
-        false -> :public
-      end
-
     streams =
       case self do
         true -> Streaming.list_all_live_streams(user)
@@ -68,12 +63,10 @@ defmodule AsciinemaWeb.UserController do
       end
 
     asciicasts =
-      Recordings.paginate_asciicasts(
-        {user.id, filter},
-        :date,
-        params["page"],
-        14
-      )
+      [user_id: user.id]
+      |> Recordings.query(:date)
+      |> Authorization.scope(:asciicasts, current_user)
+      |> Recordings.paginate(params["page"], 14)
 
     render(
       conn,

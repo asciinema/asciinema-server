@@ -1,6 +1,7 @@
 defmodule AsciinemaWeb.RecordingController do
   use AsciinemaWeb, :controller
   alias Asciinema.{FileStore, Recordings, PngGenerator}
+  alias Asciinema.Authorization
   alias Asciinema.Recordings.Asciicast
   alias AsciinemaWeb.{PlayerOpts, RecordingHTML}
   alias AsciinemaWeb.Plug.Authn
@@ -14,7 +15,10 @@ defmodule AsciinemaWeb.RecordingController do
     category = params[:category]
     order = if params["order"] == "popularity", do: :popularity, else: :date
 
-    page = Recordings.paginate_asciicasts(category, order, params["page"], 14)
+    page =
+      category
+      |> Recordings.query(order)
+      |> Recordings.paginate(params["page"], 14)
 
     assigns = [
       page_title: String.capitalize("#{category} recordings"),
@@ -28,7 +32,12 @@ defmodule AsciinemaWeb.RecordingController do
   end
 
   def auto(conn, params) do
-    case Recordings.count_featured_asciicasts() do
+    count =
+      :featured
+      |> Recordings.query()
+      |> Recordings.count()
+
+    case count do
       0 ->
         index(conn, Map.merge(params, %{category: :public, sidebar_hidden: true}))
 
@@ -55,6 +64,12 @@ defmodule AsciinemaWeb.RecordingController do
       |> put_status(410)
       |> render(:deleted, ttl: Asciinema.unclaimed_recording_ttl())
     else
+      other_asciicasts =
+        [user_id: asciicast.user_id, id: {:not_eq, asciicast.id}]
+        |> Recordings.query(:random)
+        |> Authorization.scope(:asciicasts, conn.assigns.current_user)
+        |> Recordings.list(4)
+
       conn
       |> count_view(asciicast)
       |> render(
@@ -63,7 +78,7 @@ defmodule AsciinemaWeb.RecordingController do
         asciicast: asciicast,
         player_opts: player_opts(conn.params),
         actions: asciicast_actions(asciicast, conn.assigns.current_user),
-        author_asciicasts: Recordings.list_other_public_asciicasts(asciicast)
+        other_asciicasts: other_asciicasts
       )
     end
   end

@@ -15,16 +15,16 @@ defmodule AsciinemaWeb.StreamController do
     user_is_self = match?({%{id: id}, %{id: id}}, {current_user, stream.user})
 
     stream_asciicasts =
-      Recordings.query(user_id: stream.user_id, stream_id: stream.id)
+      [user_id: stream.user_id, stream_id: stream.id]
+      |> Recordings.query(:date)
       |> Authorization.scope(:asciicasts, current_user)
-      |> Recordings.paginate(1, 4)
-      |> Map.get(:entries)
+      |> Recordings.list(4)
 
     other_asciicasts =
-      Recordings.query(user_id: stream.user_id, stream_id: {:not_eq, stream.id})
+      [user_id: stream.user_id, stream_id: {:not_eq, stream.id}]
+      |> Recordings.query(:random)
       |> Authorization.scope(:asciicasts, current_user)
-      |> Recordings.paginate(1, 4)
-      |> Map.get(:entries)
+      |> Recordings.list(4)
 
     render(
       conn,

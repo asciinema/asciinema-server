@@ -48,50 +48,46 @@ defmodule Asciinema.Recordings do
     |> Repo.preload(:user)
   end
 
-  def list_public_asciicasts(%{asciicasts: _} = owner, limit \\ 4) do
-    owner
-    |> Ecto.assoc(:asciicasts)
-    |> filter(:public)
-    |> sort(:random)
-    |> limit(^limit)
-    |> preload(:user)
-    |> Repo.all()
-  end
+  def query(filters \\ [], order \\ nil)
 
-  def list_other_public_asciicasts(asciicast, limit \\ 4) do
-    Asciicast
-    |> filter({asciicast.user_id, :public})
-    |> where([a], a.id != ^asciicast.id)
-    |> sort(:random)
-    |> limit(^limit)
-    |> preload(:user)
-    |> Repo.all()
-  end
-
-  defp filter(q, filters) do
-    q
+  def query(filters, order) do
+    from(Asciicast)
     |> where([a], is_nil(a.archived_at))
-    |> do_filter(filters)
+    |> apply_filters(filters)
+    |> sort(order)
   end
 
-  defp do_filter(q, {user_id, f}) do
-    q
-    |> where([a], a.user_id == ^user_id)
-    |> do_filter(f)
+  defp apply_filters(q, filters) when is_list(filters) do
+    filters = Enum.uniq(filters)
+
+    Enum.reduce(filters, q, &apply_filter/2)
   end
 
-  defp do_filter(q, f) do
-    case f do
+  defp apply_filters(q, filter), do: apply_filters(q, List.wrap(filter))
+
+  defp apply_filter(filter, q) do
+    case filter do
+      {:id, {:not_eq, id}} ->
+        where(q, [a], a.id != ^id)
+
+      {:user_id, user_id} ->
+        where(q, [a], a.user_id == ^user_id)
+
+      {:stream_id, stream_id} when is_integer(stream_id) ->
+        where(q, [a], a.stream_id == ^stream_id)
+
+      {:stream_id, {:not_eq, stream_id}} ->
+        where(q, [a], is_nil(a.stream_id) or a.stream_id != ^stream_id)
+
       :featured ->
         where(q, [a], a.featured == true and a.visibility == :public)
 
       :public ->
         where(q, [a], a.visibility == :public)
-
-      :all ->
-        q
     end
   end
+
+  defp sort(q, nil), do: q
 
   defp sort(q, order) do
     case order do
@@ -101,50 +97,20 @@ defmodule Asciinema.Recordings do
     end
   end
 
-  def paginate_asciicasts(filters, order, page, page_size) do
-    from(Asciicast)
-    |> filter(filters)
-    |> sort(order)
-    |> preload(:user)
-    |> Repo.paginate(page: page, page_size: page_size)
-  end
-
-  def count_featured_asciicasts do
-    from(Asciicast)
-    |> filter(:featured)
-    |> Repo.count()
-  end
-
-  def query(filters \\ []) do
-    filters = Enum.uniq(filters)
-
-    from(Asciicast)
-    |> where([a], is_nil(a.archived_at))
-    |> apply_filters(filters)
-  end
-
   def paginate(%Ecto.Query{} = query, page, page_size) do
     query
     |> preload(:user)
     |> Repo.paginate(page: page, page_size: page_size)
   end
 
-  defp apply_filters(q, filters) do
-    Enum.reduce(filters, q, &apply_filter/2)
+  def list(q, limit) do
+    q
+    |> limit(^limit)
+    |> preload(:user)
+    |> Repo.all()
   end
 
-  defp apply_filter(filter, q) do
-    case filter do
-      {:stream_id, stream_id} when is_integer(stream_id) ->
-        where(q, [a], a.stream_id == ^stream_id)
-
-      {:stream_id, {:not_eq, stream_id}} ->
-        where(q, [a], is_nil(a.stream_id) or a.stream_id != ^stream_id)
-
-      {:user_id, user_id} ->
-        where(q, [a], a.user_id == ^user_id)
-    end
-  end
+  def count(q), do: Repo.count(q)
 
   def ensure_welcome_asciicast(user) do
     if Repo.count(Ecto.assoc(user, :asciicasts)) == 0 do
