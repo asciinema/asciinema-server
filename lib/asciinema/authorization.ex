@@ -28,6 +28,14 @@ defmodule Asciinema.Authorization do
     end
 
     def filter(query, :asciicasts, nil) do
+      where(query, [a], a.visibility == :public)
+    end
+
+    def filter(query, :streams, %User{id: user_id}) do
+      where(query, [s], s.visibility == :public or s.user_id == ^user_id)
+    end
+
+    def filter(query, :streams, nil) do
       where(query, [s], s.visibility == :public)
     end
   end

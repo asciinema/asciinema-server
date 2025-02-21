@@ -57,10 +57,10 @@ defmodule AsciinemaWeb.UserController do
     self = !!(current_user && current_user.id == user.id)
 
     streams =
-      case self do
-        true -> Streaming.list_all_live_streams(user)
-        false -> Streaming.list_public_live_streams(user)
-      end
+      [:live, user_id: user.id]
+      |> Streaming.query()
+      |> Authorization.scope(:streams, current_user)
+      |> Streaming.list(4)
 
     asciicasts =
       [user_id: user.id]

@@ -52,26 +52,38 @@ defmodule Asciinema.Streaming do
   defp wrap(nil), do: {:error, :not_found}
   defp wrap(value), do: {:ok, value}
 
-  def list_public_live_streams(owner, limit \\ 4) do
-    owner
-    |> live_streams_q(limit)
-    |> where([s], s.visibility == :public)
-    |> Repo.all()
-  end
-
-  def list_all_live_streams(owner, limit \\ 4) do
-    owner
-    |> live_streams_q(limit)
-    |> Repo.all()
-  end
-
-  defp live_streams_q(%{streams: _} = owner, limit) do
-    owner
-    |> Ecto.assoc(:streams)
-    |> where([s], s.online)
+  def query(filters \\ []) do
+    from(Stream)
     |> order_by(desc: :last_started_at)
+    |> apply_filters(filters)
+  end
+
+  defp apply_filters(q, filters) when is_list(filters) do
+    filters = Enum.uniq(filters)
+
+    Enum.reduce(filters, q, &apply_filter/2)
+  end
+
+  defp apply_filters(q, filter), do: apply_filters(q, List.wrap(filter))
+
+  defp apply_filter(filter, q) do
+    case filter do
+      {:id, {:not_eq, id}} ->
+        where(q, [s], s.id != ^id)
+
+      {:user_id, user_id} ->
+        where(q, [s], s.user_id == ^user_id)
+
+      :live ->
+        where(q, [s], s.online)
+    end
+  end
+
+  def list(q, limit) do
+    q
     |> limit(^limit)
     |> preload(:user)
+    |> Repo.all()
   end
 
   def create_stream!(user) do
