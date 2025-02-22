@@ -1,8 +1,8 @@
 defmodule Asciinema do
   alias Asciinema.{Accounts, Emails, Recordings, Repo, Streaming}
 
-  def create_user(params) do
-    with {:ok, user} <- Accounts.create_user(params) do
+  def create_user_from_email(email) do
+    with {:ok, user} <- Accounts.create_user_from_email(email) do
       if Streaming.mode() == :static do
         Streaming.create_stream!(user)
       end
@@ -23,7 +23,7 @@ defmodule Asciinema do
 
   def create_user_from_sign_up_token(token) do
     with {:ok, email} <- Accounts.verify_sign_up_token(token) do
-      create_user(%{email: email})
+      create_user_from_email(email)
     end
   end
 

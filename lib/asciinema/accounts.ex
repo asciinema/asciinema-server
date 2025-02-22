@@ -43,12 +43,12 @@ defmodule Asciinema.Accounts do
     Repo.get_by(User, auth_token: auth_token)
   end
 
-  def create_user(attrs) do
+  def create_user_from_email(email) do
     import Ecto.Changeset
 
     result =
       %User{}
-      |> cast(attrs, [:email])
+      |> cast(%{email: email}, [:email])
       |> validate_required([:email])
       |> update_change(:email, &String.downcase/1)
       |> validate_format(:email, @valid_email_re)

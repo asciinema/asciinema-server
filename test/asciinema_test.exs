@@ -9,9 +9,9 @@ defmodule AsciinemaTest do
 
   describe "create_user/1" do
     test "succeeds when email not taken" do
-      assert {:ok, _} = Asciinema.create_user(%{email: "test@example.com"})
-      assert {:error, :email_taken} = Asciinema.create_user(%{email: "test@example.com"})
-      assert {:error, :email_taken} = Asciinema.create_user(%{email: "TEST@EXAMPLE.COM"})
+      assert {:ok, _} = Asciinema.create_user_from_email("test@example.com")
+      assert {:error, :email_taken} = Asciinema.create_user_from_email("test@example.com")
+      assert {:error, :email_taken} = Asciinema.create_user_from_email("TEST@EXAMPLE.COM")
     end
   end
 
