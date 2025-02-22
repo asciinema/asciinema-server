@@ -161,22 +161,6 @@ defmodule Asciinema.Recordings do
     end
   end
 
-  defp extract_metadata(%{"version" => 0} = attrs) do
-    attrs = %{
-      version: 0,
-      cols: get_in(attrs, ["term", "columns"]),
-      rows: get_in(attrs, ["term", "lines"]),
-      terminal_type: get_in(attrs, ["term", "type"]),
-      command: attrs["command"],
-      duration: attrs["duration"],
-      title: attrs["title"],
-      shell: attrs["shell"],
-      uname: attrs["uname"]
-    }
-
-    {:ok, attrs}
-  end
-
   defp extract_metadata(%Plug.Upload{path: path}) do
     case extract_v2_metadata(path) do
       {:error, :unknown_format} -> extract_v1_metadata(path)
