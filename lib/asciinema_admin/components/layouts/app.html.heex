@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href={~p"/css/water.css"} />
+    <title>Admin panel - asciinema</title>
+    <style>
+      body {
+        max-width: 1000px;
+      }
+
+      table {
+        table-layout: auto;
+      }
+
+      header {
+        margin-bottom: 4rem;
+      }
+
+      time {
+        --background: none;
+        padding: 0;
+        font-size: inherit;
+        color: inherit;
+      }
+
+      .text-danger {
+        color: red;
+      }
+
+      .install-id {
+        min-width: 800px;
+        max-width: 100%;
+      }
+
+      .lookup label {
+        padding-right: 0.5rem;
+        min-width: 10rem;
+      }
+
+      .lookup input {
+        display: inline-block;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <a href={~p"/admin/users"}>Users</a>
+      | <a href={~p"/admin/dashboard"}>Phoenix LiveDashboard</a>
+      | <a href={~p"/admin/oban"}>Background jobs</a>
+    </header>
+
+    <div>
+      {@inner_content}
+    </div>
+  </body>
+</html>

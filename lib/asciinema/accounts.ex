@@ -43,6 +43,22 @@ defmodule Asciinema.Accounts do
     Repo.get_by(User, auth_token: auth_token)
   end
 
+  def list_users(limit \\ 1000) do
+    Repo.all(from(u in User, order_by: [asc: :id], limit: ^limit))
+  end
+
+  def create_user(attrs) do
+    import Ecto.Changeset
+
+    %User{}
+    |> cast(attrs, [:email, :username])
+    |> validate_required([:email])
+    |> update_change(:email, &String.downcase/1)
+    |> validate_format(:email, @valid_email_re)
+    |> add_contraints()
+    |> Repo.insert()
+  end
+
   def create_user_from_email(email) do
     import Ecto.Changeset
 
@@ -77,6 +93,8 @@ defmodule Asciinema.Accounts do
         user
     end
   end
+
+  def new_user, do: change_user(%User{})
 
   def change_user(user, params \\ %{}) do
     import Ecto.Changeset
@@ -224,26 +242,6 @@ defmodule Asciinema.Accounts do
 
   @uuid4 ~r/\A[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}\z/
 
-  defp create_cli(%User{} = user, install_id) do
-    import Changeset
-
-    result =
-      user
-      |> build_assoc(:clis)
-      |> change(%{token: install_id})
-      |> validate_format(:token, @uuid4)
-      |> unique_constraint(:token, name: "clis_token_index")
-      |> Repo.insert()
-
-    case result do
-      {:ok, cli} ->
-        {:ok, %{cli | user: user}}
-
-      {:error, %Ecto.Changeset{}} ->
-        {:error, :token_invalid}
-    end
-  end
-
   def register_cli(%User{} = user, install_id) do
     case fetch_cli(install_id) do
       {:ok, cli} ->
@@ -272,6 +270,31 @@ defmodule Asciinema.Accounts do
           create_cli(create_tmp_user(username), install_id)
         end
     end
+  end
+
+  defp create_cli(%User{} = user, install_id) do
+    result =
+      user
+      |> new_cli(%{token: install_id})
+      |> Repo.insert()
+
+    case result do
+      {:ok, cli} ->
+        {:ok, %{cli | user: user}}
+
+      {:error, %Ecto.Changeset{}} ->
+        {:error, :token_invalid}
+    end
+  end
+
+  def new_cli(user, attrs \\ %{}) do
+    import Changeset
+
+    user
+    |> build_assoc(:clis)
+    |> cast(attrs, [:token])
+    |> validate_format(:token, @uuid4)
+    |> unique_constraint(:token, name: "clis_token_index")
   end
 
   defp create_tmp_user(username) do
