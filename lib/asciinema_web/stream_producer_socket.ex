@@ -17,7 +17,7 @@ defmodule AsciinemaWeb.StreamProducerSocket do
     params = %{
       token: req.bindings[:producer_token],
       user_agent: req.headers["user-agent"],
-      query: URI.decode_query(req.qs),
+      query: Plug.Conn.Query.decode(req.qs),
       parser: nil
     }
 
@@ -42,6 +42,7 @@ defmodule AsciinemaWeb.StreamProducerSocket do
   @impl true
   def websocket_init(params) do
     %{token: token, parser: parser, user_agent: user_agent, query: query} = params
+    Logger.debug("producer: query: #{inspect(query)}")
 
     case Streaming.find_stream_by_producer_token(token) do
       nil ->

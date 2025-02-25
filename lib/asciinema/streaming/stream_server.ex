@@ -347,11 +347,7 @@ defmodule Asciinema.Streaming.StreamServer do
     file = File.open!(path, [:write, :utf8])
     state = %{state | path: path, file: file}
     timestamp = Timex.to_unix(Timex.now())
-
-    env =
-      %{"TERM" => query["term"], "SHELL" => query["shell"]}
-      |> Enum.filter(fn {_k, v} -> v != nil and v != "" end)
-      |> Enum.into(%{})
+    env = drop_empty(query["env"] || %{})
 
     write_asciicast_v2_header(file, cols, rows, timestamp, env, theme)
 
@@ -364,16 +360,14 @@ defmodule Asciinema.Streaming.StreamServer do
 
   defp write_asciicast_v2_header(file, cols, rows, timestamp, env, theme) do
     header =
-      %{
+      drop_empty(%{
         version: 2,
         width: cols,
         height: rows,
         timestamp: timestamp,
         env: env,
         theme: asciicast_theme(theme)
-      }
-      |> Enum.filter(fn {_k, v} -> v != nil and v != %{} end)
-      |> Enum.into(%{})
+      })
 
     :ok = IO.write(file, Jason.encode!(header) <> "\n")
   end
@@ -385,6 +379,12 @@ defmodule Asciinema.Streaming.StreamServer do
     data = Jason.encode!(data)
     event = "[#{time}, \"#{type}\", #{data}]"
     :ok = IO.write(file, event <> "\n")
+  end
+
+  defp drop_empty(map) when is_map(map) do
+    map
+    |> Enum.filter(fn {_k, v} -> v != nil and v != "" and v != %{} end)
+    |> Enum.into(%{})
   end
 
   defp in_sync?(state, last_event_id),
