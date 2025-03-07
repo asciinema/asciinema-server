@@ -252,4 +252,17 @@ if config_env() in [:prod, :dev] do
   if email = env.("CONTACT_EMAIL_ADDRESS") do
     config :asciinema, contact_email_address: email
   end
+
+  visibility = env.("DEFAULT_RECORDING_VISIBILITY")
+
+  if visibility in ~w[private unlisted public] do
+    config :asciinema, Asciinema.Accounts,
+      default_recording_visibility: String.to_atom(visibility)
+  end
+
+  visibility = env.("DEFAULT_STREAM_VISIBILITY")
+
+  if visibility in ~w[private unlisted public] do
+    config :asciinema, Asciinema.Accounts, default_stream_visibility: String.to_atom(visibility)
+  end
 end

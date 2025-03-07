@@ -14,11 +14,8 @@ defmodule Asciinema.Accounts.User do
     field :terminal_font_family, :string
     field :streaming_enabled, :boolean, default: true
     field :stream_recording_enabled, :boolean, default: true
-
-    field :default_recording_visibility, Ecto.Enum,
-      values: ~w[private unlisted public]a,
-      default: :unlisted
-
+    field :default_recording_visibility, Ecto.Enum, values: ~w[private unlisted public]a
+    field :default_stream_visibility, Ecto.Enum, values: ~w[private unlisted public]a
     field :last_login_at, :utc_datetime_usec
     field :is_admin, :boolean
 

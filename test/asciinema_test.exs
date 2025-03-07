@@ -8,20 +8,28 @@ defmodule AsciinemaTest do
   @urls Asciinema.TestUrlProvider
 
   describe "create_user/1" do
-    test "succeeds when email not taken" do
-      assert {:ok, _} = Asciinema.create_user_from_email("test@example.com")
-      assert {:error, :email_taken} = Asciinema.create_user_from_email("test@example.com")
-      assert {:error, :email_taken} = Asciinema.create_user_from_email("TEST@EXAMPLE.COM")
+    test "succeeds for valid attrs" do
+      assert {:ok, _} = Asciinema.create_user(%{email: "test@example.com", username: "test"})
+    end
+
+    test "fails for invalid attrs" do
+      assert {:error, %Ecto.Changeset{}} =
+               Asciinema.create_user(%{email: "test@example.com", username: "a"})
     end
   end
 
   describe "create_user_from_sign_up_token/1" do
     test "succeeds when email not taken" do
-      # TODO don't reach to Accounts
-      {:ok, {:sign_up, token, _email}} =
-        Asciinema.Accounts.generate_login_token("test@example.com")
+      {:ok, {:sign_up, token, _email}} = Asciinema.generate_login_token("test@example.com")
 
       assert {:ok, _} = Asciinema.create_user_from_sign_up_token(token)
+    end
+
+    test "fails when email address taken" do
+      {:ok, {:sign_up, token, _email}} = Asciinema.generate_login_token("test@example.com")
+      insert(:user, email: "test@example.com")
+
+      assert Asciinema.create_user_from_sign_up_token(token) == {:error, :email_taken}
     end
   end
 

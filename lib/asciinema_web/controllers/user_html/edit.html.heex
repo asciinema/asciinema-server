@@ -80,7 +80,8 @@
         <legend>Defaults</legend>
 
         <p>
-          The settings below control the defaults for your uploaded recordings. <br />
+          The settings below control the defaults for <strong>new</strong>
+          recordings and streams. <br />
           <br />
         </p>
 
@@ -138,7 +139,66 @@
               </small>
             </div>
             <small class="form-text text-muted">
-              NOTE: This setting applies to *new* uploads. Existing recordings are not affected by changes to this setting.
+              NOTE: Existing recordings are not affected by changes to this setting.
+            </small>
+          </div>
+        </div>
+
+        <div :if={@streaming_mode == :dynamic} class="form-group row">
+          <.label for={f[:default_stream_visibility]} class="col-3 col-form-label">
+            Stream visibility
+          </.label>
+          <div class="col-9 visibility-radios">
+            <div class="form-check">
+              <input
+                type="radio"
+                name="user[default_stream_visibility]"
+                id="user_default_stream_visibility_public"
+                value="public"
+                checked={f[:default_stream_visibility].value == :public}
+                class="form-check-input"
+              />
+              <label for="user_default_stream_visibility_public" class="form-check-label">
+                Public
+              </label>
+              <small class="form-text text-muted">
+                Anyone can view, listed on your public profile
+              </small>
+            </div>
+            <div class="form-check">
+              <input
+                type="radio"
+                name="user[default_stream_visibility]"
+                id="user_default_stream_visibility_unlisted"
+                value="unlisted"
+                checked={f[:default_stream_visibility].value == :unlisted}
+                class="form-check-input"
+              />
+              <label for="user_default_stream_visibility_unlisted" class="form-check-label">
+                Unlisted
+              </label>
+              <small class="form-text text-muted">
+                Only people with the link can view
+              </small>
+            </div>
+            <div class="form-check">
+              <input
+                type="radio"
+                name="user[default_stream_visibility]"
+                id="user_default_stream_visibility_private"
+                value="private"
+                checked={f[:default_stream_visibility].value == :private}
+                class="form-check-input"
+              />
+              <label for="user_default_stream_visibility_private" class="form-check-label">
+                Private
+              </label>
+              <small class="form-text text-muted">
+                Only accessible by you
+              </small>
+            </div>
+            <small class="form-text text-muted">
+              NOTE: Existing streams are not affected by changes to this setting.
             </small>
           </div>
         </div>

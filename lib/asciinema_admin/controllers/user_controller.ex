@@ -10,11 +10,11 @@ defmodule AsciinemaAdmin.UserController do
   end
 
   def new(conn, _params) do
-    render(conn, :new, changeset: Accounts.new_user())
+    render(conn, :new, changeset: Accounts.build_user())
   end
 
   def create(conn, %{"user" => attrs}) do
-    case Accounts.create_user(attrs) do
+    case Asciinema.create_user(attrs) do
       {:ok, user} ->
         redirect(conn, to: ~p"/admin/users/#{user}")
 

@@ -1,13 +1,26 @@
 defmodule Asciinema do
   alias Asciinema.{Accounts, Emails, Recordings, Repo, Streaming}
 
-  def create_user_from_email(email) do
-    with {:ok, user} <- Accounts.create_user_from_email(email) do
+  def create_user(attrs) do
+    with {:ok, user} <- Accounts.create_user(attrs) do
       if Streaming.mode() == :static do
         Streaming.create_stream!(user)
       end
 
       {:ok, user}
+    end
+  end
+
+  def create_user_from_sign_up_token(token) do
+    with {:ok, email} <- Accounts.verify_sign_up_token(token),
+         {:ok, user} <- create_user(%{email: email}) do
+      {:ok, user}
+    else
+      {:error, %Ecto.Changeset{errors: [{:email, _}]}} ->
+        {:error, :email_taken}
+
+      result ->
+        result
     end
   end
 
@@ -18,12 +31,6 @@ defmodule Asciinema do
       Recordings.migrate_files(user)
 
       {:ok, user}
-    end
-  end
-
-  def create_user_from_sign_up_token(token) do
-    with {:ok, email} <- Accounts.verify_sign_up_token(token) do
-      create_user_from_email(email)
     end
   end
 
@@ -43,6 +50,7 @@ defmodule Asciinema do
     Emails.send_email(:account_deletion, user.email, token, url_provider)
   end
 
+  defdelegate generate_login_token(email), to: Accounts
   defdelegate verify_login_token(token), to: Accounts
 
   def register_cli(user, token) do

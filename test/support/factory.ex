@@ -9,7 +9,9 @@ defmodule Asciinema.Factory do
     %User{
       username: sequence(:username, &"username-#{&1}"),
       email: sequence(:email, &"email-#{&1}@example.com"),
-      auth_token: Crypto.random_token(20)
+      auth_token: Crypto.random_token(20),
+      default_recording_visibility: :unlisted,
+      default_stream_visibility: :unlisted
     }
   end
 

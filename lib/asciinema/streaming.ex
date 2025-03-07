@@ -91,6 +91,7 @@ defmodule Asciinema.Streaming do
     |> change(
       public_token: generate_public_token(),
       producer_token: generate_producer_token(),
+      visibility: user.default_stream_visibility,
       theme_prefer_original: user.theme_prefer_original
     )
     |> put_assoc(:user, user)
