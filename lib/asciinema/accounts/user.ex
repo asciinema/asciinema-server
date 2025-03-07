@@ -15,8 +15,8 @@ defmodule Asciinema.Accounts.User do
     field :streaming_enabled, :boolean, default: true
     field :stream_recording_enabled, :boolean, default: true
 
-    field :default_asciicast_visibility, Ecto.Enum,
-      values: [:private, :unlisted, :public],
+    field :default_recording_visibility, Ecto.Enum,
+      values: ~w[private unlisted public]a,
       default: :unlisted
 
     field :last_login_at, :utc_datetime_usec

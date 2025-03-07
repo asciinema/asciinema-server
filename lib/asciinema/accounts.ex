@@ -107,7 +107,7 @@ defmodule Asciinema.Accounts do
       :theme_name,
       :theme_prefer_original,
       :terminal_font_family,
-      :default_asciicast_visibility,
+      :default_recording_visibility,
       :stream_recording_enabled
     ])
     |> validate_required([:email])

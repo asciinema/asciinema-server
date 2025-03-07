@@ -137,7 +137,7 @@ defmodule Asciinema.Recordings do
       Map.merge(
         %{
           filename: filename,
-          visibility: user.default_asciicast_visibility,
+          visibility: user.default_recording_visibility,
           secret_token: Crypto.random_token(25)
         },
         fields

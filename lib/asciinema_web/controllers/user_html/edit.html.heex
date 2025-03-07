@@ -85,20 +85,20 @@
         </p>
 
         <div class="form-group row">
-          <.label for={f[:default_asciicast_visibility]} class="col-3 col-form-label">
+          <.label for={f[:default_recording_visibility]} class="col-3 col-form-label">
             Recording visibility
           </.label>
           <div class="col-9 visibility-radios">
             <div class="form-check">
               <input
                 type="radio"
-                name="user[default_asciicast_visibility]"
-                id="user_default_asciicast_visibility_public"
+                name="user[default_recording_visibility]"
+                id="user_default_recording_visibility_public"
                 value="public"
-                checked={f[:default_asciicast_visibility].value == :public}
+                checked={f[:default_recording_visibility].value == :public}
                 class="form-check-input"
               />
-              <label for="user_default_asciicast_visibility_public" class="form-check-label">
+              <label for="user_default_recording_visibility_public" class="form-check-label">
                 Public
               </label>
               <small class="form-text text-muted">
@@ -108,13 +108,13 @@
             <div class="form-check">
               <input
                 type="radio"
-                name="user[default_asciicast_visibility]"
-                id="user_default_asciicast_visibility_unlisted"
+                name="user[default_recording_visibility]"
+                id="user_default_recording_visibility_unlisted"
                 value="unlisted"
-                checked={f[:default_asciicast_visibility].value == :unlisted}
+                checked={f[:default_recording_visibility].value == :unlisted}
                 class="form-check-input"
               />
-              <label for="user_default_asciicast_visibility_unlisted" class="form-check-label">
+              <label for="user_default_recording_visibility_unlisted" class="form-check-label">
                 Unlisted
               </label>
               <small class="form-text text-muted">
@@ -124,13 +124,13 @@
             <div class="form-check">
               <input
                 type="radio"
-                name="user[default_asciicast_visibility]"
-                id="user_default_asciicast_visibility_private"
+                name="user[default_recording_visibility]"
+                id="user_default_recording_visibility_private"
                 value="private"
-                checked={f[:default_asciicast_visibility].value == :private}
+                checked={f[:default_recording_visibility].value == :private}
                 class="form-check-input"
               />
-              <label for="user_default_asciicast_visibility_private" class="form-check-label">
+              <label for="user_default_recording_visibility_private" class="form-check-label">
                 Private
               </label>
               <small class="form-text text-muted">

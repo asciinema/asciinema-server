@@ -4,7 +4,7 @@ defmodule Asciinema.Streaming.Stream do
   schema "streams" do
     field :public_token, :string
     field :producer_token, :string
-    field :visibility, Ecto.Enum, values: [:private, :unlisted, :public], default: :unlisted
+    field :visibility, Ecto.Enum, values: ~w[private unlisted public]a, default: :unlisted
     field :cols, :integer
     field :rows, :integer
     field :online, :boolean

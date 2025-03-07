@@ -13,7 +13,7 @@ defmodule Asciinema.Recordings.Asciicast do
     field :rows, :integer
     field :rows_override, :integer
     field :terminal_type, :string
-    field :visibility, Ecto.Enum, values: [:private, :unlisted, :public], default: :unlisted
+    field :visibility, Ecto.Enum, values: ~w[private unlisted public]a, default: :unlisted
     field :featured, :boolean
     field :secret_token, :string
     field :duration, :float
