@@ -67,7 +67,7 @@ defmodule Asciinema.Streaming.StreamServer do
       vt_size: nil,
       theme: nil,
       last_event_id: 0,
-      base_stream_time: nil,
+      base_stream_time: 0,
       last_stream_time: nil,
       last_event_time: nil,
       user_agent: nil,
@@ -262,8 +262,8 @@ defmodule Asciinema.Streaming.StreamServer do
   defp via_tuple(stream_id),
     do: {:via, Horde.Registry, {Asciinema.Streaming.StreamRegistry, stream_id}}
 
-  defp update_base_stream_time(state, last_event_id, time) do
-    if in_sync?(state, last_event_id) do
+  defp update_base_stream_time(state, client_last_event_id, time) do
+    if client_last_event_id == state.last_event_id do
       state
     else
       %{state | base_stream_time: time}
@@ -298,8 +298,8 @@ defmodule Asciinema.Streaming.StreamServer do
     %{state | vt: vt, vt_size: {cols, rows}}
   end
 
-  defp restart_recording(state, last_event_id, cols, rows, term_init, theme, query) do
-    if in_sync?(state, last_event_id) do
+  defp restart_recording(state, client_last_event_id, cols, rows, term_init, theme, query) do
+    if client_last_event_id == state.last_event_id and client_last_event_id != 0 do
       state
     else
       state
@@ -386,9 +386,6 @@ defmodule Asciinema.Streaming.StreamServer do
     |> Enum.filter(fn {_k, v} -> v != nil and v != "" and v != %{} end)
     |> Enum.into(%{})
   end
-
-  defp in_sync?(state, last_event_id),
-    do: last_event_id != 0 and last_event_id == state.last_event_id
 
   defp serialize_time(time) do
     whole = div(time, 1_000_000)
