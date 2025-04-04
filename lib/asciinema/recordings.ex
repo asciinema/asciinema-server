@@ -179,7 +179,8 @@ defmodule Asciinema.Recordings do
         command: attrs["command"],
         duration: attrs["duration"],
         title: attrs["title"],
-        shell: get_in(attrs, ["env", "SHELL"])
+        shell: get_in(attrs, ["env", "SHELL"]),
+        env: %{}
       }
 
       {:ok, metadata}
@@ -208,6 +209,7 @@ defmodule Asciinema.Recordings do
         theme_fg: get_in(header, ["theme", "fg"]),
         theme_bg: get_in(header, ["theme", "bg"]),
         theme_palette: get_in(header, ["theme", "palette"]),
+        env: header["env"] || %{},
         idle_time_limit: header["idle_time_limit"],
         shell: get_in(header, ["env", "SHELL"])
       }
@@ -250,6 +252,7 @@ defmodule Asciinema.Recordings do
       :theme_fg,
       :theme_bg,
       :theme_palette,
+      :env,
       :idle_time_limit,
       :title
     ])
@@ -257,6 +260,27 @@ defmodule Asciinema.Recordings do
     |> validate_format(:theme_fg, @hex_color_re)
     |> validate_format(:theme_bg, @hex_color_re)
     |> validate_format(:theme_palette, @hex_palette_re)
+    |> validate_change(:env, &validate_env/2)
+  end
+
+  defp validate_env(:env, env) do
+    errors = []
+
+    errors =
+      if Enum.all?(Map.keys(env), &String.match?(&1, ~r/^[A-Z0-9_]+$/)) do
+        errors
+      else
+        [{:env, "must include valid env var names"} | errors]
+      end
+
+    errors =
+      if Enum.all?(Map.values(env), &is_binary/1) do
+        errors
+      else
+        [{:env, "must include only string values"} | errors]
+      end
+
+    errors
   end
 
   defp decode_json(json) do

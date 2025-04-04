@@ -38,6 +38,7 @@ defmodule Asciinema.Recordings.Asciicast do
     field :terminal_line_height, :float
     field :terminal_font_family, :string
     field :markers, :string
+    field :env, :map
 
     timestamps()
 
