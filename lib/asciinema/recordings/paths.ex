@@ -9,6 +9,9 @@ defmodule Asciinema.Recordings.Paths do
     |> path(asciicast, overrides(ext))
   end
 
+  defp overrides(nil), do: %{}
+  defp overrides(ext), do: %{"{ext}" => ext}
+
   defp path(tpl, asciicast, overrides) do
     time = asciicast.inserted_at
 
@@ -26,11 +29,10 @@ defmodule Asciinema.Recordings.Paths do
         overrides
       )
 
-    String.replace(tpl, Map.keys(vars), &Map.get(vars, &1))
+    tpl
+    |> String.replace(Map.keys(vars), &Map.get(vars, &1))
+    |> String.replace(~r/\{env:(\w+(\?[^}]*)?)\}/U, &resolve_env_var(&1, asciicast.env))
   end
-
-  def overrides(nil), do: %{}
-  def overrides(ext), do: %{"{ext}" => ext}
 
   defp shard(id) do
     <<a::binary-size(2), b::binary-size(2)>> =
@@ -45,4 +47,17 @@ defmodule Asciinema.Recordings.Paths do
 
   defp ext(1), do: "json"
   defp ext(2), do: "cast"
+
+  defp resolve_env_var(match, env) do
+    env = env || %{}
+    rest = String.slice(match, 5..-2//1)
+
+    case String.split(rest, "?", parts: 2) do
+      [name, default] ->
+        Map.get(env, name, default)
+
+      [name] ->
+        Map.get(env, name, "")
+    end
+  end
 end
