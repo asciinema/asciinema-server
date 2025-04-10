@@ -7,6 +7,8 @@ defmodule Asciinema.Streaming.Stream do
     field :visibility, Ecto.Enum, values: ~w[private unlisted public]a, default: :unlisted
     field :term_cols, :integer
     field :term_rows, :integer
+    field :term_type, :string
+    field :term_version, :string
     field :term_theme_name, :string
     field :term_theme_fg, :string
     field :term_theme_bg, :string

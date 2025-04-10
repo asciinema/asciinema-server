@@ -13,6 +13,7 @@ defmodule Asciinema.Recordings.Asciicast do
     field :term_rows, :integer
     field :term_rows_override, :integer
     field :term_type, :string
+    field :term_version, :string
     field :term_theme_name, :string
     field :term_theme_fg, :string
     field :term_theme_bg, :string

@@ -100,10 +100,20 @@ defmodule Asciinema.Streaming.StreamServer do
     %{time: time, last_id: last_id, term_size: {cols, rows}} = args
     theme = args[:term_theme]
     last_started_at = Timex.shift(Timex.now(), microseconds: -round(time))
+    term_type = get_in(query, ["term", "type"])
+    term_version = get_in(query, ["term", "version"])
+    env = drop_empty(query["env"] || %{})
 
     schema_changes =
       Keyword.merge(
-        [online: true, last_started_at: last_started_at, term_cols: cols, term_rows: rows],
+        [
+          online: true,
+          last_started_at: last_started_at,
+          term_cols: cols,
+          term_rows: rows,
+          term_type: term_type,
+          term_version: term_version
+        ],
         schema_theme_fields(theme)
       )
 
@@ -113,7 +123,16 @@ defmodule Asciinema.Streaming.StreamServer do
       |> update_base_stream_time(last_id, time)
       |> update_last_stream_time(time)
       |> update_schema(schema_changes)
-      |> restart_recording(last_id, cols, rows, args[:term_init], theme, query)
+      |> restart_recording(
+        last_id,
+        cols,
+        rows,
+        args[:term_init],
+        term_type,
+        term_version,
+        theme,
+        env
+      )
       |> save_event_id(last_id)
 
     if term_init = args[:term_init] do
@@ -298,22 +317,32 @@ defmodule Asciinema.Streaming.StreamServer do
     %{state | vt: vt, vt_size: {cols, rows}}
   end
 
-  defp restart_recording(state, client_last_event_id, cols, rows, term_init, theme, query) do
+  defp restart_recording(
+         state,
+         client_last_event_id,
+         cols,
+         rows,
+         term_init,
+         term_type,
+         term_version,
+         theme,
+         env
+       ) do
     if client_last_event_id == state.last_event_id and client_last_event_id != 0 do
       state
     else
       state
       |> end_recording()
-      |> start_recording(cols, rows, term_init, theme, query)
+      |> start_recording(cols, rows, term_init, term_type, term_version, theme, env)
     end
   end
 
-  defp start_recording(state, cols, rows, term_init, theme, query) do
+  defp start_recording(state, cols, rows, term_init, term_type, _term_version, theme, env) do
     mode = recording_mode()
     user = state.stream.user
 
     if mode == :forced or (mode == :allowed && user.stream_recording_enabled) do
-      create_asciicast_v2_file(state, cols, rows, term_init, theme, query)
+      create_asciicast_v2_file(state, cols, rows, term_init, term_type, theme, env)
     else
       state
     end
@@ -342,14 +371,13 @@ defmodule Asciinema.Streaming.StreamServer do
     %{state | path: nil, file: nil}
   end
 
-  defp create_asciicast_v2_file(state, cols, rows, term_init, theme, query) do
+  defp create_asciicast_v2_file(state, cols, rows, term_init, term_type, theme, env) do
     path = Briefly.create!()
     file = File.open!(path, [:write, :utf8])
     state = %{state | path: path, file: file}
     timestamp = Timex.to_unix(Timex.now())
-    env = drop_empty(query["env"] || %{})
 
-    write_asciicast_v2_header(file, cols, rows, timestamp, env, theme)
+    write_asciicast_v2_header(file, cols, rows, term_type, timestamp, env, theme)
 
     if term_init not in [nil, ""] do
       write_asciicast_v2_event(state, state.base_stream_time, "o", term_init)
@@ -358,14 +386,14 @@ defmodule Asciinema.Streaming.StreamServer do
     state
   end
 
-  defp write_asciicast_v2_header(file, cols, rows, timestamp, env, theme) do
+  defp write_asciicast_v2_header(file, cols, rows, term_type, timestamp, env, theme) do
     header =
       drop_empty(%{
         version: 2,
         width: cols,
         height: rows,
         timestamp: timestamp,
-        env: env,
+        env: Map.merge(%{"TERM" => term_type}, env || %{}),
         theme: asciicast_theme(theme)
       })
 
