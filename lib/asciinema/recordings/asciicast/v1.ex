@@ -27,7 +27,7 @@ defmodule Asciinema.Recordings.Asciicast.V1 do
         duration: attrs["duration"],
         title: attrs["title"],
         shell: get_in(attrs, ["env", "SHELL"]),
-        env: %{}
+        env: attrs["env"] || %{}
       }
 
       {:ok, metadata}
