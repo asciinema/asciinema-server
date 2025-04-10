@@ -149,7 +149,7 @@ defmodule Asciinema.Recordings do
       |> change(attrs)
 
     with {:ok, metadata} <- extract_metadata(upload),
-         changeset = apply_metadata(changeset, metadata, user.theme_prefer_original),
+         changeset = apply_metadata(changeset, metadata, user.term_theme_prefer_original),
          {:ok, %Asciicast{} = asciicast} <- do_create_asciicast(changeset, upload) do
       if asciicast.snapshot == nil do
         %{asciicast_id: asciicast.id}
@@ -172,31 +172,31 @@ defmodule Asciinema.Recordings do
   @hex_palette_re ~r/^(#[0-9a-f]{6}:){7}((#[0-9a-f]{6}:){8})?#[0-9a-f]{6}$/
 
   defp apply_metadata(changeset, metadata, prefer_original_theme) do
-    theme_name = if metadata[:theme_palette] && prefer_original_theme, do: "original"
+    term_theme_name = if metadata[:term_theme_palette] && prefer_original_theme, do: "original"
 
     changeset
     |> put_change(:version, metadata.version)
-    |> put_change(:theme_name, theme_name)
+    |> put_change(:term_theme_name, term_theme_name)
     |> cast(metadata, [
       :duration,
-      :cols,
-      :rows,
-      :terminal_type,
+      :term_cols,
+      :term_rows,
+      :term_type,
+      :term_theme_fg,
+      :term_theme_bg,
+      :term_theme_palette,
       :command,
       :shell,
       :uname,
       :recorded_at,
-      :theme_fg,
-      :theme_bg,
-      :theme_palette,
       :env,
       :idle_time_limit,
       :title
     ])
-    |> validate_required([:duration, :cols, :rows])
-    |> validate_format(:theme_fg, @hex_color_re)
-    |> validate_format(:theme_bg, @hex_color_re)
-    |> validate_format(:theme_palette, @hex_palette_re)
+    |> validate_required([:duration, :term_cols, :term_rows])
+    |> validate_format(:term_theme_fg, @hex_color_re)
+    |> validate_format(:term_theme_bg, @hex_color_re)
+    |> validate_format(:term_theme_palette, @hex_palette_re)
     |> validate_change(:env, &validate_env/2)
   end
 
@@ -250,25 +250,25 @@ defmodule Asciinema.Recordings do
       :visibility,
       :title,
       :description,
-      :cols_override,
-      :rows_override,
-      :theme_name,
+      :term_cols_override,
+      :term_rows_override,
+      :term_theme_name,
+      :term_line_height,
+      :term_font_family,
       :idle_time_limit,
       :speed,
       :snapshot_at,
-      :terminal_line_height,
-      :terminal_font_family,
       :markers
     ])
-    |> validate_number(:cols_override, greater_than: 0, less_than: 1024)
-    |> validate_number(:rows_override, greater_than: 0, less_than: 512)
+    |> validate_number(:term_cols_override, greater_than: 0, less_than: 1024)
+    |> validate_number(:term_rows_override, greater_than: 0, less_than: 512)
     |> validate_number(:idle_time_limit, greater_than_or_equal_to: 0.5)
-    |> validate_inclusion(:theme_name, Themes.terminal_themes() ++ ["original"])
-    |> validate_number(:terminal_line_height,
+    |> validate_inclusion(:term_theme_name, Themes.terminal_themes() ++ ["original"])
+    |> validate_number(:term_line_height,
       greater_than_or_equal_to: 1.0,
       less_than_or_equal_to: 2.0
     )
-    |> validate_inclusion(:terminal_font_family, Fonts.terminal_font_families())
+    |> validate_inclusion(:term_font_family, Fonts.terminal_font_families())
     |> validate_number(:snapshot_at, greater_than: 0)
     |> validate_change(:markers, &Markers.validate/2)
   end
@@ -287,8 +287,8 @@ defmodule Asciinema.Recordings do
 
   defp stale_snapshot?(changeset) do
     changed?(changeset, :snapshot_at) ||
-      changed?(changeset, :cols_override) ||
-      changed?(changeset, :rows_override)
+      changed?(changeset, :term_cols_override) ||
+      changed?(changeset, :term_rows_override)
   end
 
   def set_featured(asciicast, featured \\ true) do
@@ -322,8 +322,8 @@ defmodule Asciinema.Recordings do
   end
 
   def update_snapshot(%Asciicast{} = asciicast) do
-    cols = asciicast.cols_override || asciicast.cols
-    rows = asciicast.rows_override || asciicast.rows
+    cols = asciicast.term_cols_override || asciicast.term_cols
+    rows = asciicast.term_rows_override || asciicast.term_rows
     secs = asciicast.snapshot_at || asciicast.duration / 2
 
     snapshot =

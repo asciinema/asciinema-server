@@ -20,9 +20,9 @@ defmodule Asciinema.Recordings.Asciicast.V1 do
          {:ok, %{"version" => 1} = attrs} <- Jason.decode(json) do
       metadata = %{
         version: 1,
-        cols: attrs["width"],
-        rows: attrs["height"],
-        terminal_type: get_in(attrs, ["env", "TERM"]),
+        term_cols: attrs["width"],
+        term_rows: attrs["height"],
+        term_type: get_in(attrs, ["env", "TERM"]),
         command: attrs["command"],
         duration: attrs["duration"],
         title: attrs["title"],

@@ -203,15 +203,15 @@
           </div>
         </div>
 
-        <div class="form-group row select optional user_theme_name">
-          <.label for={f[:theme_name]} class="col-3 select optional col-form-label">
+        <div class="form-group row select optional user_term_theme_name">
+          <.label for={f[:term_theme_name]} class="col-3 select optional col-form-label">
             Terminal theme
           </.label>
           <div class="col-9">
             <div>
               <.input
                 type="select"
-                field={f[:theme_name]}
+                field={f[:term_theme_name]}
                 options={theme_options()}
                 class="optional form-control"
                 prompt="Default (asciinema)"
@@ -226,8 +226,12 @@
         <div class="form-group row">
           <div class="offset-3 col-9">
             <div class="form-check">
-              <.input type="checkbox" field={f[:theme_prefer_original]} class="form-check-input" />
-              <.label for={f[:theme_prefer_original]} class="form-check-label">
+              <.input
+                type="checkbox"
+                field={f[:term_theme_prefer_original]}
+                class="form-check-input"
+              />
+              <.label for={f[:term_theme_prefer_original]} class="form-check-label">
                 Prefer original terminal theme
               </.label>
             </div>
@@ -238,13 +242,13 @@
         </div>
 
         <div class="form-group row">
-          <.label for={f[:terminal_font_family]} class="col-sm-4 col-md-3 col-form-label">
+          <.label for={f[:term_font_family]} class="col-sm-4 col-md-3 col-form-label">
             Terminal font family
           </.label>
           <div class="col-sm-8 col-md-9">
             <.input
               type="select"
-              field={f[:terminal_font_family]}
+              field={f[:term_font_family]}
               options={font_family_options()}
               class="form-control"
               prompt={"Default (#{default_font_display_name()})"}
@@ -275,7 +279,7 @@
         <legend>Streaming</legend>
 
         <div class="form-group row">
-          <.label for={f[:terminal_font_family]} class="col-sm-4 col-md-3 col-form-label">
+          <.label for={f[:term_font_family]} class="col-sm-4 col-md-3 col-form-label">
             Recording
           </.label>
           <div class="col-sm-8 col-9">

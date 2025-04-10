@@ -44,8 +44,8 @@ defmodule Asciinema.Factory do
       version: 1,
       path: sequence(:path, &"recordings/#{&1}.json"),
       duration: 123.45,
-      cols: 80,
-      rows: 24,
+      term_cols: 80,
+      term_rows: 24,
       secret_token: sequence(:secret_token, &secret_token/1),
       snapshot: [[["foo", %{}]], [["bar", %{}]]]
     }
@@ -57,8 +57,8 @@ defmodule Asciinema.Factory do
       version: 2,
       path: sequence(:path, &"recordings/#{&1}.cast"),
       duration: 123.45,
-      cols: 80,
-      rows: 24,
+      term_cols: 80,
+      term_rows: 24,
       secret_token: sequence(:secret_token, &secret_token/1),
       snapshot: [[["foo", %{}]], [["bar", %{}]]]
     }

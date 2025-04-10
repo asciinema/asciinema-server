@@ -3,7 +3,7 @@ defmodule Asciinema.Recordings.Text do
   alias Asciinema.Recordings.{Asciicast, Paths}
   alias Asciinema.{FileCache, Vt}
 
-  def text(%Asciicast{cols: cols, rows: rows} = asciicast) do
+  def text(%Asciicast{term_cols: cols, term_rows: rows} = asciicast) do
     stream = Recordings.event_stream(asciicast)
 
     Vt.with_vt(cols, rows, [scrollback_limit: nil], fn vt ->

@@ -103,7 +103,7 @@ defmodule Asciinema.Streaming.StreamServer do
 
     schema_changes =
       Keyword.merge(
-        [online: true, last_started_at: last_started_at, cols: cols, rows: rows],
+        [online: true, last_started_at: last_started_at, term_cols: cols, term_rows: rows],
         schema_theme_fields(theme)
       )
 
@@ -226,8 +226,8 @@ defmodule Asciinema.Streaming.StreamServer do
     state =
       update_schema(state,
         current_viewer_count: state.viewer_count,
-        cols: cols,
-        rows: rows,
+        term_cols: cols,
+        term_rows: rows,
         snapshot: generate_snapshot(state.vt)
       )
 
@@ -424,7 +424,8 @@ defmodule Asciinema.Streaming.StreamServer do
     last_stream_time + Timex.diff(Timex.now(), last_event_time, :microseconds)
   end
 
-  defp schema_theme_fields(nil), do: [theme_fg: nil, theme_bg: nil, theme_palette: nil]
+  defp schema_theme_fields(nil),
+    do: [term_theme_fg: nil, term_theme_bg: nil, term_theme_palette: nil]
 
   defp schema_theme_fields(theme) do
     palette =
@@ -433,9 +434,9 @@ defmodule Asciinema.Streaming.StreamServer do
       |> Enum.join(":")
 
     [
-      theme_fg: Colors.hex(theme.fg),
-      theme_bg: Colors.hex(theme.bg),
-      theme_palette: palette
+      term_theme_fg: Colors.hex(theme.fg),
+      term_theme_bg: Colors.hex(theme.bg),
+      term_theme_palette: palette
     ]
   end
 

@@ -66,7 +66,7 @@
     AsciinemaPlayer.create(
       '/assets/<%= download_filename(@asciicast) %>',
       document.getElementById('player'),
-      &lbrace; cols: <%= cols(@asciicast) %>, rows: <%= rows(@asciicast) %> &rbrace;
+      &lbrace; cols: <%= term_cols(@asciicast) %>, rows: <%= term_rows(@asciicast) %> &rbrace;
     );
   &lt;/script>
 &lt;/body>

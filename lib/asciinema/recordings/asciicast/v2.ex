@@ -28,16 +28,16 @@ defmodule Asciinema.Recordings.Asciicast.V2 do
          {:ok, %{"version" => 2} = header} <- Jason.decode(line) do
       metadata = %{
         version: 2,
-        cols: header["width"],
-        rows: header["height"],
-        terminal_type: get_in(header, ["env", "TERM"]),
+        term_cols: header["width"],
+        term_rows: header["height"],
+        term_type: get_in(header, ["env", "TERM"]),
+        term_theme_fg: get_in(header, ["theme", "fg"]),
+        term_theme_bg: get_in(header, ["theme", "bg"]),
+        term_theme_palette: get_in(header, ["theme", "palette"]),
         command: header["command"],
         duration: get_duration(path),
         recorded_at: header["timestamp"] && Timex.from_unix(header["timestamp"]),
         title: header["title"],
-        theme_fg: get_in(header, ["theme", "fg"]),
-        theme_bg: get_in(header, ["theme", "bg"]),
-        theme_palette: get_in(header, ["theme", "palette"]),
         env: header["env"] || %{},
         idle_time_limit: header["idle_time_limit"],
         shell: get_in(header, ["env", "SHELL"])

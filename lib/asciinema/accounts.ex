@@ -96,9 +96,9 @@ defmodule Asciinema.Accounts do
       :email,
       :name,
       :username,
-      :theme_name,
-      :theme_prefer_original,
-      :terminal_font_family,
+      :term_theme_name,
+      :term_theme_prefer_original,
+      :term_font_family,
       :default_recording_visibility,
       :default_stream_visibility,
       :stream_recording_enabled
@@ -107,8 +107,8 @@ defmodule Asciinema.Accounts do
     |> update_change(:email, &String.downcase/1)
     |> validate_format(:email, @valid_email_re)
     |> validate_username()
-    |> validate_inclusion(:theme_name, Themes.terminal_themes())
-    |> validate_inclusion(:terminal_font_family, Fonts.terminal_font_families())
+    |> validate_inclusion(:term_theme_name, Themes.terminal_themes())
+    |> validate_inclusion(:term_font_family, Fonts.terminal_font_families())
     |> add_contraints()
   end
 
@@ -380,7 +380,7 @@ defmodule Asciinema.Accounts do
     :ok
   end
 
-  def default_theme_name(user), do: user.theme_name
+  def default_term_theme_name(user), do: user.term_theme_name
 
-  def default_font_family(user), do: user.terminal_font_family
+  def default_font_family(user), do: user.term_font_family
 end

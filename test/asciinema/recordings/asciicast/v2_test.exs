@@ -8,16 +8,16 @@ defmodule Asciinema.Recordings.Asciicast.V2Test do
 
       assert metadata == %{
                version: 2,
-               cols: 96,
-               rows: 26,
-               terminal_type: nil,
+               term_cols: 96,
+               term_rows: 26,
+               term_type: nil,
+               term_theme_fg: nil,
+               term_theme_bg: nil,
+               term_theme_palette: nil,
                command: nil,
                duration: 8.456789,
                recorded_at: nil,
                title: nil,
-               theme_fg: nil,
-               theme_bg: nil,
-               theme_palette: nil,
                env: %{},
                idle_time_limit: nil,
                shell: nil
@@ -29,17 +29,17 @@ defmodule Asciinema.Recordings.Asciicast.V2Test do
 
       assert metadata == %{
                version: 2,
-               cols: 96,
-               rows: 26,
-               terminal_type: "screen-256color",
+               term_cols: 96,
+               term_rows: 26,
+               term_type: "screen-256color",
+               term_theme_fg: "#aaaaaa",
+               term_theme_bg: "#bbbbbb",
+               term_theme_palette:
+                 "#151515:#ac4142:#7e8e50:#e5b567:#6c99bb:#9f4e85:#7dd6cf:#d0d0d0:#505050:#ac4142:#7e8e50:#e5b567:#6c99bb:#9f4e85:#7dd6cf:#f5f5f5",
                command: "/bin/bash -l",
                duration: 7.34567,
                recorded_at: ~U[2017-09-26 07:20:22Z],
                title: "bashing :)",
-               theme_fg: "#aaaaaa",
-               theme_bg: "#bbbbbb",
-               theme_palette:
-                 "#151515:#ac4142:#7e8e50:#e5b567:#6c99bb:#9f4e85:#7dd6cf:#d0d0d0:#505050:#ac4142:#7e8e50:#e5b567:#6c99bb:#9f4e85:#7dd6cf:#f5f5f5",
                env: %{
                  "TERM" => "screen-256color",
                  "SHELL" => "/bin/zsh"

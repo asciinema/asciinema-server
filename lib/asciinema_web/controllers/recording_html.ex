@@ -11,7 +11,7 @@ defmodule AsciinemaWeb.RecordingHTML do
   defdelegate author_avatar_url(asciicast), to: MediaView
   defdelegate author_profile_path(asciicast), to: MediaView
   defdelegate theme(asciicast), to: Media
-  defdelegate theme_name(asciicast), to: Media
+  defdelegate term_theme_name(asciicast), to: Media
   defdelegate theme_options(asciicast), to: MediaView
   defdelegate font_family_options, to: MediaView
   defdelegate username(user), to: UserHTML
@@ -21,10 +21,10 @@ defmodule AsciinemaWeb.RecordingHTML do
 
   def player_opts(asciicast, opts) do
     [
-      cols: cols(asciicast),
-      rows: rows(asciicast),
-      theme: Media.theme_name(asciicast),
-      terminalLineHeight: asciicast.terminal_line_height,
+      cols: term_cols(asciicast),
+      rows: term_rows(asciicast),
+      theme: Media.term_theme_name(asciicast),
+      terminalLineHeight: asciicast.term_line_height,
       customTerminalFontFamily: Media.font_family(asciicast),
       poster: poster(asciicast.snapshot),
       markers: markers(asciicast.markers),
@@ -37,7 +37,7 @@ defmodule AsciinemaWeb.RecordingHTML do
   end
 
   def cinema_height(asciicast) do
-    MediaView.cinema_height(cols(asciicast), rows(asciicast))
+    MediaView.cinema_height(term_cols(asciicast), term_rows(asciicast))
   end
 
   def embed_script(asciicast) do
@@ -85,12 +85,12 @@ defmodule AsciinemaWeb.RecordingHTML do
     end
   end
 
-  def cols(asciicast), do: asciicast.cols_override || asciicast.cols
+  def term_cols(asciicast), do: asciicast.term_cols_override || asciicast.term_cols
 
-  def rows(asciicast), do: asciicast.rows_override || asciicast.rows
+  def term_rows(asciicast), do: asciicast.term_rows_override || asciicast.term_rows
 
   def default_theme_display_name(asciicast) do
-    "Account default (#{Themes.display_name(Accounts.default_theme_name(asciicast.user) || "asciinema")})"
+    "Account default (#{Themes.display_name(Accounts.default_term_theme_name(asciicast.user) || "asciinema")})"
   end
 
   def default_font_display_name(user) do
@@ -209,7 +209,7 @@ defmodule AsciinemaWeb.RecordingHTML do
   end
 
   defp term_info(asciicast) do
-    asciicast.terminal_type
+    asciicast.term_type
   end
 
   def views_count(asciicast) do

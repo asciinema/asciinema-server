@@ -8,9 +8,9 @@ defmodule Asciinema.Recordings.Asciicast.V1Test do
 
       assert metadata == %{
                version: 1,
-               cols: 96,
-               rows: 26,
-               terminal_type: nil,
+               term_cols: 96,
+               term_rows: 26,
+               term_type: nil,
                command: nil,
                duration: 8.456789,
                title: nil,
@@ -24,9 +24,9 @@ defmodule Asciinema.Recordings.Asciicast.V1Test do
 
       assert metadata == %{
                version: 1,
-               cols: 96,
-               rows: 26,
-               terminal_type: "screen-256color",
+               term_cols: 96,
+               term_rows: 26,
+               term_type: "screen-256color",
                command: "/bin/bash",
                duration: 11.146430,
                title: "bashing :)",

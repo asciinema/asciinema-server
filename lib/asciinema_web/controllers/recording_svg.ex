@@ -1,6 +1,6 @@
 defmodule AsciinemaWeb.RecordingSVG do
   use Phoenix.Component
-  import AsciinemaWeb.RecordingHTML, only: [cols: 1, rows: 1]
+  import AsciinemaWeb.RecordingHTML, only: [term_cols: 1, term_rows: 1]
   import Phoenix.HTML
   alias Asciinema.{Colors, Media, Themes}
   alias Asciinema.Recordings.Snapshot
@@ -68,8 +68,8 @@ defmodule AsciinemaWeb.RecordingSVG do
     {raw("<?xml version=\"1.0\"?>")}
     <.preview
       coords={coords(@asciicast, nil)}
-      cols={cols(@asciicast)}
-      rows={rows(@asciicast)}
+      cols={term_cols(@asciicast)}
+      rows={term_rows(@asciicast)}
       theme={Media.theme(@asciicast)}
       font_family={assigns[:font_family]}
       rx={assigns[:rx]}
