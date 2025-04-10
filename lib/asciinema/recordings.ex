@@ -448,22 +448,6 @@ defmodule Asciinema.Recordings do
     end
   end
 
-  def write_v2_file(output_stream, %{width: _, height: _} = header) do
-    {:ok, tmp_path} = Briefly.create()
-    header = Map.put(header, :version, 2)
-
-    File.open!(tmp_path, [:write, :utf8], fn f ->
-      :ok = IO.write(f, "#{Jason.encode!(header, pretty: false)}\n")
-
-      for {t, s} <- output_stream do
-        event = [t, "o", s]
-        :ok = IO.write(f, "#{Jason.encode!(event, pretty: false)}\n")
-      end
-    end)
-
-    tmp_path
-  end
-
   def hide_unclaimed_asciicasts(tmp_users_query, t) do
     query =
       from a in Asciicast,

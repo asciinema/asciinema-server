@@ -1,4 +1,5 @@
 defmodule Asciinema.Recordings.Asciicast.V2 do
+  alias Asciinema.Colors
   alias Asciinema.Recordings.EventStream
 
   def event_stream(path) when is_binary(path) do
@@ -57,5 +58,66 @@ defmodule Asciinema.Recordings.Asciicast.V2 do
     path
     |> event_stream()
     |> Enum.reduce(fn {t, _, _}, _prev_t -> t end)
+  end
+
+  def write_header(file, cols, rows, term_type, timestamp, env, theme) do
+    header =
+      drop_empty(%{
+        version: 2,
+        width: cols,
+        height: rows,
+        timestamp: timestamp,
+        env: Map.merge(%{"TERM" => term_type}, env || %{}),
+        theme: format_theme(theme)
+      })
+
+    IO.write(file, Jason.encode!(header) <> "\n")
+  end
+
+  def write_event(file, time, type, data) do
+    time = format_time(time)
+    data = Jason.encode!(data)
+    event = "[#{time}, \"#{type}\", #{data}]"
+    IO.write(file, event <> "\n")
+  end
+
+  defp format_theme(nil), do: nil
+
+  defp format_theme(theme) do
+    palette =
+      theme.palette
+      |> Enum.map(&Colors.hex/1)
+      |> Enum.join(":")
+
+    %{
+      fg: Colors.hex(theme.fg),
+      bg: Colors.hex(theme.bg),
+      palette: palette
+    }
+  end
+
+  defp format_time(time) do
+    whole = div(time, 1_000_000)
+
+    decimal =
+      time
+      |> rem(1_000_000)
+      |> to_string()
+      |> String.pad_leading(6, "0")
+      |> String.trim_trailing("0")
+
+    decimal =
+      case decimal do
+        "" -> "0"
+        d -> d
+      end
+
+    "#{whole}.#{decimal}"
+  end
+
+  defp drop_empty(map) when is_map(map) do
+    map
+    |> Enum.filter(fn {_k, v} -> v != nil and v != "" and v != %{} end)
+    |> Enum.into(%{})
   end
 end
