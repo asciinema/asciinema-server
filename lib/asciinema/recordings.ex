@@ -3,6 +3,7 @@ defmodule Asciinema.Recordings do
   import Ecto, only: [build_assoc: 2]
   import Ecto.Changeset
   import Ecto.Query, warn: false
+  alias Asciinema.Recordings.Asciicast.{V1, V2}
   alias Asciinema.{FileStore, Fonts, Repo, Themes, Vt}
   alias Asciinema.Workers.{MigrateRecordingFiles, UpdateSnapshot}
 
@@ -10,7 +11,6 @@ defmodule Asciinema.Recordings do
     Asciicast,
     Markers,
     Paths,
-    EventStream,
     Text
   }
 
@@ -162,73 +162,10 @@ defmodule Asciinema.Recordings do
   end
 
   defp extract_metadata(%Plug.Upload{path: path}) do
-    case extract_v2_metadata(path) do
-      {:error, :unknown_format} -> extract_v1_metadata(path)
+    case V2.fetch_metadata(path) do
+      {:error, :unknown_format} -> V1.fetch_metadata(path)
       result -> result
     end
-  end
-
-  defp extract_v1_metadata(path) do
-    with {:ok, json} <- File.read(path),
-         {:ok, %{"version" => 1} = attrs} <- decode_json(json) do
-      metadata = %{
-        version: 1,
-        cols: attrs["width"],
-        rows: attrs["height"],
-        terminal_type: get_in(attrs, ["env", "TERM"]),
-        command: attrs["command"],
-        duration: attrs["duration"],
-        title: attrs["title"],
-        shell: get_in(attrs, ["env", "SHELL"]),
-        env: %{}
-      }
-
-      {:ok, metadata}
-    else
-      {:ok, %{"version" => version}} ->
-        {:error, {:unsupported_format, version}}
-
-      otherwise ->
-        Logger.warning("error extracting v1 metadata: #{inspect(otherwise)}")
-        {:error, :unknown_format}
-    end
-  end
-
-  defp extract_v2_metadata(path) do
-    with {:ok, line} when is_binary(line) <- File.open(path, fn f -> IO.read(f, :line) end),
-         {:ok, %{"version" => 2} = header} <- decode_json(line) do
-      metadata = %{
-        version: 2,
-        cols: header["width"],
-        rows: header["height"],
-        terminal_type: get_in(header, ["env", "TERM"]),
-        command: header["command"],
-        duration: get_v2_duration(path),
-        recorded_at: header["timestamp"] && Timex.from_unix(header["timestamp"]),
-        title: header["title"],
-        theme_fg: get_in(header, ["theme", "fg"]),
-        theme_bg: get_in(header, ["theme", "bg"]),
-        theme_palette: get_in(header, ["theme", "palette"]),
-        env: header["env"] || %{},
-        idle_time_limit: header["idle_time_limit"],
-        shell: get_in(header, ["env", "SHELL"])
-      }
-
-      {:ok, metadata}
-    else
-      {:ok, %{"version" => version}} ->
-        {:error, {:unsupported_format, version}}
-
-      otherwise ->
-        Logger.warning("error extracting v2 metadata: #{inspect(otherwise)}")
-        {:error, :unknown_format}
-    end
-  end
-
-  defp get_v2_duration(path) do
-    path
-    |> EventStream.new()
-    |> EventStream.duration()
   end
 
   @hex_color_re ~r/^#[0-9a-f]{6}$/
@@ -281,13 +218,6 @@ defmodule Asciinema.Recordings do
       end
 
     errors
-  end
-
-  defp decode_json(json) do
-    case Jason.decode(json) do
-      {:ok, thing} -> {:ok, thing}
-      {:error, %Jason.DecodeError{}} -> {:error, :invalid}
-    end
   end
 
   defp do_create_asciicast(changeset, file) do
@@ -398,8 +328,8 @@ defmodule Asciinema.Recordings do
 
     snapshot =
       asciicast
-      |> EventStream.new()
-      |> EventStream.output()
+      |> event_stream()
+      |> output()
       |> generate_snapshot(cols, rows, secs)
 
     asciicast
@@ -418,6 +348,22 @@ defmodule Asciinema.Recordings do
       end)
 
     {lines, cursor}
+  end
+
+  def event_stream(%Asciicast{} = asciicast) do
+    {:ok, local_tmp_path} = Briefly.create()
+    :ok = FileStore.download_file(asciicast.path, local_tmp_path)
+
+    case asciicast.version do
+      1 -> V1.event_stream(local_tmp_path)
+      2 -> V2.event_stream(local_tmp_path)
+    end
+  end
+
+  def output(stream) do
+    stream
+    |> Stream.filter(fn {_, code, _} -> code == "o" end)
+    |> Stream.map(fn {time, _, data} -> {time, data} end)
   end
 
   def title(asciicast) do

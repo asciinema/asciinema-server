@@ -42,7 +42,7 @@ defmodule Asciinema.RecordingsTest do
       user = insert(:user)
       upload = fixture(:upload, %{path: "5/asciicast.json"})
 
-      assert {:error, {:unsupported_format, 5}} = Recordings.create_asciicast(user, upload)
+      assert {:error, {:invalid_version, 5}} = Recordings.create_asciicast(user, upload)
     end
 
     test "cast file, v2 format, minimal" do
@@ -127,6 +127,24 @@ defmodule Asciinema.RecordingsTest do
 
       asciicast = insert(:asciicast_v2) |> with_file()
       assert {:ok, _asciicast} = Recordings.delete_asciicast(asciicast)
+    end
+  end
+
+  describe "event_stream/1" do
+    test "with asciicast v1 file" do
+      asciicast = insert(:asciicast_v1) |> with_file()
+
+      stream = Recordings.event_stream(asciicast)
+
+      assert Enum.count(stream) == 785
+    end
+
+    test "with asciicast v2 file" do
+      asciicast = insert(:asciicast_v2) |> with_file()
+
+      stream = Recordings.event_stream(asciicast)
+
+      assert Enum.count(stream) == 786
     end
   end
 
