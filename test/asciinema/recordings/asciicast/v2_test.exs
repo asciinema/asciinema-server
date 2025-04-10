@@ -2,6 +2,29 @@ defmodule Asciinema.Recordings.Asciicast.V2Test do
   use Asciinema.DataCase
   alias Asciinema.Recordings.Asciicast.V2
 
+  describe "fetch_metadata/1" do
+    test "minimal" do
+      {:ok, metadata} = V2.fetch_metadata("test/fixtures/2/minimal.cast")
+
+      assert metadata == %{
+               version: 2,
+               cols: 96,
+               rows: 26,
+               terminal_type: nil,
+               command: nil,
+               duration: 8.456789,
+               recorded_at: nil,
+               title: nil,
+               theme_fg: nil,
+               theme_bg: nil,
+               theme_palette: nil,
+               env: %{},
+               idle_time_limit: nil,
+               shell: nil
+             }
+    end
+  end
+
   describe "event_stream/1" do
     test "basic" do
       stream = V2.event_stream("test/fixtures/2/minimal.cast")
