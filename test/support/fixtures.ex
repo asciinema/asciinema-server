@@ -6,7 +6,7 @@ defmodule Asciinema.Fixtures do
   end
 
   def fixture(:upload_v1, attrs) do
-    path = Map.get(attrs, :path) || "1/asciicast.json"
+    path = Map.get(attrs, :path) || "1/full.json"
     filename = Path.basename(path)
 
     %Plug.Upload{

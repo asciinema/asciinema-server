@@ -9,7 +9,7 @@ defmodule Asciinema.RecordingsTest do
       user = insert(:user)
       cli = insert(:cli, user: user)
       cli_id = cli.id
-      upload = fixture(:upload, %{path: "1/asciicast.json"})
+      upload = fixture(:upload, %{path: "1/full.json"})
 
       {:ok, asciicast} =
         Recordings.create_asciicast(user, upload, %{cli_id: cli_id, user_agent: "a/user/agent"})
@@ -17,7 +17,7 @@ defmodule Asciinema.RecordingsTest do
       assert %Asciicast{
                version: 1,
                command: "/bin/bash",
-               duration: 11.146430015564,
+               duration: 11.146430,
                shell: "/bin/zsh",
                terminal_type: "screen-256color",
                cols: 96,

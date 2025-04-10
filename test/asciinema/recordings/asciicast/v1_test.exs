@@ -18,14 +18,32 @@ defmodule Asciinema.Recordings.Asciicast.V1Test do
                shell: nil
              }
     end
+
+    test "full" do
+      {:ok, metadata} = V1.fetch_metadata("test/fixtures/1/full.json")
+
+      assert metadata == %{
+               version: 1,
+               cols: 96,
+               rows: 26,
+               terminal_type: "screen-256color",
+               command: "/bin/bash",
+               duration: 11.146430,
+               title: "bashing :)",
+               env: %{
+                 "TERM" => "screen-256color",
+                 "SHELL" => "/bin/zsh"
+               },
+               shell: "/bin/zsh"
+             }
+    end
   end
 
   describe "event_stream/1" do
-    test "basic" do
-      stream = V1.event_stream("test/fixtures/1/asciicast.json")
+    test "full" do
+      stream = V1.event_stream("test/fixtures/1/full.json")
 
-      assert :ok == Stream.run(stream)
-      assert [{1.234567, "o", "foo bar"}, {6.913554, "o", "baz qux"}] == Enum.take(stream, 2)
+      assert Enum.take(stream, 2) == [{1.234567, "o", "foo bar"}, {6.913554, "o", "baz qux"}]
     end
   end
 end
