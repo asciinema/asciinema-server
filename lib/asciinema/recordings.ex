@@ -163,8 +163,8 @@ defmodule Asciinema.Recordings do
 
   defp extract_metadata(%Plug.Upload{path: path}) do
     case V2.fetch_metadata(path) do
-      {:error, :unknown_format} -> V1.fetch_metadata(path)
       result -> result
+      {:error, :invalid_format} -> V1.fetch_metadata(path)
     end
   end
 

@@ -104,11 +104,11 @@ defmodule Asciinema.RecordingsTest do
       assert DateTime.to_unix(asciicast.recorded_at) == 1_506_410_422
     end
 
-    test "unknown file format" do
+    test "invalid file format" do
       user = insert(:user)
-      upload = fixture(:upload, %{path: "new-logo-bars.png"})
+      upload = fixture(:upload, %{path: "favicon.png"})
 
-      assert {:error, :unknown_format} = Recordings.create_asciicast(user, upload)
+      assert {:error, :invalid_format} = Recordings.create_asciicast(user, upload)
     end
   end
 

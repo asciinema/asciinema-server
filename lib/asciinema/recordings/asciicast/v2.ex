@@ -48,8 +48,8 @@ defmodule Asciinema.Recordings.Asciicast.V2 do
       {:ok, %{"version" => version}} ->
         {:error, {:invalid_version, version}}
 
-      _otherwise ->
-        {:error, :unknown_format}
+      {:error, %Jason.DecodeError{}} ->
+        {:error, :invalid_format}
     end
   end
 

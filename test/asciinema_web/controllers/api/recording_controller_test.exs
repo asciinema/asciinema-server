@@ -78,7 +78,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
     end
 
     test "non-json file", %{conn: conn} do
-      upload = fixture(:upload, %{path: "new-logo-bars.png"})
+      upload = fixture(:upload, %{path: "favicon.png"})
 
       conn = upload(conn, upload)
 
