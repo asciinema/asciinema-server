@@ -120,6 +120,7 @@ defmodule AsciinemaWeb.RecordingHTML do
     case asciicast.version do
       1 -> "application/asciicast+json"
       2 -> "application/x-asciicast"
+      3 -> "application/x-asciicast"
       _ -> nil
     end
   end

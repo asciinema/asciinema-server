@@ -3,7 +3,7 @@ defmodule Asciinema.Recordings do
   import Ecto, only: [build_assoc: 2]
   import Ecto.Changeset
   import Ecto.Query, warn: false
-  alias Asciinema.Recordings.Asciicast.{V1, V2}
+  alias Asciinema.Recordings.Asciicast.{V1, V2, V3}
   alias Asciinema.{FileStore, Fonts, Repo, Themes, Vt}
   alias Asciinema.Workers.{MigrateRecordingFiles, UpdateSnapshot}
 
@@ -163,7 +163,8 @@ defmodule Asciinema.Recordings do
 
   defp extract_metadata(%Plug.Upload{path: path}) do
     case V2.fetch_metadata(path) do
-      result -> result
+      {:ok, metadata} -> {:ok, metadata}
+      {:error, {:invalid_version, 3}} -> V3.fetch_metadata(path)
       {:error, :invalid_format} -> V1.fetch_metadata(path)
     end
   end
@@ -357,6 +358,7 @@ defmodule Asciinema.Recordings do
     case asciicast.version do
       1 -> V1.event_stream(local_tmp_path)
       2 -> V2.event_stream(local_tmp_path)
+      3 -> V3.event_stream(local_tmp_path)
     end
   end
 

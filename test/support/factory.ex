@@ -93,6 +93,7 @@ defmodule Asciinema.Factory do
       case asciicast.version do
         1 -> "welcome.json"
         2 -> "welcome.cast"
+        3 -> "welcome.cast"
       end
 
     :ok = FileStore.put_file(asciicast.path, "test/fixtures/#{src}", "application/json")
