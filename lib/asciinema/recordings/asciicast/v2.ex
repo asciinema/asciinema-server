@@ -62,14 +62,16 @@ defmodule Asciinema.Recordings.Asciicast.V2 do
 
   def write_header(file, cols, rows, term_type, timestamp, env, theme) do
     header =
-      drop_empty(%{
+      [
         version: 2,
         width: cols,
         height: rows,
         timestamp: timestamp,
         env: Map.merge(%{"TERM" => term_type}, env || %{}),
         theme: format_theme(theme)
-      })
+      ]
+      |> drop_empty()
+      |> Jason.OrderedObject.new()
 
     IO.write(file, Jason.encode!(header) <> "\n")
   end
@@ -89,11 +91,11 @@ defmodule Asciinema.Recordings.Asciicast.V2 do
       |> Enum.map(&Colors.hex/1)
       |> Enum.join(":")
 
-    %{
+    Jason.OrderedObject.new(
       fg: Colors.hex(theme.fg),
       bg: Colors.hex(theme.bg),
       palette: palette
-    }
+    )
   end
 
   defp format_time(time) do
@@ -115,9 +117,7 @@ defmodule Asciinema.Recordings.Asciicast.V2 do
     "#{whole}.#{decimal}"
   end
 
-  defp drop_empty(map) when is_map(map) do
-    map
-    |> Enum.filter(fn {_k, v} -> v != nil and v != "" and v != %{} end)
-    |> Enum.into(%{})
+  defp drop_empty(kv) do
+    Enum.filter(kv, fn {_k, v} -> v != nil and v != "" and v != %{} end)
   end
 end
