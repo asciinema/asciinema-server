@@ -73,7 +73,7 @@ defmodule Asciinema.Streaming.StreamServer do
       last_event_time: nil,
       user_agent: nil,
       path: nil,
-      file: nil,
+      writer: nil,
       shutdown_timer: nil,
       viewer_count: viewer_count
     }
@@ -349,11 +349,11 @@ defmodule Asciinema.Streaming.StreamServer do
     end
   end
 
-  defp end_recording(%{file: nil} = state), do: state
+  defp end_recording(%{writer: nil} = state), do: state
 
-  defp end_recording(%{file: file} = state) do
+  defp end_recording(%{writer: writer} = state) do
     Logger.info("stream/#{state.stream_id}: creating recording")
-    :ok = File.close(file)
+    :ok = V2.close(writer)
 
     upload = %Plug.Upload{
       path: state.path,
@@ -369,32 +369,35 @@ defmodule Asciinema.Streaming.StreamServer do
     {:ok, _} = Recordings.create_asciicast(state.stream.user, upload, fields)
     File.rm(state.path)
 
-    %{state | path: nil, file: nil}
+    %{state | path: nil, writer: nil}
   end
 
   defp create_asciicast_file(state, cols, rows, term_init, _term_type, _term_version, theme, env) do
     path = Briefly.create!()
-    file = File.open!(path, [:write, :utf8])
     timestamp = Timex.to_unix(Timex.now())
 
-    :ok =
-      V2.write_header(file, {cols, rows},
+    {:ok, writer} =
+      V2.create(path, {cols, rows},
         env: env,
         term_theme: theme,
         timestamp: timestamp
       )
 
     if term_init not in [nil, ""] do
-      :ok = V2.write_event(file, 0, "o", term_init)
-    end
+      {:ok, writer} = V2.write_event(writer, 0, "o", term_init)
 
-    %{state | path: path, file: file}
+      %{state | path: path, writer: writer}
+    else
+      %{state | path: path, writer: writer}
+    end
   end
 
-  defp write_asciicast_event(%{file: nil} = _state, _time, _type, _data), do: :ok
+  defp write_asciicast_event(%{writer: nil} = state, _time, _type, _data), do: state
 
-  defp write_asciicast_event(%{file: file} = state, time, type, data) do
-    :ok = V2.write_event(file, time - state.base_stream_time, type, data)
+  defp write_asciicast_event(%{writer: writer} = state, time, type, data) do
+    {:ok, writer} = V2.write_event(writer, time - state.base_stream_time, type, data)
+
+    %{state | writer: writer}
   end
 
   defp save_event_id(state, id), do: %{state | last_event_id: id}

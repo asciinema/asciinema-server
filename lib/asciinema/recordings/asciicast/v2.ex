@@ -2,6 +2,10 @@ defmodule Asciinema.Recordings.Asciicast.V2 do
   alias Asciinema.Colors
   alias Asciinema.Recordings.EventStream
 
+  defmodule Writer do
+    defstruct [:file]
+  end
+
   def event_stream(path) when is_binary(path) do
     first_two_lines =
       path
@@ -60,7 +64,8 @@ defmodule Asciinema.Recordings.Asciicast.V2 do
     |> Enum.reduce(fn {t, _, _}, _prev_t -> t end)
   end
 
-  def write_header(file, {cols, rows}, fields \\ []) do
+  def create(path, {cols, rows}, fields \\ []) do
+    file = File.open!(path, [:write, :utf8])
     timestamp = Keyword.get(fields, :timestamp)
     term_theme = Keyword.get(fields, :term_theme)
     env = Keyword.get(fields, :env) || %{}
@@ -77,21 +82,29 @@ defmodule Asciinema.Recordings.Asciicast.V2 do
       |> drop_empty()
       |> Jason.OrderedObject.new()
 
-    IO.write(file, Jason.encode!(header) <> "\n")
+    with :ok <- IO.write(file, Jason.encode!(header) <> "\n") do
+      {:ok, %Writer{file: file}}
+    end
   end
 
-  def write_event(file, time, "r", {cols, rows}) do
-    time = format_time(time)
-    data = Jason.encode!("#{cols}x#{rows}")
-    event = "[#{time}, \"r\", #{data}]"
-    IO.write(file, event <> "\n")
-  end
-
-  def write_event(file, time, type, data) when type in ["o", "i", "m"] do
+  def write_event(%Writer{file: file} = writer, time, type, data) when type in ["o", "i", "m"] do
     time = format_time(time)
     data = Jason.encode!(data)
     event = "[#{time}, \"#{type}\", #{data}]"
-    IO.write(file, event <> "\n")
+
+    with :ok <- IO.write(file, event <> "\n") do
+      {:ok, writer}
+    end
+  end
+
+  def write_event(%Writer{file: file} = writer, time, "r", {cols, rows}) do
+    time = format_time(time)
+    data = Jason.encode!("#{cols}x#{rows}")
+    event = "[#{time}, \"r\", #{data}]"
+
+    with :ok <- IO.write(file, event <> "\n") do
+      {:ok, writer}
+    end
   end
 
   defp format_theme(nil), do: nil
@@ -137,4 +150,6 @@ defmodule Asciinema.Recordings.Asciicast.V2 do
   defp drop_empty(kv) when is_list(kv) do
     Enum.filter(kv, fn {_k, v} -> v != nil and v != "" and v != %{} end)
   end
+
+  def close(%Writer{file: file}), do: File.close(file)
 end

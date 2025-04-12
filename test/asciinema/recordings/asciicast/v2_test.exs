@@ -78,43 +78,42 @@ defmodule Asciinema.Recordings.Asciicast.V2Test do
     end
   end
 
-  describe "write_header/3" do
-    test "minimal" do
+  describe "create/3" do
+    test "minimal header" do
       path = Briefly.create!()
-      file = File.open!(path, [:write, :utf8])
 
-      assert V2.write_header(file, {99, 22}) == :ok
+      {:ok, writer} = V2.create(path, {99, 22})
 
-      :ok = File.close(file)
+      :ok = V2.close(writer)
       content = File.read!(path)
 
       assert content == ~s|{"version":2,"width":99,"height":22}\n|
     end
 
-    test "full" do
+    test "full header" do
       path = Briefly.create!()
-      file = File.open!(path, [:write, :utf8])
 
-      assert V2.write_header(file, {99, 22},
-               timestamp: 1_506_410_422,
-               term_theme: %{
-                 fg: {99, 98, 97},
-                 bg: {3, 2, 1},
-                 palette: [
-                   {1, 2, 3},
-                   {11, 12, 13},
-                   {21, 22, 23},
-                   {31, 32, 33},
-                   {41, 42, 43},
-                   {51, 52, 53},
-                   {61, 62, 63},
-                   {71, 72, 73}
-                 ]
-               },
-               env: %{"SHELL" => "/usr/bin/fish"}
-             ) == :ok
+      {:ok, writer} =
+        V2.create(path, {99, 22},
+          timestamp: 1_506_410_422,
+          term_theme: %{
+            fg: {99, 98, 97},
+            bg: {3, 2, 1},
+            palette: [
+              {1, 2, 3},
+              {11, 12, 13},
+              {21, 22, 23},
+              {31, 32, 33},
+              {41, 42, 43},
+              {51, 52, 53},
+              {61, 62, 63},
+              {71, 72, 73}
+            ]
+          },
+          env: %{"SHELL" => "/usr/bin/fish"}
+        )
 
-      :ok = File.close(file)
+      :ok = V2.close(writer)
       content = File.read!(path)
 
       assert content ==
@@ -125,45 +124,41 @@ defmodule Asciinema.Recordings.Asciicast.V2Test do
   describe "write_event/4" do
     setup do
       path = Briefly.create!()
-      file = File.open!(path, [:write, :utf8])
+      {:ok, writer} = V2.create(path, {99, 22})
 
-      %{path: path, file_: file}
+      %{path: path, writer: writer}
     end
 
-    test "output", %{path: path, file_: file} do
-      assert V2.write_event(file, 250_000, "o", "hello world") == :ok
-
-      :ok = File.close(file)
+    test "output", %{path: path, writer: writer} do
+      {:ok, writer} = V2.write_event(writer, 250_000, "o", "hello world")
+      :ok = V2.close(writer)
       content = File.read!(path)
 
-      assert content == ~s|[0.25, "o", "hello world"]\n|
+      assert content == ~s|{"version":2,"width":99,"height":22}\n[0.25, "o", "hello world"]\n|
     end
 
-    test "input", %{path: path, file_: file} do
-      assert V2.write_event(file, 250_000, "i", "h") == :ok
-
-      :ok = File.close(file)
+    test "input", %{path: path, writer: writer} do
+      {:ok, writer} = V2.write_event(writer, 1_000_000, "i", "h")
+      :ok = V2.close(writer)
       content = File.read!(path)
 
-      assert content == ~s|[0.25, "i", "h"]\n|
+      assert content == ~s|{"version":2,"width":99,"height":22}\n[1.0, "i", "h"]\n|
     end
 
-    test "resize", %{path: path, file_: file} do
-      assert V2.write_event(file, 250_000, "r", {81, 25}) == :ok
-
-      :ok = File.close(file)
+    test "resize", %{path: path, writer: writer} do
+      {:ok, writer} = V2.write_event(writer, 1_500_000, "r", {81, 25})
+      :ok = V2.close(writer)
       content = File.read!(path)
 
-      assert content == ~s|[0.25, "r", "81x25"]\n|
+      assert content == ~s|{"version":2,"width":99,"height":22}\n[1.5, "r", "81x25"]\n|
     end
 
-    test "marker", %{path: path, file_: file} do
-      assert V2.write_event(file, 250_000, "m", "intro") == :ok
-
-      :ok = File.close(file)
+    test "marker", %{path: path, writer: writer} do
+      {:ok, writer} = V2.write_event(writer, 2_000_050, "m", "intro")
+      :ok = V2.close(writer)
       content = File.read!(path)
 
-      assert content == ~s|[0.25, "m", "intro"]\n|
+      assert content == ~s|{"version":2,"width":99,"height":22}\n[2.00005, "m", "intro"]\n|
     end
   end
 end
