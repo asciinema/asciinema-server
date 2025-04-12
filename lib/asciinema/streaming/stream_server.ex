@@ -2,7 +2,7 @@ defmodule Asciinema.Streaming.StreamServer do
   use GenServer, restart: :temporary
   use Asciinema.Config
   alias Asciinema.Recordings
-  alias Asciinema.Recordings.Asciicast.V2
+  alias Asciinema.Recordings.Asciicast.V3
   alias Asciinema.Streaming.ViewerTracker
   alias Asciinema.{Colors, PubSub, Streaming, Vt}
   require Logger
@@ -353,7 +353,7 @@ defmodule Asciinema.Streaming.StreamServer do
 
   defp end_recording(%{writer: writer} = state) do
     Logger.info("stream/#{state.stream_id}: creating recording")
-    :ok = V2.close(writer)
+    :ok = V3.close(writer)
 
     upload = %Plug.Upload{
       path: state.path,
@@ -372,19 +372,21 @@ defmodule Asciinema.Streaming.StreamServer do
     %{state | path: nil, writer: nil}
   end
 
-  defp create_asciicast_file(state, cols, rows, term_init, _term_type, _term_version, theme, env) do
+  defp create_asciicast_file(state, cols, rows, term_init, term_type, term_version, theme, env) do
     path = Briefly.create!()
     timestamp = Timex.to_unix(Timex.now())
 
     {:ok, writer} =
-      V2.create(path, {cols, rows},
-        env: env,
+      V3.create(path, {cols, rows},
+        term_type: term_type,
+        term_version: term_version,
         term_theme: theme,
+        env: env,
         timestamp: timestamp
       )
 
     if term_init not in [nil, ""] do
-      {:ok, writer} = V2.write_event(writer, 0, "o", term_init)
+      {:ok, writer} = V3.write_event(writer, 0, "o", term_init)
 
       %{state | path: path, writer: writer}
     else
@@ -395,7 +397,7 @@ defmodule Asciinema.Streaming.StreamServer do
   defp write_asciicast_event(%{writer: nil} = state, _time, _type, _data), do: state
 
   defp write_asciicast_event(%{writer: writer} = state, time, type, data) do
-    {:ok, writer} = V2.write_event(writer, time - state.base_stream_time, type, data)
+    {:ok, writer} = V3.write_event(writer, time - state.base_stream_time, type, data)
 
     %{state | writer: writer}
   end
