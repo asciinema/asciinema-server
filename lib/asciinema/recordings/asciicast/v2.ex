@@ -60,15 +60,19 @@ defmodule Asciinema.Recordings.Asciicast.V2 do
     |> Enum.reduce(fn {t, _, _}, _prev_t -> t end)
   end
 
-  def write_header(file, cols, rows, term_type, timestamp, env, theme) do
+  def write_header(file, {cols, rows}, fields \\ []) do
+    timestamp = Keyword.get(fields, :timestamp)
+    term_theme = Keyword.get(fields, :term_theme)
+    env = Keyword.get(fields, :env) || %{}
+
     header =
       [
         version: 2,
         width: cols,
         height: rows,
         timestamp: timestamp,
-        env: Map.merge(%{"TERM" => term_type}, env || %{}),
-        theme: format_theme(theme)
+        env: drop_empty(env),
+        theme: format_theme(term_theme)
       ]
       |> drop_empty()
       |> Jason.OrderedObject.new()
@@ -76,7 +80,14 @@ defmodule Asciinema.Recordings.Asciicast.V2 do
     IO.write(file, Jason.encode!(header) <> "\n")
   end
 
-  def write_event(file, time, type, data) do
+  def write_event(file, time, "r", {cols, rows}) do
+    time = format_time(time)
+    data = Jason.encode!("#{cols}x#{rows}")
+    event = "[#{time}, \"r\", #{data}]"
+    IO.write(file, event <> "\n")
+  end
+
+  def write_event(file, time, type, data) when type in ["o", "i", "m"] do
     time = format_time(time)
     data = Jason.encode!(data)
     event = "[#{time}, \"#{type}\", #{data}]"
@@ -117,7 +128,13 @@ defmodule Asciinema.Recordings.Asciicast.V2 do
     "#{whole}.#{decimal}"
   end
 
-  defp drop_empty(kv) do
+  defp drop_empty(map) when is_map(map) do
+    map
+    |> Enum.filter(fn {_k, v} -> v != nil and v != "" and v != %{} end)
+    |> Enum.into(%{})
+  end
+
+  defp drop_empty(kv) when is_list(kv) do
     Enum.filter(kv, fn {_k, v} -> v != nil and v != "" and v != %{} end)
   end
 end

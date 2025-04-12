@@ -77,4 +77,93 @@ defmodule Asciinema.Recordings.Asciicast.V2Test do
              ]
     end
   end
+
+  describe "write_header/3" do
+    test "minimal" do
+      path = Briefly.create!()
+      file = File.open!(path, [:write, :utf8])
+
+      assert V2.write_header(file, {99, 22}) == :ok
+
+      :ok = File.close(file)
+      content = File.read!(path)
+
+      assert content == ~s|{"version":2,"width":99,"height":22}\n|
+    end
+
+    test "full" do
+      path = Briefly.create!()
+      file = File.open!(path, [:write, :utf8])
+
+      assert V2.write_header(file, {99, 22},
+               timestamp: 1_506_410_422,
+               term_theme: %{
+                 fg: {99, 98, 97},
+                 bg: {3, 2, 1},
+                 palette: [
+                   {1, 2, 3},
+                   {11, 12, 13},
+                   {21, 22, 23},
+                   {31, 32, 33},
+                   {41, 42, 43},
+                   {51, 52, 53},
+                   {61, 62, 63},
+                   {71, 72, 73}
+                 ]
+               },
+               env: %{"SHELL" => "/usr/bin/fish"}
+             ) == :ok
+
+      :ok = File.close(file)
+      content = File.read!(path)
+
+      assert content ==
+               ~s|{"version":2,"width":99,"height":22,"timestamp":1506410422,"env":{"SHELL":"/usr/bin/fish"},"theme":{"fg":"#636261","bg":"#030201","palette":"#010203:#0b0c0d:#151617:#1f2021:#292a2b:#333435:#3d3e3f:#474849"}}\n|
+    end
+  end
+
+  describe "write_event/4" do
+    setup do
+      path = Briefly.create!()
+      file = File.open!(path, [:write, :utf8])
+
+      %{path: path, file_: file}
+    end
+
+    test "output", %{path: path, file_: file} do
+      assert V2.write_event(file, 250_000, "o", "hello world") == :ok
+
+      :ok = File.close(file)
+      content = File.read!(path)
+
+      assert content == ~s|[0.25, "o", "hello world"]\n|
+    end
+
+    test "input", %{path: path, file_: file} do
+      assert V2.write_event(file, 250_000, "i", "h") == :ok
+
+      :ok = File.close(file)
+      content = File.read!(path)
+
+      assert content == ~s|[0.25, "i", "h"]\n|
+    end
+
+    test "resize", %{path: path, file_: file} do
+      assert V2.write_event(file, 250_000, "r", {81, 25}) == :ok
+
+      :ok = File.close(file)
+      content = File.read!(path)
+
+      assert content == ~s|[0.25, "r", "81x25"]\n|
+    end
+
+    test "marker", %{path: path, file_: file} do
+      assert V2.write_event(file, 250_000, "m", "intro") == :ok
+
+      :ok = File.close(file)
+      content = File.read!(path)
+
+      assert content == ~s|[0.25, "m", "intro"]\n|
+    end
+  end
 end

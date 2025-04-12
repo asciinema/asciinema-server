@@ -103,7 +103,7 @@ defmodule Asciinema.Streaming.StreamServer do
     last_started_at = Timex.shift(Timex.now(), microseconds: -round(time))
     term_type = get_in(query, ["term", "type"])
     term_version = get_in(query, ["term", "version"])
-    env = drop_empty(query["env"] || %{})
+    env = query["env"] || %{}
 
     schema_changes =
       Keyword.merge(
@@ -176,7 +176,7 @@ defmodule Asciinema.Streaming.StreamServer do
     %{id: id, time: time, term_size: {cols, rows} = vt_size} = data
     Vt.resize(state.vt, cols, rows)
     publish(state.stream_id, :resize, data)
-    write_asciicast_event(state, time, "r", "#{cols}x#{rows}")
+    write_asciicast_event(state, time, "r", {cols, rows})
 
     state =
       state
@@ -372,12 +372,17 @@ defmodule Asciinema.Streaming.StreamServer do
     %{state | path: nil, file: nil}
   end
 
-  defp create_asciicast_file(state, cols, rows, term_init, term_type, _term_version, theme, env) do
+  defp create_asciicast_file(state, cols, rows, term_init, _term_type, _term_version, theme, env) do
     path = Briefly.create!()
     file = File.open!(path, [:write, :utf8])
     timestamp = Timex.to_unix(Timex.now())
 
-    :ok = V2.write_header(file, cols, rows, term_type, timestamp, env, theme)
+    :ok =
+      V2.write_header(file, {cols, rows},
+        env: env,
+        term_theme: theme,
+        timestamp: timestamp
+      )
 
     if term_init not in [nil, ""] do
       :ok = V2.write_event(file, 0, "o", term_init)
@@ -390,12 +395,6 @@ defmodule Asciinema.Streaming.StreamServer do
 
   defp write_asciicast_event(%{file: file} = state, time, type, data) do
     :ok = V2.write_event(file, time - state.base_stream_time, type, data)
-  end
-
-  defp drop_empty(map) when is_map(map) do
-    map
-    |> Enum.filter(fn {_k, v} -> v != nil and v != "" and v != %{} end)
-    |> Enum.into(%{})
   end
 
   defp save_event_id(state, id), do: %{state | last_event_id: id}
