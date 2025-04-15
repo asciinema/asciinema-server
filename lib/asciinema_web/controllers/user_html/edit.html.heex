@@ -80,25 +80,26 @@
         <legend>Defaults</legend>
 
         <p>
-          The settings below control the defaults for your uploaded recordings. <br />
+          The settings below control the defaults for <strong>new</strong>
+          recordings and streams. <br />
           <br />
         </p>
 
         <div class="form-group row">
-          <.label for={f[:default_asciicast_visibility]} class="col-3 col-form-label">
+          <.label for={f[:default_recording_visibility]} class="col-3 col-form-label">
             Recording visibility
           </.label>
           <div class="col-9 visibility-radios">
             <div class="form-check">
               <input
                 type="radio"
-                name="user[default_asciicast_visibility]"
-                id="user_default_asciicast_visibility_public"
+                name="user[default_recording_visibility]"
+                id="user_default_recording_visibility_public"
                 value="public"
-                checked={f[:default_asciicast_visibility].value == :public}
+                checked={f[:default_recording_visibility].value == :public}
                 class="form-check-input"
               />
-              <label for="user_default_asciicast_visibility_public" class="form-check-label">
+              <label for="user_default_recording_visibility_public" class="form-check-label">
                 Public
               </label>
               <small class="form-text text-muted">
@@ -108,13 +109,13 @@
             <div class="form-check">
               <input
                 type="radio"
-                name="user[default_asciicast_visibility]"
-                id="user_default_asciicast_visibility_unlisted"
+                name="user[default_recording_visibility]"
+                id="user_default_recording_visibility_unlisted"
                 value="unlisted"
-                checked={f[:default_asciicast_visibility].value == :unlisted}
+                checked={f[:default_recording_visibility].value == :unlisted}
                 class="form-check-input"
               />
-              <label for="user_default_asciicast_visibility_unlisted" class="form-check-label">
+              <label for="user_default_recording_visibility_unlisted" class="form-check-label">
                 Unlisted
               </label>
               <small class="form-text text-muted">
@@ -124,13 +125,13 @@
             <div class="form-check">
               <input
                 type="radio"
-                name="user[default_asciicast_visibility]"
-                id="user_default_asciicast_visibility_private"
+                name="user[default_recording_visibility]"
+                id="user_default_recording_visibility_private"
                 value="private"
-                checked={f[:default_asciicast_visibility].value == :private}
+                checked={f[:default_recording_visibility].value == :private}
                 class="form-check-input"
               />
-              <label for="user_default_asciicast_visibility_private" class="form-check-label">
+              <label for="user_default_recording_visibility_private" class="form-check-label">
                 Private
               </label>
               <small class="form-text text-muted">
@@ -138,20 +139,79 @@
               </small>
             </div>
             <small class="form-text text-muted">
-              NOTE: This setting applies to *new* uploads. Existing recordings are not affected by changes to this setting.
+              NOTE: Existing recordings are not affected by changes to this setting.
             </small>
           </div>
         </div>
 
-        <div class="form-group row select optional user_theme_name">
-          <.label for={f[:theme_name]} class="col-3 select optional col-form-label">
+        <div :if={@streaming_mode == :dynamic} class="form-group row">
+          <.label for={f[:default_stream_visibility]} class="col-3 col-form-label">
+            Stream visibility
+          </.label>
+          <div class="col-9 visibility-radios">
+            <div class="form-check">
+              <input
+                type="radio"
+                name="user[default_stream_visibility]"
+                id="user_default_stream_visibility_public"
+                value="public"
+                checked={f[:default_stream_visibility].value == :public}
+                class="form-check-input"
+              />
+              <label for="user_default_stream_visibility_public" class="form-check-label">
+                Public
+              </label>
+              <small class="form-text text-muted">
+                Anyone can view, listed on your public profile
+              </small>
+            </div>
+            <div class="form-check">
+              <input
+                type="radio"
+                name="user[default_stream_visibility]"
+                id="user_default_stream_visibility_unlisted"
+                value="unlisted"
+                checked={f[:default_stream_visibility].value == :unlisted}
+                class="form-check-input"
+              />
+              <label for="user_default_stream_visibility_unlisted" class="form-check-label">
+                Unlisted
+              </label>
+              <small class="form-text text-muted">
+                Only people with the link can view
+              </small>
+            </div>
+            <div class="form-check">
+              <input
+                type="radio"
+                name="user[default_stream_visibility]"
+                id="user_default_stream_visibility_private"
+                value="private"
+                checked={f[:default_stream_visibility].value == :private}
+                class="form-check-input"
+              />
+              <label for="user_default_stream_visibility_private" class="form-check-label">
+                Private
+              </label>
+              <small class="form-text text-muted">
+                Only accessible by you
+              </small>
+            </div>
+            <small class="form-text text-muted">
+              NOTE: Existing streams are not affected by changes to this setting.
+            </small>
+          </div>
+        </div>
+
+        <div class="form-group row select optional user_term_theme_name">
+          <.label for={f[:term_theme_name]} class="col-3 select optional col-form-label">
             Terminal theme
           </.label>
           <div class="col-9">
             <div>
               <.input
                 type="select"
-                field={f[:theme_name]}
+                field={f[:term_theme_name]}
                 options={theme_options()}
                 class="optional form-control"
                 prompt="Default (asciinema)"
@@ -166,8 +226,12 @@
         <div class="form-group row">
           <div class="offset-3 col-9">
             <div class="form-check">
-              <.input type="checkbox" field={f[:theme_prefer_original]} class="form-check-input" />
-              <.label for={f[:theme_prefer_original]} class="form-check-label">
+              <.input
+                type="checkbox"
+                field={f[:term_theme_prefer_original]}
+                class="form-check-input"
+              />
+              <.label for={f[:term_theme_prefer_original]} class="form-check-label">
                 Prefer original terminal theme
               </.label>
             </div>
@@ -178,13 +242,13 @@
         </div>
 
         <div class="form-group row">
-          <.label for={f[:terminal_font_family]} class="col-sm-4 col-md-3 col-form-label">
+          <.label for={f[:term_font_family]} class="col-sm-4 col-md-3 col-form-label">
             Terminal font family
           </.label>
           <div class="col-sm-8 col-md-9">
             <.input
               type="select"
-              field={f[:terminal_font_family]}
+              field={f[:term_font_family]}
               options={font_family_options()}
               class="form-control"
               prompt={"Default (#{default_font_display_name()})"}
@@ -215,7 +279,7 @@
         <legend>Streaming</legend>
 
         <div class="form-group row">
-          <.label for={f[:terminal_font_family]} class="col-sm-4 col-md-3 col-form-label">
+          <.label for={f[:term_font_family]} class="col-sm-4 col-md-3 col-form-label">
             Recording
           </.label>
           <div class="col-sm-8 col-9">

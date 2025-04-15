@@ -1,11 +1,10 @@
 defmodule Asciinema.Repo.Migrations.InsertUpgradeJobs do
   use Ecto.Migration
-  alias Asciinema.Workers.InitialSeed
 
   def up do
     %{}
-    |> Oban.Job.new(worker: InitialSeed)
-    |> Oban.insert!()
+    |> Oban.Job.new(worker: Asciinema.Workers.InitialSeed)
+    |> Asciinema.Repo.insert!()
 
     :ok
   end

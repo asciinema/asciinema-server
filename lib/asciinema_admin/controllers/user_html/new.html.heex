@@ -1,0 +1,22 @@
+<h2><a href={~p"/admin/users"}>Users</a> &rsaquo; New</h2>
+
+<hr />
+<br />
+
+<.form :let={f} for={@changeset} action={~p"/admin/users"}>
+  <p>
+    <.label for={f[:email]}>Email</.label>
+    <.input field={f[:email]} type="email" required />
+    <.error field={f[:email]} />
+  </p>
+
+  <p>
+    <.label for={f[:username]}>Username</.label>
+    <.input field={f[:username]} required />
+    <.error field={f[:username]} />
+  </p>
+
+  <p>
+    <button type="submit">Add</button>
+  </p>
+</.form>

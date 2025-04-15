@@ -38,7 +38,7 @@ defmodule Asciinema.Application do
       # Start the public endpoint
       AsciinemaWeb.Endpoint,
       # Start the admin endpoint
-      AsciinemaWeb.Admin.Endpoint
+      AsciinemaAdmin.Endpoint
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

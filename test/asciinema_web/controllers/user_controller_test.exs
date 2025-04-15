@@ -83,7 +83,14 @@ defmodule AsciinemaWeb.UserControllerTest do
       user = insert(:user, username: "dracula3000")
       insert(:asciicast, user: user, visibility: :public, title: "Public stuff")
       insert(:asciicast, user: user, visibility: :unlisted, title: "Unlisted stuff")
-      insert(:asciicast, user: user, visibility: :private, title: "Private stuff")
+
+      insert(:asciicast,
+        user: user,
+        visibility: :private,
+        title: "Private stuff",
+        term_theme_name: "dracula"
+      )
+
       conn = log_in(conn, user)
 
       conn = get(conn, ~p"/~dracula3000")

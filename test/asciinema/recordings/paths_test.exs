@@ -47,6 +47,18 @@ defmodule Asciinema.Recordings.PathsTest do
 
       assert path == "asciicasts/54/32/12345.cast"
     end
+
+    test "interpolates env vars" do
+      Application.put_env(:asciinema, Paths,
+        recording: "recordings/{env:A_YES}-{env:A_NOPE?nope}-{env:NADA?}/{id}.{ext}"
+      )
+
+      asciicast = build_asciicast(env: %{"A_YES" => "yes"})
+
+      path = Paths.path(asciicast)
+
+      assert path == "recordings/yes-nope-/123.cast"
+    end
   end
 
   describe "path/2" do

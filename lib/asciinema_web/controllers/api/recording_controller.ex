@@ -20,12 +20,12 @@ defmodule AsciinemaWeb.Api.RecordingController do
         |> put_resp_header("location", url)
         |> render(:created, url: url, install_id: conn.assigns.install_id)
 
-      {:error, :unknown_format} ->
+      {:error, :invalid_format} ->
         conn
         |> put_status(:bad_request)
         |> text("This doesn't look like a valid asciicast file")
 
-      {:error, {:unsupported_format, version}} ->
+      {:error, {:invalid_version, version}} ->
         conn
         |> put_status(:unprocessable_entity)
         |> text("asciicast v#{version} format is not supported by this server")

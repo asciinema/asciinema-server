@@ -29,6 +29,7 @@ defmodule AsciinemaWeb.UrlHelpers do
     case asciicast.version do
       1 -> "json"
       2 -> "cast"
+      3 -> "cast"
     end
   end
 

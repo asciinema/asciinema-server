@@ -2,6 +2,7 @@ defmodule Asciinema.Streaming.StreamServer do
   use GenServer, restart: :temporary
   use Asciinema.Config
   alias Asciinema.Recordings
+  alias Asciinema.Recordings.Asciicast.V3
   alias Asciinema.Streaming.ViewerTracker
   alias Asciinema.{Colors, PubSub, Streaming, Vt}
   require Logger
@@ -67,12 +68,12 @@ defmodule Asciinema.Streaming.StreamServer do
       vt_size: nil,
       theme: nil,
       last_event_id: 0,
-      base_stream_time: nil,
+      base_stream_time: 0,
       last_stream_time: nil,
       last_event_time: nil,
       user_agent: nil,
       path: nil,
-      file: nil,
+      writer: nil,
       shutdown_timer: nil,
       viewer_count: viewer_count
     }
@@ -100,10 +101,20 @@ defmodule Asciinema.Streaming.StreamServer do
     %{time: time, last_id: last_id, term_size: {cols, rows}} = args
     theme = args[:term_theme]
     last_started_at = Timex.shift(Timex.now(), microseconds: -round(time))
+    term_type = get_in(query, ["term", "type"])
+    term_version = get_in(query, ["term", "version"])
+    env = query["env"] || %{}
 
     schema_changes =
       Keyword.merge(
-        [online: true, last_started_at: last_started_at, cols: cols, rows: rows],
+        [
+          online: true,
+          last_started_at: last_started_at,
+          term_cols: cols,
+          term_rows: rows,
+          term_type: term_type,
+          term_version: term_version
+        ],
         schema_theme_fields(theme)
       )
 
@@ -113,7 +124,16 @@ defmodule Asciinema.Streaming.StreamServer do
       |> update_base_stream_time(last_id, time)
       |> update_last_stream_time(time)
       |> update_schema(schema_changes)
-      |> restart_recording(last_id, cols, rows, args[:term_init], theme, query)
+      |> restart_recording(
+        last_id,
+        cols,
+        rows,
+        args[:term_init],
+        term_type,
+        term_version,
+        theme,
+        env
+      )
       |> save_event_id(last_id)
 
     if term_init = args[:term_init] do
@@ -129,7 +149,7 @@ defmodule Asciinema.Streaming.StreamServer do
     %{id: id, time: time, text: text} = data
     Vt.feed(state.vt, text)
     publish(state.stream_id, :output, data)
-    write_asciicast_v2_event(state, time, "o", text)
+    write_asciicast_event(state, time, "o", text)
 
     state =
       state
@@ -142,7 +162,7 @@ defmodule Asciinema.Streaming.StreamServer do
   def handle_call({:event, {:input, data}}, _from, state) do
     %{id: id, time: time, text: text} = data
     publish(state.stream_id, :input, data)
-    write_asciicast_v2_event(state, time, "i", text)
+    write_asciicast_event(state, time, "i", text)
 
     state =
       state
@@ -156,7 +176,7 @@ defmodule Asciinema.Streaming.StreamServer do
     %{id: id, time: time, term_size: {cols, rows} = vt_size} = data
     Vt.resize(state.vt, cols, rows)
     publish(state.stream_id, :resize, data)
-    write_asciicast_v2_event(state, time, "r", "#{cols}x#{rows}")
+    write_asciicast_event(state, time, "r", {cols, rows})
 
     state =
       state
@@ -170,7 +190,7 @@ defmodule Asciinema.Streaming.StreamServer do
   def handle_call({:event, {:marker, data}}, _from, state) do
     %{id: id, time: time, label: label} = data
     publish(state.stream_id, :marker, data)
-    write_asciicast_v2_event(state, time, "m", label)
+    write_asciicast_event(state, time, "m", label)
 
     state =
       state
@@ -226,8 +246,8 @@ defmodule Asciinema.Streaming.StreamServer do
     state =
       update_schema(state,
         current_viewer_count: state.viewer_count,
-        cols: cols,
-        rows: rows,
+        term_cols: cols,
+        term_rows: rows,
         snapshot: generate_snapshot(state.vt)
       )
 
@@ -262,8 +282,8 @@ defmodule Asciinema.Streaming.StreamServer do
   defp via_tuple(stream_id),
     do: {:via, Horde.Registry, {Asciinema.Streaming.StreamRegistry, stream_id}}
 
-  defp update_base_stream_time(state, last_event_id, time) do
-    if in_sync?(state, last_event_id) do
+  defp update_base_stream_time(state, client_last_event_id, time) do
+    if client_last_event_id == state.last_event_id do
       state
     else
       %{state | base_stream_time: time}
@@ -298,32 +318,42 @@ defmodule Asciinema.Streaming.StreamServer do
     %{state | vt: vt, vt_size: {cols, rows}}
   end
 
-  defp restart_recording(state, last_event_id, cols, rows, term_init, theme, query) do
-    if in_sync?(state, last_event_id) do
+  defp restart_recording(
+         state,
+         client_last_event_id,
+         cols,
+         rows,
+         term_init,
+         term_type,
+         term_version,
+         theme,
+         env
+       ) do
+    if client_last_event_id == state.last_event_id and client_last_event_id != 0 do
       state
     else
       state
       |> end_recording()
-      |> start_recording(cols, rows, term_init, theme, query)
+      |> start_recording(cols, rows, term_init, term_type, term_version, theme, env)
     end
   end
 
-  defp start_recording(state, cols, rows, term_init, theme, query) do
+  defp start_recording(state, cols, rows, term_init, term_type, term_version, theme, env) do
     mode = recording_mode()
     user = state.stream.user
 
     if mode == :forced or (mode == :allowed && user.stream_recording_enabled) do
-      create_asciicast_v2_file(state, cols, rows, term_init, theme, query)
+      create_asciicast_file(state, cols, rows, term_init, term_type, term_version, theme, env)
     else
       state
     end
   end
 
-  defp end_recording(%{file: nil} = state), do: state
+  defp end_recording(%{writer: nil} = state), do: state
 
-  defp end_recording(%{file: file} = state) do
+  defp end_recording(%{writer: writer} = state) do
     Logger.info("stream/#{state.stream_id}: creating recording")
-    :ok = File.close(file)
+    :ok = V3.close(writer)
 
     upload = %Plug.Upload{
       path: state.path,
@@ -339,74 +369,37 @@ defmodule Asciinema.Streaming.StreamServer do
     {:ok, _} = Recordings.create_asciicast(state.stream.user, upload, fields)
     File.rm(state.path)
 
-    %{state | path: nil, file: nil}
+    %{state | path: nil, writer: nil}
   end
 
-  defp create_asciicast_v2_file(state, cols, rows, term_init, theme, query) do
+  defp create_asciicast_file(state, cols, rows, term_init, term_type, term_version, theme, env) do
     path = Briefly.create!()
-    file = File.open!(path, [:write, :utf8])
-    state = %{state | path: path, file: file}
     timestamp = Timex.to_unix(Timex.now())
 
-    env =
-      %{"TERM" => query["term"], "SHELL" => query["shell"]}
-      |> Enum.filter(fn {_k, v} -> v != nil and v != "" end)
-      |> Enum.into(%{})
-
-    write_asciicast_v2_header(file, cols, rows, timestamp, env, theme)
+    {:ok, writer} =
+      V3.create(path, {cols, rows},
+        term_type: term_type,
+        term_version: term_version,
+        term_theme: theme,
+        env: env,
+        timestamp: timestamp
+      )
 
     if term_init not in [nil, ""] do
-      write_asciicast_v2_event(state, state.base_stream_time, "o", term_init)
+      {:ok, writer} = V3.write_event(writer, 0, "o", term_init)
+
+      %{state | path: path, writer: writer}
+    else
+      %{state | path: path, writer: writer}
     end
-
-    state
   end
 
-  defp write_asciicast_v2_header(file, cols, rows, timestamp, env, theme) do
-    header =
-      %{
-        version: 2,
-        width: cols,
-        height: rows,
-        timestamp: timestamp,
-        env: env,
-        theme: asciicast_theme(theme)
-      }
-      |> Enum.filter(fn {_k, v} -> v != nil and v != %{} end)
-      |> Enum.into(%{})
+  defp write_asciicast_event(%{writer: nil} = state, _time, _type, _data), do: state
 
-    :ok = IO.write(file, Jason.encode!(header) <> "\n")
-  end
+  defp write_asciicast_event(%{writer: writer} = state, time, type, data) do
+    {:ok, writer} = V3.write_event(writer, time - state.base_stream_time, type, data)
 
-  defp write_asciicast_v2_event(%{file: nil} = _state, _time, _type, _data), do: :ok
-
-  defp write_asciicast_v2_event(%{file: file} = state, time, type, data) do
-    time = serialize_time(time - state.base_stream_time)
-    data = Jason.encode!(data)
-    event = "[#{time}, \"#{type}\", #{data}]"
-    :ok = IO.write(file, event <> "\n")
-  end
-
-  defp in_sync?(state, last_event_id),
-    do: last_event_id != 0 and last_event_id == state.last_event_id
-
-  defp serialize_time(time) do
-    whole = div(time, 1_000_000)
-
-    decimal =
-      time
-      |> rem(1_000_000)
-      |> to_string()
-      |> String.pad_leading(6, "0")
-      |> String.trim_trailing("0")
-
-    decimal =
-      case decimal do
-        "" -> "0"
-        d -> d
-      end
-
-    "#{whole}.#{decimal}"
+    %{state | writer: writer}
   end
 
   defp save_event_id(state, id), do: %{state | last_event_id: id}
@@ -427,7 +420,8 @@ defmodule Asciinema.Streaming.StreamServer do
     last_stream_time + Timex.diff(Timex.now(), last_event_time, :microseconds)
   end
 
-  defp schema_theme_fields(nil), do: [theme_fg: nil, theme_bg: nil, theme_palette: nil]
+  defp schema_theme_fields(nil),
+    do: [term_theme_fg: nil, term_theme_bg: nil, term_theme_palette: nil]
 
   defp schema_theme_fields(theme) do
     palette =
@@ -436,25 +430,10 @@ defmodule Asciinema.Streaming.StreamServer do
       |> Enum.join(":")
 
     [
-      theme_fg: Colors.hex(theme.fg),
-      theme_bg: Colors.hex(theme.bg),
-      theme_palette: palette
+      term_theme_fg: Colors.hex(theme.fg),
+      term_theme_bg: Colors.hex(theme.bg),
+      term_theme_palette: palette
     ]
-  end
-
-  defp asciicast_theme(nil), do: nil
-
-  defp asciicast_theme(theme) do
-    palette =
-      theme.palette
-      |> Enum.map(&Colors.hex/1)
-      |> Enum.join(":")
-
-    %{
-      fg: Colors.hex(theme.fg),
-      bg: Colors.hex(theme.bg),
-      palette: palette
-    }
   end
 
   defp generate_snapshot(vt) do

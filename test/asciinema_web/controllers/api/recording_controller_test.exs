@@ -27,7 +27,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
   describe "create" do
     test "json file, v1 format", %{conn: conn} do
-      upload = fixture(:upload, %{path: "1/asciicast.json"})
+      upload = fixture(:upload, %{path: "1/full.json"})
 
       conn = upload(conn, upload)
 
@@ -78,7 +78,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
     end
 
     test "non-json file", %{conn: conn} do
-      upload = fixture(:upload, %{path: "new-logo-bars.png"})
+      upload = fixture(:upload, %{path: "favicon.png"})
 
       conn = upload(conn, upload)
 
@@ -87,7 +87,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
     test "authenticated user when auth is not required", %{conn: conn, token: token} do
       insert(:cli, token: token)
-      upload = fixture(:upload, %{path: "1/asciicast.json"})
+      upload = fixture(:upload, %{path: "1/full.json"})
 
       conn = upload(conn, upload)
 
@@ -117,7 +117,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
     @tag token: nil
     test "no authentication", %{conn: conn} do
-      upload = fixture(:upload, %{path: "1/asciicast.json"})
+      upload = fixture(:upload, %{path: "1/full.json"})
 
       conn = upload(conn, upload)
 
@@ -127,7 +127,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
     test "authentication with revoked token", %{conn: conn, token: token} do
       insert(:cli, token: token)
       token |> Accounts.get_cli!() |> Accounts.revoke_cli!()
-      upload = fixture(:upload, %{path: "1/asciicast.json"})
+      upload = fixture(:upload, %{path: "1/full.json"})
 
       conn = upload(conn, upload)
 
@@ -136,7 +136,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
     @tag token: "invalid-lol"
     test "authentication with invalid token", %{conn: conn} do
-      upload = fixture(:upload, %{path: "1/asciicast.json"})
+      upload = fixture(:upload, %{path: "1/full.json"})
 
       conn = upload(conn, upload)
 

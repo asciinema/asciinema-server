@@ -4,21 +4,23 @@ defmodule Asciinema.Streaming.Stream do
   schema "streams" do
     field :public_token, :string
     field :producer_token, :string
-    field :visibility, Ecto.Enum, values: [:private, :unlisted, :public], default: :unlisted
-    field :cols, :integer
-    field :rows, :integer
+    field :visibility, Ecto.Enum, values: ~w[private unlisted public]a, default: :unlisted
+    field :term_cols, :integer
+    field :term_rows, :integer
+    field :term_type, :string
+    field :term_version, :string
+    field :term_theme_name, :string
+    field :term_theme_fg, :string
+    field :term_theme_bg, :string
+    field :term_theme_palette, :string
+    field :term_theme_prefer_original, :boolean, default: true
+    field :term_line_height, :float
+    field :term_font_family, :string
     field :online, :boolean
     field :last_activity_at, :naive_datetime
     field :last_started_at, :naive_datetime
     field :title, :string
     field :description, :string
-    field :theme_name, :string
-    field :theme_fg, :string
-    field :theme_bg, :string
-    field :theme_palette, :string
-    field :theme_prefer_original, :boolean, default: true
-    field :terminal_line_height, :float
-    field :terminal_font_family, :string
     field :current_viewer_count, :integer
     field :peak_viewer_count, :integer
     field :buffer_time, :float

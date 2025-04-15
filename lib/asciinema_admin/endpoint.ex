@@ -1,4 +1,4 @@
-defmodule AsciinemaWeb.Admin.Endpoint do
+defmodule AsciinemaAdmin.Endpoint do
   use Phoenix.Endpoint, otp_app: :asciinema
 
   @session_options [
@@ -9,6 +9,16 @@ defmodule AsciinemaWeb.Admin.Endpoint do
   ]
 
   socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]]
+
+  # Serve at "/" the static files from "priv/static" directory.
+  #
+  # You should set gzip to true if you are running phx.digest
+  # when deploying your static files in production.
+  plug Plug.Static,
+    at: "/",
+    from: :asciinema,
+    gzip: true,
+    only: AsciinemaAdmin.static_paths()
 
   if code_reloading? do
     socket "/phoenix/live_reload/socket", Phoenix.LiveReloader.Socket
@@ -29,5 +39,5 @@ defmodule AsciinemaWeb.Admin.Endpoint do
   plug Plug.MethodOverride
   plug Plug.Head
   plug Plug.Session, @session_options
-  plug AsciinemaWeb.Admin.Router
+  plug AsciinemaAdmin.Router
 end

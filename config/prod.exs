@@ -20,7 +20,7 @@ config :asciinema, AsciinemaWeb.Endpoint,
   ],
   cache_static_manifest: "priv/static/cache_manifest.json"
 
-config :asciinema, AsciinemaWeb.Admin.Endpoint,
+config :asciinema, AsciinemaAdmin.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4002],
   check_origin: false
 

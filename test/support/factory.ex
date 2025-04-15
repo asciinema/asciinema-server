@@ -9,7 +9,9 @@ defmodule Asciinema.Factory do
     %User{
       username: sequence(:username, &"username-#{&1}"),
       email: sequence(:email, &"email-#{&1}@example.com"),
-      auth_token: Crypto.random_token(20)
+      auth_token: Crypto.random_token(20),
+      default_recording_visibility: :unlisted,
+      default_stream_visibility: :unlisted
     }
   end
 
@@ -42,8 +44,8 @@ defmodule Asciinema.Factory do
       version: 1,
       path: sequence(:path, &"recordings/#{&1}.json"),
       duration: 123.45,
-      cols: 80,
-      rows: 24,
+      term_cols: 80,
+      term_rows: 24,
       secret_token: sequence(:secret_token, &secret_token/1),
       snapshot: [[["foo", %{}]], [["bar", %{}]]]
     }
@@ -55,8 +57,8 @@ defmodule Asciinema.Factory do
       version: 2,
       path: sequence(:path, &"recordings/#{&1}.cast"),
       duration: 123.45,
-      cols: 80,
-      rows: 24,
+      term_cols: 80,
+      term_rows: 24,
       secret_token: sequence(:secret_token, &secret_token/1),
       snapshot: [[["foo", %{}]], [["bar", %{}]]]
     }
@@ -91,6 +93,7 @@ defmodule Asciinema.Factory do
       case asciicast.version do
         1 -> "welcome.json"
         2 -> "welcome.cast"
+        3 -> "welcome.cast"
       end
 
     :ok = FileStore.put_file(asciicast.path, "test/fixtures/#{src}", "application/json")

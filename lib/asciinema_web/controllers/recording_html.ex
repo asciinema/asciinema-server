@@ -11,7 +11,7 @@ defmodule AsciinemaWeb.RecordingHTML do
   defdelegate author_avatar_url(asciicast), to: MediaView
   defdelegate author_profile_path(asciicast), to: MediaView
   defdelegate theme(asciicast), to: Media
-  defdelegate theme_name(asciicast), to: Media
+  defdelegate term_theme_name(asciicast), to: Media
   defdelegate theme_options(asciicast), to: MediaView
   defdelegate font_family_options, to: MediaView
   defdelegate username(user), to: UserHTML
@@ -21,10 +21,10 @@ defmodule AsciinemaWeb.RecordingHTML do
 
   def player_opts(asciicast, opts) do
     [
-      cols: cols(asciicast),
-      rows: rows(asciicast),
-      theme: Media.theme_name(asciicast),
-      terminalLineHeight: asciicast.terminal_line_height,
+      cols: term_cols(asciicast),
+      rows: term_rows(asciicast),
+      theme: Media.term_theme_name(asciicast),
+      terminalLineHeight: asciicast.term_line_height,
       customTerminalFontFamily: Media.font_family(asciicast),
       poster: poster(asciicast.snapshot),
       markers: markers(asciicast.markers),
@@ -37,7 +37,7 @@ defmodule AsciinemaWeb.RecordingHTML do
   end
 
   def cinema_height(asciicast) do
-    MediaView.cinema_height(cols(asciicast), rows(asciicast))
+    MediaView.cinema_height(term_cols(asciicast), term_rows(asciicast))
   end
 
   def embed_script(asciicast) do
@@ -85,12 +85,12 @@ defmodule AsciinemaWeb.RecordingHTML do
     end
   end
 
-  def cols(asciicast), do: asciicast.cols_override || asciicast.cols
+  def term_cols(asciicast), do: asciicast.term_cols_override || asciicast.term_cols
 
-  def rows(asciicast), do: asciicast.rows_override || asciicast.rows
+  def term_rows(asciicast), do: asciicast.term_rows_override || asciicast.term_rows
 
   def default_theme_display_name(asciicast) do
-    "Account default (#{Themes.display_name(Accounts.default_theme_name(asciicast.user) || "asciinema")})"
+    "Account default (#{Themes.display_name(Accounts.default_term_theme_name(asciicast.user) || "asciinema")})"
   end
 
   def default_font_display_name(user) do
@@ -120,6 +120,7 @@ defmodule AsciinemaWeb.RecordingHTML do
     case asciicast.version do
       1 -> "application/asciicast+json"
       2 -> "application/x-asciicast"
+      3 -> "application/x-asciicast"
       _ -> nil
     end
   end
@@ -174,21 +175,50 @@ defmodule AsciinemaWeb.RecordingHTML do
   end
 
   defp os_info(asciicast) do
-    os_from_user_agent(asciicast) || os_from_uname(asciicast)
+    os_from_user_agent(asciicast.user_agent) || os_from_uname(asciicast)
   end
 
-  defp os_from_user_agent(asciicast) do
-    if ua = asciicast.user_agent do
-      if match = Regex.run(~r{^asciinema/\d(\.\d+)+ [^/\s]+/[^/\s]+ (.+)$}, ua) do
-        [_, _, os] = match
+  @doc """
+  iex> os_from_user_agent(nil)
+  nil
 
-        os
-        |> String.replace("-", "/")
-        |> String.split("/")
-        |> List.first()
-        |> String.replace(~r/^Linux$/i, "GNU/Linux")
-        |> String.replace(~r/Darwin/i, "macOS")
-      end
+  iex> os_from_user_agent("foo")
+  nil
+
+  iex> os_from_user_agent("asciinema/99.9.9 target/x99_64-unknown-lol-bye")
+  nil
+
+  iex> os_from_user_agent("asciinema/3.0.0-rc.3 target/x86_64-unknown-linux-gnu")
+  "GNU/Linux"
+
+  iex> os_from_user_agent("asciinema/2.4.0 CPython/3.11.6 Linux/6.1.68-x86_64-with-glibc2.38")
+  "GNU/Linux"
+
+  iex> os_from_user_agent("asciinema/2.4.0 CPython/3.13.2 macOS/14.6.1-arm64-arm-64bit-Mach-O")
+  "macOS"
+
+  iex> os_from_user_agent("asciinema/2.4.0 CPython/3.12.3 Linux/5.15.167.4-microsoft-standard-WSL2-x86_64-with-glibc2.39")
+  "WSL2"
+
+  iex> os_from_user_agent("asciinema/3.0.0-rc.3 target/aarch64-apple-darwin")
+  "macOS"
+
+  iex> os_from_user_agent("asciinema/2.4.0 CPython/3.11.11 FreeBSD/14.2-RELEASE-p1-amd64-64bit-ELF")
+  "FreeBSD"
+
+  iex> os_from_user_agent("asciinema/2.4.0 CPython/3.12.9 OpenBSD/7.7-amd64-64bit-ELF")
+  "OpenBSD"
+  """
+  def os_from_user_agent(nil), do: nil
+
+  def os_from_user_agent(user_agent) do
+    cond do
+      user_agent =~ ~r/WSL2/ -> "WSL2"
+      user_agent =~ ~r/linux/i -> "GNU/Linux"
+      user_agent =~ ~r/macos|darwin/i -> "macOS"
+      user_agent =~ ~r/freebsd/i -> "FreeBSD"
+      user_agent =~ ~r/openbsd/i -> "OpenBSD"
+      true -> nil
     end
   end
 
@@ -209,7 +239,7 @@ defmodule AsciinemaWeb.RecordingHTML do
   end
 
   defp term_info(asciicast) do
-    asciicast.terminal_type
+    asciicast.term_type
   end
 
   def views_count(asciicast) do

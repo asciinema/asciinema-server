@@ -245,6 +245,7 @@ defmodule AsciinemaWeb.RecordingController do
       0 -> "#{id}.json"
       1 -> "#{id}.json"
       2 -> "#{id}.cast"
+      3 -> "#{id}.cast"
     end
   end
 

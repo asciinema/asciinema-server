@@ -3,6 +3,7 @@ defmodule Asciinema.Recordings do
   import Ecto, only: [build_assoc: 2]
   import Ecto.Changeset
   import Ecto.Query, warn: false
+  alias Asciinema.Recordings.Asciicast.{V1, V2, V3}
   alias Asciinema.{FileStore, Fonts, Repo, Themes, Vt}
   alias Asciinema.Workers.{MigrateRecordingFiles, UpdateSnapshot}
 
@@ -10,7 +11,6 @@ defmodule Asciinema.Recordings do
     Asciicast,
     Markers,
     Paths,
-    EventStream,
     Text
   }
 
@@ -141,7 +141,7 @@ defmodule Asciinema.Recordings do
       Map.merge(
         %{
           filename: filename,
-          visibility: user.default_asciicast_visibility,
+          visibility: user.default_recording_visibility,
           secret_token: Crypto.random_token(25)
         },
         fields
@@ -153,7 +153,7 @@ defmodule Asciinema.Recordings do
       |> change(attrs)
 
     with {:ok, metadata} <- extract_metadata(upload),
-         changeset = apply_metadata(changeset, metadata, user.theme_prefer_original),
+         changeset = apply_metadata(changeset, metadata, user.term_theme_prefer_original),
          {:ok, %Asciicast{} = asciicast} <- do_create_asciicast(changeset, upload) do
       if asciicast.snapshot == nil do
         %{asciicast_id: asciicast.id}
@@ -165,125 +165,64 @@ defmodule Asciinema.Recordings do
     end
   end
 
-  defp extract_metadata(%{"version" => 0} = attrs) do
-    attrs = %{
-      version: 0,
-      cols: get_in(attrs, ["term", "columns"]),
-      rows: get_in(attrs, ["term", "lines"]),
-      terminal_type: get_in(attrs, ["term", "type"]),
-      command: attrs["command"],
-      duration: attrs["duration"],
-      title: attrs["title"],
-      shell: attrs["shell"],
-      uname: attrs["uname"]
-    }
-
-    {:ok, attrs}
-  end
-
   defp extract_metadata(%Plug.Upload{path: path}) do
-    case extract_v2_metadata(path) do
-      {:error, :unknown_format} -> extract_v1_metadata(path)
-      result -> result
+    case V2.fetch_metadata(path) do
+      {:ok, metadata} -> {:ok, metadata}
+      {:error, {:invalid_version, 3}} -> V3.fetch_metadata(path)
+      {:error, :invalid_format} -> V1.fetch_metadata(path)
     end
-  end
-
-  defp extract_v1_metadata(path) do
-    with {:ok, json} <- File.read(path),
-         {:ok, %{"version" => 1} = attrs} <- decode_json(json) do
-      metadata = %{
-        version: 1,
-        cols: attrs["width"],
-        rows: attrs["height"],
-        terminal_type: get_in(attrs, ["env", "TERM"]),
-        command: attrs["command"],
-        duration: attrs["duration"],
-        title: attrs["title"],
-        shell: get_in(attrs, ["env", "SHELL"])
-      }
-
-      {:ok, metadata}
-    else
-      {:ok, %{"version" => version}} ->
-        {:error, {:unsupported_format, version}}
-
-      otherwise ->
-        Logger.warning("error extracting v1 metadata: #{inspect(otherwise)}")
-        {:error, :unknown_format}
-    end
-  end
-
-  defp extract_v2_metadata(path) do
-    with {:ok, line} when is_binary(line) <- File.open(path, fn f -> IO.read(f, :line) end),
-         {:ok, %{"version" => 2} = header} <- decode_json(line) do
-      metadata = %{
-        version: 2,
-        cols: header["width"],
-        rows: header["height"],
-        terminal_type: get_in(header, ["env", "TERM"]),
-        command: header["command"],
-        duration: get_v2_duration(path),
-        recorded_at: header["timestamp"] && Timex.from_unix(header["timestamp"]),
-        title: header["title"],
-        theme_fg: get_in(header, ["theme", "fg"]),
-        theme_bg: get_in(header, ["theme", "bg"]),
-        theme_palette: get_in(header, ["theme", "palette"]),
-        idle_time_limit: header["idle_time_limit"],
-        shell: get_in(header, ["env", "SHELL"])
-      }
-
-      {:ok, metadata}
-    else
-      {:ok, %{"version" => version}} ->
-        {:error, {:unsupported_format, version}}
-
-      otherwise ->
-        Logger.warning("error extracting v2 metadata: #{inspect(otherwise)}")
-        {:error, :unknown_format}
-    end
-  end
-
-  defp get_v2_duration(path) do
-    path
-    |> EventStream.new()
-    |> EventStream.duration()
   end
 
   @hex_color_re ~r/^#[0-9a-f]{6}$/
   @hex_palette_re ~r/^(#[0-9a-f]{6}:){7}((#[0-9a-f]{6}:){8})?#[0-9a-f]{6}$/
 
   defp apply_metadata(changeset, metadata, prefer_original_theme) do
-    theme_name = if metadata[:theme_palette] && prefer_original_theme, do: "original"
+    term_theme_name = if metadata[:term_theme_palette] && prefer_original_theme, do: "original"
 
     changeset
     |> put_change(:version, metadata.version)
-    |> put_change(:theme_name, theme_name)
+    |> put_change(:term_theme_name, term_theme_name)
     |> cast(metadata, [
       :duration,
-      :cols,
-      :rows,
-      :terminal_type,
+      :term_cols,
+      :term_rows,
+      :term_type,
+      :term_theme_fg,
+      :term_theme_bg,
+      :term_theme_palette,
       :command,
       :shell,
       :uname,
       :recorded_at,
-      :theme_fg,
-      :theme_bg,
-      :theme_palette,
+      :env,
       :idle_time_limit,
       :title
     ])
-    |> validate_required([:duration, :cols, :rows])
-    |> validate_format(:theme_fg, @hex_color_re)
-    |> validate_format(:theme_bg, @hex_color_re)
-    |> validate_format(:theme_palette, @hex_palette_re)
+    |> validate_required([:duration, :term_cols, :term_rows])
+    |> validate_format(:term_theme_fg, @hex_color_re)
+    |> validate_format(:term_theme_bg, @hex_color_re)
+    |> validate_format(:term_theme_palette, @hex_palette_re)
+    |> validate_change(:env, &validate_env/2)
   end
 
-  defp decode_json(json) do
-    case Jason.decode(json) do
-      {:ok, thing} -> {:ok, thing}
-      {:error, %Jason.DecodeError{}} -> {:error, :invalid}
-    end
+  defp validate_env(:env, env) do
+    errors = []
+
+    errors =
+      if Enum.all?(Map.keys(env), &String.match?(&1, ~r/^[A-Z0-9_]+$/)) do
+        errors
+      else
+        [{:env, "must include valid env var names"} | errors]
+      end
+
+    errors =
+      if Enum.all?(Map.values(env), &is_binary/1) do
+        errors
+      else
+        [{:env, "must include only string values"} | errors]
+      end
+
+    errors
   end
 
   defp do_create_asciicast(changeset, file) do
@@ -316,25 +255,25 @@ defmodule Asciinema.Recordings do
       :visibility,
       :title,
       :description,
-      :cols_override,
-      :rows_override,
-      :theme_name,
+      :term_cols_override,
+      :term_rows_override,
+      :term_theme_name,
+      :term_line_height,
+      :term_font_family,
       :idle_time_limit,
       :speed,
       :snapshot_at,
-      :terminal_line_height,
-      :terminal_font_family,
       :markers
     ])
-    |> validate_number(:cols_override, greater_than: 0, less_than: 1024)
-    |> validate_number(:rows_override, greater_than: 0, less_than: 512)
+    |> validate_number(:term_cols_override, greater_than: 0, less_than: 1024)
+    |> validate_number(:term_rows_override, greater_than: 0, less_than: 512)
     |> validate_number(:idle_time_limit, greater_than_or_equal_to: 0.5)
-    |> validate_inclusion(:theme_name, Themes.terminal_themes() ++ ["original"])
-    |> validate_number(:terminal_line_height,
+    |> validate_inclusion(:term_theme_name, Themes.terminal_themes() ++ ["original"])
+    |> validate_number(:term_line_height,
       greater_than_or_equal_to: 1.0,
       less_than_or_equal_to: 2.0
     )
-    |> validate_inclusion(:terminal_font_family, Fonts.terminal_font_families())
+    |> validate_inclusion(:term_font_family, Fonts.terminal_font_families())
     |> validate_number(:snapshot_at, greater_than: 0)
     |> validate_change(:markers, &Markers.validate/2)
   end
@@ -353,8 +292,8 @@ defmodule Asciinema.Recordings do
 
   defp stale_snapshot?(changeset) do
     changed?(changeset, :snapshot_at) ||
-      changed?(changeset, :cols_override) ||
-      changed?(changeset, :rows_override)
+      changed?(changeset, :term_cols_override) ||
+      changed?(changeset, :term_rows_override)
   end
 
   def set_featured(asciicast, featured \\ true) do
@@ -388,14 +327,14 @@ defmodule Asciinema.Recordings do
   end
 
   def update_snapshot(%Asciicast{} = asciicast) do
-    cols = asciicast.cols_override || asciicast.cols
-    rows = asciicast.rows_override || asciicast.rows
+    cols = asciicast.term_cols_override || asciicast.term_cols
+    rows = asciicast.term_rows_override || asciicast.term_rows
     secs = asciicast.snapshot_at || asciicast.duration / 2
 
     snapshot =
       asciicast
-      |> EventStream.new()
-      |> EventStream.output()
+      |> event_stream()
+      |> output()
       |> generate_snapshot(cols, rows, secs)
 
     asciicast
@@ -414,6 +353,23 @@ defmodule Asciinema.Recordings do
       end)
 
     {lines, cursor}
+  end
+
+  def event_stream(%Asciicast{} = asciicast) do
+    {:ok, local_tmp_path} = Briefly.create()
+    :ok = FileStore.download_file(asciicast.path, local_tmp_path)
+
+    case asciicast.version do
+      1 -> V1.event_stream(local_tmp_path)
+      2 -> V2.event_stream(local_tmp_path)
+      3 -> V3.event_stream(local_tmp_path)
+    end
+  end
+
+  def output(stream) do
+    stream
+    |> Stream.filter(fn {_, code, _} -> code == "o" end)
+    |> Stream.map(fn {time, _, data} -> {time, data} end)
   end
 
   def title(asciicast) do
@@ -496,22 +452,6 @@ defmodule Asciinema.Recordings do
     else
       asciicast
     end
-  end
-
-  def write_v2_file(output_stream, %{width: _, height: _} = header) do
-    {:ok, tmp_path} = Briefly.create()
-    header = Map.put(header, :version, 2)
-
-    File.open!(tmp_path, [:write, :utf8], fn f ->
-      :ok = IO.write(f, "#{Jason.encode!(header, pretty: false)}\n")
-
-      for {t, s} <- output_stream do
-        event = [t, "o", s]
-        :ok = IO.write(f, "#{Jason.encode!(event, pretty: false)}\n")
-      end
-    end)
-
-    tmp_path
   end
 
   def hide_unclaimed_asciicasts(tmp_users_query, t) do

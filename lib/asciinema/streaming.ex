@@ -91,7 +91,8 @@ defmodule Asciinema.Streaming do
     |> change(
       public_token: generate_public_token(),
       producer_token: generate_producer_token(),
-      theme_prefer_original: user.theme_prefer_original
+      visibility: user.default_stream_visibility,
+      term_theme_prefer_original: user.term_theme_prefer_original
     )
     |> put_assoc(:user, user)
     |> Repo.insert!()
@@ -115,21 +116,21 @@ defmodule Asciinema.Streaming do
       :title,
       :description,
       :visibility,
-      :theme_name,
-      :theme_prefer_original,
+      :term_theme_name,
+      :term_theme_prefer_original,
       :buffer_time,
-      :terminal_line_height,
-      :terminal_font_family
+      :term_line_height,
+      :term_font_family
     ])
     |> validate_number(:buffer_time,
       greater_than_or_equal_to: 0.0,
       less_than_or_equal_to: 30.0
     )
-    |> validate_number(:terminal_line_height,
+    |> validate_number(:term_line_height,
       greater_than_or_equal_to: 1.0,
       less_than_or_equal_to: 2.0
     )
-    |> validate_inclusion(:terminal_font_family, Fonts.terminal_font_families())
+    |> validate_inclusion(:term_font_family, Fonts.terminal_font_families())
   end
 
   def update_stream(stream, attrs) when is_list(attrs) do

@@ -2,41 +2,42 @@ defmodule Asciinema.Recordings.EventStreamTest do
   use Asciinema.DataCase
   alias Asciinema.Recordings.EventStream
 
-  describe "new/1" do
-    test "with asciicast v1 file" do
-      stream = EventStream.new("test/fixtures/1/asciicast.json")
+  describe "to_absolute_time/1" do
+    test "transforms relative timestamps to absolute" do
+      stream = [{0.0, "o", "a"}, {1.0, "o", "b"}, {0.5, "o", "c"}, {2.345, "o", "d"}]
 
-      assert :ok == Stream.run(stream)
-      assert [{1.234567, "o", "foo bar"}, {6.913554, "o", "baz qux"}] == Enum.take(stream, 2)
+      stream =
+        stream
+        |> EventStream.to_absolute_time()
+        |> Enum.to_list()
+
+      assert stream == [{0.0, "o", "a"}, {1.0, "o", "b"}, {1.5, "o", "c"}, {3.845, "o", "d"}]
     end
+  end
 
-    test "with asciicast v2 file" do
-      stream = EventStream.new("test/fixtures/2/minimal.cast")
+  describe "to_relative_time/1" do
+    test "transforms absolute timestamps to relative" do
+      stream = [{0.0, "o", "a"}, {1.0, "o", "b"}, {1.5, "o", "c"}, {3.845, "o", "d"}]
 
-      assert :ok == Stream.run(stream)
-      assert [{1.234567, "o", "foo bar"}, {5.678987, "o", "baz qux"}] == Enum.take(stream, 2)
+      stream =
+        stream
+        |> EventStream.to_relative_time()
+        |> Enum.to_list()
+
+      assert stream == [{0.0, "o", "a"}, {1.0, "o", "b"}, {0.5, "o", "c"}, {2.345, "o", "d"}]
     end
+  end
 
-    test "with asciicast v2 file, with idle_time_limit" do
-      stream = EventStream.new("test/fixtures/2/full.cast")
+  describe "cap_relative_time/2" do
+    test "caps relative time to a given limit" do
+      stream = [{0.0, "o", "a"}, {1.0, "o", "b"}, {2.5, "o", "c"}, {0.5, "o", "d"}]
 
-      assert :ok == Stream.run(stream)
+      stream =
+        stream
+        |> EventStream.cap_relative_time(2)
+        |> Enum.to_list()
 
-      assert [{1.234567, "o", "foo bar"}, {2.34567, "i", "\r"}, {4.84567, "o", "baz qux"}] ==
-               Enum.take(stream, 3)
-    end
-
-    test "with asciicast v2 file, with blank lines" do
-      stream = EventStream.new("test/fixtures/2/with-blank-lines.cast")
-
-      assert :ok == Stream.run(stream)
-
-      assert [
-               {1.234567, "o", "foo bar"},
-               {5.678987, "o", "baz qux"},
-               {8.456789, "o", "żółć jaźń"}
-             ] ==
-               Enum.to_list(stream)
+      assert stream == [{0.0, "o", "a"}, {1.0, "o", "b"}, {2.0, "o", "c"}, {0.5, "o", "d"}]
     end
   end
 end

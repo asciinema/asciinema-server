@@ -9,7 +9,7 @@ defmodule Asciinema.RecordingsTest do
       user = insert(:user)
       cli = insert(:cli, user: user)
       cli_id = cli.id
-      upload = fixture(:upload, %{path: "1/asciicast.json"})
+      upload = fixture(:upload, %{path: "1/full.json"})
 
       {:ok, asciicast} =
         Recordings.create_asciicast(user, upload, %{cli_id: cli_id, user_agent: "a/user/agent"})
@@ -17,11 +17,11 @@ defmodule Asciinema.RecordingsTest do
       assert %Asciicast{
                version: 1,
                command: "/bin/bash",
-               duration: 11.146430015564,
+               duration: 11.146430,
                shell: "/bin/zsh",
-               terminal_type: "screen-256color",
-               cols: 96,
-               rows: 26,
+               term_type: "screen-256color",
+               term_cols: 96,
+               term_rows: 26,
                title: "bashing :)",
                uname: nil,
                user_agent: "a/user/agent",
@@ -42,7 +42,7 @@ defmodule Asciinema.RecordingsTest do
       user = insert(:user)
       upload = fixture(:upload, %{path: "5/asciicast.json"})
 
-      assert {:error, {:unsupported_format, 5}} = Recordings.create_asciicast(user, upload)
+      assert {:error, {:invalid_version, 5}} = Recordings.create_asciicast(user, upload)
     end
 
     test "cast file, v2 format, minimal" do
@@ -56,17 +56,17 @@ defmodule Asciinema.RecordingsTest do
 
       assert %Asciicast{
                version: 2,
-               cols: 96,
-               rows: 26,
+               term_cols: 96,
+               term_rows: 26,
+               term_type: nil,
+               term_theme_fg: nil,
+               term_theme_bg: nil,
+               term_theme_palette: nil,
                duration: 8.456789,
                command: nil,
                recorded_at: nil,
                shell: nil,
-               terminal_type: nil,
                title: nil,
-               theme_fg: nil,
-               theme_bg: nil,
-               theme_palette: nil,
                idle_time_limit: nil,
                uname: nil,
                user_agent: "a/user/agent",
@@ -84,16 +84,16 @@ defmodule Asciinema.RecordingsTest do
 
       assert %Asciicast{
                version: 2,
-               cols: 96,
-               rows: 26,
+               term_cols: 96,
+               term_rows: 26,
                duration: 7.34567,
                command: "/bin/bash -l",
                shell: "/bin/zsh",
-               terminal_type: "screen-256color",
+               term_type: "screen-256color",
                title: "bashing :)",
-               theme_fg: "#aaaaaa",
-               theme_bg: "#bbbbbb",
-               theme_palette:
+               term_theme_fg: "#aaaaaa",
+               term_theme_bg: "#bbbbbb",
+               term_theme_palette:
                  "#151515:#ac4142:#7e8e50:#e5b567:#6c99bb:#9f4e85:#7dd6cf:#d0d0d0:#505050:#ac4142:#7e8e50:#e5b567:#6c99bb:#9f4e85:#7dd6cf:#f5f5f5",
                idle_time_limit: 2.5,
                uname: nil,
@@ -104,11 +104,11 @@ defmodule Asciinema.RecordingsTest do
       assert DateTime.to_unix(asciicast.recorded_at) == 1_506_410_422
     end
 
-    test "unknown file format" do
+    test "invalid file format" do
       user = insert(:user)
-      upload = fixture(:upload, %{path: "new-logo-bars.png"})
+      upload = fixture(:upload, %{path: "favicon.png"})
 
-      assert {:error, :unknown_format} = Recordings.create_asciicast(user, upload)
+      assert {:error, :invalid_format} = Recordings.create_asciicast(user, upload)
     end
   end
 
@@ -127,6 +127,24 @@ defmodule Asciinema.RecordingsTest do
 
       asciicast = insert(:asciicast_v2) |> with_file()
       assert {:ok, _asciicast} = Recordings.delete_asciicast(asciicast)
+    end
+  end
+
+  describe "event_stream/1" do
+    test "with asciicast v1 file" do
+      asciicast = insert(:asciicast_v1) |> with_file()
+
+      stream = Recordings.event_stream(asciicast)
+
+      assert Enum.count(stream) == 785
+    end
+
+    test "with asciicast v2 file" do
+      asciicast = insert(:asciicast_v2) |> with_file()
+
+      stream = Recordings.event_stream(asciicast)
+
+      assert Enum.count(stream) == 786
     end
   end
 

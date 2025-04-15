@@ -47,7 +47,7 @@ config :asciinema, AsciinemaWeb.Endpoint,
   pubsub_server: Asciinema.PubSub
 
 # Configures the admin endpoint
-config :asciinema, AsciinemaWeb.Admin.Endpoint,
+config :asciinema, AsciinemaAdmin.Endpoint,
   url: [host: "localhost"],
   live_view: [signing_salt: "F3BMP7k9SZ-Y2SMJ"],
   pubsub_server: Asciinema.PubSub

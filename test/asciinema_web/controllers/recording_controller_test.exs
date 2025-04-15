@@ -112,7 +112,7 @@ defmodule AsciinemaWeb.RecordingControllerTest do
 
     test "asciicast file, v1 format", %{conn: conn} do
       asciicast = insert(:asciicast_v1) |> with_file()
-      width = asciicast.cols
+      width = asciicast.term_cols
       url = ~p"/a/#{asciicast}"
 
       conn = get(conn, url <> ".json")

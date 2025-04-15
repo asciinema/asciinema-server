@@ -43,21 +43,31 @@ defmodule Asciinema.Accounts do
     Repo.get_by(User, auth_token: auth_token)
   end
 
+  def list_users(limit \\ 1000) do
+    Repo.all(from(u in User, order_by: [asc: :id], limit: ^limit))
+  end
+
+  def build_user(attrs \\ %{}) do
+    Changeset.change(
+      %User{
+        default_recording_visibility: config(:default_recording_visibility, :unlisted),
+        default_stream_visibility: config(:default_stream_visibility, :unlisted)
+      },
+      attrs
+    )
+  end
+
   def create_user(attrs) do
     import Ecto.Changeset
 
-    result =
-      %User{}
-      |> cast(attrs, [:email])
-      |> validate_required([:email])
-      |> update_change(:email, &String.downcase/1)
-      |> validate_format(:email, @valid_email_re)
-      |> add_contraints()
-      |> Repo.insert()
-
-    with {:error, %Ecto.Changeset{errors: [{:email, _}]}} <- result do
-      {:error, :email_taken}
-    end
+    build_user()
+    |> cast(attrs, [:email, :username])
+    |> validate_required([:email])
+    |> update_change(:email, &String.downcase/1)
+    |> validate_format(:email, @valid_email_re)
+    |> validate_username()
+    |> add_contraints()
+    |> Repo.insert()
   end
 
   def ensure_asciinema_user do
@@ -69,8 +79,8 @@ defmodule Asciinema.Accounts do
           email: "admin@asciinema.org"
         }
 
-        %User{}
-        |> change_user(attrs)
+        attrs
+        |> build_user()
         |> Repo.insert!()
 
       user ->
@@ -86,20 +96,28 @@ defmodule Asciinema.Accounts do
       :email,
       :name,
       :username,
-      :theme_name,
-      :theme_prefer_original,
-      :terminal_font_family,
-      :default_asciicast_visibility,
+      :term_theme_name,
+      :term_theme_prefer_original,
+      :term_font_family,
+      :default_recording_visibility,
+      :default_stream_visibility,
       :stream_recording_enabled
     ])
     |> validate_required([:email])
     |> update_change(:email, &String.downcase/1)
     |> validate_format(:email, @valid_email_re)
+    |> validate_username()
+    |> validate_inclusion(:term_theme_name, Themes.terminal_themes())
+    |> validate_inclusion(:term_font_family, Fonts.terminal_font_families())
+    |> add_contraints()
+  end
+
+  defp validate_username(changeset) do
+    import Ecto.Changeset
+
+    changeset
     |> validate_format(:username, @valid_username_re)
     |> validate_length(:username, min: 2, max: 16)
-    |> validate_inclusion(:theme_name, Themes.terminal_themes())
-    |> validate_inclusion(:terminal_font_family, Fonts.terminal_font_families())
-    |> add_contraints()
   end
 
   defp add_contraints(changeset) do
@@ -224,26 +242,6 @@ defmodule Asciinema.Accounts do
 
   @uuid4 ~r/\A[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}\z/
 
-  defp create_cli(%User{} = user, install_id) do
-    import Changeset
-
-    result =
-      user
-      |> build_assoc(:clis)
-      |> change(%{token: install_id})
-      |> validate_format(:token, @uuid4)
-      |> unique_constraint(:token, name: "clis_token_index")
-      |> Repo.insert()
-
-    case result do
-      {:ok, cli} ->
-        {:ok, %{cli | user: user}}
-
-      {:error, %Ecto.Changeset{}} ->
-        {:error, :token_invalid}
-    end
-  end
-
   def register_cli(%User{} = user, install_id) do
     case fetch_cli(install_id) do
       {:ok, cli} ->
@@ -274,10 +272,35 @@ defmodule Asciinema.Accounts do
     end
   end
 
-  defp create_tmp_user(username) do
-    username = String.slice(username, 0, 16)
+  defp create_cli(%User{} = user, install_id) do
+    result =
+      user
+      |> new_cli(%{token: install_id})
+      |> Repo.insert()
 
-    Repo.insert!(%User{temporary_username: username})
+    case result do
+      {:ok, cli} ->
+        {:ok, %{cli | user: user}}
+
+      {:error, %Ecto.Changeset{}} ->
+        {:error, :token_invalid}
+    end
+  end
+
+  def new_cli(user, attrs \\ %{}) do
+    import Changeset
+
+    user
+    |> build_assoc(:clis)
+    |> cast(attrs, [:token])
+    |> validate_format(:token, @uuid4)
+    |> unique_constraint(:token, name: "clis_token_index")
+  end
+
+  defp create_tmp_user(username) do
+    %{temporary_username: String.slice(username, 0, 16)}
+    |> build_user()
+    |> Repo.insert!()
   end
 
   defp check_cli_ownership(user, cli) do
@@ -357,7 +380,7 @@ defmodule Asciinema.Accounts do
     :ok
   end
 
-  def default_theme_name(user), do: user.theme_name
+  def default_term_theme_name(user), do: user.term_theme_name
 
-  def default_font_family(user), do: user.terminal_font_family
+  def default_font_family(user), do: user.term_font_family
 end
