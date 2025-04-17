@@ -84,6 +84,9 @@ defmodule Asciinema.Recordings do
 
       :public ->
         where(q, [a], a.visibility == :public)
+
+      :snapshotless ->
+        where(q, [a], is_nil(a.snapshot))
     end
   end
 
