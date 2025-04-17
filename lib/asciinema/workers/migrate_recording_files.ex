@@ -18,16 +18,27 @@ defmodule Asciinema.Workers.MigrateRecordingFiles do
   end
 
   def perform(%Oban.Job{args: %{"user_id" => user_id}}) do
-    for recording <- Recordings.stream_migratable_asciicasts(user_id) do
-      Oban.insert!(__MODULE__.new(%{asciicast_id: recording.id}))
+    asciicasts =
+      {:user_id, user_id}
+      |> Recordings.query()
+      |> Recordings.stream()
+      |> Recordings.migratable()
+
+    for asciicast <- asciicasts do
+      Oban.insert!(__MODULE__.new(%{asciicast_id: asciicast.id}))
     end
 
     :ok
   end
 
   def perform(_job) do
-    for recording <- Recordings.stream_migratable_asciicasts() do
-      Oban.insert!(__MODULE__.new(%{asciicast_id: recording.id}))
+    asciicasts =
+      Recordings.query()
+      |> Recordings.stream()
+      |> Recordings.migratable()
+
+    for asciicast <- asciicasts do
+      Oban.insert!(__MODULE__.new(%{asciicast_id: asciicast.id}))
     end
 
     :ok

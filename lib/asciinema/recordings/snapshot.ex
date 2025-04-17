@@ -4,32 +4,38 @@ defmodule Asciinema.Recordings.Snapshot do
 
   def new(lines, mode \\ :segments)
 
-  def new({lines, {col, row} = _cursor}, mode) do
-    lines = Enum.map(lines, &coerce_segments/1)
+  def new(lines, mode) do
+    lines = Enum.map(lines, fn segments -> Enum.map(segments, &coerce_segment/1) end)
+
+    %__MODULE__{lines: lines, mode: mode}
+  end
+
+  defp coerce_segment([t, a, w]), do: {t, a, w}
+  defp coerce_segment([t, a]), do: {t, a, 1}
+  defp coerce_segment({_, _, _} = s), do: s
+
+  def build({lines, {col, row} = _cursor}, mode) do
+    lines = Enum.map(lines, fn segments -> Enum.map(segments, &normalize_segment/1) end)
 
     %__MODULE__{lines: lines, mode: mode}
     |> regroup(:cells)
     |> invert_cell(col, row)
+    |> Map.get(:lines)
+    |> Enum.map(fn segments -> Enum.map(segments, &normalize_segment/1) end)
+    |> then(fn lines -> %__MODULE__{lines: lines, mode: :cells} end)
     |> regroup(mode)
   end
 
-  def new({lines, nil}, mode) do
-    lines = Enum.map(lines, &coerce_segments/1)
+  def build({lines, nil}, mode) do
+    lines = Enum.map(lines, fn segments -> Enum.map(segments, &normalize_segment/1) end)
 
     %__MODULE__{lines: lines, mode: mode}
     |> regroup(:cells)
     |> regroup(mode)
   end
 
-  def new(lines, mode) when is_list(lines) do
-    new({lines, nil}, mode)
-  end
-
-  defp coerce_segments(segments), do: Enum.map(segments, &coerce_segment/1)
-
-  defp coerce_segment([t, a]), do: {t, normalize_colors(a), 1}
-  defp coerce_segment([t, a, w]), do: {t, normalize_colors(a), w}
-  defp coerce_segment({t, a, w}), do: {t, a, w}
+  defp normalize_segment([t, a, w]), do: {t, normalize_colors(a), w}
+  defp normalize_segment({t, a, w}), do: {t, normalize_colors(a), w}
 
   defp normalize_colors(attrs) do
     attrs
@@ -87,6 +93,7 @@ defmodule Asciinema.Recordings.Snapshot do
   end
 
   defp split_segment([text, attrs, char_width]), do: split_segment({text, attrs, char_width})
+  defp split_segment([text, attrs]), do: split_segment({text, attrs, 1})
 
   defp split_segment({text, attrs, char_width}) do
     text

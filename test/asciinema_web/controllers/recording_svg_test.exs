@@ -7,7 +7,7 @@ defmodule AsciinemaWeb.RecordingSvgTest do
   describe "show/1" do
     test "renders SVG document" do
       asciicast =
-        build(:asciicast, snapshot: Snapshot.new([[["foobar", %{}]], [["bazqux", %{}]]]))
+        build(:asciicast, snapshot: Snapshot.new([[["foobar", %{}, 1]], [["bazqux", %{}, 1]]]))
 
       svg = render_svg(asciicast)
 
@@ -19,8 +19,8 @@ defmodule AsciinemaWeb.RecordingSvgTest do
         build(:asciicast,
           snapshot:
             Snapshot.new([
-              [["foo", %{"fg" => [16, 32, 48]}], ["bar", %{"bg" => "rgb(64,80,96)"}]],
-              [["baz", %{"fg" => "#708090"}]]
+              [["foo", %{"fg" => [16, 32, 48]}, 1], ["bar", %{"bg" => "rgb(64,80,96)"}, 1]],
+              [["baz", %{"fg" => "#708090"}, 1]]
             ])
         )
 

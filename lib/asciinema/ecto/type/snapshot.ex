@@ -4,9 +4,7 @@ defmodule Asciinema.Ecto.Type.Snapshot do
 
   def type, do: :text
 
-  def cast(%Snapshot{} = value), do: {:ok, value}
-  def cast(value) when is_list(value), do: {:ok, Snapshot.new(value)}
-  def cast({lines, _} = value) when is_list(lines), do: {:ok, Snapshot.new(value)}
+  def cast({lines, _} = value) when is_list(lines), do: {:ok, Snapshot.build(value, :segments)}
 
   def load(value) do
     snapshot =

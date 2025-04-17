@@ -3,6 +3,7 @@ defmodule Asciinema.Recordings.Asciicast.V3 do
   alias Asciinema.Recordings.EventStream
 
   defmodule Writer do
+    @enforce_keys [:file, :prev_time]
     defstruct [:file, :prev_time]
   end
 

@@ -85,6 +85,9 @@ defmodule Asciinema.Recordings do
       :public ->
         where(q, [a], a.visibility == :public)
 
+      :snapshotless ->
+        where(q, [a], is_nil(a.snapshot))
+
       :from_last_2_years ->
         past = Timex.now() |> Timex.shift(years: -2)
         where(q, [a], a.inserted_at > ^past)
@@ -112,6 +115,13 @@ defmodule Asciinema.Recordings do
     |> limit(^limit)
     |> preload(:user)
     |> Repo.all()
+  end
+
+  def stream(%Ecto.Query{} = query) do
+    query
+    |> preload(:user)
+    |> Repo.pages(100)
+    |> Stream.flat_map(& &1)
   end
 
   def count(q), do: Repo.count(q)
@@ -397,23 +407,7 @@ defmodule Asciinema.Recordings do
     |> Repo.update_all(inc: [views_count: 1])
   end
 
-  def stream_migratable_asciicasts do
-    from(a in Asciicast, preload: :user)
-    |> stream_asciicasts()
-    |> Stream.filter(&stale_path?/1)
-  end
-
-  def stream_migratable_asciicasts(user_id) do
-    from(a in Asciicast, where: a.user_id == ^user_id, preload: :user)
-    |> stream_asciicasts()
-    |> Stream.filter(&stale_path?/1)
-  end
-
-  defp stream_asciicasts(query) do
-    query
-    |> Repo.pages(100)
-    |> Stream.flat_map(& &1)
-  end
+  def migratable(stream), do: Stream.filter(stream, &stale_path?/1)
 
   defp stale_path?(asciicast) do
     asciicast.path != Paths.path(asciicast)

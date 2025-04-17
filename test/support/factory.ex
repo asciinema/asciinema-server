@@ -47,7 +47,7 @@ defmodule Asciinema.Factory do
       term_cols: 80,
       term_rows: 24,
       secret_token: sequence(:secret_token, &secret_token/1),
-      snapshot: [[["foo", %{}]], [["bar", %{}]]]
+      snapshot: {[[["foo", %{}, 1]], [["bar", %{}, 1]]], {3, 1}}
     }
   end
 
@@ -60,7 +60,7 @@ defmodule Asciinema.Factory do
       term_cols: 80,
       term_rows: 24,
       secret_token: sequence(:secret_token, &secret_token/1),
-      snapshot: [[["foo", %{}]], [["bar", %{}]]]
+      snapshot: {[[["foo", %{}, 1]], [["bar", %{}, 1]]], {3, 1}}
     }
   end
 

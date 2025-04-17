@@ -3,17 +3,9 @@ defmodule Asciinema.Ecto.Type.SnapshotTest do
   alias Asciinema.Ecto.Type.Snapshot, as: EctoSnapshot
   alias Asciinema.Recordings.Snapshot
 
-  @lines [[["foobar", %{}]], [["bazqux", %{}]]]
+  @lines [[["foobar", %{}, 1]], [["bazqux", %{}, 1]]]
 
   describe "cast/1" do
-    test "is identity for Snapshot" do
-      assert match?({:ok, %Snapshot{}}, EctoSnapshot.cast(Snapshot.new(@lines)))
-    end
-
-    test "wraps list into Snapshot" do
-      assert match?({:ok, %Snapshot{}}, EctoSnapshot.cast(@lines))
-    end
-
     test "wraps tuple into Snapshot" do
       assert match?({:ok, %Snapshot{}}, EctoSnapshot.cast({@lines, {1, 1}}))
     end
