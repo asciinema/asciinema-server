@@ -21,6 +21,8 @@ defmodule Asciinema.Streaming.Stream do
     field :last_started_at, :naive_datetime
     field :title, :string
     field :description, :string
+    field :shell, :string
+    field :user_agent, :string
     field :current_viewer_count, :integer
     field :peak_viewer_count, :integer
     field :buffer_time, :float

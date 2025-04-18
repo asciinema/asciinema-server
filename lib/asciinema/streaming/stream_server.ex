@@ -104,6 +104,7 @@ defmodule Asciinema.Streaming.StreamServer do
     term_type = get_in(query, ["term", "type"])
     term_version = get_in(query, ["term", "version"])
     env = query["env"] || %{}
+    shell = env["SHELL"]
 
     schema_changes =
       Keyword.merge(
@@ -113,7 +114,9 @@ defmodule Asciinema.Streaming.StreamServer do
           term_cols: cols,
           term_rows: rows,
           term_type: term_type,
-          term_version: term_version
+          term_version: term_version,
+          user_agent: user_agent,
+          shell: shell
         ],
         schema_theme_fields(theme)
       )
