@@ -104,7 +104,7 @@ defmodule Asciinema.Streaming.StreamServer do
     term_type = get_in(query, ["term", "type"])
     term_version = get_in(query, ["term", "version"])
     env = query["env"] || %{}
-    shell = env["SHELL"]
+    shell = query["shell"]
 
     schema_changes =
       Keyword.merge(
@@ -143,6 +143,7 @@ defmodule Asciinema.Streaming.StreamServer do
       Vt.feed(state.vt, term_init)
     end
 
+    publish(state.stream_id, :metadata, state.stream)
     publish(state.stream_id, :reset, args)
 
     {:reply, :ok, state}

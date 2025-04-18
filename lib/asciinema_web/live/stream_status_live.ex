@@ -1,6 +1,7 @@
 defmodule AsciinemaWeb.StreamStatusLive do
   alias Asciinema.Streaming
   alias Asciinema.Streaming.{StreamServer, ViewerTracker}
+  alias AsciinemaWeb.MediumHTML
   use AsciinemaWeb, :live_view
 
   @info_timeout 1_000
@@ -22,6 +23,10 @@ defmodule AsciinemaWeb.StreamStatusLive do
             <% end %>
           </span>
 
+          <span :if={@metadata} class="status-line-item" title="Terminal environment">
+            <.terminal_solid_icon /> {@metadata}
+          </span>
+
           <span class="status-line-item">
             <.eye_solid_icon /> {@viewer_count} watching
           </span>
@@ -41,7 +46,7 @@ defmodule AsciinemaWeb.StreamStatusLive do
   @impl true
   def mount(_params, %{"stream_id" => stream_id}, socket) do
     if connected?(socket) do
-      StreamServer.subscribe(stream_id, [:reset, :end])
+      StreamServer.subscribe(stream_id, [:reset, :end, :metadata])
       StreamServer.request_info(stream_id)
       ViewerTracker.subscribe(stream_id)
       Process.send_after(self(), :info_timeout, @info_timeout)
@@ -56,7 +61,8 @@ defmodule AsciinemaWeb.StreamStatusLive do
         confirmed: false,
         started_at: stream.last_started_at,
         duration: nil,
-        viewer_count: stream.current_viewer_count
+        viewer_count: stream.current_viewer_count,
+        metadata: MediumHTML.metadata(stream)
       )
       |> update_duration()
 
@@ -87,6 +93,10 @@ defmodule AsciinemaWeb.StreamStatusLive do
 
   def handle_info(%StreamServer.Update{event: :end}, socket) do
     {:noreply, assign(socket, online: false)}
+  end
+
+  def handle_info(%StreamServer.Update{event: :metadata, data: stream}, socket) do
+    {:noreply, assign(socket, metadata: MediumHTML.metadata(stream))}
   end
 
   def handle_info(%ViewerTracker.Update{viewer_count: c}, socket) do

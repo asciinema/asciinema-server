@@ -3,7 +3,7 @@ defmodule AsciinemaWeb.RecordingHTML do
   import Scrivener.HTML
   alias Asciinema.{Accounts, Fonts, Media, Recordings, Themes}
   alias Asciinema.Recordings.{Markers, Snapshot}
-  alias AsciinemaWeb.{MediaView, UserHTML}
+  alias AsciinemaWeb.{MediaView, MediumHTML, UserHTML}
 
   embed_templates "recording_html/*"
 
@@ -16,6 +16,7 @@ defmodule AsciinemaWeb.RecordingHTML do
   defdelegate font_family_options, to: MediaView
   defdelegate username(user), to: UserHTML
   defdelegate title(asciicast), to: Recordings
+  defdelegate metadata(asciicast), to: MediumHTML
 
   def player_src(asciicast), do: ~p"/a/#{asciicast}" <> ".#{filename_ext(asciicast)}"
 
@@ -164,83 +165,6 @@ defmodule AsciinemaWeb.RecordingHTML do
 
   def filename_ext(%{version: 1}), do: "json"
   def filename_ext(%{version: 2}), do: "cast"
-
-  def metadata(asciicast) do
-    items = [os_info(asciicast), term_info(asciicast), shell_info(asciicast)]
-
-    case Enum.filter(items, & &1) do
-      [] -> nil
-      items -> Enum.join(items, " ◆ ")
-    end
-  end
-
-  defp os_info(asciicast) do
-    os_from_user_agent(asciicast.user_agent) || os_from_uname(asciicast)
-  end
-
-  @doc """
-  iex> os_from_user_agent(nil)
-  nil
-
-  iex> os_from_user_agent("foo")
-  nil
-
-  iex> os_from_user_agent("asciinema/99.9.9 target/x99_64-unknown-lol-bye")
-  nil
-
-  iex> os_from_user_agent("asciinema/3.0.0-rc.3 target/x86_64-unknown-linux-gnu")
-  "GNU/Linux"
-
-  iex> os_from_user_agent("asciinema/2.4.0 CPython/3.11.6 Linux/6.1.68-x86_64-with-glibc2.38")
-  "GNU/Linux"
-
-  iex> os_from_user_agent("asciinema/2.4.0 CPython/3.13.2 macOS/14.6.1-arm64-arm-64bit-Mach-O")
-  "macOS"
-
-  iex> os_from_user_agent("asciinema/2.4.0 CPython/3.12.3 Linux/5.15.167.4-microsoft-standard-WSL2-x86_64-with-glibc2.39")
-  "WSL2"
-
-  iex> os_from_user_agent("asciinema/3.0.0-rc.3 target/aarch64-apple-darwin")
-  "macOS"
-
-  iex> os_from_user_agent("asciinema/2.4.0 CPython/3.11.11 FreeBSD/14.2-RELEASE-p1-amd64-64bit-ELF")
-  "FreeBSD"
-
-  iex> os_from_user_agent("asciinema/2.4.0 CPython/3.12.9 OpenBSD/7.7-amd64-64bit-ELF")
-  "OpenBSD"
-  """
-  def os_from_user_agent(nil), do: nil
-
-  def os_from_user_agent(user_agent) do
-    cond do
-      user_agent =~ ~r/WSL2/ -> "WSL2"
-      user_agent =~ ~r/linux/i -> "GNU/Linux"
-      user_agent =~ ~r/macos|darwin/i -> "macOS"
-      user_agent =~ ~r/freebsd/i -> "FreeBSD"
-      user_agent =~ ~r/openbsd/i -> "OpenBSD"
-      true -> nil
-    end
-  end
-
-  defp os_from_uname(asciicast) do
-    if uname = asciicast.uname do
-      cond do
-        uname =~ ~r/Linux/i -> "GNU/Linux"
-        uname =~ ~r/Darwin/i -> "macOS"
-        true -> uname |> String.split(~r/[\s-]/) |> List.first()
-      end
-    end
-  end
-
-  defp shell_info(asciicast) do
-    if asciicast.shell do
-      Path.basename("#{asciicast.shell}")
-    end
-  end
-
-  defp term_info(asciicast) do
-    asciicast.term_type
-  end
 
   def views_count(asciicast) do
     asciicast.views_count
