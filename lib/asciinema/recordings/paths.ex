@@ -47,6 +47,7 @@ defmodule Asciinema.Recordings.Paths do
 
   defp ext(1), do: "json"
   defp ext(2), do: "cast"
+  defp ext(3), do: "cast"
 
   defp resolve_env_var(match, env) do
     env = env || %{}

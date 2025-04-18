@@ -165,6 +165,7 @@ defmodule AsciinemaWeb.RecordingHTML do
 
   def filename_ext(%{version: 1}), do: "json"
   def filename_ext(%{version: 2}), do: "cast"
+  def filename_ext(%{version: 3}), do: "cast"
 
   def views_count(asciicast) do
     asciicast.views_count
