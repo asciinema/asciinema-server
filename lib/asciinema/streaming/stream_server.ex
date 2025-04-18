@@ -153,10 +153,10 @@ defmodule Asciinema.Streaming.StreamServer do
     %{id: id, time: time, text: text} = data
     Vt.feed(state.vt, text)
     publish(state.stream_id, :output, data)
-    write_asciicast_event(state, time, "o", text)
 
     state =
       state
+      |> write_asciicast_event(time, "o", text)
       |> update_last_stream_time(time)
       |> save_event_id(id)
 
@@ -166,10 +166,10 @@ defmodule Asciinema.Streaming.StreamServer do
   def handle_call({:event, {:input, data}}, _from, state) do
     %{id: id, time: time, text: text} = data
     publish(state.stream_id, :input, data)
-    write_asciicast_event(state, time, "i", text)
 
     state =
       state
+      |> write_asciicast_event(time, "i", text)
       |> update_last_stream_time(time)
       |> save_event_id(id)
 
@@ -180,10 +180,10 @@ defmodule Asciinema.Streaming.StreamServer do
     %{id: id, time: time, term_size: {cols, rows} = vt_size} = data
     Vt.resize(state.vt, cols, rows)
     publish(state.stream_id, :resize, data)
-    write_asciicast_event(state, time, "r", {cols, rows})
 
     state =
       state
+      |> write_asciicast_event(time, "r", {cols, rows})
       |> update_last_stream_time(time)
       |> Map.put(:vt_size, vt_size)
       |> save_event_id(id)
@@ -194,10 +194,10 @@ defmodule Asciinema.Streaming.StreamServer do
   def handle_call({:event, {:marker, data}}, _from, state) do
     %{id: id, time: time, label: label} = data
     publish(state.stream_id, :marker, data)
-    write_asciicast_event(state, time, "m", label)
 
     state =
       state
+      |> write_asciicast_event(time, "m", label)
       |> update_last_stream_time(time)
       |> save_event_id(id)
 
