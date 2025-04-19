@@ -1,16 +1,15 @@
 defmodule AsciinemaWeb.MediumHTML do
   use AsciinemaWeb, :html
 
-  def metadata(medium) do
-    items = [os_info(medium), term_info(medium), shell_info(medium)]
+  embed_templates "medium_html/*"
 
-    case Enum.filter(items, & &1) do
-      [] -> nil
-      items -> Enum.join(items, " ◆ ")
-    end
+  defp segments(medium) do
+    [os(medium), term(medium), shell(medium)]
+    |> Enum.filter(& &1)
+    |> Enum.intersperse(" ◆ ")
   end
 
-  defp os_info(medium) do
+  defp os(medium) do
     os_from_user_agent(medium.user_agent) || os_from_uname(medium)
   end
 
@@ -68,13 +67,19 @@ defmodule AsciinemaWeb.MediumHTML do
     end
   end
 
-  defp shell_info(medium) do
+  defp shell(medium) do
     if medium.shell do
       Path.basename("#{medium.shell}")
     end
   end
 
-  defp term_info(medium) do
-    medium.term_type
+  defp term(medium) do
+    case medium.term_version do
+      nil ->
+        medium.term_type
+
+      version ->
+        {medium.term_type, version}
+    end
   end
 end

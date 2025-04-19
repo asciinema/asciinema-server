@@ -4,6 +4,8 @@ defmodule AsciinemaWeb.StreamStatusLive do
   alias AsciinemaWeb.MediumHTML
   use AsciinemaWeb, :live_view
 
+  defdelegate env_info(stream), to: MediumHTML
+
   @info_timeout 1_000
   @duration_update_interval 60_000
 
@@ -23,8 +25,8 @@ defmodule AsciinemaWeb.StreamStatusLive do
             <% end %>
           </span>
 
-          <span :if={@metadata} class="status-line-item" title="Terminal environment">
-            <.terminal_solid_icon /> {@metadata}
+          <span class="status-line-item">
+            <.terminal_solid_icon /> <.env_info attrs={@env_info_attrs} />
           </span>
 
           <span class="status-line-item">
@@ -62,7 +64,7 @@ defmodule AsciinemaWeb.StreamStatusLive do
         started_at: stream.last_started_at,
         duration: nil,
         viewer_count: stream.current_viewer_count,
-        metadata: MediumHTML.metadata(stream)
+        env_info_attrs: env_info_attrs(stream)
       )
       |> update_duration()
 
@@ -96,7 +98,7 @@ defmodule AsciinemaWeb.StreamStatusLive do
   end
 
   def handle_info(%StreamServer.Update{event: :metadata, data: stream}, socket) do
-    {:noreply, assign(socket, metadata: MediumHTML.metadata(stream))}
+    {:noreply, assign(socket, :env_info_attrs, env_info_attrs(stream))}
   end
 
   def handle_info(%ViewerTracker.Update{viewer_count: c}, socket) do
@@ -106,6 +108,9 @@ defmodule AsciinemaWeb.StreamStatusLive do
   def handle_info(:update_duration, socket) do
     {:noreply, update_duration(socket)}
   end
+
+  defp env_info_attrs(stream),
+    do: Map.take(stream, [:user_agent, :term_type, :term_version, :shell])
 
   defp update_duration(socket) do
     socket = assign(socket, :duration, format_duration(socket.assigns.started_at))

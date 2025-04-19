@@ -16,7 +16,7 @@ defmodule AsciinemaWeb.RecordingHTML do
   defdelegate font_family_options, to: MediaView
   defdelegate username(user), to: UserHTML
   defdelegate title(asciicast), to: Recordings
-  defdelegate metadata(asciicast), to: MediumHTML
+  defdelegate env_info(asciicast), to: MediumHTML
 
   def player_src(asciicast), do: ~p"/a/#{asciicast}" <> ".#{filename_ext(asciicast)}"
 
@@ -108,6 +108,9 @@ defmodule AsciinemaWeb.RecordingHTML do
       "Recorded by #{author_username(asciicast)}"
     end
   end
+
+  defp env_info_attrs(asciicast),
+    do: Map.take(asciicast, [:user_agent, :term_type, :term_version, :shell, :uname])
 
   defp truncate(text, length) do
     if String.length(text) > length do

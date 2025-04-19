@@ -1,0 +1,7 @@
+<span :for={item <- segments(@attrs)}>
+  <%= if is_tuple(item) do %>
+    <span title={elem(item, 1)} class="help-tooltip">{elem(item, 0)}</span>
+  <% else %>
+    {item}
+  <% end %>
+</span>
