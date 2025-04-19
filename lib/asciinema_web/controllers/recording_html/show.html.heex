@@ -92,24 +92,6 @@
               </.link>
 
               <.link
-                :if={:make_private in @actions}
-                href={~p"/a/#{@asciicast}?asciicast[private]=1"}
-                class="dropdown-item"
-                method="put"
-              >
-                Make it secret
-              </.link>
-
-              <.link
-                :if={:make_public in @actions}
-                href={~p"/a/#{@asciicast}?asciicast[private]=0"}
-                class="dropdown-item"
-                method="put"
-              >
-                Make it public
-              </.link>
-
-              <.link
                 :if={:delete in @actions}
                 href={~p"/a/#{@asciicast}"}
                 class="dropdown-item text-danger"
