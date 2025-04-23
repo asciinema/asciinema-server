@@ -25,6 +25,10 @@
 
     <small>
       by <.link href={author_profile_path(@stream)}>{author_username(@stream)}</.link>
+      <.visibility_badge
+        :if={assigns[:conn] && owned_by_current_user?(@stream, @conn)}
+        visibility={@stream.visibility}
+      />
     </small>
   </div>
 </div>
