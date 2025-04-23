@@ -273,7 +273,7 @@ defmodule Asciinema.Streaming.StreamServer do
 
     time = current_stream_time(state.last_stream_time, state.last_event_time) || 0
     publish(state.stream_id, :end, %{time: time})
-    update_schema(state, online: false)
+    update_schema(state, online: false, current_viewer_count: 0)
     end_recording(state)
 
     :ok

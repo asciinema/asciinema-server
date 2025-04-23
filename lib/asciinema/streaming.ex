@@ -183,7 +183,7 @@ defmodule Asciinema.Streaming do
     t = Timex.shift(Timex.now(), minutes: -1)
     q = from(s in Stream, where: s.online and s.last_activity_at < ^t)
 
-    {count, _} = Repo.update_all(q, set: [online: false])
+    {count, _} = Repo.update_all(q, set: [online: false, current_viewer_count: 0])
 
     count
   end
