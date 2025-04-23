@@ -1,0 +1,27 @@
+.c-stream {
+  &.a-index {
+    .create-stream {
+      float: right;
+      margin-right: 10px;
+    }
+
+    .stream-list {
+      .action {
+        text-align: right;
+
+        a {
+          visibility: hidden;
+          margin-left: 1em;
+        }
+      }
+    }
+
+    tr:hover {
+      background-color: #f0f0f0;
+
+      .action a {
+        visibility: visible;
+      }
+    }
+  }
+}

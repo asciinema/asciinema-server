@@ -52,10 +52,10 @@ defmodule Asciinema.Streaming do
   defp wrap(nil), do: {:error, :not_found}
   defp wrap(value), do: {:ok, value}
 
-  def query(filters \\ []) do
+  def query(filters \\ [], order \\ nil) do
     from(Stream)
-    |> order_by(desc: :last_started_at)
     |> apply_filters(filters)
+    |> sort(order)
   end
 
   defp apply_filters(q, filters) when is_list(filters) do
@@ -77,6 +77,26 @@ defmodule Asciinema.Streaming do
       :live ->
         where(q, [s], s.online)
     end
+  end
+
+  defp sort(q, nil), do: q
+
+  defp sort(q, :activity) do
+    order_by(q, desc: :online, desc_nulls_last: :last_started_at)
+  end
+
+  def paginate(%Ecto.Query{} = query, page, page_size) do
+    query
+    |> preload(:user)
+    |> Repo.paginate(page: page, page_size: page_size)
+  end
+
+  def list(q, limit \\ nil)
+
+  def list(q, nil) do
+    q
+    |> preload(:user)
+    |> Repo.all()
   end
 
   def list(q, limit) do

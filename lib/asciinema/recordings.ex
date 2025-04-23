@@ -79,6 +79,9 @@ defmodule Asciinema.Recordings do
       {:stream_id, {:not_eq, stream_id}} ->
         where(q, [a], is_nil(a.stream_id) or a.stream_id != ^stream_id)
 
+      {:stream_id, {:in, stream_ids}} ->
+        where(q, [a], a.stream_id in ^stream_ids)
+
       :featured ->
         where(q, [a], a.featured == true and a.visibility == :public)
 
@@ -121,6 +124,12 @@ defmodule Asciinema.Recordings do
   end
 
   def count(q), do: Repo.count(q)
+
+  def count_by(q, field) do
+    from(a in q, group_by: field(a, ^field), select: {field(a, ^field), count(a.id)})
+    |> Repo.all()
+    |> Enum.into(%{})
+  end
 
   def ensure_welcome_asciicast(user) do
     if Repo.count(Ecto.assoc(user, :asciicasts)) == 0 do

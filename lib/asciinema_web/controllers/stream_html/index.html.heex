@@ -1,0 +1,59 @@
+<div class="container">
+  <h2>
+    Your streams
+    <.link href={~p"/user/streams"} method="post" class="btn btn-primary create-stream">
+      Create
+    </.link>
+  </h2>
+
+  <div :if={@streams.total_entries > 0}>
+    <div class="row stream-list">
+      <div class="col-md-12">
+        <table class="table">
+          <thead>
+            <th>ID</th>
+            <th>Status</th>
+            <th>Title</th>
+            <th>Last session</th>
+            <th>Viewers (cur / peak)</th>
+            <th>Recordings</th>
+            <th></th>
+          </thead>
+          <tbody>
+            <tr :for={stream <- @streams}>
+              <td>
+                <a href={~p"/s/#{stream}"}><strong>{short_public_token(stream)}</strong></a>
+              </td>
+              <td>
+                <.live_icon :if={stream.online} />
+                <.offline_icon :if={!stream.online} />
+              </td>
+              <td>{stream.title}</td>
+              <td><.time_ago :if={stream.last_started_at} time={stream.last_started_at} /></td>
+              <td>{stream.current_viewer_count || 0} / {stream.peak_viewer_count || 0}</td>
+              <td>{@rec_count_by_stream_id[stream.id] || 0}</td>
+              <td class="action">
+                <a href={~p"/s/#{stream}/edit?ret=/user/streams"} class="btn btn-sm btn-secondary">
+                  Settings
+                </a>
+                <a href={~p"/s/#{stream}"} class="btn btn-sm btn-primary">
+                  <%= if stream.online do %>
+                    Watch
+                  <% else %>
+                    Start
+                  <% end %>
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div :if={@streams.total_pages > 1} class="row">
+      <div class="col">
+        {pagination_links(@streams)}
+      </div>
+    </div>
+  </div>
+</div>
