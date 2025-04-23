@@ -81,7 +81,7 @@
 
         <p>
           The settings below control the defaults for <strong>new</strong>
-          recordings and streams. <br />
+          recordings<span :if={@streaming_enabled}> and streams</span>. <br />
           <br />
         </p>
 
@@ -269,7 +269,7 @@
 
       <.form
         :let={f}
-        :if={@stream_recording_mode != :disabled}
+        :if={@streaming_enabled and @stream_recording_mode != :disabled}
         for={@changeset}
         action={~p"/user"}
         class="simple_form form-horizontal"
