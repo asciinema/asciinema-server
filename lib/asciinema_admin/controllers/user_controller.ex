@@ -14,7 +14,7 @@ defmodule AsciinemaAdmin.UserController do
   end
 
   def create(conn, %{"user" => attrs}) do
-    case Asciinema.create_user(attrs) do
+    case Asciinema.create_user(attrs, :admin) do
       {:ok, user} ->
         redirect(conn, to: ~p"/admin/users/#{user}")
 
@@ -83,7 +83,7 @@ defmodule AsciinemaAdmin.UserController do
 
   def edit(conn, %{"id" => id}) do
     user = Accounts.get_user(id)
-    changeset = Accounts.change_user(user)
+    changeset = Accounts.change_user(user, %{}, :admin)
 
     render(conn, :edit, user: user, changeset: changeset)
   end
@@ -91,7 +91,7 @@ defmodule AsciinemaAdmin.UserController do
   def update(conn, %{"id" => id, "user" => attrs}) do
     user = Accounts.get_user(id)
 
-    case Asciinema.update_user(user, attrs) do
+    case Asciinema.update_user(user, attrs, :admin) do
       {:ok, user} ->
         redirect(conn, to: ~p"/admin/users/#{user.id}")
 

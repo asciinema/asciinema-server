@@ -1,19 +1,18 @@
 defmodule AsciinemaWeb.UsernameController do
   use AsciinemaWeb, :controller
-  alias Asciinema.Accounts
 
   plug :require_current_user
 
   def new(conn, _params) do
     user = conn.assigns.current_user
-    changeset = Accounts.change_user(user)
+    changeset = Asciinema.change_user(user)
     render(conn, "new.html", user: user, changeset: changeset)
   end
 
   def create(conn, %{"user" => user_params}) do
     user = conn.assigns.current_user
 
-    case Accounts.update_user(user, user_params) do
+    case Asciinema.update_user(user, user_params) do
       {:ok, user} ->
         redirect(conn, to: profile_path(conn, user))
 

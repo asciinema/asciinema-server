@@ -59,7 +59,20 @@ defmodule Asciinema.Accounts do
     )
   end
 
-  def create_user(attrs) do
+  def create_user(attrs, :user) do
+    import Ecto.Changeset
+
+    build_user()
+    |> cast(attrs, [:email, :username])
+    |> validate_required([:email])
+    |> update_change(:email, &String.downcase/1)
+    |> validate_format(:email, @valid_email_re)
+    |> validate_username()
+    |> add_contraints()
+    |> Repo.insert()
+  end
+
+  def create_user(attrs, :admin) do
     import Ecto.Changeset
 
     build_user()
@@ -90,7 +103,9 @@ defmodule Asciinema.Accounts do
     end
   end
 
-  def change_user(user, params \\ %{}) do
+  def change_user(user, params \\ %{}, ctx \\ :user)
+
+  def change_user(user, params, :user) do
     import Ecto.Changeset
 
     user
@@ -105,12 +120,31 @@ defmodule Asciinema.Accounts do
       :default_stream_visibility,
       :stream_recording_enabled
     ])
-    |> validate_required([:email])
+    |> validate_required([:email, :username])
     |> update_change(:email, &String.downcase/1)
     |> validate_format(:email, @valid_email_re)
     |> validate_username()
     |> validate_inclusion(:term_theme_name, Themes.terminal_themes())
     |> validate_inclusion(:term_font_family, Fonts.terminal_font_families())
+    |> add_contraints()
+  end
+
+  def change_user(user, params, :admin) do
+    import Ecto.Changeset
+
+    user
+    |> cast(params, [
+      :email,
+      :name,
+      :username,
+      :streaming_enabled,
+      :stream_limit
+    ])
+    |> validate_required([:email, :username])
+    |> update_change(:email, &String.downcase/1)
+    |> validate_format(:email, @valid_email_re)
+    |> validate_username()
+    |> validate_number(:stream_limit, greater_than_or_equal_to: 0)
     |> add_contraints()
   end
 
@@ -130,12 +164,9 @@ defmodule Asciinema.Accounts do
     |> unique_constraint(:email, name: "index_users_on_email")
   end
 
-  def update_user(user, params) do
-    import Ecto.Changeset
-
+  def update_user(user, params, ctx \\ :user) do
     user
-    |> change_user(params)
-    |> validate_required([:username])
+    |> change_user(params, ctx)
     |> Repo.update()
   end
 
@@ -160,12 +191,12 @@ defmodule Asciinema.Accounts do
       {{:email, nil}, true} ->
         changeset = change_user(%User{}, %{email: identifier})
 
-        if changeset.valid? do
+        if Enum.any?(changeset.errors, &(elem(&1, 0) == :email)) do
+          {:error, :email_invalid}
+        else
           email = changeset.changes.email
 
           {:ok, {:sign_up, sign_up_token(email), email}}
-        else
-          {:error, :email_invalid}
         end
 
       {{_, nil}, _} ->

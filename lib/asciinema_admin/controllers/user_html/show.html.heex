@@ -26,6 +26,14 @@
       <td>{@user.name}</td>
     </tr>
     <tr>
+      <td><strong>streaming enabled</strong></td>
+      <td>{@user.streaming_enabled}</td>
+    </tr>
+    <tr>
+      <td><strong>stream limit</strong></td>
+      <td>{@user.stream_limit || "no limit"}</td>
+    </tr>
+    <tr>
       <td><strong>last login at</strong></td>
       <td><.time_ago :if={@user.last_login_at} time={@user.last_login_at} /></td>
     </tr>
