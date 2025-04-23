@@ -22,8 +22,14 @@ defmodule AsciinemaWeb.Api.StreamController do
 
   def create(conn, _params) do
     conn.assigns.current_user
-    |> Streaming.create_stream()
+    |> create_stream()
     |> stream_json(conn)
+  end
+
+  defp create_stream(user) do
+    with {:error, :limit_reached} <- Streaming.create_stream(user) do
+      Streaming.fetch_default_stream(user)
+    end
   end
 
   defp stream_json(result, conn, id \\ nil)
@@ -62,7 +68,7 @@ defmodule AsciinemaWeb.Api.StreamController do
   end
 
   defp check_streaming_enabled(conn, _opts) do
-    if conn.assigns.current_user.streaming_enabled && Streaming.mode() != :disabled do
+    if conn.assigns.current_user.streaming_enabled do
       conn
     else
       conn

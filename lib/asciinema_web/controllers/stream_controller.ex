@@ -69,8 +69,7 @@ defmodule AsciinemaWeb.StreamController do
 
   defp load_stream(conn, _) do
     with stream when not is_nil(stream) <- Streaming.get_stream(conn.params["id"]),
-         true <- stream.user.streaming_enabled,
-         true <- Streaming.mode() != :disabled do
+         true <- stream.user.streaming_enabled do
       assign(conn, :stream, stream)
     else
       _ ->

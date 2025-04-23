@@ -77,15 +77,6 @@ defmodule AsciinemaWeb.StreamControllerTest do
 
       assert html_response(conn_2, 404)
     end
-
-    test "when streaming is disabled system-wide", %{conn: conn} do
-      Application.put_env(:asciinema, Asciinema.Streaming, mode: :disabled)
-      stream = insert(:stream)
-
-      conn_2 = get(conn, ~p"/s/#{stream}")
-
-      assert html_response(conn_2, 404)
-    end
   end
 
   describe "editing" do

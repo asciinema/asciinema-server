@@ -99,14 +99,14 @@ defmodule Asciinema.Streaming do
   end
 
   def create_stream(user) do
-    if mode() == :dynamic do
+    if user.stream_limit == nil or count_streams(user) < user.stream_limit do
       {:ok, create_stream!(user)}
     else
-      fetch_default_stream(user)
+      {:error, :limit_reached}
     end
   end
 
-  def mode, do: config(:mode, :dynamic)
+  defp count_streams(user), do: Repo.count(Ecto.assoc(user, :streams))
 
   def change_stream(stream, attrs \\ %{})
 
@@ -190,9 +190,4 @@ defmodule Asciinema.Streaming do
 
   defp generate_public_token, do: Crypto.random_token(16)
   defp generate_producer_token, do: Crypto.random_token(16)
-
-  defp config(key, default) do
-    opts = Application.get_env(:asciinema, __MODULE__) || []
-    Keyword.get(opts, key, default)
-  end
 end

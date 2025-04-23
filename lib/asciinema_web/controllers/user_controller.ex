@@ -116,7 +116,7 @@ defmodule AsciinemaWeb.UserController do
 
     render(conn, "edit.html",
       changeset: changeset,
-      streaming_mode: Streaming.mode(),
+      streaming_enabled: user.streaming_enabled,
       stream_recording_mode: Streaming.recording_mode(),
       clis: clis
     )

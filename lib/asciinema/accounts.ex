@@ -51,7 +51,9 @@ defmodule Asciinema.Accounts do
     Changeset.change(
       %User{
         default_recording_visibility: config(:default_recording_visibility, :unlisted),
-        default_stream_visibility: config(:default_stream_visibility, :unlisted)
+        default_stream_visibility: config(:default_stream_visibility, :unlisted),
+        streaming_enabled: config(:default_streaming_enabled, true),
+        stream_limit: config(:default_stream_limit, nil)
       },
       attrs
     )

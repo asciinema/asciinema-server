@@ -144,7 +144,7 @@
           </div>
         </div>
 
-        <div :if={@streaming_mode == :dynamic} class="form-group row">
+        <div :if={@streaming_enabled} class="form-group row">
           <.label for={f[:default_stream_visibility]} class="col-3 col-form-label">
             Stream visibility
           </.label>

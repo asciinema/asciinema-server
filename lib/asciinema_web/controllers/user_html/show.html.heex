@@ -71,7 +71,7 @@
     <% else %>
       <%= if @self do %>
         <div class="row">
-          <div class={"col-md-#{if @default_stream, do: 6, else: 12}"}>
+          <div class={"col-md-#{if @user.streaming_enabled, do: 6, else: 12}"}>
             <h2>Recording &amp; publishing</h2>
 
             <p>
@@ -121,7 +121,7 @@
                 CLI quick-start guide</a> for more examples.</p>
           </div>
 
-          <%= if @default_stream do %>
+          <%= if @user.streaming_enabled do %>
             <div class="col-md-6">
               <h2>Streaming</h2>
 
@@ -135,7 +135,7 @@
               <pre><code>asciinema stream -r</code></pre>
 
               <p>
-                View your live stream <a href={~p"/s/#{@default_stream}"}>here</a>. You can always access
+                View your live stream <a href={~p"/s/TODO"}>here</a>. You can always access
                 it from the user drop-down menu in the top navigation bar.
               </p>
             </div>
