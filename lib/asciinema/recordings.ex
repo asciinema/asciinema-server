@@ -197,6 +197,7 @@ defmodule Asciinema.Recordings do
       :term_cols,
       :term_rows,
       :term_type,
+      :term_version,
       :term_theme_fg,
       :term_theme_bg,
       :term_theme_palette,

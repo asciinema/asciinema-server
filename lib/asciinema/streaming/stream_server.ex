@@ -104,6 +104,7 @@ defmodule Asciinema.Streaming.StreamServer do
     term_type = get_in(query, ["term", "type"])
     term_version = get_in(query, ["term", "version"])
     env = query["env"] || %{}
+    shell = query["shell"]
 
     schema_changes =
       Keyword.merge(
@@ -113,7 +114,9 @@ defmodule Asciinema.Streaming.StreamServer do
           term_cols: cols,
           term_rows: rows,
           term_type: term_type,
-          term_version: term_version
+          term_version: term_version,
+          user_agent: user_agent,
+          shell: shell
         ],
         schema_theme_fields(theme)
       )
@@ -140,6 +143,7 @@ defmodule Asciinema.Streaming.StreamServer do
       Vt.feed(state.vt, term_init)
     end
 
+    publish(state.stream_id, :metadata, state.stream)
     publish(state.stream_id, :reset, args)
 
     {:reply, :ok, state}
@@ -149,10 +153,10 @@ defmodule Asciinema.Streaming.StreamServer do
     %{id: id, time: time, text: text} = data
     Vt.feed(state.vt, text)
     publish(state.stream_id, :output, data)
-    write_asciicast_event(state, time, "o", text)
 
     state =
       state
+      |> write_asciicast_event(time, "o", text)
       |> update_last_stream_time(time)
       |> save_event_id(id)
 
@@ -162,10 +166,10 @@ defmodule Asciinema.Streaming.StreamServer do
   def handle_call({:event, {:input, data}}, _from, state) do
     %{id: id, time: time, text: text} = data
     publish(state.stream_id, :input, data)
-    write_asciicast_event(state, time, "i", text)
 
     state =
       state
+      |> write_asciicast_event(time, "i", text)
       |> update_last_stream_time(time)
       |> save_event_id(id)
 
@@ -176,10 +180,10 @@ defmodule Asciinema.Streaming.StreamServer do
     %{id: id, time: time, term_size: {cols, rows} = vt_size} = data
     Vt.resize(state.vt, cols, rows)
     publish(state.stream_id, :resize, data)
-    write_asciicast_event(state, time, "r", {cols, rows})
 
     state =
       state
+      |> write_asciicast_event(time, "r", {cols, rows})
       |> update_last_stream_time(time)
       |> Map.put(:vt_size, vt_size)
       |> save_event_id(id)
@@ -190,10 +194,10 @@ defmodule Asciinema.Streaming.StreamServer do
   def handle_call({:event, {:marker, data}}, _from, state) do
     %{id: id, time: time, label: label} = data
     publish(state.stream_id, :marker, data)
-    write_asciicast_event(state, time, "m", label)
 
     state =
       state
+      |> write_asciicast_event(time, "m", label)
       |> update_last_stream_time(time)
       |> save_event_id(id)
 

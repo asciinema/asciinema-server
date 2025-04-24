@@ -92,24 +92,6 @@
               </.link>
 
               <.link
-                :if={:make_private in @actions}
-                href={~p"/a/#{@asciicast}?asciicast[private]=1"}
-                class="dropdown-item"
-                method="put"
-              >
-                Make it secret
-              </.link>
-
-              <.link
-                :if={:make_public in @actions}
-                href={~p"/a/#{@asciicast}?asciicast[private]=0"}
-                class="dropdown-item"
-                method="put"
-              >
-                Make it public
-              </.link>
-
-              <.link
                 :if={:delete in @actions}
                 href={~p"/a/#{@asciicast}"}
                 class="dropdown-item text-danger"
@@ -131,12 +113,8 @@
     <div class="row">
       <div class="col-md-12 col-xs-12">
         <div class="status-line">
-          <span
-            :if={m = metadata(@asciicast)}
-            class="status-line-item"
-            title="Terminal environment"
-          >
-            <.terminal_solid_icon /> {m}
+          <span class="status-line-item">
+            <.terminal_solid_icon /> <.env_info attrs={env_info_attrs(@asciicast)} />
           </span>
 
           <span class="status-line-item" title="Total views">

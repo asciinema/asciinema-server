@@ -40,24 +40,6 @@
             <.link :if={:edit in @actions} navigate={~p"/s/#{@stream}/edit"} class="dropdown-item">
               Settings
             </.link>
-
-            <.link
-              :if={:make_private in @actions}
-              href={~p"/s/#{@stream}?stream[private]=1"}
-              class="dropdown-item"
-              method="put"
-            >
-              Make it secret
-            </.link>
-
-            <.link
-              :if={:make_public in @actions}
-              href={~p"/s/#{@stream}?stream[private]=0"}
-              class="dropdown-item"
-              method="put"
-            >
-              Make it public
-            </.link>
           </div>
         </div>
       </div>
