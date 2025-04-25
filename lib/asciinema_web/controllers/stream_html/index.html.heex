@@ -1,10 +1,14 @@
 <div class="container">
-  <h2>
-    Your streams
-    <.link href={~p"/user/streams"} method="post" class="btn btn-primary create-stream">
-      Create
-    </.link>
-  </h2>
+  <div class="row">
+    <div class="col-md-12">
+      <h2>
+        Your streams
+        <.link href={~p"/user/streams"} method="post" class="btn btn-primary create-stream">
+          Create new stream
+        </.link>
+      </h2>
+    </div>
+  </div>
 
   <div :if={@streams.total_entries > 0}>
     <div class="row stream-list">
