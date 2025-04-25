@@ -10,6 +10,23 @@
     }
 
     .stream-list {
+      table {
+        table-layout: fixed;
+
+        th, td {
+          white-space: nowrap;
+        }
+
+        th:nth-child(3), td:nth-child(3) {
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        th:nth-child(5), td:nth-child(5), th:nth-child(6), td:nth-child(6) {
+          text-align: right;
+        }
+      }
+
       .action {
         text-align: right;
 
