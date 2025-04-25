@@ -35,8 +35,10 @@ defmodule AsciinemaWeb.StreamController do
   def create(conn, _params) do
     case Streaming.create_stream(conn.assigns.current_user) do
       {:ok, stream} ->
+        id = Streaming.short_public_token(stream)
+
         conn
-        |> put_flash(:info, "Stream #{short_id(stream)} created.")
+        |> put_flash(:info, "Stream #{id} created.")
         |> redirect(to: ~p"/user/streams")
 
       {:error, :limit_reached} ->
@@ -90,8 +92,10 @@ defmodule AsciinemaWeb.StreamController do
   def update(conn, %{"stream" => params}) do
     case Streaming.update_stream(conn.assigns.stream, params) do
       {:ok, stream} ->
+        id = Streaming.short_public_token(stream)
+
         conn
-        |> put_flash(:info, "Stream #{short_id(stream)} updated.")
+        |> put_flash(:info, "Stream #{id} updated.")
         |> redirect_back_or(to: ~p"/s/#{stream}")
 
       {:error, %Ecto.Changeset{} = changeset} ->
@@ -141,6 +145,4 @@ defmodule AsciinemaWeb.StreamController do
       |> halt()
     end
   end
-
-  defp short_id(stream), do: String.slice(stream.public_token, 0, 4)
 end

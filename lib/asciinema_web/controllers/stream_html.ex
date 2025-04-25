@@ -1,7 +1,7 @@
 defmodule AsciinemaWeb.StreamHTML do
   use AsciinemaWeb, :html
   import Scrivener.HTML
-  alias Asciinema.{Accounts, Fonts, Media, Themes}
+  alias Asciinema.{Accounts, Fonts, Media, Streaming, Themes}
   alias AsciinemaWeb.{MediaView, RecordingHTML, RecordingSVG}
 
   embed_templates "stream_html/*"
@@ -12,6 +12,7 @@ defmodule AsciinemaWeb.StreamHTML do
   defdelegate theme(stream), to: Media
   defdelegate theme_options, to: MediaView
   defdelegate font_family_options, to: MediaView
+  defdelegate short_public_token(stream), to: Streaming
 
   def player_src(stream) do
     %{
@@ -47,10 +48,6 @@ defmodule AsciinemaWeb.StreamHTML do
   end
 
   def title(stream), do: stream.title || "#{author_username(stream)}'s stream"
-
-  defp short_public_token(stream) do
-    String.slice(stream.public_token, 0, 4)
-  end
 
   def default_theme_display_name(stream) do
     "Account default (#{Themes.display_name(Accounts.default_term_theme_name(stream.user) || "asciinema")})"
