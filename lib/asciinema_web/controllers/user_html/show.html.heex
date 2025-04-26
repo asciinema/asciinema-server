@@ -100,7 +100,7 @@
             <p>You can pause/resume by pressing <kbd>space</kbd>, or end the
               playback early by pressing <kbd>ctrl+c</kbd>.</p>
 
-            <p>Upload your recording with:</p>
+            <p>Upload your recording to {@conn.host} with:</p>
 
             <pre><code>asciinema upload demo.cast</code></pre>
 
@@ -130,9 +130,14 @@
               asciinema CLI 3.0</a>.
               </p>
 
-              <p>To start the streaming session and expose it via {@conn.host}, run:</p>
+              <p>To start a streaming session and expose it via {@conn.host} run:</p>
 
               <pre><code>asciinema stream -r</code></pre>
+
+              <p>
+                You can manage your streams on the <a href={~p"/user/streams"}>Streams</a>
+                page, which is always accessible from the user dropdown at the top of the site.
+              </p>
             </div>
           <% end %>
         </div>
