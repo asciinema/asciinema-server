@@ -82,7 +82,7 @@ defmodule Asciinema.Streaming do
   defp sort(q, nil), do: q
 
   defp sort(q, :activity) do
-    order_by(q, desc: :online, desc_nulls_last: :last_started_at)
+    order_by(q, desc: :online, desc_nulls_last: :last_started_at, desc: :id)
   end
 
   def paginate(%Ecto.Query{} = query, page, page_size) do
