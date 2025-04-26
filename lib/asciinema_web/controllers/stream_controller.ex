@@ -112,12 +112,12 @@ defmodule AsciinemaWeb.StreamController do
 
         conn
         |> put_flash(:info, "Stream #{id} deleted.")
-        |> redirect_back_or(to: ~p"/user/streams")
+        |> redirect(to: ~p"/user/streams")
 
       {:error, _reason} ->
         conn
         |> put_flash(:error, "Couldn't remove this stream.")
-        |> redirect_back_or(to: params["ret"] || ~p"/s/#{stream}")
+        |> redirect(to: params["ret"] || ~p"/s/#{stream}")
     end
   end
 
@@ -125,12 +125,10 @@ defmodule AsciinemaWeb.StreamController do
     PlayerOpts.parse(params, :stream)
   end
 
+  @actions [:edit, :delete]
+
   defp stream_actions(stream, user) do
-    if Authorization.can?(user, :edit, stream) do
-      [:edit]
-    else
-      []
-    end
+    Enum.filter(@actions, &Asciinema.Authorization.can?(user, &1, stream))
   end
 
   defp load_stream(conn, _) do

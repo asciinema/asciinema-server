@@ -40,6 +40,16 @@
             <.link :if={:edit in @actions} navigate={~p"/s/#{@stream}/edit"} class="dropdown-item">
               Settings
             </.link>
+
+            <.link
+              :if={:delete in @actions}
+              href={~p"/s/#{@stream}?ret=/s/#{@stream}"}
+              class="dropdown-item text-danger"
+              method="delete"
+              data-confirm="Are you sure you want to delete this stream?"
+            >
+              Delete
+            </.link>
           </div>
         </div>
       </div>
