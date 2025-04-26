@@ -46,15 +46,28 @@
     </div>
 
     <div :if={@user.streaming_enabled and length(@live_streams) == 0 and @self}>
-      <p>You have no live streams.</p>
+      <p><strong>You have no live streams.</strong></p>
 
-      <p>To start a streaming session and expose it via {@conn.host} run:</p>
+      <p>To start a new streaming session and expose it via {@conn.host} run:</p>
 
       <pre><code>asciinema stream -r</code></pre>
 
-      <small class="text-muted">
-        You need asciinema CLI version <a href="https://github.com/asciinema/asciinema/releases/tag/v3.0.0-rc.3">3.0 or later</a>.
-      </small>
+      <p>
+        <small class="text-muted">
+          You need asciinema CLI version <a href="https://github.com/asciinema/asciinema/releases/tag/v3.0.0-rc.3">3.0 or later</a>.
+        </small>
+      </p>
+
+      <p>
+        If you want to stream using an existing stream configuration then run:
+      </p>
+
+      <pre><code>asciinema stream -r <em>STREAM-ID</em></code></pre>
+
+      <p>
+        You will find your existing streams on the <a href="/user/streams">Manage streams</a>
+        page, which is always accessible from the user dropdown in the top navigation bar.
+      </p>
     </div>
 
     <h2 :if={@self}>Your recordings</h2>
@@ -73,7 +86,7 @@
 
     <div :if={@asciicasts.total_entries == 0}>
       <%= if @self do %>
-        <p>You have no recordings.</p>
+        <p><strong>You have no recordings.</strong></p>
 
         <p>
           <a href="https://docs.asciinema.org/manual/cli/installation/">Install
@@ -83,8 +96,8 @@
         <pre><code>asciinema rec demo.cast</code></pre>
 
         <p>
-          This starts a new recording session, where everything printed to
-          a terminal gets captured and saved to the demo.cast file in the
+          This will start a new recording session, during which everything printed to
+          the terminal will be captured and saved to the demo.cast file in the
           <a href="https://docs.asciinema.org/manual/asciicast/v2/">asciicast</a>
           format.
         </p>
@@ -107,19 +120,19 @@
           can be viewed. Feel free to share this link with anyone.</p>
 
         <p>
-          If you've already uploaded a recording and you don't see it here,
+          If you've already uploaded a recording but don't see it here,
           then associate it with your account by running
           <a href="https://docs.asciinema.org/manual/cli/usage/#asciinema-auth">
             <code>asciinema
               auth</code>
           </a>
-          in your terminal.
+          in your terminal <em>on the same machine you used to record it</em>.
         </p>
 
         <p>See <a href="https://docs.asciinema.org/manual/cli/quick-start/">asciinema
             CLI quick-start guide</a> for more examples.</p>
       <% else %>
-        <p :if={!@self}>{username(@user)} has no public recordings.</p>
+        <p :if={!@self}><strong>{username(@user)} has no public recordings.</strong></p>
       <% end %>
     </div>
 
