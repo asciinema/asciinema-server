@@ -8,8 +8,6 @@ defmodule Asciinema.Authorization do
     def can?(_user, :show, %Stream{visibility: v}) when v in [:public, :unlisted], do: true
     def can?(nil, _action, _thing), do: false
     def can?(%User{is_admin: true}, _action, _thing), do: true
-    def can?(_user, :make_featured, %Asciicast{}), do: false
-    def can?(_user, :make_not_featured, %Asciicast{}), do: false
     def can?(user, _action, %Asciicast{user_id: uid}), do: user.id == uid
     def can?(user, _action, %Stream{user_id: uid}), do: user.id == uid
     def can?(user, :update, %User{id: uid}), do: user.id == uid
