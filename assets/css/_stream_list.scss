@@ -30,7 +30,7 @@
       .action {
         text-align: right;
 
-        a {
+        > * {
           visibility: hidden;
           margin-left: 1em;
         }
@@ -40,7 +40,7 @@
     tr:hover {
       background-color: #f0f0f0;
 
-      .action a {
+      .action > * {
         visibility: visible;
       }
     }

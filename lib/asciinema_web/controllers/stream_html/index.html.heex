@@ -21,7 +21,7 @@
             <col style="width: 10%" />
             <col style="width: 15%" />
             <col style="width: 10%" />
-            <col style="width: 20%" />
+            <col style="width: 15%" />
           </colgroup>
           <thead>
             <th>ID</th>
@@ -46,9 +46,31 @@
               <td>{stream.current_viewer_count || 0} / {stream.peak_viewer_count || 0}</td>
               <td>{@rec_count_by_stream_id[stream.id] || 0}</td>
               <td class="action">
-                <a href={~p"/s/#{stream}/edit?ret=/user/streams"} class="btn btn-sm btn-secondary">
-                  Settings
-                </a>
+                <div class="dropdown" style="display: inline-block">
+                  <button
+                    class="btn btn-sm btn-secondary dropdown-toggle"
+                    type="button"
+                    data-toggle="dropdown"
+                  >
+                    <.cog_8_tooth_mini_icon />
+                  </button>
+
+                  <div class="dropdown-menu">
+                    <a href={~p"/s/#{stream}/edit?ret=/user/streams"} class="dropdown-item">
+                      Settings
+                    </a>
+
+                    <.link
+                      href={~p"/s/#{stream}?ret=/user/streams"}
+                      class="dropdown-item text-danger"
+                      method="delete"
+                      data-confirm="Are you sure you want to delete this stream?"
+                    >
+                      Delete
+                    </.link>
+                  </div>
+                </div>
+
                 <a href={~p"/s/#{stream}"} class="btn btn-sm btn-primary">
                   <%= if stream.online do %>
                     Watch

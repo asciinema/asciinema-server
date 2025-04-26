@@ -214,7 +214,7 @@ defmodule AsciinemaWeb.RecordingController do
 
       {:error, _reason} ->
         conn
-        |> put_flash(:error, "Oops, couldn't remove this recording.")
+        |> put_flash(:error, "Couldn't remove this recording.")
         |> redirect(to: ~p"/a/#{asciicast}")
     end
   end

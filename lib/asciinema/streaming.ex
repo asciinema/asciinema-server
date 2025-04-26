@@ -188,6 +188,8 @@ defmodule Asciinema.Streaming do
     end
   end
 
+  def delete_stream(stream), do: Repo.delete(stream)
+
   def delete_streams(%{streams: _} = owner) do
     Repo.delete_all(Ecto.assoc(owner, :streams))
 

@@ -5,10 +5,10 @@ defmodule AsciinemaWeb.StreamController do
   alias Asciinema.{Authorization, Recordings, Streaming}
   alias AsciinemaWeb.{FallbackController, StreamHTML, PlayerOpts}
 
-  plug :load_stream when action in [:show, :edit, :update]
+  plug :load_stream when action in [:show, :edit, :update, :delete]
   plug :require_current_user_when_private when action == :show
-  plug :require_current_user when action in [:index, :create, :edit, :update]
-  plug :authorize, :stream when action in [:show, :edit, :update]
+  plug :require_current_user when action in [:index, :create, :edit, :update, :delete]
+  plug :authorize, :stream when action in [:show, :edit, :update, :delete]
   plug :check_streaming_enabled when action in [:index, :edit, :update, :start]
 
   def index(conn, params) do
@@ -100,6 +100,24 @@ defmodule AsciinemaWeb.StreamController do
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, :edit, changeset: changeset)
+    end
+  end
+
+  def delete(conn, params) do
+    stream = conn.assigns.stream
+
+    case Streaming.delete_stream(stream) do
+      {:ok, stream} ->
+        id = Streaming.short_public_token(stream)
+
+        conn
+        |> put_flash(:info, "Stream #{id} deleted.")
+        |> redirect_back_or(to: ~p"/user/streams")
+
+      {:error, _reason} ->
+        conn
+        |> put_flash(:error, "Couldn't remove this stream.")
+        |> redirect_back_or(to: params["ret"] || ~p"/s/#{stream}")
     end
   end
 

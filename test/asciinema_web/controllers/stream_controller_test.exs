@@ -126,4 +126,38 @@ defmodule AsciinemaWeb.StreamControllerTest do
       assert html_response(conn, 200) =~ "Haha!"
     end
   end
+
+  describe "deleting" do
+    setup ctx do
+      user = insert(:user)
+
+      Map.merge(ctx, %{
+        user: user,
+        stream: insert(:stream, user: user)
+      })
+    end
+
+    test "requires logged in user", %{conn: conn, stream: stream} do
+      conn = delete(conn, ~p"/s/#{stream}")
+
+      assert redirected_to(conn, 302) == ~p"/login/new"
+    end
+
+    test "requires owner", %{conn: conn, stream: stream} do
+      conn = log_in(conn, insert(:user))
+
+      conn = delete(conn, ~p"/s/#{stream}")
+
+      assert html_response(conn, 403) =~ "access"
+    end
+
+    test "deletes and redirects", %{conn: conn, stream: stream, user: user} do
+      conn = log_in(conn, user)
+
+      conn = delete(conn, ~p"/s/#{stream}")
+
+      assert flash(conn, :info) =~ ~r/deleted/i
+      assert response(conn, 302)
+    end
+  end
 end
