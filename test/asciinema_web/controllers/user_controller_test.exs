@@ -73,7 +73,7 @@ defmodule AsciinemaWeb.UserControllerTest do
       conn = get(conn, ~p"/~dracula3000")
 
       html = html_response(conn, 200)
-      assert html =~ "1 public"
+      assert html =~ "dracula3000's recordings"
       assert html =~ "Public stuff"
       refute html =~ "Unlisted stuff"
       refute html =~ "Private stuff"
@@ -96,7 +96,7 @@ defmodule AsciinemaWeb.UserControllerTest do
       conn = get(conn, ~p"/~dracula3000")
 
       html = html_response(conn, 200)
-      assert html =~ "3 recordings"
+      assert html =~ "Your recordings"
       assert html =~ "Public stuff"
       assert html =~ "Unlisted stuff"
       assert html =~ "Private stuff"

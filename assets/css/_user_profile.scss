@@ -35,6 +35,11 @@
   }
 
   h2 {
-    margin-top: 30px;
+    margin: 2em 0;
+
+    .action {
+      float: right;
+      font-size: 75%;
+    }
   }
 }
