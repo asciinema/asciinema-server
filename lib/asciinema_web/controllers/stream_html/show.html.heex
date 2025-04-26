@@ -79,22 +79,7 @@
   <div class="container">
     <div class="row">
       <div class="col-md-12">
-        <h2>Stream URL</h2>
-        <.input
-          name="consumer-url"
-          data-behavior="auto-select"
-          readonly
-          value={url(~p"/s/#{@stream}")}
-        />
-
-        <p class="text-success">This is your unique stream URL. Share this
-          freely with your viewers.</p>
-
         <h2>How to stream</h2>
-
-        <h3>
-          <a href="https://github.com/asciinema/asciinema/releases/tag/v3.0.0-rc.3">asciinema CLI 3.0</a>:
-        </h3>
 
         <.input
           name="rec-cmd-asciinema-streamer"
@@ -103,40 +88,21 @@
           value={"asciinema stream -r #{short_public_token(@stream)}"}
         />
 
-        <h3>
-          <a href="https://docs.asciinema.org/manual/cli/installation/">asciinema CLI 2.2+</a>
-          + <a href="https://github.com/vi/websocat">websocat</a>:
-        </h3>
+        <small class="text-muted">
+          You need <a href="https://docs.asciinema.org/manual/cli/">asciinema CLI</a>
+          version <a href="https://github.com/asciinema/asciinema/releases/tag/v3.0.0-rc.3">3.0 or later</a>.
+        </small>
 
+        <h2>Stream URL</h2>
         <.input
-          name="rec-cmd-asciinema-websocat"
+          name="consumer-url"
           data-behavior="auto-select"
           readonly
-          value={"asciinema rec - | websocat #{ws_producer_url(@stream)}"}
+          value={url(~p"/s/#{@stream}")}
         />
 
-        <h3>
-          <a href="https://en.wikipedia.org/wiki/Script_(Unix)">script</a>
-          + <a href="https://github.com/vi/websocat">websocat</a>:
-        </h3>
-
-        <pre><code># in shell 1
-mkfifo live.pipe
-websocat --binary <%= ws_producer_url(@stream) %> &lt;live.pipe
-
-# in shell 2
-script -f -O live.pipe</code></pre>
-
-        <h3>Producer endpoint:</h3>
-        <.input
-          name="producer-url"
-          data-behavior="auto-select"
-          readonly
-          value={ws_producer_url(@stream)}
-        />
-
-        <p class="text-danger">Do not share this with anyone. Use it only with
-          the commands above to go live.</p>
+        <small class="text-muted">This is your unique stream URL. Share this
+          freely with your viewers.</small>
       </div>
     </div>
   </div>

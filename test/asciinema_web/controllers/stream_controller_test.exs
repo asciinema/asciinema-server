@@ -58,15 +58,15 @@ defmodule AsciinemaWeb.StreamControllerTest do
       stream = insert(:stream, user: user)
 
       conn_2 = get(conn, ~p"/s/#{stream}")
-      refute html_response(conn_2, 200) =~ stream.producer_token
+      refute html_response(conn_2, 200) =~ "asciinema stream -r"
 
       conn_2 = log_in(conn, insert(:user))
       conn_2 = get(conn_2, ~p"/s/#{stream}")
-      refute html_response(conn_2, 200) =~ stream.producer_token
+      refute html_response(conn_2, 200) =~ "asciinema stream -r"
 
       conn_2 = log_in(conn, user)
       conn_2 = get(conn_2, ~p"/s/#{stream}")
-      assert html_response(conn_2, 200) =~ stream.producer_token
+      assert html_response(conn_2, 200) =~ "asciinema stream -r"
     end
 
     test "when user has streaming disabled", %{conn: conn} do
