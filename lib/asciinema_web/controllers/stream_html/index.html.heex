@@ -10,79 +10,77 @@
     </div>
   </div>
 
-  <div :if={@streams.total_entries > 0}>
-    <div class="row stream-list">
-      <div class="col-md-12">
-        <table class="table">
-          <colgroup>
-            <col style="width: 7%" />
-            <col style="width: 10%" />
-            <col style="width: auto" />
-            <col style="width: 10%" />
-            <col style="width: 15%" />
-            <col style="width: 10%" />
-            <col style="width: 15%" />
-          </colgroup>
-          <thead>
-            <th>ID</th>
-            <th>Status</th>
-            <th>Title</th>
-            <th>Last session</th>
-            <th>Viewers (cur / peak)</th>
-            <th>Recordings</th>
-            <th></th>
-          </thead>
-          <tbody>
-            <tr :for={stream <- @streams}>
-              <td>
-                <a href={~p"/s/#{stream}"}><strong>{short_public_token(stream)}</strong></a>
-              </td>
-              <td>
-                <a :if={stream.online} href={~p"/s/#{stream}"}><.live_icon /></a>
-                <.offline_icon :if={!stream.online} />
-              </td>
-              <td>{stream.title}</td>
-              <td><.time_ago :if={stream.last_started_at} time={stream.last_started_at} /></td>
-              <td>{stream.current_viewer_count || 0} / {stream.peak_viewer_count || 0}</td>
-              <td>{@rec_count_by_stream_id[stream.id] || 0}</td>
-              <td class="action">
-                <div class="dropdown" style="display: inline-block">
-                  <button
-                    class="btn btn-sm btn-secondary dropdown-toggle"
-                    type="button"
-                    data-toggle="dropdown"
+  <div :if={@streams.total_entries > 0} class="row stream-list">
+    <div class="col-md-12">
+      <table class="table">
+        <colgroup>
+          <col style="width: 7%" />
+          <col style="width: 10%" />
+          <col style="width: auto" />
+          <col style="width: 10%" />
+          <col style="width: 15%" />
+          <col style="width: 10%" />
+          <col style="width: 15%" />
+        </colgroup>
+        <thead>
+          <th>ID</th>
+          <th>Status</th>
+          <th>Title</th>
+          <th>Last session</th>
+          <th>Viewers (cur / peak)</th>
+          <th>Recordings</th>
+          <th></th>
+        </thead>
+        <tbody>
+          <tr :for={stream <- @streams}>
+            <td>
+              <a href={~p"/s/#{stream}"}><strong>{short_public_token(stream)}</strong></a>
+            </td>
+            <td>
+              <a :if={stream.online} href={~p"/s/#{stream}"}><.live_icon /></a>
+              <.offline_icon :if={!stream.online} />
+            </td>
+            <td>{stream.title}</td>
+            <td><.time_ago :if={stream.last_started_at} time={stream.last_started_at} /></td>
+            <td>{stream.current_viewer_count || 0} / {stream.peak_viewer_count || 0}</td>
+            <td>{@rec_count_by_stream_id[stream.id] || 0}</td>
+            <td class="action">
+              <div class="dropdown" style="display: inline-block">
+                <button
+                  class="btn btn-sm btn-secondary dropdown-toggle"
+                  type="button"
+                  data-toggle="dropdown"
+                >
+                  <.cog_8_tooth_mini_icon />
+                </button>
+
+                <div class="dropdown-menu">
+                  <a href={~p"/s/#{stream}/edit?ret=/user/streams"} class="dropdown-item">
+                    Settings
+                  </a>
+
+                  <.link
+                    href={~p"/s/#{stream}?ret=/user/streams"}
+                    class="dropdown-item text-danger"
+                    method="delete"
+                    data-confirm="Are you sure you want to delete this stream?"
                   >
-                    <.cog_8_tooth_mini_icon />
-                  </button>
-
-                  <div class="dropdown-menu">
-                    <a href={~p"/s/#{stream}/edit?ret=/user/streams"} class="dropdown-item">
-                      Settings
-                    </a>
-
-                    <.link
-                      href={~p"/s/#{stream}?ret=/user/streams"}
-                      class="dropdown-item text-danger"
-                      method="delete"
-                      data-confirm="Are you sure you want to delete this stream?"
-                    >
-                      Delete
-                    </.link>
-                  </div>
+                    Delete
+                  </.link>
                 </div>
+              </div>
 
-                <a href={~p"/s/#{stream}"} class="btn btn-sm btn-primary">
-                  <%= if stream.online do %>
-                    Watch
-                  <% else %>
-                    Start
-                  <% end %>
-                </a>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+              <a href={~p"/s/#{stream}"} class="btn btn-sm btn-primary">
+                <%= if stream.online do %>
+                  Watch
+                <% else %>
+                  Start
+                <% end %>
+              </a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
     <div :if={@streams.total_pages > 1} class="row">
