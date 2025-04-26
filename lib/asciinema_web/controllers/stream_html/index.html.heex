@@ -10,6 +10,36 @@
     </div>
   </div>
 
+  <div :if={@streams.total_entries == 0}>
+    <p>
+      Create your first stream by clicking on the "Create new stream" button or by starting a new streaming session in your terminal.
+    </p>
+  </div>
+
+  <div>
+    <p>To start a new streaming session and expose it via {@conn.host} run:</p>
+
+    <pre><code>asciinema stream -r</code></pre>
+
+    <p>
+      <small class="text-muted">
+        You need asciinema CLI version <a href="https://github.com/asciinema/asciinema/releases/tag/v3.0.0-rc.3">3.0 or later</a>.
+      </small>
+    </p>
+
+    <p>
+      The above command will automatically create a new stream ID and start streaming your terminal.
+    </p>
+
+    <div :if={@streams.total_entries > 0}>
+      <p>
+        If you want to stream using an existing stream configuration then choose an ID from the table below and run:
+      </p>
+
+      <pre><code>asciinema stream -r <em>STREAM-ID</em></code></pre>
+    </div>
+  </div>
+
   <div :if={@streams.total_entries > 0} class="row stream-list">
     <div class="col-md-12">
       <table class="table">
@@ -83,10 +113,8 @@
       </table>
     </div>
 
-    <div :if={@streams.total_pages > 1} class="row">
-      <div class="col">
-        {pagination_links(@streams)}
-      </div>
+    <div :if={@streams.total_pages > 1} class="col">
+      {pagination_links(@streams)}
     </div>
   </div>
 </div>
