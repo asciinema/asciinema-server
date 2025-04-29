@@ -53,27 +53,6 @@ defmodule AsciinemaWeb.StreamHTML do
     "Account default (#{Themes.display_name(Accounts.default_term_theme_name(stream.user) || "asciinema")})"
   end
 
-  def duration(stream) do
-    if t = stream.last_started_at do
-      seconds = Timex.diff(Timex.now(), t, :second)
-      days = div(seconds, 60 * 60 * 24)
-      seconds = rem(seconds, 60 * 60 * 24)
-      hours = div(seconds, 60 * 60)
-      seconds = rem(seconds, 60 * 60)
-      minutes = div(seconds, 60)
-      seconds = rem(seconds, 60)
-
-      cond do
-        days > 0 and hours > 0 -> "#{days}d #{hours}h"
-        days > 0 -> "#{days}d"
-        hours > 0 and minutes > 0 -> "#{hours}h #{minutes}m"
-        hours > 0 -> "#{hours}h"
-        minutes > 0 -> "#{minutes}m"
-        true -> "#{seconds}s"
-      end
-    end
-  end
-
   def default_font_display_name(user) do
     Fonts.display_name(Accounts.default_font_family(user) || "default")
   end

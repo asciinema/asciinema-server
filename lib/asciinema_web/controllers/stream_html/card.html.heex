@@ -14,7 +14,7 @@
   <div class="info">
     <h3>
       <.link href={~p"/s/#{@stream}"}>{title(@stream)}</.link>
-      <span class="duration">{duration(@stream)}</span>
+      <span class="duration"><.live_icon :if={@stream.online} /></span>
     </h3>
 
     <span class="author-avatar">
