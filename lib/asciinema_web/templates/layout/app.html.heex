@@ -15,12 +15,7 @@
   </head>
 
   <body class={"l-app " <> body_class(@conn)}>
-    {render("_header.html",
-      conn: @conn,
-      current_user: @current_user,
-      default_stream: assigns[:default_stream]
-    )}
-
+    {render("_header.html", conn: @conn, current_user: @current_user)}
     {render("_flash.html", flash: @flash)}
 
     <main role="main" class={assigns[:main_class]}>

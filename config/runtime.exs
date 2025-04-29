@@ -223,10 +223,12 @@ if config_env() in [:prod, :dev] do
       :ok
   end
 
-  mode = env.("STREAMING_MODE")
+  if limit = env.("DEFAULT_STREAM_LIMIT") do
+    config :asciinema, Asciinema.Accounts, default_stream_limit: String.to_integer(limit)
+  end
 
-  if mode in ["static", "dynamic", "disabled"] do
-    config :asciinema, Asciinema.Streaming, mode: String.to_atom(mode)
+  if env.("DEFAULT_STREAMING_ENABLED") in ["0", "false", "no"] do
+    config :asciinema, Asciinema.Accounts, default_streaming_enabled: false
   end
 
   mode = env.("STREAM_RECORDING")

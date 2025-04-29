@@ -11,9 +11,40 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
   end
 
   describe "create stream" do
-    test "responds with default stream info when a fixed stream is available", %{conn: conn} do
-      set_streaming_mode(:fixed)
+    test "responds with new stream info when no stream limit", %{conn: conn} do
       user = insert(:user)
+      insert(:stream, user: user, public_token: "foobar")
+      conn = add_auth_header(conn, insert(:cli, user: user))
+
+      conn = post(conn, ~p"/api/streams")
+
+      assert %{
+               "url" => "http://localhost:4001/s/" <> public_token,
+               "ws_producer_url" => "ws://localhost:4001/ws/S/" <> _
+             } = json_response(conn, 200)
+
+      assert public_token != "foobar"
+    end
+
+    test "responds with new stream info when below stream limit", %{conn: conn} do
+      user = insert(:user, stream_limit: 2)
+      insert(:stream, user: user, public_token: "foobar")
+      conn = add_auth_header(conn, insert(:cli, user: user))
+
+      conn = post(conn, ~p"/api/streams")
+
+      assert %{
+               "url" => "http://localhost:4001/s/" <> public_token,
+               "ws_producer_url" => "ws://localhost:4001/ws/S/" <> _
+             } = json_response(conn, 200)
+
+      assert public_token != "foobar"
+    end
+
+    test "responds with existing stream when stream limit reached and exactly 1 stream exists", %{
+      conn: conn
+    } do
+      user = insert(:user, stream_limit: 1)
       insert(:stream, user: user, public_token: "foobar", producer_token: "bazqux")
       conn = add_auth_header(conn, insert(:cli, user: user))
 
@@ -22,19 +53,6 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
       assert %{
                "url" => "http://localhost:4001/s/foobar",
                "ws_producer_url" => "ws://localhost:4001/ws/S/bazqux"
-             } = json_response(conn, 200)
-    end
-
-    test "responds with dynamic stream info when mode is dynamic", %{conn: conn} do
-      set_streaming_mode(:dynamic)
-      user = insert(:user)
-      conn = add_auth_header(conn, insert(:cli, user: user))
-
-      conn = post(conn, ~p"/api/streams")
-
-      assert %{
-               "url" => "http://localhost:4001/s/" <> _,
-               "ws_producer_url" => "ws://localhost:4001/ws/S/" <> _
              } = json_response(conn, 200)
     end
 
@@ -78,28 +96,17 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
       assert %{"reason" => "streaming disabled"} = json_response(conn, 403)
     end
 
-    test "responds with 403 when streaming is disabled system-wide", %{conn: conn} do
-      set_streaming_mode(:disabled)
-      user = insert(:user)
+    test "responds with 404 when no stream is available", %{conn: conn} do
+      user = insert(:user, stream_limit: 0)
       conn = add_auth_header(conn, insert(:cli, user: user))
-
-      conn = post(conn, ~p"/api/streams")
-
-      assert %{"reason" => "streaming disabled"} = json_response(conn, 403)
-    end
-
-    test "responds with 404 when no stream is available in fixed mode", %{conn: conn} do
-      set_streaming_mode(:fixed)
-      conn = add_auth_header(conn, insert(:cli))
 
       conn = post(conn, ~p"/api/streams")
 
       assert %{} = json_response(conn, 404)
     end
 
-    test "responds with 422 when more than one fixed stream is available", %{conn: conn} do
-      set_streaming_mode(:fixed)
-      user = insert(:user)
+    test "responds with 422 when stream limit reached and 2+ streams available", %{conn: conn} do
+      user = insert(:user, stream_limit: 2)
       insert_list(2, :stream, user: user)
       conn = add_auth_header(conn, insert(:cli, user: user))
 
@@ -110,7 +117,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
   end
 
   describe "get default stream" do
-    test "responds with stream info when a stream is available", %{conn: conn} do
+    test "responds with stream info when exactly 1 stream exists", %{conn: conn} do
       user = insert(:user)
       insert(:stream, user: user, public_token: "foobar", producer_token: "bazqux")
       conn = add_auth_header(conn, insert(:cli, user: user))
@@ -156,16 +163,6 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
     test "responds with 403 when user has streaming disabled", %{conn: conn} do
       user = insert(:user, streaming_enabled: false)
       insert(:stream, user: user)
-      conn = add_auth_header(conn, insert(:cli, user: user))
-
-      conn = get(conn, ~p"/api/user/stream")
-
-      assert %{"reason" => "streaming disabled"} = json_response(conn, 403)
-    end
-
-    test "responds with 403 when streaming is disabled system-wide", %{conn: conn} do
-      set_streaming_mode(:disabled)
-      user = insert(:user)
       conn = add_auth_header(conn, insert(:cli, user: user))
 
       conn = get(conn, ~p"/api/user/stream")
@@ -182,7 +179,6 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
     end
 
     test "responds with 422 when more than one fixed stream is available", %{conn: conn} do
-      set_streaming_mode(:fixed)
       user = insert(:user)
       insert_list(2, :stream, user: user)
       conn = add_auth_header(conn, insert(:cli, user: user))
@@ -261,16 +257,6 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
       assert %{"reason" => "streaming disabled"} = json_response(conn, 403)
     end
 
-    test "responds with 403 when streaming is disabled system-wide", %{conn: conn} do
-      set_streaming_mode(:disabled)
-      user = insert(:user)
-      conn = add_auth_header(conn, insert(:cli, user: user))
-
-      conn = get(conn, ~p"/api/user/streams/x")
-
-      assert %{"reason" => "streaming disabled"} = json_response(conn, 403)
-    end
-
     test "responds with 404 when stream is not found", %{conn: conn} do
       conn = add_auth_header(conn, insert(:cli))
 
@@ -295,9 +281,5 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
 
   defp add_auth_header(conn, install_id) do
     put_req_header(conn, "authorization", "Basic " <> Base.encode64(":" <> install_id))
-  end
-
-  defp set_streaming_mode(mode) do
-    Application.put_env(:asciinema, Asciinema.Streaming, mode: mode)
   end
 end

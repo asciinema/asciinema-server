@@ -1,15 +1,7 @@
 defmodule Asciinema do
   alias Asciinema.{Accounts, Emails, Recordings, Repo, Streaming}
 
-  def create_user(attrs) do
-    with {:ok, user} <- Accounts.create_user(attrs) do
-      if Streaming.mode() == :static do
-        Streaming.create_stream!(user)
-      end
-
-      {:ok, user}
-    end
-  end
+  defdelegate create_user(attrs, ctx \\ :user), to: Accounts
 
   def create_user_from_sign_up_token(token) do
     with {:ok, email} <- Accounts.verify_sign_up_token(token),
@@ -24,10 +16,10 @@ defmodule Asciinema do
     end
   end
 
-  defdelegate change_user(user, params \\ %{}), to: Accounts
+  defdelegate change_user(user, params \\ %{}, ctx \\ :user), to: Accounts
 
-  def update_user(user, params) do
-    with {:ok, user} <- Accounts.update_user(user, params) do
+  def update_user(user, params, ctx \\ :user) do
+    with {:ok, user} <- Accounts.update_user(user, params, ctx) do
       Recordings.migrate_files(user)
 
       {:ok, user}

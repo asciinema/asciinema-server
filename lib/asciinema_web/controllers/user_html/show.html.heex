@@ -22,24 +22,19 @@
   </section>
 
   <div class="container">
-    <div :if={length(@streams) > 0}>
-      <%= if @self do %>
-        <%= if length(@streams) == 1 do %>
-          <h2>Your live stream</h2>
-        <% else %>
-          <h2>Your live streams</h2>
-        <% end %>
-      <% else %>
-        <%= if length(@streams) == 1 do %>
-          <h2>{username(@user)}'s live stream</h2>
-        <% else %>
-          <h2>{username(@user)}'s live streams</h2>
-        <% end %>
-      <% end %>
+    <h2 :if={@self and @user.streaming_enabled}>
+      Your live streams
+      <span class="action">
+        <a href={~p"/user/streams"}>Manage streams</a>
+      </span>
+    </h2>
 
+    <h2 :if={!@self and length(@live_streams) > 0}>{username(@user)}'s live streams</h2>
+
+    <div :if={@user.streaming_enabled and length(@live_streams) > 0}>
       <div class="row asciicast-list">
         <div class="col-md-12">
-          <div :for={streams <- Enum.chunk_every(@streams, 2, 2)} class="row">
+          <div :for={streams <- Enum.chunk_every(@live_streams, 2, 2)} class="row">
             <div :for={stream <- streams} class="col-md-6">
               {live_render(@conn, AsciinemaWeb.StreamCardLive,
                 session: %{"stream_id" => stream.id}
@@ -50,101 +45,96 @@
       </div>
     </div>
 
-    <%= if @asciicasts.total_entries > 0 do %>
-      <%= if @self do %>
-        <h2>You have {pluralize(@asciicasts.total_entries, "recording")}</h2>
-      <% else %>
-        <h2>
-          {pluralize(@asciicasts.total_entries, "public recording")} by {username(@user)}
-        </h2>
-      <% end %>
+    <div :if={@user.streaming_enabled and length(@live_streams) == 0 and @self}>
+      <p><strong>You have no live streams.</strong></p>
 
-      <div class="row asciicast-list">
-        <div class="col-md-12">
-          <div :for={asciicasts <- Enum.chunk_every(@asciicasts, 2, 2)} class="row">
-            <div :for={asciicast <- asciicasts} class="col-md-6">
-              <RecordingHTML.card asciicast={asciicast} conn={@conn} />
-            </div>
+      <p>To start a new streaming session and expose it via {@conn.host} run:</p>
+
+      <pre><code>asciinema stream -r</code></pre>
+
+      <p>
+        <small class="text-muted">
+          You need asciinema CLI version <a href="https://github.com/asciinema/asciinema/releases/tag/v3.0.0-rc.3">3.0 or later</a>.
+        </small>
+      </p>
+
+      <p>
+        If you want to stream using an existing stream configuration then run:
+      </p>
+
+      <pre><code>asciinema stream -r <em>STREAM-ID</em></code></pre>
+
+      <p>
+        You will find your existing streams on the <a href="/user/streams">Manage streams</a>
+        page, which is always accessible from the user dropdown in the top navigation bar.
+      </p>
+    </div>
+
+    <h2 :if={@self}>Your recordings</h2>
+
+    <h2 :if={!@self}>{username(@user)}'s recordings</h2>
+
+    <div :if={@asciicasts.total_entries > 0} class="row asciicast-list">
+      <div class="col-md-12">
+        <div :for={asciicasts <- Enum.chunk_every(@asciicasts, 2, 2)} class="row">
+          <div :for={asciicast <- asciicasts} class="col-md-6">
+            <RecordingHTML.card asciicast={asciicast} conn={@conn} />
           </div>
         </div>
       </div>
-    <% else %>
+    </div>
+
+    <div :if={@asciicasts.total_entries == 0}>
       <%= if @self do %>
-        <div class="row">
-          <div class={"col-md-#{if @default_stream, do: 6, else: 12}"}>
-            <h2>Recording &amp; publishing</h2>
+        <p><strong>You have no recordings.</strong></p>
 
-            <p>
-              First, <a href="https://docs.asciinema.org/manual/cli/installation/">install
-            the asciinema CLI</a>.
-            </p>
+        <p>
+          <a href="https://docs.asciinema.org/manual/cli/installation/">Install
+          the asciinema CLI</a>, then start recording your terminal with:
+        </p>
 
-            <p>Then, recording your terminal with:</p>
+        <pre><code>asciinema rec demo.cast</code></pre>
 
-            <pre><code>asciinema rec demo.cast</code></pre>
+        <p>
+          This will start a new recording session, during which everything printed to
+          the terminal will be captured and saved to the demo.cast file in the
+          <a href="https://docs.asciinema.org/manual/asciicast/v2/">asciicast</a>
+          format.
+        </p>
 
-            <p>
-              This starts a new recording session, where everything printed to
-              a terminal gets captured and saved to the demo.cast file in
-              <a href="https://docs.asciinema.org/manual/asciicast/v2/">asciicast</a>
-              format.
-            </p>
+        <p>To end the recording session, exit the shell. This can be
+          done by pressing <kbd>ctrl+d</kbd> or entering <code>exit</code>.</p>
 
-            <p>To end the recording session, just exit the shell. This can be
-              done by pressing <kbd>ctrl+d</kbd> or entering <code>exit</code>.</p>
+        <p>Replay your recording with:</p>
 
-            <p>Replay your recording with:</p>
+        <pre><code>asciinema play demo.cast</code></pre>
 
-            <pre><code>asciinema play demo.cast</code></pre>
+        <p>You can pause/resume by pressing <kbd>space</kbd>, or end the
+          playback early by pressing <kbd>ctrl+c</kbd>.</p>
 
-            <p>You can pause/resume by pressing <kbd>space</kbd>, or end the
-              playback early by pressing <kbd>ctrl+c</kbd>.</p>
+        <p>Upload your recording to {@conn.host} with:</p>
 
-            <p>Upload your recording with:</p>
+        <pre><code>asciinema upload demo.cast</code></pre>
 
-            <pre><code>asciinema upload demo.cast</code></pre>
+        <p>The above command will print a secret link to the recording page, where it
+          can be viewed. Feel free to share this link with anyone.</p>
 
-            <p>The command prints a secret link to the recording page, where it
-              can be viewed. Feel free to share this link with anyone.</p>
+        <p>
+          If you've already uploaded a recording but don't see it here,
+          then associate it with your account by running
+          <a href="https://docs.asciinema.org/manual/cli/usage/#asciinema-auth">
+            <code>asciinema
+              auth</code>
+          </a>
+          in your terminal <em>on the same machine you used to record it</em>.
+        </p>
 
-            <p>
-              If you've already uploaded a recording and you don't see it here,
-              then associate it with your account by running
-              <a href="https://docs.asciinema.org/manual/cli/usage/#asciinema-auth">
-                <code>asciinema
-                  auth</code>
-              </a>
-              in your terminal.
-            </p>
-
-            <p>See <a href="https://docs.asciinema.org/manual/cli/quick-start/">asciinema
-                CLI quick-start guide</a> for more examples.</p>
-          </div>
-
-          <%= if @default_stream do %>
-            <div class="col-md-6">
-              <h2>Streaming</h2>
-
-              <p>
-                Live terminal streaming is a feature of the <a href="https://github.com/asciinema/asciinema/releases/tag/v3.0.0-rc.2">upcoming
-              asciinema CLI 3.0</a>.
-              </p>
-
-              <p>To start the streaming session and expose it via {@conn.host}, run:</p>
-
-              <pre><code>asciinema stream -r</code></pre>
-
-              <p>
-                View your live stream <a href={~p"/s/#{@default_stream}"}>here</a>. You can always access
-                it from the user drop-down menu in the top navigation bar.
-              </p>
-            </div>
-          <% end %>
-        </div>
+        <p>See <a href="https://docs.asciinema.org/manual/cli/quick-start/">asciinema
+            CLI quick-start guide</a> for more examples.</p>
       <% else %>
-        <h2>{username(@user)} has no public recordings</h2>
+        <p :if={!@self}><strong>{username(@user)} has no public recordings.</strong></p>
       <% end %>
-    <% end %>
+    </div>
 
     <div :if={@asciicasts.total_pages > 1} class="row">
       <div class="col">

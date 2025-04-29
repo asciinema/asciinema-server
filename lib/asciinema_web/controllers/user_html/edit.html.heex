@@ -81,7 +81,7 @@
 
         <p>
           The settings below control the defaults for <strong>new</strong>
-          recordings and streams. <br />
+          recordings<span :if={@streaming_enabled}> and streams</span>. <br />
           <br />
         </p>
 
@@ -144,7 +144,7 @@
           </div>
         </div>
 
-        <div :if={@streaming_mode == :dynamic} class="form-group row">
+        <div :if={@streaming_enabled} class="form-group row">
           <.label for={f[:default_stream_visibility]} class="col-3 col-form-label">
             Stream visibility
           </.label>
@@ -269,7 +269,7 @@
 
       <.form
         :let={f}
-        :if={@stream_recording_mode != :disabled}
+        :if={@streaming_enabled}
         for={@changeset}
         action={~p"/user"}
         class="simple_form form-horizontal"
@@ -279,7 +279,27 @@
         <legend>Streaming</legend>
 
         <div class="form-group row">
-          <.label for={f[:term_font_family]} class="col-sm-4 col-md-3 col-form-label">
+          <.label for={f[:stream_limit]} class="col-sm-4 col-md-3 col-form-label">
+            Stream limit
+          </.label>
+          <div class="col-sm-8 col-md-9">
+            <.input
+              field={f[:stream_limit]}
+              class="string form-control"
+              placeholder="no limit"
+              readonly
+            />
+            <small class="form-text text-muted">
+              Maximum number of streaming endpoints you can create.
+              <%= if @changeset.data.stream_limit do %>
+                Contact the admin if you need more.
+              <% end %>
+            </small>
+          </div>
+        </div>
+
+        <div :if={@stream_recording_mode != :disabled} class="form-group row">
+          <.label for={f[:stream_recording_enabled]} class="col-sm-4 col-md-3 col-form-label">
             Recording
           </.label>
           <div class="col-sm-8 col-9">

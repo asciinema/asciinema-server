@@ -214,7 +214,7 @@ defmodule AsciinemaWeb.RecordingController do
 
       {:error, _reason} ->
         conn
-        |> put_flash(:error, "Oops, couldn't remove this recording.")
+        |> put_flash(:error, "Couldn't remove this recording.")
         |> redirect(to: ~p"/a/#{asciicast}")
     end
   end
@@ -290,25 +290,10 @@ defmodule AsciinemaWeb.RecordingController do
     end
   end
 
-  @actions [
-    :edit,
-    :delete,
-    :make_featured,
-    :make_not_featured
-  ]
+  @actions [:edit, :delete]
 
   defp asciicast_actions(asciicast, user) do
-    @actions
-    |> Enum.filter(&action_applicable?(&1, asciicast))
-    |> Enum.filter(&Asciinema.Authorization.can?(user, &1, asciicast))
-  end
-
-  defp action_applicable?(action, asciicast) do
-    case action do
-      :make_featured -> !asciicast.featured
-      :make_not_featured -> asciicast.featured
-      _ -> true
-    end
+    Enum.filter(@actions, &Asciinema.Authorization.can?(user, &1, asciicast))
   end
 
   defp player_opts(params) do

@@ -1,6 +1,7 @@
 defmodule AsciinemaWeb.StreamHTML do
   use AsciinemaWeb, :html
-  alias Asciinema.{Accounts, Fonts, Media, Themes}
+  import Scrivener.HTML
+  alias Asciinema.{Accounts, Fonts, Media, Streaming, Themes}
   alias AsciinemaWeb.{MediaView, RecordingHTML, RecordingSVG}
 
   embed_templates "stream_html/*"
@@ -11,6 +12,7 @@ defmodule AsciinemaWeb.StreamHTML do
   defdelegate theme(stream), to: Media
   defdelegate theme_options, to: MediaView
   defdelegate font_family_options, to: MediaView
+  defdelegate short_public_token(stream), to: Streaming
 
   def player_src(stream) do
     %{

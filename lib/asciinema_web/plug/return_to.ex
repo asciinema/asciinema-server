@@ -4,7 +4,11 @@ defmodule AsciinemaWeb.Plug.ReturnTo do
 
   def save_return_path(conn) do
     qs = if conn.query_string != "", do: "?#{conn.query_string}", else: ""
-    put_session(conn, :return_to, conn.request_path <> qs)
+    save_return_path(conn, conn.request_path <> qs)
+  end
+
+  def save_return_path(conn, return_path) do
+    put_session(conn, :return_to, return_path)
   end
 
   def redirect_back_or(conn, target) do

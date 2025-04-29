@@ -40,6 +40,16 @@
             <.link :if={:edit in @actions} navigate={~p"/s/#{@stream}/edit"} class="dropdown-item">
               Settings
             </.link>
+
+            <.link
+              :if={:delete in @actions}
+              href={~p"/s/#{@stream}?ret=/s/#{@stream}"}
+              class="dropdown-item text-danger"
+              method="delete"
+              data-confirm="Are you sure you want to delete this stream?"
+            >
+              Delete
+            </.link>
           </div>
         </div>
       </div>
@@ -69,6 +79,20 @@
   <div class="container">
     <div class="row">
       <div class="col-md-12">
+        <h2>How to stream</h2>
+
+        <.input
+          name="rec-cmd-asciinema-streamer"
+          data-behavior="auto-select"
+          readonly
+          value={"asciinema stream -r #{short_public_token(@stream)}"}
+        />
+
+        <small class="text-muted">
+          You need <a href="https://docs.asciinema.org/manual/cli/">asciinema CLI</a>
+          version <a href="https://github.com/asciinema/asciinema/releases/tag/v3.0.0-rc.3">3.0 or later</a>.
+        </small>
+
         <h2>Stream URL</h2>
         <.input
           name="consumer-url"
@@ -77,56 +101,8 @@
           value={url(~p"/s/#{@stream}")}
         />
 
-        <p class="text-success">This is your unique stream URL. Share this
-          freely with your viewers.</p>
-
-        <h2>How to stream</h2>
-
-        <h3>
-          <a href="https://github.com/asciinema/asciinema/releases/tag/v3.0.0-rc.3">asciinema CLI 3.0</a>:
-        </h3>
-
-        <.input
-          name="rec-cmd-asciinema-streamer"
-          data-behavior="auto-select"
-          readonly
-          value="asciinema stream -r"
-        />
-
-        <h3>
-          <a href="https://docs.asciinema.org/manual/cli/installation/">asciinema CLI 2.2+</a>
-          + <a href="https://github.com/vi/websocat">websocat</a>:
-        </h3>
-
-        <.input
-          name="rec-cmd-asciinema-websocat"
-          data-behavior="auto-select"
-          readonly
-          value={"asciinema rec - | websocat #{ws_producer_url(@stream)}"}
-        />
-
-        <h3>
-          <a href="https://en.wikipedia.org/wiki/Script_(Unix)">script</a>
-          + <a href="https://github.com/vi/websocat">websocat</a>:
-        </h3>
-
-        <pre><code># in shell 1
-mkfifo live.pipe
-websocat --binary <%= ws_producer_url(@stream) %> &lt;live.pipe
-
-# in shell 2
-script -f -O live.pipe</code></pre>
-
-        <h3>Producer endpoint:</h3>
-        <.input
-          name="producer-url"
-          data-behavior="auto-select"
-          readonly
-          value={ws_producer_url(@stream)}
-        />
-
-        <p class="text-danger">Do not share this with anyone. Use it only with
-          the commands above to go live.</p>
+        <small class="text-muted">This is your unique stream URL. Share this
+          freely with your viewers.</small>
       </div>
     </div>
   </div>

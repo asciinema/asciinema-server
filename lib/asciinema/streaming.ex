@@ -52,10 +52,10 @@ defmodule Asciinema.Streaming do
   defp wrap(nil), do: {:error, :not_found}
   defp wrap(value), do: {:ok, value}
 
-  def query(filters \\ []) do
+  def query(filters \\ [], order \\ nil) do
     from(Stream)
-    |> order_by(desc: :last_started_at)
     |> apply_filters(filters)
+    |> sort(order)
   end
 
   defp apply_filters(q, filters) when is_list(filters) do
@@ -79,6 +79,26 @@ defmodule Asciinema.Streaming do
     end
   end
 
+  defp sort(q, nil), do: q
+
+  defp sort(q, :activity) do
+    order_by(q, desc: :online, desc_nulls_last: :last_started_at, desc: :id)
+  end
+
+  def paginate(%Ecto.Query{} = query, page, page_size) do
+    query
+    |> preload(:user)
+    |> Repo.paginate(page: page, page_size: page_size)
+  end
+
+  def list(q, limit \\ nil)
+
+  def list(q, nil) do
+    q
+    |> preload(:user)
+    |> Repo.all()
+  end
+
   def list(q, limit) do
     q
     |> limit(^limit)
@@ -99,14 +119,14 @@ defmodule Asciinema.Streaming do
   end
 
   def create_stream(user) do
-    if mode() == :dynamic do
+    if user.stream_limit == nil or count_streams(user) < user.stream_limit do
       {:ok, create_stream!(user)}
     else
-      fetch_default_stream(user)
+      {:error, :limit_reached}
     end
   end
 
-  def mode, do: config(:mode, :dynamic)
+  defp count_streams(user), do: Repo.count(Ecto.assoc(user, :streams))
 
   def change_stream(stream, attrs \\ %{})
 
@@ -168,6 +188,8 @@ defmodule Asciinema.Streaming do
     end
   end
 
+  def delete_stream(stream), do: Repo.delete(stream)
+
   def delete_streams(%{streams: _} = owner) do
     Repo.delete_all(Ecto.assoc(owner, :streams))
 
@@ -183,7 +205,7 @@ defmodule Asciinema.Streaming do
     t = Timex.shift(Timex.now(), minutes: -1)
     q = from(s in Stream, where: s.online and s.last_activity_at < ^t)
 
-    {count, _} = Repo.update_all(q, set: [online: false])
+    {count, _} = Repo.update_all(q, set: [online: false, current_viewer_count: 0])
 
     count
   end
@@ -191,8 +213,5 @@ defmodule Asciinema.Streaming do
   defp generate_public_token, do: Crypto.random_token(16)
   defp generate_producer_token, do: Crypto.random_token(16)
 
-  defp config(key, default) do
-    opts = Application.get_env(:asciinema, __MODULE__) || []
-    Keyword.get(opts, key, default)
-  end
+  def short_public_token(stream), do: String.slice(stream.public_token, 0, 4)
 end

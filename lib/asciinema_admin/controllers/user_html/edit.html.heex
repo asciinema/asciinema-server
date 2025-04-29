@@ -22,6 +22,23 @@
     <.error field={f[:name]} />
   </p>
 
+  <br />
+
+  <h3>Streaming</h3>
+
+  <p>
+    <.input field={f[:streaming_enabled]} type="checkbox" />
+    <.label for={f[:streaming_enabled]}>Enabled</.label>
+  </p>
+
+  <p>
+    <.label for={f[:stream_limit]}>Stream limit</.label>
+    <.input field={f[:stream_limit]} type="number" min="0" placeholder="no limit" />
+    <.error field={f[:stream_limit]} />
+  </p>
+
+  <br />
+
   <p>
     <button type="submit">Update</button>
   </p>

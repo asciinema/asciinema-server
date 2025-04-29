@@ -58,29 +58,20 @@ defmodule AsciinemaWeb.StreamControllerTest do
       stream = insert(:stream, user: user)
 
       conn_2 = get(conn, ~p"/s/#{stream}")
-      refute html_response(conn_2, 200) =~ stream.producer_token
+      refute html_response(conn_2, 200) =~ "asciinema stream -r"
 
       conn_2 = log_in(conn, insert(:user))
       conn_2 = get(conn_2, ~p"/s/#{stream}")
-      refute html_response(conn_2, 200) =~ stream.producer_token
+      refute html_response(conn_2, 200) =~ "asciinema stream -r"
 
       conn_2 = log_in(conn, user)
       conn_2 = get(conn_2, ~p"/s/#{stream}")
-      assert html_response(conn_2, 200) =~ stream.producer_token
+      assert html_response(conn_2, 200) =~ "asciinema stream -r"
     end
 
     test "when user has streaming disabled", %{conn: conn} do
       user = insert(:user, streaming_enabled: false)
       stream = insert(:stream, user: user)
-
-      conn_2 = get(conn, ~p"/s/#{stream}")
-
-      assert html_response(conn_2, 404)
-    end
-
-    test "when streaming is disabled system-wide", %{conn: conn} do
-      Application.put_env(:asciinema, Asciinema.Streaming, mode: :disabled)
-      stream = insert(:stream)
 
       conn_2 = get(conn, ~p"/s/#{stream}")
 
@@ -133,6 +124,40 @@ defmodule AsciinemaWeb.StreamControllerTest do
       conn = get(build_conn(), location)
 
       assert html_response(conn, 200) =~ "Haha!"
+    end
+  end
+
+  describe "deleting" do
+    setup ctx do
+      user = insert(:user)
+
+      Map.merge(ctx, %{
+        user: user,
+        stream: insert(:stream, user: user)
+      })
+    end
+
+    test "requires logged in user", %{conn: conn, stream: stream} do
+      conn = delete(conn, ~p"/s/#{stream}")
+
+      assert redirected_to(conn, 302) == ~p"/login/new"
+    end
+
+    test "requires owner", %{conn: conn, stream: stream} do
+      conn = log_in(conn, insert(:user))
+
+      conn = delete(conn, ~p"/s/#{stream}")
+
+      assert html_response(conn, 403) =~ "access"
+    end
+
+    test "deletes and redirects", %{conn: conn, stream: stream, user: user} do
+      conn = log_in(conn, user)
+
+      conn = delete(conn, ~p"/s/#{stream}")
+
+      assert flash(conn, :info) =~ ~r/deleted/i
+      assert response(conn, 302)
     end
   end
 end

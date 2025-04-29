@@ -56,7 +56,7 @@ defmodule AsciinemaWeb.UserController do
     current_user = conn.assigns.current_user
     self = !!(current_user && current_user.id == user.id)
 
-    streams =
+    live_streams =
       [:live, user_id: user.id]
       |> Streaming.query()
       |> Authorization.scope(:streams, current_user)
@@ -74,7 +74,7 @@ defmodule AsciinemaWeb.UserController do
       page_title: "#{user.username}'s profile",
       user: user,
       self: self,
-      streams: streams,
+      live_streams: live_streams,
       asciicasts: asciicasts
     )
   end
@@ -116,7 +116,7 @@ defmodule AsciinemaWeb.UserController do
 
     render(conn, "edit.html",
       changeset: changeset,
-      streaming_mode: Streaming.mode(),
+      streaming_enabled: user.streaming_enabled,
       stream_recording_mode: Streaming.recording_mode(),
       clis: clis
     )
