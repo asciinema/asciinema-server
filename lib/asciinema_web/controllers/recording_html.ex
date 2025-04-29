@@ -62,14 +62,7 @@ defmodule AsciinemaWeb.RecordingHTML do
     end
   end
 
-  def duration(asciicast) do
-    if d = asciicast.duration do
-      d = round(d)
-      minutes = div(d, 60)
-      seconds = rem(d, 60)
-      :io_lib.format("~2..0B:~2..0B", [minutes, seconds])
-    end
-  end
+  def duration(asciicast), do: MediumHTML.format_duration(asciicast.duration)
 
   defp poster(nil), do: nil
 
