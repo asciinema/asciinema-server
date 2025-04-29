@@ -82,4 +82,39 @@ defmodule AsciinemaWeb.MediumHTML do
         {medium.term_type, version}
     end
   end
+
+  @doc """
+  iex> format_duration(nil)
+  nil
+
+  iex> format_duration(1)
+  "0:01"
+
+  iex> format_duration(61)
+  "1:01"
+
+  iex> format_duration(3599)
+  "59:59"
+
+  iex> format_duration(3601)
+  "1:00:01"
+
+  iex> format_duration(360001)
+  "100:00:01"
+  """
+  def format_duration(nil), do: nil
+
+  def format_duration(seconds) do
+    seconds = round(seconds)
+    hours = div(seconds, 60 * 60)
+    seconds = rem(seconds, 60 * 60)
+    minutes = div(seconds, 60)
+    seconds = rem(seconds, 60)
+
+    if hours > 0 do
+      "#{hours}:#{String.pad_leading(to_string(minutes), 2, "0")}:#{String.pad_leading(to_string(seconds), 2, "0")}"
+    else
+      "#{minutes}:#{String.pad_leading(to_string(seconds), 2, "0")}"
+    end
+  end
 end
