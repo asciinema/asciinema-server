@@ -1,5 +1,6 @@
 use avt::Vt;
-use rustler::{Atom, Binary, Encoder, Env, Error, NifResult, ResourceArc, Term};
+use rustler::{Atom, Binary, Encoder, Env, Error, NifResult, Resource, ResourceArc, Term};
+use std::str;
 use std::{ops::RangeInclusive, sync::RwLock};
 
 const BOX_DRAWING_RANGE: RangeInclusive<char> = '\u{2500}'..='\u{257f}';
@@ -19,22 +20,21 @@ pub struct VtResource {
     vt: RwLock<Vt>,
 }
 
-fn load(env: Env, _info: Term) -> bool {
-    rustler::resource!(VtResource, env);
+impl Resource for VtResource {}
 
-    true
+fn load(env: Env, _term: Term) -> bool {
+    env.register::<VtResource>().is_ok()
 }
 
 #[rustler::nif]
 fn new(
     cols: usize,
     rows: usize,
-    resizable: bool,
     scrollback_limit: Option<usize>,
 ) -> NifResult<(Atom, ResourceArc<VtResource>)> {
     if cols > 0 && rows > 0 {
         let mut builder = Vt::builder();
-        builder.size(cols, rows).resizable(resizable);
+        builder.size(cols, rows);
 
         if let Some(limit) = scrollback_limit {
             builder.scrollback_limit(limit);
@@ -53,15 +53,28 @@ fn new(
 }
 
 #[rustler::nif]
-fn feed(resource: ResourceArc<VtResource>, input: Binary) -> NifResult<Option<(usize, usize)>> {
+fn feed(resource: ResourceArc<VtResource>, input: Binary) -> NifResult<Atom> {
     let mut vt = convert_err(resource.vt.write(), "rw_lock")?;
-    let resized = vt.feed_str(&String::from_utf8_lossy(&input)).resized;
 
-    if resized {
-        Ok(Some(vt.size()))
-    } else {
-        Ok(None)
-    }
+    match str::from_utf8(&input) {
+        Ok(s) => {
+            vt.feed_str(s);
+        }
+
+        Err(_) => {
+            vt.feed_str(&String::from_utf8_lossy(&input));
+        }
+    };
+
+    Ok(atoms::ok())
+}
+
+#[rustler::nif]
+fn resize(resource: ResourceArc<VtResource>, cols: usize, rows: usize) -> NifResult<Atom> {
+    let mut vt = convert_err(resource.vt.write(), "rw_lock")?;
+    vt.resize(cols, rows);
+
+    Ok(atoms::ok())
 }
 
 #[rustler::nif]
@@ -189,8 +202,4 @@ fn convert_err<T, E>(result: Result<T, E>, error: &'static str) -> Result<T, Err
     }
 }
 
-rustler::init!(
-    "Elixir.Asciinema.Vt",
-    [new, feed, dump, dump_screen, text],
-    load = load
-);
+rustler::init!("Elixir.Asciinema.Vt", load = load);

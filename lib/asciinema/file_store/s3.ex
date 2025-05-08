@@ -1,4 +1,5 @@
 defmodule Asciinema.FileStore.S3 do
+  use Asciinema.Config
   use Asciinema.FileStore
   import Phoenix.Controller, only: [redirect: 2]
   import Plug.Conn
@@ -48,16 +49,16 @@ defmodule Asciinema.FileStore.S3 do
 
   @impl true
   def serve_file(conn, path, filename) do
-    do_serve_file(conn, path, filename, proxy?())
+    do_serve_file(conn, path, filename, config(:proxy_path_prefix))
   end
 
-  defp do_serve_file(conn, path, filename, false) do
+  defp do_serve_file(conn, path, filename, nil) do
     redirect(conn, external: url(path, s3_response_params(filename)))
   end
 
-  defp do_serve_file(conn, path, filename, true) do
+  defp do_serve_file(conn, path, filename, proxy_path_prefix) do
     conn
-    |> put_resp_header("x-accel-redirect", "/_proxy/#{path}")
+    |> put_resp_header("x-accel-redirect", "#{proxy_path_prefix}#{path}")
     |> put_resp_header("redirect-uri", url(path))
     |> put_content_disposition(filename)
     |> send_resp(200, "")
@@ -107,19 +108,7 @@ defmodule Asciinema.FileStore.S3 do
     ExAws.request(request)
   end
 
-  defp config do
-    Application.get_env(:asciinema, __MODULE__)
-  end
+  defp bucket, do: config(:bucket)
 
-  defp bucket do
-    Keyword.get(config(), :bucket)
-  end
-
-  defp proxy? do
-    Keyword.get(config(), :proxy, false)
-  end
-
-  defp base_path do
-    Keyword.get(config(), :path)
-  end
+  defp base_path, do: config(:path)
 end

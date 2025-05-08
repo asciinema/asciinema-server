@@ -59,7 +59,19 @@ module.exports = (env, options) => {
     },
     plugins: [
       new MiniCssExtractPlugin({ filename: '../css/[name].css' }),
-      new CopyWebpackPlugin({ patterns: [{ from: 'static/', to: '../' }] })
+      new CopyWebpackPlugin({ patterns: [
+        {
+          from: 'static/',
+          to: '../'
+        },
+        {
+          from: path.resolve(
+            __dirname,
+            'node_modules/asciinema-player/dist/bundle/asciinema-player-worker.min.js'
+          ),
+          to: path.resolve(__dirname, '../priv/static/js/player-worker.min.js')
+        }
+      ] })
     ],
     stats: 'errors-only'
   }

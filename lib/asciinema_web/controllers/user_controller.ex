@@ -1,5 +1,6 @@
 defmodule AsciinemaWeb.UserController do
   use AsciinemaWeb, :controller
+  alias Asciinema.Authorization
   alias Asciinema.{Accounts, Streaming, Recordings}
   require Logger
 
@@ -55,25 +56,17 @@ defmodule AsciinemaWeb.UserController do
     current_user = conn.assigns.current_user
     self = !!(current_user && current_user.id == user.id)
 
-    filter =
-      case self do
-        true -> :all
-        false -> :public
-      end
-
-    streams =
-      case self do
-        true -> Streaming.list_all_live_streams(user)
-        false -> Streaming.list_public_live_streams(user)
-      end
+    live_streams =
+      [:live, user_id: user.id]
+      |> Streaming.query()
+      |> Authorization.scope(:streams, current_user)
+      |> Streaming.list(4)
 
     asciicasts =
-      Recordings.paginate_asciicasts(
-        {user.id, filter},
-        :date,
-        params["page"],
-        14
-      )
+      [user_id: user.id]
+      |> Recordings.query(:date)
+      |> Authorization.scope(:asciicasts, current_user)
+      |> Recordings.paginate(params["page"], 14)
 
     render(
       conn,
@@ -81,7 +74,7 @@ defmodule AsciinemaWeb.UserController do
       page_title: "#{user.username}'s profile",
       user: user,
       self: self,
-      streams: streams,
+      live_streams: live_streams,
       asciicasts: asciicasts
     )
   end
@@ -107,7 +100,7 @@ defmodule AsciinemaWeb.UserController do
   def update(conn, %{"user" => user_params}) do
     user = conn.assigns.current_user
 
-    case Accounts.update_user(user, user_params) do
+    case Asciinema.update_user(user, user_params) do
       {:ok, _user} ->
         conn
         |> put_flash(:info, "Settings updated")
@@ -119,11 +112,13 @@ defmodule AsciinemaWeb.UserController do
   end
 
   defp render_edit_form(conn, user, changeset) do
-    api_tokens = Accounts.list_api_tokens(user)
+    clis = Accounts.list_clis(user)
 
     render(conn, "edit.html",
       changeset: changeset,
-      api_tokens: api_tokens
+      streaming_enabled: user.streaming_enabled,
+      stream_recording_mode: Streaming.recording_mode(),
+      clis: clis
     )
   end
 

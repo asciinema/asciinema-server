@@ -1,20 +1,28 @@
 defmodule Asciinema do
   alias Asciinema.{Accounts, Emails, Recordings, Repo, Streaming}
 
-  def create_user(params) do
-    with {:ok, user} <- Accounts.create_user(params) do
-      Streaming.create_live_stream!(user)
+  defdelegate create_user(attrs, ctx \\ :user), to: Accounts
 
+  def create_user_from_sign_up_token(token) do
+    with {:ok, email} <- Accounts.verify_sign_up_token(token),
+         {:ok, user} <- create_user(%{email: email}) do
       {:ok, user}
+    else
+      {:error, %Ecto.Changeset{errors: [{:email, _}]}} ->
+        {:error, :email_taken}
+
+      result ->
+        result
     end
   end
 
-  defdelegate change_user(user, params \\ %{}), to: Accounts
-  defdelegate update_user(user, params), to: Accounts
+  defdelegate change_user(user, params \\ %{}, ctx \\ :user), to: Accounts
 
-  def create_user_from_sign_up_token(token) do
-    with {:ok, email} <- Accounts.verify_sign_up_token(token) do
-      create_user(%{email: email})
+  def update_user(user, params, ctx \\ :user) do
+    with {:ok, user} <- Accounts.update_user(user, params, ctx) do
+      Recordings.migrate_files(user)
+
+      {:ok, user}
     end
   end
 
@@ -34,11 +42,12 @@ defmodule Asciinema do
     Emails.send_email(:account_deletion, user.email, token, url_provider)
   end
 
+  defdelegate generate_login_token(email), to: Accounts
   defdelegate verify_login_token(token), to: Accounts
 
   def register_cli(user, token) do
-    case Accounts.register_api_token(user, token) do
-      {:ok, _api_token} ->
+    case Accounts.register_cli(user, token) do
+      {:ok, _cli} ->
         :ok
 
       {:error, {:needs_merge, tmp_user}} ->
@@ -51,8 +60,8 @@ defmodule Asciinema do
   end
 
   def revoke_cli(user, id) do
-    if api_token = Accounts.get_api_token(user, id) do
-      Accounts.revoke_api_token!(api_token)
+    if cli = Accounts.get_cli(user, id) do
+      Accounts.revoke_cli!(cli)
       :ok
     else
       {:error, :not_found}
@@ -65,8 +74,8 @@ defmodule Asciinema do
 
     Repo.transact(fn ->
       Recordings.reassign_asciicasts(src_user.id, dst_user.id)
-      Streaming.reassign_live_streams(src_user.id, dst_user.id)
-      Accounts.reassign_api_tokens(src_user.id, dst_user.id)
+      Streaming.reassign_streams(src_user.id, dst_user.id)
+      Accounts.reassign_clis(src_user.id, dst_user.id)
       Accounts.delete_user!(src_user)
 
       {:ok, Accounts.get_user(dst_user.id)}
@@ -86,14 +95,14 @@ defmodule Asciinema do
     result =
       Repo.transact(fn ->
         Recordings.delete_asciicasts(user)
-        Streaming.delete_live_streams(user)
+        Streaming.delete_streams(user)
         Accounts.delete_user!(user)
       end)
 
     with {:ok, _} <- result, do: :ok
   end
 
-  defdelegate get_live_stream(id_or_owner), to: Streaming
+  defdelegate get_stream(id_or_owner), to: Streaming
 
   def unclaimed_recording_ttl(mode \\ nil)
 

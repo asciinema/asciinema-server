@@ -41,12 +41,12 @@
         <ul class="navbar-nav navbar-right session-info">
           <li :if={@current_user} class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">
-              <img class="avatar" src={avatar_url(@current_user)} /><%= @current_user.username ||
-                @current_user.email %>
+              <img class="avatar" src={avatar_url(@current_user)} />{@current_user.username ||
+                @current_user.email}
             </a>
             <div class="dropdown-menu">
-              <%= if @default_stream do %>
-                <a href={~p"/s/#{@default_stream}"} class="dropdown-item">
+              <%= if @current_user.streaming_enabled do %>
+                <a href={~p"/user/streams"} class="dropdown-item">
                   <strong>Stream</strong>
                 </a>
                 <div class="dropdown-divider"></div>

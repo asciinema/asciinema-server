@@ -35,7 +35,7 @@ Notable features:
 - easy [embedding](https://docs.asciinema.org/manual/server/embedding/) of the
   player, or linking via preview images (SVG),
 - privacy friendly - no tracking, no ads,
-- visibility control for recordings: unlisted (secret) or public,
+- visibility control for recordings: private, unlisted, or public,
 - editable recording metadata like title or long description (Markdown),
 - configurable terminal themes and font families,
 - ability to download plain text version (`.txt`) of a recording.

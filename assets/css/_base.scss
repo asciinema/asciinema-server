@@ -74,7 +74,7 @@ body, main {
   background-color: #f7f7f7;
 }
 
-.c-page, .c-recording, .c-live-stream {
+.c-page, .c-recording, .c-stream {
   main {
     h1, h2, h3 {
       margin-top: 2rem;
@@ -101,7 +101,6 @@ body, main {
 
 section.cinema {
   color: #fff;
-  background-color: #222;
   padding: calc(min(4vh, 4vw)) 0;
 }
 
@@ -160,6 +159,10 @@ form {
   }
 
   .visibility-radios {
+    padding-top: 0.375rem;
+  }
+
+  .form-group > div > .form-checkbox {
     padding-top: 0.375rem;
   }
 }

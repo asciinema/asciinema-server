@@ -1,4 +1,4 @@
-{"version": 2, "width": 81, "height": 20, "duration": 128.978812, "command": "PS1=\"> \" bash", "title": "Welcome to asciinema!", "env": {"TERM": "xterm-256color", "SHELL": "/bin/bash"}}
+{"version": 2, "width": 80, "height": 20, "duration": 128.978812, "command": "PS1=\"> \" bash", "title": "Welcome to asciinema!", "env": {"TERM": "xterm-256color", "SHELL": "/bin/bash"}}
 [0.006808, "o", "> "]
 [0.888029, "o", "#"]
 [0.960136, "o", " "]
@@ -24,6 +24,7 @@
 [3.49555, "o", "a"]
 [3.816054, "o", "!"]
 [4.399969, "o", "\r\n"]
+[4.400000, "r", "81x20"]
 [4.400176, "o", "> "]
 [5.863699, "o", "#"]
 [5.943767, "o", " "]

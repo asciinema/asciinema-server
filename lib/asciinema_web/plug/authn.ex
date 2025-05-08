@@ -10,7 +10,6 @@ defmodule AsciinemaWeb.Plug.Authn do
   def call(conn, _opts) do
     conn
     |> assign(:current_user, nil)
-    |> assign(:default_stream, nil)
     |> Authentication.try_log_in_from_session()
     |> Authentication.try_log_in_from_cookie()
     |> setup_sentry_context()

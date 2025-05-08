@@ -10,5 +10,5 @@ path = "src/lib.rs"
 crate-type = ["dylib"]
 
 [dependencies]
-rustler = "0.27.0"
-avt = "0.14.0"
+rustler = "0.36.1"
+avt = "0.15.1"

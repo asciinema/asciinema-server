@@ -1,0 +1,192 @@
+<div class="container">
+  <div class="row">
+    <div class="col-md-12 col-lg-9">
+      <.form :let={f} for={@changeset} action={~p"/s/#{@changeset.data}"}>
+        <legend>Stream settings</legend>
+
+        <div class="form-group row">
+          <.label for={f[:visibility]} class="col-3 col-form-label">
+            Visibility
+          </.label>
+          <div class="col-9 visibility-radios">
+            <div class="form-check">
+              <input
+                type="radio"
+                name="stream[visibility]"
+                id="stream_visibility_public"
+                value="public"
+                checked={f[:visibility].value == :public}
+                class="form-check-input"
+              />
+              <label for="stream_visibility_public" class="form-check-label">
+                Public
+              </label>
+              <small class="form-text text-muted">
+                Anyone can view, displayed on your public profile when live
+              </small>
+            </div>
+            <div class="form-check">
+              <input
+                type="radio"
+                name="stream[visibility]"
+                id="stream_visibility_unlisted"
+                value="unlisted"
+                checked={f[:visibility].value == :unlisted}
+                class="form-check-input"
+              />
+              <label for="stream_visibility_unlisted" class="form-check-label">
+                Unlisted
+              </label>
+              <small class="form-text text-muted">
+                Only people with the link can view
+              </small>
+            </div>
+            <div class="form-check">
+              <input
+                type="radio"
+                name="stream[visibility]"
+                id="stream_visibility_private"
+                value="private"
+                checked={f[:visibility].value == :private}
+                class="form-check-input"
+              />
+              <label for="stream_visibility_private" class="form-check-label">
+                Private
+              </label>
+              <small class="form-text text-muted">
+                Only accessible by you
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <.label for={f[:title]} class="col-sm-4 col-md-3 col-lg-3 col-form-label">Title</.label>
+          <div class="col-sm-8 col-md-9 col-lg-9">
+            <.input
+              field={f[:title]}
+              class="form-control"
+              autofocus={true}
+              placeholder={"#{author_username(@stream)}'s stream"}
+            />
+            <.error field={f[:title]} />
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <.label for={f[:description]} class="col-sm-4 col-md-3 col-lg-3 col-form-label">
+            Description
+          </.label>
+          <div class="col-sm-8 col-md-9 col-lg-9">
+            <.input type="textarea" field={f[:description]} class="form-control" rows={10} />
+            <.error field={f[:description]} />
+            <small class="form-text text-muted">Parsed as Markdown.</small>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <.label for={f[:term_theme_name]} class="col-sm-4 col-md-3 col-lg-3 col-form-label">
+            Terminal theme
+          </.label>
+          <div class="col-sm-8 col-md-9 col-lg-9">
+            <div>
+              <.input
+                type="select"
+                field={f[:term_theme_name]}
+                options={theme_options()}
+                class="form-control"
+                prompt={default_theme_display_name(@changeset.data)}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <div class="offset-3 col-9">
+            <div class="form-check">
+              <.input
+                type="checkbox"
+                field={f[:term_theme_prefer_original]}
+                class="form-check-input"
+              />
+              <.label for={f[:term_theme_prefer_original]} class="form-check-label">
+                Use the actual terminal theme when available
+              </.label>
+            </div>
+            <small class="form-text text-muted">
+              Supported when streaming from terminal emulators that implement color querying via OSC 4, OSC 10, OSC 11.
+            </small>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <.label for={f[:term_font_family]} class="col-sm-4 col-md-3 col-lg-3 col-form-label">
+            Terminal font family
+          </.label>
+          <div class="col-sm-8 col-md-9 col-lg-9">
+            <.input
+              type="select"
+              field={f[:term_font_family]}
+              options={font_family_options()}
+              class="form-control"
+              prompt={"Account default (#{default_font_display_name(@changeset.data.user)})"}
+            />
+            <small class="form-text text-muted">
+              Pick one of the Nerd Font variants if icons or other symbols in your stream are not visible.
+            </small>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <.label for={f[:term_line_height]} class="col-sm-4 col-md-3 col-lg-3 col-form-label">
+            Terminal line height
+          </.label>
+          <div class="col-sm-8 col-md-9 col-lg-9">
+            <.input
+              type="number"
+              field={f[:term_line_height]}
+              class="form-control"
+              min={1.0}
+              max={2.0}
+              step="any"
+              placeholder="1.33333"
+            />
+            <.error field={f[:term_line_height]} />
+            <small class="form-text text-muted">
+              Relative to the font size. Lowering it to ~1.1 helps with vertical alignment of ascii drawing characters such as └ | ┐
+            </small>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <.label for={f[:buffer_time]} class="col-sm-4 col-md-3 col-lg-3 col-form-label">
+            Buffer time
+          </.label>
+          <div class="col-sm-8 col-md-9 col-lg-9">
+            <.input
+              type="number"
+              field={f[:buffer_time]}
+              class="form-control"
+              min={0.0}
+              max={30.0}
+              step="any"
+              placeholder="auto"
+            />
+            <.error field={f[:buffer_time]} />
+            <small class="form-text text-muted">
+              By default, the player uses adaptive buffering, which measures network latency in real-time and adjusts the amout of buffered data to ensure smooth, jitter free playback. For a fixed buffer, set this to the number of seconds the buffer should use. Setting it to 0 turns the buffering off.
+            </small>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <div class="offset-sm-4 col-sm-8 offset-md-3 col-md-9 offset-lg-3 col-lg-9">
+            <br />
+            <.button type="submit" class="btn btn-primary">Save</.button>
+            <.link navigate={~p"/s/#{@changeset.data}"} class="btn">Cancel</.link>
+          </div>
+        </div>
+      </.form>
+    </div>
+  </div>
+</div>

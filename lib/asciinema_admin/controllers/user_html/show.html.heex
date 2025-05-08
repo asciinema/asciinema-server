@@ -1,0 +1,91 @@
+<h2><a href={~p"/admin/users"}>Users</a> &rsaquo; {@user.username || @user.id}</h2>
+
+<hr />
+<br />
+
+<table>
+  <tbody>
+    <tr>
+      <td><strong>id</strong></td>
+      <td>{@user.id}</td>
+    </tr>
+    <tr>
+      <td><strong>created at</strong></td>
+      <td><.time_ago time={@user.inserted_at} /></td>
+    </tr>
+    <tr>
+      <td><strong>email</strong></td>
+      <td>{@user.email}</td>
+    </tr>
+    <tr>
+      <td><strong>username</strong></td>
+      <td>{@user.username}</td>
+    </tr>
+    <tr>
+      <td><strong>display name</strong></td>
+      <td>{@user.name}</td>
+    </tr>
+    <tr>
+      <td><strong>streaming enabled</strong></td>
+      <td>{@user.streaming_enabled}</td>
+    </tr>
+    <tr>
+      <td><strong>stream limit</strong></td>
+      <td>{@user.stream_limit || "no limit"}</td>
+    </tr>
+    <tr>
+      <td><strong>last login at</strong></td>
+      <td><.time_ago :if={@user.last_login_at} time={@user.last_login_at} /></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>
+  <a href={~p"/admin/users/#{@user}/edit"}>Edit</a>
+</p>
+
+<br />
+<br />
+
+<h3>Authorized CLIs</h3>
+
+<hr />
+<br />
+
+<%= if length(@clis) > 0 do %>
+  <table>
+    <thead>
+      <th>ID</th>
+      <th>Registered at</th>
+      <th>Revoked at</th>
+    </thead>
+    <tbody>
+      <tr :for={cli <- @clis}>
+        <td><code>{cli.token}</code></td>
+        <td><.time_ago time={cli.inserted_at} /></td>
+        <td><.time_ago :if={cli.revoked_at} time={cli.revoked_at} /></td>
+      </tr>
+    </tbody>
+  </table>
+<% else %>
+  <p>None</p>
+<% end %>
+
+<br />
+<br />
+
+<h3>Pre-authorize a CLI</h3>
+
+<.form :let={f} for={@changeset} action={~p"/admin/users/#{@user}/clis"}>
+  <p>
+    <.label for={f[:token]}>
+      Enter CLI ID (UUID) or a full auth URL obtained by running <code>asciinema auth</code>:
+    </.label>
+    <.input field={f[:token]} required class="install-id" placeholder="xxxxxxxx-xxxx-xxxx-..." />
+    <.error field={f[:token]} />
+  </p>
+
+  <p>
+    <button type="submit">Authorize</button>
+  </p>
+</.form>

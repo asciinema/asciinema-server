@@ -57,12 +57,18 @@ defmodule AsciinemaWeb.Router do
     get "/a/:id/iframe", RecordingController, :iframe
     get "/a/:id/example", RecordingController, :example
 
-    resources "/s", LiveStreamController, only: [:show, :edit, :update]
+    resources "/s", StreamController, only: [:show, :edit, :update, :delete]
 
     resources "/login", LoginController, only: [:new, :create], singleton: true
     get "/login/sent", LoginController, :sent, as: :login
 
-    resources "/user", UserController, as: :user, only: [:edit, :update, :delete], singleton: true
+    resources "/user", UserController,
+      as: :user,
+      only: [:edit, :update, :delete],
+      singleton: true do
+      resources "/streams", StreamController, only: [:index, :create]
+    end
+
     resources "/users", UserController, as: :users, only: [:new, :create]
     get "/u/:id", UserController, :show
     get "/~:username", UserController, :show
@@ -74,20 +80,20 @@ defmodule AsciinemaWeb.Router do
 
     resources "/session", SessionController, only: [:new, :create, :delete], singleton: true
 
-    get "/connect/:api_token", ApiTokenController, :register, as: :connect
+    get "/connect/:install_id", CliController, :register, as: :connect
 
-    resources "/api_tokens", ApiTokenController, only: [:delete]
+    resources "/clis", CliController, only: [:delete]
 
     get "/about", PageController, :about
   end
 
   scope "/api", AsciinemaWeb.Api, as: :api do
     post "/asciicasts", RecordingController, :create
-    post "/streams", LiveStreamController, :create
+    post "/streams", StreamController, :create
 
     scope "/user" do
-      get "/stream", LiveStreamController, :show
-      get "/streams/:id", LiveStreamController, :show
+      get "/stream", StreamController, :show
+      get "/streams/:id", StreamController, :show
     end
   end
 

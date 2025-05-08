@@ -31,13 +31,13 @@ defmodule AsciinemaWeb.MediaView do
   end
 
   def theme_options(medium) do
-    for theme <- original_theme_option(medium.theme_palette) ++ Themes.terminal_themes() do
+    for theme <- original_theme_option(medium.term_theme_palette) ++ Themes.terminal_themes() do
       {Themes.display_name(theme), theme}
     end
   end
 
   defp original_theme_option(nil), do: []
-  defp original_theme_option(_theme_palette), do: ["original"]
+  defp original_theme_option(_term_theme_palette), do: ["original"]
 
   def font_family_options do
     for family <- Fonts.terminal_font_families() do

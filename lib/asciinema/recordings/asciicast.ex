@@ -8,23 +8,26 @@ defmodule Asciinema.Recordings.Asciicast do
     field :version, :integer
     field :filename, :string
     field :path, :string
-    field :cols, :integer
-    field :cols_override, :integer
-    field :rows, :integer
-    field :rows_override, :integer
-    field :terminal_type, :string
-    field :visibility, Ecto.Enum, values: [:private, :unlisted, :public], default: :unlisted
+    field :term_cols, :integer
+    field :term_cols_override, :integer
+    field :term_rows, :integer
+    field :term_rows_override, :integer
+    field :term_type, :string
+    field :term_version, :string
+    field :term_theme_name, :string
+    field :term_theme_fg, :string
+    field :term_theme_bg, :string
+    field :term_theme_palette, :string
+    field :term_line_height, :float
+    field :term_font_family, :string
+    field :visibility, Ecto.Enum, values: ~w[private unlisted public]a, default: :unlisted
     field :featured, :boolean
     field :secret_token, :string
     field :duration, :float
     field :title, :string
     field :description, :string
-    field :theme_name, :string
-    field :theme_fg, :string
-    field :theme_bg, :string
-    field :theme_palette, :string
     field :snapshot_at, :float
-    field :snapshot, Asciinema.Ecto.Type.JsonArray
+    field :snapshot, Asciinema.Ecto.Type.Snapshot
     field :command, :string
     field :shell, :string
     field :uname, :string
@@ -35,17 +38,14 @@ defmodule Asciinema.Recordings.Asciicast do
     field :views_count, :integer, default: 0
     field :archivable, :boolean, default: true
     field :archived_at, :utc_datetime_usec
-    field :terminal_line_height, :float
-    field :terminal_font_family, :string
     field :markers, :string
+    field :env, :map
 
     timestamps()
 
     belongs_to :user, Asciinema.Accounts.User
-
-    # legacy
-    field :stdout_data, :string
-    field :stdout_timing, :string
+    belongs_to :cli, Asciinema.Accounts.Cli
+    belongs_to :stream, Asciinema.Streaming.Stream
   end
 
   defimpl Phoenix.Param do

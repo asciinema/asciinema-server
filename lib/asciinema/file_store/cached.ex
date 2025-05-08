@@ -1,4 +1,5 @@
 defmodule Asciinema.FileStore.Cached do
+  use Asciinema.Config
   use Asciinema.FileStore
 
   @impl true
@@ -55,15 +56,7 @@ defmodule Asciinema.FileStore.Cached do
     end
   end
 
-  defp config do
-    Application.get_env(:asciinema, __MODULE__)
-  end
+  defp remote_store, do: config(:remote_store)
 
-  defp remote_store do
-    Keyword.get(config(), :remote_store)
-  end
-
-  defp cache_store do
-    Keyword.get(config(), :cache_store)
-  end
+  defp cache_store, do: config(:cache_store)
 end

@@ -117,19 +117,19 @@
         </div>
 
         <div class="form-group row">
-          <.label for={f[:cols_override]} class="col-sm-4 col-md-3 col-lg-3 col-form-label">
+          <.label for={f[:term_cols_override]} class="col-sm-4 col-md-3 col-lg-3 col-form-label">
             Terminal columns
           </.label>
           <div class="col-sm-8 col-md-9 col-lg-9">
             <.input
-              field={f[:cols_override]}
+              field={f[:term_cols_override]}
               type="number"
               class="form-control"
               min={1}
               step={1}
-              placeholder={@asciicast.cols}
+              placeholder={@asciicast.term_cols}
             />
-            <.error field={f[:cols_override]} />
+            <.error field={f[:term_cols_override]} />
             <small class="form-text text-muted">
               Leave blank to use recording's original value.
             </small>
@@ -137,19 +137,19 @@
         </div>
 
         <div class="form-group row">
-          <.label for={f[:rows_override]} class="col-sm-4 col-md-3 col-lg-3 col-form-label">
+          <.label for={f[:term_rows_override]} class="col-sm-4 col-md-3 col-lg-3 col-form-label">
             Terminal rows
           </.label>
           <div class="col-sm-8 col-md-9 col-lg-9">
             <.input
-              field={f[:rows_override]}
+              field={f[:term_rows_override]}
               type="number"
               class="form-control"
               min={1}
               step={1}
-              placeholder={@asciicast.rows}
+              placeholder={@asciicast.term_rows}
             />
-            <.error field={f[:rows_override]} />
+            <.error field={f[:term_rows_override]} />
             <small class="form-text text-muted">
               Leave blank to use recording's original value.
             </small>
@@ -157,13 +157,13 @@
         </div>
 
         <div class="form-group row">
-          <.label for={f[:theme_name]} class="col-sm-4 col-md-3 col-lg-3 col-form-label">
+          <.label for={f[:term_theme_name]} class="col-sm-4 col-md-3 col-lg-3 col-form-label">
             Terminal theme
           </.label>
           <div class="col-sm-8 col-md-9 col-lg-9">
             <.input
               type="select"
-              field={f[:theme_name]}
+              field={f[:term_theme_name]}
               options={theme_options(@changeset.data)}
               class="form-control"
               prompt={default_theme_display_name(@changeset.data)}
@@ -172,13 +172,13 @@
         </div>
 
         <div class="form-group row">
-          <.label for={f[:terminal_font_family]} class="col-sm-4 col-md-3 col-lg-3 col-form-label">
+          <.label for={f[:term_font_family]} class="col-sm-4 col-md-3 col-lg-3 col-form-label">
             Terminal font family
           </.label>
           <div class="col-sm-8 col-md-9 col-lg-9">
             <.input
               type="select"
-              field={f[:terminal_font_family]}
+              field={f[:term_font_family]}
               options={font_family_options()}
               class="form-control"
               prompt={"Account default (#{default_font_display_name(@changeset.data.user)})"}
@@ -190,20 +190,20 @@
         </div>
 
         <div class="form-group row">
-          <.label for={f[:terminal_line_height]} class="col-sm-4 col-md-3 col-lg-3 col-form-label">
+          <.label for={f[:term_line_height]} class="col-sm-4 col-md-3 col-lg-3 col-form-label">
             Terminal line height
           </.label>
           <div class="col-sm-8 col-md-9 col-lg-9">
             <.input
               type="number"
-              field={f[:terminal_line_height]}
+              field={f[:term_line_height]}
               class="form-control"
               min={1.0}
               max={2.0}
               step="any"
               placeholder="1.33333"
             />
-            <.error field={f[:terminal_line_height]} />
+            <.error field={f[:term_line_height]} />
             <small class="form-text text-muted">
               Relative to the font size. Lowering it to ~1.1 helps with vertical alignment of ascii drawing characters such as └ | ┐
             </small>

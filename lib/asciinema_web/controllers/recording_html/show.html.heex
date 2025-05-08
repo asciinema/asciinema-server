@@ -15,12 +15,12 @@
           </.link>
         </span>
 
-        <h2><%= title(@asciicast) %></h2>
+        <h2>{title(@asciicast)}</h2>
 
         <small>
           by
           <.link href={author_profile_path(@asciicast)}>
-            <%= author_username(@asciicast) %>
+            {author_username(@asciicast)}
           </.link>
           <.time_ago time={@asciicast.inserted_at} />
           <.visibility_badge
@@ -62,7 +62,7 @@
                 data-toggle="modal"
                 data-target="#download-modal"
               >
-                <strong>.<%= filename_ext(@asciicast) %></strong> - original recording
+                <strong>.{filename_ext(@asciicast)}</strong> - original recording
               </.link>
               <.link href="#" class="dropdown-item" rel="nofollow" id="download-txt">
                 <strong>.txt</strong> - plain text version
@@ -92,24 +92,6 @@
               </.link>
 
               <.link
-                :if={:make_private in @actions}
-                href={~p"/a/#{@asciicast}?asciicast[private]=1"}
-                class="dropdown-item"
-                method="put"
-              >
-                Make it secret
-              </.link>
-
-              <.link
-                :if={:make_public in @actions}
-                href={~p"/a/#{@asciicast}?asciicast[private]=0"}
-                class="dropdown-item"
-                method="put"
-              >
-                Make it public
-              </.link>
-
-              <.link
                 :if={:delete in @actions}
                 href={~p"/a/#{@asciicast}"}
                 class="dropdown-item text-danger"
@@ -131,38 +113,34 @@
     <div class="row">
       <div class="col-md-12 col-xs-12">
         <div class="status-line">
-          <span
-            :if={m = metadata(@asciicast)}
-            class="status-line-item"
-            title="Terminal environment"
-          >
-            <.terminal_solid_icon /> <%= m %>
+          <span class="status-line-item">
+            <.terminal_solid_icon /> <.env_info attrs={env_info_attrs(@asciicast)} />
           </span>
 
           <span class="status-line-item" title="Total views">
-            <.eye_solid_icon /> <%= views_count(@asciicast) %> views
+            <.eye_solid_icon /> {views_count(@asciicast)} views
           </span>
         </div>
 
         <%= if desc = render_markdown(@asciicast.description) do %>
           <hr />
-          <div class="description"><%= desc %></div>
+          <div class="description">{desc}</div>
         <% end %>
       </div>
     </div>
   </div>
 </section>
 
-<section :if={length(@author_asciicasts) > 0} class="even">
+<section :if={length(@other_asciicasts) > 0} class="even">
   <div class="container">
     <div class="row other-asciicasts">
       <div class="col-md-12">
         <h2>
-          More by <a href={author_profile_path(@asciicast)}><%= author_username(@asciicast) %></a>
+          More by <a href={author_profile_path(@asciicast)}>{author_username(@asciicast)}</a>
         </h2>
 
         <div class="row asciicast-list">
-          <div :for={asciicast <- @author_asciicasts} class="col-md-6">
+          <div :for={asciicast <- @other_asciicasts} class="col-md-6">
             <.card asciicast={asciicast} conn={@conn} />
           </div>
         </div>

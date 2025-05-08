@@ -3,7 +3,7 @@ defmodule AsciinemaWeb.RecordingHTML do
   import Scrivener.HTML
   alias Asciinema.{Accounts, Fonts, Media, Recordings, Themes}
   alias Asciinema.Recordings.{Markers, Snapshot}
-  alias AsciinemaWeb.{MediaView, UserHTML}
+  alias AsciinemaWeb.{MediaView, MediumHTML, UserHTML}
 
   embed_templates "recording_html/*"
 
@@ -11,20 +11,21 @@ defmodule AsciinemaWeb.RecordingHTML do
   defdelegate author_avatar_url(asciicast), to: MediaView
   defdelegate author_profile_path(asciicast), to: MediaView
   defdelegate theme(asciicast), to: Media
-  defdelegate theme_name(asciicast), to: Media
+  defdelegate term_theme_name(asciicast), to: Media
   defdelegate theme_options(asciicast), to: MediaView
   defdelegate font_family_options, to: MediaView
   defdelegate username(user), to: UserHTML
   defdelegate title(asciicast), to: Recordings
+  defdelegate env_info(asciicast), to: MediumHTML
 
   def player_src(asciicast), do: ~p"/a/#{asciicast}" <> ".#{filename_ext(asciicast)}"
 
   def player_opts(asciicast, opts) do
     [
-      cols: cols(asciicast),
-      rows: rows(asciicast),
-      theme: Media.theme_name(asciicast),
-      terminalLineHeight: asciicast.terminal_line_height,
+      cols: term_cols(asciicast),
+      rows: term_rows(asciicast),
+      theme: Media.term_theme_name(asciicast),
+      terminalLineHeight: asciicast.term_line_height,
       customTerminalFontFamily: Media.font_family(asciicast),
       poster: poster(asciicast.snapshot),
       markers: markers(asciicast.markers),
@@ -37,7 +38,7 @@ defmodule AsciinemaWeb.RecordingHTML do
   end
 
   def cinema_height(asciicast) do
-    MediaView.cinema_height(cols(asciicast), rows(asciicast))
+    MediaView.cinema_height(term_cols(asciicast), term_rows(asciicast))
   end
 
   def embed_script(asciicast) do
@@ -61,24 +62,12 @@ defmodule AsciinemaWeb.RecordingHTML do
     end
   end
 
-  def duration(asciicast) do
-    if d = asciicast.duration do
-      d = round(d)
-      minutes = div(d, 60)
-      seconds = rem(d, 60)
-      :io_lib.format("~2..0B:~2..0B", [minutes, seconds])
-    end
-  end
+  def duration(asciicast), do: MediumHTML.format_duration(asciicast.duration)
 
   defp poster(nil), do: nil
 
   defp poster(snapshot) do
-    text =
-      snapshot
-      |> Snapshot.new()
-      |> Snapshot.seq()
-
-    "data:text/plain," <> text
+    "data:text/plain," <> Snapshot.seq(snapshot)
   end
 
   defp markers(nil), do: nil
@@ -90,12 +79,12 @@ defmodule AsciinemaWeb.RecordingHTML do
     end
   end
 
-  def cols(asciicast), do: asciicast.cols_override || asciicast.cols
+  def term_cols(asciicast), do: asciicast.term_cols_override || asciicast.term_cols
 
-  def rows(asciicast), do: asciicast.rows_override || asciicast.rows
+  def term_rows(asciicast), do: asciicast.term_rows_override || asciicast.term_rows
 
   def default_theme_display_name(asciicast) do
-    "Account default (#{Themes.display_name(Accounts.default_theme_name(asciicast.user) || "asciinema")})"
+    "Account default (#{Themes.display_name(Accounts.default_term_theme_name(asciicast.user) || "asciinema")})"
   end
 
   def default_font_display_name(user) do
@@ -113,6 +102,9 @@ defmodule AsciinemaWeb.RecordingHTML do
     end
   end
 
+  defp env_info_attrs(asciicast),
+    do: Map.take(asciicast, [:user_agent, :term_type, :term_version, :shell, :uname])
+
   defp truncate(text, length) do
     if String.length(text) > length do
       String.slice(text, 0, length - 3) <> "..."
@@ -125,6 +117,7 @@ defmodule AsciinemaWeb.RecordingHTML do
     case asciicast.version do
       1 -> "application/asciicast+json"
       2 -> "application/x-asciicast"
+      3 -> "application/x-asciicast"
       _ -> nil
     end
   end
@@ -158,7 +151,7 @@ defmodule AsciinemaWeb.RecordingHTML do
       end
 
     ~H"""
-    <.link href={@href} class={@class} {@rest}><%= @title %></.link>
+    <.link href={@href} class={@class} {@rest}>{@title}</.link>
     """
   end
 
@@ -168,54 +161,7 @@ defmodule AsciinemaWeb.RecordingHTML do
 
   def filename_ext(%{version: 1}), do: "json"
   def filename_ext(%{version: 2}), do: "cast"
-
-  def metadata(asciicast) do
-    items = [os_info(asciicast), term_info(asciicast), shell_info(asciicast)]
-
-    case Enum.filter(items, & &1) do
-      [] -> nil
-      items -> Enum.join(items, " ◆ ")
-    end
-  end
-
-  defp os_info(asciicast) do
-    os_from_user_agent(asciicast) || os_from_uname(asciicast)
-  end
-
-  defp os_from_user_agent(asciicast) do
-    if ua = asciicast.user_agent do
-      if match = Regex.run(~r{^asciinema/\d(\.\d+)+ [^/\s]+/[^/\s]+ (.+)$}, ua) do
-        [_, _, os] = match
-
-        os
-        |> String.replace("-", "/")
-        |> String.split("/")
-        |> List.first()
-        |> String.replace(~r/^Linux$/i, "GNU/Linux")
-        |> String.replace(~r/Darwin/i, "macOS")
-      end
-    end
-  end
-
-  defp os_from_uname(asciicast) do
-    if uname = asciicast.uname do
-      cond do
-        uname =~ ~r/Linux/i -> "GNU/Linux"
-        uname =~ ~r/Darwin/i -> "macOS"
-        true -> uname |> String.split(~r/[\s-]/) |> List.first()
-      end
-    end
-  end
-
-  defp shell_info(asciicast) do
-    if asciicast.shell do
-      Path.basename("#{asciicast.shell}")
-    end
-  end
-
-  defp term_info(asciicast) do
-    asciicast.terminal_type
-  end
+  def filename_ext(%{version: 3}), do: "cast"
 
   def views_count(asciicast) do
     asciicast.views_count

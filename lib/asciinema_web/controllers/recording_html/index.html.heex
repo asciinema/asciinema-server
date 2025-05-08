@@ -55,7 +55,7 @@
 
   <div :if={@page.total_pages > 1} class="row">
     <div class="col">
-      <%= pagination_links(@page, order: @order) %>
+      {pagination_links(@page, order: @order)}
     </div>
   </div>
 </div>

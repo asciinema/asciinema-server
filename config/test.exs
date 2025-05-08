@@ -35,3 +35,5 @@ config :asciinema, Asciinema.FileCache, path: "/tmp/asciinema/"
 config :asciinema, Oban, testing: :manual
 
 config :asciinema, Asciinema.Telemetry, enabled: false
+
+config :stream_data, max_runs: 1000

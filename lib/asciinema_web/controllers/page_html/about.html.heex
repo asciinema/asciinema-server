@@ -1,12 +1,11 @@
-<h1>About <%= @server_name %></h1>
+<h1>About {@server_name}</h1>
 
 <p>
-  <strong><%= @server_name %></strong>
+  <strong>{@server_name}</strong>
   is a platform for hosting and sharing
   terminal session recordings, powered by
   <%= if @server_version do %>
-    <a href="https://docs.asciinema.org/manual/server/">asciinema server</a>
-    (<%= @server_version %>).
+    <a href="https://docs.asciinema.org/manual/server/">asciinema server</a> ({@server_version}).
   <% else %>
     <a href="https://docs.asciinema.org/manual/server/">asciinema server</a>.
   <% end %>
@@ -29,7 +28,7 @@
     <li>account access problems,</li>
     <li>recording recovery,</li>
     <li>content reporting,</li>
-    <li>security vulnerability, which may affect <%= @server_name %> users.</li>
+    <li>security vulnerability, which may affect {@server_name} users.</li>
   </ul>
 
   <p>

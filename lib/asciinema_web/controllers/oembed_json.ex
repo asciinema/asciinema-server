@@ -14,8 +14,8 @@ defmodule AsciinemaWeb.OembedJSON do
   @scale 2
 
   defp attrs(asciicast, max_width, max_height) do
-    cols = asciicast.cols_override || asciicast.cols
-    rows = asciicast.rows_override || asciicast.rows
+    cols = asciicast.term_cols_override || asciicast.term_cols
+    rows = asciicast.term_rows_override || asciicast.term_rows
 
     image_width =
       (@scale * (@cell_width * cols + @border_width))

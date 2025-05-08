@@ -10,7 +10,7 @@ env = &System.get_env/1
 
 if env.("PHX_SERVER") do
   config :asciinema, AsciinemaWeb.Endpoint, server: true
-  config :asciinema, AsciinemaWeb.Admin.Endpoint, server: true
+  config :asciinema, AsciinemaAdmin.Endpoint, server: true
 end
 
 if config_env() == :prod do
@@ -27,7 +27,7 @@ end
 if config_env() in [:prod, :dev] do
   if secret_key_base = env.("SECRET_KEY_BASE") do
     config :asciinema, AsciinemaWeb.Endpoint, secret_key_base: secret_key_base
-    config :asciinema, AsciinemaWeb.Admin.Endpoint, secret_key_base: secret_key_base
+    config :asciinema, AsciinemaAdmin.Endpoint, secret_key_base: secret_key_base
     config :asciinema, Asciinema.Accounts, secret: secret_key_base
   end
 
@@ -64,23 +64,23 @@ if config_env() in [:prod, :dev] do
   end
 
   if env.("ADMIN_BIND_ALL") do
-    config :asciinema, AsciinemaWeb.Admin.Endpoint, http: [ip: {0, 0, 0, 0}]
+    config :asciinema, AsciinemaAdmin.Endpoint, http: [ip: {0, 0, 0, 0}]
   end
 
   if port = env.("ADMIN_PORT") do
-    config :asciinema, AsciinemaWeb.Admin.Endpoint, http: [port: String.to_integer(port)]
+    config :asciinema, AsciinemaAdmin.Endpoint, http: [port: String.to_integer(port)]
   end
 
   if url_scheme = env.("ADMIN_URL_SCHEME") do
-    config :asciinema, AsciinemaWeb.Admin.Endpoint, url: [scheme: url_scheme]
+    config :asciinema, AsciinemaAdmin.Endpoint, url: [scheme: url_scheme]
   end
 
   if url_host = env.("ADMIN_URL_HOST") do
-    config :asciinema, AsciinemaWeb.Admin.Endpoint, url: [host: url_host]
+    config :asciinema, AsciinemaAdmin.Endpoint, url: [host: url_host]
   end
 
   if url_port = env.("ADMIN_URL_PORT") do
-    config :asciinema, AsciinemaWeb.Admin.Endpoint, url: [port: String.to_integer(url_port)]
+    config :asciinema, AsciinemaAdmin.Endpoint, url: [port: String.to_integer(url_port)]
   end
 
   if ip_limit = env.("IP_RATE_LIMIT") do
@@ -112,7 +112,7 @@ if config_env() in [:prod, :dev] do
     config :asciinema, Asciinema.FileStore.S3,
       bucket: bucket,
       path: "uploads/",
-      proxy: !!env.("S3_PROXY_ENABLED")
+      proxy_path_prefix: env.("S3_PROXY_PATH_PREFIX")
 
     config :asciinema, Asciinema.FileStore, adapter: Asciinema.FileStore.Cached
 
@@ -223,6 +223,28 @@ if config_env() in [:prod, :dev] do
       :ok
   end
 
+  if limit = env.("DEFAULT_STREAM_LIMIT") do
+    config :asciinema, Asciinema.Accounts, default_stream_limit: String.to_integer(limit)
+  end
+
+  if env.("DEFAULT_STREAMING_ENABLED") in ["0", "false", "no"] do
+    config :asciinema, Asciinema.Accounts, default_streaming_enabled: false
+  end
+
+  mode = env.("STREAM_RECORDING")
+
+  if mode in ["forced", "allowed", "disabled"] do
+    config :asciinema, Asciinema.Streaming.StreamServer, recording: String.to_atom(mode)
+  end
+
+  if env.("UPLOAD_AUTH_REQUIRED") in ["1", "true"] do
+    config :asciinema, Asciinema.Accounts, upload_auth_required: true
+  end
+
+  if tpl = env.("UPLOAD_PATH_TPL") do
+    config :asciinema, Asciinema.Recordings.Paths, recording: tpl
+  end
+
   if dsn = env.("SENTRY_DSN") do
     config :sentry, dsn: dsn
   else
@@ -231,5 +253,18 @@ if config_env() in [:prod, :dev] do
 
   if email = env.("CONTACT_EMAIL_ADDRESS") do
     config :asciinema, contact_email_address: email
+  end
+
+  visibility = env.("DEFAULT_RECORDING_VISIBILITY")
+
+  if visibility in ~w[private unlisted public] do
+    config :asciinema, Asciinema.Accounts,
+      default_recording_visibility: String.to_atom(visibility)
+  end
+
+  visibility = env.("DEFAULT_STREAM_VISIBILITY")
+
+  if visibility in ~w[private unlisted public] do
+    config :asciinema, Asciinema.Accounts, default_stream_visibility: String.to_atom(visibility)
   end
 end

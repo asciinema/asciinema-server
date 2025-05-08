@@ -2,7 +2,7 @@ defmodule Asciinema.Accounts do
   use Asciinema.Config
   import Ecto.Query, warn: false
   import Ecto, only: [assoc: 2, build_assoc: 2]
-  alias Asciinema.Accounts.{User, ApiToken}
+  alias Asciinema.Accounts.{Cli, User}
   alias Asciinema.{Fonts, Repo, Themes}
   alias Ecto.Changeset
   alias Phoenix.Token
@@ -43,21 +43,46 @@ defmodule Asciinema.Accounts do
     Repo.get_by(User, auth_token: auth_token)
   end
 
-  def create_user(attrs) do
+  def list_users(limit \\ 1000) do
+    Repo.all(from(u in User, order_by: [asc: :id], limit: ^limit))
+  end
+
+  def build_user(attrs \\ %{}) do
+    Changeset.change(
+      %User{
+        default_recording_visibility: config(:default_recording_visibility, :unlisted),
+        default_stream_visibility: config(:default_stream_visibility, :unlisted),
+        streaming_enabled: config(:default_streaming_enabled, true),
+        stream_limit: config(:default_stream_limit, nil)
+      },
+      attrs
+    )
+  end
+
+  def create_user(attrs, :user) do
     import Ecto.Changeset
 
-    result =
-      %User{}
-      |> cast(attrs, [:email])
-      |> validate_required([:email])
-      |> update_change(:email, &String.downcase/1)
-      |> validate_format(:email, @valid_email_re)
-      |> add_contraints()
-      |> Repo.insert()
+    build_user()
+    |> cast(attrs, [:email, :username])
+    |> validate_required([:email])
+    |> update_change(:email, &String.downcase/1)
+    |> validate_format(:email, @valid_email_re)
+    |> validate_username()
+    |> add_contraints()
+    |> Repo.insert()
+  end
 
-    with {:error, %Ecto.Changeset{errors: [{:email, _}]}} <- result do
-      {:error, :email_taken}
-    end
+  def create_user(attrs, :admin) do
+    import Ecto.Changeset
+
+    build_user()
+    |> cast(attrs, [:email, :username])
+    |> validate_required([:email])
+    |> update_change(:email, &String.downcase/1)
+    |> validate_format(:email, @valid_email_re)
+    |> validate_username()
+    |> add_contraints()
+    |> Repo.insert()
   end
 
   def ensure_asciinema_user do
@@ -69,8 +94,8 @@ defmodule Asciinema.Accounts do
           email: "admin@asciinema.org"
         }
 
-        %User{}
-        |> change_user(attrs)
+        attrs
+        |> build_user()
         |> Repo.insert!()
 
       user ->
@@ -78,7 +103,9 @@ defmodule Asciinema.Accounts do
     end
   end
 
-  def change_user(user, params \\ %{}) do
+  def change_user(user, params \\ %{}, ctx \\ :user)
+
+  def change_user(user, params, :user) do
     import Ecto.Changeset
 
     user
@@ -86,19 +113,47 @@ defmodule Asciinema.Accounts do
       :email,
       :name,
       :username,
-      :theme_name,
-      :theme_prefer_original,
-      :terminal_font_family,
-      :default_asciicast_visibility
+      :term_theme_name,
+      :term_theme_prefer_original,
+      :term_font_family,
+      :default_recording_visibility,
+      :default_stream_visibility,
+      :stream_recording_enabled
     ])
-    |> validate_required([:email])
+    |> validate_required([:email, :username])
     |> update_change(:email, &String.downcase/1)
     |> validate_format(:email, @valid_email_re)
+    |> validate_username()
+    |> validate_inclusion(:term_theme_name, Themes.terminal_themes())
+    |> validate_inclusion(:term_font_family, Fonts.terminal_font_families())
+    |> add_contraints()
+  end
+
+  def change_user(user, params, :admin) do
+    import Ecto.Changeset
+
+    user
+    |> cast(params, [
+      :email,
+      :name,
+      :username,
+      :streaming_enabled,
+      :stream_limit
+    ])
+    |> validate_required([:email, :username])
+    |> update_change(:email, &String.downcase/1)
+    |> validate_format(:email, @valid_email_re)
+    |> validate_username()
+    |> validate_number(:stream_limit, greater_than_or_equal_to: 0)
+    |> add_contraints()
+  end
+
+  defp validate_username(changeset) do
+    import Ecto.Changeset
+
+    changeset
     |> validate_format(:username, @valid_username_re)
     |> validate_length(:username, min: 2, max: 16)
-    |> validate_inclusion(:theme_name, Themes.terminal_themes())
-    |> validate_inclusion(:terminal_font_family, Fonts.terminal_font_families())
-    |> add_contraints()
   end
 
   defp add_contraints(changeset) do
@@ -109,12 +164,9 @@ defmodule Asciinema.Accounts do
     |> unique_constraint(:email, name: "index_users_on_email")
   end
 
-  def update_user(user, params) do
-    import Ecto.Changeset
-
+  def update_user(user, params, ctx \\ :user) do
     user
-    |> change_user(params)
-    |> validate_required([:username])
+    |> change_user(params, ctx)
     |> Repo.update()
   end
 
@@ -139,12 +191,12 @@ defmodule Asciinema.Accounts do
       {{:email, nil}, true} ->
         changeset = change_user(%User{}, %{email: identifier})
 
-        if changeset.valid? do
+        if Enum.any?(changeset.errors, &(elem(&1, 0) == :email)) do
+          {:error, :email_invalid}
+        else
           email = changeset.changes.email
 
           {:ok, {:sign_up, sign_up_token(email), email}}
-        else
-          {:error, :email_invalid}
         end
 
       {{_, nil}, _} ->
@@ -221,113 +273,114 @@ defmodule Asciinema.Accounts do
     end
   end
 
-  def get_user_with_api_token(token, tmp_username \\ nil) do
-    case fetch_api_token(token) do
-      {:ok, api_token} ->
-        {:ok, api_token.user}
+  @uuid4 ~r/\A[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}\z/
 
-      {:error, :token_revoked} = result ->
+  def register_cli(%User{} = user, install_id) do
+    case fetch_cli(install_id) do
+      {:ok, cli} ->
+        check_cli_ownership(user, cli)
+
+      {:error, :cli_revoked} = result ->
         result
 
       {:error, :token_not_found} ->
-        create_user_with_api_token(token, tmp_username)
+        create_cli(user, install_id)
     end
   end
 
-  def create_user_with_api_token(token, tmp_username) do
-    import Ecto.Changeset
+  def register_cli(username, install_id) when is_binary(username) do
+    case fetch_cli(install_id) do
+      {:ok, cli} ->
+        {:ok, cli}
 
-    changeset = change(%User{}, %{temporary_username: tmp_username})
+      {:error, :cli_revoked} = result ->
+        result
 
-    Repo.transaction(fn ->
-      with {:ok, %User{} = user} <- Repo.insert(changeset),
-           {:ok, %ApiToken{}} <- create_api_token(user, token) do
-        user
-      else
-        {:error, %Ecto.Changeset{}} ->
-          Repo.rollback(:token_invalid)
-
-        {:error, reason} ->
-          Repo.rollback(reason)
-
-        result ->
-          Repo.rollback(result)
-      end
-    end)
+      {:error, :token_not_found} = result ->
+        if config(:upload_auth_required, false) do
+          result
+        else
+          create_cli(create_tmp_user(username), install_id)
+        end
+    end
   end
 
-  def create_api_token(%User{} = user, token) do
+  defp create_cli(%User{} = user, install_id) do
     result =
       user
-      |> build_assoc(:api_tokens)
-      |> ApiToken.create_changeset(token)
+      |> new_cli(%{token: install_id})
       |> Repo.insert()
 
     case result do
-      {:ok, api_token} ->
-        {:ok, %{api_token | user: user}}
+      {:ok, cli} ->
+        {:ok, %{cli | user: user}}
 
       {:error, %Ecto.Changeset{}} ->
         {:error, :token_invalid}
     end
   end
 
-  def register_api_token(user, token) do
-    case fetch_api_token(token) do
-      {:ok, api_token} ->
-        check_api_token_ownership(user, api_token)
+  def new_cli(user, attrs \\ %{}) do
+    import Changeset
 
-      {:error, :token_revoked} = result ->
-        result
-
-      {:error, :token_not_found} ->
-        create_api_token(user, token)
-    end
+    user
+    |> build_assoc(:clis)
+    |> cast(attrs, [:token])
+    |> validate_format(:token, @uuid4)
+    |> unique_constraint(:token, name: "clis_token_index")
   end
 
-  defp check_api_token_ownership(user, api_token) do
+  defp create_tmp_user(username) do
+    %{temporary_username: String.slice(username, 0, 16)}
+    |> build_user()
+    |> Repo.insert!()
+  end
+
+  defp check_cli_ownership(user, cli) do
     cond do
-      user.id == api_token.user.id -> {:ok, api_token}
-      api_token.user.email -> {:error, :token_taken}
-      true -> {:error, {:needs_merge, api_token.user}}
+      user.id == cli.user.id -> {:ok, cli}
+      cli.user.email -> {:error, :token_taken}
+      true -> {:error, {:needs_merge, cli.user}}
     end
   end
 
-  def fetch_api_token(token) do
-    api_token =
-      ApiToken
+  def fetch_cli(token) do
+    cli =
+      Cli
       |> Repo.get_by(token: token)
       |> Repo.preload(:user)
 
-    case api_token do
+    case cli do
       nil -> {:error, :token_not_found}
-      %ApiToken{revoked_at: nil} -> {:ok, api_token}
-      %ApiToken{} -> {:error, :token_revoked}
+      %Cli{revoked_at: nil} -> {:ok, cli}
+      %Cli{} -> {:error, :cli_revoked}
     end
   end
 
-  def get_api_token(user, id) do
-    Repo.get(assoc(user, :api_tokens), id)
+  def get_cli(user, id) do
+    Repo.get(assoc(user, :clis), id)
   end
 
-  def get_api_token!(token) do
-    Repo.get_by!(ApiToken, token: token)
+  def get_cli!(token) do
+    Repo.get_by!(Cli, token: token)
   end
 
-  def revoke_api_token!(api_token) do
-    api_token
-    |> ApiToken.revoke_changeset()
+  def revoke_cli!(%Cli{revoked_at: nil} = cli) do
+    cli
+    |> Changeset.change(%{revoked_at: Timex.now()})
     |> Repo.update!()
   end
 
-  def list_api_tokens(%User{} = user) do
+  def revoke_cli!(cli), do: cli
+
+  def list_clis(%User{} = user) do
     user
-    |> assoc(:api_tokens)
+    |> assoc(:clis)
     |> Repo.all()
   end
 
-  def reassign_api_tokens(src_user_id, dst_user_id) do
-    q = from(at in ApiToken, where: at.user_id == ^src_user_id)
+  def reassign_clis(src_user_id, dst_user_id) do
+    q = from(at in Cli, where: at.user_id == ^src_user_id)
     Repo.update_all(q, set: [user_id: dst_user_id, updated_at: Timex.now()])
   end
 
@@ -354,13 +407,13 @@ defmodule Asciinema.Accounts do
   end
 
   def delete_user!(%User{} = user) do
-    Repo.delete_all(assoc(user, :api_tokens))
+    Repo.delete_all(assoc(user, :clis))
     Repo.delete!(user)
 
     :ok
   end
 
-  def default_theme_name(user), do: user.theme_name
+  def default_term_theme_name(user), do: user.term_theme_name
 
-  def default_font_family(user), do: user.terminal_font_family
+  def default_font_family(user), do: user.term_font_family
 end

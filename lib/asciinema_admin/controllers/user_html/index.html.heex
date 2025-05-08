@@ -1,0 +1,59 @@
+<h2><a href={~p"/admin/users"}>Users</a></h2>
+
+<hr />
+<br />
+
+<.form :let={f} for={%{}} action={~p"/admin/users/lookup"} as={:q} method="GET" class="lookup">
+  <p>
+    <.label for={f[:id]}>Look up by ID</.label>
+    <.input field={f[:id]} required placeholder="e.g. 123" />
+    <button type="submit">Show</button>
+  </p>
+</.form>
+
+<.form :let={f} for={%{}} action={~p"/admin/users/lookup"} as={:q} method="GET" class="lookup">
+  <p>
+    <.label for={f[:username]}>Look up by username</.label>
+    <.input field={f[:username]} required placeholder="e.g. foobar" />
+    <button type="submit">Show</button>
+  </p>
+</.form>
+
+<.form :let={f} for={%{}} action={~p"/admin/users/lookup"} as={:q} method="GET" class="lookup">
+  <p>
+    <.label for={f[:email]}>Look up by email</.label>
+    <.input field={f[:email]} type="email" required placeholder="e.g. foobar@example.com" />
+    <button type="submit">Show</button>
+  </p>
+</.form>
+
+<br />
+<hr />
+<br />
+
+<h3>{length(@users)} users</h3>
+
+<table>
+  <thead>
+    <th>id</th>
+    <th>created at</th>
+    <th>email</th>
+    <th>username</th>
+    <th>last login at</th>
+    <th></th>
+  </thead>
+  <tbody>
+    <tr :for={user <- @users}>
+      <td><a href={~p"/admin/users/#{user}"}>{user.id}</a></td>
+      <td><.time_ago time={user.inserted_at} /></td>
+      <td>{user.email}</td>
+      <td>{user.username}</td>
+      <td><.time_ago :if={user.last_login_at} time={user.last_login_at} /></td>
+      <td><a href={~p"/admin/users/#{user}"}>Show</a></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>
+  <a href={~p"/admin/users/new"}>Add new user</a>
+</p>

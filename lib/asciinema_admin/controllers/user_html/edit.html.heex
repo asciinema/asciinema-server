@@ -1,0 +1,45 @@
+<h2><a href={~p"/admin/users"}>Users</a> &rsaquo; {@user.username || @user.id}</h2>
+
+<hr />
+<br />
+
+<.form :let={f} for={@changeset} action={~p"/admin/users/#{@user}"} method="PUT">
+  <p>
+    <.label for={f[:username]}>Username</.label>
+    <.input field={f[:username]} required />
+    <.error field={f[:username]} />
+  </p>
+
+  <p>
+    <.label for={f[:email]}>Email</.label>
+    <.input field={f[:email]} type="email" required />
+    <.error field={f[:email]} />
+  </p>
+
+  <p>
+    <.label for={f[:name]}>Display name</.label>
+    <.input field={f[:name]} />
+    <.error field={f[:name]} />
+  </p>
+
+  <br />
+
+  <h3>Streaming</h3>
+
+  <p>
+    <.input field={f[:streaming_enabled]} type="checkbox" />
+    <.label for={f[:streaming_enabled]}>Enabled</.label>
+  </p>
+
+  <p>
+    <.label for={f[:stream_limit]}>Stream limit</.label>
+    <.input field={f[:stream_limit]} type="number" min="0" placeholder="no limit" />
+    <.error field={f[:stream_limit]} />
+  </p>
+
+  <br />
+
+  <p>
+    <button type="submit">Update</button>
+  </p>
+</.form>

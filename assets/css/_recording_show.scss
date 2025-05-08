@@ -1,4 +1,23 @@
-.c-recording.a-show, .c-live-stream.a-show {
+.c-stream.a-show {
+  section.cinema {
+    transition: background-color 0.2s;
+  }
+}
+
+.c-recording.a-show, .c-stream.a-show {
+  section.cinema {
+    background-color: color-mix(in oklab, var(--term-color-background) 80%, black);
+
+    .ap-player {
+      box-shadow: color-mix(in oklab, var(--term-color-background) 50%, black) 0px 0px 60px 5px;
+      border: 1px solid color-mix(in oklab,var(--term-color-background) 90%, var(--term-color-foreground));
+    }
+
+    div.ap-wrapper:fullscreen {
+      background-color: inherit;
+    }
+  }
+
   section.info {
     small {
       font-size: 14px;
@@ -54,6 +73,10 @@
         &.icon-live, &.icon-offline {
           margin-right: 0.5em;
         }
+      }
+
+      .help-tooltip {
+        cursor: help;
       }
     }
   }

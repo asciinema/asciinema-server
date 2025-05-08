@@ -1,0 +1,181 @@
+<section
+  class="cinema"
+  id="cinema"
+  style={"height: #{cinema_height(@stream)}vw; max-height: 75vh"}
+>
+</section>
+
+<section class="even info">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-xs-12">
+        <span class="author-avatar">
+          <.link navigate={author_profile_path(@stream)} title={author_username(@stream)}>
+            <img src={author_avatar_url(@stream)} class="avatar" />
+          </.link>
+        </span>
+
+        <h2>{title(@stream)}</h2>
+
+        <small>
+          by <.link navigate={author_profile_path(@stream)}>{author_username(@stream)}</.link>
+          <.visibility_badge
+            :if={owned_by_current_user?(@stream, @conn)}
+            visibility={@stream.visibility}
+          />
+        </small>
+      </div>
+
+      <div class="col-md-4 col-xs-12 text-right actions">
+        <div :if={length(@actions) > 0} class="dropdown actions-dropdown pull-right">
+          <button
+            class="btn btn-sm btn-secondary dropdown-toggle"
+            type="button"
+            data-toggle="dropdown"
+          >
+            <.cog_8_tooth_mini_icon />
+          </button>
+
+          <div class="dropdown-menu">
+            <.link :if={:edit in @actions} navigate={~p"/s/#{@stream}/edit"} class="dropdown-item">
+              Settings
+            </.link>
+
+            <.link
+              :if={:delete in @actions}
+              href={~p"/s/#{@stream}?ret=/s/#{@stream}"}
+              class="dropdown-item text-danger"
+              method="delete"
+              data-confirm="Are you sure you want to delete this stream?"
+            >
+              Delete
+            </.link>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="odd meta">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12 col-xs-12">
+        {live_render(@conn, AsciinemaWeb.StreamStatusLive, session: %{"stream_id" => @stream.id})}
+
+        <%= if desc = render_markdown(@stream.description) do %>
+          <hr />
+
+          <div class="description">
+            {desc}
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section :if={@user_is_self} class="even instructions">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <h2>How to stream</h2>
+
+        <.input
+          name="rec-cmd-asciinema-streamer"
+          data-behavior="auto-select"
+          readonly
+          value={"asciinema stream -r #{short_public_token(@stream)}"}
+        />
+
+        <small class="text-muted">
+          You need <a href="https://docs.asciinema.org/manual/cli/">asciinema CLI</a>
+          version <a href="https://github.com/asciinema/asciinema/releases/tag/v3.0.0-rc.4">3.0 or later</a>.
+        </small>
+
+        <h2>Stream URL</h2>
+        <.input
+          name="consumer-url"
+          data-behavior="auto-select"
+          readonly
+          value={url(~p"/s/#{@stream}")}
+        />
+
+        <small class="text-muted">This is your unique stream URL. Share this
+          freely with your viewers.</small>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section :if={length(@stream_asciicasts) > 0} class="even">
+  <div class="container">
+    <div class="row other-asciicasts">
+      <div class="col-md-12">
+        <h2>
+          Past recordings of this stream
+        </h2>
+
+        <div class="row asciicast-list">
+          <div :for={asciicast <- @stream_asciicasts} class="col-md-6">
+            <RecordingHTML.card asciicast={asciicast} conn={@conn} />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section :if={!@user_is_self && length(@other_asciicasts) > 0} class="even">
+  <div class="container">
+    <div class="row other-asciicasts">
+      <div class="col-md-12">
+        <h2 :if={length(@stream_asciicasts) == 0}>
+          Recordings by <a href={author_profile_path(@stream)}>{author_username(@stream)}</a>
+        </h2>
+
+        <h2 :if={length(@stream_asciicasts) > 0}>
+          Other recordings by
+          <a href={author_profile_path(@stream)}>{author_username(@stream)}</a>
+        </h2>
+
+        <div class="row asciicast-list">
+          <div :for={asciicast <- @other_asciicasts} class="col-md-6">
+            <RecordingHTML.card asciicast={asciicast} conn={@conn} />
+          </div>
+        </div>
+
+        <p>
+          <a href={author_profile_path(@stream)} class="btn btn-info">See all</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  window.addEventListener('load', async function() {
+    const container = document.getElementById('cinema');
+    const opts = <%= safe_json(player_opts(@stream, @player_opts)) %>;
+
+    const player = await window.createPlayer(
+      <%= safe_json(player_src(@stream)) %>,
+      container,
+      { ...opts, fit: 'both', logger: console }
+    );
+
+    function resizeCinema({ cols, rows }) {
+      container.style.height = window.cinemaHeight(cols, rows);
+    }
+
+    player.addEventListener('reset', resizeCinema);
+    player.addEventListener('resize', resizeCinema);
+
+    player.addEventListener('reset', () => {
+      const el = player.el.getElementsByClassName('ap-player')[0];
+      const style = window.getComputedStyle(el);
+      const color = style.getPropertyValue("--term-color-background");
+      container.style.setProperty('--term-color-background', color);
+    });
+  });
+</script>

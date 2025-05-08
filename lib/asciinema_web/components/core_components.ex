@@ -8,7 +8,7 @@ defmodule AsciinemaWeb.CoreComponents do
 
   def label(assigns) do
     ~H"""
-    <label for={@for.id} {@rest}><%= render_slot(@inner_block) %></label>
+    <label for={@for.id} {@rest}>{render_slot(@inner_block)}</label>
     """
   end
 
@@ -55,8 +55,8 @@ defmodule AsciinemaWeb.CoreComponents do
   def input(%{type: "select"} = assigns) do
     ~H"""
     <select id={@id} name={@name} {@rest}>
-      <option :if={@prompt} value=""><%= @prompt %></option>
-      <%= Phoenix.HTML.Form.options_for_select(@options, @value) %>
+      <option :if={@prompt} value="">{@prompt}</option>
+      {Phoenix.HTML.Form.options_for_select(@options, @value)}
     </select>
     """
   end
@@ -85,7 +85,7 @@ defmodule AsciinemaWeb.CoreComponents do
 
   def button(assigns) do
     ~H"""
-    <button type={@type} {@rest}><%= render_slot(@inner_block) %></button>
+    <button type={@type} {@rest}>{render_slot(@inner_block)}</button>
     """
   end
 
@@ -99,7 +99,7 @@ defmodule AsciinemaWeb.CoreComponents do
       title={Timex.format!(@time, "{RFC1123z}")}
       {@rest}
     >
-      <%= Timex.from_now(@time) %>
+      {Timex.from_now(@time)}
     </time>
     """
   end
@@ -110,7 +110,7 @@ defmodule AsciinemaWeb.CoreComponents do
     assigns = assign(assigns, :error, List.first(assigns.field.errors))
 
     ~H"""
-    <small :if={@error} class="form-text text-danger"><%= translate_error(@error) %></small>
+    <small :if={@error} class="form-text text-danger">{translate_error(@error)}</small>
     """
   end
 end

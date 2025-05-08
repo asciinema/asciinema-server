@@ -11,14 +11,14 @@ on:
       - main
 
 env:
-  otp: '25.2.2'
-  elixir: '1.14.3'
+  otp: '26.2.5.7'
+  elixir: '1.18.2'
   node: '18.x'
-  rust: '1.71.0'
+  rust: '1.83.0'
 
 jobs:
   test:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     services:
       postgres:
@@ -57,12 +57,10 @@ jobs:
       - name: Cache Mix
         uses: actions/cache@v3
         with:
-          path: |
-            deps
-            _build
-          key: ${{ runner.os }}-mix-${{ env.elixir }}-${{ env.otp }}-${{ hashFiles('**/mix.lock') }}
+          path: deps
+          key: ${{ runner.os }}-mix-${{ env.elixir }}-${{ env.otp }}-${{ env.rust }}-${{ hashFiles('**/mix.lock') }}
           restore-keys: |
-            ${{ runner.os }}-mix-${{ env.elixir }}-${{ env.otp }}-
+            ${{ runner.os }}-mix-${{ env.elixir }}-${{ env.otp }}-${{ env.rust }}-
       - name: Cache npm dependencies
         uses: actions/cache@v3
         with:
@@ -78,7 +76,7 @@ jobs:
             ~/.cargo
           key: ${{ runner.os }}-rust-${{ env.rust }}-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
-            ${{ runner.os }}-rust-
+            ${{ runner.os }}-rust-${{ env.rust }}-
       - name: Install mix dependencies
         run: mix deps.get
       - name: Check formatting

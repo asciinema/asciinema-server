@@ -80,25 +80,26 @@
         <legend>Defaults</legend>
 
         <p>
-          The settings below control the defaults for your uploaded recordings. <br />
+          The settings below control the defaults for <strong>new</strong>
+          recordings<span :if={@streaming_enabled}> and streams</span>. <br />
           <br />
         </p>
 
         <div class="form-group row">
-          <.label for={f[:default_asciicast_visibility]} class="col-3 col-form-label">
+          <.label for={f[:default_recording_visibility]} class="col-3 col-form-label">
             Recording visibility
           </.label>
           <div class="col-9 visibility-radios">
             <div class="form-check">
               <input
                 type="radio"
-                name="user[default_asciicast_visibility]"
-                id="user_default_asciicast_visibility_public"
+                name="user[default_recording_visibility]"
+                id="user_default_recording_visibility_public"
                 value="public"
-                checked={f[:default_asciicast_visibility].value == :public}
+                checked={f[:default_recording_visibility].value == :public}
                 class="form-check-input"
               />
-              <label for="user_default_asciicast_visibility_public" class="form-check-label">
+              <label for="user_default_recording_visibility_public" class="form-check-label">
                 Public
               </label>
               <small class="form-text text-muted">
@@ -108,13 +109,13 @@
             <div class="form-check">
               <input
                 type="radio"
-                name="user[default_asciicast_visibility]"
-                id="user_default_asciicast_visibility_unlisted"
+                name="user[default_recording_visibility]"
+                id="user_default_recording_visibility_unlisted"
                 value="unlisted"
-                checked={f[:default_asciicast_visibility].value == :unlisted}
+                checked={f[:default_recording_visibility].value == :unlisted}
                 class="form-check-input"
               />
-              <label for="user_default_asciicast_visibility_unlisted" class="form-check-label">
+              <label for="user_default_recording_visibility_unlisted" class="form-check-label">
                 Unlisted
               </label>
               <small class="form-text text-muted">
@@ -124,13 +125,13 @@
             <div class="form-check">
               <input
                 type="radio"
-                name="user[default_asciicast_visibility]"
-                id="user_default_asciicast_visibility_private"
+                name="user[default_recording_visibility]"
+                id="user_default_recording_visibility_private"
                 value="private"
-                checked={f[:default_asciicast_visibility].value == :private}
+                checked={f[:default_recording_visibility].value == :private}
                 class="form-check-input"
               />
-              <label for="user_default_asciicast_visibility_private" class="form-check-label">
+              <label for="user_default_recording_visibility_private" class="form-check-label">
                 Private
               </label>
               <small class="form-text text-muted">
@@ -138,20 +139,79 @@
               </small>
             </div>
             <small class="form-text text-muted">
-              NOTE: This setting applies to *new* uploads. Existing recordings are not affected by changes to this setting.
+              NOTE: Existing recordings are not affected by changes to this setting.
             </small>
           </div>
         </div>
 
-        <div class="form-group row select optional user_theme_name">
-          <.label for={f[:theme_name]} class="col-3 select optional col-form-label">
+        <div :if={@streaming_enabled} class="form-group row">
+          <.label for={f[:default_stream_visibility]} class="col-3 col-form-label">
+            Stream visibility
+          </.label>
+          <div class="col-9 visibility-radios">
+            <div class="form-check">
+              <input
+                type="radio"
+                name="user[default_stream_visibility]"
+                id="user_default_stream_visibility_public"
+                value="public"
+                checked={f[:default_stream_visibility].value == :public}
+                class="form-check-input"
+              />
+              <label for="user_default_stream_visibility_public" class="form-check-label">
+                Public
+              </label>
+              <small class="form-text text-muted">
+                Anyone can view, listed on your public profile
+              </small>
+            </div>
+            <div class="form-check">
+              <input
+                type="radio"
+                name="user[default_stream_visibility]"
+                id="user_default_stream_visibility_unlisted"
+                value="unlisted"
+                checked={f[:default_stream_visibility].value == :unlisted}
+                class="form-check-input"
+              />
+              <label for="user_default_stream_visibility_unlisted" class="form-check-label">
+                Unlisted
+              </label>
+              <small class="form-text text-muted">
+                Only people with the link can view
+              </small>
+            </div>
+            <div class="form-check">
+              <input
+                type="radio"
+                name="user[default_stream_visibility]"
+                id="user_default_stream_visibility_private"
+                value="private"
+                checked={f[:default_stream_visibility].value == :private}
+                class="form-check-input"
+              />
+              <label for="user_default_stream_visibility_private" class="form-check-label">
+                Private
+              </label>
+              <small class="form-text text-muted">
+                Only accessible by you
+              </small>
+            </div>
+            <small class="form-text text-muted">
+              NOTE: Existing streams are not affected by changes to this setting.
+            </small>
+          </div>
+        </div>
+
+        <div class="form-group row select optional user_term_theme_name">
+          <.label for={f[:term_theme_name]} class="col-3 select optional col-form-label">
             Terminal theme
           </.label>
           <div class="col-9">
             <div>
               <.input
                 type="select"
-                field={f[:theme_name]}
+                field={f[:term_theme_name]}
                 options={theme_options()}
                 class="optional form-control"
                 prompt="Default (asciinema)"
@@ -166,8 +226,12 @@
         <div class="form-group row">
           <div class="offset-3 col-9">
             <div class="form-check">
-              <.input type="checkbox" field={f[:theme_prefer_original]} class="form-check-input" />
-              <.label for={f[:theme_prefer_original]} class="form-check-label">
+              <.input
+                type="checkbox"
+                field={f[:term_theme_prefer_original]}
+                class="form-check-input"
+              />
+              <.label for={f[:term_theme_prefer_original]} class="form-check-label">
                 Prefer original terminal theme
               </.label>
             </div>
@@ -178,13 +242,13 @@
         </div>
 
         <div class="form-group row">
-          <.label for={f[:terminal_font_family]} class="col-sm-4 col-md-3 col-form-label">
+          <.label for={f[:term_font_family]} class="col-sm-4 col-md-3 col-form-label">
             Terminal font family
           </.label>
           <div class="col-sm-8 col-md-9">
             <.input
               type="select"
-              field={f[:terminal_font_family]}
+              field={f[:term_font_family]}
               options={font_family_options()}
               class="form-control"
               prompt={"Default (#{default_font_display_name()})"}
@@ -202,10 +266,81 @@
           </div>
         </div>
       </.form>
+
+      <.form
+        :let={f}
+        :if={@streaming_enabled}
+        for={@changeset}
+        action={~p"/user"}
+        class="simple_form form-horizontal"
+        novalidate="novalidate"
+        role="form"
+      >
+        <legend>Streaming</legend>
+
+        <div class="form-group row">
+          <.label for={f[:stream_limit]} class="col-sm-4 col-md-3 col-form-label">
+            Stream limit
+          </.label>
+          <div class="col-sm-8 col-md-9">
+            <.input
+              field={f[:stream_limit]}
+              class="string form-control"
+              placeholder="no limit"
+              readonly
+            />
+            <small class="form-text text-muted">
+              Maximum number of streaming endpoints you can create.
+              <%= if @changeset.data.stream_limit do %>
+                Contact the admin if you need more.
+              <% end %>
+            </small>
+          </div>
+        </div>
+
+        <div :if={@stream_recording_mode != :disabled} class="form-group row">
+          <.label for={f[:stream_recording_enabled]} class="col-sm-4 col-md-3 col-form-label">
+            Recording
+          </.label>
+          <div class="col-sm-8 col-9">
+            <div class="form-check form-checkbox">
+              <.input
+                :if={@stream_recording_mode == :allowed}
+                type="checkbox"
+                field={f[:stream_recording_enabled]}
+                class="form-check-input"
+              />
+              <.input
+                :if={@stream_recording_mode == :forced}
+                type="checkbox"
+                field={f[:stream_recording_enabled]}
+                class="form-check-input"
+                value={true}
+                disabled={true}
+              />
+              <.label for={f[:stream_recording_enabled]} class="form-check-label">
+                Record all streams automatically
+              </.label>
+            </div>
+            <small class="form-text text-muted">
+              Every live stream will be saved into a regular recording. The
+              <strong>Recording visibility</strong>
+              option above also applies to recordings created from streams.
+            </small>
+          </div>
+        </div>
+
+        <div :if={@stream_recording_mode == :allowed} class="form-group row">
+          <div class="offset-3 col-9">
+            <br />
+            <.button type="submit" class="btn btn-primary">Update</.button>
+          </div>
+        </div>
+      </.form>
     </div>
   </div>
 
-  <div class="row tokens-list">
+  <div class="row clis-list">
     <div class="col-md-12">
       <form>
         <legend>CLI</legend>
@@ -218,7 +353,7 @@
           to do this. For more information see the <a href="https://docs.asciinema.org/manual/cli/usage/#asciinema-auth">documentation</a>.
         </p>
 
-        <%= if present?(@api_tokens) do %>
+        <%= if present?(@clis) do %>
           <p>
             The following asciinema CLI installations have been authenticated with your account:
           </p>
@@ -230,16 +365,16 @@
               <th></th>
             </thead>
             <tbody>
-              <tr :for={t <- active_tokens(@api_tokens)}>
+              <tr :for={t <- active_clis(@clis)}>
                 <td>
-                  <code><%= t.token %></code>
+                  <code>{t.token}</code>
                 </td>
                 <td>
-                  <%= time_tag(t.inserted_at) %>
+                  {time_tag(t.inserted_at)}
                 </td>
                 <td>
                   <.link
-                    href={~p"/api_tokens/#{t}"}
+                    href={~p"/clis/#{t}"}
                     class="btn btn-danger btn-sm"
                     method="delete"
                     data-confirm="Are you sure? This will prevent future uploads from that system."
@@ -249,15 +384,15 @@
                 </td>
               </tr>
 
-              <tr :for={t <- revoked_tokens(@api_tokens)} class="revoked">
+              <tr :for={t <- revoked_clis(@clis)} class="revoked">
                 <td>
-                  <code><%= t.token %></code>
+                  <code>{t.token}</code>
                 </td>
                 <td>
-                  <%= time_tag(t.inserted_at) %>
+                  {time_tag(t.inserted_at)}
                 </td>
                 <td>
-                  Revoked <%= time_ago_tag(t.revoked_at) %>
+                  Revoked {time_ago_tag(t.revoked_at)}
                 </td>
               </tr>
             </tbody>
@@ -282,7 +417,7 @@
       </form>
 
       <p>
-        If you ever decide to delete your <%= @conn.host %> account you can do so by clicking that big red button below.
+        If you ever decide to delete your {@conn.host} account you can do so by clicking that big red button below.
       </p>
 
       <p>
@@ -292,7 +427,7 @@
       </p>
 
       <p>
-        NOTE: You'll get a confirmation email sent to <%= @changeset.data.email %>. Open the link from the email to confirm account deletion.
+        NOTE: You'll get a confirmation email sent to {@changeset.data.email}. Open the link from the email to confirm account deletion.
       </p>
     </div>
   </div>

@@ -38,7 +38,7 @@ config :asciinema, AsciinemaWeb.Endpoint,
     ]
   ]
 
-config :asciinema, AsciinemaWeb.Admin.Endpoint,
+config :asciinema, AsciinemaAdmin.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4002],
   check_origin: false,
   code_reloader: true,
@@ -57,6 +57,15 @@ config :asciinema, AsciinemaWeb.Endpoint,
       ~r"lib/asciinema_web/views/.*(ex)$",
       ~r"lib/asciinema_web/templates/.*(eex|md)$",
       ~r"lib/asciinema_web/(controllers|live|components)/.*(ex|heex)$"
+    ]
+  ]
+
+config :asciinema, AsciinemaAdmin.Endpoint,
+  live_reload: [
+    patterns: [
+      ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
+      ~r"priv/gettext/.*(po)$",
+      ~r"lib/asciinema_admin/(controllers|live|components)/.*(ex|heex)$"
     ]
   ]
 

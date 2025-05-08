@@ -1,0 +1,6 @@
+<%= if @stream.visibility != :public do %>
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="referrer" content="origin" />
+<% end %>
+
+<.theme_style theme={theme(@stream)} />

@@ -1,5 +1,8 @@
 .profile-page {
   .cinema {
+    background-color: #222230;
+    padding: 3em 0;
+
     .user-avatar {
       float: left;
       width: 64px;
@@ -32,6 +35,11 @@
   }
 
   h2 {
-    margin-top: 30px;
+    margin: 2em 0;
+
+    .action {
+      float: right;
+      font-size: 75%;
+    }
   }
 }

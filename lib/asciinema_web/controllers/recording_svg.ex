@@ -1,6 +1,6 @@
 defmodule AsciinemaWeb.RecordingSVG do
   use Phoenix.Component
-  import AsciinemaWeb.RecordingHTML, only: [cols: 1, rows: 1]
+  import AsciinemaWeb.RecordingHTML, only: [term_cols: 1, term_rows: 1]
   import Phoenix.HTML
   alias Asciinema.{Colors, Media, Themes}
   alias Asciinema.Recordings.Snapshot
@@ -65,11 +65,11 @@ defmodule AsciinemaWeb.RecordingSVG do
 
   def show(assigns) do
     ~H"""
-    <%= raw("<?xml version=\"1.0\"?>") %>
+    {raw("<?xml version=\"1.0\"?>")}
     <.preview
       coords={coords(@asciicast, nil)}
-      cols={cols(@asciicast)}
-      rows={rows(@asciicast)}
+      cols={term_cols(@asciicast)}
+      rows={term_rows(@asciicast)}
       theme={Media.theme(@asciicast)}
       font_family={assigns[:font_family]}
       rx={assigns[:rx]}
@@ -81,7 +81,7 @@ defmodule AsciinemaWeb.RecordingSVG do
 
   def thumbnail(assigns) do
     ~H"""
-    <%= raw("<?xml version=\"1.0\"?>") %>
+    {raw("<?xml version=\"1.0\"?>")}
     <.preview
       coords={coords(@asciicast, {80, 15})}
       cols={80}
@@ -415,12 +415,10 @@ defmodule AsciinemaWeb.RecordingSVG do
   def mix_colors(a, b, ratio), do: Colors.mix(a, b, ratio)
 
   defp snapshot(%{snapshot: snapshot}, nil) do
-    Snapshot.new(snapshot || [])
+    snapshot || Snapshot.new([])
   end
 
   defp snapshot(%{snapshot: snapshot}, {cols, rows}) do
-    (snapshot || [])
-    |> Snapshot.new()
-    |> Snapshot.crop(cols, rows)
+    Snapshot.crop(snapshot || Snapshot.new([]), cols, rows)
   end
 end
