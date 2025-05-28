@@ -57,9 +57,7 @@ jobs:
       - name: Cache Mix
         uses: actions/cache@v3
         with:
-          path: |
-            deps
-            _build
+          path: deps
           key: ${{ runner.os }}-mix-${{ env.elixir }}-${{ env.otp }}-${{ env.rust }}-${{ hashFiles('**/mix.lock') }}
           restore-keys: |
             ${{ runner.os }}-mix-${{ env.elixir }}-${{ env.otp }}-${{ env.rust }}-

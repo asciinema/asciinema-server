@@ -164,6 +164,29 @@ defmodule Asciinema.Themes do
         "#34e2e2",
         "#eeeeec"
       }
+    },
+    "gruvbox-dark" => %{
+      name: "Gruvbox Dark",
+      fg: "#fbf1c7",
+      bg: "#282828",
+      palette: {
+        "#282828",
+        "#cc241d",
+        "#98971a",
+        "#d79921",
+        "#458588",
+        "#b16286",
+        "#689d6a",
+        "#a89984",
+        "#7c6f64",
+        "#fb4934",
+        "#b8bb26",
+        "#fabd2f",
+        "#83a598",
+        "#d3869b",
+        "#8ec07c",
+        "#fbf1c7"
+      }
     }
   }
 
