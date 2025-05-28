@@ -4,9 +4,9 @@ version = 4
 
 [[package]]
 name = "avt"
-version = "0.15.1"
+version = "0.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8c455a7c5217b369f7caf83403116ea9bba9c1d224a960f6ac37fc4a121b825c"
+checksum = "156203bcce48a54533c6a718509c22825c1ebbb606e6b313a6f13e8c6097bd13"
 dependencies = [
  "rgb",
  "unicode-width",
