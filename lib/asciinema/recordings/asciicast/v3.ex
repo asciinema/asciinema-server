@@ -68,6 +68,7 @@ defmodule Asciinema.Recordings.Asciicast.V3 do
   def create(path, {cols, rows}, fields \\ []) do
     file = File.open!(path, [:write, :utf8])
     timestamp = Keyword.get(fields, :timestamp)
+    title = Keyword.get(fields, :title)
     env = drop_empty(Keyword.get(fields, :env) || %{})
 
     term =
@@ -82,7 +83,7 @@ defmodule Asciinema.Recordings.Asciicast.V3 do
       |> Jason.OrderedObject.new()
 
     header =
-      [version: 3, term: term, timestamp: timestamp, env: env]
+      [version: 3, term: term, timestamp: timestamp, title: title, env: env]
       |> drop_empty()
       |> Jason.OrderedObject.new()
 
