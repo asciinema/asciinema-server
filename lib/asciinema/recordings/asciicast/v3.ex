@@ -92,7 +92,8 @@ defmodule Asciinema.Recordings.Asciicast.V3 do
     end
   end
 
-  def write_event(%Writer{file: file} = writer, time, type, data) when type in ["o", "i", "m"] do
+  def write_event(%Writer{file: file} = writer, time, type, data)
+      when type in ["o", "i", "m", "x"] do
     rel_time = format_time(time - writer.prev_time)
     data = Jason.encode!(data)
     event = "[#{rel_time}, \"#{type}\", #{data}]"

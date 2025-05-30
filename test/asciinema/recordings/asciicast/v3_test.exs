@@ -169,6 +169,15 @@ defmodule Asciinema.Recordings.Asciicast.V3Test do
       assert content ==
                ~s|{"version":3,"term":{"cols":99,"rows":22}}\n[123.456789, "m", "intro"]\n|
     end
+
+    test "exit", %{path: path, writer: writer} do
+      {:ok, writer} = V3.write_event(writer, 1, "x", "0")
+      :ok = V3.close(writer)
+      content = File.read!(path)
+
+      assert content ==
+               ~s|{"version":3,"term":{"cols":99,"rows":22}}\n[0.000001, "x", "0"]\n|
+    end
   end
 
   describe "complete file" do

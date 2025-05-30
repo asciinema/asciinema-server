@@ -58,6 +58,14 @@ defmodule Asciinema.Streaming.Parser.AlisV1 do
     {:ok, [marker: data], %{state | time_offset: time}}
   end
 
+  def parse({:binary, <<?x, rest::binary>>}, %{status: :online} = state) do
+    data = parse_exit(rest)
+    time = state.time_offset + data.time
+    data = %{data | time: time}
+
+    {:ok, [exit: data], %{state | time_offset: time}}
+  end
+
   def parse({:binary, <<0x04, rest::binary>>}, %{status: status} = state)
       when status in [:init, :online] do
     %{time: time} = parse_eot(rest)
@@ -118,6 +126,14 @@ defmodule Asciinema.Streaming.Parser.AlisV1 do
     {label, ""} = parse_string(bytes)
 
     %{id: id, time: time, label: label}
+  end
+
+  defp parse_exit(bytes) do
+    {id, bytes} = decode_varint(bytes)
+    {time, bytes} = decode_varint(bytes)
+    {status, ""} = decode_varint(bytes)
+
+    %{id: id, time: time, status: status}
   end
 
   defp parse_eot(bytes) do

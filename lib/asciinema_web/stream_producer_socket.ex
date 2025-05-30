@@ -225,6 +225,12 @@ defmodule AsciinemaWeb.StreamProducerSocket do
     end
   end
 
+  defp run_command({:exit, args}, %{status: :online} = state) do
+    with :ok <- StreamServer.event(state.stream_id, :exit, args) do
+      {:ok, state}
+    end
+  end
+
   defp run_command({:eot, _}, %{status: :online} = state) do
     Logger.info("producer/#{state.stream_id}: stream ended, stopping the server")
     StreamServer.stop(state.stream_id)

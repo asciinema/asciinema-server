@@ -208,6 +208,19 @@ defmodule Asciinema.Streaming.StreamServer do
     {:reply, :ok, state}
   end
 
+  def handle_call({:event, {:exit, data}}, _from, state) do
+    %{id: id, time: time, status: status} = data
+    publish(state.stream_id, :exit, data)
+
+    state =
+      state
+      |> write_asciicast_event(time, "x", to_string(status))
+      |> update_last_stream_time(time)
+      |> save_event_id(id)
+
+    {:reply, :ok, state}
+  end
+
   def handle_call(:heartbeat, _from, state) do
     state = reschedule_shutdown(state)
 
@@ -372,6 +385,7 @@ defmodule Asciinema.Streaming.StreamServer do
 
   defp end_recording(%{writer: writer} = state) do
     Logger.info("stream/#{state.stream_id}: creating recording")
+
     :ok = V3.close(writer)
 
     upload = %Plug.Upload{
