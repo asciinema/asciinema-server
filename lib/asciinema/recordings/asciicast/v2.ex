@@ -62,7 +62,7 @@ defmodule Asciinema.Recordings.Asciicast.V2 do
   defp get_duration(path) do
     path
     |> event_stream()
-    |> Enum.reduce(fn {t, _, _}, _prev_t -> t end)
+    |> Enum.reduce(0, fn {t, _, _}, _prev_t -> t end)
   end
 
   def create(path, {cols, rows}, fields \\ []) do
