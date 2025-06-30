@@ -105,21 +105,21 @@ defmodule Asciinema.Streaming.StreamServer do
     term_version = get_in(query, ["term", "version"])
     env = query["env"] || %{}
     shell = query["shell"]
+    title = query["title"]
 
     schema_changes =
-      Keyword.merge(
-        [
-          online: true,
-          last_started_at: last_started_at,
-          term_cols: cols,
-          term_rows: rows,
-          term_type: term_type,
-          term_version: term_version,
-          user_agent: user_agent,
-          shell: shell
-        ],
-        schema_theme_fields(theme)
-      )
+      [
+        online: true,
+        last_started_at: last_started_at,
+        term_cols: cols,
+        term_rows: rows,
+        term_type: term_type,
+        term_version: term_version,
+        user_agent: user_agent,
+        shell: shell
+      ]
+      |> Keyword.merge(schema_theme_fields(theme))
+      |> Keyword.merge(optional_fields(title))
 
     state =
       %{state | theme: theme, user_agent: user_agent}
@@ -127,6 +127,9 @@ defmodule Asciinema.Streaming.StreamServer do
       |> update_base_stream_time(last_id, time)
       |> update_last_stream_time(time)
       |> update_schema(schema_changes)
+
+    state =
+      state
       |> restart_recording(
         last_id,
         cols,
@@ -135,7 +138,8 @@ defmodule Asciinema.Streaming.StreamServer do
         term_type,
         term_version,
         theme,
-        env
+        env,
+        state.stream.title
       )
       |> save_event_id(last_id)
 
@@ -198,6 +202,19 @@ defmodule Asciinema.Streaming.StreamServer do
     state =
       state
       |> write_asciicast_event(time, "m", label)
+      |> update_last_stream_time(time)
+      |> save_event_id(id)
+
+    {:reply, :ok, state}
+  end
+
+  def handle_call({:event, {:exit, data}}, _from, state) do
+    %{id: id, time: time, status: status} = data
+    publish(state.stream_id, :exit, data)
+
+    state =
+      state
+      |> write_asciicast_event(time, "x", to_string(status))
       |> update_last_stream_time(time)
       |> save_event_id(id)
 
@@ -331,23 +348,34 @@ defmodule Asciinema.Streaming.StreamServer do
          term_type,
          term_version,
          theme,
-         env
+         env,
+         title
        ) do
     if client_last_event_id == state.last_event_id and client_last_event_id != 0 do
       state
     else
       state
       |> end_recording()
-      |> start_recording(cols, rows, term_init, term_type, term_version, theme, env)
+      |> start_recording(cols, rows, term_init, term_type, term_version, theme, env, title)
     end
   end
 
-  defp start_recording(state, cols, rows, term_init, term_type, term_version, theme, env) do
+  defp start_recording(state, cols, rows, term_init, term_type, term_version, theme, env, title) do
     mode = recording_mode()
     user = state.stream.user
 
     if mode == :forced or (mode == :allowed && user.stream_recording_enabled) do
-      create_asciicast_file(state, cols, rows, term_init, term_type, term_version, theme, env)
+      create_asciicast_file(
+        state,
+        cols,
+        rows,
+        term_init,
+        term_type,
+        term_version,
+        theme,
+        env,
+        title
+      )
     else
       state
     end
@@ -357,6 +385,7 @@ defmodule Asciinema.Streaming.StreamServer do
 
   defp end_recording(%{writer: writer} = state) do
     Logger.info("stream/#{state.stream_id}: creating recording")
+
     :ok = V3.close(writer)
 
     upload = %Plug.Upload{
@@ -376,7 +405,17 @@ defmodule Asciinema.Streaming.StreamServer do
     %{state | path: nil, writer: nil}
   end
 
-  defp create_asciicast_file(state, cols, rows, term_init, term_type, term_version, theme, env) do
+  defp create_asciicast_file(
+         state,
+         cols,
+         rows,
+         term_init,
+         term_type,
+         term_version,
+         theme,
+         env,
+         title
+       ) do
     path = Briefly.create!()
     timestamp = Timex.to_unix(Timex.now())
 
@@ -386,6 +425,7 @@ defmodule Asciinema.Streaming.StreamServer do
         term_version: term_version,
         term_theme: theme,
         env: env,
+        title: title,
         timestamp: timestamp
       )
 
@@ -439,6 +479,9 @@ defmodule Asciinema.Streaming.StreamServer do
       term_theme_palette: palette
     ]
   end
+
+  defp optional_fields(nil), do: []
+  defp optional_fields(title), do: [title: title]
 
   defp generate_snapshot(vt) do
     {:ok, {lines, cursor}} = Vt.dump_screen(vt)

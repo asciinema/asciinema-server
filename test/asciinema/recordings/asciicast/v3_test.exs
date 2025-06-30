@@ -50,6 +50,28 @@ defmodule Asciinema.Recordings.Asciicast.V3Test do
                shell: "/usr/bin/fish"
              }
     end
+
+    test "single event" do
+      {:ok, metadata} = V3.fetch_metadata("test/fixtures/3/single-event.cast")
+
+      assert metadata == %{
+               version: 3,
+               term_cols: 96,
+               term_rows: 26,
+               term_type: nil,
+               term_version: nil,
+               term_theme_fg: nil,
+               term_theme_bg: nil,
+               term_theme_palette: nil,
+               command: nil,
+               duration: 1.234567,
+               recorded_at: nil,
+               title: nil,
+               env: %{},
+               idle_time_limit: nil,
+               shell: nil
+             }
+    end
   end
 
   describe "event_stream/1" do
@@ -168,6 +190,15 @@ defmodule Asciinema.Recordings.Asciicast.V3Test do
 
       assert content ==
                ~s|{"version":3,"term":{"cols":99,"rows":22}}\n[123.456789, "m", "intro"]\n|
+    end
+
+    test "exit", %{path: path, writer: writer} do
+      {:ok, writer} = V3.write_event(writer, 1, "x", "0")
+      :ok = V3.close(writer)
+      content = File.read!(path)
+
+      assert content ==
+               ~s|{"version":3,"term":{"cols":99,"rows":22}}\n[0.000001, "x", "0"]\n|
     end
   end
 

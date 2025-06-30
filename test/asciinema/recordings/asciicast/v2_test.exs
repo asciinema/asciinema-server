@@ -48,6 +48,27 @@ defmodule Asciinema.Recordings.Asciicast.V2Test do
                shell: "/bin/zsh"
              }
     end
+
+    test "single event" do
+      {:ok, metadata} = V2.fetch_metadata("test/fixtures/2/single-event.cast")
+
+      assert metadata == %{
+               version: 2,
+               term_cols: 96,
+               term_rows: 26,
+               term_type: nil,
+               term_theme_fg: nil,
+               term_theme_bg: nil,
+               term_theme_palette: nil,
+               command: nil,
+               duration: 1.234567,
+               recorded_at: nil,
+               title: nil,
+               env: %{},
+               idle_time_limit: nil,
+               shell: nil
+             }
+    end
   end
 
   describe "event_stream/1" do
