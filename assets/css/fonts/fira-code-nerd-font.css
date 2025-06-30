@@ -2,7 +2,7 @@
     font-family: "FiraCode Nerd Font";
     src:    local(Fira Code Regular Nerd Font Complete Mono),
             local(Fira Code Regular Nerd Font Complete),
-            url("../../static/fonts/Fira Code Regular Nerd Font Complete Mono.ttf") format("truetype");
+            url("/fonts/Fira Code Regular Nerd Font Complete Mono.ttf") format("truetype");
     font-stretch: normal;
     font-style: normal;
     font-weight: 400;
@@ -12,7 +12,7 @@
     font-family: "FiraCode Nerd Font";
     src:    local(Fira Code Bold Nerd Font Complete Mono),
             local(Fira Code Bold Nerd Font Complete),
-            url("../../static/fonts/Fira Code Bold Nerd Font Complete Mono.ttf") format("truetype");
+            url("/fonts/Fira Code Bold Nerd Font Complete Mono.ttf") format("truetype");
     font-stretch: normal;
     font-style: normal;
     font-weight: 700;

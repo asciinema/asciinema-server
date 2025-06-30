@@ -1,6 +1,6 @@
 @import "./fonts/fira-code-nerd-font.css";
 @import "./fonts/jetbrains-mono-nerd-font.css";
-@import "~asciinema-player/dist/bundle/asciinema-player.css";
+@import "../node_modules/asciinema-player/dist/bundle/asciinema-player.css";
 @import "./fonts/powerline-symbols.css";
 
 body.iframe {

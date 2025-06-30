@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light dark" />
-    <link rel="stylesheet" href={Routes.static_path(@conn, "/css/iframe.css")} />
+    <link rel="stylesheet" href={Routes.static_path(@conn, "/assets/iframe.css")} />
   </head>
 
   <body class="iframe">
@@ -12,7 +12,7 @@
     <script>
       window.__asciinema__workerUrl = '<%= Routes.static_path(@conn, "/js/player-worker.min.js") %>';
     </script>
-    <script src={Routes.static_path(@conn, "/js/iframe.js")}>
+    <script src={Routes.static_path(@conn, "/assets/iframe.js")}>
     </script>
   </body>
 </html>

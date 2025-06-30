@@ -23,7 +23,7 @@ erl_crash.dump
 /tmp/
 
 # Ignore package tarball (built via "mix hex.build").
-sample_app-*.tar
+asciinema-*.tar
 
 # Ignore assets that are produced by build tools.
 /priv/static/assets/
@@ -34,12 +34,6 @@ sample_app-*.tar
 # In case you use Node.js/npm, you want to ignore these.
 npm-debug.log
 /assets/node_modules/
-
-# Since we are building assets from assets/,
-# we ignore priv/static. You may want to comment
-# this depending on your deployment strategy.
-# TODO remove after switching from webpack to esbuild
-/priv/static/
 
 # Other
 .DS_Store

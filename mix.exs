@@ -44,6 +44,7 @@ defmodule Asciinema.MixProject do
       {:earmark, "~> 1.4"},
       {:ecto_psql_extras, "~> 0.7.14"},
       {:ecto_sql, "~> 3.6"},
+      {:esbuild, "~> 0.10", runtime: Mix.env() == :dev},
       {:ex_aws, "~> 2.2"},
       {:ex_aws_s3, "~> 2.1"},
       {:ex_machina, "~> 2.4", only: :test},
@@ -81,6 +82,7 @@ defmodule Asciinema.MixProject do
       {:sentry, "~> 8.0"},
       {:stream_data, "~> 1.0", only: :test},
       {:swoosh, "~> 1.16"},
+      {:tailwind, "~> 0.3.1", runtime: Mix.env() == :dev},
       {:telemetry_metrics, "~> 0.6"},
       {:telemetry_poller, "~> 1.0"},
       {:timex, "~> 3.7"}
@@ -95,9 +97,17 @@ defmodule Asciinema.MixProject do
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
-      setup: ["deps.get", "ecto.setup"],
+      setup: ["deps.get", "ecto.setup", "assets.setup", "assets.build"],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
+      "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
+      "assets.build": ["tailwind default", "tailwind iframe", "esbuild default"],
+      "assets.deploy": [
+        "tailwind default --minify",
+        "tailwind iframe --minify",
+        "esbuild default --minify",
+        "phx.digest"
+      ],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"]
     ]
   end

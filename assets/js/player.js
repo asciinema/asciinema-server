@@ -1,6 +1,4 @@
-import { create } from 'asciinema-player/ui.js';
-
-const WORKER_URL = window.__asciinema__workerUrl;
+import { create } from 'asciinema-player';
 
 export function createPlayer(src, container, opts) {
   if (opts.customTerminalFontFamily) {
@@ -8,13 +6,13 @@ export function createPlayer(src, container, opts) {
 
     return document.fonts.load(`1em ${opts.customTerminalFontFamily}`).then(() => {
       console.log(`loaded font ${opts.customTerminalFontFamily}`);
-      return create(src, container, WORKER_URL, opts);
+      return create(src, container, opts);
     }).catch(error => {
       console.log(`failed to load font ${opts.customTerminalFontFamily}`, error);
-      return create(src, container, WORKER_URL, opts);
+      return create(src, container, opts);
     });
   } else {
-    return create(src, container, WORKER_URL, opts);
+    return create(src, container, opts);
   }
 }
 

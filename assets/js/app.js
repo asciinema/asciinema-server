@@ -1,5 +1,3 @@
-import css from '../css/app.scss';
-
 import $ from 'jquery';
 import "bootstrap";
 import "phoenix_html";
