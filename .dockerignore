@@ -11,7 +11,8 @@ README*
 test/
 docker-compose.yml
 assets/node_modules
-priv/static/
+priv/static/assets/
+priv/static/cache_manifest.json
 .env
 .env.*
 uploads/*
