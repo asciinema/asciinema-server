@@ -1,4 +1,5 @@
 .*
+!.iex.exs
 !.git
 _build
 assets/node_modules
