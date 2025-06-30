@@ -1,13 +1,15 @@
-$white: #fff;
-$navbar-dark-color: rgba($white, .85);
-$navbar-dark-hover-color: $white;
-$link-color: #06989a;
-$pagination-active-bg: #06989a;
-$primary: #06989a;
+:root {
+  --white: #fff;
+  --navbar-dark-color: rgba(255, 255, 255, 0.85);
+  --navbar-dark-hover-color: #fff;
+  --link-color: #06989a;
+  --pagination-active-bg: #06989a;
+  --primary: #06989a;
+}
 
-@import "~bootstrap/scss/bootstrap";
+@import "~bootstrap/dist/css/bootstrap.css";
 @import "./_icons.css";
-@import "./_base.scss";
+@import "./_base.css";
 @import "./_header.css";
 @import "./_footer.css";
 @import "./_flash.css";
