@@ -35,16 +35,9 @@ asciinema-*.tar
 npm-debug.log
 /assets/node_modules/
 
-# Other
-.DS_Store
-.envrc
-.iex-history
-.m2
-.projectile
-.direnv
-/.vagrant
+.*
+/cache/
 /config/custom.exs
-/priv/native
-/uploads/*
-/cache
-/volumes
+/priv/native/
+/uploads/
+/volumes/
