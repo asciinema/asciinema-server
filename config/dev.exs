@@ -27,15 +27,9 @@ config :asciinema, AsciinemaWeb.Endpoint,
   debug_errors: true,
   secret_key_base: secret_key_base,
   watchers: [
-    node: [
-      "node_modules/webpack/bin/webpack.js",
-      "--mode",
-      "development",
-      "--watch",
-      "--watch-options-stdin",
-      cd: Path.expand("../assets", __DIR__),
-      env: [{"NODE_OPTIONS", "--openssl-legacy-provider"}]
-    ]
+    esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]},
+    tailwind_default: {Tailwind, :install_and_run, [:default, ~w(--watch)]},
+    tailwind_iframe: {Tailwind, :install_and_run, [:iframe, ~w(--watch)]}
   ]
 
 config :asciinema, AsciinemaAdmin.Endpoint,
