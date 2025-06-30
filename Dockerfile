@@ -41,11 +41,11 @@ COPY config/prod.exs config/
 # ensure mime is recompiled later with our additional mime types
 RUN mix deps.clean mime --build
 
+COPY priv priv/
 RUN mix assets.deploy
 
 COPY config/*.exs config/
 COPY lib lib/
-COPY priv priv/
 
 # recompile sentry with our source code
 RUN mix deps.compile sentry --force
