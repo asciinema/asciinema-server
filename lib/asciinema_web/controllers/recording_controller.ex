@@ -287,7 +287,7 @@ defmodule AsciinemaWeb.RecordingController do
   @actions [:edit, :delete]
 
   defp asciicast_actions(asciicast, user) do
-    Enum.filter(@actions, &Asciinema.Authorization.can?(user, &1, asciicast))
+    Enum.filter(@actions, &Authorization.can?(user, &1, asciicast))
   end
 
   defp player_opts(params) do
