@@ -6,7 +6,7 @@ module.exports = {
     "./js/**/*.js",
     "../lib/asciinema_web.ex",
     "../lib/asciinema_web/**/*.*ex"
-  ]
+  ],
   theme: {
     extend: {},
   },
