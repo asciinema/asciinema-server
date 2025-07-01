@@ -1,7 +1,6 @@
 defmodule AsciinemaWeb.Api.StreamController do
   use AsciinemaWeb, :controller
   alias Asciinema.{Accounts, Streaming}
-  alias AsciinemaWeb.UrlHelpers
 
   plug :authenticate
   plug :check_streaming_enabled
@@ -9,20 +8,20 @@ defmodule AsciinemaWeb.Api.StreamController do
   def show(conn, %{"id" => id}) do
     conn.assigns.current_user
     |> Streaming.fetch_stream(id)
-    |> stream_json(conn, id)
+    |> render_stream(conn, id)
   end
 
   # TODO: remove after the release of the final CLI 3.0
   def show(conn, _params) do
     conn.assigns.current_user
     |> Streaming.fetch_default_stream()
-    |> stream_json(conn, "default")
+    |> render_stream(conn, "default")
   end
 
   def create(conn, _params) do
     conn.assigns.current_user
     |> create_stream()
-    |> stream_json(conn)
+    |> render_stream(conn)
   end
 
   defp create_stream(user) do
@@ -31,25 +30,22 @@ defmodule AsciinemaWeb.Api.StreamController do
     end
   end
 
-  defp stream_json(result, conn, id \\ nil)
+  defp render_stream(result, conn, id \\ nil)
 
-  defp stream_json({:ok, stream}, conn, _id) do
-    json(conn, %{
-      url: url(~p"/s/#{stream}"),
-      ws_producer_url: UrlHelpers.ws_producer_url(stream)
-    })
+  defp render_stream({:ok, stream}, conn, _id) do
+    render(conn, :show, stream: stream)
   end
 
-  defp stream_json({:error, :not_found}, conn, id) do
+  defp render_stream({:error, :not_found}, conn, id) do
     conn
-    |> put_status(404)
-    |> json(%{reason: "stream #{id} not found"})
+    |> put_status(:not_found)
+    |> render(:error, reason: "stream #{id} not found")
   end
 
-  defp stream_json({:error, :too_many}, conn, _id) do
+  defp render_stream({:error, :too_many}, conn, _id) do
     conn
-    |> put_status(422)
-    |> json(%{reason: "no default stream found"})
+    |> put_status(:unprocessable_entity)
+    |> render(:error, reason: "no default stream found")
   end
 
   defp authenticate(conn, _opts) do
@@ -60,7 +56,7 @@ defmodule AsciinemaWeb.Api.StreamController do
     else
       _otherwise ->
         conn
-        |> put_status(401)
+        |> put_status(:unauthorized)
         |> json(%{})
         |> halt()
     end
@@ -71,8 +67,8 @@ defmodule AsciinemaWeb.Api.StreamController do
       conn
     else
       conn
-      |> put_status(403)
-      |> json(%{reason: "streaming disabled"})
+      |> put_status(:forbidden)
+      |> render(:error, reason: "streaming disabled")
       |> halt()
     end
   end
