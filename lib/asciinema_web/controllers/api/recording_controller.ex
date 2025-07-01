@@ -49,7 +49,7 @@ defmodule AsciinemaWeb.Api.RecordingController do
 
       _otherwise ->
         conn
-        |> put_status(401)
+        |> put_status(:unauthorized)
         |> render(:error, reason: :token_missing)
         |> halt()
     end
@@ -63,7 +63,7 @@ defmodule AsciinemaWeb.Api.RecordingController do
     else
       {:error, reason} ->
         conn
-        |> put_status(401)
+        |> put_status(:unauthorized)
         |> render(:error, reason: reason)
         |> halt()
     end
