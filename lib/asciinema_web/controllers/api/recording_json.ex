@@ -1,11 +1,11 @@
 defmodule AsciinemaWeb.Api.RecordingJSON do
   use AsciinemaWeb, :json
+  alias Asciinema.Accounts
 
-  def created(assigns) do
-    %{
-      url: assigns.url,
-      message: message(assigns)
-    }
+  def created(%{asciicast: asciicast, cli: cli}) do
+    url = url(~p"/a/#{asciicast}")
+
+    %{url: url, message: message(url, cli)}
   end
 
   def error(%{reason: reason}) do
@@ -41,7 +41,7 @@ defmodule AsciinemaWeb.Api.RecordingJSON do
     end
   end
 
-  defp message(%{cli: cli, url: url}) do
+  defp message(url, cli) do
     %{token: install_id} = cli
 
     message = """

@@ -12,12 +12,10 @@ defmodule AsciinemaWeb.Api.RecordingController do
 
     case Recordings.create_asciicast(cli.user, upload, %{cli_id: cli.id, user_agent: user_agent}) do
       {:ok, asciicast} ->
-        url = url(~p"/a/#{asciicast}")
-
         conn
         |> put_status(:created)
-        |> put_resp_header("location", url)
-        |> render(:created, url: url, install_id: conn.assigns.install_id)
+        |> put_resp_header("location", url(~p"/a/#{asciicast}"))
+        |> render(:created, asciicast: asciicast)
 
       {:error, :invalid_format} ->
         conn
