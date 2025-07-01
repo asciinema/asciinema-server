@@ -8,8 +8,37 @@ defmodule AsciinemaWeb.Api.RecordingJSON do
     }
   end
 
+  def error(%{reason: reason}) do
+    %{error: error_message(reason)}
+  end
+
   def error(%{changeset: changeset}) do
     %{errors: translate_errors(changeset)}
+  end
+
+  defp error_message(reason) do
+    case reason do
+      :token_missing ->
+        "Missing install ID"
+
+      :token_not_found ->
+        "Unregistered install ID"
+
+      :token_invalid ->
+        "Invalid install ID"
+
+      :cli_revoked ->
+        "Revoked install ID"
+
+      :asciicast_not_found ->
+        "asciicast not found"
+
+      :invalid_recording_format ->
+        "This doesn't look like a valid asciicast file"
+
+      {:invalid_asciicast_version, version} ->
+        "asciicast v#{version} is not supported by the server"
+    end
   end
 
   defp message(%{cli: cli, url: url}) do

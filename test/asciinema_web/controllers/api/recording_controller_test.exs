@@ -110,7 +110,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = upload(conn, upload)
 
-      assert json_response(conn, 400)["error"] =~ ~r|valid asciicast|
+      assert json_response(conn, 422)["error"] =~ ~r|valid asciicast|
     end
 
     test "requesting json response succeeds", %{conn: conn} do
