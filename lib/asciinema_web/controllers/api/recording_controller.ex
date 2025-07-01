@@ -3,7 +3,6 @@ defmodule AsciinemaWeb.Api.RecordingController do
   use Asciinema.Config
   alias Asciinema.{Recordings, Accounts}
 
-  plug :accepts, ~w(text json)
   plug :assign_install_id
   plug :assign_cli
 
@@ -23,12 +22,12 @@ defmodule AsciinemaWeb.Api.RecordingController do
       {:error, :invalid_format} ->
         conn
         |> put_status(:bad_request)
-        |> text("This doesn't look like a valid asciicast file")
+        |> render_error("This doesn't look like a valid asciicast file")
 
       {:error, {:invalid_version, version}} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> text("asciicast v#{version} format is not supported by this server")
+        |> render_error("asciicast v#{version} format is not supported by this server")
 
       {:error, %Ecto.Changeset{} = changeset} ->
         conn
@@ -47,7 +46,7 @@ defmodule AsciinemaWeb.Api.RecordingController do
       _otherwise ->
         conn
         |> put_status(401)
-        |> text(error_message(:token_missing))
+        |> render_error(:token_missing)
         |> halt()
     end
   end
@@ -61,13 +60,18 @@ defmodule AsciinemaWeb.Api.RecordingController do
       {:error, reason} ->
         conn
         |> put_status(401)
-        |> text(error_message(reason))
+        |> render_error(reason)
         |> halt()
     end
+  end
+
+  defp render_error(conn, reason) do
+    json(conn, %{error: error_message(reason)})
   end
 
   defp error_message(:token_missing), do: "Missing install ID"
   defp error_message(:token_not_found), do: "Unregistered install ID"
   defp error_message(:token_invalid), do: "Invalid install ID"
   defp error_message(:cli_revoked), do: "Revoked install ID"
+  defp error_message(reason) when is_binary(reason), do: reason
 end

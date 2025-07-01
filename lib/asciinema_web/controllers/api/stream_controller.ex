@@ -3,7 +3,6 @@ defmodule AsciinemaWeb.Api.StreamController do
   alias Asciinema.{Accounts, Streaming}
   alias AsciinemaWeb.UrlHelpers
 
-  plug :accepts, ~w(json)
   plug :authenticate
   plug :check_streaming_enabled
 

@@ -16,7 +16,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = upload(conn, upload)
 
-      assert text_response(conn, 401) == "Missing install ID"
+      assert json_response(conn, 401)["error"] == "Missing install ID"
     end
   end
 
@@ -29,7 +29,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = upload(conn, upload)
 
-      assert text_response(conn, 401) == "Invalid install ID"
+      assert json_response(conn, 401)["error"] == "Invalid install ID"
     end
   end
 
@@ -41,7 +41,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = upload(conn, upload)
 
-      assert text_response(conn, 401) == "Revoked install ID"
+      assert json_response(conn, 401)["error"] == "Revoked install ID"
     end
   end
 
@@ -52,8 +52,10 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
       upload = fixture(:upload, %{path: "1/full.json"})
 
       conn = upload(conn, upload)
+      response = json_response(conn, 201)
 
-      assert text_response(conn, 201) =~ @successful_response
+      assert response["url"] =~ @recording_url
+      assert response["message"] =~ @successful_response
       assert List.first(get_resp_header(conn, "location")) =~ @recording_url
     end
 
@@ -61,8 +63,10 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
       upload = fixture(:upload, %{path: "2/minimal.cast"})
 
       conn = upload(conn, upload)
+      response = json_response(conn, 201)
 
-      assert text_response(conn, 201) =~ @successful_response
+      assert response["url"] =~ @recording_url
+      assert response["message"] =~ @successful_response
       assert List.first(get_resp_header(conn, "location")) =~ @recording_url
     end
 
@@ -70,8 +74,10 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
       upload = fixture(:upload, %{path: "2/full.cast"})
 
       conn = upload(conn, upload)
+      response = json_response(conn, 201)
 
-      assert text_response(conn, 201) =~ @successful_response
+      assert response["url"] =~ @recording_url
+      assert response["message"] =~ @successful_response
       assert List.first(get_resp_header(conn, "location")) =~ @recording_url
     end
 
@@ -96,7 +102,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = upload(conn, upload)
 
-      assert text_response(conn, 422) =~ ~r|not supported|
+      assert json_response(conn, 422)["error"] =~ ~r|not supported|
     end
 
     test "non-json file fails", %{conn: conn} do
@@ -104,7 +110,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = upload(conn, upload)
 
-      assert text_response(conn, 400) =~ ~r|valid asciicast|
+      assert json_response(conn, 400)["error"] =~ ~r|valid asciicast|
     end
 
     test "requesting json response succeeds", %{conn: conn} do
@@ -125,8 +131,10 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
       upload = fixture(:upload, %{path: "1/full.json"})
 
       conn = upload(conn, upload)
+      response = json_response(conn, 201)
 
-      assert text_response(conn, 201) =~ @successful_response
+      assert response["url"] =~ @recording_url
+      assert response["message"] =~ @successful_response
       assert List.first(get_resp_header(conn, "location")) =~ @recording_url
     end
   end
@@ -138,8 +146,10 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
       upload = fixture(:upload, %{path: "2/minimal.cast"})
 
       conn = upload(conn, upload)
+      response = json_response(conn, 201)
 
-      assert text_response(conn, 201) =~ @successful_response
+      assert response["url"] =~ @recording_url
+      assert response["message"] =~ @successful_response
       assert List.first(get_resp_header(conn, "location")) =~ @recording_url
     end
   end
@@ -153,12 +163,14 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = upload(conn, upload)
 
-      assert text_response(conn, 401) == "Unregistered install ID"
+      assert json_response(conn, 401)["error"] == "Unregistered install ID"
     end
   end
 
   defp upload(conn, upload) do
-    post conn, ~p"/api/asciicasts", %{"asciicast" => upload}
+    conn
+    |> put_resp_content_type("application/json")
+    |> post(~p"/api/asciicasts", %{"asciicast" => upload})
   end
 
   defp require_registered_cli(_context) do

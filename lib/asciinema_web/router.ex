@@ -11,15 +11,19 @@ defmodule AsciinemaWeb.Router do
     plug AsciinemaWeb.Plug.Authn
   end
 
+  pipeline :api do
+    plug :accepts, ~w(json)
+  end
+
   pipeline :asciicast do
     plug AsciinemaWeb.Plug.TrailingFormat
-    plug :accepts, ["html", "js", "json", "cast", "txt", "svg", "png", "gif"]
+    plug :accepts, ~w(html js json cast txt svg png gif)
     plug :format_specific_plugs
     plug :put_secure_browser_headers
   end
 
   pipeline :oembed do
-    plug :accepts, ["json", "xml"]
+    plug :accepts, ~w(json xml)
     plug :put_secure_browser_headers
   end
 
@@ -88,6 +92,8 @@ defmodule AsciinemaWeb.Router do
   end
 
   scope "/api", AsciinemaWeb.Api, as: :api do
+    pipe_through :api
+
     post "/asciicasts", RecordingController, :create
     post "/streams", StreamController, :create
 
