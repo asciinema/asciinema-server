@@ -188,6 +188,8 @@ defmodule Asciinema.Recordings do
     end
   end
 
+  @max_term_cols 720
+  @max_term_rows 200
   @hex_color_re ~r/^#[0-9a-f]{6}$/
   @hex_palette_re ~r/^(#[0-9a-f]{6}:){7}((#[0-9a-f]{6}:){8})?#[0-9a-f]{6}$/
 
@@ -215,6 +217,8 @@ defmodule Asciinema.Recordings do
       :title
     ])
     |> validate_required([:duration, :term_cols, :term_rows])
+    |> validate_number(:term_cols, greater_than: 0, less_than_or_equal_to: @max_term_cols)
+    |> validate_number(:term_rows, greater_than: 0, less_than_or_equal_to: @max_term_rows)
     |> validate_format(:term_theme_fg, @hex_color_re)
     |> validate_format(:term_theme_bg, @hex_color_re)
     |> validate_format(:term_theme_palette, @hex_palette_re)
@@ -281,8 +285,14 @@ defmodule Asciinema.Recordings do
       :snapshot_at,
       :markers
     ])
-    |> validate_number(:term_cols_override, greater_than: 0, less_than: 1024)
-    |> validate_number(:term_rows_override, greater_than: 0, less_than: 512)
+    |> validate_number(:term_cols_override,
+      greater_than: 0,
+      less_than_or_equal_to: @max_term_cols
+    )
+    |> validate_number(:term_rows_override,
+      greater_than: 0,
+      less_than_or_equal_to: @max_term_rows
+    )
     |> validate_number(:idle_time_limit, greater_than_or_equal_to: 0.5)
     |> validate_inclusion(:term_theme_name, Themes.terminal_themes() ++ ["original"])
     |> validate_number(:term_line_height,
