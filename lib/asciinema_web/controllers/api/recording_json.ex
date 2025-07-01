@@ -42,7 +42,7 @@ defmodule AsciinemaWeb.Api.RecordingJSON do
   end
 
   defp message(%{cli: cli, url: url}) do
-    %{user: user, token: install_id} = cli
+    %{token: install_id} = cli
 
     message = """
     View the recording at:
@@ -50,10 +50,9 @@ defmodule AsciinemaWeb.Api.RecordingJSON do
         #{url}
     """
 
-    is_tmp_user = Asciinema.Accounts.temporary_user?(user)
     ttl = Asciinema.unclaimed_recording_ttl()
 
-    if is_tmp_user && ttl do
+    if !Accounts.cli_registered?(cli) && ttl do
       hostname = AsciinemaWeb.instance_hostname()
       url = url(~p"/connect/#{install_id}")
 

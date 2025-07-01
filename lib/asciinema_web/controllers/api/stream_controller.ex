@@ -49,10 +49,10 @@ defmodule AsciinemaWeb.Api.StreamController do
   end
 
   defp authenticate(conn, _opts) do
-    with {_username, cli} <- get_basic_auth(conn),
-         {:ok, token} <- Accounts.fetch_cli(cli),
-         false <- Accounts.temporary_user?(token.user) do
-      assign(conn, :current_user, token.user)
+    with {_username, token} <- get_basic_auth(conn),
+         {:ok, cli} <- Accounts.fetch_cli(token),
+         true <- Accounts.cli_registered?(cli) do
+      assign(conn, :current_user, cli.user)
     else
       _otherwise ->
         conn
