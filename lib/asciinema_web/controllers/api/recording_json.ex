@@ -1,5 +1,6 @@
 defmodule AsciinemaWeb.Api.RecordingJSON do
   use AsciinemaWeb, :json
+  alias AsciinemaWeb.UrlHelpers
   alias Asciinema.Accounts
   alias Ecto.Changeset
 
@@ -8,6 +9,21 @@ defmodule AsciinemaWeb.Api.RecordingJSON do
 
     %{url: url, message: message(url, cli)}
   end
+
+  def show(%{asciicast: asciicast}) do
+    url = url(~p"/a/#{asciicast}")
+    file_url = UrlHelpers.asciicast_file_url(asciicast)
+
+    %{
+      id: asciicast.id,
+      url: url,
+      file_url: file_url,
+      title: asciicast.title,
+      description: asciicast.description
+    }
+  end
+
+  def deleted(_assigns), do: %{}
 
   def error(%{reason: %Changeset{} = changeset}) do
     %{errors: translate_errors(changeset)}

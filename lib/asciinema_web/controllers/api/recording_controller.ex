@@ -5,6 +5,9 @@ defmodule AsciinemaWeb.Api.RecordingController do
 
   plug :assign_install_id
   plug :assign_cli
+  plug :require_registered_cli when action in [:update, :delete]
+  plug :load_asciicast when action in [:update, :delete]
+  plug :authorize, :asciicast when action in [:update, :delete]
 
   def create(conn, %{"asciicast" => %Plug.Upload{} = upload}), do: create(conn, upload)
   def create(conn, %{"file" => %Plug.Upload{} = upload}), do: create(conn, upload)
@@ -25,6 +28,29 @@ defmodule AsciinemaWeb.Api.RecordingController do
         |> put_status(:unprocessable_entity)
         |> render(:error, reason: reason)
     end
+  end
+
+  def update(conn, params) do
+    asciicast = conn.assigns.asciicast
+
+    case Recordings.update_asciicast(asciicast, params) do
+      {:ok, asciicast} ->
+        render(conn, :show, asciicast: asciicast)
+
+      {:error, reason} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(:error, reason: reason)
+    end
+  end
+
+  def delete(conn, _params) do
+    asciicast = conn.assigns.asciicast
+    {:ok, _} = Recordings.delete_asciicast(asciicast)
+
+    conn
+    |> put_status(:no_content)
+    |> render(:deleted)
   end
 
   defp get_user_agent(conn) do
@@ -52,12 +78,40 @@ defmodule AsciinemaWeb.Api.RecordingController do
     %{install_id: install_id, username: username} = conn.assigns
 
     with {:ok, cli} <- Accounts.register_cli(username, install_id) do
-      assign(conn, :cli, cli)
+      conn
+      |> assign(:cli, cli)
+      |> assign(:current_user, cli.user)
     else
       {:error, reason} ->
         conn
         |> put_status(:unauthorized)
         |> render(:error, reason: reason)
+        |> halt()
+    end
+  end
+
+  defp require_registered_cli(conn, _opts) do
+    if Accounts.cli_registered?(conn.assigns.cli) do
+      conn
+    else
+      conn
+      |> put_status(:unauthorized)
+      |> render(:error, reason: :token_not_found)
+      |> halt()
+    end
+  end
+
+  defp load_asciicast(conn, _) do
+    id = String.trim(conn.params["id"])
+
+    case Recordings.fetch_asciicast(id) do
+      {:ok, asciicast} ->
+        assign(conn, :asciicast, asciicast)
+
+      {:error, :not_found} ->
+        conn
+        |> put_status(:not_found)
+        |> render(:error, reason: :asciicast_not_found)
         |> halt()
     end
   end
