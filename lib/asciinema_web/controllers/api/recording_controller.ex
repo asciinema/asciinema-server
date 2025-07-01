@@ -17,20 +17,10 @@ defmodule AsciinemaWeb.Api.RecordingController do
         |> put_resp_header("location", url(~p"/a/#{asciicast}"))
         |> render(:created, asciicast: asciicast)
 
-      {:error, :invalid_format} ->
+      {:error, reason} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render(:error, reason: :invalid_recording_format)
-
-      {:error, {:invalid_version, version}} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> render(:error, reason: {:invalid_asciicast_version, version})
-
-      {:error, %Ecto.Changeset{} = changeset} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> render(:error, changeset: changeset)
+        |> render(:error, reason: reason)
     end
   end
 

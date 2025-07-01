@@ -1,6 +1,7 @@
 defmodule AsciinemaWeb.Api.RecordingJSON do
   use AsciinemaWeb, :json
   alias Asciinema.Accounts
+  alias Ecto.Changeset
 
   def created(%{asciicast: asciicast, cli: cli}) do
     url = url(~p"/a/#{asciicast}")
@@ -8,12 +9,12 @@ defmodule AsciinemaWeb.Api.RecordingJSON do
     %{url: url, message: message(url, cli)}
   end
 
-  def error(%{reason: reason}) do
-    %{error: error_message(reason)}
+  def error(%{reason: %Changeset{} = changeset}) do
+    %{errors: translate_errors(changeset)}
   end
 
-  def error(%{changeset: changeset}) do
-    %{errors: translate_errors(changeset)}
+  def error(%{reason: reason}) do
+    %{error: error_message(reason)}
   end
 
   defp error_message(reason) do
@@ -33,10 +34,10 @@ defmodule AsciinemaWeb.Api.RecordingJSON do
       :asciicast_not_found ->
         "asciicast not found"
 
-      :invalid_recording_format ->
+      :invalid_format ->
         "This doesn't look like a valid asciicast file"
 
-      {:invalid_asciicast_version, version} ->
+      {:invalid_version, version} ->
         "asciicast v#{version} is not supported by the server"
     end
   end
