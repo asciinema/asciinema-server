@@ -8,7 +8,7 @@ defmodule AsciinemaWeb.Api.RecordingController do
 
   def create(conn, %{"asciicast" => %Plug.Upload{} = upload}) do
     cli = conn.assigns.cli
-    user_agent = conn |> get_req_header("user-agent") |> List.first()
+    user_agent = get_user_agent(conn)
 
     case Recordings.create_asciicast(cli.user, upload, %{cli_id: cli.id, user_agent: user_agent}) do
       {:ok, asciicast} ->
@@ -34,6 +34,12 @@ defmodule AsciinemaWeb.Api.RecordingController do
         |> put_status(:unprocessable_entity)
         |> render(:error, changeset: changeset)
     end
+  end
+
+  defp get_user_agent(conn) do
+    conn
+    |> get_req_header("user-agent")
+    |> List.first()
   end
 
   defp assign_install_id(conn, _opts) do
