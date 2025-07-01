@@ -45,6 +45,25 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
     end
   end
 
+  describe "create via legacy path" do
+    setup [:authenticate]
+
+    test "succeeds", %{conn: conn} do
+      upload = fixture(:upload, %{path: "2/minimal.cast"})
+
+      conn =
+        conn
+        |> put_resp_content_type("application/json")
+        |> post(~p"/api/asciicasts", %{"asciicast" => upload})
+
+      response = json_response(conn, 201)
+
+      assert response["url"] =~ @recording_url
+      assert response["message"] =~ @successful_response
+      assert List.first(get_resp_header(conn, "location")) =~ @recording_url
+    end
+  end
+
   describe "create with authentication" do
     setup [:authenticate]
 
@@ -170,7 +189,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
   defp upload(conn, upload) do
     conn
     |> put_resp_content_type("application/json")
-    |> post(~p"/api/asciicasts", %{"asciicast" => upload})
+    |> post(~p"/api/v1/recordings", %{"file" => upload})
   end
 
   defp require_registered_cli(_context) do

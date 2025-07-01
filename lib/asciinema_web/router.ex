@@ -94,9 +94,24 @@ defmodule AsciinemaWeb.Router do
   scope "/api", AsciinemaWeb.Api, as: :api do
     pipe_through :api
 
+    scope "/v1" do
+      post "/recordings", RecordingController, :create
+      post "/streams", StreamController, :create
+
+      scope "/user" do
+        get "/streams/:id", StreamController, :show
+      end
+    end
+
+    # legacy endpoints
+
+    # used by CLI 2.x
     post "/asciicasts", RecordingController, :create
+
+    # used by CLI 3.0 RC
     post "/streams", StreamController, :create
 
+    # used by CLI 3.0 RC
     scope "/user" do
       get "/stream", StreamController, :show
       get "/streams/:id", StreamController, :show

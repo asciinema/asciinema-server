@@ -6,7 +6,10 @@ defmodule AsciinemaWeb.Api.RecordingController do
   plug :assign_install_id
   plug :assign_cli
 
-  def create(conn, %{"asciicast" => %Plug.Upload{} = upload}) do
+  def create(conn, %{"asciicast" => %Plug.Upload{} = upload}), do: create(conn, upload)
+  def create(conn, %{"file" => %Plug.Upload{} = upload}), do: create(conn, upload)
+
+  def create(conn, upload) do
     cli = conn.assigns.cli
     user_agent = get_user_agent(conn)
 
