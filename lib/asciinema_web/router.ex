@@ -96,7 +96,7 @@ defmodule AsciinemaWeb.Router do
 
     scope "/v1" do
       resources "/recordings", RecordingController, only: [:create, :update, :delete]
-      post "/streams", StreamController, :create
+      resources "/streams", StreamController, only: [:create, :update, :delete]
 
       scope "/user" do
         get "/streams/:id", StreamController, :show

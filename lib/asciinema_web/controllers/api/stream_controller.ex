@@ -4,6 +4,8 @@ defmodule AsciinemaWeb.Api.StreamController do
 
   plug :authenticate
   plug :check_streaming_enabled
+  plug :load_stream when action in [:update, :delete]
+  plug :authorize, :stream when action in [:update, :delete]
 
   def show(conn, %{"id" => id}) do
     conn.assigns.current_user
@@ -22,6 +24,26 @@ defmodule AsciinemaWeb.Api.StreamController do
     conn.assigns.current_user
     |> create_stream()
     |> render_stream(conn)
+  end
+
+  def update(conn, params) do
+    case Streaming.update_stream(conn.assigns.stream, params) do
+      {:ok, stream} ->
+        render(conn, :show, stream: stream)
+
+      {:error, changeset} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(:error, reason: changeset)
+    end
+  end
+
+  def delete(conn, _params) do
+    {:ok, _} = Streaming.delete_stream(conn.assigns.stream)
+
+    conn
+    |> put_status(:no_content)
+    |> render(:deleted)
   end
 
   defp create_stream(user) do
@@ -70,6 +92,19 @@ defmodule AsciinemaWeb.Api.StreamController do
       |> put_status(:forbidden)
       |> render(:error, reason: "streaming disabled")
       |> halt()
+    end
+  end
+
+  defp load_stream(conn, _opts) do
+    case Streaming.get_stream(conn.params["id"]) do
+      nil ->
+        conn
+        |> put_status(:not_found)
+        |> render(:error, reason: "stream not found")
+        |> halt()
+
+      stream ->
+        assign(conn, :stream, stream)
     end
   end
 end
