@@ -376,7 +376,8 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
       conn =
         put(conn, ~p"/api/v1/streams/#{stream}", %{
           "title" => "New title",
-          "description" => "New description"
+          "description" => "New description",
+          "audio_url" => "http://icecast.example.com/stream"
         })
 
       assert %{
@@ -384,7 +385,8 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
                "url" => "http://localhost:4001/s/foobar",
                "ws_producer_url" => "ws://localhost:4001/ws/S/bazqux",
                "title" => "New title",
-               "description" => "New description"
+               "description" => "New description",
+               "audio_url" => "http://icecast.example.com/stream"
              } = json_response(conn, 200)
     end
 

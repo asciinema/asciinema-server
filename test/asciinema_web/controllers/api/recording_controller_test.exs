@@ -248,16 +248,22 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
       conn =
         put(conn, ~p"/api/v1/recordings/#{asciicast}", %{
           "title" => "New title",
-          "description" => "New description"
+          "description" => "New description",
+          "audio_url" => "https://example.com/audio.opus"
         })
 
-      response = json_response(conn, 200)
-      assert is_integer(response["id"])
-      # TODO fix
-      assert response["url"] =~ @recording_url
-      assert response["file_url"] =~ ~r/^http.+\.cast$/
-      assert response["title"] == "New title"
-      assert response["description"] == "New description"
+      assert %{
+               "id" => id,
+               "url" => url,
+               "file_url" => file_url,
+               "title" => "New title",
+               "description" => "New description",
+               "audio_url" => "https://example.com/audio.opus"
+             } = json_response(conn, 200)
+
+      assert is_integer(id)
+      assert url =~ @recording_url
+      assert file_url =~ ~r/^http.+\.cast$/
     end
 
     test "fails when attrs are not valid", %{conn: conn, cli: cli} do

@@ -283,7 +283,8 @@ defmodule Asciinema.Recordings do
       :idle_time_limit,
       :speed,
       :snapshot_at,
-      :markers
+      :markers,
+      :audio_url
     ])
     |> validate_number(:term_cols_override,
       greater_than: 0,
@@ -302,6 +303,7 @@ defmodule Asciinema.Recordings do
     |> validate_inclusion(:term_font_family, Fonts.terminal_font_families())
     |> validate_number(:snapshot_at, greater_than: 0)
     |> validate_change(:markers, &Markers.validate/2)
+    |> validate_format(:audio_url, ~r|^https?://|)
   end
 
   def update_asciicast(asciicast, attrs \\ %{}) do

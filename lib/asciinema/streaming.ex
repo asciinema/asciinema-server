@@ -140,7 +140,8 @@ defmodule Asciinema.Streaming do
       :term_theme_prefer_original,
       :buffer_time,
       :term_line_height,
-      :term_font_family
+      :term_font_family,
+      :audio_url
     ])
     |> validate_number(:buffer_time,
       greater_than_or_equal_to: 0.0,
@@ -151,6 +152,7 @@ defmodule Asciinema.Streaming do
       less_than_or_equal_to: 2.0
     )
     |> validate_inclusion(:term_font_family, Fonts.terminal_font_families())
+    |> validate_format(:audio_url, ~r|^https?://|)
   end
 
   def update_stream(stream, attrs) when is_list(attrs) do

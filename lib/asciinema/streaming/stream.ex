@@ -28,6 +28,7 @@ defmodule Asciinema.Streaming.Stream do
     field :buffer_time, :float
     field :protocol, :string
     field :snapshot, Asciinema.Ecto.Type.Snapshot
+    field :audio_url, :string
 
     timestamps()
 

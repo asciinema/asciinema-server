@@ -18,6 +18,7 @@ defmodule AsciinemaWeb.Api.RecordingJSON do
       id: asciicast.id,
       url: url,
       file_url: file_url,
+      audio_url: asciicast.audio_url,
       title: asciicast.title,
       description: asciicast.description
     }

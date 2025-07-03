@@ -11,6 +11,7 @@ defmodule AsciinemaWeb.Api.StreamJSON do
       id: stream.id,
       url: url,
       ws_producer_url: ws_producer_url,
+      audio_url: stream.audio_url,
       title: stream.title,
       description: stream.description
     }
