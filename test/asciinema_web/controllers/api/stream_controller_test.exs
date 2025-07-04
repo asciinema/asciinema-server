@@ -384,6 +384,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
                "id" => _,
                "url" => "http://localhost:4001/s/foobar",
                "ws_producer_url" => "ws://localhost:4001/ws/S/bazqux",
+               "live" => false,
                "title" => "New title",
                "description" => "New description",
                "audio_url" => "http://icecast.example.com/stream"
