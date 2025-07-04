@@ -109,7 +109,7 @@ defmodule Asciinema.Streaming.StreamServer do
 
     schema_changes =
       [
-        online: true,
+        live: true,
         last_started_at: last_started_at,
         term_cols: cols,
         term_rows: rows,
@@ -290,7 +290,7 @@ defmodule Asciinema.Streaming.StreamServer do
 
     time = current_stream_time(state.last_stream_time, state.last_event_time) || 0
     publish(state.stream_id, :end, %{time: time})
-    update_schema(state, online: false, current_viewer_count: 0)
+    update_schema(state, live: false, current_viewer_count: 0)
     end_recording(state)
 
     :ok

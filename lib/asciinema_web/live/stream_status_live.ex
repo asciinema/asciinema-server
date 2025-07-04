@@ -13,7 +13,7 @@ defmodule AsciinemaWeb.StreamStatusLive do
   def render(assigns) do
     ~H"""
     <div class="status-line">
-      <%= case {@online, @started_at} do %>
+      <%= case {@live, @started_at} do %>
         <% {true, _} -> %>
           <span class="status-line-item">
             <.live_icon />
@@ -59,7 +59,7 @@ defmodule AsciinemaWeb.StreamStatusLive do
     socket =
       socket
       |> assign(
-        online: stream.online,
+        live: stream.live,
         confirmed: false,
         started_at: stream.last_started_at,
         duration: nil,
@@ -76,7 +76,7 @@ defmodule AsciinemaWeb.StreamStatusLive do
     if socket.assigns.confirmed do
       {:noreply, socket}
     else
-      {:noreply, assign(socket, :online, false)}
+      {:noreply, assign(socket, :live, false)}
     end
   end
 
@@ -87,14 +87,14 @@ defmodule AsciinemaWeb.StreamStatusLive do
 
     socket =
       socket
-      |> assign(online: true, started_at: started_at, confirmed: true)
+      |> assign(live: true, started_at: started_at, confirmed: true)
       |> update_duration()
 
     {:noreply, socket}
   end
 
   def handle_info(%StreamServer.Update{event: :end}, socket) do
-    {:noreply, assign(socket, online: false)}
+    {:noreply, assign(socket, live: false)}
   end
 
   def handle_info(%StreamServer.Update{event: :metadata, data: stream}, socket) do
