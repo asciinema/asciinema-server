@@ -18,7 +18,7 @@
     {render("_header.html", conn: @conn, current_user: @current_user)}
     {render("_flash.html", flash: @flash)}
 
-    <main role="main">
+    <main role="main" class={assigns[:main_class]}>
       {@inner_content}
     </main>
 
