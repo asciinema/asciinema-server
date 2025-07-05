@@ -170,7 +170,7 @@ defmodule Asciinema.Accounts do
     |> Repo.update()
   end
 
-  def temporary_user?(user), do: user.email == nil
+  def cli_registered?(%Cli{} = cli), do: cli.user.email != nil
 
   def temporary_users(q \\ User) do
     from(u in q, where: is_nil(u.email))

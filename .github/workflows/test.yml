@@ -85,8 +85,10 @@ jobs:
         run: mix compile
       - name: Install npm dependencies
         run: npm ci --prefix assets
+      - name: Setup assets pipeline deps
+        run: mix assets.setup
       - name: Build assets
-        run: cd assets && node_modules/webpack/bin/webpack.js --mode development
+        run: mix assets.build
       - name: Setup database
         run: mix ecto.setup
       - name: Run tests

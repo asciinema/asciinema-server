@@ -154,6 +154,21 @@ defmodule AsciinemaWeb.RecordingControllerTest do
       assert text_response(conn_2, 200)
     end
 
+    test "TXT, not found", %{conn: conn} do
+      url = ~p"/a/99999999"
+
+      conn_2 = get(conn, url <> ".txt")
+
+      assert text_response(conn_2, 404)
+
+      conn_2 =
+        conn
+        |> put_req_header("accept", "text/plain")
+        |> get(url)
+
+      assert text_response(conn_2, 404)
+    end
+
     @tag :rsvg
     test "PNG", %{conn: conn} do
       asciicast = insert(:asciicast)

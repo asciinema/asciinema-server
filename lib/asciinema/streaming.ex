@@ -75,14 +75,14 @@ defmodule Asciinema.Streaming do
         where(q, [s], s.user_id == ^user_id)
 
       :live ->
-        where(q, [s], s.online)
+        where(q, [s], s.live)
     end
   end
 
   defp sort(q, nil), do: q
 
   defp sort(q, :activity) do
-    order_by(q, desc: :online, desc_nulls_last: :last_started_at, desc: :id)
+    order_by(q, desc: :live, desc_nulls_last: :last_started_at, desc: :id)
   end
 
   def paginate(%Ecto.Query{} = query, page, page_size) do
@@ -140,7 +140,8 @@ defmodule Asciinema.Streaming do
       :term_theme_prefer_original,
       :buffer_time,
       :term_line_height,
-      :term_font_family
+      :term_font_family,
+      :audio_url
     ])
     |> validate_number(:buffer_time,
       greater_than_or_equal_to: 0.0,
@@ -151,6 +152,7 @@ defmodule Asciinema.Streaming do
       less_than_or_equal_to: 2.0
     )
     |> validate_inclusion(:term_font_family, Fonts.terminal_font_families())
+    |> validate_format(:audio_url, ~r|^https?://|)
   end
 
   def update_stream(stream, attrs) when is_list(attrs) do
@@ -179,7 +181,7 @@ defmodule Asciinema.Streaming do
   end
 
   defp change_last_activity(changeset) do
-    case fetch_field!(changeset, :online) do
+    case fetch_field!(changeset, :live) do
       true ->
         cast(changeset, %{last_activity_at: Timex.now()}, [:last_activity_at])
 
@@ -203,9 +205,9 @@ defmodule Asciinema.Streaming do
 
   def mark_inactive_streams_offline do
     t = Timex.shift(Timex.now(), minutes: -1)
-    q = from(s in Stream, where: s.online and s.last_activity_at < ^t)
+    q = from(s in Stream, where: s.live and s.last_activity_at < ^t)
 
-    {count, _} = Repo.update_all(q, set: [online: false, current_viewer_count: 0])
+    {count, _} = Repo.update_all(q, set: [live: false, current_viewer_count: 0])
 
     count
   end

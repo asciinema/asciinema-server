@@ -100,7 +100,10 @@ defmodule Asciinema.MixProject do
       setup: ["deps.get", "ecto.setup", "assets.setup", "assets.build"],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
-      "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
+      "assets.setup": [
+        "tailwind.install --if-missing --no-assets",
+        "esbuild.install --if-missing"
+      ],
       "assets.build": ["tailwind default", "tailwind iframe", "esbuild default"],
       "assets.deploy": [
         "tailwind default --minify",

@@ -23,7 +23,7 @@
 
     <p>
       <small class="text-muted">
-        You need asciinema CLI version <a href="https://github.com/asciinema/asciinema/releases/tag/v3.0.0-rc.4">3.0 or later</a>.
+        You need asciinema CLI version <a href="https://github.com/asciinema/asciinema/releases/tag/v3.0.0-rc.5">3.0 or later</a>.
       </small>
     </p>
 
@@ -67,8 +67,8 @@
               <a href={~p"/s/#{stream}"}><strong>{short_public_token(stream)}</strong></a>
             </td>
             <td>
-              <a :if={stream.online} href={~p"/s/#{stream}"}><.live_icon /></a>
-              <.offline_icon :if={!stream.online} />
+              <a :if={stream.live} href={~p"/s/#{stream}"}><.live_icon /></a>
+              <.offline_icon :if={!stream.live} />
             </td>
             <td>{stream.title}</td>
             <td><.time_ago :if={stream.last_started_at} time={stream.last_started_at} /></td>
@@ -101,7 +101,7 @@
               </div>
 
               <a href={~p"/s/#{stream}"} class="btn btn-sm btn-primary">
-                <%= if stream.online do %>
+                <%= if stream.live do %>
                   Watch
                 <% else %>
                   Start

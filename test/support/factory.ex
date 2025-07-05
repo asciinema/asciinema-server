@@ -81,7 +81,7 @@ defmodule Asciinema.Factory do
   end
 
   defp secret_token(n) do
-    "sekrit-#{n}"
+    "s3cr3t#{n}"
     |> String.codepoints()
     |> Elixir.Stream.cycle()
     |> Elixir.Stream.take(25)
