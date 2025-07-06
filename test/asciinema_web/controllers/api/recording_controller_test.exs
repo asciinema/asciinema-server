@@ -228,7 +228,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
     test "fails", %{conn: conn} do
       asciicast = insert(:asciicast)
 
-      conn = put(conn, ~p"/api/v1/recordings/#{asciicast}", %{"title" => "New Title"})
+      conn = put(conn, ~p"/api/v1/recordings/#{asciicast.id}", %{"title" => "New Title"})
 
       assert json_response(conn, 401)["error"] == "Missing install ID"
     end
@@ -241,7 +241,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
     test "fails", %{conn: conn} do
       asciicast = insert(:asciicast)
 
-      conn = put(conn, ~p"/api/v1/recordings/#{asciicast}", %{"title" => "New Title"})
+      conn = put(conn, ~p"/api/v1/recordings/#{asciicast.id}", %{"title" => "New Title"})
 
       assert json_response(conn, 401)["error"] == "Invalid install ID"
     end
@@ -253,7 +253,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
     test "fails", %{conn: conn} do
       asciicast = insert(:asciicast)
 
-      conn = put(conn, ~p"/api/v1/recordings/#{asciicast}", %{"title" => "New Title"})
+      conn = put(conn, ~p"/api/v1/recordings/#{asciicast.id}", %{"title" => "New Title"})
 
       assert json_response(conn, 401)["error"] == "Revoked install ID"
     end
@@ -266,7 +266,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
     test "fails", %{conn: conn} do
       asciicast = insert(:asciicast)
 
-      conn = put(conn, ~p"/api/v1/recordings/#{asciicast}", %{"title" => "New Title"})
+      conn = put(conn, ~p"/api/v1/recordings/#{asciicast.id}", %{"title" => "New Title"})
 
       assert json_response(conn, 401)["error"] == "Unregistered install ID"
     end
@@ -284,7 +284,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
         )
 
       conn =
-        put(conn, ~p"/api/v1/recordings/#{asciicast}", %{
+        put(conn, ~p"/api/v1/recordings/#{asciicast.id}", %{
           "title" => "New title",
           "description" => "New description",
           "audio_url" => "https://example.com/audio.opus"
@@ -305,17 +305,40 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
       assert file_url =~ ~r/^http.+\.cast$/
     end
 
+    test "succeeds when using secret token", %{conn: conn, cli: cli} do
+      _asciicast =
+        insert(:asciicast,
+          user: cli.user,
+          secret_token: "abcdefghijklmnopqrstuvwxy",
+          title: "Original title"
+        )
+
+      conn =
+        put(conn, ~p"/api/v1/recordings/abcdefghijklmnopqrstuvwxy", %{
+          "title" => "New title via token"
+        })
+
+      assert %{
+               "id" => id,
+               "url" => url,
+               "title" => "New title via token"
+             } = json_response(conn, 200)
+
+      assert is_integer(id)
+      assert url =~ @recording_url
+    end
+
     test "fails when attrs are not valid", %{conn: conn, cli: cli} do
       asciicast = insert(:asciicast, user: cli.user)
 
-      conn = put(conn, ~p"/api/v1/recordings/#{asciicast}", %{"term_cols_override" => 0})
+      conn = put(conn, ~p"/api/v1/recordings/#{asciicast.id}", %{"term_cols_override" => 0})
 
       assert json_response(conn, 422)["errors"]["term_cols_override"] != nil
     end
 
     test "fails when recording belongs to another user", %{conn: conn} do
       asciicast = insert(:asciicast)
-      conn = put(conn, ~p"/api/v1/recordings/#{asciicast}", %{"title" => "New Title"})
+      conn = put(conn, ~p"/api/v1/recordings/#{asciicast.id}", %{"title" => "New Title"})
 
       assert json_response(conn, 403)["error"] == "Forbidden"
     end
@@ -331,7 +354,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
     test "fails", %{conn: conn} do
       asciicast = insert(:asciicast)
 
-      conn = delete(conn, ~p"/api/v1/recordings/#{asciicast}")
+      conn = delete(conn, ~p"/api/v1/recordings/#{asciicast.id}")
 
       assert json_response(conn, 401)["error"] == "Missing install ID"
     end
@@ -344,7 +367,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
     test "fails", %{conn: conn} do
       asciicast = insert(:asciicast)
 
-      conn = delete(conn, ~p"/api/v1/recordings/#{asciicast}")
+      conn = delete(conn, ~p"/api/v1/recordings/#{asciicast.id}")
 
       assert json_response(conn, 401)["error"] == "Invalid install ID"
     end
@@ -356,7 +379,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
     test "fails", %{conn: conn} do
       asciicast = insert(:asciicast)
 
-      conn = delete(conn, ~p"/api/v1/recordings/#{asciicast}")
+      conn = delete(conn, ~p"/api/v1/recordings/#{asciicast.id}")
 
       assert json_response(conn, 401)["error"] == "Revoked install ID"
     end
@@ -369,7 +392,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
     test "fails", %{conn: conn} do
       asciicast = insert(:asciicast)
 
-      conn = delete(conn, ~p"/api/v1/recordings/#{asciicast}")
+      conn = delete(conn, ~p"/api/v1/recordings/#{asciicast.id}")
 
       assert json_response(conn, 401)["error"] == "Unregistered install ID"
     end
@@ -381,14 +404,22 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
     test "succeeds when deleting own recording", %{conn: conn, cli: cli} do
       asciicast = insert(:asciicast, user: cli.user)
 
-      conn = delete(conn, ~p"/api/v1/recordings/#{asciicast}")
+      conn = delete(conn, ~p"/api/v1/recordings/#{asciicast.id}")
+
+      assert response(conn, 204)
+    end
+
+    test "succeeds when deleting own recording using secret token", %{conn: conn, cli: cli} do
+      _asciicast = insert(:asciicast, user: cli.user, secret_token: "abcdefghijklmnopqrstuvwxy")
+
+      conn = delete(conn, ~p"/api/v1/recordings/abcdefghijklmnopqrstuvwxy")
 
       assert response(conn, 204)
     end
 
     test "fails when recording belongs to another user", %{conn: conn} do
       asciicast = insert(:asciicast)
-      conn = delete(conn, ~p"/api/v1/recordings/#{asciicast}")
+      conn = delete(conn, ~p"/api/v1/recordings/#{asciicast.id}")
 
       assert json_response(conn, 403)["error"] == "Forbidden"
     end

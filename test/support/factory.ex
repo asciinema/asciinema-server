@@ -42,7 +42,7 @@ defmodule Asciinema.Factory do
     %Asciicast{
       user: build(:user),
       version: 1,
-      path: sequence(:path, &"recordings/#{&1}.json"),
+      path: sequence(:path_v1, &"recordings/#{&1}.json"),
       duration: 123.45,
       term_cols: 80,
       term_rows: 24,
@@ -55,7 +55,20 @@ defmodule Asciinema.Factory do
     %Asciicast{
       user: build(:user),
       version: 2,
-      path: sequence(:path, &"recordings/#{&1}.cast"),
+      path: sequence(:path_v2, &"recordings/#{&1}.cast"),
+      duration: 123.45,
+      term_cols: 80,
+      term_rows: 24,
+      secret_token: sequence(:secret_token, &secret_token/1),
+      snapshot: {[[["foo", %{}, 1]], [["bar", %{}, 1]]], {3, 1}}
+    }
+  end
+
+  def asciicast_v3_factory do
+    %Asciicast{
+      user: build(:user),
+      version: 3,
+      path: sequence(:path_v3, &"recordings/#{&1}.cast"),
       duration: 123.45,
       term_cols: 80,
       term_rows: 24,
@@ -93,7 +106,7 @@ defmodule Asciinema.Factory do
       case asciicast.version do
         1 -> "welcome.json"
         2 -> "welcome.cast"
-        3 -> "welcome.cast"
+        3 -> "3/full.cast"
       end
 
     :ok = FileStore.put_file(asciicast.path, "test/fixtures/#{src}", "application/json")

@@ -6,20 +6,27 @@ defmodule AsciinemaWeb.FallbackController do
   def call(conn, {:error, :not_found}), do: error(conn, 404)
 
   defp error(conn, status) do
-    conn
-    |> put_layout(:simple)
-    |> put_status(status)
-    |> put_view(
-      html: AsciinemaWeb.ErrorHTML,
-      json: AsciinemaWeb.ErrorJSON,
-      cast: AsciinemaWeb.ErrorJSON,
-      js: AsciinemaWeb.ErrorTEXT,
-      txt: AsciinemaWeb.ErrorTEXT,
-      svg: AsciinemaWeb.ErrorTEXT,
-      png: AsciinemaWeb.ErrorTEXT,
-      gif: AsciinemaWeb.ErrorTEXT,
-      xml: AsciinemaWeb.ErrorTEXT
-    )
-    |> render(:"#{status}")
+    conn =
+      conn
+      |> put_layout(:simple)
+      |> put_status(status)
+
+    case get_format(conn) do
+      "html" ->
+        conn
+        |> put_view(AsciinemaWeb.ErrorHTML)
+        |> render(:"#{status}")
+
+      "json" ->
+        conn
+        |> put_view(AsciinemaWeb.ErrorJSON)
+        |> render(:"#{status}")
+
+      _ ->
+        conn
+        |> put_resp_content_type("text/plain")
+        |> put_view(AsciinemaWeb.ErrorTEXT)
+        |> render(:"#{status}")
+    end
   end
 end
