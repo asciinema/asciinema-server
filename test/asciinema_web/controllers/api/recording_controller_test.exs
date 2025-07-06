@@ -56,11 +56,10 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
         |> put_resp_content_type("application/json")
         |> post(~p"/api/asciicasts", %{"asciicast" => upload})
 
-      response = json_response(conn, 201)
-
-      assert response["url"] =~ @recording_url
-      assert response["message"] =~ @successful_response
       assert List.first(get_resp_header(conn, "location")) =~ @recording_url
+      assert %{"url" => url, "message" => message} = json_response(conn, 201)
+      assert url =~ @recording_url
+      assert message =~ @successful_response
     end
   end
 
@@ -71,33 +70,72 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
       upload = fixture(:upload, %{path: "1/full.json"})
 
       conn = upload(conn, upload)
-      response = json_response(conn, 201)
 
-      assert response["url"] =~ @recording_url
-      assert response["message"] =~ @successful_response
       assert List.first(get_resp_header(conn, "location")) =~ @recording_url
+
+      assert %{
+               "id" => id,
+               "url" => url,
+               "file_url" => file_url,
+               "audio_url" => nil,
+               "title" => "bashing :)",
+               "description" => nil,
+               "visibility" => "unlisted",
+               "message" => message
+             } = json_response(conn, 201)
+
+      assert is_integer(id)
+      assert url =~ @recording_url
+      assert file_url =~ ~r/^http.+\.json$/
+      assert message =~ @successful_response
     end
 
     test "json file, v2 format, minimal succeeds", %{conn: conn} do
       upload = fixture(:upload, %{path: "2/minimal.cast"})
 
       conn = upload(conn, upload)
-      response = json_response(conn, 201)
 
-      assert response["url"] =~ @recording_url
-      assert response["message"] =~ @successful_response
       assert List.first(get_resp_header(conn, "location")) =~ @recording_url
+
+      assert %{
+               "id" => id,
+               "url" => url,
+               "file_url" => file_url,
+               "audio_url" => nil,
+               "title" => nil,
+               "description" => nil,
+               "visibility" => "unlisted",
+               "message" => message
+             } = json_response(conn, 201)
+
+      assert is_integer(id)
+      assert url =~ @recording_url
+      assert file_url =~ ~r/^http.+\.cast$/
+      assert message =~ @successful_response
     end
 
     test "json file, v2 format, full succeeds", %{conn: conn} do
       upload = fixture(:upload, %{path: "2/full.cast"})
 
       conn = upload(conn, upload)
-      response = json_response(conn, 201)
 
-      assert response["url"] =~ @recording_url
-      assert response["message"] =~ @successful_response
       assert List.first(get_resp_header(conn, "location")) =~ @recording_url
+
+      assert %{
+               "id" => id,
+               "url" => url,
+               "file_url" => file_url,
+               "audio_url" => nil,
+               "title" => "bashing :)",
+               "description" => nil,
+               "visibility" => "unlisted",
+               "message" => message
+             } = json_response(conn, 201)
+
+      assert is_integer(id)
+      assert url =~ @recording_url
+      assert file_url =~ ~r/^http.+\.cast$/
+      assert message =~ @successful_response
     end
 
     test "json file, v1 format, missing required data fails", %{conn: conn} do
@@ -256,9 +294,10 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
                "id" => id,
                "url" => url,
                "file_url" => file_url,
+               "audio_url" => "https://example.com/audio.opus",
                "title" => "New title",
                "description" => "New description",
-               "audio_url" => "https://example.com/audio.opus"
+               "visibility" => "unlisted"
              } = json_response(conn, 200)
 
       assert is_integer(id)

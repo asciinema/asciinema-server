@@ -21,7 +21,7 @@ defmodule AsciinemaWeb.Api.RecordingController do
         conn
         |> put_status(:created)
         |> put_resp_header("location", url(~p"/a/#{asciicast}"))
-        |> render(:created, asciicast: asciicast)
+        |> render(:show, asciicast: asciicast)
 
       {:error, reason} ->
         conn

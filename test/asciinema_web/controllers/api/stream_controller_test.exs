@@ -56,7 +56,11 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
       assert %{
                "id" => _,
                "url" => "http://localhost:4001/s/" <> _,
-               "ws_producer_url" => "ws://localhost:4001/ws/S/" <> _
+               "ws_producer_url" => "ws://localhost:4001/ws/S/" <> _,
+               "audio_url" => nil,
+               "title" => nil,
+               "description" => nil,
+               "visibility" => "unlisted"
              } = json_response(conn, 200)
     end
 
@@ -65,8 +69,13 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
       conn = post(conn, ~p"/api/v1/streams")
 
       assert %{
+               "id" => _,
                "url" => "http://localhost:4001/s/" <> _,
-               "ws_producer_url" => "ws://localhost:4001/ws/S/" <> _
+               "ws_producer_url" => "ws://localhost:4001/ws/S/" <> _,
+               "audio_url" => nil,
+               "title" => nil,
+               "description" => nil,
+               "visibility" => "unlisted"
              } = json_response(conn, 200)
     end
 
@@ -80,8 +89,13 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
       conn = post(conn, ~p"/api/v1/streams")
 
       assert %{
+               "id" => _,
                "url" => "http://localhost:4001/s/foobar",
-               "ws_producer_url" => "ws://localhost:4001/ws/S/bazqux"
+               "ws_producer_url" => "ws://localhost:4001/ws/S/bazqux",
+               "audio_url" => nil,
+               "title" => nil,
+               "description" => nil,
+               "visibility" => "unlisted"
              } = json_response(conn, 200)
     end
 
@@ -384,10 +398,10 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
                "id" => _,
                "url" => "http://localhost:4001/s/foobar",
                "ws_producer_url" => "ws://localhost:4001/ws/S/bazqux",
-               "live" => false,
+               "audio_url" => "http://icecast.example.com/stream",
                "title" => "New title",
                "description" => "New description",
-               "audio_url" => "http://icecast.example.com/stream"
+               "visibility" => "unlisted"
              } = json_response(conn, 200)
     end
 
