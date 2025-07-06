@@ -8,52 +8,127 @@ defmodule AsciinemaWeb.StreamControllerTest do
     :ok
   end
 
-  describe "show" do
-    test "public stream", %{conn: conn} do
-      stream = insert(:stream, visibility: :public)
+  describe "show public stream as owner" do
+    setup [:insert_public_stream, :authenticate_as_owner]
+
+    test "via ID", %{conn: conn, stream: stream} do
+      test_html_response(conn, ~p"/s/#{stream.id}", 404)
+    end
+
+    test "via public token", %{conn: conn, stream: stream} do
+      test_html_response(conn, ~p"/s/#{stream.public_token}", 200)
+    end
+  end
+
+  describe "show public stream as other user" do
+    setup [:insert_public_stream, :authenticate_as_other]
+
+    test "via ID", %{conn: conn, stream: stream} do
+      test_html_response(conn, ~p"/s/#{stream.id}", 404)
+    end
+
+    test "via public token", %{conn: conn, stream: stream} do
+      test_html_response(conn, ~p"/s/#{stream.public_token}", 200)
+    end
+  end
+
+  describe "show public stream as guest" do
+    setup [:insert_public_stream]
+
+    test "via ID", %{conn: conn, stream: stream} do
+      test_html_response(conn, ~p"/s/#{stream.id}", 404)
+    end
+
+    test "via public token", %{conn: conn, stream: stream} do
+      test_html_response(conn, ~p"/s/#{stream.public_token}", 200)
+    end
+  end
+
+  describe "show unlisted stream as owner" do
+    setup [:insert_unlisted_stream, :authenticate_as_owner]
+
+    test "via ID", %{conn: conn, stream: stream} do
+      test_html_response(conn, ~p"/s/#{stream.id}", 404)
+    end
+
+    test "via public token", %{conn: conn, stream: stream} do
+      test_html_response(conn, ~p"/s/#{stream.public_token}", 200)
+    end
+  end
+
+  describe "show unlisted stream as other user" do
+    setup [:insert_unlisted_stream, :authenticate_as_other]
+
+    test "via ID", %{conn: conn, stream: stream} do
+      test_html_response(conn, ~p"/s/#{stream.id}", 404)
+    end
+
+    test "via public token", %{conn: conn, stream: stream} do
+      test_html_response(conn, ~p"/s/#{stream.public_token}", 200)
+    end
+  end
+
+  describe "show unlisted stream as guest" do
+    setup [:insert_unlisted_stream]
+
+    test "via ID", %{conn: conn, stream: stream} do
+      test_html_response(conn, ~p"/s/#{stream.id}", 404)
+    end
+
+    test "via public token", %{conn: conn, stream: stream} do
+      test_html_response(conn, ~p"/s/#{stream.public_token}", 200)
+    end
+  end
+
+  describe "show private stream as owner" do
+    setup [:insert_private_stream, :authenticate_as_owner]
+
+    test "via ID", %{conn: conn, stream: stream} do
+      test_html_response(conn, ~p"/s/#{stream.id}", 404)
+    end
+
+    test "via public token", %{conn: conn, stream: stream} do
+      test_html_response(conn, ~p"/s/#{stream.public_token}", 200)
+    end
+  end
+
+  describe "show private stream as other user" do
+    setup [:insert_private_stream, :authenticate_as_other]
+
+    test "via ID", %{conn: conn, stream: stream} do
+      test_html_response(conn, ~p"/s/#{stream.id}", 404)
+    end
+
+    test "via public token", %{conn: conn, stream: stream} do
+      test_html_response(conn, ~p"/s/#{stream.public_token}", 403)
+    end
+  end
+
+  describe "show private stream as guest" do
+    setup [:insert_private_stream]
+
+    test "via ID", %{conn: conn, stream: stream} do
+      test_html_response(conn, ~p"/s/#{stream.id}", 404)
+    end
+
+    test "via public token", %{conn: conn, stream: stream} do
+      test_html_response(conn, ~p"/s/#{stream.public_token}", 403)
+    end
+  end
+
+  describe "show stream with streaming disabled" do
+    test "returns 404", %{conn: conn} do
+      user = insert(:user, streaming_enabled: false)
+      stream = insert(:stream, user: user)
 
       conn_2 = get(conn, ~p"/s/#{stream}")
 
-      assert html_response(conn_2, 200) =~ "createPlayer"
+      assert html_response(conn_2, 404)
     end
+  end
 
-    test "unlisted stream", %{conn: conn} do
-      stream = insert(:stream, visibility: :unlisted)
-
-      conn_2 = get(conn, ~p"/s/#{stream}")
-
-      assert html_response(conn_2, 200) =~ "createPlayer"
-    end
-
-    test "private stream, unauthenticated", %{conn: conn} do
-      stream = insert(:stream, visibility: :private)
-
-      conn_2 = get(conn, ~p"/s/#{stream}")
-
-      assert redirected_to(conn_2, 302) == ~p"/login/new"
-    end
-
-    test "private stream, as non-owner", %{conn: conn} do
-      stream = insert(:stream, visibility: :private)
-      user = insert(:user)
-      conn = log_in(conn, user)
-
-      conn_2 = get(conn, ~p"/s/#{stream}")
-
-      assert html_response(conn_2, 403)
-    end
-
-    test "private stream, as owner", %{conn: conn} do
-      user = insert(:user)
-      stream = insert(:stream, visibility: :private, user: user)
-      conn = log_in(conn, user)
-
-      conn_2 = get(conn, ~p"/s/#{stream}")
-
-      assert html_response(conn_2, 200) =~ "createPlayer"
-    end
-
-    test "streaming instructions", %{conn: conn} do
+  describe "streaming instructions" do
+    test "shows instructions only to owner", %{conn: conn} do
       user = insert(:user)
       stream = insert(:stream, user: user)
 
@@ -67,15 +142,6 @@ defmodule AsciinemaWeb.StreamControllerTest do
       conn_2 = log_in(conn, user)
       conn_2 = get(conn_2, ~p"/s/#{stream}")
       assert html_response(conn_2, 200) =~ "asciinema stream -r"
-    end
-
-    test "when user has streaming disabled", %{conn: conn} do
-      user = insert(:user, streaming_enabled: false)
-      stream = insert(:stream, user: user)
-
-      conn_2 = get(conn, ~p"/s/#{stream}")
-
-      assert html_response(conn_2, 404)
     end
   end
 
@@ -159,5 +225,48 @@ defmodule AsciinemaWeb.StreamControllerTest do
       assert flash(conn, :info) =~ ~r/deleted/i
       assert response(conn, 302)
     end
+  end
+
+  defp insert_public_stream(_context) do
+    [stream: insert(:stream, visibility: :public)]
+  end
+
+  defp insert_unlisted_stream(_context) do
+    [stream: insert(:stream, visibility: :unlisted)]
+  end
+
+  defp insert_private_stream(_context) do
+    [stream: insert(:stream, visibility: :private)]
+  end
+
+  defp authenticate_as_owner(%{conn: conn, stream: stream}) do
+    [conn: log_in(conn, stream.user)]
+  end
+
+  defp authenticate_as_other(%{conn: conn}) do
+    [conn: log_in(conn, insert(:user))]
+  end
+
+  defp test_html_response(conn, url, 200) do
+    conn_2 =
+      conn
+      |> put_req_header("accept", "*/*")
+      |> get(url)
+
+    html = html_response(conn_2, 200)
+    assert html =~ "createPlayer"
+
+    conn_2 =
+      conn
+      |> put_req_header("accept", "text/html")
+      |> get(url)
+
+    assert html_response(conn_2, 200) =~ "createPlayer"
+  end
+
+  defp test_html_response(conn, url, status) when status >= 400 do
+    conn = get(conn, url)
+
+    assert html_response(conn, status)
   end
 end

@@ -86,7 +86,7 @@ defmodule Asciinema.Factory do
   end
 
   defp public_token(n) do
-    "public-#{n}"
+    "public#{n}"
     |> String.codepoints()
     |> Elixir.Stream.cycle()
     |> Elixir.Stream.take(16)
