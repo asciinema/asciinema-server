@@ -16,18 +16,13 @@ defmodule Asciinema.Recordings do
 
   alias Ecto.Changeset
 
-  def fetch_asciicast(id) do
-    case get_asciicast(id) do
-      nil -> {:error, :not_found}
-      asciicast -> {:ok, asciicast}
-    end
-  end
-
   def get_asciicast(id) do
     Asciicast
     |> Repo.get(id)
     |> Repo.preload(:user)
   end
+
+  def fetch_asciicast(id), do: OK.required(get_asciicast(id), :not_found)
 
   def find_asciicast_by_secret_token(token) do
     from(a in Asciicast, where: a.secret_token == ^token)

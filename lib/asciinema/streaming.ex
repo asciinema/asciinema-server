@@ -24,7 +24,7 @@ defmodule Asciinema.Streaming do
     |> Repo.one()
   end
 
-  def fetch_stream(owner, id), do: wrap(get_stream(owner, id))
+  def fetch_stream(owner, id), do: OK.required(get_stream(owner, id), :not_found)
 
   def fetch_default_stream(%{streams: _} = owner) do
     streams =
@@ -39,9 +39,6 @@ defmodule Asciinema.Streaming do
       _ -> {:error, :too_many}
     end
   end
-
-  defp wrap(nil), do: {:error, :not_found}
-  defp wrap(value), do: {:ok, value}
 
   def find_stream_by_public_token(token) do
     from(s in Stream, where: s.public_token == ^token)
