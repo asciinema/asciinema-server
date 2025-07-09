@@ -1,12 +1,6 @@
 defmodule AsciinemaWeb.StreamControllerTest do
-  use AsciinemaWeb.ConnCase
+  use AsciinemaWeb.ConnCase, async: true
   import Asciinema.Factory
-
-  setup do
-    on_exit_restore_config(Asciinema.Streaming)
-
-    :ok
-  end
 
   describe "show public stream as owner" do
     setup [:insert_public_stream, :authenticate_as_owner]

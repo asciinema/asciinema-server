@@ -1,5 +1,5 @@
 defmodule AsciinemaWeb.OembedControllerTest do
-  use AsciinemaWeb.ConnCase
+  use AsciinemaWeb.ConnCase, async: true
   import Asciinema.Factory
 
   describe "show" do

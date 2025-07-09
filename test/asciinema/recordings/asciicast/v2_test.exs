@@ -1,5 +1,5 @@
 defmodule Asciinema.Recordings.Asciicast.V2Test do
-  use Asciinema.DataCase
+  use ExUnit.Case, async: true
   alias Asciinema.Recordings.Asciicast.V2
 
   describe "fetch_metadata/1" do

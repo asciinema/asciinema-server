@@ -1,5 +1,5 @@
 defmodule AsciinemaWeb.Api.StreamControllerTest do
-  use AsciinemaWeb.ConnCase
+  use AsciinemaWeb.ConnCase, async: true
   import Asciinema.Factory
   alias Asciinema.Accounts
 

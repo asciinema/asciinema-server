@@ -1,5 +1,5 @@
 defmodule AsciinemaWeb.PageControllerTest do
-  use AsciinemaWeb.ConnCase
+  use AsciinemaWeb.ConnCase, async: true
 
   test "static pages", %{conn: conn} do
     Enum.each(

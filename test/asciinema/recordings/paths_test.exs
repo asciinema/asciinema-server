@@ -1,13 +1,8 @@
 defmodule Asciinema.Recordings.PathsTest do
-  use Asciinema.DataCase
+  use Asciinema.DataCase, async: true
   import Asciinema.Factory
+  alias Asciinema.AppEnv
   alias Asciinema.Recordings.Paths
-
-  setup do
-    on_exit_restore_config(Paths)
-
-    :ok
-  end
 
   describe "path/1" do
     test "returns path with json ext for asciicast v1" do
@@ -31,7 +26,7 @@ defmodule Asciinema.Recordings.PathsTest do
     end
 
     test "uses last 4 digits (reversed) for {shard} token - short id" do
-      Application.put_env(:asciinema, Paths, recording: "asciicasts/{shard}/{id}.{ext}")
+      AppEnv.put(Paths, recording: "asciicasts/{shard}/{id}.{ext}")
       asciicast = build_asciicast(id: 1)
 
       path = Paths.path(asciicast)
@@ -40,7 +35,7 @@ defmodule Asciinema.Recordings.PathsTest do
     end
 
     test "uses last 4 digits (reversed) for {shard} token - long id" do
-      Application.put_env(:asciinema, Paths, recording: "asciicasts/{shard}/{id}.{ext}")
+      AppEnv.put(Paths, recording: "asciicasts/{shard}/{id}.{ext}")
       asciicast = build_asciicast(id: 12345)
 
       path = Paths.path(asciicast)
@@ -49,7 +44,7 @@ defmodule Asciinema.Recordings.PathsTest do
     end
 
     test "interpolates env vars" do
-      Application.put_env(:asciinema, Paths,
+      AppEnv.put(Paths,
         recording: "recordings/{env:A_YES}-{env:A_NOPE?nope}-{env:NADA?}/{id}.{ext}"
       )
 

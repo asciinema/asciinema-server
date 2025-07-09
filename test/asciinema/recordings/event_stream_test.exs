@@ -1,5 +1,5 @@
 defmodule Asciinema.Recordings.EventStreamTest do
-  use Asciinema.DataCase
+  use ExUnit.Case, async: true
   alias Asciinema.Recordings.EventStream
 
   describe "to_absolute_time/1" do

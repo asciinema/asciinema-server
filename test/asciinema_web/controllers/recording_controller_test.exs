@@ -1,5 +1,5 @@
 defmodule AsciinemaWeb.RecordingControllerTest do
-  use AsciinemaWeb.ConnCase
+  use AsciinemaWeb.ConnCase, async: true
   import Asciinema.Factory
 
   describe "explore" do

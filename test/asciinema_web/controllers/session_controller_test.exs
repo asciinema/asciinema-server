@@ -1,5 +1,5 @@
 defmodule AsciinemaWeb.SessionControllerTest do
-  use AsciinemaWeb.ConnCase
+  use AsciinemaWeb.ConnCase, async: true
   import Asciinema.Factory
   alias Asciinema.Repo
   alias Asciinema.Accounts

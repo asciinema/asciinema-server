@@ -1,7 +1,8 @@
 defmodule AsciinemaWeb.Api.RecordingControllerTest do
-  use AsciinemaWeb.ConnCase
+  use AsciinemaWeb.ConnCase, async: true
   import Asciinema.Factory
   alias Asciinema.Accounts
+  alias Asciinema.AppEnv
 
   setup(context) do
     [token: Map.get(context, :token, "9da34ff4-9bf7-45d4-aa88-98c933b15a3f")]
@@ -438,8 +439,9 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
   end
 
   defp require_registered_cli(_context) do
-    on_exit_restore_config(Asciinema.Accounts)
-    Application.put_env(:asciinema, Asciinema.Accounts, upload_auth_required: true)
+    AppEnv.put(Asciinema.Accounts, upload_auth_required: true)
+
+    :ok
   end
 
   defp register_cli(%{token: token} = context) do

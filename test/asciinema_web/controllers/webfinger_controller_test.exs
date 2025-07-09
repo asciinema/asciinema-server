@@ -1,5 +1,5 @@
 defmodule AsciinemaWeb.WebFingerControllerTest do
-  use AsciinemaWeb.ConnCase
+  use AsciinemaWeb.ConnCase, async: true
   import Asciinema.Factory
 
   setup [:create_user]

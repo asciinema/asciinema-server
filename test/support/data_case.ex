@@ -16,8 +16,6 @@ defmodule Asciinema.DataCase do
 
   using do
     quote do
-      use Asciinema.OnExit
-
       alias Asciinema.Repo
 
       import Ecto

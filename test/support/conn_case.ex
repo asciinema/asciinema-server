@@ -21,7 +21,6 @@ defmodule AsciinemaWeb.ConnCase do
       @endpoint AsciinemaWeb.Endpoint
 
       use AsciinemaWeb, :verified_routes
-      use Asciinema.OnExit
 
       # Import conveniences for testing with connections
       import Plug.Conn

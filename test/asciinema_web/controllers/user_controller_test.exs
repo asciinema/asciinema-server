@@ -1,5 +1,5 @@
 defmodule AsciinemaWeb.UserControllerTest do
-  use AsciinemaWeb.ConnCase
+  use AsciinemaWeb.ConnCase, async: true
   use Oban.Testing, repo: Asciinema.Repo
   import Asciinema.Factory
   import Swoosh.TestAssertions
