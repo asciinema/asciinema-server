@@ -1,5 +1,6 @@
 defmodule AsciinemaWeb.Router do
   use AsciinemaWeb, :router
+  alias AsciinemaWeb.Plug.{Authn, TrailingFormat}
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -8,7 +9,7 @@ defmodule AsciinemaWeb.Router do
     plug :fetch_live_flash
     plug :protect_from_forgery
     plug :put_secure_browser_headers
-    plug AsciinemaWeb.Plug.Authn
+    plug Authn
   end
 
   pipeline :api do
@@ -16,7 +17,7 @@ defmodule AsciinemaWeb.Router do
   end
 
   pipeline :asciicast do
-    plug AsciinemaWeb.Plug.TrailingFormat
+    plug TrailingFormat
     plug :accepts, ~w(html js json cast txt svg png gif)
     plug :format_specific_plugs
     plug :put_secure_browser_headers
