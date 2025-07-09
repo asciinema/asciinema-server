@@ -1118,8 +1118,7 @@ defmodule AsciinemaWeb.RecordingControllerTest do
       |> put_req_header("accept", "*/*")
       |> get(url)
 
-    html = html_response(conn_2, 200)
-    assert html =~ "createPlayer"
+    assert html_response(conn_2, 200) =~ "createPlayer"
 
     conn_2 =
       conn
