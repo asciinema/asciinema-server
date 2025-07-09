@@ -36,7 +36,7 @@ defmodule AsciinemaWeb.ConnCase do
       end
 
       def log_in(conn, user) do
-        assign(conn, :current_user, user)
+        init_test_session(conn, %{user_id: user.id})
       end
     end
   end
