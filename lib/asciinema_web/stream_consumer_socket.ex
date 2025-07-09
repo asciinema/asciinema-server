@@ -188,7 +188,7 @@ defmodule AsciinemaWeb.StreamConsumerSocket do
     end
   end
 
-  defp fetch_stream(token), do: OK.required(Streaming.get_stream(token), :stream_not_found)
+  defp fetch_stream(token), do: OK.required(Streaming.lookup_stream(token), :stream_not_found)
 
   defp authorize(stream, user_id) do
     if Authorization.can?(nil, :show, stream) ||
