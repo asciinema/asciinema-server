@@ -127,15 +127,16 @@ defmodule AsciinemaWeb.Router do
   end
 
   defp format_specific_plugs(conn, []) do
-    format_specific_plugs(conn, Phoenix.Controller.get_format(conn))
+    conn
+    |> fetch_session([])
+    |> Authn.call([])
+    |> format_specific_plugs(get_format(conn))
   end
 
   defp format_specific_plugs(conn, "html") do
     conn
-    |> fetch_session([])
     |> fetch_flash([])
     |> protect_from_forgery([])
-    |> AsciinemaWeb.Plug.Authn.call([])
   end
 
   defp format_specific_plugs(conn, _other), do: conn
