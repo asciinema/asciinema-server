@@ -220,7 +220,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
 
   describe "get stream by ID without authentication" do
     test "fails", %{conn: conn} do
-      conn = get(conn, ~p"/api/v1/user/streams/x")
+      conn = get(conn, ~p"/api/user/streams/x")
 
       assert response(conn, 401)
     end
@@ -231,7 +231,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
 
     @tag token: "invalid-lol"
     test "fails", %{conn: conn} do
-      conn = get(conn, ~p"/api/v1/user/streams/x")
+      conn = get(conn, ~p"/api/user/streams/x")
 
       assert response(conn, 401)
     end
@@ -241,7 +241,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
     setup [:register_cli, :revoke_cli, :authenticate]
 
     test "fails", %{conn: conn} do
-      conn = get(conn, ~p"/api/v1/user/streams/x")
+      conn = get(conn, ~p"/api/user/streams/x")
 
       assert response(conn, 401)
     end
@@ -251,7 +251,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
     setup [:authenticate]
 
     test "fails", %{conn: conn} do
-      conn = get(conn, ~p"/api/v1/user/streams/x")
+      conn = get(conn, ~p"/api/user/streams/x")
 
       assert json_response(conn, 401)
     end
@@ -264,7 +264,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
       insert(:stream, user: cli.user)
       insert(:stream, user: cli.user, public_token: "foobar1234567890", producer_token: "bazqux")
 
-      conn = get(conn, ~p"/api/v1/user/streams/foobar1234567890")
+      conn = get(conn, ~p"/api/user/streams/foobar1234567890")
 
       assert %{
                "url" => "http://localhost:4001/s/foobar1234567890",
@@ -278,7 +278,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
     } do
       insert(:stream, user: cli.user, public_token: "foobar1234567890", producer_token: "bazqux")
 
-      conn = get(conn, ~p"/api/v1/user/streams/foo")
+      conn = get(conn, ~p"/api/user/streams/foo")
 
       assert %{
                "url" => "http://localhost:4001/s/foobar1234567890",
@@ -290,13 +290,13 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
     test "responds with 403 when user has streaming disabled", %{conn: conn, cli: cli} do
       stream = insert(:stream, user: cli.user, public_token: "foobar1234567890")
 
-      conn = get(conn, ~p"/api/v1/user/streams/#{stream.id}")
+      conn = get(conn, ~p"/api/user/streams/#{stream.id}")
 
       assert %{"reason" => "streaming disabled"} = json_response(conn, 403)
     end
 
     test "responds with 404 when stream is not found", %{conn: conn} do
-      conn = get(conn, ~p"/api/v1/user/streams/x")
+      conn = get(conn, ~p"/api/user/streams/x")
 
       assert %{} = json_response(conn, 404)
     end
@@ -304,25 +304,9 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
     test "responds with 404 when stream belongs to another user", %{conn: conn} do
       stream = insert(:stream)
 
-      conn = get(conn, ~p"/api/v1/user/streams/#{stream.id}")
+      conn = get(conn, ~p"/api/user/streams/#{stream.id}")
 
       assert %{} = json_response(conn, 404)
-    end
-  end
-
-  describe "get stream by ID via legacy path" do
-    setup [:register_cli, :authenticate]
-
-    test "responds with stream info", %{conn: conn, cli: cli} do
-      insert(:stream, user: cli.user)
-      insert(:stream, user: cli.user, public_token: "foobar1234567890", producer_token: "bazqux")
-
-      conn = get(conn, ~p"/api/v1/user/streams/foobar1234567890")
-
-      assert %{
-               "url" => "http://localhost:4001/s/foobar1234567890",
-               "ws_producer_url" => "ws://localhost:4001/ws/S/bazqux"
-             } = json_response(conn, 200)
     end
   end
 

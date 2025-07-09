@@ -83,6 +83,13 @@ defmodule Asciinema.Streaming do
 
       :live ->
         where(q, [s], s.live)
+
+      {:prefix, nil} ->
+        q
+
+      {:prefix, prefix} ->
+        prefix = String.replace(prefix, "%", "")
+        where(q, [s], like(s.public_token, ^"#{prefix}%"))
     end
   end
 

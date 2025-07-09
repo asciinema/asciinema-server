@@ -3,6 +3,12 @@ defmodule AsciinemaWeb.Api.StreamJSON do
   alias AsciinemaWeb.UrlHelpers
   alias Ecto.Changeset
 
+  def index(%{streams: streams}) do
+    for stream <- streams do
+      show(%{stream: stream})
+    end
+  end
+
   def show(%{stream: stream}) do
     url = url(~p"/s/#{stream}")
     ws_producer_url = UrlHelpers.ws_producer_url(stream)

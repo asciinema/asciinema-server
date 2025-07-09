@@ -7,6 +7,15 @@ defmodule AsciinemaWeb.Api.StreamController do
   plug :load_stream when action in [:update, :delete]
   plug :authorize, :stream when action in [:update, :delete]
 
+  def index(conn, params) do
+    streams =
+      [user_id: conn.assigns.current_user.id, prefix: params["prefix"]]
+      |> Streaming.query()
+      |> Streaming.list(3)
+
+    render(conn, :index, streams: streams)
+  end
+
   def show(conn, %{"id" => id}) do
     conn.assigns.current_user
     |> Streaming.fetch_stream(id)

@@ -100,7 +100,7 @@ defmodule AsciinemaWeb.Router do
       resources "/streams", StreamController, only: [:create, :update, :delete]
 
       scope "/user" do
-        get "/streams/:id", StreamController, :show
+        get "/streams", StreamController, :index
       end
     end
 
