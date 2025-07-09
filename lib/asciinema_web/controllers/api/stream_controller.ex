@@ -7,13 +7,28 @@ defmodule AsciinemaWeb.Api.StreamController do
   plug :load_stream when action in [:update, :delete]
   plug :authorize, :stream when action in [:update, :delete]
 
-  def index(conn, params) do
-    streams =
-      [user_id: conn.assigns.current_user.id, prefix: params["prefix"]]
-      |> Streaming.query()
-      |> Streaming.list(3)
+  @default_index_limit 10
 
-    render(conn, :index, streams: streams)
+  def index(conn, %{"cursor" => cursor} = params) when is_binary(cursor) do
+    {stream_id, prefix} = decode_cursor(cursor)
+    paginate(conn, stream_id, prefix, params["limit"])
+  end
+
+  def index(conn, params) do
+    paginate(conn, nil, params["prefix"], params["limit"])
+  end
+
+  defp paginate(conn, stream_id, prefix, limit) do
+    limit = if limit, do: String.to_integer(limit), else: @default_index_limit
+
+    result =
+      [user_id: conn.assigns.current_user.id, prefix: prefix]
+      |> Streaming.query(:id)
+      |> Streaming.cursor_paginate(stream_id, limit)
+
+    conn
+    |> put_pagination_header(result, prefix, limit)
+    |> render(:index, streams: result.entries)
   end
 
   def show(conn, %{"id" => id}) do
@@ -115,5 +130,28 @@ defmodule AsciinemaWeb.Api.StreamController do
       stream ->
         assign(conn, :stream, stream)
     end
+  end
+
+  defp put_pagination_header(conn, %{has_more: true, last_id: stream_id}, prefix, limit) do
+    cursor = encode_cursor(stream_id, prefix)
+    next_url = url(~p"/api/v1/user/streams?cursor=#{cursor}&limit=#{limit}")
+    put_resp_header(conn, "link", ~s(<#{next_url}>; rel="next"))
+  end
+
+  defp put_pagination_header(conn, _result, _prefix, _params), do: conn
+
+  defp encode_cursor(stream_id, prefix) do
+    %{id: stream_id, prefix: prefix}
+    |> Jason.encode!()
+    |> Base.encode64()
+  end
+
+  defp decode_cursor(cursor) do
+    %{"id" => stream_id, "prefix" => prefix} =
+      cursor
+      |> Base.decode64!()
+      |> Jason.decode!()
+
+    {stream_id, prefix}
   end
 end

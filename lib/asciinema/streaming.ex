@@ -93,16 +93,59 @@ defmodule Asciinema.Streaming do
     end
   end
 
-  defp sort(q, nil), do: q
+  defp sort(q, order) do
+    case order do
+      nil ->
+        q
 
-  defp sort(q, :activity) do
-    order_by(q, desc: :live, desc_nulls_last: :last_started_at, desc: :id)
+      :activity ->
+        order_by(q, desc: :live, desc_nulls_last: :last_started_at, desc: :id)
+
+      :id ->
+        order_by(q, asc: :id)
+    end
   end
 
   def paginate(%Ecto.Query{} = query, page, page_size) do
     query
     |> preload(:user)
     |> Repo.paginate(page: page, page_size: page_size)
+  end
+
+  def cursor_paginate(query, last_id \\ nil, limit \\ 10)
+
+  def cursor_paginate(%Ecto.Query{} = query, nil, limit) do
+    do_cursor_paginate(query, limit)
+  end
+
+  def cursor_paginate(%Ecto.Query{} = query, last_id, limit) do
+    query
+    |> where([s], s.id > ^last_id)
+    |> do_cursor_paginate(limit)
+  end
+
+  defp do_cursor_paginate(query, limit) do
+    limit = min(limit, 100)
+
+    query =
+      query
+      |> limit(^(limit + 1))
+      |> preload(:user)
+
+    entries = Repo.all(query)
+
+    case entries do
+      [] ->
+        %{entries: [], has_more: false, last_id: nil}
+
+      entries when length(entries) <= limit ->
+        %{entries: entries, has_more: false, last_id: nil}
+
+      entries ->
+        {results, _} = Enum.split(entries, limit)
+        last_id = List.last(results).id
+        %{entries: results, has_more: true, last_id: last_id}
+    end
   end
 
   def list(q, limit \\ nil)
