@@ -429,11 +429,11 @@ defmodule Asciinema.Streaming.StreamServer do
         timestamp: timestamp
       )
 
-    if term_init not in [nil, ""] do
-      {:ok, writer} = V3.write_event(writer, 0, "o", term_init)
-
+    if term_init in [nil, ""] do
       %{state | path: path, writer: writer}
     else
+      {:ok, writer} = V3.write_event(writer, 0, "o", term_init)
+
       %{state | path: path, writer: writer}
     end
   end
@@ -468,10 +468,7 @@ defmodule Asciinema.Streaming.StreamServer do
     do: [term_theme_fg: nil, term_theme_bg: nil, term_theme_palette: nil]
 
   defp schema_theme_fields(theme) do
-    palette =
-      theme.palette
-      |> Enum.map(&Colors.hex/1)
-      |> Enum.join(":")
+    palette = Enum.map_join(theme.palette, ":", &Colors.hex/1)
 
     [
       term_theme_fg: Colors.hex(theme.fg),
