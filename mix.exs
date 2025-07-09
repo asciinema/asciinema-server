@@ -60,6 +60,7 @@ defmodule Asciinema.MixProject do
       {:mix_test_watch, "~> 1.2", only: :dev, runtime: false},
       {:oban, "~> 2.19"},
       {:oban_web, "~> 2.11"},
+      {:ok, "~> 2.3"},
       # override for scrivener_html
       {:phoenix, "~> 1.7.11", override: true},
       {:phoenix_ecto, "~> 4.5.1"},

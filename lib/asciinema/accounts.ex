@@ -10,16 +10,11 @@ defmodule Asciinema.Accounts do
   @valid_email_re ~r/^[A-Z0-9._%+-]+@([A-Z0-9-]+\.)+[A-Z]{2,}$/i
   @valid_username_re ~r/^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]$/
 
-  def fetch_user(id) do
-    case get_user(id) do
-      nil -> {:error, :not_found}
-      user -> {:ok, user}
-    end
-  end
-
   def get_user([{_k, _v}] = kv), do: Repo.get_by(User, kv)
 
   def get_user(id), do: Repo.get(User, id)
+
+  def fetch_user(id), do: OK.required(get_user(id), :not_found)
 
   def find_user(%User{} = user), do: user
 

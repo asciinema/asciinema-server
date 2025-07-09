@@ -1,14 +1,13 @@
 defmodule AsciinemaWeb.OembedController do
   use AsciinemaWeb, :controller
-  alias Asciinema.Recordings
+  alias Asciinema.{Recordings, Authorization}
 
   plug :put_layout, nil
 
   def show(conn, params) do
     with {:ok, path} <- parse_url(params["url"] || ""),
          {:ok, id} <- extract_id(path),
-         {:ok, asciicast} <- Recordings.fetch_asciicast(id),
-         :ok <- authorize(asciicast) do
+         {:ok, asciicast} <- load_and_authorize_asciicast(id) do
       {mw, mh} = get_size(params)
       format = get_embed_format(conn)
 
@@ -25,6 +24,32 @@ defmodule AsciinemaWeb.OembedController do
     end
   end
 
+  defp load_and_authorize_asciicast(id) do
+    {asciicast, ctx, status} =
+      cond do
+        String.match?(id, ~r/^\d+$/) ->
+          {Recordings.get_asciicast(id), %{}, :not_found}
+
+        String.match?(id, ~r/^[[:alnum:]]{25}$/) ->
+          {Recordings.find_asciicast_by_secret_token(id), %{id: id}, :forbidden}
+
+        true ->
+          {nil, %{}}
+      end
+
+    if asciicast do
+      resource = Map.merge(asciicast, ctx)
+
+      if Authorization.can?(nil, :show, resource) do
+        {:ok, asciicast}
+      else
+        {:error, status}
+      end
+    else
+      {:error, :not_found}
+    end
+  end
+
   defp parse_url(url) do
     case URI.parse(url).path do
       nil -> {:error, :bad_request}
@@ -36,14 +61,6 @@ defmodule AsciinemaWeb.OembedController do
     case Regex.run(~r|^/a/([^/]+)$|, path) do
       [_, id] -> {:ok, id}
       _ -> {:error, :bad_request}
-    end
-  end
-
-  defp authorize(asciicast) do
-    if asciicast.visibility == :private do
-      {:error, :forbidden}
-    else
-      :ok
     end
   end
 

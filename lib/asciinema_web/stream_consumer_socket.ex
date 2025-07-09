@@ -188,12 +188,7 @@ defmodule AsciinemaWeb.StreamConsumerSocket do
     end
   end
 
-  defp fetch_stream(token) do
-    case Streaming.get_stream(token) do
-      nil -> {:error, :stream_not_found}
-      stream -> {:ok, stream}
-    end
-  end
+  defp fetch_stream(token), do: OK.required(Streaming.get_stream(token), :stream_not_found)
 
   defp authorize(stream, user_id) do
     if Authorization.can?(nil, :show, stream) ||

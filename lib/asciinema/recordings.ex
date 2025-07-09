@@ -16,36 +16,31 @@ defmodule Asciinema.Recordings do
 
   alias Ecto.Changeset
 
-  def fetch_asciicast(id) do
-    case get_asciicast(id) do
-      nil -> {:error, :not_found}
-      asciicast -> {:ok, asciicast}
-    end
-  end
-
-  def get_asciicast(id) when is_integer(id) do
+  def get_asciicast(id) do
     Asciicast
     |> Repo.get(id)
     |> Repo.preload(:user)
   end
 
-  def get_asciicast(thing) when is_binary(thing) do
-    q =
-      if String.length(thing) == 25 do
-        from(a in Asciicast, where: a.secret_token == ^thing)
-      else
-        case Integer.parse(thing) do
-          {id, ""} ->
-            from(a in Asciicast, where: a.visibility == :public and a.id == ^id)
+  def fetch_asciicast(id), do: OK.required(get_asciicast(id), :not_found)
 
-          _ ->
-            from(a in Asciicast, where: false)
-        end
-      end
-
-    q
+  def find_asciicast_by_secret_token(token) do
+    from(a in Asciicast, where: a.secret_token == ^token)
     |> Repo.one()
     |> Repo.preload(:user)
+  end
+
+  def lookup_asciicast(id) when is_binary(id) do
+    cond do
+      String.match?(id, ~r/^\d+$/) ->
+        get_asciicast(id)
+
+      String.match?(id, ~r/^[[:alnum:]]{25}$/) ->
+        find_asciicast_by_secret_token(id)
+
+      true ->
+        nil
+    end
   end
 
   def query(filters \\ [], order \\ nil)

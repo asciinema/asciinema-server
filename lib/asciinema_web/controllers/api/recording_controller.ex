@@ -21,7 +21,7 @@ defmodule AsciinemaWeb.Api.RecordingController do
         conn
         |> put_status(:created)
         |> put_resp_header("location", url(~p"/a/#{asciicast}"))
-        |> render(:created, asciicast: asciicast)
+        |> render(:show, asciicast: asciicast)
 
       {:error, reason} ->
         conn
@@ -104,15 +104,13 @@ defmodule AsciinemaWeb.Api.RecordingController do
   defp load_asciicast(conn, _) do
     id = String.trim(conn.params["id"])
 
-    case Recordings.fetch_asciicast(id) do
-      {:ok, asciicast} ->
-        assign(conn, :asciicast, asciicast)
-
-      {:error, :not_found} ->
-        conn
-        |> put_status(:not_found)
-        |> render(:error, reason: :asciicast_not_found)
-        |> halt()
+    if asciicast = Recordings.lookup_asciicast(id) do
+      assign(conn, :asciicast, asciicast)
+    else
+      conn
+      |> put_status(:not_found)
+      |> render(:error, reason: :asciicast_not_found)
+      |> halt()
     end
   end
 end

@@ -10,19 +10,10 @@ defmodule Asciinema.Streaming do
     Repo.get_by(Stream, producer_token: token)
   end
 
-  def get_stream(id) when is_integer(id) do
+  def get_stream(id) do
     Stream
     |> Repo.get(id)
     |> Repo.preload(:user)
-  end
-
-  def get_stream(id) when is_binary(id) do
-    stream =
-      if String.match?(id, ~r/[[:alpha:]]/) do
-        Repo.one(from(s in Stream, where: s.public_token == ^id))
-      end
-
-    Repo.preload(stream, :user)
   end
 
   def get_stream(%{streams: _} = owner, id) do
@@ -33,7 +24,7 @@ defmodule Asciinema.Streaming do
     |> Repo.one()
   end
 
-  def fetch_stream(owner, id), do: wrap(get_stream(owner, id))
+  def fetch_stream(owner, id), do: OK.required(get_stream(owner, id), :not_found)
 
   def fetch_default_stream(%{streams: _} = owner) do
     streams =
@@ -49,8 +40,24 @@ defmodule Asciinema.Streaming do
     end
   end
 
-  defp wrap(nil), do: {:error, :not_found}
-  defp wrap(value), do: {:ok, value}
+  def find_stream_by_public_token(token) do
+    from(s in Stream, where: s.public_token == ^token)
+    |> Repo.one()
+    |> Repo.preload(:user)
+  end
+
+  def lookup_stream(id) when is_binary(id) do
+    cond do
+      String.match?(id, ~r/^\d+$/) ->
+        get_stream(id)
+
+      String.match?(id, ~r/^[[:alnum:]]{16}$/) ->
+        find_stream_by_public_token(id)
+
+      true ->
+        nil
+    end
+  end
 
   def query(filters \\ [], order \\ nil) do
     from(Stream)

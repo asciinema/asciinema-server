@@ -4,13 +4,7 @@ defmodule AsciinemaWeb.Api.RecordingJSON do
   alias Asciinema.Accounts
   alias Ecto.Changeset
 
-  def created(%{asciicast: asciicast, cli: cli}) do
-    url = url(~p"/a/#{asciicast}")
-
-    %{url: url, message: message(url, cli)}
-  end
-
-  def show(%{asciicast: asciicast}) do
+  def show(%{asciicast: asciicast, cli: cli}) do
     url = url(~p"/a/#{asciicast}")
     file_url = UrlHelpers.asciicast_file_url(asciicast)
 
@@ -20,7 +14,9 @@ defmodule AsciinemaWeb.Api.RecordingJSON do
       file_url: file_url,
       audio_url: asciicast.audio_url,
       title: asciicast.title,
-      description: asciicast.description
+      description: asciicast.description,
+      visibility: asciicast.visibility,
+      message: message(url, cli)
     }
   end
 
