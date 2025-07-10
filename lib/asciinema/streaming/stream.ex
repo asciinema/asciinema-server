@@ -16,7 +16,7 @@ defmodule Asciinema.Streaming.Stream do
     field :term_theme_prefer_original, :boolean, default: true
     field :term_line_height, :float
     field :term_font_family, :string
-    field :live, :boolean
+    field :live, :boolean, default: false
     field :last_activity_at, :naive_datetime
     field :last_started_at, :naive_datetime
     field :title, :string

@@ -18,6 +18,7 @@ defmodule AsciinemaWeb.Api.StreamJSON do
       url: url,
       ws_producer_url: ws_producer_url,
       audio_url: stream.audio_url,
+      live: stream.live,
       title: stream.title,
       description: stream.description,
       visibility: stream.visibility
@@ -25,6 +26,10 @@ defmodule AsciinemaWeb.Api.StreamJSON do
   end
 
   def deleted(_assigns), do: %{}
+
+  def error(%{reason: :live_stream_limit_exceeded}) do
+    error(%{reason: "live stream limit exceeded"})
+  end
 
   def error(%{reason: %Changeset{} = changeset}) do
     %{errors: translate_errors(changeset)}

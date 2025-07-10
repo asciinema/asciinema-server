@@ -223,8 +223,8 @@ if config_env() in [:prod, :dev] do
       :ok
   end
 
-  if limit = env.("DEFAULT_STREAM_LIMIT") do
-    config :asciinema, Asciinema.Accounts, default_stream_limit: String.to_integer(limit)
+  if limit = env.("DEFAULT_LIVE_STREAM_LIMIT") || env.("DEFAULT_STREAM_LIMIT") do
+    config :asciinema, Asciinema.Accounts, default_live_stream_limit: String.to_integer(limit)
   end
 
   if env.("DEFAULT_STREAMING_ENABLED") in ["0", "false", "no"] do

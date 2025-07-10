@@ -6,8 +6,9 @@ defmodule Asciinema.Streaming do
 
   defdelegate recording_mode, to: StreamServer
 
-  def find_stream_by_producer_token(token) do
-    Repo.get_by(Stream, producer_token: token)
+  def find_live_stream_by_producer_token(token) do
+    from(s in Stream, where: s.live and s.producer_token == ^token)
+    |> Repo.one()
   end
 
   def get_stream(id) do
@@ -15,16 +16,6 @@ defmodule Asciinema.Streaming do
     |> Repo.get(id)
     |> Repo.preload(:user)
   end
-
-  def get_stream(%{streams: _} = owner, id) do
-    owner
-    |> Ecto.assoc(:streams)
-    |> where([s], like(s.public_token, ^"#{id}%"))
-    |> first()
-    |> Repo.one()
-  end
-
-  def fetch_stream(owner, id), do: OK.required(get_stream(owner, id), :not_found)
 
   def find_stream_by_public_token(token) do
     from(s in Stream, where: s.public_token == ^token)
@@ -43,6 +34,18 @@ defmodule Asciinema.Streaming do
       true ->
         nil
     end
+  end
+
+  # TODO: remove after release of the final CLI 3.0
+  def find_user_stream_by_public_token(%{streams: _} = owner, prefix) do
+    prefix = String.replace(prefix, "%", "")
+
+    owner
+    |> Ecto.assoc(:streams)
+    |> where([s], like(s.public_token, ^"#{prefix}%"))
+    |> first()
+    |> Repo.one()
+    |> Repo.preload(:user)
   end
 
   def query(filters \\ [], order \\ nil) do
@@ -149,33 +152,42 @@ defmodule Asciinema.Streaming do
     |> Repo.all()
   end
 
-  def create_stream!(user) do
-    %Stream{}
-    |> change(
-      public_token: generate_public_token(),
-      producer_token: generate_producer_token(),
-      visibility: user.default_stream_visibility,
-      term_theme_prefer_original: user.term_theme_prefer_original
-    )
-    |> put_assoc(:user, user)
-    |> Repo.insert!()
-  end
+  def create_stream(user, params \\ %{}) do
+    changeset =
+      %Stream{}
+      |> change(
+        public_token: generate_public_token(),
+        producer_token: generate_producer_token(),
+        visibility: user.default_stream_visibility,
+        term_theme_prefer_original: user.term_theme_prefer_original
+      )
+      |> put_assoc(:user, user)
+      |> change_stream(params)
 
-  def create_stream(user) do
-    if user.stream_limit == nil or count_streams(user) < user.stream_limit do
-      {:ok, create_stream!(user)}
+    if Ecto.Changeset.get_change(changeset, :live) do
+      if live_stream_count(user) < user.live_stream_limit do
+        Repo.insert(changeset)
+      else
+        {:error, :live_stream_limit_exceeded}
+      end
     else
-      {:error, :limit_reached}
+      Repo.insert(changeset)
     end
   end
 
-  defp count_streams(user), do: Repo.count(Ecto.assoc(user, :streams))
+  defp live_stream_count(user) do
+    user
+    |> Ecto.assoc(:streams)
+    |> where([s], s.live)
+    |> Repo.count()
+  end
 
   def change_stream(stream, attrs \\ %{})
 
   def change_stream(stream, attrs) when is_map(attrs) do
     stream
     |> cast(attrs, [
+      :live,
       :title,
       :description,
       :visibility,
@@ -207,9 +219,18 @@ defmodule Asciinema.Streaming do
   end
 
   def update_stream(stream, attrs) when is_map(attrs) do
-    stream
-    |> change_stream(attrs)
-    |> Repo.update()
+    user = stream.user
+    changeset = change_stream(stream, attrs)
+
+    if Ecto.Changeset.get_change(changeset, :live) do
+      if live_stream_count(user) < user.live_stream_limit do
+        Repo.update(changeset)
+      else
+        {:error, :live_stream_limit_exceeded}
+      end
+    else
+      Repo.update(changeset)
+    end
   end
 
   defp update_peak_viewer_count(changeset) do

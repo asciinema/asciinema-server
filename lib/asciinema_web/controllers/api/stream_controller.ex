@@ -31,14 +31,27 @@ defmodule AsciinemaWeb.Api.StreamController do
     |> render(:index, streams: result.entries)
   end
 
-  def show(conn, %{"id" => id}) do
-    conn.assigns.current_user
-    |> Streaming.fetch_stream(id)
-    |> render_stream(conn, id)
+  # TODO: remove after release of the final CLI 3.0
+  def show(%Plug.Conn{assigns: %{legacy_path: true}} = conn, %{"id" => id} = params) do
+    if stream = Streaming.find_user_stream_by_public_token(conn.assigns.current_user, id) do
+      conn
+      |> assign(:stream, stream)
+      |> update(Map.merge(params, %{"live" => true}))
+    else
+      conn
+      |> put_status(:not_found)
+      |> render(:error, reason: "stream not found")
+    end
   end
 
-  def create(conn, _params) do
-    case Streaming.create_stream(conn.assigns.current_user) do
+  def create(%Plug.Conn{assigns: %{legacy_path: true}} = conn, params) do
+    conn
+    |> assign(:legacy_path, false)
+    |> create(Map.merge(params, %{"live" => true}))
+  end
+
+  def create(conn, params) do
+    case Streaming.create_stream(conn.assigns.current_user, params) do
       {:ok, stream} ->
         render(conn, :show, stream: stream)
 
@@ -67,22 +80,6 @@ defmodule AsciinemaWeb.Api.StreamController do
     conn
     |> put_status(:no_content)
     |> render(:deleted)
-  end
-
-  defp render_stream({:ok, stream}, conn, _id) do
-    render(conn, :show, stream: stream)
-  end
-
-  defp render_stream({:error, :not_found}, conn, id) do
-    conn
-    |> put_status(:not_found)
-    |> render(:error, reason: "stream #{id} not found")
-  end
-
-  defp render_stream({:error, :limit_reached}, conn, _id) do
-    conn
-    |> put_status(:unprocessable_entity)
-    |> render(:error, reason: "live stream limit exceeded")
   end
 
   defp authenticate(conn, _opts) do

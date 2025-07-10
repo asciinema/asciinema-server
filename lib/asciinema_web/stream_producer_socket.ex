@@ -44,7 +44,7 @@ defmodule AsciinemaWeb.StreamProducerSocket do
     %{token: token, parser: parser, user_agent: user_agent, query: query} = params
     Logger.debug("producer: query: #{inspect(query)}")
 
-    case Streaming.find_stream_by_producer_token(token) do
+    case Streaming.find_live_stream_by_producer_token(token) do
       nil ->
         handle_error({:stream_not_found, token}, %{stream_id: "?"})
 

@@ -32,6 +32,10 @@ defmodule AsciinemaWeb.Router do
     plug :put_format, :json
   end
 
+  pipeline :legacy do
+    plug :assign_legacy_marker
+  end
+
   scope "/", AsciinemaWeb do
     pipe_through :asciicast
 
@@ -104,17 +108,16 @@ defmodule AsciinemaWeb.Router do
       end
     end
 
-    # legacy endpoints
-
     # used by CLI 2.x
     post "/asciicasts", RecordingController, :create
 
-    # used by CLI 3.0 RC.5 and earlier
-    post "/streams", StreamController, :create
+    scope "/" do
+      # used by CLI 3.0 RC.5 and earlier
+      # remove after release of the final CLI 3.0
+      pipe_through :legacy
 
-    # used by CLI 3.0 RC.5 and earlier
-    scope "/user" do
-      get "/streams/:id", StreamController, :show
+      post "/streams", StreamController, :create
+      get "/user/streams/:id", StreamController, :show
     end
   end
 
@@ -139,4 +142,8 @@ defmodule AsciinemaWeb.Router do
   end
 
   defp format_specific_plugs(conn, _other), do: conn
+
+  defp assign_legacy_marker(conn, []) do
+    assign(conn, :legacy_path, true)
+  end
 end
