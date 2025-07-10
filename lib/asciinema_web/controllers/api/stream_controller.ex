@@ -37,17 +37,16 @@ defmodule AsciinemaWeb.Api.StreamController do
     |> render_stream(conn, id)
   end
 
-  # TODO: remove after the release of the final CLI 3.0
-  def show(conn, _params) do
-    conn.assigns.current_user
-    |> Streaming.fetch_default_stream()
-    |> render_stream(conn, "default")
-  end
-
   def create(conn, _params) do
-    conn.assigns.current_user
-    |> create_stream()
-    |> render_stream(conn)
+    case Streaming.create_stream(conn.assigns.current_user) do
+      {:ok, stream} ->
+        render(conn, :show, stream: stream)
+
+      {:error, changeset} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(:error, reason: changeset)
+    end
   end
 
   def update(conn, params) do
@@ -70,14 +69,6 @@ defmodule AsciinemaWeb.Api.StreamController do
     |> render(:deleted)
   end
 
-  defp create_stream(user) do
-    with {:error, :limit_reached} <- Streaming.create_stream(user) do
-      Streaming.fetch_default_stream(user)
-    end
-  end
-
-  defp render_stream(result, conn, id \\ nil)
-
   defp render_stream({:ok, stream}, conn, _id) do
     render(conn, :show, stream: stream)
   end
@@ -88,10 +79,10 @@ defmodule AsciinemaWeb.Api.StreamController do
     |> render(:error, reason: "stream #{id} not found")
   end
 
-  defp render_stream({:error, :too_many}, conn, _id) do
+  defp render_stream({:error, :limit_reached}, conn, _id) do
     conn
     |> put_status(:unprocessable_entity)
-    |> render(:error, reason: "no default stream found")
+    |> render(:error, reason: "live stream limit exceeded")
   end
 
   defp authenticate(conn, _opts) do

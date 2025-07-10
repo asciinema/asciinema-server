@@ -306,26 +306,6 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
              } = json_response(conn, 200)
     end
 
-    @tag user: [stream_limit: 1]
-    test "responds with existing stream when stream limit reached and exactly 1 stream exists", %{
-      conn: conn,
-      cli: cli
-    } do
-      insert(:stream, user: cli.user, public_token: "foobar1234567890", producer_token: "bazqux")
-
-      conn = post(conn, ~p"/api/v1/streams")
-
-      assert %{
-               "id" => _,
-               "url" => "http://localhost:4001/s/foobar1234567890",
-               "ws_producer_url" => "ws://localhost:4001/ws/S/bazqux",
-               "audio_url" => nil,
-               "title" => nil,
-               "description" => nil,
-               "visibility" => "unlisted"
-             } = json_response(conn, 200)
-    end
-
     @tag user: [streaming_enabled: false]
     test "responds with 403 when user has streaming disabled", %{conn: conn, cli: cli} do
       insert(:stream, user: cli.user)
@@ -336,14 +316,14 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
     end
 
     @tag user: [stream_limit: 0]
-    test "responds with 404 when no stream is available", %{conn: conn} do
+    test "responds with 422 when live stream limit of 0 reached", %{conn: conn} do
       conn = post(conn, ~p"/api/v1/streams")
 
-      assert %{} = json_response(conn, 404)
+      assert %{} = json_response(conn, 422)
     end
 
     @tag user: [stream_limit: 2]
-    test "responds with 422 when stream limit reached and 2+ streams available", %{
+    test "responds with 422 when live stream limit of 2 reached", %{
       conn: conn,
       cli: cli
     } do
@@ -351,7 +331,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
 
       conn = post(conn, ~p"/api/v1/streams")
 
-      assert %{"reason" => "no default stream found"} = json_response(conn, 422)
+      assert %{} = json_response(conn, 422)
     end
   end
 
@@ -365,83 +345,6 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
                "url" => "http://localhost:4001/s/" <> _,
                "ws_producer_url" => "ws://localhost:4001/ws/S/" <> _
              } = json_response(conn, 200)
-    end
-  end
-
-  describe "get default stream without authentication" do
-    test "fails", %{conn: conn} do
-      conn = get(conn, ~p"/api/user/stream")
-
-      assert response(conn, 401)
-    end
-  end
-
-  describe "get default stream with invalid install ID" do
-    setup [:authenticate]
-
-    @tag token: "invalid-lol"
-    test "fails", %{conn: conn} do
-      conn = get(conn, ~p"/api/user/stream")
-
-      assert response(conn, 401)
-    end
-  end
-
-  describe "get default stream with revoked CLI" do
-    setup [:register_cli, :revoke_cli, :authenticate]
-
-    test "fails", %{conn: conn} do
-      conn = get(conn, ~p"/api/user/stream")
-
-      assert response(conn, 401)
-    end
-  end
-
-  describe "get default stream with unregistered CLI" do
-    setup [:authenticate]
-
-    test "fails", %{conn: conn} do
-      conn = get(conn, ~p"/api/user/stream")
-
-      assert json_response(conn, 401)
-    end
-  end
-
-  describe "get default stream with registered CLI" do
-    setup [:register_cli, :authenticate]
-
-    test "responds with stream info when exactly 1 stream exists", %{conn: conn, cli: cli} do
-      insert(:stream, user: cli.user, public_token: "foobar1234567890", producer_token: "bazqux")
-
-      conn = get(conn, ~p"/api/user/stream")
-
-      assert %{
-               "url" => "http://localhost:4001/s/foobar1234567890",
-               "ws_producer_url" => "ws://localhost:4001/ws/S/bazqux"
-             } = json_response(conn, 200)
-    end
-
-    @tag user: [streaming_enabled: false]
-    test "responds with 403 when user has streaming disabled", %{conn: conn, cli: cli} do
-      insert(:stream, user: cli.user)
-
-      conn = get(conn, ~p"/api/user/stream")
-
-      assert %{"reason" => "streaming disabled"} = json_response(conn, 403)
-    end
-
-    test "responds with 404 when no stream is available", %{conn: conn} do
-      conn = get(conn, ~p"/api/user/stream")
-
-      assert %{} = json_response(conn, 404)
-    end
-
-    test "responds with 422 when more than one fixed stream is available", %{conn: conn, cli: cli} do
-      insert_list(2, :stream, user: cli.user)
-
-      conn = get(conn, ~p"/api/user/stream")
-
-      assert %{"reason" => "no default stream found"} = json_response(conn, 422)
     end
   end
 

@@ -26,20 +26,6 @@ defmodule Asciinema.Streaming do
 
   def fetch_stream(owner, id), do: OK.required(get_stream(owner, id), :not_found)
 
-  def fetch_default_stream(%{streams: _} = owner) do
-    streams =
-      owner
-      |> Ecto.assoc(:streams)
-      |> limit(2)
-      |> Repo.all()
-
-    case streams do
-      [] -> {:error, :not_found}
-      [stream] -> {:ok, stream}
-      _ -> {:error, :too_many}
-    end
-  end
-
   def find_stream_by_public_token(token) do
     from(s in Stream, where: s.public_token == ^token)
     |> Repo.one()

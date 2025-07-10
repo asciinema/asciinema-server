@@ -109,12 +109,11 @@ defmodule AsciinemaWeb.Router do
     # used by CLI 2.x
     post "/asciicasts", RecordingController, :create
 
-    # used by CLI 3.0 RC
+    # used by CLI 3.0 RC.5 and earlier
     post "/streams", StreamController, :create
 
-    # used by CLI 3.0 RC
+    # used by CLI 3.0 RC.5 and earlier
     scope "/user" do
-      get "/stream", StreamController, :show
       get "/streams/:id", StreamController, :show
     end
   end
