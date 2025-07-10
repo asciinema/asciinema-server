@@ -248,7 +248,11 @@ defmodule Asciinema.Streaming do
 
   def mark_inactive_streams_offline do
     t = Timex.shift(Timex.now(), minutes: -1)
-    q = from(s in Stream, where: s.live and s.last_activity_at < ^t)
+
+    q =
+      from(s in Stream,
+        where: s.live and fragment("COALESCE(last_activity_at, inserted_at) < ?", ^t)
+      )
 
     {count, _} = Repo.update_all(q, set: [live: false, current_viewer_count: 0])
 
