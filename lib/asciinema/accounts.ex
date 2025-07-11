@@ -155,8 +155,8 @@ defmodule Asciinema.Accounts do
     import Ecto.Changeset
 
     changeset
-    |> unique_constraint(:username, name: "index_users_on_username")
-    |> unique_constraint(:email, name: "index_users_on_email")
+    |> unique_constraint(:username, name: "users_username_unique_index")
+    |> unique_constraint(:email, name: "users_email_index")
   end
 
   def update_user(user, params, ctx \\ :user) do
