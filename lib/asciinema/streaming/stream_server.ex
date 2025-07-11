@@ -100,7 +100,7 @@ defmodule Asciinema.Streaming.StreamServer do
     %{args: args, user_agent: user_agent, query: query} = payload
     %{time: time, last_id: last_id, term_size: {cols, rows}} = args
     theme = args[:term_theme]
-    last_started_at = Timex.shift(Timex.now(), microseconds: -round(time))
+    last_started_at = Timex.shift(Timex.now(), microseconds: -time)
     term_type = get_in(query, ["term", "type"])
     term_version = get_in(query, ["term", "version"])
     env = query["env"] || %{}
