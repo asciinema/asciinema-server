@@ -13,7 +13,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
     test "fails", %{conn: conn} do
       conn = get(conn, ~p"/api/v1/user/streams")
 
-      assert response(conn, 401)
+      assert json_response(conn, 401)
     end
   end
 
@@ -24,7 +24,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
     test "fails", %{conn: conn} do
       conn = get(conn, ~p"/api/v1/user/streams")
 
-      assert response(conn, 401)
+      assert json_response(conn, 401)
     end
   end
 
@@ -34,7 +34,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
     test "fails", %{conn: conn} do
       conn = get(conn, ~p"/api/v1/user/streams")
 
-      assert response(conn, 401)
+      assert json_response(conn, 401)
     end
   end
 
@@ -238,7 +238,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
     test "fails", %{conn: conn} do
       conn = post(conn, ~p"/api/v1/streams")
 
-      assert response(conn, 401)
+      assert json_response(conn, 401)
     end
   end
 
@@ -249,7 +249,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
     test "fails", %{conn: conn} do
       conn = post(conn, ~p"/api/v1/streams")
 
-      assert response(conn, 401)
+      assert json_response(conn, 401)
     end
   end
 
@@ -259,7 +259,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
     test "fails", %{conn: conn} do
       conn = post(conn, ~p"/api/v1/streams")
 
-      assert response(conn, 401)
+      assert json_response(conn, 401)
     end
   end
 
@@ -316,7 +316,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
       insert(:stream, user: cli.user, live: false)
       insert(:stream, user: cli.user, live: true)
 
-      conn = post(conn, ~p"/api/v1/streams", %{live: true})
+      conn = post(conn, ~p"/api/v1/streams", %{"live" => true})
 
       assert json_response(conn, 200)
     end
@@ -325,7 +325,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
     test "fails for live stream when live stream limit is 0", %{conn: conn, cli: cli} do
       insert(:stream, user: cli.user, live: false)
 
-      conn = post(conn, ~p"/api/v1/streams", %{live: true})
+      conn = post(conn, ~p"/api/v1/streams", %{"live" => true})
 
       assert %{"reason" => "live stream limit exceeded"} = json_response(conn, 422)
     end
@@ -335,7 +335,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
       insert(:stream, user: cli.user, live: false)
       insert_list(2, :stream, user: cli.user, live: true)
 
-      conn = post(conn, ~p"/api/v1/streams", %{live: true})
+      conn = post(conn, ~p"/api/v1/streams", %{"live" => true})
 
       assert %{"reason" => "live stream limit exceeded"} = json_response(conn, 422)
     end
@@ -387,7 +387,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
 
       conn = put(conn, ~p"/api/v1/streams/#{stream.id}", %{"title" => "New title"})
 
-      assert response(conn, 401)
+      assert json_response(conn, 401)
     end
   end
 
@@ -400,11 +400,11 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
 
       conn = put(conn, ~p"/api/v1/streams/#{stream.id}", %{"title" => "New title"})
 
-      assert response(conn, 401)
+      assert json_response(conn, 401)
     end
   end
 
-  describe "update with revoked install ID" do
+  describe "update with revoked CLI" do
     setup [:register_cli, :revoke_cli, :authenticate]
 
     test "fails", %{conn: conn} do
@@ -412,7 +412,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
 
       conn = put(conn, ~p"/api/v1/streams/#{stream.id}", %{"title" => "New title"})
 
-      assert response(conn, 401)
+      assert json_response(conn, 401)
     end
   end
 
@@ -425,7 +425,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
 
       conn = put(conn, ~p"/api/v1/streams/#{stream.id}", %{"title" => "New title"})
 
-      assert response(conn, 401)
+      assert json_response(conn, 401)
     end
   end
 
@@ -487,9 +487,9 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
     test "fails when attrs are not valid", %{conn: conn, cli: cli} do
       stream = insert(:stream, user: cli.user)
 
-      conn = put(conn, ~p"/api/v1/streams/#{stream.id}", %{"buffer_time" => -1})
+      conn = put(conn, ~p"/api/v1/streams/#{stream.id}", %{"audio_url" => "lol"})
 
-      assert json_response(conn, 422)["errors"]["buffer_time"] != nil
+      assert %{"errors" => %{"audio_url" => _}} = json_response(conn, 422)
     end
 
     @tag user: [streaming_enabled: false]
@@ -506,7 +506,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
       insert(:stream, user: cli.user, live: true)
       stream = insert(:stream, user: cli.user, live: false)
 
-      conn = put(conn, ~p"/api/v1/streams/#{stream.id}", %{live: true})
+      conn = put(conn, ~p"/api/v1/streams/#{stream.id}", %{"live" => true})
 
       assert %{"live" => true} = json_response(conn, 200)
     end
@@ -516,7 +516,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
       insert_list(2, :stream, user: cli.user, live: true)
       stream = insert(:stream, user: cli.user, live: false)
 
-      conn = put(conn, ~p"/api/v1/streams/#{stream.id}", %{live: true})
+      conn = put(conn, ~p"/api/v1/streams/#{stream.id}", %{"live" => true})
 
       assert %{"reason" => "live stream limit exceeded"} = json_response(conn, 422)
     end
@@ -564,7 +564,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
 
       conn = delete(conn, ~p"/api/v1/streams/#{stream.id}")
 
-      assert response(conn, 401)
+      assert json_response(conn, 401)
     end
   end
 
@@ -577,11 +577,11 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
 
       conn = delete(conn, ~p"/api/v1/streams/#{stream.id}")
 
-      assert response(conn, 401)
+      assert json_response(conn, 401)
     end
   end
 
-  describe "delete with revoked install ID" do
+  describe "delete with revoked CLI" do
     setup [:register_cli, :revoke_cli, :authenticate]
 
     test "fails", %{conn: conn} do
@@ -589,7 +589,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
 
       conn = delete(conn, ~p"/api/v1/streams/#{stream.id}")
 
-      assert response(conn, 401)
+      assert json_response(conn, 401)
     end
   end
 
@@ -602,7 +602,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
 
       conn = delete(conn, ~p"/api/v1/streams/#{stream.id}")
 
-      assert response(conn, 401)
+      assert json_response(conn, 401)
     end
   end
 
@@ -614,7 +614,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
 
       conn = delete(conn, ~p"/api/v1/streams/#{stream.id}")
 
-      assert response(conn, 204)
+      assert json_response(conn, 204)
     end
 
     test "succeeds when deleting own stream using public token", %{conn: conn, cli: cli} do
@@ -622,7 +622,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
 
       conn = delete(conn, ~p"/api/v1/streams/foobar1234567890")
 
-      assert response(conn, 204)
+      assert json_response(conn, 204)
     end
 
     test "fails when stream belongs to another user", %{conn: conn} do
@@ -630,7 +630,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
 
       conn = delete(conn, ~p"/api/v1/streams/#{stream.id}")
 
-      assert json_response(conn, 403)["error"] == "Forbidden"
+      assert %{"error" => "Forbidden"} = json_response(conn, 403)
     end
 
     @tag user: [streaming_enabled: false]
@@ -645,7 +645,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
     test "fails when stream is not found", %{conn: conn} do
       conn = delete(conn, ~p"/api/v1/streams/99999")
 
-      assert json_response(conn, 404)["error"] == "stream not found"
+      assert %{"error" => "stream not found"} = json_response(conn, 404)
     end
   end
 
