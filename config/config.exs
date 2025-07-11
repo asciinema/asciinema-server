@@ -16,9 +16,8 @@ config :asciinema, :session_opts,
   same_site: "Lax"
 
 config :asciinema,
-  ecto_repos: [Asciinema.Repo]
-
-config :asciinema, Asciinema.Repo, migration_timestamps: [type: :naive_datetime_usec]
+  ecto_repos: [Asciinema.Repo],
+  generators: [timestamp_type: :utc_datetime]
 
 # Configures the public endpoint
 config :asciinema, AsciinemaWeb.Endpoint,

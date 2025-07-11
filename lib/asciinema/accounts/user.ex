@@ -1,8 +1,6 @@
 defmodule Asciinema.Accounts.User do
   use Ecto.Schema
 
-  @timestamps_opts [type: :utc_datetime_usec]
-
   schema "users" do
     field :username, :string
     field :temporary_username, :string
@@ -17,10 +15,10 @@ defmodule Asciinema.Accounts.User do
     field :default_recording_visibility, Ecto.Enum, values: ~w[private unlisted public]a
     field :default_stream_visibility, Ecto.Enum, values: ~w[private unlisted public]a
     field :live_stream_limit, :integer
-    field :last_login_at, :utc_datetime_usec
+    field :last_login_at, :utc_datetime
     field :is_admin, :boolean
 
-    timestamps()
+    timestamps(type: :utc_datetime)
 
     has_many :asciicasts, Asciinema.Recordings.Asciicast
     has_many :streams, Asciinema.Streaming.Stream

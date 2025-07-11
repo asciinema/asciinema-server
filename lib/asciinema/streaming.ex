@@ -222,7 +222,7 @@ defmodule Asciinema.Streaming do
   defp change_last_activity(changeset) do
     case fetch_field!(changeset, :live) do
       true ->
-        cast(changeset, %{last_activity_at: Timex.now()}, [:last_activity_at])
+        change(changeset, %{last_activity_at: DateTime.utc_now(:second)})
 
       false ->
         changeset

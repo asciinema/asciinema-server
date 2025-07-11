@@ -362,7 +362,7 @@ defmodule Asciinema.Accounts do
 
   def revoke_cli!(%Cli{revoked_at: nil} = cli) do
     cli
-    |> Changeset.change(%{revoked_at: Timex.now()})
+    |> Changeset.change(%{revoked_at: DateTime.utc_now(:second)})
     |> Repo.update!()
   end
 
@@ -387,7 +387,7 @@ defmodule Asciinema.Accounts do
 
   def update_last_login(user) do
     user
-    |> Changeset.change(%{last_login_at: Timex.now()})
+    |> Changeset.change(%{last_login_at: DateTime.utc_now(:second)})
     |> Repo.update!()
   end
 

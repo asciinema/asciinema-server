@@ -2,8 +2,6 @@ defmodule Asciinema.Recordings.Asciicast do
   use Ecto.Schema
   alias __MODULE__
 
-  @timestamps_opts [type: :utc_datetime_usec]
-
   schema "asciicasts" do
     field :version, :integer
     field :filename, :string
@@ -32,17 +30,17 @@ defmodule Asciinema.Recordings.Asciicast do
     field :shell, :string
     field :uname, :string
     field :user_agent, :string
-    field :recorded_at, :utc_datetime_usec
+    field :recorded_at, :utc_datetime
     field :idle_time_limit, :float
     field :speed, :float
     field :views_count, :integer, default: 0
     field :archivable, :boolean, default: true
-    field :archived_at, :utc_datetime_usec
+    field :archived_at, :utc_datetime
     field :markers, :string
     field :env, :map
     field :audio_url, :string
 
-    timestamps()
+    timestamps(type: :utc_datetime)
 
     belongs_to :user, Asciinema.Accounts.User
     belongs_to :cli, Asciinema.Accounts.Cli
