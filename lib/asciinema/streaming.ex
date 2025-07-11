@@ -153,33 +153,16 @@ defmodule Asciinema.Streaming do
   end
 
   def create_stream(user, params \\ %{}) do
-    changeset =
-      %Stream{}
-      |> change(
-        public_token: generate_public_token(),
-        producer_token: generate_producer_token(),
-        visibility: user.default_stream_visibility,
-        term_theme_prefer_original: user.term_theme_prefer_original
-      )
-      |> put_assoc(:user, user)
-      |> change_stream(params)
-
-    if Ecto.Changeset.get_change(changeset, :live) do
-      if live_stream_count(user) < user.live_stream_limit do
-        Repo.insert(changeset)
-      else
-        {:error, :live_stream_limit_exceeded}
-      end
-    else
-      Repo.insert(changeset)
-    end
-  end
-
-  defp live_stream_count(user) do
-    user
-    |> Ecto.assoc(:streams)
-    |> where([s], s.live)
-    |> Repo.count()
+    %Stream{}
+    |> change(
+      public_token: generate_public_token(),
+      producer_token: generate_producer_token(),
+      visibility: user.default_stream_visibility,
+      term_theme_prefer_original: user.term_theme_prefer_original
+    )
+    |> put_assoc(:user, user)
+    |> change_stream(params)
+    |> Repo.insert()
   end
 
   def change_stream(stream, attrs \\ %{})
@@ -208,6 +191,7 @@ defmodule Asciinema.Streaming do
     )
     |> validate_inclusion(:term_font_family, Fonts.terminal_font_families())
     |> validate_format(:audio_url, ~r|^https?://|)
+    |> check_constraint(:live, name: "live_stream_limit")
   end
 
   def update_stream(stream, attrs) when is_list(attrs) do
@@ -219,18 +203,9 @@ defmodule Asciinema.Streaming do
   end
 
   def update_stream(stream, attrs) when is_map(attrs) do
-    user = stream.user
-    changeset = change_stream(stream, attrs)
-
-    if Ecto.Changeset.get_change(changeset, :live) do
-      if live_stream_count(user) < user.live_stream_limit do
-        Repo.update(changeset)
-      else
-        {:error, :live_stream_limit_exceeded}
-      end
-    else
-      Repo.update(changeset)
-    end
+    stream
+    |> change_stream(attrs)
+    |> Repo.update()
   end
 
   defp update_peak_viewer_count(changeset) do

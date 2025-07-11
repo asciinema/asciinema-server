@@ -27,7 +27,7 @@ defmodule AsciinemaWeb.Api.StreamJSON do
 
   def deleted(_assigns), do: %{}
 
-  def error(%{reason: :live_stream_limit_exceeded}) do
+  def error(%{reason: %Changeset{errors: [{:live, _}]}}) do
     error(%{reason: "live stream limit exceeded"})
   end
 
