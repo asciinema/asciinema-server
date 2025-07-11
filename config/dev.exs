@@ -5,7 +5,7 @@ config :asciinema, Asciinema.Repo,
   username: "postgres",
   password: "postgres",
   hostname: "localhost",
-  database: "asciinema_development",
+  database: "asciinema_dev",
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
