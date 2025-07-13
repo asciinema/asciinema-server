@@ -38,11 +38,6 @@ defmodule AsciinemaWeb.StreamController do
         conn
         |> put_flash(:info, "Stream #{id} created.")
         |> redirect(to: ~p"/user/streams")
-
-      {:error, :limit_reached} ->
-        conn
-        |> put_flash(:error, "Stream limit reached. Contact admin to raise the limit.")
-        |> redirect(to: ~p"/user/streams")
     end
   end
 
