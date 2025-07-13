@@ -109,7 +109,6 @@ defmodule Asciinema.Streaming.StreamServer do
 
     schema_changes =
       [
-        live: true,
         last_started_at: last_started_at,
         term_cols: cols,
         term_rows: rows,
