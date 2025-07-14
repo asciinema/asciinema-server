@@ -153,6 +153,14 @@ defmodule Asciinema.Streaming do
     |> Repo.all()
   end
 
+  @doc """
+  Creates a new stream for the given user.
+
+  Live stream limiting is enforced at the database level via a PostgreSQL trigger
+  (`enforce_live_stream_limit`) to prevent race conditions during concurrent
+  stream creation. The trigger locks the user row and counts existing live streams
+  before allowing a new live stream to be created.
+  """
   def create_stream(user, params \\ %{}) do
     %Stream{}
     |> change(
@@ -217,6 +225,14 @@ defmodule Asciinema.Streaming do
     |> Repo.update!()
   end
 
+  @doc """
+  Updates an existing stream with the given attributes.
+
+  When setting `live: true`, the PostgreSQL trigger
+  (`enforce_live_stream_limit`) will enforce the user's live stream limit to
+  prevent race conditions. The trigger uses row-level locking to ensure
+  atomicity during concurrent updates.
+  """
   def update_stream(stream, attrs) when is_map(attrs) do
     stream
     |> change_stream(attrs)
