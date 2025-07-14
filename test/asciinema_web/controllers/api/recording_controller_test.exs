@@ -17,7 +17,8 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = upload(conn, upload)
 
-      assert json_response(conn, 401)["error"] == "Missing install ID"
+      assert %{"type" => "unauthenticated", "message" => "Missing install ID"} =
+               json_response(conn, 401)
     end
   end
 
@@ -30,7 +31,8 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = upload(conn, upload)
 
-      assert json_response(conn, 401)["error"] == "Invalid install ID"
+      assert %{"type" => "unauthenticated", "message" => "Invalid install ID"} =
+               json_response(conn, 401)
     end
   end
 
@@ -42,7 +44,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = upload(conn, upload)
 
-      assert json_response(conn, 401)["error"] == "Revoked install ID"
+      assert %{"type" => "unauthenticated", "message" => "Revoked CLI"} = json_response(conn, 401)
     end
   end
 
@@ -144,7 +146,11 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = upload(conn, upload)
 
-      assert %{"errors" => _} = json_response(conn, 422)
+      assert %{
+               "type" => "validation_failed",
+               "message" => "Validation failed",
+               "details" => [%{"field" => "term_cols", "message" => "can't be blank"}]
+             } = json_response(conn, 422)
     end
 
     test "json file, v2 format, invalid theme format fails", %{conn: conn} do
@@ -152,7 +158,11 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = upload(conn, upload)
 
-      assert %{"errors" => _} = json_response(conn, 422)
+      assert %{
+               "type" => "validation_failed",
+               "message" => "Validation failed",
+               "details" => [%{"field" => "term_theme_bg"}, %{"field" => "term_theme_fg"}]
+             } = json_response(conn, 422)
     end
 
     test "json file, unsupported version number fails", %{conn: conn} do
@@ -160,7 +170,10 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = upload(conn, upload)
 
-      assert json_response(conn, 422)["error"] =~ ~r|not supported|
+      assert %{
+               "type" => "validation_failed",
+               "message" => "asciicast v5 is not supported"
+             } = json_response(conn, 422)
     end
 
     test "non-json file fails", %{conn: conn} do
@@ -168,7 +181,10 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = upload(conn, upload)
 
-      assert json_response(conn, 422)["error"] =~ ~r|valid asciicast|
+      assert %{
+               "type" => "validation_failed",
+               "message" => "This doesn't look like a valid asciicast file"
+             } = json_response(conn, 422)
     end
 
     test "requesting json response succeeds", %{conn: conn} do
@@ -215,13 +231,13 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
   describe "create with non-registered cli when registration is required" do
     setup [:require_registered_cli, :authenticate]
 
-    @tag user: [email: nil]
     test "fails", %{conn: conn} do
       upload = fixture(:upload, %{path: "2/minimal.cast"})
 
       conn = upload(conn, upload)
 
-      assert json_response(conn, 401)["error"] == "Unregistered install ID"
+      assert %{"type" => "unauthenticated", "message" => "Unregistered CLI"} =
+               json_response(conn, 401)
     end
   end
 
@@ -231,20 +247,35 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = put(conn, ~p"/api/v1/recordings/#{asciicast.id}", %{"title" => "New Title"})
 
-      assert json_response(conn, 401)["error"] == "Missing install ID"
+      assert %{"type" => "unauthenticated", "message" => "Missing install ID"} =
+               json_response(conn, 401)
     end
   end
 
-  describe "update with invalid install ID" do
+  describe "update with unknown install ID" do
     setup [:authenticate]
 
-    @tag token: "invalid-lol"
     test "fails", %{conn: conn} do
       asciicast = insert(:asciicast)
 
       conn = put(conn, ~p"/api/v1/recordings/#{asciicast.id}", %{"title" => "New Title"})
 
-      assert json_response(conn, 401)["error"] == "Invalid install ID"
+      assert %{"type" => "unauthenticated", "message" => "Unregistered CLI"} =
+               json_response(conn, 401)
+    end
+  end
+
+  describe "update with unregistered CLI" do
+    setup [:register_cli, :authenticate]
+
+    @tag user: [email: nil]
+    test "fails", %{conn: conn} do
+      asciicast = insert(:asciicast)
+
+      conn = put(conn, ~p"/api/v1/recordings/#{asciicast.id}", %{"title" => "New Title"})
+
+      assert %{"type" => "unauthenticated", "message" => "Unregistered CLI"} =
+               json_response(conn, 401)
     end
   end
 
@@ -256,20 +287,8 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = put(conn, ~p"/api/v1/recordings/#{asciicast.id}", %{"title" => "New Title"})
 
-      assert json_response(conn, 401)["error"] == "Revoked install ID"
-    end
-  end
-
-  describe "update with unregistered CLI" do
-    setup [:authenticate]
-
-    @tag user: [email: nil]
-    test "fails", %{conn: conn} do
-      asciicast = insert(:asciicast)
-
-      conn = put(conn, ~p"/api/v1/recordings/#{asciicast.id}", %{"title" => "New Title"})
-
-      assert json_response(conn, 401)["error"] == "Unregistered install ID"
+      assert %{"type" => "unauthenticated", "message" => "Revoked CLI"} =
+               json_response(conn, 401)
     end
   end
 
@@ -334,20 +353,28 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = put(conn, ~p"/api/v1/recordings/#{asciicast.id}", %{"term_cols_override" => 0})
 
-      assert json_response(conn, 422)["errors"]["term_cols_override"] != nil
+      assert %{
+               "type" => "validation_failed",
+               "message" => "Validation failed",
+               "details" => [
+                 %{"field" => "term_cols_override", "message" => "must be greater than 0"}
+               ]
+             } = json_response(conn, 422)
     end
 
     test "fails when recording belongs to another user", %{conn: conn} do
       asciicast = insert(:asciicast)
       conn = put(conn, ~p"/api/v1/recordings/#{asciicast.id}", %{"title" => "New Title"})
 
-      assert json_response(conn, 403)["error"] == "Forbidden"
+      assert %{"type" => "access_denied", "message" => "You don't have access to this resource"} =
+               json_response(conn, 403)
     end
 
     test "fails when recording is not found", %{conn: conn} do
       conn = put(conn, ~p"/api/v1/recordings/99999", %{"title" => "New Title"})
 
-      assert json_response(conn, 404)["error"] == "asciicast not found"
+      assert %{"type" => "not_found", "message" => "Recording not found"} =
+               json_response(conn, 404)
     end
   end
 
@@ -357,20 +384,35 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = delete(conn, ~p"/api/v1/recordings/#{asciicast.id}")
 
-      assert json_response(conn, 401)["error"] == "Missing install ID"
+      assert %{"type" => "unauthenticated", "message" => "Missing install ID"} =
+               json_response(conn, 401)
     end
   end
 
-  describe "delete with invalid install ID" do
+  describe "delete with unknown install ID" do
     setup [:authenticate]
 
-    @tag token: "invalid-lol"
     test "fails", %{conn: conn} do
       asciicast = insert(:asciicast)
 
       conn = delete(conn, ~p"/api/v1/recordings/#{asciicast.id}")
 
-      assert json_response(conn, 401)["error"] == "Invalid install ID"
+      assert %{"type" => "unauthenticated", "message" => "Unregistered CLI"} =
+               json_response(conn, 401)
+    end
+  end
+
+  describe "delete with unregistered CLI" do
+    setup [:register_cli, :authenticate]
+
+    @tag user: [email: nil]
+    test "fails", %{conn: conn} do
+      asciicast = insert(:asciicast)
+
+      conn = delete(conn, ~p"/api/v1/recordings/#{asciicast.id}")
+
+      assert %{"type" => "unauthenticated", "message" => "Unregistered CLI"} =
+               json_response(conn, 401)
     end
   end
 
@@ -382,20 +424,8 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = delete(conn, ~p"/api/v1/recordings/#{asciicast.id}")
 
-      assert json_response(conn, 401)["error"] == "Revoked install ID"
-    end
-  end
-
-  describe "delete with unregistered CLI" do
-    setup [:authenticate]
-
-    @tag user: [email: nil]
-    test "fails", %{conn: conn} do
-      asciicast = insert(:asciicast)
-
-      conn = delete(conn, ~p"/api/v1/recordings/#{asciicast.id}")
-
-      assert json_response(conn, 401)["error"] == "Unregistered install ID"
+      assert %{"type" => "unauthenticated", "message" => "Revoked CLI"} =
+               json_response(conn, 401)
     end
   end
 
@@ -422,13 +452,15 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
       asciicast = insert(:asciicast)
       conn = delete(conn, ~p"/api/v1/recordings/#{asciicast.id}")
 
-      assert json_response(conn, 403)["error"] == "Forbidden"
+      assert %{"type" => "access_denied", "message" => "You don't have access to this resource"} =
+               json_response(conn, 403)
     end
 
     test "fails when recording is not found", %{conn: conn} do
       conn = delete(conn, ~p"/api/v1/recordings/99999")
 
-      assert json_response(conn, 404)["error"] == "asciicast not found"
+      assert %{"type" => "not_found", "message" => "Recording not found"} =
+               json_response(conn, 404)
     end
   end
 

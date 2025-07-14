@@ -22,37 +22,25 @@ defmodule AsciinemaWeb.Api.RecordingJSON do
 
   def deleted(_assigns), do: %{}
 
-  def error(%{reason: %Changeset{} = changeset}) do
-    %{errors: translate_errors(changeset)}
-  end
-
-  def error(%{reason: reason}) do
-    %{error: error_message(reason)}
-  end
-
-  defp error_message(reason) do
+  def error(%{reason: reason} = assigns) do
     case reason do
-      :token_missing ->
-        "Missing install ID"
+      :unauthenticated ->
+        %{type: "unauthenticated", message: "Unauthenticated"}
 
-      :token_not_found ->
-        "Unregistered install ID"
+      :not_found ->
+        %{type: "not_found", message: "Recording not found"}
 
-      :token_invalid ->
-        "Invalid install ID"
-
-      :cli_revoked ->
-        "Revoked install ID"
-
-      :asciicast_not_found ->
-        "asciicast not found"
+      %Changeset{} = changeset ->
+        details = translate_errors(changeset)
+        %{type: "validation_failed", message: "Validation failed", details: details}
 
       :invalid_format ->
-        "This doesn't look like a valid asciicast file"
+        %{type: "validation_failed", message: "This doesn't look like a valid asciicast file"}
 
       {:invalid_version, version} ->
-        "asciicast v#{version} is not supported by the server"
+        %{type: "validation_failed", message: "asciicast v#{version} is not supported"}
     end
+    |> Map.merge(Map.take(assigns, [:message]))
   end
 
   defp message(url, cli) do
@@ -88,6 +76,8 @@ defmodule AsciinemaWeb.Api.RecordingJSON do
   end
 
   def translate_errors(changeset) do
-    Ecto.Changeset.traverse_errors(changeset, &translate_error/1)
+    for {field, errors} <- changeset.errors do
+      %{field: field, message: translate_error(errors)}
+    end
   end
 end

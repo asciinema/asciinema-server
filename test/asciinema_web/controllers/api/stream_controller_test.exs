@@ -13,18 +13,31 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
     test "fails", %{conn: conn} do
       conn = get(conn, ~p"/api/v1/user/streams")
 
-      assert json_response(conn, 401)
+      assert %{"type" => "unauthenticated", "message" => "Missing install ID"} =
+               json_response(conn, 401)
     end
   end
 
-  describe "index with invalid install ID" do
+  describe "index with unknown install ID" do
     setup [:authenticate]
 
-    @tag token: "invalid-lol"
     test "fails", %{conn: conn} do
       conn = get(conn, ~p"/api/v1/user/streams")
 
-      assert json_response(conn, 401)
+      assert %{"type" => "unauthenticated", "message" => "Unregistered CLI"} =
+               json_response(conn, 401)
+    end
+  end
+
+  describe "index with unregistered CLI" do
+    setup [:register_cli, :authenticate]
+
+    @tag user: [email: nil]
+    test "fails", %{conn: conn} do
+      conn = get(conn, ~p"/api/v1/user/streams")
+
+      assert %{"type" => "unauthenticated", "message" => "Unregistered CLI"} =
+               json_response(conn, 401)
     end
   end
 
@@ -34,18 +47,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
     test "fails", %{conn: conn} do
       conn = get(conn, ~p"/api/v1/user/streams")
 
-      assert json_response(conn, 401)
-    end
-  end
-
-  describe "index with unregistered CLI" do
-    setup [:authenticate]
-
-    @tag user: [email: nil]
-    test "fails", %{conn: conn} do
-      conn = get(conn, ~p"/api/v1/user/streams")
-
-      assert json_response(conn, 401)
+      assert %{"type" => "unauthenticated", "message" => "Revoked CLI"} = json_response(conn, 401)
     end
   end
 
@@ -230,7 +232,8 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
 
       conn = get(conn, ~p"/api/v1/user/streams")
 
-      assert %{"reason" => "streaming disabled"} = json_response(conn, 403)
+      assert %{"type" => "access_denied", "message" => "Streaming is disabled for this account"} =
+               json_response(conn, 403)
     end
   end
 
@@ -238,18 +241,31 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
     test "fails", %{conn: conn} do
       conn = post(conn, ~p"/api/v1/streams")
 
-      assert json_response(conn, 401)
+      assert %{"type" => "unauthenticated", "message" => "Missing install ID"} =
+               json_response(conn, 401)
     end
   end
 
-  describe "create stream with invalid install ID" do
+  describe "create stream with unknown install ID" do
     setup [:authenticate]
 
-    @tag token: "invalid-lol"
     test "fails", %{conn: conn} do
       conn = post(conn, ~p"/api/v1/streams")
 
-      assert json_response(conn, 401)
+      assert %{"type" => "unauthenticated", "message" => "Unregistered CLI"} =
+               json_response(conn, 401)
+    end
+  end
+
+  describe "create stream with unregistered CLI" do
+    setup [:register_cli, :authenticate]
+
+    @tag user: [email: nil]
+    test "fails", %{conn: conn} do
+      conn = post(conn, ~p"/api/v1/streams")
+
+      assert %{"type" => "unauthenticated", "message" => "Unregistered CLI"} =
+               json_response(conn, 401)
     end
   end
 
@@ -259,18 +275,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
     test "fails", %{conn: conn} do
       conn = post(conn, ~p"/api/v1/streams")
 
-      assert json_response(conn, 401)
-    end
-  end
-
-  describe "create stream with unregistered CLI" do
-    setup [:authenticate]
-
-    @tag user: [email: nil]
-    test "fails", %{conn: conn} do
-      conn = post(conn, ~p"/api/v1/streams")
-
-      assert json_response(conn, 401)
+      assert %{"type" => "unauthenticated", "message" => "Revoked CLI"} = json_response(conn, 401)
     end
   end
 
@@ -297,7 +302,8 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
     test "fails when user has streaming disabled", %{conn: conn} do
       conn = post(conn, ~p"/api/v1/streams")
 
-      assert %{"reason" => "streaming disabled"} = json_response(conn, 403)
+      assert %{"type" => "access_denied", "message" => "Streaming is disabled for this account"} =
+               json_response(conn, 403)
     end
 
     @tag user: [live_stream_limit: 2]
@@ -327,7 +333,10 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
 
       conn = post(conn, ~p"/api/v1/streams", %{"live" => true})
 
-      assert %{"reason" => "live stream limit exceeded"} = json_response(conn, 422)
+      assert %{
+               "type" => "live_stream_limit_reached",
+               "message" => "Maximum 0 live streams reached"
+             } = json_response(conn, 422)
     end
 
     @tag user: [live_stream_limit: 2]
@@ -337,7 +346,10 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
 
       conn = post(conn, ~p"/api/v1/streams", %{"live" => true})
 
-      assert %{"reason" => "live stream limit exceeded"} = json_response(conn, 422)
+      assert %{
+               "type" => "live_stream_limit_reached",
+               "message" => "Maximum 2 live streams reached"
+             } = json_response(conn, 422)
     end
   end
 
@@ -358,7 +370,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
     test "fails when user has streaming disabled", %{conn: conn} do
       conn = post(conn, ~p"/api/streams")
 
-      assert %{"reason" => "streaming disabled"} = json_response(conn, 403)
+      assert %{"reason" => "Streaming is disabled for this account"} = json_response(conn, 403)
     end
 
     @tag user: [live_stream_limit: 0]
@@ -367,7 +379,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
 
       conn = post(conn, ~p"/api/streams")
 
-      assert %{"reason" => "live stream limit exceeded"} = json_response(conn, 422)
+      assert %{"reason" => "Maximum 0 live streams reached"} = json_response(conn, 422)
     end
 
     @tag user: [live_stream_limit: 2]
@@ -377,7 +389,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
 
       conn = post(conn, ~p"/api/streams")
 
-      assert %{"reason" => "live stream limit exceeded"} = json_response(conn, 422)
+      assert %{"reason" => "Maximum 2 live streams reached"} = json_response(conn, 422)
     end
   end
 
@@ -387,20 +399,35 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
 
       conn = put(conn, ~p"/api/v1/streams/#{stream.id}", %{"title" => "New title"})
 
-      assert json_response(conn, 401)
+      assert %{"type" => "unauthenticated", "message" => "Missing install ID"} =
+               json_response(conn, 401)
     end
   end
 
-  describe "update with invalid install ID" do
+  describe "update with unknown install ID" do
     setup [:authenticate]
 
-    @tag token: "invalid-lol"
     test "fails", %{conn: conn} do
       stream = insert(:stream)
 
       conn = put(conn, ~p"/api/v1/streams/#{stream.id}", %{"title" => "New title"})
 
-      assert json_response(conn, 401)
+      assert %{"type" => "unauthenticated", "message" => "Unregistered CLI"} =
+               json_response(conn, 401)
+    end
+  end
+
+  describe "update with unregistered CLI" do
+    setup [:register_cli, :authenticate]
+
+    @tag user: [email: nil]
+    test "fails", %{conn: conn} do
+      stream = insert(:stream)
+
+      conn = put(conn, ~p"/api/v1/streams/#{stream.id}", %{"title" => "New title"})
+
+      assert %{"type" => "unauthenticated", "message" => "Unregistered CLI"} =
+               json_response(conn, 401)
     end
   end
 
@@ -412,20 +439,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
 
       conn = put(conn, ~p"/api/v1/streams/#{stream.id}", %{"title" => "New title"})
 
-      assert json_response(conn, 401)
-    end
-  end
-
-  describe "update with unregistered CLI" do
-    setup [:authenticate]
-
-    @tag user: [email: nil]
-    test "fails", %{conn: conn} do
-      stream = insert(:stream)
-
-      conn = put(conn, ~p"/api/v1/streams/#{stream.id}", %{"title" => "New title"})
-
-      assert json_response(conn, 401)
+      assert %{"type" => "unauthenticated", "message" => "Revoked CLI"} = json_response(conn, 401)
     end
   end
 
@@ -489,7 +503,11 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
 
       conn = put(conn, ~p"/api/v1/streams/#{stream.id}", %{"audio_url" => "lol"})
 
-      assert %{"errors" => %{"audio_url" => _}} = json_response(conn, 422)
+      assert %{
+               "type" => "validation_failed",
+               "message" => "Validation failed",
+               "details" => [%{"field" => "audio_url", "message" => "has invalid format"}]
+             } = json_response(conn, 422)
     end
 
     @tag user: [streaming_enabled: false]
@@ -498,7 +516,8 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
 
       conn = put(conn, ~p"/api/v1/streams/#{stream.id}", %{"title" => "New title"})
 
-      assert %{"reason" => "streaming disabled"} = json_response(conn, 403)
+      assert %{"type" => "access_denied", "message" => "Streaming is disabled for this account"} =
+               json_response(conn, 403)
     end
 
     @tag user: [live_stream_limit: 2]
@@ -518,13 +537,16 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
 
       conn = put(conn, ~p"/api/v1/streams/#{stream.id}", %{"live" => true})
 
-      assert %{"reason" => "live stream limit exceeded"} = json_response(conn, 422)
+      assert %{
+               "type" => "live_stream_limit_reached",
+               "message" => "Maximum 2 live streams reached"
+             } = json_response(conn, 422)
     end
 
     test "fails when stream is not found", %{conn: conn} do
       conn = put(conn, ~p"/api/v1/streams/99999", %{"title" => "New title"})
 
-      assert %{"error" => "stream not found"} = json_response(conn, 404)
+      assert %{"type" => "not_found", "message" => "Stream not found"} = json_response(conn, 404)
     end
   end
 
@@ -548,13 +570,13 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
 
       conn = get(conn, ~p"/api/user/streams/foob")
 
-      assert %{"reason" => "live stream limit exceeded"} = json_response(conn, 422)
+      assert %{"reason" => "Maximum 2 live streams reached"} = json_response(conn, 422)
     end
 
     test "fails when stream is not found", %{conn: conn} do
       conn = get(conn, ~p"/api/user/streams/99999")
 
-      assert %{"error" => "stream not found"} = json_response(conn, 404)
+      assert %{"reason" => "Stream not found"} = json_response(conn, 404)
     end
   end
 
@@ -564,20 +586,35 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
 
       conn = delete(conn, ~p"/api/v1/streams/#{stream.id}")
 
-      assert json_response(conn, 401)
+      assert %{"type" => "unauthenticated", "message" => "Missing install ID"} =
+               json_response(conn, 401)
     end
   end
 
-  describe "delete with invalid install ID" do
+  describe "delete with unknown install ID" do
     setup [:authenticate]
 
-    @tag token: "invalid-lol"
     test "fails", %{conn: conn} do
       stream = insert(:stream)
 
       conn = delete(conn, ~p"/api/v1/streams/#{stream.id}")
 
-      assert json_response(conn, 401)
+      assert %{"type" => "unauthenticated", "message" => "Unregistered CLI"} =
+               json_response(conn, 401)
+    end
+  end
+
+  describe "delete with unregistered CLI" do
+    setup [:register_cli, :authenticate]
+
+    @tag user: [email: nil]
+    test "fails", %{conn: conn} do
+      stream = insert(:stream)
+
+      conn = delete(conn, ~p"/api/v1/streams/#{stream.id}")
+
+      assert %{"type" => "unauthenticated", "message" => "Unregistered CLI"} =
+               json_response(conn, 401)
     end
   end
 
@@ -589,20 +626,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
 
       conn = delete(conn, ~p"/api/v1/streams/#{stream.id}")
 
-      assert json_response(conn, 401)
-    end
-  end
-
-  describe "delete with unregistered CLI" do
-    setup [:authenticate]
-
-    @tag user: [email: nil]
-    test "fails", %{conn: conn} do
-      stream = insert(:stream)
-
-      conn = delete(conn, ~p"/api/v1/streams/#{stream.id}")
-
-      assert json_response(conn, 401)
+      assert %{"type" => "unauthenticated", "message" => "Revoked CLI"} = json_response(conn, 401)
     end
   end
 
@@ -630,7 +654,8 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
 
       conn = delete(conn, ~p"/api/v1/streams/#{stream.id}")
 
-      assert %{"error" => "Forbidden"} = json_response(conn, 403)
+      assert %{"type" => "access_denied", "message" => "You don't have access to this " <> _} =
+               json_response(conn, 403)
     end
 
     @tag user: [streaming_enabled: false]
@@ -639,13 +664,14 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
 
       conn = delete(conn, ~p"/api/v1/streams/#{stream.id}")
 
-      assert %{"reason" => "streaming disabled"} = json_response(conn, 403)
+      assert %{"type" => "access_denied", "message" => "Streaming is disabled for this account"} =
+               json_response(conn, 403)
     end
 
     test "fails when stream is not found", %{conn: conn} do
       conn = delete(conn, ~p"/api/v1/streams/99999")
 
-      assert %{"error" => "stream not found"} = json_response(conn, 404)
+      assert %{"type" => "not_found", "message" => "Stream not found"} = json_response(conn, 404)
     end
   end
 

@@ -40,7 +40,7 @@ defmodule AsciinemaWeb.Api.StreamController do
     else
       conn
       |> put_status(:not_found)
-      |> render(:error, reason: "stream not found")
+      |> render(:error, reason: :not_found)
     end
   end
 
@@ -55,10 +55,10 @@ defmodule AsciinemaWeb.Api.StreamController do
       {:ok, stream} ->
         render(conn, :show, stream: stream)
 
-      {:error, changeset} ->
+      {:error, reason} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render(:error, reason: changeset)
+        |> render(:error, reason: reason)
     end
   end
 
@@ -67,10 +67,10 @@ defmodule AsciinemaWeb.Api.StreamController do
       {:ok, stream} ->
         render(conn, :show, stream: stream)
 
-      {:error, changeset} ->
+      {:error, reason} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render(:error, reason: changeset)
+        |> render(:error, reason: reason)
     end
   end
 
@@ -88,11 +88,22 @@ defmodule AsciinemaWeb.Api.StreamController do
          true <- Accounts.cli_registered?(cli) do
       assign(conn, :current_user, cli.user)
     else
-      _otherwise ->
+      result ->
+        message = unauthenticated_message(result)
+
         conn
         |> put_status(:unauthorized)
-        |> json(%{})
+        |> render(:error, reason: :unauthenticated, message: message)
         |> halt()
+    end
+  end
+
+  defp unauthenticated_message(result) do
+    case result do
+      nil -> "Missing install ID"
+      {:error, :token_not_found} -> "Unregistered CLI"
+      {:error, :cli_revoked} -> "Revoked CLI"
+      false -> "Unregistered CLI"
     end
   end
 
@@ -102,7 +113,7 @@ defmodule AsciinemaWeb.Api.StreamController do
     else
       conn
       |> put_status(:forbidden)
-      |> render(:error, reason: "streaming disabled")
+      |> render(:error, reason: :access_denied, message: "Streaming is disabled for this account")
       |> halt()
     end
   end
@@ -112,7 +123,7 @@ defmodule AsciinemaWeb.Api.StreamController do
       nil ->
         conn
         |> put_status(:not_found)
-        |> render(:error, reason: "stream not found")
+        |> render(:error, reason: :not_found)
         |> halt()
 
       stream ->

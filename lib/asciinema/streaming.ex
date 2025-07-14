@@ -3,6 +3,7 @@ defmodule Asciinema.Streaming do
   import Ecto.Query
   alias Asciinema.{Fonts, Repo}
   alias Asciinema.Streaming.{Stream, StreamServer}
+  alias Ecto.Changeset
 
   defdelegate recording_mode, to: StreamServer
 
@@ -163,6 +164,20 @@ defmodule Asciinema.Streaming do
     |> put_assoc(:user, user)
     |> change_stream(params)
     |> Repo.insert()
+    |> convert_live_limit_error(user.live_stream_limit)
+  end
+
+  defp convert_live_limit_error(result, live_stream_limit) do
+    case result do
+      {:ok, stream} ->
+        {:ok, stream}
+
+      {:error, %Changeset{errors: [{:live, _}]}} ->
+        {:error, {:live_stream_limit_reached, live_stream_limit}}
+
+      {:error, changeset} ->
+        {:error, changeset}
+    end
   end
 
   def change_stream(stream, attrs \\ %{})
@@ -206,6 +221,7 @@ defmodule Asciinema.Streaming do
     stream
     |> change_stream(attrs)
     |> Repo.update()
+    |> convert_live_limit_error(stream.user.live_stream_limit)
   end
 
   defp update_peak_viewer_count(changeset) do

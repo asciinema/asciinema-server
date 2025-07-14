@@ -37,10 +37,10 @@ defmodule AsciinemaWeb.Api.RecordingController do
       {:ok, asciicast} ->
         render(conn, :show, asciicast: asciicast)
 
-      {:error, reason} ->
+      {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render(:error, reason: reason)
+        |> render(:error, reason: changeset)
     end
   end
 
@@ -69,7 +69,7 @@ defmodule AsciinemaWeb.Api.RecordingController do
       _otherwise ->
         conn
         |> put_status(:unauthorized)
-        |> render(:error, reason: :token_missing)
+        |> render(:error, reason: :unauthenticated, message: "Missing install ID")
         |> halt()
     end
   end
@@ -83,10 +83,20 @@ defmodule AsciinemaWeb.Api.RecordingController do
       |> assign(:current_user, cli.user)
     else
       {:error, reason} ->
+        message = unauthenticated_message(reason)
+
         conn
         |> put_status(:unauthorized)
-        |> render(:error, reason: reason)
+        |> render(:error, reason: :unauthenticated, message: message)
         |> halt()
+    end
+  end
+
+  defp unauthenticated_message(reason) do
+    case reason do
+      :token_invalid -> "Invalid install ID"
+      :token_not_found -> "Unregistered CLI"
+      :cli_revoked -> "Revoked CLI"
     end
   end
 
@@ -96,7 +106,7 @@ defmodule AsciinemaWeb.Api.RecordingController do
     else
       conn
       |> put_status(:unauthorized)
-      |> render(:error, reason: :token_not_found)
+      |> render(:error, reason: :unauthenticated, message: "Unregistered CLI")
       |> halt()
     end
   end
@@ -109,7 +119,7 @@ defmodule AsciinemaWeb.Api.RecordingController do
     else
       conn
       |> put_status(:not_found)
-      |> render(:error, reason: :asciicast_not_found)
+      |> render(:error, reason: :not_found)
       |> halt()
     end
   end
