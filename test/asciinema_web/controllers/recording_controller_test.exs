@@ -2,49 +2,8 @@ defmodule AsciinemaWeb.RecordingControllerTest do
   use AsciinemaWeb.ConnCase, async: true
   import Asciinema.Factory
 
-  describe "explore" do
-    setup do
-      insert(:asciicast, visibility: :public, featured: true, title: "Featured stuff")
-      insert(:asciicast, visibility: :public, title: "Good stuff")
-
-      :ok
-    end
-
-    test "auto", %{conn: conn} do
-      conn = get(conn, ~p"/explore")
-
-      html = html_response(conn, 200)
-      assert html =~ "Featured stuff"
-      refute html =~ "Good stuff"
-    end
-
-    test "public", %{conn: conn} do
-      conn = get(conn, ~p"/explore/public")
-
-      html = html_response(conn, 200)
-      assert html =~ "Good stuff"
-      assert html =~ "Featured stuff"
-    end
-
-    test "featured", %{conn: conn} do
-      conn = get(conn, ~p"/explore/featured")
-
-      html = html_response(conn, 200)
-      assert html =~ "Featured stuff"
-      refute html =~ "Good stuff"
-    end
-  end
-
   describe "show public recording as owner" do
     setup [:insert_public_recording, :authenticate_as_owner]
-
-    test "HTML via ID", %{conn: conn, asciicast: asciicast} do
-      test_html_response(conn, ~p"/a/#{asciicast.id}", 200)
-    end
-
-    test "HTML via secret token", %{conn: conn, asciicast: asciicast} do
-      test_html_response(conn, ~p"/a/#{asciicast.secret_token}", {302, ~p"/a/#{asciicast.id}"})
-    end
 
     test "JS via ID", %{conn: conn, asciicast: asciicast} do
       test_js_response(conn, ~p"/a/#{asciicast.id}", 200)
@@ -138,14 +97,6 @@ defmodule AsciinemaWeb.RecordingControllerTest do
   describe "show public recording as other user" do
     setup [:insert_public_recording, :authenticate_as_other]
 
-    test "HTML via ID", %{conn: conn, asciicast: asciicast} do
-      test_html_response(conn, ~p"/a/#{asciicast.id}", 200)
-    end
-
-    test "HTML via secret token", %{conn: conn, asciicast: asciicast} do
-      test_html_response(conn, ~p"/a/#{asciicast.secret_token}", {302, ~p"/a/#{asciicast.id}"})
-    end
-
     test "JS via ID", %{conn: conn, asciicast: asciicast} do
       test_js_response(conn, ~p"/a/#{asciicast.id}", 200)
     end
@@ -238,14 +189,6 @@ defmodule AsciinemaWeb.RecordingControllerTest do
   describe "show public recording as guest" do
     setup [:insert_public_recording]
 
-    test "HTML via ID", %{conn: conn, asciicast: asciicast} do
-      test_html_response(conn, ~p"/a/#{asciicast.id}", 200)
-    end
-
-    test "HTML via secret token", %{conn: conn, asciicast: asciicast} do
-      test_html_response(conn, ~p"/a/#{asciicast.secret_token}", {302, ~p"/a/#{asciicast.id}"})
-    end
-
     test "JS via ID", %{conn: conn, asciicast: asciicast} do
       test_js_response(conn, ~p"/a/#{asciicast.id}", 200)
     end
@@ -337,18 +280,6 @@ defmodule AsciinemaWeb.RecordingControllerTest do
 
   describe "show unlisted recording as owner" do
     setup [:insert_unlisted_recording, :authenticate_as_owner]
-
-    test "HTML via ID", %{conn: conn, asciicast: asciicast} do
-      test_html_response(
-        conn,
-        ~p"/a/#{asciicast.id}",
-        {302, ~p"/a/#{asciicast.secret_token}"}
-      )
-    end
-
-    test "HTML via secret token", %{conn: conn, asciicast: asciicast} do
-      test_html_response(conn, ~p"/a/#{asciicast.secret_token}", 200)
-    end
 
     test "JS via ID", %{conn: conn, asciicast: asciicast} do
       test_js_response(conn, ~p"/a/#{asciicast.id}", 200)
@@ -444,14 +375,6 @@ defmodule AsciinemaWeb.RecordingControllerTest do
   describe "show unlisted recording as other user" do
     setup [:insert_unlisted_recording, :authenticate_as_other]
 
-    test "HTML via ID", %{conn: conn, asciicast: asciicast} do
-      test_html_response(conn, ~p"/a/#{asciicast.id}", 404)
-    end
-
-    test "HTML via secret token", %{conn: conn, asciicast: asciicast} do
-      test_html_response(conn, ~p"/a/#{asciicast.secret_token}", 200)
-    end
-
     test "JS via ID", %{conn: conn, asciicast: asciicast} do
       test_js_response(conn, ~p"/a/#{asciicast.id}", 404)
     end
@@ -539,14 +462,6 @@ defmodule AsciinemaWeb.RecordingControllerTest do
   describe "show unlisted recording as guest" do
     setup [:insert_unlisted_recording]
 
-    test "HTML via ID", %{conn: conn, asciicast: asciicast} do
-      test_html_response(conn, ~p"/a/#{asciicast.id}", 404)
-    end
-
-    test "HTML via secret token", %{conn: conn, asciicast: asciicast} do
-      test_html_response(conn, ~p"/a/#{asciicast.secret_token}", 200)
-    end
-
     test "JS via ID", %{conn: conn, asciicast: asciicast} do
       test_js_response(conn, ~p"/a/#{asciicast.id}", 404)
     end
@@ -633,18 +548,6 @@ defmodule AsciinemaWeb.RecordingControllerTest do
 
   describe "show private recording as owner" do
     setup [:insert_private_recording, :authenticate_as_owner]
-
-    test "HTML via ID", %{conn: conn, asciicast: asciicast} do
-      test_html_response(
-        conn,
-        ~p"/a/#{asciicast.id}",
-        {302, ~p"/a/#{asciicast.secret_token}"}
-      )
-    end
-
-    test "HTML via secret token", %{conn: conn, asciicast: asciicast} do
-      test_html_response(conn, ~p"/a/#{asciicast.secret_token}", 200)
-    end
 
     test "JS via ID", %{conn: conn, asciicast: asciicast} do
       test_js_response(conn, ~p"/a/#{asciicast.id}", 200)
@@ -740,14 +643,6 @@ defmodule AsciinemaWeb.RecordingControllerTest do
   describe "show private recording as other user" do
     setup [:insert_private_recording, :authenticate_as_other]
 
-    test "HTML via ID", %{conn: conn, asciicast: asciicast} do
-      test_html_response(conn, ~p"/a/#{asciicast.id}", 404)
-    end
-
-    test "HTML via secret token", %{conn: conn, asciicast: asciicast} do
-      test_html_response(conn, ~p"/a/#{asciicast.secret_token}", 403)
-    end
-
     test "JS via ID", %{conn: conn, asciicast: asciicast} do
       test_js_response(conn, ~p"/a/#{asciicast.id}", 404)
     end
@@ -830,14 +725,6 @@ defmodule AsciinemaWeb.RecordingControllerTest do
   describe "show private recording as guest" do
     setup [:insert_private_recording]
 
-    test "HTML via ID", %{conn: conn, asciicast: asciicast} do
-      test_html_response(conn, ~p"/a/#{asciicast.id}", 404)
-    end
-
-    test "HTML via secret token", %{conn: conn, asciicast: asciicast} do
-      test_html_response(conn, ~p"/a/#{asciicast.secret_token}", 403)
-    end
-
     test "JS via ID", %{conn: conn, asciicast: asciicast} do
       test_js_response(conn, ~p"/a/#{asciicast.id}", 404)
     end
@@ -918,12 +805,6 @@ defmodule AsciinemaWeb.RecordingControllerTest do
   end
 
   describe "show non-existing recording" do
-    test "HTML", %{conn: conn} do
-      conn = get(conn, ~p"/a/99999999")
-
-      assert html_response(conn, 404)
-    end
-
     test "TXT", %{conn: conn} do
       url = ~p"/a/99999999"
 
@@ -940,83 +821,15 @@ defmodule AsciinemaWeb.RecordingControllerTest do
     end
   end
 
-  describe "editing" do
-    setup ctx do
-      user = insert(:user)
-
-      Map.merge(ctx, %{
-        user: user,
-        asciicast: insert(:asciicast, user: user)
-      })
-    end
-
-    test "requires logged in user", %{conn: conn, asciicast: asciicast} do
-      conn = get(conn, ~p"/a/#{asciicast}/edit")
-
-      assert redirected_to(conn, 302) == ~p"/login/new"
-    end
-
-    test "requires author", %{conn: conn, asciicast: asciicast} do
-      conn = log_in(conn, insert(:user))
-
-      conn = get(conn, ~p"/a/#{asciicast}/edit")
-
-      assert html_response(conn, 403)
-    end
-
-    test "displays form", %{conn: conn, asciicast: asciicast, user: user} do
-      conn = log_in(conn, user)
-
-      conn = get(conn, ~p"/a/#{asciicast}/edit")
-
-      assert html_response(conn, 200) =~ "Save"
-    end
-
-    test "updates title", %{conn: conn, asciicast: asciicast, user: user} do
-      conn = log_in(conn, user)
-      attrs = %{asciicast: %{title: "Haha!"}}
-
-      conn = put conn, ~p"/a/#{asciicast}", attrs
-
-      location = List.first(get_resp_header(conn, "location"))
-      assert flash(conn, :info) =~ ~r/updated/i
-      assert response(conn, 302)
-
-      conn = get(build_conn(), location)
-
-      assert html_response(conn, 200) =~ "Haha!"
-    end
-  end
-
   describe "deleting" do
-    setup ctx do
+    test "requires author", %{conn: conn} do
       user = insert(:user)
-
-      Map.merge(ctx, %{
-        user: user,
-        asciicast: insert(:asciicast, user: user) |> with_file()
-      })
-    end
-
-    test "requires author", %{conn: conn, asciicast: asciicast} do
+      asciicast = insert(:asciicast, user: user)
       conn = log_in(conn, insert(:user))
 
       conn = delete(conn, ~p"/a/#{asciicast}")
 
       assert html_response(conn, 403)
-    end
-
-    test "removes and redirects", %{conn: conn, asciicast: asciicast, user: user} do
-      conn = log_in(conn, user)
-
-      conn = delete(conn, ~p"/a/#{asciicast}")
-
-      assert flash(conn, :info) =~ ~r/deleted/i
-      assert response(conn, 302)
-
-      conn = get(build_conn(), ~p"/a/#{asciicast}")
-
-      assert html_response(conn, 404) =~ ~r/not found/i
     end
   end
 
@@ -1051,37 +864,6 @@ defmodule AsciinemaWeb.RecordingControllerTest do
 
   defp authenticate_as_other(%{conn: conn}) do
     [conn: log_in(conn, insert(:user))]
-  end
-
-  defp test_html_response(conn, url, 200) do
-    conn_2 =
-      conn
-      |> put_req_header("accept", "*/*")
-      |> get(url)
-
-    html = html_response(conn_2, 200)
-    assert html =~ "createPlayer"
-    assert html =~ "application/json+oembed"
-    assert html =~ "application/x-asciicast"
-
-    conn_2 =
-      conn
-      |> put_req_header("accept", "text/html")
-      |> get(url)
-
-    assert html_response(conn_2, 200) =~ "createPlayer"
-  end
-
-  defp test_html_response(conn, url, {302, location}) do
-    conn = get(conn, url)
-
-    assert redirected_to(conn, 302) == location
-  end
-
-  defp test_html_response(conn, url, status) when status >= 400 do
-    conn = get(conn, url)
-
-    assert html_response(conn, status)
   end
 
   defp test_js_response(conn, url, 200) do

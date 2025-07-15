@@ -25,6 +25,23 @@ defmodule AsciinemaWeb.Plug.ReturnTo do
     |> halt()
   end
 
+  def redirect_back_then(conn, target) do
+    if return_to = get_session(conn, :return_to) do
+      old_target = [to: return_to]
+      [to: new_target] = target
+
+      conn
+      |> save_return_path(new_target)
+      |> redirect(old_target)
+      |> halt()
+    else
+      conn
+      |> clear_return_path()
+      |> redirect(target)
+      |> halt()
+    end
+  end
+
   def clear_return_path(conn) do
     delete_session(conn, :return_to)
   end

@@ -41,7 +41,7 @@ defmodule Asciinema.MixProject do
     [
       {:briefly, "~> 0.3"},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
-      {:earmark, "~> 1.4"},
+      {:earmark, "~> 1.4.46"},
       {:ecto_psql_extras, "~> 0.7.14"},
       {:ecto_sql, "~> 3.6"},
       {:esbuild, "~> 0.10", runtime: Mix.env() == :dev},
@@ -72,6 +72,7 @@ defmodule Asciinema.MixProject do
       {:phoenix_live_view, "~> 1.0.4"},
       {:phoenix_markdown, "~> 1.0"},
       {:phoenix_pubsub, "~> 2.1.3"},
+      {:phoenix_test, "~> 0.7.0", only: :test},
       {:plug_attack, "~> 0.4.3"},
       {:plug_cowboy, "~> 2.5"},
       {:poolboy, "~> 1.5"},
