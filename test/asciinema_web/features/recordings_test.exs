@@ -10,7 +10,7 @@ defmodule AsciinemaWeb.Features.RecordingsTest do
 
       conn
       |> visit(~p"/")
-      |> click_link("Explore")
+      |> click_link("a.nav-link", "Explore")
       |> assert_has("a", text: "Featured stuff")
       |> refute_has("a", text: "Good stuff")
       |> refute_has("a", text: "Unlisted stuff")
