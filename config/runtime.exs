@@ -174,6 +174,31 @@ if config_env() in [:prod, :dev] do
     if no_mx_lookups = env.("SMTP_NO_MX_LOOKUPS") do
       config :asciinema, Asciinema.Emails.Mailer, no_mx_lookups: no_mx_lookups
     end
+
+    # Default TLS options for OTP 26 compatibility
+    tls_options = [
+      cacerts: :public_key.cacerts_get(),
+      depth: 99,
+      customize_hostname_check: [
+        match_fun: :public_key.pkix_verify_hostname_match_fun(:https)
+      ]
+    ]
+
+    tls_options =
+      if env.("SMTP_TLS_VERIFY_HOST") in ["false", "0"] do
+        Keyword.put(tls_options, :verify, :verify_none)
+      else
+        Keyword.put(tls_options, :server_name_indication, String.to_charlist(smtp_host))
+      end
+
+    tls_options =
+      if env.("SMTP_TLS_VERIFY_CERT") in ["false", "0"] do
+        Keyword.put(tls_options, :verify, :verify_none)
+      else
+        tls_options
+      end
+
+    config :asciinema, Asciinema.Emails.Mailer, tls_options: tls_options
   end
 
   if rsvg_pool_size = env.("RSVG_POOL_SIZE") do
