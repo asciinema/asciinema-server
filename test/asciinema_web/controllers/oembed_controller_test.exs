@@ -67,5 +67,11 @@ defmodule AsciinemaWeb.OembedControllerTest do
 
       assert json_response(conn, 404)
     end
+
+    test "bad request", %{conn: conn} do
+      conn = get(conn, ~p"/oembed?#{%{url: "", format: "json"}}")
+
+      assert json_response(conn, 400)
+    end
   end
 end
