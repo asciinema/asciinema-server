@@ -351,43 +351,6 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
                "message" => "Maximum 2 live streams reached"
              } = json_response(conn, 422)
     end
-
-    @tag user: [live_stream_limit: 1]
-    test "handles concurrent live stream creation at limit boundary", %{conn: conn, cli: cli} do
-      # This test ensures the PostgreSQL trigger prevents race conditions
-      # when multiple processes try to create live streams simultaneously
-
-      # Start with no live streams
-      insert(:stream, user: cli.user, live: false)
-
-      auth =
-        conn.req_headers
-        |> Enum.find(fn {k, _v} -> k == "authorization" end)
-        |> elem(1)
-
-      # Create multiple tasks that try to create live streams concurrently
-      responses =
-        1..10
-        |> Enum.map(fn _ -> put_req_header(build_conn(), "authorization", auth) end)
-        |> Task.async_stream(fn conn -> post(conn, ~p"/api/v1/streams", %{"live" => true}) end)
-        |> Enum.to_list()
-
-      # # Collect all responses
-      success_responses = Enum.filter(responses, fn {:ok, resp} -> resp.status == 200 end)
-      error_responses = Enum.filter(responses, fn {:ok, resp} -> resp.status == 422 end)
-
-      # Exactly one should succeed, the rest should fail due to limit
-      assert length(success_responses) == 1
-      assert length(error_responses) == 9
-
-      # All error responses should indicate live stream limit reached
-      Enum.each(error_responses, fn {:ok, resp} ->
-        assert %{
-                 "type" => "live_stream_limit_reached",
-                 "message" => "Maximum 1 live streams reached"
-               } = json_response(resp, 422)
-      end)
-    end
   end
 
   describe "create stream via legacy path" do

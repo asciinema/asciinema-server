@@ -78,6 +78,36 @@ defmodule Asciinema.StreamingTest do
       assert {:error, {:live_stream_limit_reached, 1}} =
                Streaming.create_stream(user, %{live: true})
     end
+
+    test "live stream limit race" do
+      # This test ensures the PostgreSQL trigger prevents race conditions
+      # when multiple processes try to create live streams simultaneously
+
+      user = insert(:user, live_stream_limit: 1)
+
+      # Start with no live streams
+      insert(:stream, user: user, live: false)
+
+      # Create multiple tasks that try to create live streams concurrently
+      results =
+        1..10
+        |> Task.async_stream(fn _ -> Streaming.create_stream(user, %{live: true}) end)
+        |> Enum.to_list()
+        |> Enum.map(fn {:ok, result} -> result end)
+
+      # Collect all results
+      success_results = Enum.filter(results, &match?({:ok, _}, &1))
+      error_results = Enum.filter(results, &match?({:error, _}, &1))
+
+      # Exactly one should succeed, the rest should fail due to limit
+      assert length(success_results) == 1
+      assert length(error_results) == 9
+
+      # All error results should indicate live stream limit reached
+      Enum.each(error_results, fn {:error, reason} ->
+        assert reason == {:live_stream_limit_reached, 1}
+      end)
+    end
   end
 
   describe "update_stream/2" do
@@ -130,6 +160,36 @@ defmodule Asciinema.StreamingTest do
 
       assert {:error, {:live_stream_limit_reached, 1}} =
                Streaming.update_stream(stream_2, %{live: true})
+    end
+
+    test "live stream limit race" do
+      # This test ensures the PostgreSQL trigger prevents race conditions
+      # when multiple processes try to update streams to live simultaneously
+
+      user = insert(:user, live_stream_limit: 1)
+
+      # Start with no live streams
+      streams = insert_list(10, :stream, user: user, live: false)
+
+      # Create multiple tasks that try to make streams live concurrently
+      results =
+        streams
+        |> Task.async_stream(fn stream -> Streaming.update_stream(stream, %{live: true}) end)
+        |> Enum.to_list()
+        |> Enum.map(fn {:ok, result} -> result end)
+
+      # Collect all results
+      success_results = Enum.filter(results, &match?({:ok, _}, &1))
+      error_results = Enum.filter(results, &match?({:error, _}, &1))
+
+      # Exactly one should succeed, the rest should fail due to limit
+      assert length(success_results) == 1
+      assert length(error_results) == 9
+
+      # All error results should indicate live stream limit reached
+      Enum.each(error_results, fn {:error, reason} ->
+        assert reason == {:live_stream_limit_reached, 1}
+      end)
     end
   end
 
