@@ -253,6 +253,12 @@ defmodule AsciinemaWeb.Features.RecordingsTest do
       |> assert_has(".dropdown-item", text: "Settings")
       |> assert_has(".dropdown-item", text: "Delete")
     end
+
+    test "not found", %{conn: conn} do
+      conn
+      |> visit(~p"/a/nopenopenope")
+      |> assert_has("h1", text: "404 Not Found")
+    end
   end
 
   describe "recording editing" do

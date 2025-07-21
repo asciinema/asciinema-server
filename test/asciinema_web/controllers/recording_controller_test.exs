@@ -805,6 +805,11 @@ defmodule AsciinemaWeb.RecordingControllerTest do
   end
 
   describe "show non-existing recording" do
+    test "JS", %{conn: conn} do
+      test_js_response(conn, ~p"/a/99999999", 404)
+      test_js_response(conn, ~p"/a/nopenopenope", 404)
+    end
+
     test "TXT", %{conn: conn} do
       url = ~p"/a/99999999"
 

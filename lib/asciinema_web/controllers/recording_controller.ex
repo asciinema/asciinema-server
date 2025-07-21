@@ -258,7 +258,7 @@ defmodule AsciinemaWeb.RecordingController do
           {Recordings.find_asciicast_by_secret_token(id), %{id: id}, :forbidden}
 
         true ->
-          {nil, %{}}
+          {nil, %{}, :not_found}
       end
 
     if asciicast do
