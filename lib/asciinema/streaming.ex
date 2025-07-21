@@ -1,7 +1,7 @@
 defmodule Asciinema.Streaming do
   import Ecto.Changeset
   import Ecto.Query
-  alias Asciinema.{Fonts, Repo}
+  alias Asciinema.{Fonts, Repo, Themes}
   alias Asciinema.Streaming.{Stream, StreamServer}
   alias Ecto.Changeset
 
@@ -193,21 +193,26 @@ defmodule Asciinema.Streaming do
   def change_stream(stream, attrs) when is_map(attrs) do
     stream
     |> cast(attrs, [
-      :live,
-      :title,
+      :audio_url,
+      :buffer_time,
       :description,
-      :visibility,
+      :env,
+      :live,
+      :shell,
+      :term_font_family,
+      :term_line_height,
       :term_theme_name,
       :term_theme_prefer_original,
-      :buffer_time,
-      :term_line_height,
-      :term_font_family,
-      :audio_url
+      :term_type,
+      :term_version,
+      :title,
+      :visibility
     ])
     |> validate_number(:buffer_time,
       greater_than_or_equal_to: 0.0,
       less_than_or_equal_to: 30.0
     )
+    |> validate_inclusion(:term_theme_name, Themes.terminal_themes() ++ ["original"])
     |> validate_number(:term_line_height,
       greater_than_or_equal_to: 1.0,
       less_than_or_equal_to: 2.0
