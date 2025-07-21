@@ -100,25 +100,7 @@ defmodule Asciinema.Streaming.StreamServer do
     %{args: args, user_agent: user_agent, query: query} = payload
     %{time: time, last_id: last_id, term_size: {cols, rows}} = args
     theme = args[:term_theme]
-    last_started_at = Timex.shift(Timex.now(), microseconds: -time)
-    term_type = get_in(query, ["term", "type"])
-    term_version = get_in(query, ["term", "version"])
-    env = query["env"] || %{}
-    shell = query["shell"]
-    title = query["title"]
-
-    schema_changes =
-      [
-        last_started_at: last_started_at,
-        term_cols: cols,
-        term_rows: rows,
-        term_type: term_type,
-        term_version: term_version,
-        user_agent: user_agent,
-        shell: shell
-      ]
-      |> Keyword.merge(schema_theme_fields(theme))
-      |> Keyword.merge(optional_fields(title))
+    schema_changes = schema_changes_for_reset(time, {cols, rows}, user_agent, theme, query)
 
     state =
       %{state | theme: theme, user_agent: user_agent}
@@ -126,20 +108,7 @@ defmodule Asciinema.Streaming.StreamServer do
       |> update_base_stream_time(last_id, time)
       |> update_last_stream_time(time)
       |> update_schema(schema_changes)
-
-    state =
-      state
-      |> restart_recording(
-        last_id,
-        cols,
-        rows,
-        args[:term_init],
-        term_type,
-        term_version,
-        theme,
-        env,
-        state.stream.title
-      )
+      |> restart_recording(last_id, cols, rows, args[:term_init], theme)
       |> save_event_id(last_id)
 
     if term_init = args[:term_init] do
@@ -344,22 +313,18 @@ defmodule Asciinema.Streaming.StreamServer do
          cols,
          rows,
          term_init,
-         term_type,
-         term_version,
-         theme,
-         env,
-         title
+         theme
        ) do
     if client_last_event_id == state.last_event_id and client_last_event_id != 0 do
       state
     else
       state
       |> end_recording()
-      |> start_recording(cols, rows, term_init, term_type, term_version, theme, env, title)
+      |> start_recording(cols, rows, term_init, theme)
     end
   end
 
-  defp start_recording(state, cols, rows, term_init, term_type, term_version, theme, env, title) do
+  defp start_recording(state, cols, rows, term_init, theme) do
     mode = recording_mode()
     user = state.stream.user
 
@@ -369,11 +334,7 @@ defmodule Asciinema.Streaming.StreamServer do
         cols,
         rows,
         term_init,
-        term_type,
-        term_version,
-        theme,
-        env,
-        title
+        theme
       )
     else
       state
@@ -409,22 +370,18 @@ defmodule Asciinema.Streaming.StreamServer do
          cols,
          rows,
          term_init,
-         term_type,
-         term_version,
-         theme,
-         env,
-         title
+         theme
        ) do
     path = Briefly.create!()
     timestamp = Timex.to_unix(Timex.now())
 
     {:ok, writer} =
       V3.create(path, {cols, rows},
-        term_type: term_type,
-        term_version: term_version,
+        term_type: state.stream.term_type,
+        term_version: state.stream.term_version,
         term_theme: theme,
-        env: env,
-        title: title,
+        env: state.stream.env,
+        title: state.stream.title,
         timestamp: timestamp
       )
 
@@ -463,6 +420,26 @@ defmodule Asciinema.Streaming.StreamServer do
     last_stream_time + Timex.diff(Timex.now(), last_event_time, :microseconds)
   end
 
+  defp schema_changes_for_reset(time, {cols, rows}, user_agent, theme, query) do
+    fields = [
+      [
+        last_started_at: Timex.shift(Timex.now(), microseconds: -time),
+        term_cols: cols,
+        term_rows: rows,
+        user_agent: user_agent
+      ],
+      schema_theme_fields(theme),
+      # TODO remove below after relase of CLI 3.0
+      schema_field(:title, query, "title"),
+      schema_field(:term_type, query["term"] || %{}, "type"),
+      schema_field(:term_version, query["term"] || %{}, "version"),
+      schema_field(:shell, query, "shell"),
+      schema_field(:env, query, "env")
+    ]
+
+    Enum.reduce(fields, &Keyword.merge/2)
+  end
+
   defp schema_theme_fields(nil),
     do: [term_theme_fg: nil, term_theme_bg: nil, term_theme_palette: nil]
 
@@ -476,8 +453,12 @@ defmodule Asciinema.Streaming.StreamServer do
     ]
   end
 
-  defp optional_fields(nil), do: []
-  defp optional_fields(title), do: [title: title]
+  defp schema_field(schema_key, params, param_key) do
+    case Map.fetch(params, param_key) do
+      {:ok, value} -> [{schema_key, value}]
+      :error -> []
+    end
+  end
 
   defp generate_snapshot(vt) do
     {:ok, {lines, cursor}} = Vt.dump_screen(vt)
