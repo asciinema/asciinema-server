@@ -49,9 +49,8 @@ defmodule Asciinema.FileStore.Cached do
 
   @impl true
   def delete_file(path) do
-    with result when result in [:ok, {:error, :enoent}] <- cache_store().delete_file(path),
-         :ok <- remote_store().delete_file(path) do
-      :ok
+    with result when result in [:ok, {:error, :enoent}] <- cache_store().delete_file(path) do
+      remote_store().delete_file(path)
     end
   end
 

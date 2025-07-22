@@ -111,10 +111,7 @@ defmodule Asciinema.Recordings.Asciicast.V2 do
   defp format_theme(nil), do: nil
 
   defp format_theme(theme) do
-    palette =
-      theme.palette
-      |> Enum.map(&Colors.hex/1)
-      |> Enum.join(":")
+    palette = Enum.map_join(theme.palette, ":", &Colors.hex/1)
 
     Jason.OrderedObject.new(
       fg: Colors.hex(theme.fg),
