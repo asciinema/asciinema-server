@@ -3,38 +3,60 @@ defmodule AsciinemaWeb.Api.RecordingController do
   use Asciinema.Config
   alias Asciinema.{Recordings, Accounts}
 
-  plug :accepts, ~w(text json)
   plug :assign_install_id
   plug :assign_cli
+  plug :require_registered_cli when action in [:update, :delete]
+  plug :load_asciicast when action in [:update, :delete]
+  plug :authorize, :asciicast when action in [:update, :delete]
 
-  def create(conn, %{"asciicast" => %Plug.Upload{} = upload}) do
+  def create(conn, %{"asciicast" => %Plug.Upload{} = upload}), do: create(conn, upload)
+  def create(conn, %{"file" => %Plug.Upload{} = upload}), do: create(conn, upload)
+
+  def create(conn, upload) do
     cli = conn.assigns.cli
-    user_agent = conn |> get_req_header("user-agent") |> List.first()
+    user_agent = get_user_agent(conn)
 
     case Recordings.create_asciicast(cli.user, upload, %{cli_id: cli.id, user_agent: user_agent}) do
       {:ok, asciicast} ->
-        url = url(~p"/a/#{asciicast}")
-
         conn
         |> put_status(:created)
-        |> put_resp_header("location", url)
-        |> render(:created, url: url, install_id: conn.assigns.install_id)
+        |> put_resp_header("location", url(~p"/a/#{asciicast}"))
+        |> render(:show, asciicast: asciicast)
 
-      {:error, :invalid_format} ->
-        conn
-        |> put_status(:bad_request)
-        |> text("This doesn't look like a valid asciicast file")
-
-      {:error, {:invalid_version, version}} ->
+      {:error, reason} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> text("asciicast v#{version} format is not supported by this server")
-
-      {:error, %Ecto.Changeset{} = changeset} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> render("error.json", changeset: changeset)
+        |> render(:error, reason: reason)
     end
+  end
+
+  def update(conn, params) do
+    asciicast = conn.assigns.asciicast
+
+    case Recordings.update_asciicast(asciicast, params) do
+      {:ok, asciicast} ->
+        render(conn, :show, asciicast: asciicast)
+
+      {:error, changeset} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(:error, reason: changeset)
+    end
+  end
+
+  def delete(conn, _params) do
+    asciicast = conn.assigns.asciicast
+    {:ok, _} = Recordings.delete_asciicast(asciicast)
+
+    conn
+    |> put_status(:no_content)
+    |> render(:deleted)
+  end
+
+  defp get_user_agent(conn) do
+    conn
+    |> get_req_header("user-agent")
+    |> List.first()
   end
 
   defp assign_install_id(conn, _opts) do
@@ -46,8 +68,8 @@ defmodule AsciinemaWeb.Api.RecordingController do
 
       _otherwise ->
         conn
-        |> put_status(401)
-        |> text(error_message(:token_missing))
+        |> put_status(:unauthorized)
+        |> render(:error, reason: :unauthenticated, message: "Missing install ID")
         |> halt()
     end
   end
@@ -56,18 +78,49 @@ defmodule AsciinemaWeb.Api.RecordingController do
     %{install_id: install_id, username: username} = conn.assigns
 
     with {:ok, cli} <- Accounts.register_cli(username, install_id) do
-      assign(conn, :cli, cli)
+      conn
+      |> assign(:cli, cli)
+      |> assign(:current_user, cli.user)
     else
       {:error, reason} ->
+        message = unauthenticated_message(reason)
+
         conn
-        |> put_status(401)
-        |> text(error_message(reason))
+        |> put_status(:unauthorized)
+        |> render(:error, reason: :unauthenticated, message: message)
         |> halt()
     end
   end
 
-  defp error_message(:token_missing), do: "Missing install ID"
-  defp error_message(:token_not_found), do: "Unregistered install ID"
-  defp error_message(:token_invalid), do: "Invalid install ID"
-  defp error_message(:cli_revoked), do: "Revoked install ID"
+  defp unauthenticated_message(reason) do
+    case reason do
+      :token_invalid -> "Invalid install ID"
+      :token_not_found -> "Unregistered CLI"
+      :cli_revoked -> "Revoked CLI"
+    end
+  end
+
+  defp require_registered_cli(conn, _opts) do
+    if Accounts.cli_registered?(conn.assigns.cli) do
+      conn
+    else
+      conn
+      |> put_status(:unauthorized)
+      |> render(:error, reason: :unauthenticated, message: "Unregistered CLI")
+      |> halt()
+    end
+  end
+
+  defp load_asciicast(conn, _) do
+    id = String.trim(conn.params["id"])
+
+    if asciicast = Recordings.lookup_asciicast(id) do
+      assign(conn, :asciicast, asciicast)
+    else
+      conn
+      |> put_status(:not_found)
+      |> render(:error, reason: :not_found)
+      |> halt()
+    end
+  end
 end

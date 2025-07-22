@@ -33,9 +33,7 @@ COPY mix.* ./
 RUN mix do deps.get --only prod, deps.compile
 
 COPY assets/ assets/
-RUN cd assets && \
-  npm install && \
-  env NODE_OPTIONS=--openssl-legacy-provider npm run deploy
+RUN cd assets && npm install
 
 COPY config/config.exs config/
 COPY config/prod.exs config/
@@ -43,11 +41,11 @@ COPY config/prod.exs config/
 # ensure mime is recompiled later with our additional mime types
 RUN mix deps.clean mime --build
 
-RUN mix phx.digest
+COPY priv priv/
+RUN mix assets.deploy
 
 COPY config/*.exs config/
 COPY lib lib/
-COPY priv priv/
 
 # recompile sentry with our source code
 RUN mix deps.compile sentry --force

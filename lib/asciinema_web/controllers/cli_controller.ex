@@ -8,22 +8,22 @@ defmodule AsciinemaWeb.CliController do
       :ok ->
         conn
         |> put_flash(:info, "CLI successfully authenticated with your account")
-        |> redirect_to_profile()
+        |> redirect_back_or(to: next_path(conn))
 
       {:error, :token_taken} ->
         conn
         |> put_flash(:error, "This CLI has been authenticated with a different user account")
-        |> redirect_to_profile()
+        |> redirect_back_or(to: next_path(conn))
 
       {:error, :token_invalid} ->
         conn
         |> put_flash(:error, "Invalid installation ID - make sure to paste the URL correctly")
-        |> redirect(to: ~p"/")
+        |> redirect_back_or(to: ~p"/")
 
       {:error, :cli_revoked} ->
         conn
         |> put_flash(:error, "This CLI authentication has been revoked")
-        |> redirect(to: ~p"/")
+        |> redirect_back_or(to: ~p"/")
     end
   end
 
@@ -41,13 +41,13 @@ defmodule AsciinemaWeb.CliController do
     end
   end
 
-  defp redirect_to_profile(conn) do
+  defp next_path(conn) do
     user = conn.assigns.current_user
 
     if user.username do
-      redirect(conn, to: profile_path(user))
+      profile_path(user)
     else
-      redirect(conn, to: ~p"/username/new")
+      ~p"/username/new"
     end
   end
 end

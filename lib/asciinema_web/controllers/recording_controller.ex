@@ -4,12 +4,11 @@ defmodule AsciinemaWeb.RecordingController do
   alias Asciinema.Authorization
   alias Asciinema.Recordings.Asciicast
   alias AsciinemaWeb.{PlayerOpts, RecordingHTML}
-  alias AsciinemaWeb.Plug.Authn
+  alias AsciinemaWeb.FallbackController
 
-  plug :load_asciicast when action in [:show, :edit, :update, :delete, :iframe]
-  plug :require_current_user_when_private when action in [:show, :iframe]
   plug :require_current_user when action in [:edit, :update, :delete]
-  plug :authorize, :asciicast when action in [:show, :edit, :update, :delete, :iframe]
+  plug :load_and_authorize_asciicast when action in [:show, :edit, :update, :delete, :iframe]
+  plug :redirect_to_canonical_path when action == :show
 
   def index(conn, params) do
     category = params[:category]
@@ -247,27 +246,50 @@ defmodule AsciinemaWeb.RecordingController do
     nil
   end
 
-  defp load_asciicast(conn, _) do
+  defp load_and_authorize_asciicast(conn, _) do
     id = String.trim(conn.params["id"])
 
-    case Recordings.fetch_asciicast(id) do
-      {:ok, asciicast} ->
-        public_id = to_string(asciicast.id)
+    {asciicast, ctx, status} =
+      cond do
+        String.match?(id, ~r/^\d+$/) ->
+          {Recordings.get_asciicast(id), %{}, :not_found}
 
-        case {asciicast.visibility, action_name(conn), get_format(conn), id == public_id} do
-          {:public, :show, "html", false} ->
-            conn
-            |> redirect(to: ~p"/a/#{asciicast}")
-            |> halt()
+        String.match?(id, ~r/^[[:alnum:]]{25}$/) ->
+          {Recordings.find_asciicast_by_secret_token(id), %{id: id}, :forbidden}
 
-          _ ->
-            assign(conn, :asciicast, asciicast)
-        end
+        true ->
+          {nil, %{}, :not_found}
+      end
 
-      {:error, :not_found} ->
+    if asciicast do
+      user = conn.assigns[:current_user]
+      action = Phoenix.Controller.action_name(conn)
+      resource = Map.merge(asciicast, ctx)
+
+      if Authorization.can?(user, action, resource) do
+        assign(conn, :asciicast, asciicast)
+      else
         conn
-        |> AsciinemaWeb.FallbackController.call({:error, :not_found})
+        |> FallbackController.call({:error, status})
         |> halt()
+      end
+    else
+      conn
+      |> FallbackController.call({:error, :not_found})
+      |> halt()
+    end
+  end
+
+  defp redirect_to_canonical_path(conn, _) do
+    id = String.trim(conn.params["id"])
+    asciicast = conn.assigns.asciicast
+
+    if get_format(conn) == "html" && id != Phoenix.Param.to_param(asciicast) do
+      conn
+      |> redirect(to: ~p"/a/#{asciicast}")
+      |> halt()
+    else
+      conn
     end
   end
 
@@ -287,33 +309,12 @@ defmodule AsciinemaWeb.RecordingController do
   @actions [:edit, :delete]
 
   defp asciicast_actions(asciicast, user) do
-    Enum.filter(@actions, &Asciinema.Authorization.can?(user, &1, asciicast))
+    Enum.filter(@actions, &Authorization.can?(user, &1, asciicast))
   end
 
   defp player_opts(params) do
     params
     |> Ext.Map.rename(%{"t" => "startAt", "i" => "idleTimeLimit"})
     |> PlayerOpts.parse(:recording)
-  end
-
-  defp require_current_user_when_private(conn, _opts) do
-    case {action_name(conn), get_format(conn), conn.assigns.asciicast.visibility} do
-      {:show, "html", :private} ->
-        conn
-        |> fetch_session()
-        |> Authn.call([])
-        |> require_current_user([])
-
-      {:iframe, _format, :private} ->
-        conn
-
-      {_action, _format, :private} ->
-        conn
-        |> fetch_session()
-        |> Authn.call([])
-
-      _ ->
-        conn
-    end
   end
 end

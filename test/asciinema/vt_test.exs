@@ -1,5 +1,5 @@
 defmodule Asciinema.VtTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   alias Asciinema.Vt
 
   @moduletag :vt

@@ -1,0 +1,100 @@
+@import "../node_modules/bootstrap/dist/css/bootstrap.css";
+@import "./_icons.css";
+@import "./_base.css";
+@import "./_header.css";
+@import "./_footer.css";
+@import "./_flash.css";
+@import "./_recording_card.css";
+@import "./_recording_list.css";
+@import "./_recording_show.css";
+@import "./_simple_layout.css";
+@import "./_stream_list.css";
+@import "./_user_profile.css";
+@import "./_user_login.css";
+@import "./_user_edit.css";
+@import "./fonts/powerline-symbols.css";
+@import "./fonts/fira-code-nerd-font.css";
+@import "./fonts/jetbrains-mono-nerd-font.css";
+@import "../node_modules/asciinema-player/dist/bundle/asciinema-player.css";
+
+.c-recording.a-index {
+  h2 {
+    font-weight: 600;
+
+    a {
+      color: #333333;
+    }
+  }
+}
+
+/* Bootstrap Overrides - Custom theme colors */
+
+a {
+  color: #06989a;
+}
+
+a:hover {
+  color: #055759;
+}
+
+.btn-primary {
+  background-color: #06989a;
+  border-color: #06989a;
+}
+
+.btn-primary:hover {
+  background-color: #055759;
+  border-color: #044f51;
+}
+
+.btn-primary:focus, .btn-primary.focus {
+  box-shadow: 0 0 0 0.2rem rgba(6, 152, 154, 0.5);
+}
+
+.btn-primary:not(:disabled):not(.disabled):active,
+.btn-primary:not(:disabled):not(.disabled).active {
+  background-color: #044f51;
+  border-color: #044f51;
+}
+
+.pagination .page-item.active .page-link {
+  background-color: #06989a;
+  border-color: #06989a;
+}
+
+.form-control:focus {
+  border-color: #7dd3d4;
+  box-shadow: 0 0 0 0.2rem rgba(6, 152, 154, 0.25);
+}
+
+.custom-control-input:checked ~ .custom-control-label::before {
+  background-color: #06989a;
+  border-color: #06989a;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.navbar-dark .navbar-nav .nav-link:hover,
+.navbar-dark .navbar-nav .nav-link:focus {
+  color: #fff;
+}
+
+.navbar-dark .navbar-text {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.navbar-dark .navbar-toggler {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.c-username {
+  #user_username {
+    max-width: 200px;
+  }
+}
+
+.page-link {
+  color: #06989a;
+}

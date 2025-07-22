@@ -4,8 +4,24 @@ defmodule Asciinema.Authorization do
   alias Asciinema.Streaming.Stream
 
   defmodule Policy do
-    def can?(_user, :show, %Asciicast{visibility: v}) when v in [:public, :unlisted], do: true
-    def can?(_user, :show, %Stream{visibility: v}) when v in [:public, :unlisted], do: true
+    def can?(_user, :show, %Asciicast{visibility: :public}), do: true
+
+    def can?(_user, :show, %Asciicast{
+          id: secret_token,
+          secret_token: secret_token,
+          visibility: :unlisted
+        }),
+        do: true
+
+    def can?(_user, :show, %Stream{visibility: :public}), do: true
+
+    def can?(_user, :show, %Stream{
+          id: public_token,
+          public_token: public_token,
+          visibility: :unlisted
+        }),
+        do: true
+
     def can?(nil, _action, _thing), do: false
     def can?(%User{is_admin: true}, _action, _thing), do: true
     def can?(user, _action, %Asciicast{user_id: uid}), do: user.id == uid

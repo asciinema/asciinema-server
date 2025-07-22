@@ -17,7 +17,7 @@ defmodule AsciinemaWeb do
   and import those modules here.
   """
 
-  def static_paths, do: ~w(css fonts images js favicon.ico robots.txt)
+  def static_paths, do: ~w(assets fonts images js favicon.ico robots.txt)
 
   def controller do
     quote do
@@ -25,7 +25,6 @@ defmodule AsciinemaWeb do
         formats: [:html, :json, :svg, :xml, :text]
 
       import Plug.Conn
-      import AsciinemaWeb.Gettext
       import AsciinemaWeb.UrlHelpers
 
       import AsciinemaWeb.Authentication,
@@ -93,8 +92,6 @@ defmodule AsciinemaWeb do
   def channel do
     quote do
       use Phoenix.Channel
-
-      import AsciinemaWeb.Gettext
     end
   end
 
@@ -112,7 +109,6 @@ defmodule AsciinemaWeb do
 
       # Core UI components and translation
       import AsciinemaWeb.CoreComponents
-      import AsciinemaWeb.Gettext
       import AsciinemaWeb.Icons
 
       import AsciinemaWeb.ErrorHelpers
@@ -145,7 +141,6 @@ defmodule AsciinemaWeb do
 
       # Core UI components and translation
       import AsciinemaWeb.CoreComponents
-      import AsciinemaWeb.Gettext
       import AsciinemaWeb.Icons
 
       # Shortcut for generating JS commands

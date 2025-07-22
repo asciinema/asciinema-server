@@ -16,9 +16,9 @@ defmodule Asciinema.Streaming.Stream do
     field :term_theme_prefer_original, :boolean, default: true
     field :term_line_height, :float
     field :term_font_family, :string
-    field :online, :boolean
-    field :last_activity_at, :naive_datetime
-    field :last_started_at, :naive_datetime
+    field :live, :boolean, default: false
+    field :last_activity_at, :utc_datetime
+    field :last_started_at, :utc_datetime
     field :title, :string
     field :description, :string
     field :shell, :string
@@ -28,8 +28,10 @@ defmodule Asciinema.Streaming.Stream do
     field :buffer_time, :float
     field :protocol, :string
     field :snapshot, Asciinema.Ecto.Type.Snapshot
+    field :env, :map
+    field :audio_url, :string
 
-    timestamps()
+    timestamps(type: :utc_datetime)
 
     belongs_to :user, Asciinema.Accounts.User
   end

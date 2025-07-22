@@ -5,10 +5,8 @@ defmodule AsciinemaWeb.StreamController do
   alias Asciinema.{Authorization, Recordings, Streaming}
   alias AsciinemaWeb.{FallbackController, StreamHTML, PlayerOpts}
 
-  plug :load_stream when action in [:show, :edit, :update, :delete]
-  plug :require_current_user_when_private when action == :show
   plug :require_current_user when action in [:index, :create, :edit, :update, :delete]
-  plug :authorize, :stream when action in [:show, :edit, :update, :delete]
+  plug :load_and_authorize_stream when action in [:show, :edit, :update, :delete]
   plug :check_streaming_enabled when action in [:index, :edit, :update, :start]
 
   def index(conn, params) do
@@ -39,11 +37,6 @@ defmodule AsciinemaWeb.StreamController do
 
         conn
         |> put_flash(:info, "Stream #{id} created.")
-        |> redirect(to: ~p"/user/streams")
-
-      {:error, :limit_reached} ->
-        conn
-        |> put_flash(:error, "Stream limit reached. Contact admin to raise the limit.")
         |> redirect(to: ~p"/user/streams")
     end
   end
@@ -131,23 +124,26 @@ defmodule AsciinemaWeb.StreamController do
     Enum.filter(@actions, &Asciinema.Authorization.can?(user, &1, stream))
   end
 
-  defp load_stream(conn, _) do
-    with stream when not is_nil(stream) <- Streaming.get_stream(conn.params["id"]),
-         true <- stream.user.streaming_enabled do
-      assign(conn, :stream, stream)
-    else
-      _ ->
-        conn
-        |> FallbackController.call({:error, :not_found})
-        |> halt()
-    end
-  end
+  defp load_and_authorize_stream(conn, _) do
+    id = String.trim(conn.params["id"])
+    stream = Streaming.find_stream_by_public_token(id)
 
-  defp require_current_user_when_private(conn, _opts) do
-    if conn.assigns.stream.visibility == :private do
-      require_current_user(conn, [])
+    if stream && stream.user.streaming_enabled do
+      user = conn.assigns[:current_user]
+      action = Phoenix.Controller.action_name(conn)
+      resource = Map.merge(stream, %{id: id})
+
+      if Authorization.can?(user, action, resource) do
+        assign(conn, :stream, stream)
+      else
+        conn
+        |> FallbackController.call({:error, :forbidden})
+        |> halt()
+      end
     else
       conn
+      |> FallbackController.call({:error, :not_found})
+      |> halt()
     end
   end
 

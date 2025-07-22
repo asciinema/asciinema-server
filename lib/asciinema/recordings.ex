@@ -16,36 +16,31 @@ defmodule Asciinema.Recordings do
 
   alias Ecto.Changeset
 
-  def fetch_asciicast(id) do
-    case get_asciicast(id) do
-      nil -> {:error, :not_found}
-      asciicast -> {:ok, asciicast}
-    end
-  end
-
-  def get_asciicast(id) when is_integer(id) do
+  def get_asciicast(id) do
     Asciicast
     |> Repo.get(id)
     |> Repo.preload(:user)
   end
 
-  def get_asciicast(thing) when is_binary(thing) do
-    q =
-      if String.length(thing) == 25 do
-        from(a in Asciicast, where: a.secret_token == ^thing)
-      else
-        case Integer.parse(thing) do
-          {id, ""} ->
-            from(a in Asciicast, where: a.visibility == :public and a.id == ^id)
+  def fetch_asciicast(id), do: OK.required(get_asciicast(id), :not_found)
 
-          _ ->
-            from(a in Asciicast, where: false)
-        end
-      end
-
-    q
+  def find_asciicast_by_secret_token(token) do
+    from(a in Asciicast, where: a.secret_token == ^token)
     |> Repo.one()
     |> Repo.preload(:user)
+  end
+
+  def lookup_asciicast(id) when is_binary(id) do
+    cond do
+      String.match?(id, ~r/^\d+$/) ->
+        get_asciicast(id)
+
+      String.match?(id, ~r/^[[:alnum:]]{25}$/) ->
+        find_asciicast_by_secret_token(id)
+
+      true ->
+        nil
+    end
   end
 
   def query(filters \\ [], order \\ nil)
@@ -188,6 +183,8 @@ defmodule Asciinema.Recordings do
     end
   end
 
+  @max_term_cols 720
+  @max_term_rows 200
   @hex_color_re ~r/^#[0-9a-f]{6}$/
   @hex_palette_re ~r/^(#[0-9a-f]{6}:){7}((#[0-9a-f]{6}:){8})?#[0-9a-f]{6}$/
 
@@ -215,6 +212,8 @@ defmodule Asciinema.Recordings do
       :title
     ])
     |> validate_required([:duration, :term_cols, :term_rows])
+    |> validate_number(:term_cols, greater_than: 0, less_than_or_equal_to: @max_term_cols)
+    |> validate_number(:term_rows, greater_than: 0, less_than_or_equal_to: @max_term_rows)
     |> validate_format(:term_theme_fg, @hex_color_re)
     |> validate_format(:term_theme_bg, @hex_color_re)
     |> validate_format(:term_theme_palette, @hex_palette_re)
@@ -279,10 +278,17 @@ defmodule Asciinema.Recordings do
       :idle_time_limit,
       :speed,
       :snapshot_at,
-      :markers
+      :markers,
+      :audio_url
     ])
-    |> validate_number(:term_cols_override, greater_than: 0, less_than: 1024)
-    |> validate_number(:term_rows_override, greater_than: 0, less_than: 512)
+    |> validate_number(:term_cols_override,
+      greater_than: 0,
+      less_than_or_equal_to: @max_term_cols
+    )
+    |> validate_number(:term_rows_override,
+      greater_than: 0,
+      less_than_or_equal_to: @max_term_rows
+    )
     |> validate_number(:idle_time_limit, greater_than_or_equal_to: 0.5)
     |> validate_inclusion(:term_theme_name, Themes.terminal_themes() ++ ["original"])
     |> validate_number(:term_line_height,
@@ -292,6 +298,7 @@ defmodule Asciinema.Recordings do
     |> validate_inclusion(:term_font_family, Fonts.terminal_font_families())
     |> validate_number(:snapshot_at, greater_than: 0)
     |> validate_change(:markers, &Markers.validate/2)
+    |> validate_format(:audio_url, ~r|^https?://|)
   end
 
   def update_asciicast(asciicast, attrs \\ %{}) do

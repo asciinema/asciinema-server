@@ -5,7 +5,7 @@ config :asciinema, Asciinema.Repo,
   username: "postgres",
   password: "postgres",
   hostname: "localhost",
-  database: "asciinema_development",
+  database: "asciinema_dev",
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
@@ -16,8 +16,8 @@ secret_key_base = "60BnXnzGGwwiZj91YA9XYKF9BCiM7lQ/1um8VXcWWLSdUp9OcPZV6YnQv7eFT
 # debugging and code reloading.
 #
 # The watchers configuration can be used to run external
-# watchers to your application. For example, we use it
-# with webpack to recompile .js and .css sources.
+# watchers to your application. For example, we can use it
+# to bundle .js and .css sources.
 config :asciinema, AsciinemaWeb.Endpoint,
   # Binding to loopback ipv4 address prevents access from other machines.
   # Change to `ip: {0, 0, 0, 0}` to allow access from other machines.
@@ -27,15 +27,9 @@ config :asciinema, AsciinemaWeb.Endpoint,
   debug_errors: true,
   secret_key_base: secret_key_base,
   watchers: [
-    node: [
-      "node_modules/webpack/bin/webpack.js",
-      "--mode",
-      "development",
-      "--watch",
-      "--watch-options-stdin",
-      cd: Path.expand("../assets", __DIR__),
-      env: [{"NODE_OPTIONS", "--openssl-legacy-provider"}]
-    ]
+    esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]},
+    tailwind_default: {Tailwind, :install_and_run, [:default, ~w(--watch)]},
+    tailwind_iframe: {Tailwind, :install_and_run, [:iframe, ~w(--watch)]}
   ]
 
 config :asciinema, AsciinemaAdmin.Endpoint,

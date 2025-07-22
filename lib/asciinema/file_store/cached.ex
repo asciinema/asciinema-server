@@ -9,9 +9,8 @@ defmodule Asciinema.FileStore.Cached do
 
   @impl true
   def put_file(dst_path, src_local_path, content_type) do
-    with :ok <- remote_store().put_file(dst_path, src_local_path, content_type),
-         :ok <- cache_store().put_file(dst_path, src_local_path, content_type) do
-      :ok
+    with :ok <- remote_store().put_file(dst_path, src_local_path, content_type) do
+      cache_store().put_file(dst_path, src_local_path, content_type)
     end
   end
 
@@ -50,9 +49,8 @@ defmodule Asciinema.FileStore.Cached do
 
   @impl true
   def delete_file(path) do
-    with result when result in [:ok, {:error, :enoent}] <- cache_store().delete_file(path),
-         :ok <- remote_store().delete_file(path) do
-      :ok
+    with result when result in [:ok, {:error, :enoent}] <- cache_store().delete_file(path) do
+      remote_store().delete_file(path)
     end
   end
 

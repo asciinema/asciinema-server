@@ -1,6 +1,6 @@
 defmodule Asciinema.AccountsTest do
   import Asciinema.Factory
-  use Asciinema.DataCase
+  use Asciinema.DataCase, async: true
   use Oban.Testing, repo: Asciinema.Repo
   alias Asciinema.Accounts
 

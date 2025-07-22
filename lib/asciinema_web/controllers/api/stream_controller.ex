@@ -1,69 +1,109 @@
 defmodule AsciinemaWeb.Api.StreamController do
   use AsciinemaWeb, :controller
   alias Asciinema.{Accounts, Streaming}
-  alias AsciinemaWeb.UrlHelpers
 
-  plug :accepts, ~w(json)
   plug :authenticate
   plug :check_streaming_enabled
+  plug :load_stream when action in [:update, :delete]
+  plug :authorize, :stream when action in [:update, :delete]
 
-  def show(conn, %{"id" => id}) do
-    conn.assigns.current_user
-    |> Streaming.fetch_stream(id)
-    |> stream_json(conn, id)
+  @default_index_limit 10
+
+  def index(conn, %{"cursor" => cursor} = params) when is_binary(cursor) do
+    {stream_id, prefix} = decode_cursor(cursor)
+    paginate(conn, stream_id, prefix, params["limit"])
   end
 
-  # TODO: remove after the release of the final CLI 3.0
-  def show(conn, _params) do
-    conn.assigns.current_user
-    |> Streaming.fetch_default_stream()
-    |> stream_json(conn, "default")
+  def index(conn, params) do
+    paginate(conn, nil, params["prefix"], params["limit"])
   end
 
-  def create(conn, _params) do
-    conn.assigns.current_user
-    |> create_stream()
-    |> stream_json(conn)
+  defp paginate(conn, stream_id, prefix, limit) do
+    limit = if limit, do: String.to_integer(limit), else: @default_index_limit
+
+    result =
+      [user_id: conn.assigns.current_user.id, prefix: prefix]
+      |> Streaming.query(:id)
+      |> Streaming.cursor_paginate(stream_id, limit)
+
+    conn
+    |> put_pagination_header(result, prefix, limit)
+    |> render(:index, streams: result.entries)
   end
 
-  defp create_stream(user) do
-    with {:error, :limit_reached} <- Streaming.create_stream(user) do
-      Streaming.fetch_default_stream(user)
+  # TODO: remove after release of the final CLI 3.0
+  def show(%Plug.Conn{assigns: %{legacy_path: true}} = conn, %{"id" => id} = params) do
+    if stream = Streaming.find_user_stream_by_public_token(conn.assigns.current_user, id) do
+      conn
+      |> assign(:stream, stream)
+      |> update(Map.merge(params, %{"live" => true}))
+    else
+      conn
+      |> put_status(:not_found)
+      |> render(:error, reason: :not_found)
     end
   end
 
-  defp stream_json(result, conn, id \\ nil)
-
-  defp stream_json({:ok, stream}, conn, _id) do
-    json(conn, %{
-      url: url(~p"/s/#{stream}"),
-      ws_producer_url: UrlHelpers.ws_producer_url(stream)
-    })
+  def create(%Plug.Conn{assigns: %{legacy_path: true}} = conn, params) do
+    conn
+    |> assign(:legacy_path, false)
+    |> create(Map.merge(params, %{"live" => true}))
   end
 
-  defp stream_json({:error, :not_found}, conn, id) do
-    conn
-    |> put_status(404)
-    |> json(%{reason: "stream #{id} not found"})
+  def create(conn, params) do
+    case Streaming.create_stream(conn.assigns.current_user, params) do
+      {:ok, stream} ->
+        render(conn, :show, stream: stream)
+
+      {:error, reason} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(:error, reason: reason)
+    end
   end
 
-  defp stream_json({:error, :too_many}, conn, _id) do
+  def update(conn, params) do
+    case Streaming.update_stream(conn.assigns.stream, params) do
+      {:ok, stream} ->
+        render(conn, :show, stream: stream)
+
+      {:error, reason} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(:error, reason: reason)
+    end
+  end
+
+  def delete(conn, _params) do
+    {:ok, _} = Streaming.delete_stream(conn.assigns.stream)
+
     conn
-    |> put_status(422)
-    |> json(%{reason: "no default stream found"})
+    |> put_status(:no_content)
+    |> render(:deleted)
   end
 
   defp authenticate(conn, _opts) do
-    with {_username, cli} <- get_basic_auth(conn),
-         {:ok, token} <- Accounts.fetch_cli(cli),
-         false <- Accounts.temporary_user?(token.user) do
-      assign(conn, :current_user, token.user)
+    with {_username, token} <- get_basic_auth(conn),
+         {:ok, cli} <- Accounts.fetch_cli(token),
+         true <- Accounts.cli_registered?(cli) do
+      assign(conn, :current_user, cli.user)
     else
-      _otherwise ->
+      result ->
+        message = unauthenticated_message(result)
+
         conn
-        |> put_status(401)
-        |> json(%{})
+        |> put_status(:unauthorized)
+        |> render(:error, reason: :unauthenticated, message: message)
         |> halt()
+    end
+  end
+
+  defp unauthenticated_message(result) do
+    case result do
+      nil -> "Missing install ID"
+      {:error, :token_not_found} -> "Unregistered CLI"
+      {:error, :cli_revoked} -> "Revoked CLI"
+      false -> "Unregistered CLI"
     end
   end
 
@@ -72,9 +112,45 @@ defmodule AsciinemaWeb.Api.StreamController do
       conn
     else
       conn
-      |> put_status(403)
-      |> json(%{reason: "streaming disabled"})
+      |> put_status(:forbidden)
+      |> render(:error, reason: :access_denied, message: "Streaming is disabled for this account")
       |> halt()
     end
+  end
+
+  defp load_stream(conn, _opts) do
+    case Streaming.lookup_stream(conn.params["id"]) do
+      nil ->
+        conn
+        |> put_status(:not_found)
+        |> render(:error, reason: :not_found)
+        |> halt()
+
+      stream ->
+        assign(conn, :stream, stream)
+    end
+  end
+
+  defp put_pagination_header(conn, %{has_more: true, last_id: stream_id}, prefix, limit) do
+    cursor = encode_cursor(stream_id, prefix)
+    next_url = url(~p"/api/v1/user/streams?cursor=#{cursor}&limit=#{limit}")
+    put_resp_header(conn, "link", ~s(<#{next_url}>; rel="next"))
+  end
+
+  defp put_pagination_header(conn, _result, _prefix, _params), do: conn
+
+  defp encode_cursor(stream_id, prefix) do
+    %{id: stream_id, prefix: prefix}
+    |> Jason.encode!()
+    |> Base.encode64()
+  end
+
+  defp decode_cursor(cursor) do
+    %{"id" => stream_id, "prefix" => prefix} =
+      cursor
+      |> Base.decode64!()
+      |> Jason.decode!()
+
+    {stream_id, prefix}
   end
 end

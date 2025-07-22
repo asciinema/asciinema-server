@@ -1,0 +1,55 @@
+.c-recording {
+  &.a-public, &.a-featured, &.a-auto {
+    main {
+      .nav {
+        .nav-link {
+          padding-left: 0.1em;
+        }
+
+        .nav-link.active {
+          font-weight: bold;
+        }
+      }
+
+      .heading {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin: 2rem 0 1rem 0;
+
+        h2 {
+          flex-grow: 1;
+          margin-top: 0;
+        }
+      }
+
+      .toggles {
+        display: flex;
+        gap: 1rem;
+      }
+
+      .filtering, .sorting {
+        span {
+          margin-right: 0.5rem;
+          font-size: 0.875rem;
+        }
+
+        a {
+          border-color: #d3d9df;
+        }
+
+        .btn-group .active {
+          font-weight: 600;
+        }
+      }
+
+      .pagination {
+        margin-top: 1rem;
+      }
+    }
+  }
+}
+
+.asciicast-list {
+  margin-top: 1.2rem;
+}

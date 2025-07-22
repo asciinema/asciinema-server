@@ -41,9 +41,10 @@ defmodule Asciinema.MixProject do
     [
       {:briefly, "~> 0.3"},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
-      {:earmark, "~> 1.4"},
+      {:earmark, "~> 1.4.46"},
       {:ecto_psql_extras, "~> 0.7.14"},
       {:ecto_sql, "~> 3.6"},
+      {:esbuild, "~> 0.10", runtime: Mix.env() == :dev},
       {:ex_aws, "~> 2.2"},
       {:ex_aws_s3, "~> 2.1"},
       {:ex_machina, "~> 2.4", only: :test},
@@ -59,6 +60,7 @@ defmodule Asciinema.MixProject do
       {:mix_test_watch, "~> 1.2", only: :dev, runtime: false},
       {:oban, "~> 2.19"},
       {:oban_web, "~> 2.11"},
+      {:ok, "~> 2.3"},
       # override for scrivener_html
       {:phoenix, "~> 1.7.11", override: true},
       {:phoenix_ecto, "~> 4.5.1"},
@@ -70,10 +72,12 @@ defmodule Asciinema.MixProject do
       {:phoenix_live_view, "~> 1.0.4"},
       {:phoenix_markdown, "~> 1.0"},
       {:phoenix_pubsub, "~> 2.1.3"},
+      {:phoenix_test, "~> 0.7.0", only: :test},
       {:plug_attack, "~> 0.4.3"},
       {:plug_cowboy, "~> 2.5"},
       {:poolboy, "~> 1.5"},
       {:postgrex, ">= 0.0.0"},
+      {:process_tree, "~> 0.2.1", only: :test},
       {:remote_ip, "~> 1.1"},
       {:rustler, "~> 0.36.1"},
       {:scrivener_ecto, "~> 2.4"},
@@ -81,6 +85,7 @@ defmodule Asciinema.MixProject do
       {:sentry, "~> 8.0"},
       {:stream_data, "~> 1.0", only: :test},
       {:swoosh, "~> 1.16"},
+      {:tailwind, "~> 0.3.1", runtime: Mix.env() == :dev},
       {:telemetry_metrics, "~> 0.6"},
       {:telemetry_poller, "~> 1.0"},
       {:timex, "~> 3.7"}
@@ -95,9 +100,20 @@ defmodule Asciinema.MixProject do
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
-      setup: ["deps.get", "ecto.setup"],
+      setup: ["deps.get", "ecto.setup", "assets.setup", "assets.build"],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
+      "assets.setup": [
+        "tailwind.install --if-missing --no-assets",
+        "esbuild.install --if-missing"
+      ],
+      "assets.build": ["tailwind default", "tailwind iframe", "esbuild default"],
+      "assets.deploy": [
+        "tailwind default --minify",
+        "tailwind iframe --minify",
+        "esbuild default --minify",
+        "phx.digest"
+      ],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"]
     ]
   end

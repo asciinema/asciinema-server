@@ -1,0 +1,115 @@
+div.asciicast-card {
+  margin-bottom: 30px;
+  overflow: hidden;
+  border: 1px solid #eee;
+
+  .thumbnail-link {
+    display: block;
+    position: relative;
+    text-decoration: none;
+
+    .play-button {
+      display: none;
+      z-index: 1;
+      position: absolute;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      color: white;
+
+      .arrow {
+        display: block;
+        width: 100%;
+        height: 100%;
+        position: relative;
+
+        svg {
+          fill: white;
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          width: 4rem;
+          margin-left: -2rem;
+          margin-top: -2rem;
+          filter: drop-shadow(0px 0px 5px rgba(0, 0, 0, 0.4));
+        }
+      }
+    }
+
+    &:hover {
+      .play-button {
+        display: block;
+      }
+    }
+
+    &:active {
+      .play-button {
+        svg {
+          width: 5rem;
+          margin-left: -2.5rem;
+          margin-top: -2.5rem;
+        }
+      }
+    }
+  }
+
+  .thumbnail {
+    min-height: calc(1.333333 * 16em);
+    font-size: 14px;
+    font-family: Consolas, Menlo, 'Bitstream Vera Sans Mono', monospace, 'Powerline Symbols';
+    overflow: hidden;
+    padding: 0;
+    background-color: #000;
+    border-radius: 3px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  .info {
+    background-color: #fff;
+    padding: 10px;
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-bottom: 1px solid #ddd;
+    border-top: 1px solid #eee;
+
+    .author-avatar {
+      float: left;
+      width: 20px;
+      height: 20px;
+
+      img, svg {
+        width: 100%;
+        height: 100%;
+        border-radius: 2px;
+      }
+    }
+
+    h3 {
+      margin: 0 0 6px 0;
+      font-size: 18px;
+      display: flex;
+
+      .duration {
+        margin: auto 0 auto auto;
+        padding-left: 1em;
+        font-size: 14px;
+      }
+    }
+
+    small {
+      margin-left: 5px;
+      font-size: 14px;
+      color: #333;
+
+      abbr {
+        border-bottom: 0;
+      }
+
+      .special-label {
+        float: right;
+      }
+    }
+  }
+}

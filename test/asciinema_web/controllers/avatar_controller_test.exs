@@ -1,5 +1,5 @@
 defmodule AsciinemaWeb.AvatarControllerTest do
-  use AsciinemaWeb.ConnCase
+  use AsciinemaWeb.ConnCase, async: true
   import Asciinema.Factory
 
   test "image response", %{conn: conn} do

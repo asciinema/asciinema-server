@@ -10,16 +10,11 @@ defmodule Asciinema.Accounts do
   @valid_email_re ~r/^[A-Z0-9._%+-]+@([A-Z0-9-]+\.)+[A-Z]{2,}$/i
   @valid_username_re ~r/^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]$/
 
-  def fetch_user(id) do
-    case get_user(id) do
-      nil -> {:error, :not_found}
-      user -> {:ok, user}
-    end
-  end
-
   def get_user([{_k, _v}] = kv), do: Repo.get_by(User, kv)
 
   def get_user(id), do: Repo.get(User, id)
+
+  def fetch_user(id), do: OK.required(get_user(id), :not_found)
 
   def find_user(%User{} = user), do: user
 
@@ -53,7 +48,7 @@ defmodule Asciinema.Accounts do
         default_recording_visibility: config(:default_recording_visibility, :unlisted),
         default_stream_visibility: config(:default_stream_visibility, :unlisted),
         streaming_enabled: config(:default_streaming_enabled, true),
-        stream_limit: config(:default_stream_limit, nil)
+        live_stream_limit: config(:default_live_stream_limit, nil)
       },
       attrs
     )
@@ -138,13 +133,13 @@ defmodule Asciinema.Accounts do
       :name,
       :username,
       :streaming_enabled,
-      :stream_limit
+      :live_stream_limit
     ])
     |> validate_required([:email, :username])
     |> update_change(:email, &String.downcase/1)
     |> validate_format(:email, @valid_email_re)
     |> validate_username()
-    |> validate_number(:stream_limit, greater_than_or_equal_to: 0)
+    |> validate_number(:live_stream_limit, greater_than_or_equal_to: 0)
     |> add_contraints()
   end
 
@@ -160,8 +155,8 @@ defmodule Asciinema.Accounts do
     import Ecto.Changeset
 
     changeset
-    |> unique_constraint(:username, name: "index_users_on_username")
-    |> unique_constraint(:email, name: "index_users_on_email")
+    |> unique_constraint(:username, name: "users_username_unique_index")
+    |> unique_constraint(:email, name: "users_email_index")
   end
 
   def update_user(user, params, ctx \\ :user) do
@@ -170,7 +165,7 @@ defmodule Asciinema.Accounts do
     |> Repo.update()
   end
 
-  def temporary_user?(user), do: user.email == nil
+  def cli_registered?(%Cli{} = cli), do: cli.user.email != nil
 
   def temporary_users(q \\ User) do
     from(u in q, where: is_nil(u.email))
@@ -367,7 +362,7 @@ defmodule Asciinema.Accounts do
 
   def revoke_cli!(%Cli{revoked_at: nil} = cli) do
     cli
-    |> Changeset.change(%{revoked_at: Timex.now()})
+    |> Changeset.change(%{revoked_at: DateTime.utc_now(:second)})
     |> Repo.update!()
   end
 
@@ -392,7 +387,7 @@ defmodule Asciinema.Accounts do
 
   def update_last_login(user) do
     user
-    |> Changeset.change(%{last_login_at: Timex.now()})
+    |> Changeset.change(%{last_login_at: DateTime.utc_now(:second)})
     |> Repo.update!()
   end
 

@@ -1,5 +1,5 @@
 defmodule Asciinema.Recordings.TextTest do
-  use Asciinema.DataCase
+  use Asciinema.DataCase, async: true
   import Asciinema.Factory
   alias Asciinema.Recordings.Text
 

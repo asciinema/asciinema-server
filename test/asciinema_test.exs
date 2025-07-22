@@ -1,7 +1,7 @@
 defmodule AsciinemaTest do
   import Asciinema.Factory
   import Swoosh.TestAssertions
-  use Asciinema.DataCase
+  use Asciinema.DataCase, async: true
   use Oban.Testing, repo: Asciinema.Repo
   alias Asciinema.Recordings
 

@@ -1,0 +1,219 @@
+@import "./fonts/source_sans_pro.css";
+
+html {
+  height: 100%;
+}
+
+body {
+  font-family: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  position: relative;
+  margin: 0;
+  padding-bottom: 23rem;
+  min-height: 100%;
+}
+
+@media (min-width: 768px) {
+  body {
+    padding-bottom: 16rem;
+  }
+}
+
+@media (min-width: 992px) {
+  body {
+    padding-bottom: 13rem;
+  }
+}
+
+h1, h2, h3 {
+  font-family: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+h1 {
+  font-size: 1.8rem;
+  margin-top: 2rem;
+}
+
+h2 {
+  font-size: 1.5rem;
+}
+
+h3 {
+  font-size: 1.1rem;
+}
+
+code {
+  background-color: #f9f2f4;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+pre code {
+  background-color: inherit;
+  padding: 0;
+}
+
+kbd {
+  background-color: white;
+  color: black;
+  border: 1px solid #bbb;
+  padding: 0.1rem 0.2rem;
+  margin-left: 0.1rem;
+  margin-right: 0.1rem;
+}
+
+pre {
+  background-color: #f7f7f7;
+  border-color: #ddd;
+  border-radius: 3px;
+  border: 1px solid #e0e0e0;
+  padding: 9.5px;
+  margin: 0 0 10px;
+}
+
+body, main {
+  background-color: #f7f7f7;
+}
+
+.c-page, .c-recording, .c-stream {
+  main {
+    h1, h2, h3 {
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    h1 {
+      font-size: 2rem;
+    }
+  }
+}
+
+.c-page {
+  main {
+    h1 {
+      margin-top: 4rem;
+    }
+  }
+}
+
+.c-page .container > h1 {
+  margin-bottom: 2rem;
+}
+
+section.cinema {
+  color: #fff;
+  padding: calc(min(4vh, 4vw)) 0;
+}
+
+section.odd, section.even {
+  padding: 1.4rem 0;
+}
+
+section.odd {
+  background-color: #fff;
+  border-top: 1px solid #e0e0e0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+section h1 {
+  margin-top: 1rem;
+}
+
+section.top {
+  color: #fff;
+  background-color: #222;
+  padding: 25px 0;
+
+  h1 {
+    font-size: 2.5rem;
+    margin: 0;
+  }
+}
+
+ul.pagination {
+  margin-top: 1rem;
+  margin-bottom: 0;
+}
+
+main {
+  > .container:first-child {
+    margin-top: 2rem;
+  }
+}
+
+form {
+  legend {
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 2rem;
+  }
+
+  .col-form-label {
+    font-weight: 600;
+  }
+
+  .form-group.row {
+    margin-bottom: 1.5rem;
+  }
+
+  .form-check {
+      margin-bottom: 0.75em;
+  }
+
+  .visibility-radios {
+    padding-top: 0.375rem;
+  }
+
+  .form-group > div > .form-checkbox {
+    padding-top: 0.375rem;
+  }
+}
+
+.special-label {
+  font-size: 12px;
+  background-color: rgb(255, 239, 198);
+  color: rgb(161, 136, 43);
+  margin-left: 6px;
+  padding: 2px 5px;
+  border-radius: 4px;
+  vertical-align: middle;
+  cursor: help;
+}
+
+.nav-item {
+  .nav-link {
+    padding-left: 0;
+  }
+
+  .nav-link.active {
+    font-weight: bold;
+  }
+}
+
+body pre {
+  background-color: #fff;
+  border-color: #ddd;
+}
+
+.modal-dialog pre {
+  background-color: #f7f7f7;
+  margin-bottom: 1rem;
+}
+
+.has-error .form-control {
+  border-color: #dc3545;
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+}
+
+.form-control::placeholder {
+  color: #959fa7;
+}
+
+.btn-gh-sponsors {
+  font-weight: 600;
+  color: #333;
+  background-color: #eee;
+  border-color: #ccc;
+}
+
+span.email b {
+  display: none;
+}

@@ -5,8 +5,6 @@ defmodule AsciinemaWeb.Plug.Authn do
 
   def init(opts), do: opts
 
-  def call(%Conn{assigns: %{current_user: user}} = conn, _opts) when not is_nil(user), do: conn
-
   def call(conn, _opts) do
     conn
     |> assign(:current_user, nil)

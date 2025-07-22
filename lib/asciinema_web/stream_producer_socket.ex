@@ -44,7 +44,7 @@ defmodule AsciinemaWeb.StreamProducerSocket do
     %{token: token, parser: parser, user_agent: user_agent, query: query} = params
     Logger.debug("producer: query: #{inspect(query)}")
 
-    case Streaming.find_stream_by_producer_token(token) do
+    case Streaming.find_live_stream_by_producer_token(token) do
       nil ->
         handle_error({:stream_not_found, token}, %{stream_id: "?"})
 
@@ -221,6 +221,12 @@ defmodule AsciinemaWeb.StreamProducerSocket do
 
   defp run_command({:marker, args}, %{status: :online} = state) do
     with :ok <- StreamServer.event(state.stream_id, :marker, args) do
+      {:ok, state}
+    end
+  end
+
+  defp run_command({:exit, args}, %{status: :online} = state) do
+    with :ok <- StreamServer.event(state.stream_id, :exit, args) do
       {:ok, state}
     end
   end

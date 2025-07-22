@@ -1,56 +1,53 @@
 defmodule Asciinema.Streaming do
   import Ecto.Changeset
   import Ecto.Query
-  alias Asciinema.{Fonts, Repo}
+  alias Asciinema.{Fonts, Repo, Themes}
   alias Asciinema.Streaming.{Stream, StreamServer}
+  alias Ecto.Changeset
 
   defdelegate recording_mode, to: StreamServer
 
-  def find_stream_by_producer_token(token) do
-    Repo.get_by(Stream, producer_token: token)
+  def find_live_stream_by_producer_token(token) do
+    from(s in Stream, where: s.live and s.producer_token == ^token)
+    |> Repo.one()
   end
 
-  def get_stream(id) when is_integer(id) do
+  def get_stream(id) do
     Stream
     |> Repo.get(id)
     |> Repo.preload(:user)
   end
 
-  def get_stream(id) when is_binary(id) do
-    stream =
-      if String.match?(id, ~r/[[:alpha:]]/) do
-        Repo.one(from(s in Stream, where: s.public_token == ^id))
-      end
-
-    Repo.preload(stream, :user)
-  end
-
-  def get_stream(%{streams: _} = owner, id) do
-    owner
-    |> Ecto.assoc(:streams)
-    |> where([s], like(s.public_token, ^"#{id}%"))
-    |> first()
+  def find_stream_by_public_token(token) do
+    from(s in Stream, where: s.public_token == ^token)
     |> Repo.one()
+    |> Repo.preload(:user)
   end
 
-  def fetch_stream(owner, id), do: wrap(get_stream(owner, id))
+  def lookup_stream(id) when is_binary(id) do
+    cond do
+      String.match?(id, ~r/^\d+$/) ->
+        get_stream(id)
 
-  def fetch_default_stream(%{streams: _} = owner) do
-    streams =
-      owner
-      |> Ecto.assoc(:streams)
-      |> limit(2)
-      |> Repo.all()
+      String.match?(id, ~r/^[[:alnum:]]{16}$/) ->
+        find_stream_by_public_token(id)
 
-    case streams do
-      [] -> {:error, :not_found}
-      [stream] -> {:ok, stream}
-      _ -> {:error, :too_many}
+      true ->
+        nil
     end
   end
 
-  defp wrap(nil), do: {:error, :not_found}
-  defp wrap(value), do: {:ok, value}
+  # TODO: remove after release of the final CLI 3.0
+  def find_user_stream_by_public_token(%{streams: _} = owner, prefix) do
+    prefix = String.replace(prefix, "%", "")
+
+    owner
+    |> Ecto.assoc(:streams)
+    |> where([s], like(s.public_token, ^"#{prefix}%"))
+    |> first()
+    |> Repo.one()
+    |> Repo.preload(:user)
+  end
 
   def query(filters \\ [], order \\ nil) do
     from(Stream)
@@ -75,20 +72,70 @@ defmodule Asciinema.Streaming do
         where(q, [s], s.user_id == ^user_id)
 
       :live ->
-        where(q, [s], s.online)
+        where(q, [s], s.live)
+
+      {:prefix, nil} ->
+        q
+
+      {:prefix, prefix} ->
+        prefix = String.replace(prefix, "%", "")
+        where(q, [s], like(s.public_token, ^"#{prefix}%"))
     end
   end
 
-  defp sort(q, nil), do: q
+  defp sort(q, order) do
+    case order do
+      nil ->
+        q
 
-  defp sort(q, :activity) do
-    order_by(q, desc: :online, desc_nulls_last: :last_started_at, desc: :id)
+      :activity ->
+        order_by(q, desc: :live, desc_nulls_last: :last_started_at, desc: :id)
+
+      :id ->
+        order_by(q, asc: :id)
+    end
   end
 
   def paginate(%Ecto.Query{} = query, page, page_size) do
     query
     |> preload(:user)
     |> Repo.paginate(page: page, page_size: page_size)
+  end
+
+  def cursor_paginate(query, last_id \\ nil, limit \\ 10)
+
+  def cursor_paginate(%Ecto.Query{} = query, nil, limit) do
+    do_cursor_paginate(query, limit)
+  end
+
+  def cursor_paginate(%Ecto.Query{} = query, last_id, limit) do
+    query
+    |> where([s], s.id > ^last_id)
+    |> do_cursor_paginate(limit)
+  end
+
+  defp do_cursor_paginate(query, limit) do
+    limit = min(limit, 100)
+
+    query =
+      query
+      |> limit(^(limit + 1))
+      |> preload(:user)
+
+    entries = Repo.all(query)
+
+    case entries do
+      [] ->
+        %{entries: [], has_more: false, last_id: nil}
+
+      entries when length(entries) <= limit ->
+        %{entries: entries, has_more: false, last_id: nil}
+
+      entries ->
+        {results, _} = Enum.split(entries, limit)
+        last_id = List.last(results).id
+        %{entries: results, has_more: true, last_id: last_id}
+    end
   end
 
   def list(q, limit \\ nil)
@@ -106,7 +153,15 @@ defmodule Asciinema.Streaming do
     |> Repo.all()
   end
 
-  def create_stream!(user) do
+  @doc """
+  Creates a new stream for the given user.
+
+  Live stream limiting is enforced at the database level via a PostgreSQL trigger
+  (`enforce_live_stream_limit`) to prevent race conditions during concurrent
+  stream creation. The trigger locks the user row and counts existing live streams
+  before allowing a new live stream to be created.
+  """
+  def create_stream(user, params \\ %{}) do
     %Stream{}
     |> change(
       public_token: generate_public_token(),
@@ -115,42 +170,56 @@ defmodule Asciinema.Streaming do
       term_theme_prefer_original: user.term_theme_prefer_original
     )
     |> put_assoc(:user, user)
-    |> Repo.insert!()
+    |> change_stream(params)
+    |> Repo.insert()
+    |> convert_live_limit_error(user.live_stream_limit)
   end
 
-  def create_stream(user) do
-    if user.stream_limit == nil or count_streams(user) < user.stream_limit do
-      {:ok, create_stream!(user)}
-    else
-      {:error, :limit_reached}
+  defp convert_live_limit_error(result, live_stream_limit) do
+    case result do
+      {:ok, stream} ->
+        {:ok, stream}
+
+      {:error, %Changeset{errors: [{:live, _}]}} ->
+        {:error, {:live_stream_limit_reached, live_stream_limit}}
+
+      {:error, changeset} ->
+        {:error, changeset}
     end
   end
-
-  defp count_streams(user), do: Repo.count(Ecto.assoc(user, :streams))
 
   def change_stream(stream, attrs \\ %{})
 
   def change_stream(stream, attrs) when is_map(attrs) do
     stream
     |> cast(attrs, [
-      :title,
+      :audio_url,
+      :buffer_time,
       :description,
-      :visibility,
+      :env,
+      :live,
+      :shell,
+      :term_font_family,
+      :term_line_height,
       :term_theme_name,
       :term_theme_prefer_original,
-      :buffer_time,
-      :term_line_height,
-      :term_font_family
+      :term_type,
+      :term_version,
+      :title,
+      :visibility
     ])
     |> validate_number(:buffer_time,
       greater_than_or_equal_to: 0.0,
       less_than_or_equal_to: 30.0
     )
+    |> validate_inclusion(:term_theme_name, Themes.terminal_themes() ++ ["original"])
     |> validate_number(:term_line_height,
       greater_than_or_equal_to: 1.0,
       less_than_or_equal_to: 2.0
     )
     |> validate_inclusion(:term_font_family, Fonts.terminal_font_families())
+    |> validate_format(:audio_url, ~r|^https?://|)
+    |> check_constraint(:live, name: "live_stream_limit")
   end
 
   def update_stream(stream, attrs) when is_list(attrs) do
@@ -161,10 +230,19 @@ defmodule Asciinema.Streaming do
     |> Repo.update!()
   end
 
+  @doc """
+  Updates an existing stream with the given attributes.
+
+  When setting `live: true`, the PostgreSQL trigger
+  (`enforce_live_stream_limit`) will enforce the user's live stream limit to
+  prevent race conditions. The trigger uses row-level locking to ensure
+  atomicity during concurrent updates.
+  """
   def update_stream(stream, attrs) when is_map(attrs) do
     stream
     |> change_stream(attrs)
     |> Repo.update()
+    |> convert_live_limit_error(stream.user.live_stream_limit)
   end
 
   defp update_peak_viewer_count(changeset) do
@@ -179,9 +257,9 @@ defmodule Asciinema.Streaming do
   end
 
   defp change_last_activity(changeset) do
-    case fetch_field!(changeset, :online) do
+    case fetch_field!(changeset, :live) do
       true ->
-        cast(changeset, %{last_activity_at: Timex.now()}, [:last_activity_at])
+        change(changeset, %{last_activity_at: DateTime.utc_now(:second)})
 
       false ->
         changeset
@@ -203,9 +281,13 @@ defmodule Asciinema.Streaming do
 
   def mark_inactive_streams_offline do
     t = Timex.shift(Timex.now(), minutes: -1)
-    q = from(s in Stream, where: s.online and s.last_activity_at < ^t)
 
-    {count, _} = Repo.update_all(q, set: [online: false, current_viewer_count: 0])
+    q =
+      from(s in Stream,
+        where: s.live and fragment("COALESCE(last_activity_at, inserted_at) < ?", ^t)
+      )
+
+    {count, _} = Repo.update_all(q, set: [live: false, current_viewer_count: 0])
 
     count
   end

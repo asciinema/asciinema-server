@@ -16,8 +16,6 @@ defmodule Asciinema.DataCase do
 
   using do
     quote do
-      use Asciinema.OnExit
-
       alias Asciinema.Repo
 
       import Ecto
@@ -54,6 +52,12 @@ defmodule Asciinema.DataCase do
   def errors_on(changeset) do
     Ecto.Changeset.traverse_errors(changeset, fn {message, opts} ->
       Enum.reduce(opts, message, fn {key, value}, acc ->
+        value =
+          case value do
+            {:parameterized, Ecto.Enum, _} -> ""
+            _ -> value
+          end
+
         String.replace(acc, "%{#{key}}", to_string(value))
       end)
     end)

@@ -1,5 +1,6 @@
 defmodule AsciinemaWeb.Router do
   use AsciinemaWeb, :router
+  alias AsciinemaWeb.Plug.{Authn, TrailingFormat}
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -8,23 +9,31 @@ defmodule AsciinemaWeb.Router do
     plug :fetch_live_flash
     plug :protect_from_forgery
     plug :put_secure_browser_headers
-    plug AsciinemaWeb.Plug.Authn
+    plug Authn
+  end
+
+  pipeline :api do
+    plug :accepts, ~w(json)
   end
 
   pipeline :asciicast do
-    plug AsciinemaWeb.Plug.TrailingFormat
-    plug :accepts, ["html", "js", "json", "cast", "txt", "svg", "png", "gif"]
+    plug TrailingFormat
+    plug :accepts, ~w(html js json cast txt svg png gif)
     plug :format_specific_plugs
     plug :put_secure_browser_headers
   end
 
   pipeline :oembed do
-    plug :accepts, ["json", "xml"]
+    plug :accepts, ~w(json xml)
     plug :put_secure_browser_headers
   end
 
   pipeline :webfinger do
     plug :put_format, :json
+  end
+
+  pipeline :legacy do
+    plug :assign_legacy_marker
   end
 
   scope "/", AsciinemaWeb do
@@ -88,12 +97,27 @@ defmodule AsciinemaWeb.Router do
   end
 
   scope "/api", AsciinemaWeb.Api, as: :api do
-    post "/asciicasts", RecordingController, :create
-    post "/streams", StreamController, :create
+    pipe_through :api
 
-    scope "/user" do
-      get "/stream", StreamController, :show
-      get "/streams/:id", StreamController, :show
+    scope "/v1" do
+      resources "/recordings", RecordingController, only: [:create, :update, :delete]
+      resources "/streams", StreamController, only: [:create, :update, :delete]
+
+      scope "/user" do
+        get "/streams", StreamController, :index
+      end
+    end
+
+    # used by CLI 2.x
+    post "/asciicasts", RecordingController, :create
+
+    scope "/" do
+      # used by CLI 3.0 RC.5 and earlier
+      # remove after release of the final CLI 3.0
+      pipe_through :legacy
+
+      post "/streams", StreamController, :create
+      get "/user/streams/:id", StreamController, :show
     end
   end
 
@@ -105,16 +129,21 @@ defmodule AsciinemaWeb.Router do
   end
 
   defp format_specific_plugs(conn, []) do
-    format_specific_plugs(conn, Phoenix.Controller.get_format(conn))
+    conn
+    |> fetch_session([])
+    |> Authn.call([])
+    |> format_specific_plugs(get_format(conn))
   end
 
   defp format_specific_plugs(conn, "html") do
     conn
-    |> fetch_session([])
     |> fetch_flash([])
     |> protect_from_forgery([])
-    |> AsciinemaWeb.Plug.Authn.call([])
   end
 
   defp format_specific_plugs(conn, _other), do: conn
+
+  defp assign_legacy_marker(conn, []) do
+    assign(conn, :legacy_path, true)
+  end
 end

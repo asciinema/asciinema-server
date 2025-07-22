@@ -9,6 +9,8 @@
       <br />
 
       <.form :let={f} for={@conn} action={~p"/login"} as={:login} class="form-inline login-form">
+        <.label for={f[:email]} style="display: none">E-mail or username</.label>
+
         <div class="form-group">
           <.input
             field={f[:email]}
@@ -19,7 +21,13 @@
         </div>
 
         <div class="form-group hpf-wrapper">
-          <.input field={f[:username]} class="form-control" tabindex="-1" autocomplete="nope" />
+          <.input
+            field={f[:username]}
+            value=""
+            class="form-control"
+            tabindex="-1"
+            autocomplete="nope"
+          />
         </div>
 
         <div class="form-group hpf-wrapper">

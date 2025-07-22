@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
     <meta name="csrf-token" content={Plug.CSRFProtection.get_csrf_token()} />
     <title>{page_title(@conn)}</title>
-    <link phx-track-static rel="stylesheet" href={Routes.static_path(@conn, "/css/app.css")} />
+    <link phx-track-static rel="stylesheet" href={Routes.static_path(@conn, "/assets/app.css")} />
     <link rel="shortcut icon" href={Routes.static_path(@conn, "/images/favicon.png")} />
 
     <%= if function_exported?(view_module(@conn), :head, 2) do %>
@@ -18,7 +18,7 @@
     {render("_header.html", conn: @conn, current_user: @current_user)}
     {render("_flash.html", flash: @flash)}
 
-    <main role="main" class={assigns[:main_class]}>
+    <main role="main">
       {@inner_content}
     </main>
 
@@ -26,7 +26,7 @@
     <script>
       window.__asciinema__workerUrl = '<%= Routes.static_path(@conn, "/js/player-worker.min.js") %>';
     </script>
-    <script phx-track-static src={Routes.static_path(@conn, "/js/app.js")}>
+    <script phx-track-static src={Routes.static_path(@conn, "/assets/app.js")}>
     </script>
   </body>
 </html>

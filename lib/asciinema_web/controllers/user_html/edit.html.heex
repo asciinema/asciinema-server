@@ -6,6 +6,7 @@
         for={@changeset}
         action={~p"/user"}
         class="simple_form form-horizontal"
+        id="account-form"
         novalidate="novalidate"
         role="form"
       >
@@ -32,6 +33,7 @@
         for={@changeset}
         action={~p"/user"}
         class="simple_form form-horizontal"
+        id="profile-form"
         novalidate="novalidate"
         role="form"
       >
@@ -74,6 +76,7 @@
         for={@changeset}
         action={~p"/user"}
         class="simple_form form-horizontal"
+        id="defaults-form"
         novalidate="novalidate"
         role="form"
       >
@@ -279,19 +282,19 @@
         <legend>Streaming</legend>
 
         <div class="form-group row">
-          <.label for={f[:stream_limit]} class="col-sm-4 col-md-3 col-form-label">
+          <.label for={f[:live_stream_limit]} class="col-sm-4 col-md-3 col-form-label">
             Stream limit
           </.label>
           <div class="col-sm-8 col-md-9">
             <.input
-              field={f[:stream_limit]}
+              field={f[:live_stream_limit]}
               class="string form-control"
               placeholder="no limit"
               readonly
             />
             <small class="form-text text-muted">
               Maximum number of streaming endpoints you can create.
-              <%= if @changeset.data.stream_limit do %>
+              <%= if @changeset.data.live_stream_limit do %>
                 Contact the admin if you need more.
               <% end %>
             </small>

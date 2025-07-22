@@ -37,3 +37,5 @@ config :asciinema, Oban, testing: :manual
 config :asciinema, Asciinema.Telemetry, enabled: false
 
 config :stream_data, max_runs: 1000
+
+config :phoenix_test, :endpoint, AsciinemaWeb.Endpoint

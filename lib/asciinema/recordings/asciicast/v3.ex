@@ -62,12 +62,13 @@ defmodule Asciinema.Recordings.Asciicast.V3 do
   defp get_duration(path) do
     path
     |> event_stream()
-    |> Enum.reduce(fn {t, _, _}, _prev_t -> t end)
+    |> Enum.reduce(0, fn {t, _, _}, _prev_t -> t end)
   end
 
   def create(path, {cols, rows}, fields \\ []) do
     file = File.open!(path, [:write, :utf8])
     timestamp = Keyword.get(fields, :timestamp)
+    title = Keyword.get(fields, :title)
     env = drop_empty(Keyword.get(fields, :env) || %{})
 
     term =
@@ -82,7 +83,7 @@ defmodule Asciinema.Recordings.Asciicast.V3 do
       |> Jason.OrderedObject.new()
 
     header =
-      [version: 3, term: term, timestamp: timestamp, env: env]
+      [version: 3, term: term, timestamp: timestamp, title: title, env: env]
       |> drop_empty()
       |> Jason.OrderedObject.new()
 
@@ -91,7 +92,8 @@ defmodule Asciinema.Recordings.Asciicast.V3 do
     end
   end
 
-  def write_event(%Writer{file: file} = writer, time, type, data) when type in ["o", "i", "m"] do
+  def write_event(%Writer{file: file} = writer, time, type, data)
+      when type in ["o", "i", "m", "x"] do
     rel_time = format_time(time - writer.prev_time)
     data = Jason.encode!(data)
     event = "[#{rel_time}, \"#{type}\", #{data}]"
@@ -114,10 +116,7 @@ defmodule Asciinema.Recordings.Asciicast.V3 do
   defp format_theme(nil), do: nil
 
   defp format_theme(theme) do
-    palette =
-      theme.palette
-      |> Enum.map(&Colors.hex/1)
-      |> Enum.join(":")
+    palette = Enum.map_join(theme.palette, ":", &Colors.hex/1)
 
     Jason.OrderedObject.new(
       fg: Colors.hex(theme.fg),
