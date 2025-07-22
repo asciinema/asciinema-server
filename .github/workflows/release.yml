@@ -30,12 +30,6 @@ jobs:
           echo IMAGE_ID=$IMAGE_ID >> $GITHUB_OUTPUT
           echo IMAGE_TAG=$IMAGE_TAG >> $GITHUB_OUTPUT
 
-      - name: Create the release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release create ${{ github.ref_name }} --draft --verify-tag --title ${{ steps.vars.outputs.VERSION }}
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -58,3 +52,9 @@ jobs:
           platforms: linux/amd64,linux/arm64
           build-args: |
             VERSION=${{ steps.vars.outputs.VERSION }}
+
+      - name: Create the release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create ${{ github.ref_name }} --draft --verify-tag --title ${{ steps.vars.outputs.VERSION }}
