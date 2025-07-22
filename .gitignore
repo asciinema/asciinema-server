@@ -36,6 +36,8 @@ npm-debug.log
 /assets/node_modules/
 
 .*
+!/.github/
+
 /cache/
 /config/custom.exs
 /priv/native/
