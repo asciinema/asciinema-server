@@ -15,6 +15,11 @@
     .fa { fill-opacity: 0.5 }
     .it { font-style: italic }
     .un { text-decoration: underline }
+
+    text {
+      font-size-adjust: ch-width <%= char_width() %>;
+      font-variant-ligatures: none;
+    }
   </style>
 
   <rect
@@ -54,7 +59,7 @@
               "1em"
             end
           }
-          x={x(x)}
+          x={x_per_grapheme(x, text)}
           {text_extra_attrs(attrs, @theme)}
         >
           {html_escape(text)}

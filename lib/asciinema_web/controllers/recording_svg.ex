@@ -397,8 +397,9 @@ defmodule AsciinemaWeb.RecordingSVG do
   end
 
   @font_size 14
+  @char_width 0.6
   @line_height 1.333333
-  @cell_width 8.42333333
+  @cell_width @font_size * @char_width
 
   defp x(x), do: x * @cell_width
 
@@ -409,6 +410,27 @@ defmodule AsciinemaWeb.RecordingSVG do
   defp h(h), do: h * @font_size * @line_height
 
   defp font_size, do: @font_size
+  defp char_width, do: @char_width
+
+  defp x_per_grapheme(offset, text) do
+    # NOTE: Elixir's `String.length/1` returns the number of **grapheme
+    # clusters**, not the number of code points. Luckily, that's what we want
+    # here, as SVG's concept of a "glyph" is closer to the concept of a
+    # grapheme cluster than it is to a code point (glyph is identical to
+    # grapheme cluster as long as the font doesn't have ligatures).
+
+    # If we ever need to support fonts that _do_ use ligatures (such as a
+    # version of Fira Code with ligatures enabled), those will need special
+    # handling. At time of writing, the version of Fira Code used is in TTF
+    # format, so ligatures are not supported.
+
+    # We also manually disable ligatures in the SVG's `<style>` block with
+    # `font-variant-ligatures: none` for good measure.
+
+    Range.new(0, String.length(text) - 1)
+    |> Enum.map(fn i -> (offset + i) * @cell_width |> Float.round(1) end)
+    |> Enum.join(" ")
+  end
 
   defp fg(attrs, theme), do: "fill: #{fg_color(attrs, theme, true)}"
 
