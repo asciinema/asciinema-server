@@ -134,9 +134,9 @@ defmodule AsciinemaWeb.StreamConsumerSocket do
   end
 
   def websocket_info(%StreamServer.Update{event: :marker} = update, state) do
-    %{time: time, label: label} = update.data
+    %{id: id, time: time, label: label} = update.data
     rel_time = time - state.last_event_time
-    msg = serialize_marker(rel_time, label)
+    msg = serialize_marker(id, rel_time, label)
     state = %{state | last_event_time: time}
 
     {:reply, msg, state}
@@ -239,8 +239,8 @@ defmodule AsciinemaWeb.StreamConsumerSocket do
     {:binary, msg}
   end
 
-  defp serialize_marker(time, label) do
-    msg = <<?m>> <> encode_varint(time) <> serialize_string(label)
+  defp serialize_marker(id, time, label) do
+    msg = <<?m>> <> encode_varint(id) <> encode_varint(time) <> serialize_string(label)
 
     {:binary, msg}
   end
