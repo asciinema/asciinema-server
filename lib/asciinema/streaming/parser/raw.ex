@@ -7,7 +7,7 @@ defmodule Asciinema.Streaming.Parser.Raw do
 
   def init, do: %{first: true, start_time: nil, last_event_id: 0}
 
-  def parse({:binary, text}, %{first: true} = state) do
+  def parse({_type, text}, %{first: true} = state) do
     size = size_from_resize_seq(text) || size_from_script_start_message(text) || @default_size
 
     commands = [
@@ -17,7 +17,7 @@ defmodule Asciinema.Streaming.Parser.Raw do
     {:ok, commands, %{state | first: false, start_time: Timex.now()}}
   end
 
-  def parse({:binary, text}, state) do
+  def parse({_type, text}, state) do
     {id, state} = get_next_id(state)
     time = stream_time(state)
 
