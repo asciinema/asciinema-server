@@ -60,7 +60,7 @@ defmodule AsciinemaWeb.StreamProducerSocket do
           Logger.info("producer/#{stream.id}: negotiated #{parser.impl.name()} protocol")
           save_protocol(state.stream_id, parser.impl.name())
         else
-          Logger.info("producer/#{stream.id}: no protocol negotiated (legacy client)")
+          Logger.info("producer/#{stream.id}: no protocol negotiated, will try to auto-detect")
         end
 
         {:ok, state}
@@ -70,8 +70,6 @@ defmodule AsciinemaWeb.StreamProducerSocket do
   @impl true
   def websocket_handle(frame, state)
 
-  # legacy clause for CLI 3.0 RC 3 and earlier, which doesn't do protocol negotiation
-  # TODO: remove after release of the final CLI 3.0
   def websocket_handle(message, %{parser: nil} = state) do
     parser = Parser.get(detect_protocol(message))
     Logger.info("producer/#{state.stream_id}: detected #{parser.impl.name()} protocol")
@@ -293,7 +291,7 @@ defmodule AsciinemaWeb.StreamProducerSocket do
     end
   end
 
-  @protos ~w(v1.alis v2.asciicast raw)
+  @protos ~w(v1.alis v2.asciicast v3.asciicast raw)
 
   defp select_protocol(protos) do
     # Choose common protos between the client and the server using client preferred order.
@@ -302,16 +300,21 @@ defmodule AsciinemaWeb.StreamProducerSocket do
     List.first(common)
   end
 
-  defp detect_protocol({:binary, "ALiS" <> _}), do: "v0.alis"
-  defp detect_protocol({:binary, _}), do: "raw"
-  defp detect_protocol({:text, _}), do: "v2.asciicast"
+  def detect_protocol({:binary, "ALiS" <> _}), do: "v0.alis"
+  def detect_protocol({:binary, _}), do: "raw"
+
+  def detect_protocol({:text, header}) do
+    case Jason.decode(header) do
+      {:ok, %{"version" => 2}} -> "v2.asciicast"
+      {:ok, %{"version" => 3}} -> "v3.asciicast"
+      _otherwise -> "raw"
+    end
+  end
 
   defp save_protocol(stream_id, protocol) do
-    Task.Supervisor.start_child(Asciinema.TaskSupervisor, fn ->
-      stream_id
-      |> Streaming.get_stream()
-      |> Streaming.update_stream(protocol: protocol)
-    end)
+    stream_id
+    |> Streaming.get_stream()
+    |> Streaming.update_stream(protocol: protocol)
   end
 
   defp config(key, default) do

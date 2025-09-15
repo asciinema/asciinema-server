@@ -41,7 +41,7 @@ defmodule AsciinemaWeb.StreamConsumerSocket do
 
   def websocket_init(%{token: token, user_id: user_id}) do
     with {:ok, stream} <- fetch_stream(token),
-         :ok <- authorize(stream, user_id) do
+         :ok <- authorize(stream, user_id, token) do
       Logger.info("consumer/#{stream.id}: connected")
       state = %{stream_id: stream.id, init: false, last_event_time: 0.0}
       StreamServer.subscribe(stream.id, [:output, :input, :resize, :marker, :end, :reset])
@@ -134,9 +134,9 @@ defmodule AsciinemaWeb.StreamConsumerSocket do
   end
 
   def websocket_info(%StreamServer.Update{event: :marker} = update, state) do
-    %{time: time, label: label} = update.data
+    %{id: id, time: time, label: label} = update.data
     rel_time = time - state.last_event_time
-    msg = serialize_marker(rel_time, label)
+    msg = serialize_marker(id, rel_time, label)
     state = %{state | last_event_time: time}
 
     {:reply, msg, state}
@@ -190,9 +190,11 @@ defmodule AsciinemaWeb.StreamConsumerSocket do
 
   defp fetch_stream(token), do: OK.required(Streaming.lookup_stream(token), :stream_not_found)
 
-  defp authorize(stream, user_id) do
-    if Authorization.can?(nil, :show, stream) ||
-         Authorization.can?(Accounts.get_user(user_id), :show, stream) do
+  defp authorize(stream, user_id, token) do
+    resource = Map.put(stream, :id, token)
+
+    if Authorization.can?(nil, :show, resource) ||
+         (user_id && Authorization.can?(Accounts.get_user(user_id), :show, resource)) do
       :ok
     else
       {:error, :forbidden}
@@ -239,8 +241,8 @@ defmodule AsciinemaWeb.StreamConsumerSocket do
     {:binary, msg}
   end
 
-  defp serialize_marker(time, label) do
-    msg = <<?m>> <> encode_varint(time) <> serialize_string(label)
+  defp serialize_marker(id, time, label) do
+    msg = <<?m>> <> encode_varint(id) <> encode_varint(time) <> serialize_string(label)
 
     {:binary, msg}
   end

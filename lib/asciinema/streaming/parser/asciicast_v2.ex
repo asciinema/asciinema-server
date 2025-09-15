@@ -1,4 +1,4 @@
-defmodule Asciinema.Streaming.Parser.Json do
+defmodule Asciinema.Streaming.Parser.AsciicastV2 do
   @moduledoc """
   asciicast v2 compatible stream protocol parser.
   """
