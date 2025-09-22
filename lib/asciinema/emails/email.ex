@@ -89,6 +89,9 @@ defmodule Asciinema.Emails.Email do
     |> from({"asciinema", from_address()})
     |> header("Date", Timex.format!(Timex.now(), "{RFC1123}"))
     |> header("Message-ID", message_id())
+    |> header("Auto-Submitted", "auto-generated")
+    |> header("X-Auto-Response-Suppress", "All")
+    |> header("Precedence", "bulk")
     |> reply_to(reply_to_address())
   end
 
