@@ -105,7 +105,7 @@ config :asciinema, Oban,
      crontab: [
        {"0 * * * *", Asciinema.Workers.DeleteUnclaimedRecordings},
        {"* * * * *", Asciinema.Workers.MarkOfflineStreams},
-       {"@daily", Asciinema.Workers.MigrateRecordingFiles}
+       {"@reboot", Asciinema.Workers.MigrateRecordingFiles}
      ]},
     Oban.Plugins.Lifeline,
     Oban.Plugins.Reindexer
