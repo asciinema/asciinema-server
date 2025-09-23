@@ -12,8 +12,7 @@ defmodule AsciinemaWeb.ErrorJSON do
   end
 
   def render("413.json", _assigns) do
-    {_, limit, _, _} = AsciinemaWeb.Plug.Parsers.MULTIPART.init([])
-    limit = format_byte_size(limit)
+    limit = format_byte_size(AsciinemaWeb.Plug.Parsers.MULTIPART.length_limit())
 
     %{
       type: "content_too_large",
