@@ -224,6 +224,22 @@
         </div>
 
         <div class="form-group row">
+          <.label for={f[:audio_url]} class="col-sm-4 col-md-3 col-lg-3 col-form-label">
+            Audio URL
+          </.label>
+          <div class="col-sm-8 col-md-9 col-lg-9">
+            <.input field={f[:audio_url]} type="url" class="form-control" />
+            <.error field={f[:audio_url]} />
+            <small class="form-text text-muted">
+               Use it when you want to add a
+              voice-over or a soundtrack to your recording. The player will
+              automatically sync audio playback position with the terminal
+              recording. 
+            </small>
+          </div>
+        </div>
+
+        <div class="form-group row">
           <.label for={f[:markers]} class="col-sm-4 col-md-3 col-lg-3 col-form-label">
             Markers
           </.label>
