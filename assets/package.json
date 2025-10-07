@@ -6,7 +6,7 @@
     "defaults"
   ],
   "dependencies": {
-    "asciinema-player": "3.11.0",
+    "asciinema-player": "3.11.1",
     "bootstrap": "^4.5.0",
     "jquery": "^3.5.1",
     "phoenix": "1.7.6",
