@@ -180,6 +180,22 @@
         </div>
 
         <div class="form-group row">
+          <.label for={f[:audio_url]} class="col-sm-4 col-md-3 col-lg-3 col-form-label">
+            Audio URL
+          </.label>
+          <div class="col-sm-8 col-md-9 col-lg-9">
+            <.input field={f[:audio_url]} type="url" class="form-control" />
+            <.error field={f[:audio_url]} />
+            <small class="form-text text-muted">
+              Use it when you want to add live audio to your stream. This
+              should be a live audio source - either a direct HTTP audio stream
+              (.mp3, .aac, .ogg, etc) such as Icecast/Shoutcast endpoint, or
+              HLS playlist (.m3u8).
+            </small>
+          </div>
+        </div>
+
+        <div class="form-group row">
           <div class="offset-sm-4 col-sm-8 offset-md-3 col-md-9 offset-lg-3 col-lg-9">
             <br />
             <.button type="submit" class="btn btn-primary">Save</.button>
