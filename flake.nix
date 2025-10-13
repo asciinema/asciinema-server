@@ -26,7 +26,7 @@
           nativeBuildInputs = with pkgs; [
             otp.elixir_1_18
             otp.elixir-ls
-            nodejs_18
+            nodejs_20
             (rust-bin.stable."1.83.0".default.override { extensions = [ "rust-src" "rust-analyzer" ]; })
             inotify-tools
             librsvg
