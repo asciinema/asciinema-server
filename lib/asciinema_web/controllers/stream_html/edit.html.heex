@@ -191,7 +191,11 @@
               should be a live audio source - either a direct HTTP audio stream
               (.mp3, .aac, .ogg, etc) such as Icecast/Shoutcast endpoint, or
               HLS playlist (.m3u8). The audio endpoint must be configured to
-              allow CORS requests from {@instance_url}.
+              allow CORS requests from {@instance_url}. If the audio endpoint
+              performs significant amount of buffering and audio lags behind
+              the terminal playback then try setting custom buffer time above
+              to a couple seconds - this delays rendering by a given number of
+              seconds.
             </small>
           </div>
         </div>
