@@ -26,10 +26,11 @@ defmodule AsciinemaWeb.StreamHTML do
     [
       cols: term_cols(stream),
       rows: term_rows(stream),
-      autoplay: true,
+      autoplay: stream.audio_url == nil,
       theme: term_theme_name(stream),
       terminalLineHeight: stream.term_line_height,
-      customTerminalFontFamily: Media.font_family(stream)
+      customTerminalFontFamily: Media.font_family(stream),
+      audioUrl: stream.audio_url
     ]
     |> Keyword.merge(opts)
     |> Enum.into(%{})

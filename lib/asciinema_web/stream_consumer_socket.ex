@@ -178,13 +178,14 @@ defmodule AsciinemaWeb.StreamConsumerSocket do
   defp user_id_from_session(req) do
     cookies = :cowboy_req.parse_cookies(req)
 
-    with {_, cookie} <- List.keyfind(cookies, @session_key, 0) do
-      secret_key_base = Application.fetch_env!(:asciinema, Endpoint)[:secret_key_base]
-      conn = %{secret_key_base: secret_key_base}
-      opts = Plug.Session.COOKIE.init(signing_salt: @signing_salt)
-      {:term, session} = Plug.Session.COOKIE.get(conn, cookie, opts)
-
+    with {_, cookie} <- List.keyfind(cookies, @session_key, 0),
+         secret_key_base = Application.fetch_env!(:asciinema, Endpoint)[:secret_key_base],
+         conn = %{secret_key_base: secret_key_base},
+         opts = Plug.Session.COOKIE.init(signing_salt: @signing_salt),
+         {:term, session} <- Plug.Session.COOKIE.get(conn, cookie, opts) do
       session["user_id"]
+    else
+      _ -> nil
     end
   end
 

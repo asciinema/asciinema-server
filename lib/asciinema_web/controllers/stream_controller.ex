@@ -79,7 +79,7 @@ defmodule AsciinemaWeb.StreamController do
       end
 
     changeset = Streaming.change_stream(conn.assigns.stream)
-    render(conn, :edit, changeset: changeset)
+    render(conn, :edit, changeset: changeset, instance_url: AsciinemaWeb.Endpoint.url())
   end
 
   def update(conn, %{"stream" => params}) do

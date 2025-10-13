@@ -185,7 +185,7 @@ defmodule AsciinemaWeb.RecordingController do
 
   def edit(conn, _params) do
     changeset = Recordings.change_asciicast(conn.assigns.asciicast)
-    render(conn, "edit.html", changeset: changeset)
+    render(conn, "edit.html", changeset: changeset, instance_url: AsciinemaWeb.Endpoint.url())
   end
 
   def update(conn, %{"asciicast" => asciicast_params}) do

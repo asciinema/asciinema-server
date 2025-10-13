@@ -30,7 +30,8 @@ defmodule AsciinemaWeb.RecordingHTML do
       poster: poster(asciicast.snapshot),
       markers: markers(asciicast.markers),
       idleTimeLimit: asciicast.idle_time_limit,
-      speed: asciicast.speed
+      speed: asciicast.speed,
+      audioUrl: asciicast.audio_url
     ]
     |> Keyword.merge(opts)
     |> Ext.Keyword.rename(t: :startAt)
