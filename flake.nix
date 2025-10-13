@@ -3,7 +3,6 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
-    rust-overlay.url = "github:oxalica/rust-overlay";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
@@ -11,14 +10,12 @@
     {
       self,
       nixpkgs,
-      rust-overlay,
       flake-utils,
     }:
     flake-utils.lib.eachDefaultSystem (
       system:
       let
-        overlays = [ (import rust-overlay) ];
-        pkgs = import nixpkgs { inherit system overlays; };
+        pkgs = nixpkgs.legacyPackages.${system};
         otp = pkgs.beam.packages.erlang_26;
       in
       {
@@ -27,7 +24,11 @@
             otp.elixir_1_18
             otp.elixir-ls
             nodejs_20
-            (rust-bin.stable."1.83.0".default.override { extensions = [ "rust-src" "rust-analyzer" ]; })
+            cargo
+            rustc
+            rustfmt
+            rust-analyzer
+            rustPackages.clippy
             inotify-tools
             librsvg
           ];
