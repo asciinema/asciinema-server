@@ -1,6 +1,0 @@
-#!/bin/bash
-set -eu
-
-cd -P -- "$(dirname -- "$0")"
-emails="$@"
-exec ./asciinema rpc "Asciinema.Release.admin_add(\"$emails\")"
