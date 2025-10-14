@@ -1,13 +1,33 @@
 #!/bin/sh
-set -eu
+set -e
+
+cat <<EOF
+                _ _
+  __ _ ___  ___(_|_)_ __   ___ _ __ ___   __ _
+ / _\` / __|/ __| | | '_ \ / _ \ '_ \` _ \ / _\` |
+| (_| \__ \ (__| | | | | |  __/ | | | | | (_| |
+ \__,_|___/\___|_|_|_| |_|\___|_| |_| |_|\__,_|
+
+         ___  ___ _ ____   _____ _ __
+        / __|/ _ \ '__\ \ / / _ \ '__|
+        \__ \  __/ |   \ V /  __/ |
+        |___/\___|_|    \_/ \___|_|
+
+
+[info] Booting...
+EOF
 
 if [ -z "${SECRET_KEY_BASE}" ]; then
-  echo "SECRET_KEY_BASE not set, generating one for this boot..."
-  echo "Don't forget to set it in production deployment!"
-  export SECRET_KEY_BASE=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 64)
-  echo "SECRET_KEY_BASE=${SECRET_KEY_BASE}"
+  echo "[warning] SECRET_KEY_BASE not set, generating a temporary one for this boot..."
+  echo "[warning] Don't forget to set it in production deployment!"
+  SECRET_KEY_BASE=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 64)
+  export SECRET_KEY_BASE
 fi
 
 cd -P -- "$(dirname -- "$0")"
+
+echo "[info] Running database migrations..."
 ./migrate
+
+echo "[info] Starting server..."
 PHX_SERVER=true exec ./asciinema start
