@@ -76,18 +76,20 @@
         };
 
         devShells.default = pkgs.mkShell {
-          nativeBuildInputs = with pkgs; [
-            beamPackages.elixir_1_18
-            beamPackages.elixir-ls
-            nodejs_20
-            cargo
-            rustc
-            rustfmt
-            rust-analyzer
-            rustPackages.clippy
-            inotify-tools
-            librsvg
-          ];
+          packages =
+            with pkgs;
+            [
+              beamPackages.elixir_1_18
+              beamPackages.elixir-ls
+              nodejs_20
+              cargo
+              rustc
+              rustfmt
+              rust-analyzer
+              rustPackages.clippy
+              inotify-tools
+            ]
+            ++ self.packages.${system}.default.buildInputs;
 
           shellHook = ''
             # this allows mix to work on the local directory
