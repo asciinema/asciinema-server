@@ -1,3 +1,5 @@
 #!/bin/sh
 
-exec ./bin/asciinema rpc "IO.inspect(Asciinema.Emails.send_email(:test, \"$1\"))"
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+exec ${script_dir}/asciinema rpc "IO.inspect(Asciinema.Emails.send_email(:test, \"$1\"))"

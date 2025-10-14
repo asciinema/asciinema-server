@@ -1,4 +1,6 @@
 #!/bin/sh
 
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 emails="$@"
-exec ./bin/asciinema rpc "Asciinema.Release.admin_rm(\"$emails\")"
+exec ${script_dir}/asciinema rpc "Asciinema.Release.admin_rm(\"$emails\")"

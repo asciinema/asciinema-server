@@ -1,3 +1,5 @@
 #!/bin/sh
 
-exec ./bin/asciinema eval Asciinema.Release.migrate
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+exec ${script_dir}/asciinema eval Asciinema.Release.migrate
