@@ -1,6 +1,5 @@
 #!/bin/sh
-
-script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+set -eu
 
 if [ -z "${SECRET_KEY_BASE}" ]; then
   echo "SECRET_KEY_BASE not set, generating one for this boot..."
@@ -9,4 +8,6 @@ if [ -z "${SECRET_KEY_BASE}" ]; then
   echo "SECRET_KEY_BASE=${SECRET_KEY_BASE}"
 fi
 
-PHX_SERVER=true exec ${script_dir}/asciinema start
+cd -P -- "$(dirname -- "$0")"
+./migrate
+PHX_SERVER=true exec ./asciinema start

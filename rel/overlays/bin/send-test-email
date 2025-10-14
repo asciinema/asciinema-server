@@ -1,5 +1,5 @@
 #!/bin/sh
+set -eu
 
-script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-exec ${script_dir}/asciinema rpc "IO.inspect(Asciinema.Emails.send_email(:test, \"$1\"))"
+cd -P -- "$(dirname -- "$0")"
+exec ./asciinema rpc "IO.inspect(Asciinema.Emails.send_email(:test, \"$1\"))"
