@@ -88,6 +88,7 @@
               rust-analyzer
               rustPackages.clippy
               inotify-tools
+              shellcheck
             ]
             ++ self.packages.${system}.default.buildInputs;
 
