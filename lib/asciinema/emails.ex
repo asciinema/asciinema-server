@@ -46,7 +46,7 @@ defmodule Asciinema.Emails do
 
   defp extract_urls(email) do
     ~r/"(https?:[^"]+)"/
-    |> Regex.scan(email.html_body)
+    |> Regex.scan(email.html_body || email.text_body)
     |> Enum.map(&Enum.at(&1, 1))
   end
 end
