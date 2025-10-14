@@ -89,6 +89,10 @@ if config_env() in [:prod, :dev] do
       ip_period: String.to_integer(env.("IP_RATE_PERIOD") || "1") * 1_000
   end
 
+  if data_dir = env.("DATA_DIR") do
+    config :asciinema, Asciinema.FileStore.Local, path: "#{data_dir}/uploads"
+  end
+
   cache_path = env.("CACHE_PATH")
 
   if cache_path do
