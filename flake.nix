@@ -113,6 +113,61 @@
             alias serve='iex -S mix phx.server';
           '';
         };
+
+        nixosModules.default =
+          {
+            config,
+            lib,
+            pkgs,
+            ...
+          }:
+          let
+            cfg = config.services.asciinema-server;
+            user = "asciinema-server";
+            pkg = self.packages.${system}.default;
+          in
+          {
+            options.services.asciinema-server = {
+              enable = lib.mkEnableOption "asciinema-server";
+
+              databaseUrl = lib.mkOption {
+                type = lib.types.str;
+              };
+
+              dataDir = lib.mkOption {
+                type = lib.types.path;
+                default = "/var/lib/asciinema";
+              };
+            };
+
+            config = lib.mkIf cfg.enable {
+              users.users.${user} = {
+                isSystemUser = true;
+                group = user;
+                home = cfg.dataDir;
+                createHome = true;
+              };
+
+              users.groups.${user} = { };
+
+              systemd.services.asciinema-server = {
+                wantedBy = [ "multi-user.target" ];
+
+                script = ''
+                  ${pkg}/bin/server
+                '';
+
+                environment = {
+                  HOME = cfg.dataDir;
+                  DATABASE_URL = cfg.databaseUrl;
+                };
+              };
+
+              systemd.tmpfiles.rules = [
+                "d ${cfg.dataDir} 0750 ${user} ${user} - -"
+              ];
+            };
+          };
       }
     );
 }
