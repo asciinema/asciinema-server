@@ -71,7 +71,11 @@
             mix assets.deploy
           '';
 
-          buildInputs = [ pkgs.librsvg ];
+          buildInputs = with pkgs; [
+            librsvg
+            pngquant
+          ];
+
           removeCookie = false;
         };
 
