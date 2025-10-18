@@ -21,8 +21,8 @@ recordings and streams, available to everyone. Check
 instance.
 
 You can easily [self-host asciinema
-server](https://docs.asciinema.org/manual/server/self-hosting/index.md) and use
-the [asciinema CLI](https://docs.asciinema.org/manual/cli/index.md) with your
+server](https://docs.asciinema.org/manual/server/self-hosting) and use
+the [asciinema CLI](https://docs.asciinema.org/manual/cli) with your
 own instance. If you're not comfortable with hosting your data at
 asciinema.org, if your company policy prevents you from doing so, or if you
 simply prefer self-hosting everything, then asciinema has you covered.
