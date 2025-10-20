@@ -189,7 +189,7 @@ defmodule Asciinema.Recordings.Asciicast.V3Test do
       content = File.read!(path)
 
       assert content ==
-               ~s|{"version":3,"term":{"cols":99,"rows":22}}\n[123.456789, "m", "intro"]\n|
+               ~s|{"version":3,"term":{"cols":99,"rows":22}}\n[123.457, "m", "intro"]\n|
     end
 
     test "exit", %{path: path, writer: writer} do
@@ -198,7 +198,7 @@ defmodule Asciinema.Recordings.Asciicast.V3Test do
       content = File.read!(path)
 
       assert content ==
-               ~s|{"version":3,"term":{"cols":99,"rows":22}}\n[0.000001, "x", "0"]\n|
+               ~s|{"version":3,"term":{"cols":99,"rows":22}}\n[0.0, "x", "0"]\n|
     end
   end
 
@@ -215,7 +215,7 @@ defmodule Asciinema.Recordings.Asciicast.V3Test do
       content = File.read!(path)
 
       assert content ==
-               ~s|{"version":3,"term":{"cols":99,"rows":22}}\n[0.25, "o", "hello world"]\n[0.75, \"i\", \"h\"]\n[0.5, \"r\", \"81x25\"]\n[0.50005, \"m\", \"intro\"]\n|
+               ~s|{"version":3,"term":{"cols":99,"rows":22}}\n[0.25, "o", "hello world"]\n[0.75, \"i\", \"h\"]\n[0.5, \"r\", \"81x25\"]\n[0.5, \"m\", \"intro\"]\n|
     end
   end
 end

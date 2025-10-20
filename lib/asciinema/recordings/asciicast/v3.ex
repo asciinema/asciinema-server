@@ -1,10 +1,11 @@
 defmodule Asciinema.Recordings.Asciicast.V3 do
   alias Asciinema.Colors
+  alias Asciinema.Quantizer
   alias Asciinema.Recordings.EventStream
 
   defmodule Writer do
-    @enforce_keys [:file, :prev_time]
-    defstruct [:file, :prev_time]
+    @enforce_keys [:file, :prev_time, :time_quantizer]
+    defstruct [:file, :prev_time, :time_quantizer]
   end
 
   def event_stream(path) when is_binary(path) do
@@ -88,28 +89,38 @@ defmodule Asciinema.Recordings.Asciicast.V3 do
       |> Jason.OrderedObject.new()
 
     with :ok <- IO.write(file, Jason.encode!(header) <> "\n") do
-      {:ok, %Writer{file: file, prev_time: 0}}
+      {:ok, %Writer{file: file, prev_time: 0, time_quantizer: Quantizer.new(1_000)}}
     end
   end
 
-  def write_event(%Writer{file: file} = writer, time, type, data)
+  def write_event(
+        %Writer{} = writer,
+        time,
+        type,
+        data
+      )
       when type in ["o", "i", "m", "x"] do
-    rel_time = format_time(time - writer.prev_time)
+    {time_quantizer, dt} = Quantizer.next(writer.time_quantizer, time - writer.prev_time)
     data = Jason.encode!(data)
-    event = "[#{rel_time}, \"#{type}\", #{data}]"
+    event = "[#{format_time(dt)}, \"#{type}\", #{data}]"
 
-    with :ok <- IO.write(file, event <> "\n") do
-      {:ok, %{writer | prev_time: time}}
+    with :ok <- IO.write(writer.file, event <> "\n") do
+      {:ok, %{writer | prev_time: time, time_quantizer: time_quantizer}}
     end
   end
 
-  def write_event(%Writer{file: file} = writer, time, "r", {cols, rows}) do
-    rel_time = format_time(time - writer.prev_time)
+  def write_event(
+        %Writer{} = writer,
+        time,
+        "r",
+        {cols, rows}
+      ) do
+    {time_quantizer, dt} = Quantizer.next(writer.time_quantizer, time - writer.prev_time)
     data = Jason.encode!("#{cols}x#{rows}")
-    event = "[#{rel_time}, \"r\", #{data}]"
+    event = "[#{format_time(dt)}, \"r\", #{data}]"
 
-    with :ok <- IO.write(file, event <> "\n") do
-      {:ok, %{writer | prev_time: time}}
+    with :ok <- IO.write(writer.file, event <> "\n") do
+      {:ok, %{writer | prev_time: time, time_quantizer: time_quantizer}}
     end
   end
 
