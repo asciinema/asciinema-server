@@ -144,7 +144,7 @@ defmodule Asciinema.Recordings.Asciicast.V3 do
       |> rem(1_000_000)
       |> to_string()
       |> String.pad_leading(6, "0")
-      |> String.trim_trailing("0")
+      |> String.slice(0, 3)
 
     decimal =
       case decimal do

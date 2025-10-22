@@ -164,7 +164,7 @@ defmodule Asciinema.Recordings.Asciicast.V3Test do
       content = File.read!(path)
 
       assert content ==
-               ~s|{"version":3,"term":{"cols":99,"rows":22}}\n[0.25, "o", "hello world"]\n|
+               ~s|{"version":3,"term":{"cols":99,"rows":22}}\n[0.250, "o", "hello world"]\n|
     end
 
     test "input", %{path: path, writer: writer} do
@@ -172,7 +172,7 @@ defmodule Asciinema.Recordings.Asciicast.V3Test do
       :ok = V3.close(writer)
       content = File.read!(path)
 
-      assert content == ~s|{"version":3,"term":{"cols":99,"rows":22}}\n[1.0, "i", "h"]\n|
+      assert content == ~s|{"version":3,"term":{"cols":99,"rows":22}}\n[1.000, "i", "h"]\n|
     end
 
     test "resize", %{path: path, writer: writer} do
@@ -180,7 +180,7 @@ defmodule Asciinema.Recordings.Asciicast.V3Test do
       :ok = V3.close(writer)
       content = File.read!(path)
 
-      assert content == ~s|{"version":3,"term":{"cols":99,"rows":22}}\n[0.01, "r", "81x25"]\n|
+      assert content == ~s|{"version":3,"term":{"cols":99,"rows":22}}\n[0.010, "r", "81x25"]\n|
     end
 
     test "marker", %{path: path, writer: writer} do
@@ -198,7 +198,7 @@ defmodule Asciinema.Recordings.Asciicast.V3Test do
       content = File.read!(path)
 
       assert content ==
-               ~s|{"version":3,"term":{"cols":99,"rows":22}}\n[0.0, "x", "0"]\n|
+               ~s|{"version":3,"term":{"cols":99,"rows":22}}\n[0.000, "x", "0"]\n|
     end
   end
 
@@ -208,14 +208,14 @@ defmodule Asciinema.Recordings.Asciicast.V3Test do
 
       {:ok, writer} = V3.create(path, {99, 22})
       {:ok, writer} = V3.write_event(writer, 250_000, "o", "hello world")
-      {:ok, writer} = V3.write_event(writer, 1_000_000, "i", "h")
+      {:ok, writer} = V3.write_event(writer, 1_111_000, "i", "h")
       {:ok, writer} = V3.write_event(writer, 1_500_000, "r", {81, 25})
       {:ok, writer} = V3.write_event(writer, 2_000_050, "m", "intro")
       :ok = V3.close(writer)
       content = File.read!(path)
 
       assert content ==
-               ~s|{"version":3,"term":{"cols":99,"rows":22}}\n[0.25, "o", "hello world"]\n[0.75, \"i\", \"h\"]\n[0.5, \"r\", \"81x25\"]\n[0.5, \"m\", \"intro\"]\n|
+               ~s|{"version":3,"term":{"cols":99,"rows":22}}\n[0.250, "o", "hello world"]\n[0.861, \"i\", \"h\"]\n[0.389, \"r\", \"81x25\"]\n[0.500, \"m\", \"intro\"]\n|
     end
   end
 end
