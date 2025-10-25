@@ -91,10 +91,10 @@
               rustfmt
               rust-analyzer
               rustPackages.clippy
-              inotify-tools
               shellcheck
             ]
-            ++ self.packages.${system}.default.buildInputs;
+            ++ self.packages.${system}.default.buildInputs
+            ++ lib.optional stdenv.isLinux [ inotify-tools ];
 
           shellHook = ''
             # this allows mix to work on the local directory
