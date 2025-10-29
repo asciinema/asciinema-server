@@ -90,7 +90,6 @@ fn dump_screen(env: Env, resource: ResourceArc<VtResource>) -> NifResult<(Atom, 
 
     let lines = vt
         .view()
-        .iter()
         .map(|line| line_to_terms(line, env))
         .collect::<Vec<_>>();
 
