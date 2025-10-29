@@ -50,7 +50,6 @@
           inherit pname;
           version = "1.0.0";
           src = ./.;
-          elixir = beamPackages.elixir_1_18;
 
           mixFodDeps = beamPackages.fetchMixDeps {
             pname = "${pname}-mix-deps";
