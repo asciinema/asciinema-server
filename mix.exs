@@ -79,7 +79,7 @@ defmodule Asciinema.MixProject do
       {:postgrex, ">= 0.0.0"},
       {:process_tree, "~> 0.2.1", only: :test},
       {:remote_ip, "~> 1.1"},
-      {:rustler, "~> 0.36.1"},
+      {:rustler, "~> 0.37.1"},
       {:scrivener_ecto, "~> 2.4"},
       {:scrivener_html, "~> 1.8"},
       {:sentry, "~> 8.0"},

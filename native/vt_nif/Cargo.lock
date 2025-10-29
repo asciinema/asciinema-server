@@ -84,9 +84,9 @@ dependencies = [
 
 [[package]]
 name = "rustler"
-version = "0.36.1"
+version = "0.37.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f04a7b61bf2db5495d6c0d2eb4b3f0f366864d47f2482834656e25d1b25fe290"
+checksum = "fb867bb35b291ef105abbe0a0d04bd4d7af372e023d08845698687bc254f222b"
 dependencies = [
  "inventory",
  "libloading",
@@ -96,9 +96,9 @@ dependencies = [
 
 [[package]]
 name = "rustler_codegen"
-version = "0.36.1"
+version = "0.37.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bf9365a04e3a3a4d3136953d97c67fd0a9c036d36197917961551c2cc1ecb385"
+checksum = "90993223c5ac0fb580ff966fb9477289c4e8a610a2f4639912a2639c5e7b5095"
 dependencies = [
  "heck",
  "inventory",
