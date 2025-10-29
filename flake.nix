@@ -18,9 +18,11 @@
         pname = "asciinema-server";
         pkgs = nixpkgs.legacyPackages.${system};
 
-        beamPackages = pkgs.beam.packages.erlang_26.extend (_: prev: {
-          elixir = prev.elixir_1_18;
-        });
+        beamPackages = pkgs.beam.packages.erlang_26.extend (
+          _: prev: {
+            elixir = prev.elixir_1_18;
+          }
+        );
 
         vtNif = pkgs.rustPlatform.buildRustPackage {
           pname = "${pname}-vt-nif";
@@ -170,6 +172,8 @@
               ];
             };
           };
+
+        formatter = pkgs.nixfmt-tree;
       }
     );
 }
