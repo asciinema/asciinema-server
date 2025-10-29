@@ -1,4 +1,4 @@
 [workspace]
 resolver = "2"
 
-members = ["vt"]
+members = ["vt", "fts"]

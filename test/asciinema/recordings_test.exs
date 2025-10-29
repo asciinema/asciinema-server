@@ -162,6 +162,37 @@ defmodule Asciinema.RecordingsTest do
     end
   end
 
+  describe "generate_fts_content/3" do
+    @tag :vt
+    test "returns recording content prepared for FTS" do
+      output = [{1.0, "o", "a"}, {2.4, "o", "B"}, {2.6, "o", "c"}]
+      content = Recordings.generate_fts_content(output, 10, 5)
+
+      assert content == "abc "
+    end
+
+    @tag :vt
+    test "includes scrollback" do
+      output = [{1.0, "o", "aaa\n"}, {2.4, "o", "Bbb\n"}, {2.6, "o", "ccc\n"}]
+      content = Recordings.generate_fts_content(output, 10, 2)
+
+      assert content == "aaa bbb ccc "
+    end
+
+    @tag :vt
+    test "keeps words of len > 1, truncates words > 32" do
+      output = [
+        {1.0, "o", "a "},
+        {2.4, "o", "bbbbbbbbbbBbbbbbbbbbbbbbbbbbbB "},
+        {2.6, "o", "CcccccccccccccccccCcccccccccccccccccccCc "}
+      ]
+
+      content = Recordings.generate_fts_content(output, 100, 5)
+
+      assert content == "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb cccccccccccccccccccccccccccccccc "
+    end
+  end
+
   describe "migrate_file/1" do
     test "is noop when the file path is up to date" do
       asciicast =

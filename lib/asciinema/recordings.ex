@@ -4,8 +4,8 @@ defmodule Asciinema.Recordings do
   import Ecto.Changeset
   import Ecto.Query, warn: false
   alias Asciinema.Recordings.Asciicast.{V1, V2, V3}
-  alias Asciinema.{FileStore, Fonts, Repo, Themes, Vt}
-  alias Asciinema.Workers.{MigrateRecordingFiles, UpdateSnapshot}
+  alias Asciinema.{FileStore, Fonts, Fts, Repo, Themes, Vt}
+  alias Asciinema.Workers.{MigrateRecordingFiles, UpdateFtsContent, UpdateSnapshot}
 
   alias Asciinema.Recordings.{
     Asciicast,
@@ -92,10 +92,34 @@ defmodule Asciinema.Recordings do
 
   defp sort(q, order) do
     case order do
-      :date -> order_by(q, desc: :id)
-      :popularity -> order_by(q, desc: :views_count)
-      :random -> order_by(q, fragment("RANDOM()"))
+      :date ->
+        order_by(q, desc: :id)
+
+      :popularity ->
+        order_by(q, desc: :views_count)
+
+      :random ->
+        order_by(q, fragment("RANDOM()"))
     end
+  end
+
+  def search(%Ecto.Query{} = query, q) do
+    query
+    |> from()
+    |> where(
+      [a],
+      fragment(
+        "(title_tsv || description_tsv || coalesce(content_tsv, ''::tsvector)) @@ websearch_to_tsquery('simple', ?)",
+        ^q
+      )
+    )
+    |> order_by(
+      {:desc,
+       fragment(
+         "ts_rank_cd(setweight(title_tsv, 'A') || setweight(description_tsv, 'B') || setweight(coalesce(content_tsv, ''::tsvector), 'C'), websearch_to_tsquery('simple', ?), 4)",
+         ^q
+       )}
+    )
   end
 
   def paginate(%Ecto.Query{} = query, page, page_size) do
@@ -170,6 +194,10 @@ defmodule Asciinema.Recordings do
         |> UpdateSnapshot.new()
         |> Oban.insert!()
       end
+
+      %{asciicast_id: asciicast.id}
+      |> UpdateFtsContent.new()
+      |> Oban.insert!()
 
       {:ok, asciicast}
     end
@@ -373,6 +401,52 @@ defmodule Asciinema.Recordings do
     |> Enum.each(fn {_, text} -> Vt.feed(vt, text) end)
 
     Vt.dump_screen(vt)
+  end
+
+  def update_fts_content(%Asciicast{} = asciicast) do
+    cols = asciicast.term_cols_override || asciicast.term_cols
+    rows = asciicast.term_rows_override || asciicast.term_rows
+
+    content =
+      asciicast
+      |> event_stream()
+      |> generate_fts_content(cols, rows)
+
+    id = asciicast.id
+
+    Repo.update_all(
+      from(a in Asciicast,
+        where: a.id == ^id,
+        update: [set: [content_tsv: fragment("to_tsvector('simple', ?)", ^content)]]
+      ),
+      []
+    )
+
+    :ok
+  end
+
+  def generate_fts_content(events, cols, rows) do
+    {:ok, fts} = Fts.new(cols, rows)
+
+    events
+    |> Stream.each(fn {_, code, data} ->
+      case code do
+        "o" ->
+          Fts.feed(fts, data)
+
+        "r" ->
+          [cols, rows] = String.split(data, "x")
+          cols = String.to_integer(cols)
+          rows = String.to_integer(rows)
+          Fts.resize(fts, cols, rows)
+
+        _ ->
+          :ok
+      end
+    end)
+    |> Stream.run()
+
+    Fts.dump(fts)
   end
 
   def event_stream(%Asciicast{} = asciicast) do

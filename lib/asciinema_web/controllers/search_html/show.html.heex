@@ -1,0 +1,25 @@
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="heading">
+        <h2>Search results for <b>{@q}</b></h2>
+      </div>
+    </div>
+  </div>
+
+  <div class="row asciicast-list">
+    <div class="col">
+      <div :for={asciicasts <- Enum.chunk_every(@page, 2, 2)} class="row">
+        <div :for={asciicast <- asciicasts} class="col-md-6">
+          <RecordingHTML.card asciicast={asciicast} />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div :if={@page.total_pages > 1} class="row">
+    <div class="col">
+      {pagination_links(@page, q: @q)}
+    </div>
+  </div>
+</div>

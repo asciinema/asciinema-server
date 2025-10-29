@@ -1,0 +1,13 @@
+.c-search {
+  &.a-show {
+    main {
+      .heading {
+        margin: 2rem 0;
+      }
+
+      .pagination {
+        margin-top: 1rem;
+      }
+    }
+  }
+}

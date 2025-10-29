@@ -1,0 +1,12 @@
+[package]
+name = "fts"
+version = "0.1.0"
+authors = []
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+rustler = "0.37.0"
+avt = "0.17.0"
