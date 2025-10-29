@@ -366,16 +366,13 @@ defmodule Asciinema.Recordings do
   end
 
   def generate_snapshot(output_stream, cols, rows, secs) do
-    frames = Stream.take_while(output_stream, &frame_before_or_at?(&1, secs))
+    {:ok, vt} = Vt.new(cols, rows, 0)
 
-    {:ok, {lines, cursor}} =
-      Vt.with_vt(cols, rows, [scrollback_limit: 0], fn vt ->
-        Enum.each(frames, fn {_, text} -> Vt.feed(vt, text) end)
+    output_stream
+    |> Stream.take_while(&frame_before_or_at?(&1, secs))
+    |> Enum.each(fn {_, text} -> Vt.feed(vt, text) end)
 
-        Vt.dump_screen(vt)
-      end)
-
-    {lines, cursor}
+    Vt.dump_screen(vt)
   end
 
   def event_stream(%Asciicast{} = asciicast) do

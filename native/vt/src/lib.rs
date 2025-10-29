@@ -85,7 +85,7 @@ fn dump(resource: ResourceArc<VtResource>) -> NifResult<String> {
 }
 
 #[rustler::nif]
-fn dump_screen(env: Env, resource: ResourceArc<VtResource>) -> NifResult<(Atom, Term)> {
+fn dump_screen(env: Env, resource: ResourceArc<VtResource>) -> NifResult<Term> {
     let vt = convert_err(resource.vt.read(), "rw_lock")?;
 
     let lines = vt
@@ -95,7 +95,7 @@ fn dump_screen(env: Env, resource: ResourceArc<VtResource>) -> NifResult<(Atom, 
 
     let cursor: Option<(usize, usize)> = vt.cursor().into();
 
-    Ok((atoms::ok(), (lines, cursor).encode(env)))
+    Ok((lines, cursor).encode(env))
 }
 
 fn line_to_terms<'a>(line: &avt::Line, env: Env<'a>) -> Vec<Term<'a>> {

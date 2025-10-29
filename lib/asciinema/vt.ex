@@ -1,12 +1,6 @@
 defmodule Asciinema.Vt do
   use Rustler, otp_app: :asciinema, crate: :vt
 
-  def with_vt(cols, rows, opts \\ [], f) do
-    scrollback_limit = Keyword.get(opts, :scrollback_limit, 100)
-
-    with {:ok, vt} <- new(cols, rows, scrollback_limit), do: f.(vt)
-  end
-
   # When NIF is loaded, it will override following functions.
 
   @spec new(integer, integer, integer | nil) :: {:ok, reference} | {:error, :invalid_size}
@@ -21,7 +15,7 @@ defmodule Asciinema.Vt do
   @spec dump(reference) :: binary
   def dump(_vt), do: :erlang.nif_error(:nif_not_loaded)
 
-  @spec dump_screen(reference) :: {:ok, {list(list({binary, map})), {integer, integer} | nil}}
+  @spec dump_screen(reference) :: {list(list({binary, map})), {integer, integer} | nil}
   def dump_screen(_vt), do: :erlang.nif_error(:nif_not_loaded)
 
   @spec text(reference) :: binary

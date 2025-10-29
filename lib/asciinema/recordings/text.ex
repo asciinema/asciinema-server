@@ -4,27 +4,27 @@ defmodule Asciinema.Recordings.Text do
   alias Asciinema.{FileCache, Vt}
 
   def text(%Asciicast{term_cols: cols, term_rows: rows} = asciicast) do
-    stream = Recordings.event_stream(asciicast)
+    {:ok, vt} = Vt.new(cols, rows, nil)
 
-    Vt.with_vt(cols, rows, [scrollback_limit: nil], fn vt ->
-      Enum.each(stream, fn {_, code, data} ->
-        case code do
-          "o" ->
-            Vt.feed(vt, data)
+    asciicast
+    |> Recordings.event_stream()
+    |> Enum.each(fn {_, code, data} ->
+      case code do
+        "o" ->
+          Vt.feed(vt, data)
 
-          "r" ->
-            [cols, rows] = String.split(data, "x")
-            cols = String.to_integer(cols)
-            rows = String.to_integer(rows)
-            Vt.resize(vt, cols, rows)
+        "r" ->
+          [cols, rows] = String.split(data, "x")
+          cols = String.to_integer(cols)
+          rows = String.to_integer(rows)
+          Vt.resize(vt, cols, rows)
 
-          _ ->
-            :ok
-        end
-      end)
-
-      Vt.text(vt)
+        _ ->
+          :ok
+      end
     end)
+
+    Vt.text(vt)
   end
 
   def text_file_path(asciicast) do
