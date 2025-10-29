@@ -1,5 +1,5 @@
 defmodule Asciinema.Vt do
-  use Rustler, otp_app: :asciinema, crate: :vt_nif
+  use Rustler, otp_app: :asciinema, crate: :vt
 
   def with_vt(cols, rows, opts \\ [], f) do
     scrollback_limit = Keyword.get(opts, :scrollback_limit, 100)

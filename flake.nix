@@ -24,13 +24,13 @@
           }
         );
 
-        vtNif = pkgs.rustPlatform.buildRustPackage {
-          pname = "${pname}-vt-nif";
+        nifs = pkgs.rustPlatform.buildRustPackage {
+          pname = "${pname}-nifs";
           version = "1.0.0";
-          src = ./native/vt_nif;
+          src = ./native;
 
           cargoLock = {
-            lockFile = ./native/vt_nif/Cargo.lock;
+            lockFile = ./native/Cargo.lock;
           };
         };
 
@@ -67,7 +67,7 @@
             EOF
 
             mkdir -p priv/native
-            cp ${vtNif}/lib/libvt_nif.so priv/native/
+            cp ${nifs}/lib/libvt.so priv/native/vt.so
           '';
 
           preInstall = ''

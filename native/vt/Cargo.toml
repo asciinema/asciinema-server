@@ -1,13 +1,11 @@
 [package]
-name = "vt_nif"
+name = "vt"
 version = "0.1.0"
 authors = []
 edition = "2021"
 
 [lib]
-name = "vt_nif"
-path = "src/lib.rs"
-crate-type = ["dylib"]
+crate-type = ["cdylib"]
 
 [dependencies]
 rustler = "0.37.0"
