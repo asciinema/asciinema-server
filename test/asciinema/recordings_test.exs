@@ -148,7 +148,7 @@ defmodule Asciinema.RecordingsTest do
     end
   end
 
-  describe "generate_snapshot/2" do
+  describe "generate_snapshot/4" do
     @tag :vt
     test "returns list of screen lines" do
       output = [{1.0, "a"}, {2.4, "b"}, {2.6, "c"}]
