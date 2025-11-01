@@ -21,7 +21,7 @@ struct Fts {
     content: String,
 }
 
-const MAX_TEXT_LEN: usize = 1024 * 1024;
+const MAX_TEXT_LEN: usize = (1024 * 1024) - 1; // PostgreSQL's default size limit for tsvector
 
 impl Fts {
     fn feed(&mut self, input: Binary) {

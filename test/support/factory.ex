@@ -101,15 +101,21 @@ defmodule Asciinema.Factory do
     |> Enum.join("")
   end
 
-  def with_file(asciicast) do
-    src =
+  def with_file(asciicast, filename \\ nil)
+
+  def with_file(asciicast, nil) do
+    filename =
       case asciicast.version do
         1 -> "welcome.json"
         2 -> "welcome.cast"
         3 -> "3/full.cast"
       end
 
-    :ok = FileStore.put_file(asciicast.path, "test/fixtures/#{src}", "application/json")
+    with_file(asciicast, filename)
+  end
+
+  def with_file(asciicast, filename) do
+    :ok = FileStore.put_file(asciicast.path, "test/fixtures/#{filename}", "application/json")
 
     asciicast
   end

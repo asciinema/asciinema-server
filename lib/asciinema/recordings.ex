@@ -412,17 +412,33 @@ defmodule Asciinema.Recordings do
       |> event_stream()
       |> generate_fts_content(cols, rows)
 
-    id = asciicast.id
+    set_content_tsv(asciicast.id, content)
+  end
 
-    Repo.update_all(
-      from(a in Asciicast,
-        where: a.id == ^id,
-        update: [set: [content_tsv: fragment("to_tsvector('simple', ?)", ^content)]]
-      ),
-      []
-    )
+  defp set_content_tsv(id, content, attempt \\ 1) do
+    try do
+      Repo.update_all(
+        from(a in Asciicast,
+          where: a.id == ^id,
+          update: [set: [content_tsv: fragment("to_tsvector('simple', ?)", ^content)]]
+        ),
+        []
+      )
 
-    :ok
+      :ok
+    rescue
+      e in Postgrex.Error ->
+        if e.postgres.code == :program_limit_exceeded do
+          if attempt < 10 do
+            content = String.slice(content, 0, div(String.length(content) * 9, 10))
+            set_content_tsv(id, content, attempt + 1)
+          else
+            {:error, :too_long}
+          end
+        else
+          reraise e, __STACKTRACE__
+        end
+    end
   end
 
   def generate_fts_content(events, cols, rows) do

@@ -193,6 +193,20 @@ defmodule Asciinema.RecordingsTest do
     end
   end
 
+  describe "update_fts_content/1" do
+    test "small file" do
+      asciicast = insert(:asciicast) |> with_file()
+
+      assert Recordings.update_fts_content(asciicast) == :ok
+    end
+
+    test "big file" do
+      asciicast = insert(:asciicast_v3) |> with_file("big.cast")
+
+      assert Recordings.update_fts_content(asciicast) == :ok
+    end
+  end
+
   describe "migrate_file/1" do
     test "is noop when the file path is up to date" do
       asciicast =
