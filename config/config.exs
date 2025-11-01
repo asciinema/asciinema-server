@@ -98,7 +98,7 @@ config :asciinema, AsciinemaWeb.DefaultAvatar, adapter: AsciinemaWeb.DefaultAvat
 
 config :asciinema, Oban,
   repo: Asciinema.Repo,
-  queues: [default: 10, emails: 10],
+  queues: [default: 5, emails: 5],
   plugins: [
     {Oban.Plugins.Pruner, max_age: 3600},
     {Oban.Plugins.Cron,
