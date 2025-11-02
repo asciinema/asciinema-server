@@ -14,9 +14,7 @@ defmodule Asciinema.Recordings.Text do
           Vt.feed(vt, data)
 
         "r" ->
-          [cols, rows] = String.split(data, "x")
-          cols = String.to_integer(cols)
-          rows = String.to_integer(rows)
+          {cols, rows} = data
           Vt.resize(vt, cols, rows)
 
         _ ->

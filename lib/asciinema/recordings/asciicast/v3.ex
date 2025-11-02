@@ -23,14 +23,24 @@ defmodule Asciinema.Recordings.Asciicast.V3 do
     |> Stream.drop(1)
     |> Stream.reject(fn line -> line == "\n" or String.starts_with?(line, "#") end)
     |> Stream.map(&Jason.decode!/1)
-    |> Stream.map(&parse_event/1)
+    |> Stream.flat_map(&parse_event/1)
     |> EventStream.cap_relative_time(header["idle_time_limit"])
     |> EventStream.to_absolute_time()
   end
 
+  defp parse_event([time, "r", data]) when is_number(time) and time >= 0 and is_binary(data) do
+    with [cols, rows] <- String.split(data, "x"),
+         {cols, ""} when cols > 0 <- Integer.parse(cols),
+         {rows, ""} when rows > 0 <- Integer.parse(rows) do
+      [{time, "r", {cols, rows}}]
+    else
+      _ -> []
+    end
+  end
+
   defp parse_event([time, code, data])
        when is_number(time) and time >= 0 and is_binary(code) and is_binary(data) do
-    {time, code, data}
+    [{time, code, data}]
   end
 
   def fetch_metadata(path) do

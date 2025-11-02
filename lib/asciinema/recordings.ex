@@ -452,9 +452,7 @@ defmodule Asciinema.Recordings do
           Fts.feed(fts, data)
 
         "r" ->
-          [cols, rows] = String.split(data, "x")
-          cols = String.to_integer(cols)
-          rows = String.to_integer(rows)
+          {cols, rows} = data
           Fts.resize(fts, cols, rows)
 
         _ ->

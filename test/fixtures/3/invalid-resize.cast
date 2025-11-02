@@ -1,0 +1,4 @@
+{"version": 3, "term": {"cols": 80, "rows": 24}}
+[1.234, "o", "foo bar"]
+[1.0, "r", "-1x0"]
+[0.5, "o", "baz qux"]

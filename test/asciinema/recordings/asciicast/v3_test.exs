@@ -103,7 +103,7 @@ defmodule Asciinema.Recordings.Asciicast.V3Test do
                {1.234567, "o", "foo bar"},
                {2.234567, "i", "\r"},
                {4.734567, "o", "baz qux"},
-               {5.734567, "r", "80x24"},
+               {5.734567, "r", {80, 24}},
                {8.191356, "o", "żółć jaźń"}
              ]
     end
@@ -116,6 +116,15 @@ defmodule Asciinema.Recordings.Asciicast.V3Test do
                {5.678987, "o", "baz qux"},
                {8.481455, "o", "żółć jaźń"},
                {9.481455, "o", "bye!"}
+             ]
+    end
+
+    test "invalid resize" do
+      stream = V3.event_stream("test/fixtures/3/invalid-resize.cast")
+
+      assert Enum.to_list(stream) == [
+               {1.234, "o", "foo bar"},
+               {1.734, "o", "baz qux"}
              ]
     end
   end
