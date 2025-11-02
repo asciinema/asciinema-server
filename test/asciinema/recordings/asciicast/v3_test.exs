@@ -72,6 +72,21 @@ defmodule Asciinema.Recordings.Asciicast.V3Test do
                shell: nil
              }
     end
+
+    test "invalid file" do
+      filenames = ~w[
+        empty-theme.cast
+        invalid-time-1.cast
+        invalid-time-2.cast
+        invalid-code.cast
+        invalid-data.cast
+        wrong-event-length.cast
+      ]
+
+      Enum.each(filenames, fn filename ->
+        assert V3.fetch_metadata("test/fixtures/3/#{filename}") == {:error, :invalid_format}
+      end)
+    end
   end
 
   describe "event_stream/1" do

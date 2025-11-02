@@ -9,13 +9,12 @@ defmodule Asciinema.Recordings.Asciicast.V3 do
   end
 
   def event_stream(path) when is_binary(path) do
-    [header_line] =
+    ["{" <> _ = header_line] =
       path
       |> File.stream!([], :line)
       |> Stream.take(1)
       |> Enum.to_list()
 
-    "{" <> _ = header_line
     header = Jason.decode!(header_line)
     3 = header["version"]
 
@@ -24,14 +23,19 @@ defmodule Asciinema.Recordings.Asciicast.V3 do
     |> Stream.drop(1)
     |> Stream.reject(fn line -> line == "\n" or String.starts_with?(line, "#") end)
     |> Stream.map(&Jason.decode!/1)
-    |> Stream.map(fn [time, code, data] -> {time, code, data} end)
+    |> Stream.map(&parse_event/1)
     |> EventStream.cap_relative_time(header["idle_time_limit"])
     |> EventStream.to_absolute_time()
   end
 
+  defp parse_event([time, code, data])
+       when is_number(time) and time >= 0 and is_binary(code) and is_binary(data) do
+    {time, code, data}
+  end
+
   def fetch_metadata(path) do
-    with {:ok, line} when is_binary(line) <- File.open(path, fn f -> IO.read(f, :line) end),
-         {:ok, %{"version" => 3} = header} <- Jason.decode(line) do
+    with {:ok, header} <- parse_header(path),
+         {:ok, duration} <- get_duration(path) do
       metadata = %{
         version: 3,
         term_cols: get_in(header, ["term", "cols"]),
@@ -42,7 +46,7 @@ defmodule Asciinema.Recordings.Asciicast.V3 do
         term_theme_bg: get_in(header, ["term", "theme", "bg"]),
         term_theme_palette: get_in(header, ["term", "theme", "palette"]),
         command: header["command"],
-        duration: get_duration(path),
+        duration: duration,
         recorded_at: header["timestamp"] && Timex.from_unix(header["timestamp"]),
         title: header["title"],
         env: header["env"] || %{},
@@ -51,19 +55,45 @@ defmodule Asciinema.Recordings.Asciicast.V3 do
       }
 
       {:ok, metadata}
+    end
+  end
+
+  defp parse_header(path) do
+    with {:ok, line} when is_binary(line) <- File.open(path, fn f -> IO.read(f, :line) end),
+         {:ok, %{"version" => 3} = header} <- Jason.decode(line),
+         :ok <- validate_theme(get_in(header, ["term", "theme"])) do
+      {:ok, header}
     else
       {:ok, %{"version" => version}} ->
         {:error, {:invalid_version, version}}
 
       {:error, %Jason.DecodeError{}} ->
         {:error, :invalid_format}
+
+      {:error, :invalid_theme} ->
+        {:error, :invalid_format}
     end
   end
 
+  defp validate_theme(nil), do: :ok
+
+  defp validate_theme(%{"fg" => _, "bg" => _, "palette" => _}), do: :ok
+
+  defp validate_theme(_theme), do: {:error, :invalid_theme}
+
   defp get_duration(path) do
-    path
-    |> event_stream()
-    |> Enum.reduce(0, fn {t, _, _}, _prev_t -> t end)
+    duration =
+      path
+      |> event_stream()
+      |> Enum.reduce(0, fn {t, _, _}, _prev_t -> t end)
+
+    {:ok, duration}
+  rescue
+    MatchError ->
+      {:error, :invalid_format}
+
+    FunctionClauseError ->
+      {:error, :invalid_format}
   end
 
   def create(path, {cols, rows}, fields \\ []) do

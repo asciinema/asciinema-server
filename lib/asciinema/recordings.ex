@@ -207,6 +207,7 @@ defmodule Asciinema.Recordings do
     case V2.fetch_metadata(path) do
       {:ok, metadata} -> {:ok, metadata}
       {:error, {:invalid_version, 3}} -> V3.fetch_metadata(path)
+      {:error, {:invalid_version, _} = reason} -> {:error, reason}
       {:error, :invalid_format} -> V1.fetch_metadata(path)
     end
   end

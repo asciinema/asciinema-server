@@ -17,7 +17,7 @@ defmodule Asciinema.RecordingsTest do
       assert %Asciicast{
                version: 1,
                command: "/bin/bash",
-               duration: 11.146430,
+               duration: 10.370343,
                shell: "/bin/zsh",
                term_type: "screen-256color",
                term_cols: 96,
