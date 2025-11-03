@@ -191,6 +191,52 @@ defmodule Asciinema.RecordingsTest do
 
       assert content == "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb cccccccccccccccccccccccccccccccc "
     end
+
+    @tag :vt
+    test "alt screen buffer" do
+      output = [
+        # print on primary buffer
+        "nvim\r\n",
+        # switch to alternate buffer
+        "\x1b[?1047h",
+        # print
+        "hello ",
+        # print
+        "w",
+        # print
+        "o",
+        # print
+        "r",
+        # print
+        "l",
+        # print
+        "d",
+        # move back 2 chars
+        "\x08\x08",
+        # print
+        "mz",
+        # print
+        " planet",
+        # move back to the beginning of "wormz"
+        "\x1b[12D",
+        # overwrite "wormz"
+        "wyrm ",
+        # enable insert mode
+        "\x1b[4h",
+        # insert "foo bar baz"
+        " foo bar baz ",
+        # switch back to primary buffer
+        "\x1b[?1047l",
+        # print
+        "bye!"
+      ]
+
+      events = for {text, i} <- Enum.with_index(output), do: {i, "o", text}
+
+      content = Recordings.generate_fts_content(events, 50, 10)
+
+      assert content == "nvim bye world wormz hello wyrm foo bar baz planet "
+    end
   end
 
   describe "update_fts_content/1" do
