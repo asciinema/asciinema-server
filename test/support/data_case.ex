@@ -54,7 +54,7 @@ defmodule Asciinema.DataCase do
       Enum.reduce(opts, message, fn {key, value}, acc ->
         value =
           case value do
-            {:parameterized, Ecto.Enum, _} -> ""
+            {:parameterized, {Ecto.Enum, _}} -> ""
             _ -> value
           end
 

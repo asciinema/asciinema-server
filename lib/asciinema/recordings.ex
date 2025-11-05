@@ -419,7 +419,7 @@ defmodule Asciinema.Recordings do
   defp set_content_tsv(id, content, attempt \\ 1) do
     try do
       Repo.update_all(
-        from(a in Asciicast,
+        from(a in "asciicasts",
           where: a.id == ^id,
           update: [set: [content_tsv: fragment("to_tsvector('simple', ?)", ^content)]]
         ),

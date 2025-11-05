@@ -42,7 +42,7 @@ defmodule Asciinema.MixProject do
       {:briefly, "~> 0.3"},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:earmark, "~> 1.4.46"},
-      {:ecto_psql_extras, "~> 0.7.14"},
+      {:ecto_psql_extras, "~> 0.8.8"},
       {:ecto_sql, "~> 3.6"},
       {:esbuild, "~> 0.10", runtime: Mix.env() == :dev},
       {:ex_aws, "~> 2.2"},
@@ -67,7 +67,7 @@ defmodule Asciinema.MixProject do
       # override for scrivener_html
       {:phoenix_view, "~> 2.0.3"},
       {:phoenix_html, "~> 3.3.3", override: true},
-      {:phoenix_live_dashboard, "~> 0.8.6"},
+      {:phoenix_live_dashboard, "~> 0.8.7"},
       {:phoenix_live_reload, "~> 1.5", only: :dev},
       {:phoenix_live_view, "~> 1.0.4"},
       {:phoenix_markdown, "~> 1.0"},
