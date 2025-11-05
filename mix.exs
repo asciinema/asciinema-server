@@ -58,7 +58,7 @@ defmodule Asciinema.MixProject do
       {:jason, "~> 1.2"},
       {:libcluster, "~> 3.3"},
       {:mix_test_watch, "~> 1.2", only: :dev, runtime: false},
-      {:oban, "~> 2.19"},
+      {:oban, "~> 2.20"},
       {:oban_web, "~> 2.11"},
       {:ok, "~> 2.3"},
       # override for scrivener_html
