@@ -1,0 +1,64 @@
+.search-form {
+  input.q {
+    width: 100%;
+    border: 1px solid #444;
+    margin: 1rem 0;
+    color: rgba(255, 255, 255, 0.85);
+    background-color: #222;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="%23fffa" class="size-4"><path fill-rule="evenodd" d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z" clip-rule="evenodd" /></svg>');
+    background-repeat: no-repeat;
+    background-position: 10px 63%;
+    background-size: 20px 20px;
+    padding-left: 40px;
+  }
+
+  input.q:focus {
+    color: white;
+    border: 1px solid #555;
+    box-shadow: none;
+  }
+
+  input.q::placeholder {
+    color: rgba(255, 255, 255, 0.65);
+  }
+}
+
+.c-search {
+  &.a-show {
+    main {
+      .heading {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin: 2rem 0;
+
+        h2 {
+          flex-grow: 1;
+        }
+      }
+
+      .pagination {
+        margin-top: 1rem;
+      }
+    }
+  }
+}
+
+@media (min-width: 768px) {
+  .search-form input.q {
+    width: 200px;
+    margin: 0;
+  }
+}
+
+@media (min-width: 992px) {
+  .search-form input.q {
+    width: 300px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .search-form input.q {
+    width: 400px;
+  }
+}

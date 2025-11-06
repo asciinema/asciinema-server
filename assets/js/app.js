@@ -36,6 +36,32 @@ $(function() {
       section.classList.add('hidden');
     });
   }, 5000);
+
+  const searchInput = document.getElementById('search_q');
+
+  if (searchInput) {
+    const searchForm = searchInput.parentElement;
+
+    // Setup keyboard shortcut for focusing the search input
+    document.addEventListener('keydown', function(e) {
+      if (e.key === '/' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+        e.preventDefault();
+
+        if (searchInput) {
+          searchInput.focus();
+          const length = searchInput.value.length;
+          searchInput.setSelectionRange(length, length);
+        }
+      }
+    });
+
+    // Prevent search for empty input
+    searchForm.addEventListener('submit', function(e) {
+      if (searchInput.value.trim() === '') {
+        e.preventDefault();
+      }
+    });
+  }
 });
 
 import {Socket} from "phoenix";

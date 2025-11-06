@@ -55,7 +55,7 @@ defmodule Asciinema.Factory do
     %Asciicast{
       user: build(:user),
       version: 2,
-      path: sequence(:path_v2, &"recordings/#{&1}.cast"),
+      path: sequence(:path_v2v3, &"recordings/#{&1}.cast"),
       duration: 123.45,
       term_cols: 80,
       term_rows: 24,
@@ -68,7 +68,7 @@ defmodule Asciinema.Factory do
     %Asciicast{
       user: build(:user),
       version: 3,
-      path: sequence(:path_v3, &"recordings/#{&1}.cast"),
+      path: sequence(:path_v2v3, &"recordings/#{&1}.cast"),
       duration: 123.45,
       term_cols: 80,
       term_rows: 24,
