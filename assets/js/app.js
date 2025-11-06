@@ -1,4 +1,3 @@
-import $ from 'jquery';
 import "bootstrap";
 import "phoenix_html";
 import { createPlayer, cinemaHeight } from './player';
@@ -6,16 +5,24 @@ import { createPlayer, cinemaHeight } from './player';
 window.createPlayer = createPlayer;
 window.cinemaHeight = cinemaHeight;
 
-$(function() {
-  $('input[data-behavior=focus]:first').focus().select();
-  $('[data-toggle="popover"]').popover({ html: true });
+document.addEventListener('DOMContentLoaded', () => {
+  const focusInput = document.querySelector('input[data-behavior=focus]');
 
-  $("input[data-behavior=auto-select]").click(function() {
-    this.select();
+  if (focusInput) {
+    focusInput.focus();
+    focusInput.select();
+  }
+
+  document.querySelectorAll("input[data-behavior=auto-select]").forEach(input => {
+    input.addEventListener('click', () => {
+      input.select();
+    });
   });
 
-  if ($('meta[name=referrer][content=origin]').length > 0) {
-    $('a[href*=http]').attr('rel', 'noreferrer');
+  if (document.querySelector('meta[name=referrer][content=origin]')) {
+    document.querySelectorAll('a[href*=http]').forEach(link => {
+      link.setAttribute('rel', 'noreferrer');
+    });
   }
 
   document.querySelectorAll('#download-txt').forEach(link => {
