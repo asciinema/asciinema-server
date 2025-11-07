@@ -35,6 +35,8 @@ Notable features:
   terminal sessions,
 - perfectly integrated [asciinema
   player](https://docs.asciinema.org/manual/player/) for best viewing experience,
+- full-text search using recording titles, descriptions, and _full terminal
+  session content_,
 - easy [sharing](https://docs.asciinema.org/manual/server/sharing/) of
   recordings via secret links,
 - easy [embedding](https://docs.asciinema.org/manual/server/embedding/) of the
