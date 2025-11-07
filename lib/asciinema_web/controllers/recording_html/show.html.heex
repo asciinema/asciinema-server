@@ -7,8 +7,8 @@
 
 <section class="even info">
   <div class="container">
-    <div class="row">
-      <div class="col-lg-8 col-md-7 col-xs-12">
+    <div class="content-sidebar-layout">
+      <div>
         <span class="author-avatar">
           <.link href={author_profile_path(@asciicast)} title={author_username(@asciicast)}>
             <img src={author_avatar_url(@asciicast)} class="avatar" />
@@ -31,56 +31,41 @@
         </small>
       </div>
 
-      <div class="col-lg-4 col-md-5 col-xs-12 text-right actions">
-        <div class="btn-group pull-right">
+      <div class="text-right actions">
+        <div class="btn-group">
           <div :if={@asciicast.visibility != :private}>
             <.link
               href="#"
               class="btn btn-sm btn-secondary"
               id="share-link"
-              data-toggle="modal"
-              data-target="#share-modal"
+              data-modal="share-modal"
             >
               <.share_mini_icon /> Share
             </.link>
           </div>
 
-          <div class="dropdown actions-dropdown">
-            <button
-              class="btn btn-sm btn-secondary dropdown-toggle"
-              type="button"
-              data-toggle="dropdown"
-            >
+          <details class="dropdown actions-dropdown">
+            <summary class="btn btn-sm btn-secondary">
               <.download_mini_icon /> Download
-            </button>
+            </summary>
 
             <div class="dropdown-menu">
-              <.link
-                href="#"
-                class="dropdown-item"
-                id="download-link"
-                data-toggle="modal"
-                data-target="#download-modal"
-              >
+              <.link href="#" class="dropdown-item" id="download-link" data-modal="download-modal">
                 <strong>.{filename_ext(@asciicast)}</strong> - original recording
               </.link>
               <.link href="#" class="dropdown-item" rel="nofollow" id="download-txt">
                 <strong>.txt</strong> - plain text version
               </.link>
-              <.link href="#" class="dropdown-item" data-toggle="modal" data-target="#gif-modal">
+              <.link href="#" class="dropdown-item" data-modal="gif-modal">
                 <strong>.gif</strong> - animated GIF
               </.link>
             </div>
-          </div>
+          </details>
 
-          <div :if={length(@actions) > 0} class="dropdown actions-dropdown">
-            <button
-              class="btn btn-sm btn-secondary dropdown-toggle"
-              type="button"
-              data-toggle="dropdown"
-            >
+          <details :if={length(@actions) > 0} class="dropdown actions-dropdown">
+            <summary class="btn btn-sm btn-secondary">
               <.cog_8_tooth_mini_icon />
-            </button>
+            </summary>
 
             <div class="dropdown-menu">
               <.link
@@ -101,7 +86,7 @@
                 Delete
               </.link>
             </div>
-          </div>
+          </details>
         </div>
       </div>
     </div>
@@ -110,46 +95,38 @@
 
 <section class="odd meta">
   <div class="container">
-    <div class="row">
-      <div class="col-md-12 col-xs-12">
-        <div class="status-line">
-          <span class="status-line-item">
-            <.terminal_solid_icon /> <.env_info attrs={env_info_attrs(@asciicast)} />
-          </span>
+    <div class="status-line">
+      <span class="status-line-item">
+        <.terminal_solid_icon /> <.env_info attrs={env_info_attrs(@asciicast)} />
+      </span>
 
-          <span class="status-line-item" title="Total views">
-            <.eye_solid_icon /> {views_count(@asciicast)} views
-          </span>
-        </div>
-
-        <%= if desc = render_markdown(@asciicast.description) do %>
-          <hr />
-          <div class="description">{desc}</div>
-        <% end %>
-      </div>
+      <span class="status-line-item" title="Total views">
+        <.eye_solid_icon /> {views_count(@asciicast)} views
+      </span>
     </div>
+
+    <%= if desc = render_markdown(@asciicast.description) do %>
+      <hr />
+      <div class="description">{desc}</div>
+    <% end %>
   </div>
 </section>
 
 <section :if={length(@other_asciicasts) > 0} class="even">
   <div class="container">
-    <div class="row other-asciicasts">
-      <div class="col-md-12">
-        <h2>
-          More by <a href={author_profile_path(@asciicast)}>{author_username(@asciicast)}</a>
-        </h2>
+    <h2>
+      More by <a href={author_profile_path(@asciicast)}>{author_username(@asciicast)}</a>
+    </h2>
 
-        <div class="row asciicast-list">
-          <div :for={asciicast <- @other_asciicasts} class="col-md-6">
-            <.card asciicast={asciicast} conn={@conn} />
-          </div>
-        </div>
-
-        <p>
-          <a href={author_profile_path(@asciicast)} class="btn btn-info">See all</a>
-        </p>
+    <div class="asciicast-list">
+      <div :for={asciicast <- @other_asciicasts}>
+        <.card asciicast={asciicast} conn={@conn} />
       </div>
     </div>
+
+    <p>
+      <a href={author_profile_path(@asciicast)} class="btn btn-info">See all</a>
+    </p>
   </div>
 </section>
 

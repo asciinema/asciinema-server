@@ -1,0 +1,64 @@
+/* ==========================================================================
+ * Minimal modern CSS reset shared by Phoenix layouts.
+ * Normalizes element defaults without fighting Tailwind-like semantics.
+ * ========================================================================== */
+
+/* == Box model reset == */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* == Remove default margins == */
+
+body, h1, h2, h3, h4, h5, h6, p, figure, blockquote, dl, dd {
+  margin: 0;
+}
+
+/* == Body defaults == */
+
+body {
+  min-height: 100vh;
+  line-height: var(--line-height-normal);
+}
+
+/* == List reset (used for nav + layout lists) == */
+
+ul[role='list'],
+ol[role='list'] {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* == Media defaults == */
+
+img, picture, video, canvas, svg {
+  display: block;
+  max-width: 100%;
+}
+
+/* == Form element reset == */
+
+input, button, textarea, select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+/* == Prevent text overflow == */
+
+p, h1, h2, h3, h4, h5, h6 {
+  overflow-wrap: break-word;
+}
+
+/* == Root stacking context for SPA embeds == */
+
+#root, #__next {
+  isolation: isolate;
+}

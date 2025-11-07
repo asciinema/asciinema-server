@@ -7,8 +7,8 @@
 
 <section class="even info">
   <div class="container">
-    <div class="row">
-      <div class="col-md-8 col-xs-12">
+    <div class="content-sidebar-layout">
+      <div>
         <span class="author-avatar">
           <.link navigate={author_profile_path(@stream)} title={author_username(@stream)}>
             <img src={author_avatar_url(@stream)} class="avatar" />
@@ -26,15 +26,11 @@
         </small>
       </div>
 
-      <div class="col-md-4 col-xs-12 text-right actions">
-        <div :if={length(@actions) > 0} class="dropdown actions-dropdown pull-right">
-          <button
-            class="btn btn-sm btn-secondary dropdown-toggle"
-            type="button"
-            data-toggle="dropdown"
-          >
+      <div class="text-right actions">
+        <details :if={length(@actions) > 0} class="dropdown actions-dropdown">
+          <summary class="btn btn-sm btn-secondary">
             <.cog_8_tooth_mini_icon />
-          </button>
+          </summary>
 
           <div class="dropdown-menu">
             <.link :if={:edit in @actions} navigate={~p"/s/#{@stream}/edit"} class="dropdown-item">
@@ -51,7 +47,7 @@
               Delete
             </.link>
           </div>
-        </div>
+        </details>
       </div>
     </div>
   </div>
@@ -59,71 +55,59 @@
 
 <section class="odd meta">
   <div class="container">
-    <div class="row">
-      <div class="col-md-12 col-xs-12">
-        {live_render(@conn, AsciinemaWeb.StreamStatusLive, session: %{"stream_id" => @stream.id})}
+    {live_render(@conn, AsciinemaWeb.StreamStatusLive, session: %{"stream_id" => @stream.id})}
 
-        <%= if desc = render_markdown(@stream.description) do %>
-          <hr />
+    <%= if desc = render_markdown(@stream.description) do %>
+      <hr />
 
-          <div class="description">
-            {desc}
-          </div>
-        <% end %>
+      <div class="description">
+        {desc}
       </div>
-    </div>
+    <% end %>
   </div>
 </section>
 
 <section :if={@user_is_self} class="even instructions">
   <div class="container">
-    <div class="row">
-      <div class="col-md-12">
-        <h2>How to stream</h2>
+    <h2>How to stream</h2>
 
-        <.input
-          name="rec-cmd-asciinema-streamer"
-          data-behavior="auto-select"
-          readonly
-          value={"asciinema stream -r #{short_public_token(@stream)}"}
-        />
+    <.input
+      name="rec-cmd-asciinema-streamer"
+      data-behavior="auto-select"
+      readonly
+      value={"asciinema stream -r #{short_public_token(@stream)}"}
+    />
 
-        <small class="text-muted">
-          You need
-          <a href="https://github.com/asciinema/asciinema/releases/tag/v3.0.0">
-            asciinema CLI 3.0
-          </a>
-          or later.
-        </small>
+    <small class="text-muted">
+      You need
+      <a href="https://github.com/asciinema/asciinema/releases/tag/v3.0.0">
+        asciinema CLI 3.0
+      </a>
+      or later.
+    </small>
 
-        <h2>Stream URL</h2>
-        <.input
-          name="consumer-url"
-          data-behavior="auto-select"
-          readonly
-          value={url(~p"/s/#{@stream}")}
-        />
+    <h2>Stream URL</h2>
+    <.input
+      name="consumer-url"
+      data-behavior="auto-select"
+      readonly
+      value={url(~p"/s/#{@stream}")}
+    />
 
-        <small class="text-muted">This is your unique stream URL. Share this
-          freely with your viewers.</small>
-      </div>
-    </div>
+    <small class="text-muted">This is your unique stream URL. Share this
+      freely with your viewers.</small>
   </div>
 </section>
 
 <section :if={length(@stream_asciicasts) > 0} class="even">
   <div class="container">
-    <div class="row other-asciicasts">
-      <div class="col-md-12">
-        <h2>
-          Past recordings of this stream
-        </h2>
+    <h2>
+      Past recordings of this stream
+    </h2>
 
-        <div class="row asciicast-list">
-          <div :for={asciicast <- @stream_asciicasts} class="col-md-6">
-            <RecordingHTML.card asciicast={asciicast} conn={@conn} />
-          </div>
-        </div>
+    <div class="asciicast-list">
+      <div :for={asciicast <- @stream_asciicasts}>
+        <RecordingHTML.card asciicast={asciicast} conn={@conn} />
       </div>
     </div>
   </div>
@@ -131,28 +115,23 @@
 
 <section :if={!@user_is_self && length(@other_asciicasts) > 0} class="even">
   <div class="container">
-    <div class="row other-asciicasts">
-      <div class="col-md-12">
-        <h2 :if={length(@stream_asciicasts) == 0}>
-          Recordings by <a href={author_profile_path(@stream)}>{author_username(@stream)}</a>
-        </h2>
+    <h2 :if={length(@stream_asciicasts) == 0}>
+      Recordings by <a href={author_profile_path(@stream)}>{author_username(@stream)}</a>
+    </h2>
 
-        <h2 :if={length(@stream_asciicasts) > 0}>
-          Other recordings by
-          <a href={author_profile_path(@stream)}>{author_username(@stream)}</a>
-        </h2>
+    <h2 :if={length(@stream_asciicasts) > 0}>
+      Other recordings by <a href={author_profile_path(@stream)}>{author_username(@stream)}</a>
+    </h2>
 
-        <div class="row asciicast-list">
-          <div :for={asciicast <- @other_asciicasts} class="col-md-6">
-            <RecordingHTML.card asciicast={asciicast} conn={@conn} />
-          </div>
-        </div>
-
-        <p>
-          <a href={author_profile_path(@stream)} class="btn btn-info">See all</a>
-        </p>
+    <div class="asciicast-list">
+      <div :for={asciicast <- @other_asciicasts}>
+        <RecordingHTML.card asciicast={asciicast} conn={@conn} />
       </div>
     </div>
+
+    <p>
+      <a href={author_profile_path(@stream)} class="btn btn-info">See all</a>
+    </p>
   </div>
 </section>
 

@@ -1,24 +1,25 @@
 <header>
-  <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+  <nav>
     <div class="container">
-      <a class="navbar-brand" href={~p"/"}>
-        <img src={Routes.static_path(@conn, "/images/logo-red.svg")} />
-      </a>
+      <div class="header-row">
+        <a class="brand" href={~p"/"}>
+          <img src={Routes.static_path(@conn, "/images/logo-red.svg")} />
+        </a>
+        
+<!-- Accessible mobile navigation toggle button -->
+        <button
+          type="button"
+          class="nav-toggle"
+          aria-label="Toggle navigation"
+          aria-controls="header-menu"
+          aria-expanded="false"
+        >
+          <span class="hamburger-icon"></span>
+        </button>
+      </div>
 
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-toggle="collapse"
-        data-target="#navbarNavDropdown"
-        aria-controls="navbarNavDropdown"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
-        <span class="navbar-toggler-icon"></span>
-      </button>
-
-      <div class="collapse navbar-collapse" id="navbarNavDropdown">
-        <ul class="navbar-nav">
+      <div id="header-menu" class="nav-sections">
+        <ul class="primary-links">
           <li class="nav-item">
             <a class="nav-link" href="https://docs.asciinema.org/getting-started/">
               Get started
@@ -38,10 +39,10 @@
           </li>
         </ul>
 
-        <ul class="navbar-nav ml-auto mr-auto search-form">
-          <form action={~p"/search"} method="GET" class="form-inline">
+        <div class="search-form">
+          <form action={~p"/search"} method="GET">
             <input
-              class="form-control mr-sm-2 q"
+              class="mr-2 q"
               id="search_q"
               type="search"
               name="q"
@@ -50,30 +51,33 @@
               aria-label="Search recordings"
             />
           </form>
-        </ul>
+        </div>
 
-        <ul class="navbar-nav session-info">
-          <li :if={@current_user} class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">
-              <img class="avatar" src={avatar_url(@current_user)} />{@current_user.username ||
-                @current_user.email}
-            </a>
-            <div class="dropdown-menu">
-              <%= if @current_user.streaming_enabled do %>
-                <a href={~p"/user/streams"} class="dropdown-item">
-                  <strong>Stream</strong>
-                </a>
+        <ul class="session-info">
+          <li :if={@current_user} class="nav-item">
+            <details class="dropdown">
+              <summary class="nav-link">
+                <img class="avatar" src={avatar_url(@current_user)} />{@current_user.username ||
+                  @current_user.email}
+              </summary>
+
+              <div class="dropdown-menu">
+                <%= if @current_user.streaming_enabled do %>
+                  <a href={~p"/user/streams"} class="dropdown-item">
+                    <strong>Stream</strong>
+                  </a>
+                  <div class="dropdown-divider"></div>
+                <% end %>
+
+                <a href={profile_path(@current_user)} class="dropdown-item">Profile</a>
+                <a href={~p"/user/edit"} class="dropdown-item">Settings</a>
                 <div class="dropdown-divider"></div>
-              <% end %>
 
-              <a href={profile_path(@current_user)} class="dropdown-item">Profile</a>
-              <a href={~p"/user/edit"} class="dropdown-item">Settings</a>
-              <div class="dropdown-divider"></div>
-
-              <.link href={~p"/session"} class="dropdown-item logout" method="delete">
-                Log out
-              </.link>
-            </div>
+                <.link href={~p"/session"} class="dropdown-item logout" method="delete">
+                  Log out
+                </.link>
+              </div>
+            </details>
           </li>
 
           <li :if={!@current_user} class="nav-item">

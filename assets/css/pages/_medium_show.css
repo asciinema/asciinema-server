@@ -1,10 +1,17 @@
-.c-stream.a-show {
-  section.cinema {
-    transition: background-color 0.2s;
-  }
-}
+/* ==========================================================================
+ * Recording/stream show views.
+ * ========================================================================== */
+
+/* == Cinema/player block == */
 
 .c-recording.a-show, .c-stream.a-show {
+  main {
+    h1, h2 {
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+    }
+  }
+
   section.cinema {
     background-color: color-mix(in oklab, var(--term-color-background) 80%, black);
 
@@ -17,6 +24,8 @@
       background-color: inherit;
     }
   }
+
+  /* == Metadata/info column == */
 
   section.info {
     small {
@@ -44,15 +53,26 @@
     }
 
     .actions {
-      .btn-group > div {
-        margin-left: 1rem;
+      .btn-group {
+        display: flex;
+        justify-content: flex-end;
+        gap: var(--space-3, 1rem);
+        flex-wrap: nowrap;
+      }
 
-        &:first-child {
-          margin-left: 0;
+      @media (max-width: 575px) {
+        .btn-group {
+          flex-wrap: wrap;
         }
+      }
+
+      .btn-group > * {
+        flex: 0 0 auto;
       }
     }
   }
+
+  /* == Meta details rows == */
 
   section.meta {
     code {
@@ -64,6 +84,9 @@
       margin-right: 2em;
 
       .icon {
+        position: relative;
+        top: 1px;
+
         svg {
           font-size: 1.5em;
         }
@@ -79,47 +102,5 @@
         cursor: help;
       }
     }
-  }
-
-  section.instructions {
-    padding-top: 0;
-
-    input[type=text] {
-      width: 100%;
-      font-family: Consolas, Menlo, 'Bitstream Vera Sans Mono', monospace;
-      font-size: 14px;
-      color: #212529;
-      background-color: #fff;
-      border-radius: 3px;
-      border: 1px solid #e0e0e0;
-      margin-bottom: 8px;
-      padding: 9px;
-    }
-
-    h2 {
-      margin-top: 2em;
-    }
-
-    h3 {
-      font-weight: 600;
-    }
-  }
-}
-
-.modal-dialog {
-  h2:first-child {
-    margin-top: 0;
-  }
-
-  input[type=text] {
-    width: 100%;
-    font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    font-size: 14px;
-    color: #212529;
-    background-color: #f7f7f7;
-    border-radius: 3px;
-    border: 1px solid #e0e0e0;
-    margin-bottom: 8px;
-    padding: 9px;
   }
 }

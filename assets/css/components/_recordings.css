@@ -1,5 +1,30 @@
+/* ==========================================================================
+ * Recording cards grid used across Explore, search results, and profiles.
+ * ========================================================================== */
+
+/* == Grid layout == */
+
+.asciicast-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.75rem;
+  margin: 2rem 0;
+}
+
+.asciicast-list > div {
+  /* let cards shrink with the column rather than forcing overflow */
+  min-width: 0;
+}
+
+@media (max-width: 767px) {
+  .asciicast-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* == Recording card == */
+
 div.asciicast-card {
-  margin-bottom: 30px;
   overflow: hidden;
   border: 1px solid #eee;
 
@@ -66,6 +91,15 @@ div.asciicast-card {
     border-bottom-right-radius: 0;
   }
 
+  .thumbnail img,
+  .thumbnail svg {
+    display: block;
+    width: auto;
+    /* keep intrinsic width so overflow + border-right look correct */
+    max-width: none;
+    height: auto;
+  }
+
   .info {
     background-color: #fff;
     padding: 10px;
@@ -78,6 +112,7 @@ div.asciicast-card {
       float: left;
       width: 20px;
       height: 20px;
+      margin-top: 4px;
 
       img, svg {
         width: 100%;

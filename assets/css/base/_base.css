@@ -1,4 +1,8 @@
-@import "./fonts/source_sans_pro.css";
+/* ==========================================================================
+ * Global base styles shared by all layouts (typography, page scaffolding).
+ * ========================================================================== */
+
+/* == Document scaffolding == */
 
 html {
   height: 100%;
@@ -20,12 +24,43 @@ body {
 
 @media (min-width: 992px) {
   body {
-    padding-bottom: 13rem;
+    padding-bottom: 11rem;
   }
+}
+
+/* == Links and text elements == */
+
+a {
+  color: var(--color-link);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--color-link-hover);
+  text-decoration: underline;
+}
+
+p {
+  margin-top: 0;
+  margin-bottom: var(--space-4);
+  line-height: var(--line-height-normal);
+}
+
+small {
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+}
+
+hr {
+  margin: var(--space-4) 0;
+  border: none;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 h1, h2, h3 {
   font-family: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-tight);
 }
 
 h1 {
@@ -41,63 +76,50 @@ h3 {
   font-size: 1.1rem;
 }
 
+/* == Inline code, code blocks, keyboard shortcuts == */
+
 code {
-  background-color: #f9f2f4;
+  background-color: var(--color-bg-code-inline);
   padding: 2px 4px;
   border-radius: 4px;
+  font-size: 87.5%;
 }
 
 pre code {
   background-color: inherit;
   padding: 0;
+  font-size: inherit;
+}
+
+pre, code {
+  font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
 kbd {
-  background-color: white;
+  background-color: var(--color-bg-white);
   color: black;
   border: 1px solid #bbb;
+  border-radius: 4px;
   padding: 0.1rem 0.2rem;
   margin-left: 0.1rem;
   margin-right: 0.1rem;
 }
 
 pre {
-  background-color: #f7f7f7;
-  border-color: #ddd;
+  background-color: var(--color-bg-code-block);
+  border-color: var(--color-border-gray);
   border-radius: 3px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--color-border-gray);
   padding: 9.5px;
   margin: 0 0 10px;
+  font-size: 87.5%;
 }
 
 body, main {
-  background-color: #f7f7f7;
+  background-color: var(--color-bg-body);
 }
 
-.c-page, .c-recording, .c-stream {
-  main {
-    h1, h2, h3 {
-      margin-top: 2rem;
-      margin-bottom: 1rem;
-    }
-
-    h1 {
-      font-size: 2rem;
-    }
-  }
-}
-
-.c-page {
-  main {
-    h1 {
-      margin-top: 4rem;
-    }
-  }
-}
-
-.c-page .container > h1 {
-  margin-bottom: 2rem;
-}
+/* == Sections and hero rows == */
 
 section.cinema {
   color: #fff;
@@ -109,9 +131,9 @@ section.odd, section.even {
 }
 
 section.odd {
-  background-color: #fff;
-  border-top: 1px solid #e0e0e0;
-  border-bottom: 1px solid #e0e0e0;
+  background-color: var(--color-bg-white);
+  border-top: 1px solid var(--color-border-gray);
+  border-bottom: 1px solid var(--color-border-gray);
 }
 
 section h1 {
@@ -129,43 +151,13 @@ section.top {
   }
 }
 
-ul.pagination {
-  margin-top: 1rem;
-  margin-bottom: 0;
-}
-
 main {
   > .container:first-child {
-    margin-top: 2rem;
+    margin-top: 4rem;
   }
 }
 
-form {
-  legend {
-    border-bottom: 1px solid #ddd;
-    margin-bottom: 2rem;
-  }
-
-  .col-form-label {
-    font-weight: 600;
-  }
-
-  .form-group.row {
-    margin-bottom: 1.5rem;
-  }
-
-  .form-check {
-      margin-bottom: 0.75em;
-  }
-
-  .visibility-radios {
-    padding-top: 0.375rem;
-  }
-
-  .form-group > div > .form-checkbox {
-    padding-top: 0.375rem;
-  }
-}
+/* == Utility selectors == */
 
 .special-label {
   font-size: 12px;
@@ -178,7 +170,7 @@ form {
   cursor: help;
 }
 
-.nav-item {
+main .nav-item {
   .nav-link {
     padding-left: 0;
   }
@@ -190,30 +182,10 @@ form {
 
 body pre {
   background-color: #fff;
-  border-color: #ddd;
-}
-
-.modal-dialog pre {
-  background-color: #f7f7f7;
-  margin-bottom: 1rem;
-}
-
-.has-error .form-control, input[type="url"]:invalid {
-  border-color: #dc3545;
-  box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
-}
-
-.form-control::placeholder {
-  color: #959fa7;
-}
-
-.btn-gh-sponsors {
-  font-weight: 600;
-  color: #333;
-  background-color: #eee;
-  border-color: #ccc;
+  border-color: var(--color-border-gray);
 }
 
 span.email b {
+  /* obfuscates direct address scraping by hiding inserted <b> chunk */
   display: none;
 }

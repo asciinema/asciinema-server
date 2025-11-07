@@ -1,0 +1,146 @@
+/* ==========================================================================
+ * Modal styling for native <dialog> elements (used by recording actions).
+ * ========================================================================== */
+
+/* == Base dialog/modal styles == */
+
+dialog.modal {
+  /* Reset dialog defaults */
+  max-width: 600px;
+  width: 100%;
+  border: none;
+  border-radius: var(--border-radius-md, 0.375rem);
+  padding: 0;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5);
+
+  /* Prevent content overflow */
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+/* Large modal variant */
+dialog.modal-lg {
+  max-width: 800px;
+}
+
+/* Backdrop (background overlay) */
+dialog.modal::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  /* Smooth backdrop fade */
+  animation: backdrop-fade-in 0.2s ease-in-out;
+}
+
+@keyframes backdrop-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Smooth open/close animation */
+dialog.modal {
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 0.15s ease-out, transform 0.15s ease-out;
+}
+
+dialog.modal[open] {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* == Modal structure classes == */
+
+.modal-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background-color: #fff;
+  background-clip: padding-box;
+  border-radius: var(--border-radius-md, 0.375rem);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4);
+  border-bottom: 1px solid #dee2e6;
+  border-top-left-radius: var(--border-radius-md, 0.375rem);
+  border-top-right-radius: var(--border-radius-md, 0.375rem);
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.modal-body {
+  position: relative;
+  flex: 1 1 auto;
+  padding: var(--space-4);
+}
+
+/* == Close button == */
+
+dialog.modal .modal-close,
+.modal-header button.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: #000;
+  opacity: 0.5;
+  cursor: pointer;
+  padding: var(--space-4);
+  margin: calc(var(--space-4) * -1) calc(var(--space-4) * -1) calc(var(--space-4) * -1) auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+dialog.modal .modal-close:hover,
+.modal-header button.modal-close:hover {
+  opacity: 0.75;
+}
+
+/* == Content helpers == */
+
+dialog.modal pre,
+.modal-body pre {
+  background-color: var(--color-bg-code-block);
+  margin-bottom: var(--space-4);
+}
+
+dialog.modal .modal-body h2:first-child {
+  margin-top: 0;
+}
+
+dialog.modal input[type=text],
+.modal-body input[type=text] {
+  width: 100%;
+  font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 14px;
+  color: #212529;
+  background-color: #f7f7f7;
+  border-radius: 3px;
+  border: 1px solid #e0e0e0;
+  margin-bottom: 8px;
+  padding: 9px;
+}
+
+/* == Responsive behavior == */
+
+@media (max-width: 576px) {
+  dialog.modal {
+    max-width: 95vw;
+    margin: var(--space-4);
+  }
+}

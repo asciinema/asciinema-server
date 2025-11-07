@@ -32,15 +32,9 @@
     <h2 :if={!@self and length(@live_streams) > 0}>{username(@user)}'s live streams</h2>
 
     <div :if={@user.streaming_enabled and length(@live_streams) > 0}>
-      <div class="row asciicast-list">
-        <div class="col-md-12">
-          <div :for={streams <- Enum.chunk_every(@live_streams, 2, 2)} class="row">
-            <div :for={stream <- streams} class="col-md-6">
-              {live_render(@conn, AsciinemaWeb.StreamCardLive,
-                session: %{"stream_id" => stream.id}
-              )}
-            </div>
-          </div>
+      <div class="asciicast-list">
+        <div :for={stream <- @live_streams}>
+          {live_render(@conn, AsciinemaWeb.StreamCardLive, session: %{"stream_id" => stream.id})}
         </div>
       </div>
     </div>
@@ -78,13 +72,9 @@
 
     <h2 :if={!@self}>{username(@user)}'s recordings</h2>
 
-    <div :if={@asciicasts.total_entries > 0} class="row asciicast-list">
-      <div class="col-md-12">
-        <div :for={asciicasts <- Enum.chunk_every(@asciicasts, 2, 2)} class="row">
-          <div :for={asciicast <- asciicasts} class="col-md-6">
-            <RecordingHTML.card asciicast={asciicast} conn={@conn} />
-          </div>
-        </div>
+    <div :if={@asciicasts.total_entries > 0} class="asciicast-list">
+      <div :for={asciicast <- @asciicasts}>
+        <RecordingHTML.card asciicast={asciicast} conn={@conn} />
       </div>
     </div>
 
@@ -140,10 +130,8 @@
       <% end %>
     </div>
 
-    <div :if={@asciicasts.total_pages > 1} class="row">
-      <div class="col">
-        {pagination_links(@asciicasts)}
-      </div>
+    <div :if={@asciicasts.total_pages > 1} class="pagination-wrapper">
+      {pagination_links(@asciicasts)}
     </div>
   </div>
 </div>

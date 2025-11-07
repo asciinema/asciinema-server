@@ -1,0 +1,31 @@
+/* ==========================================================================
+ * Base table styles for Phoenix table helpers (recording lists, admin views).
+ * ========================================================================== */
+
+/* == Base table == */
+
+.table {
+  width: 100%;
+  margin-bottom: var(--space-4);
+  color: var(--color-text-primary);
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: var(--space-3);
+  vertical-align: top;
+  border-top: 1px solid var(--color-border-gray);
+}
+
+.table thead th {
+  vertical-align: bottom;
+  border-bottom: 2px solid var(--color-border-gray);
+  border-top: 0;
+  font-weight: var(--font-weight-bold);
+  text-align: left;
+}
+
+.table tbody + tbody {
+  border-top: 2px solid var(--color-border-gray);
+}

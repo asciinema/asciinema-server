@@ -1,3 +1,9 @@
+/* ==========================================================================
+ * Recording index/public/featured views.
+ * ========================================================================== */
+
+/* == Listing filters & nav == */
+
 .c-recording {
   &.a-public, &.a-featured, &.a-auto {
     main {
@@ -20,6 +26,7 @@
         h2 {
           flex-grow: 1;
           margin-top: 0;
+          margin-bottom: 1rem;
         }
       }
 
@@ -50,6 +57,12 @@
   }
 }
 
-.asciicast-list {
-  margin-top: 1.2rem;
+.c-recording.a-index {
+  h2 {
+    font-weight: 600;
+
+    a {
+      color: #333333;
+    }
+  }
 }

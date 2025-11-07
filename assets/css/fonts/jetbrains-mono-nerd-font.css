@@ -1,3 +1,7 @@
+/* ==========================================================================
+ * JetBrains Mono Nerd Font fallback for player + code samples.
+ * ========================================================================== */
+
 @font-face {
     font-family: "JetBrainsMono Nerd Font";
     src:    local(JetBrains Mono Regular Nerd Font Complete Mono),

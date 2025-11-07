@@ -1,0 +1,343 @@
+/* ==========================================================================
+ * Main site header (layouts/_header.html), including responsive menu toggle.
+ * ========================================================================== */
+
+/* == Structure == */
+
+header nav {
+  position: relative;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-4);
+  background-color: var(--color-bg-black);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+header nav > .container {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.header-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-shrink: 0;
+}
+
+@media (max-width: 767px) {
+  .header-row {
+    width: 100%;
+    min-height: calc(var(--navbar-height) - (var(--space-2) * 2));
+  }
+}
+
+@media (max-width: 767px) {
+  header nav,
+  header nav > .container {
+    flex-wrap: wrap;
+    align-items: center;
+    align-content: flex-start;
+    gap: var(--space-2);
+  }
+}
+
+/* == Brand + nav groupings == */
+
+.brand {
+  display: inline-block;
+  padding-top: 0.3125rem;
+  padding-bottom: 0.3125rem;
+  margin-right: var(--space-4);
+  font-size: var(--font-size-lg);
+  line-height: inherit;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.brand:hover,
+.brand:focus {
+  text-decoration: none;
+}
+
+.brand img {
+  height: 24px;
+  vertical-align: middle;
+}
+
+.nav-sections {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.nav-sections > * {
+  flex-shrink: 0;
+}
+
+.primary-links,
+.session-info {
+  display: flex;
+  flex-direction: row;
+  padding-left: 0;
+  margin: 0;
+  list-style: none;
+  gap: var(--space-4);
+  align-items: center;
+}
+
+.search-form {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* == Header search == */
+
+.search-form input.q {
+  width: 100%;
+  border: 1px solid #444;
+  color: rgba(255, 255, 255, 0.85);
+  background-color: #222;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="%23fffa" class="size-4"><path fill-rule="evenodd" d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z" clip-rule="evenodd" /></svg>');
+  background-repeat: no-repeat;
+  background-position: 10px 63%;
+  background-size: 20px 20px;
+  padding-left: 40px;
+}
+
+.search-form input.q:focus {
+  color: #fff;
+  border: 1px solid #555;
+  background-color: #222;
+  box-shadow: none;
+}
+
+.search-form input.q::placeholder {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+header .search-form input {
+  min-width: 200px;
+}
+
+/* == Links and dropdown triggers == */
+
+.nav-link {
+  display: block;
+  padding: var(--space-2);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color var(--transition-fast);
+}
+
+.nav-link:hover,
+.nav-link:focus {
+  text-decoration: none;
+}
+
+.nav-link.active {
+  font-weight: var(--font-weight-semibold);
+}
+
+header .nav-link,
+header .dropdown summary {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+header .nav-link:hover,
+header .nav-link:focus,
+header .dropdown summary:hover,
+header .dropdown summary:focus {
+  color: #fff;
+}
+
+header .nav-link.active {
+  color: #fff;
+}
+
+header .dropdown summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) 0;
+}
+
+header .session-info .dropdown summary {
+  gap: 0;
+}
+
+header .dropdown summary img {
+  height: 20px;
+  width: 20px;
+  margin-right: 0.7rem;
+}
+
+/* == Dropdown alignment == */
+
+header .session-info .dropdown {
+  position: relative;
+}
+
+header .session-info .dropdown-menu {
+  right: 0;
+  left: auto;
+}
+
+.nav-toggle {
+  display: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  background: none;
+  border: none;
+  color: inherit;
+  line-height: 0;
+}
+
+/* turn button into animated hamburger that mirrors aria-expanded */
+.nav-toggle .hamburger-icon {
+  display: block;
+  width: 24px;
+  height: 2px;
+  margin: 0;
+  background-color: rgba(255, 255, 255, 0.9);
+  position: relative;
+  border-radius: 999px;
+  transition: background-color var(--transition-fast);
+}
+
+.nav-toggle .hamburger-icon::before,
+.nav-toggle .hamburger-icon::after {
+  content: '';
+  position: absolute;
+  width: 24px;
+  height: 2px;
+  background-color: rgba(255, 255, 255, 0.9);
+  left: 0;
+  border-radius: 999px;
+  transition: transform var(--transition-fast);
+}
+
+.nav-toggle .hamburger-icon::before {
+  top: -6px;
+}
+
+.nav-toggle .hamburger-icon::after {
+  top: 6px;
+}
+
+.nav-toggle[aria-expanded="true"] .hamburger-icon {
+  background-color: transparent;
+}
+
+.nav-toggle[aria-expanded="true"] .hamburger-icon::before {
+  transform: translateY(6px) rotate(45deg);
+}
+
+.nav-toggle[aria-expanded="true"] .hamburger-icon::after {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
+.session-info img.avatar {
+  height: 20px;
+  width: 20px;
+  margin-right: 0.7rem;
+  border-radius: 2px;
+}
+
+/* == Mobile layout == */
+
+@media (max-width: 767px) {
+  .brand {
+    margin-right: 0;
+  }
+
+  .nav-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+  }
+
+  .nav-sections {
+    display: none;
+    width: 100%;
+    flex-basis: 100%;
+    flex-grow: 1;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+    margin-top: var(--space-3);
+    order: 3;
+  }
+
+  .nav-sections.is-open {
+    display: flex;
+  }
+
+  .primary-links,
+  .session-info {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: 0;
+  }
+
+  .session-info {
+    margin: 0.5rem 0;
+  }
+
+  header .session-info .dropdown-menu {
+    right: auto;
+    left: 0;
+  }
+
+  .nav-link {
+    width: 100%;
+    padding: var(--space-3) 0;
+  }
+
+  .search-form {
+    width: 100%;
+  }
+
+  .search-form input {
+    width: 100%;
+    min-width: auto;
+  }
+
+  header nav .search-form form {
+    width: 100%;
+  }
+
+  header nav .search-form input {
+    width: 100%;
+  }
+}
+
+/* == Search width scaling == */
+
+@media (min-width: 768px) {
+  .search-form input.q {
+    width: 200px;
+  }
+}
+
+@media (min-width: 992px) {
+  .search-form input.q {
+    width: 300px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .search-form input.q {
+    width: 400px;
+  }
+}

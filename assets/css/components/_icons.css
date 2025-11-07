@@ -1,8 +1,18 @@
+/* ==========================================================================
+ * Icon helpers: inline SVG alignment tweaks and live/offline pills.
+ * ========================================================================== */
+
+/* == Inline SVG alignment == */
+
 span.icon svg {
+  display: inline-block;
+  vertical-align: middle;
   height: 1em;
   margin-right: 0.2em;
   margin-top: -0.15em;
 }
+
+/* == Status pills == */
 
 span.icon-live {
   font-weight: bold;

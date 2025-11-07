@@ -1,437 +1,376 @@
 <div class="container edit-page">
-  <div class="row user-form">
-    <div class="col-md-12 col-lg-9">
-      <.form
-        :let={f}
-        for={@changeset}
-        action={~p"/user"}
-        class="simple_form form-horizontal"
-        id="account-form"
-        novalidate="novalidate"
-        role="form"
-      >
-        <legend>Account</legend>
+  <div class="form-container user-form">
+    <.form :let={f} for={@changeset} action={~p"/user"} id="account-form" novalidate="novalidate">
+      <legend>Account</legend>
 
-        <div class={["form-group row email required user_email", error_class(f, :email)]}>
-          <.label for={f[:email]} class="email required col-form-label col-3">Email</.label>
-          <div class="col-9">
-            <.input field={f[:email]} type="email" class="string email required form-control" />
-            <.error field={f[:email]} />
-          </div>
+      <div class={["form-field", error_class(f, :email)]}>
+        <.label for={f[:email]}>Email</.label>
+        <div>
+          <.input field={f[:email]} type="email" />
+          <.error field={f[:email]} />
         </div>
+      </div>
 
-        <div class="form-group row">
-          <div class="offset-3 col-9">
-            <br />
-            <.button type="submit" class="btn btn-primary">Update</.button>
-          </div>
+      <div class="form-actions">
+        <div class="form-actions-buttons">
+          <.button type="submit" class="btn btn-primary">Update</.button>
         </div>
-      </.form>
+      </div>
+    </.form>
 
-      <.form
-        :let={f}
-        for={@changeset}
-        action={~p"/user"}
-        class="simple_form form-horizontal"
-        id="profile-form"
-        novalidate="novalidate"
-        role="form"
-      >
-        <legend>Profile</legend>
+    <.form :let={f} for={@changeset} action={~p"/user"} id="profile-form" novalidate="novalidate">
+      <legend>Profile</legend>
 
-        <div class={["form-group row string optional user_username", error_class(f, :username)]}>
-          <.label for={f[:username]} class="string optional col-form-label col-3">
-            Username
-          </.label>
-          <div class="col-9">
-            <.input field={f[:username]} class="string optional form-control" />
-            <.error field={f[:username]} />
-          </div>
+      <div class={["form-field", error_class(f, :username)]}>
+        <.label for={f[:username]}>
+          Username
+        </.label>
+        <div>
+          <.input field={f[:username]} />
+          <.error field={f[:username]} />
         </div>
+      </div>
 
-        <div class={["form-group row string optional user_name", error_class(f, :name)]}>
-          <.label for={f[:name]} class="string optional col-form-label col-3">
-            Display name
-          </.label>
-          <div class="col-9">
-            <.input
-              field={f[:name]}
-              class="string optional form-control"
-              placeholder={@changeset.data.username}
+      <div class={["form-field", error_class(f, :name)]}>
+        <.label for={f[:name]}>
+          Display name
+        </.label>
+        <div>
+          <.input field={f[:name]} placeholder={@changeset.data.username} />
+          <.error field={f[:name]} />
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <div class="form-actions-buttons">
+          <.button type="submit" class="btn btn-primary">Update</.button>
+        </div>
+      </div>
+    </.form>
+
+    <.form :let={f} for={@changeset} action={~p"/user"} id="defaults-form" novalidate="novalidate">
+      <legend>Defaults</legend>
+
+      <p>
+        The settings below control the defaults for <strong>new</strong>
+        recordings<span :if={@streaming_enabled}> and streams</span>. <br />
+        <br />
+      </p>
+
+      <div class="form-field">
+        <.label for={f[:default_recording_visibility]}>
+          Recording visibility
+        </.label>
+        <div class="visibility-radios">
+          <div class="form-option">
+            <input
+              type="radio"
+              name="user[default_recording_visibility]"
+              id="user_default_recording_visibility_public"
+              value="public"
+              checked={f[:default_recording_visibility].value == :public}
             />
-            <.error field={f[:name]} />
-          </div>
-        </div>
-
-        <div class="form-group row">
-          <div class="offset-3 col-9">
-            <br />
-            <.button type="submit" class="btn btn-primary">Update</.button>
-          </div>
-        </div>
-      </.form>
-
-      <.form
-        :let={f}
-        for={@changeset}
-        action={~p"/user"}
-        class="simple_form form-horizontal"
-        id="defaults-form"
-        novalidate="novalidate"
-        role="form"
-      >
-        <legend>Defaults</legend>
-
-        <p>
-          The settings below control the defaults for <strong>new</strong>
-          recordings<span :if={@streaming_enabled}> and streams</span>. <br />
-          <br />
-        </p>
-
-        <div class="form-group row">
-          <.label for={f[:default_recording_visibility]} class="col-3 col-form-label">
-            Recording visibility
-          </.label>
-          <div class="col-9 visibility-radios">
-            <div class="form-check">
-              <input
-                type="radio"
-                name="user[default_recording_visibility]"
-                id="user_default_recording_visibility_public"
-                value="public"
-                checked={f[:default_recording_visibility].value == :public}
-                class="form-check-input"
-              />
-              <label for="user_default_recording_visibility_public" class="form-check-label">
-                Public
-              </label>
-              <small class="form-text text-muted">
-                Anyone can view, listed on your public profile
-              </small>
-            </div>
-            <div class="form-check">
-              <input
-                type="radio"
-                name="user[default_recording_visibility]"
-                id="user_default_recording_visibility_unlisted"
-                value="unlisted"
-                checked={f[:default_recording_visibility].value == :unlisted}
-                class="form-check-input"
-              />
-              <label for="user_default_recording_visibility_unlisted" class="form-check-label">
-                Unlisted
-              </label>
-              <small class="form-text text-muted">
-                Only people with the link can view
-              </small>
-            </div>
-            <div class="form-check">
-              <input
-                type="radio"
-                name="user[default_recording_visibility]"
-                id="user_default_recording_visibility_private"
-                value="private"
-                checked={f[:default_recording_visibility].value == :private}
-                class="form-check-input"
-              />
-              <label for="user_default_recording_visibility_private" class="form-check-label">
-                Private
-              </label>
-              <small class="form-text text-muted">
-                Only accessible by you
-              </small>
-            </div>
-            <small class="form-text text-muted">
-              NOTE: Existing recordings are not affected by changes to this setting.
+            <label for="user_default_recording_visibility_public">
+              Public
+            </label>
+            <small class="form-hint text-muted">
+              Anyone can view, listed on your public profile
             </small>
           </div>
-        </div>
-
-        <div :if={@streaming_enabled} class="form-group row">
-          <.label for={f[:default_stream_visibility]} class="col-3 col-form-label">
-            Stream visibility
-          </.label>
-          <div class="col-9 visibility-radios">
-            <div class="form-check">
-              <input
-                type="radio"
-                name="user[default_stream_visibility]"
-                id="user_default_stream_visibility_public"
-                value="public"
-                checked={f[:default_stream_visibility].value == :public}
-                class="form-check-input"
-              />
-              <label for="user_default_stream_visibility_public" class="form-check-label">
-                Public
-              </label>
-              <small class="form-text text-muted">
-                Anyone can view, listed on your public profile
-              </small>
-            </div>
-            <div class="form-check">
-              <input
-                type="radio"
-                name="user[default_stream_visibility]"
-                id="user_default_stream_visibility_unlisted"
-                value="unlisted"
-                checked={f[:default_stream_visibility].value == :unlisted}
-                class="form-check-input"
-              />
-              <label for="user_default_stream_visibility_unlisted" class="form-check-label">
-                Unlisted
-              </label>
-              <small class="form-text text-muted">
-                Only people with the link can view
-              </small>
-            </div>
-            <div class="form-check">
-              <input
-                type="radio"
-                name="user[default_stream_visibility]"
-                id="user_default_stream_visibility_private"
-                value="private"
-                checked={f[:default_stream_visibility].value == :private}
-                class="form-check-input"
-              />
-              <label for="user_default_stream_visibility_private" class="form-check-label">
-                Private
-              </label>
-              <small class="form-text text-muted">
-                Only accessible by you
-              </small>
-            </div>
-            <small class="form-text text-muted">
-              NOTE: Existing streams are not affected by changes to this setting.
-            </small>
-          </div>
-        </div>
-
-        <div class="form-group row select optional user_term_theme_name">
-          <.label for={f[:term_theme_name]} class="col-3 select optional col-form-label">
-            Terminal theme
-          </.label>
-          <div class="col-9">
-            <div>
-              <.input
-                type="select"
-                field={f[:term_theme_name]}
-                options={theme_options()}
-                class="optional form-control"
-                prompt="Default (asciinema)"
-              />
-            </div>
-            <small class="form-text text-muted">
-              A default theme for recordings that don't explicitly override it.
-            </small>
-          </div>
-        </div>
-
-        <div class="form-group row">
-          <div class="offset-3 col-9">
-            <div class="form-check">
-              <.input
-                type="checkbox"
-                field={f[:term_theme_prefer_original]}
-                class="form-check-input"
-              />
-              <.label for={f[:term_theme_prefer_original]} class="form-check-label">
-                Prefer original terminal theme
-              </.label>
-            </div>
-            <small class="form-text text-muted">
-              This automatically sets the theme to "Original" for every newly uploaded recording which contains a theme (supported by asciinema CLI 3.0 or later).
-            </small>
-          </div>
-        </div>
-
-        <div class="form-group row">
-          <.label for={f[:term_font_family]} class="col-sm-4 col-md-3 col-form-label">
-            Terminal font family
-          </.label>
-          <div class="col-sm-8 col-md-9">
-            <.input
-              type="select"
-              field={f[:term_font_family]}
-              options={font_family_options()}
-              class="form-control"
-              prompt={"Default (#{default_font_display_name()})"}
+          <div class="form-option">
+            <input
+              type="radio"
+              name="user[default_recording_visibility]"
+              id="user_default_recording_visibility_unlisted"
+              value="unlisted"
+              checked={f[:default_recording_visibility].value == :unlisted}
             />
-            <small class="form-text text-muted">
-              A default font for recordings that don't explicitly override it.
+            <label for="user_default_recording_visibility_unlisted">
+              Unlisted
+            </label>
+            <small class="form-hint text-muted">
+              Only people with the link can view
             </small>
           </div>
-        </div>
-
-        <div class="form-group row">
-          <div class="offset-3 col-9">
-            <br />
-            <.button type="submit" class="btn btn-primary">Update</.button>
-          </div>
-        </div>
-      </.form>
-
-      <.form
-        :let={f}
-        :if={@streaming_enabled}
-        for={@changeset}
-        action={~p"/user"}
-        class="simple_form form-horizontal"
-        novalidate="novalidate"
-        role="form"
-      >
-        <legend>Streaming</legend>
-
-        <div class="form-group row">
-          <.label for={f[:live_stream_limit]} class="col-sm-4 col-md-3 col-form-label">
-            Stream limit
-          </.label>
-          <div class="col-sm-8 col-md-9">
-            <.input
-              field={f[:live_stream_limit]}
-              class="string form-control"
-              placeholder="no limit"
-              readonly
+          <div class="form-option">
+            <input
+              type="radio"
+              name="user[default_recording_visibility]"
+              id="user_default_recording_visibility_private"
+              value="private"
+              checked={f[:default_recording_visibility].value == :private}
             />
-            <small class="form-text text-muted">
-              Maximum number of streaming endpoints you can create.
-              <%= if @changeset.data.live_stream_limit do %>
-                Contact the admin if you need more.
-              <% end %>
+            <label for="user_default_recording_visibility_private">
+              Private
+            </label>
+            <small class="form-hint text-muted">
+              Only accessible by you
             </small>
           </div>
+          <small class="form-hint text-muted">
+            NOTE: Existing recordings are not affected by changes to this setting.
+          </small>
         </div>
+      </div>
 
-        <div :if={@stream_recording_mode != :disabled} class="form-group row">
-          <.label for={f[:stream_recording_enabled]} class="col-sm-4 col-md-3 col-form-label">
-            Recording
-          </.label>
-          <div class="col-sm-8 col-9">
-            <div class="form-check form-checkbox">
-              <.input
-                :if={@stream_recording_mode == :allowed}
-                type="checkbox"
-                field={f[:stream_recording_enabled]}
-                class="form-check-input"
-              />
-              <.input
-                :if={@stream_recording_mode == :forced}
-                type="checkbox"
-                field={f[:stream_recording_enabled]}
-                class="form-check-input"
-                value={true}
-                disabled={true}
-              />
-              <.label for={f[:stream_recording_enabled]} class="form-check-label">
-                Record all streams automatically
-              </.label>
-            </div>
-            <small class="form-text text-muted">
-              Every live stream will be saved into a regular recording. The
-              <strong>Recording visibility</strong>
-              option above also applies to recordings created from streams.
+      <div :if={@streaming_enabled} class="form-field">
+        <.label for={f[:default_stream_visibility]}>
+          Stream visibility
+        </.label>
+        <div class="visibility-radios">
+          <div class="form-option">
+            <input
+              type="radio"
+              name="user[default_stream_visibility]"
+              id="user_default_stream_visibility_public"
+              value="public"
+              checked={f[:default_stream_visibility].value == :public}
+            />
+            <label for="user_default_stream_visibility_public">
+              Public
+            </label>
+            <small class="form-hint text-muted">
+              Anyone can view, listed on your public profile
             </small>
           </div>
-        </div>
-
-        <div :if={@stream_recording_mode == :allowed} class="form-group row">
-          <div class="offset-3 col-9">
-            <br />
-            <.button type="submit" class="btn btn-primary">Update</.button>
+          <div class="form-option">
+            <input
+              type="radio"
+              name="user[default_stream_visibility]"
+              id="user_default_stream_visibility_unlisted"
+              value="unlisted"
+              checked={f[:default_stream_visibility].value == :unlisted}
+            />
+            <label for="user_default_stream_visibility_unlisted">
+              Unlisted
+            </label>
+            <small class="form-hint text-muted">
+              Only people with the link can view
+            </small>
           </div>
+          <div class="form-option">
+            <input
+              type="radio"
+              name="user[default_stream_visibility]"
+              id="user_default_stream_visibility_private"
+              value="private"
+              checked={f[:default_stream_visibility].value == :private}
+            />
+            <label for="user_default_stream_visibility_private">
+              Private
+            </label>
+            <small class="form-hint text-muted">
+              Only accessible by you
+            </small>
+          </div>
+          <small class="form-hint text-muted">
+            NOTE: Existing streams are not affected by changes to this setting.
+          </small>
         </div>
-      </.form>
-    </div>
+      </div>
+
+      <div class={["form-field", error_class(f, :term_theme_name)]}>
+        <.label for={f[:term_theme_name]}>
+          Terminal theme
+        </.label>
+        <div>
+          <.input
+            type="select"
+            field={f[:term_theme_name]}
+            options={theme_options()}
+            prompt="Default (asciinema)"
+          />
+          <small class="form-hint text-muted">
+            A default theme for recordings that don't explicitly override it.
+          </small>
+        </div>
+      </div>
+
+      <div class="form-field form-field-full">
+        <div class="form-option-offset">
+          <div class="form-option">
+            <.input type="checkbox" field={f[:term_theme_prefer_original]} />
+            <.label for={f[:term_theme_prefer_original]}>
+              Prefer original terminal theme
+            </.label>
+          </div>
+          <small class="form-hint text-muted">
+            This automatically sets the theme to "Original" for every newly uploaded recording which contains a theme (supported by asciinema CLI 3.0 or later).
+          </small>
+        </div>
+      </div>
+
+      <div class={["form-field", error_class(f, :term_font_family)]}>
+        <.label for={f[:term_font_family]}>
+          Terminal font family
+        </.label>
+        <div>
+          <.input
+            type="select"
+            field={f[:term_font_family]}
+            options={font_family_options()}
+            prompt={"Default (#{default_font_display_name()})"}
+          />
+          <small class="form-hint text-muted">
+            A default font for recordings that don't explicitly override it.
+          </small>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <div class="form-actions-buttons">
+          <.button type="submit" class="btn btn-primary">Update</.button>
+        </div>
+      </div>
+    </.form>
+
+    <.form
+      :let={f}
+      :if={@streaming_enabled}
+      for={@changeset}
+      action={~p"/user"}
+      novalidate="novalidate"
+    >
+      <legend>Streaming</legend>
+
+      <div class={["form-field", error_class(f, :live_stream_limit)]}>
+        <.label for={f[:live_stream_limit]}>
+          Stream limit
+        </.label>
+        <div>
+          <.input field={f[:live_stream_limit]} placeholder="no limit" readonly />
+          <small class="form-hint text-muted">
+            Maximum number of streaming endpoints you can create.
+            <%= if @changeset.data.live_stream_limit do %>
+              Contact the admin if you need more.
+            <% end %>
+          </small>
+        </div>
+      </div>
+
+      <div :if={@stream_recording_mode != :disabled} class="form-field form-field-full">
+        <.label for={f[:stream_recording_enabled]}>
+          Recording
+        </.label>
+        <div class="form-option-offset">
+          <div class="form-option form-option-box">
+            <.input
+              :if={@stream_recording_mode == :allowed}
+              type="checkbox"
+              field={f[:stream_recording_enabled]}
+            />
+            <.input
+              :if={@stream_recording_mode == :forced}
+              type="checkbox"
+              field={f[:stream_recording_enabled]}
+              value={true}
+              disabled={true}
+            />
+            <.label for={f[:stream_recording_enabled]}>
+              Record all streams automatically
+            </.label>
+          </div>
+          <small class="form-hint text-muted">
+            Every live stream will be saved into a regular recording. The
+            <strong>Recording visibility</strong>
+            option above also applies to recordings created from streams.
+          </small>
+        </div>
+      </div>
+
+      <div :if={@stream_recording_mode == :allowed} class="form-actions">
+        <div class="form-actions-buttons">
+          <.button type="submit" class="btn btn-primary">Update</.button>
+        </div>
+      </div>
+    </.form>
   </div>
 
-  <div class="row clis-list">
-    <div class="col-md-12">
-      <form>
-        <legend>CLI</legend>
+  <div>
+    <form>
+      <legend>CLI</legend>
 
-        <p>To associate the uploaded recordings with your account, you need to
-          authenticate asciinema CLI on every new system from which you upload.</p>
+      <p>To associate the uploaded recordings with your account, you need to
+        authenticate asciinema CLI on every new system from which you upload.</p>
 
+      <p>
+        Run <code>asciinema auth</code>
+        to do this. For more information see the <a href="https://docs.asciinema.org/manual/cli/usage/#asciinema-auth">documentation</a>.
+      </p>
+
+      <%= if present?(@clis) do %>
         <p>
-          Run <code>asciinema auth</code>
-          to do this. For more information see the <a href="https://docs.asciinema.org/manual/cli/usage/#asciinema-auth">documentation</a>.
+          The following asciinema CLI installations have been authenticated with your account:
         </p>
 
-        <%= if present?(@clis) do %>
-          <p>
-            The following asciinema CLI installations have been authenticated with your account:
-          </p>
+        <table class="table install-ids">
+          <thead>
+            <th>Installation ID</th>
+            <th>Registered at</th>
+            <th></th>
+          </thead>
+          <tbody>
+            <tr :for={t <- active_clis(@clis)}>
+              <td>
+                <code>{t.token}</code>
+              </td>
+              <td>
+                {time_tag(t.inserted_at)}
+              </td>
+              <td>
+                <.link
+                  href={~p"/clis/#{t}"}
+                  class="btn btn-danger btn-sm"
+                  method="delete"
+                  data-confirm="Are you sure? This will prevent future uploads from that system."
+                >
+                  Revoke
+                </.link>
+              </td>
+            </tr>
 
-          <table class="table install-ids">
-            <thead>
-              <th>Installation ID</th>
-              <th>Registered at</th>
-              <th></th>
-            </thead>
-            <tbody>
-              <tr :for={t <- active_clis(@clis)}>
-                <td>
-                  <code>{t.token}</code>
-                </td>
-                <td>
-                  {time_tag(t.inserted_at)}
-                </td>
-                <td>
-                  <.link
-                    href={~p"/clis/#{t}"}
-                    class="btn btn-danger btn-sm"
-                    method="delete"
-                    data-confirm="Are you sure? This will prevent future uploads from that system."
-                  >
-                    Revoke
-                  </.link>
-                </td>
-              </tr>
+            <tr :for={t <- revoked_clis(@clis)} class="revoked">
+              <td>
+                <code>{t.token}</code>
+              </td>
+              <td>
+                {time_tag(t.inserted_at)}
+              </td>
+              <td>
+                Revoked {time_ago_tag(t.revoked_at)}
+              </td>
+            </tr>
+          </tbody>
+        </table>
 
-              <tr :for={t <- revoked_clis(@clis)} class="revoked">
-                <td>
-                  <code>{t.token}</code>
-                </td>
-                <td>
-                  {time_tag(t.inserted_at)}
-                </td>
-                <td>
-                  Revoked {time_ago_tag(t.revoked_at)}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-
-          <p>
-            The installation ID of your local system is stored in the
-            <code>$HOME/.config/asciinema/install-id</code>
-            file.
-          </p>
-        <% else %>
-          <p>There is currently no CLI authenticated with this account.</p>
-        <% end %>
-      </form>
-    </div>
+        <p>
+          The installation ID of your local system is stored in the
+          <code>$HOME/.config/asciinema/install-id</code>
+          file.
+        </p>
+      <% else %>
+        <p>There is currently no CLI authenticated with this account.</p>
+      <% end %>
+    </form>
   </div>
 
-  <div class="row danger-zone">
-    <div class="col-md-12 col-lg-9">
-      <form>
-        <legend>Delete account</legend>
-      </form>
+  <div class="danger-zone">
+    <form>
+      <legend>Delete account</legend>
+    </form>
 
-      <p>
-        If you ever decide to delete your {@conn.host} account you can do so by clicking that big red button below.
-      </p>
+    <p>
+      If you ever decide to delete your {@conn.host} account you can do so by clicking that big red button below.
+    </p>
 
-      <p>
-        <.link href={~p"/user"} class="btn btn-danger" method="delete">
-          Delete my account
-        </.link>
-      </p>
+    <p>
+      <.link href={~p"/user"} class="btn btn-danger" method="delete">
+        Delete my account
+      </.link>
+    </p>
 
-      <p>
-        NOTE: You'll get a confirmation email sent to {@changeset.data.email}. Open the link from the email to confirm account deletion.
-      </p>
-    </div>
+    <p>
+      NOTE: You'll get a confirmation email sent to {@changeset.data.email}. Open the link from the email to confirm account deletion.
+    </p>
   </div>
 </div>

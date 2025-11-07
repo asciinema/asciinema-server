@@ -1,5 +1,6 @@
 defmodule AsciinemaWeb.RecordingHTML do
   use AsciinemaWeb, :html
+  import AsciinemaWeb.ErrorHelpers
   import Scrivener.HTML
   alias Asciinema.{Accounts, Fonts, Media, Recordings, Themes}
   alias Asciinema.Recordings.{Markers, Snapshot}
