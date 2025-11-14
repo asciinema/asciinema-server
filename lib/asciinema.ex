@@ -96,7 +96,8 @@ defmodule Asciinema do
       Repo.transact(fn ->
         Recordings.delete_asciicasts(user)
         Streaming.delete_streams(user)
-        Accounts.delete_user!(user)
+
+        {:ok, Accounts.delete_user!(user)}
       end)
 
     with {:ok, _} <- result, do: :ok

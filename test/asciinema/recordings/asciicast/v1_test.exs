@@ -28,7 +28,7 @@ defmodule Asciinema.Recordings.Asciicast.V1Test do
                term_rows: 26,
                term_type: "screen-256color",
                command: "/bin/bash",
-               duration: 11.146430,
+               duration: 10.370343,
                title: "bashing :)",
                env: %{
                  "TERM" => "screen-256color",
@@ -36,6 +36,36 @@ defmodule Asciinema.Recordings.Asciicast.V1Test do
                },
                shell: "/bin/zsh"
              }
+    end
+
+    test "single event" do
+      {:ok, metadata} = V1.fetch_metadata("test/fixtures/1/single-event.json")
+
+      assert metadata == %{
+               version: 1,
+               term_cols: 96,
+               term_rows: 26,
+               term_type: nil,
+               command: nil,
+               duration: 1.234567,
+               title: nil,
+               env: %{},
+               shell: nil
+             }
+    end
+
+    test "invalid file" do
+      filenames = ~w[
+        invalid-time-1.json
+        invalid-time-2.json
+        invalid-data.json
+        wrong-event-length.json
+      ]
+
+      Enum.each(filenames, fn filename ->
+        assert V1.fetch_metadata("test/fixtures/1/#{filename}") == {:error, :invalid_format},
+               filename
+      end)
     end
   end
 

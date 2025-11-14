@@ -55,7 +55,7 @@ defmodule Asciinema.Factory do
     %Asciicast{
       user: build(:user),
       version: 2,
-      path: sequence(:path_v2, &"recordings/#{&1}.cast"),
+      path: sequence(:path_v2v3, &"recordings/#{&1}.cast"),
       duration: 123.45,
       term_cols: 80,
       term_rows: 24,
@@ -68,7 +68,7 @@ defmodule Asciinema.Factory do
     %Asciicast{
       user: build(:user),
       version: 3,
-      path: sequence(:path_v3, &"recordings/#{&1}.cast"),
+      path: sequence(:path_v2v3, &"recordings/#{&1}.cast"),
       duration: 123.45,
       term_cols: 80,
       term_rows: 24,
@@ -101,15 +101,21 @@ defmodule Asciinema.Factory do
     |> Enum.join("")
   end
 
-  def with_file(asciicast) do
-    src =
+  def with_file(asciicast, filename \\ nil)
+
+  def with_file(asciicast, nil) do
+    filename =
       case asciicast.version do
         1 -> "welcome.json"
         2 -> "welcome.cast"
         3 -> "3/full.cast"
       end
 
-    :ok = FileStore.put_file(asciicast.path, "test/fixtures/#{src}", "application/json")
+    with_file(asciicast, filename)
+  end
+
+  def with_file(asciicast, filename) do
+    :ok = FileStore.put_file(asciicast.path, "test/fixtures/#{filename}", "application/json")
 
     asciicast
   end

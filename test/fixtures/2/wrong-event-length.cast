@@ -1,0 +1,3 @@
+{"version": 2, "width": 80, "height": 24}
+[1.234, "o", "foo bar"]
+[2.0, "o", "baz qux", ""]

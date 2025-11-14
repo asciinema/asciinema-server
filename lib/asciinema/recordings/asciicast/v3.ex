@@ -1,20 +1,20 @@
 defmodule Asciinema.Recordings.Asciicast.V3 do
   alias Asciinema.Colors
+  alias Asciinema.Quantizer
   alias Asciinema.Recordings.EventStream
 
   defmodule Writer do
-    @enforce_keys [:file, :prev_time]
-    defstruct [:file, :prev_time]
+    @enforce_keys [:file, :prev_time, :time_quantizer]
+    defstruct [:file, :prev_time, :time_quantizer]
   end
 
   def event_stream(path) when is_binary(path) do
-    [header_line] =
+    ["{" <> _ = header_line] =
       path
       |> File.stream!([], :line)
       |> Stream.take(1)
       |> Enum.to_list()
 
-    "{" <> _ = header_line
     header = Jason.decode!(header_line)
     3 = header["version"]
 
@@ -23,14 +23,29 @@ defmodule Asciinema.Recordings.Asciicast.V3 do
     |> Stream.drop(1)
     |> Stream.reject(fn line -> line == "\n" or String.starts_with?(line, "#") end)
     |> Stream.map(&Jason.decode!/1)
-    |> Stream.map(fn [time, code, data] -> {time, code, data} end)
+    |> Stream.flat_map(&parse_event/1)
     |> EventStream.cap_relative_time(header["idle_time_limit"])
     |> EventStream.to_absolute_time()
   end
 
+  defp parse_event([time, "r", data]) when is_number(time) and time >= 0 and is_binary(data) do
+    with [cols, rows] <- String.split(data, "x"),
+         {cols, ""} when cols > 0 <- Integer.parse(cols),
+         {rows, ""} when rows > 0 <- Integer.parse(rows) do
+      [{time, "r", {cols, rows}}]
+    else
+      _ -> []
+    end
+  end
+
+  defp parse_event([time, code, data])
+       when is_number(time) and time >= 0 and is_binary(code) and is_binary(data) do
+    [{time, code, data}]
+  end
+
   def fetch_metadata(path) do
-    with {:ok, line} when is_binary(line) <- File.open(path, fn f -> IO.read(f, :line) end),
-         {:ok, %{"version" => 3} = header} <- Jason.decode(line) do
+    with {:ok, header} <- parse_header(path),
+         {:ok, duration} <- get_duration(path) do
       metadata = %{
         version: 3,
         term_cols: get_in(header, ["term", "cols"]),
@@ -41,7 +56,7 @@ defmodule Asciinema.Recordings.Asciicast.V3 do
         term_theme_bg: get_in(header, ["term", "theme", "bg"]),
         term_theme_palette: get_in(header, ["term", "theme", "palette"]),
         command: header["command"],
-        duration: get_duration(path),
+        duration: duration,
         recorded_at: header["timestamp"] && Timex.from_unix(header["timestamp"]),
         title: header["title"],
         env: header["env"] || %{},
@@ -50,19 +65,45 @@ defmodule Asciinema.Recordings.Asciicast.V3 do
       }
 
       {:ok, metadata}
+    end
+  end
+
+  defp parse_header(path) do
+    with {:ok, line} when is_binary(line) <- File.open(path, fn f -> IO.read(f, :line) end),
+         {:ok, %{"version" => 3} = header} <- Jason.decode(line),
+         :ok <- validate_theme(get_in(header, ["term", "theme"])) do
+      {:ok, header}
     else
       {:ok, %{"version" => version}} ->
         {:error, {:invalid_version, version}}
 
       {:error, %Jason.DecodeError{}} ->
         {:error, :invalid_format}
+
+      {:error, :invalid_theme} ->
+        {:error, :invalid_format}
     end
   end
 
+  defp validate_theme(nil), do: :ok
+
+  defp validate_theme(%{"fg" => _, "bg" => _, "palette" => _}), do: :ok
+
+  defp validate_theme(_theme), do: {:error, :invalid_theme}
+
   defp get_duration(path) do
-    path
-    |> event_stream()
-    |> Enum.reduce(0, fn {t, _, _}, _prev_t -> t end)
+    duration =
+      path
+      |> event_stream()
+      |> Enum.reduce(0, fn {t, _, _}, _prev_t -> t end)
+
+    {:ok, duration}
+  rescue
+    MatchError ->
+      {:error, :invalid_format}
+
+    FunctionClauseError ->
+      {:error, :invalid_format}
   end
 
   def create(path, {cols, rows}, fields \\ []) do
@@ -88,28 +129,38 @@ defmodule Asciinema.Recordings.Asciicast.V3 do
       |> Jason.OrderedObject.new()
 
     with :ok <- IO.write(file, Jason.encode!(header) <> "\n") do
-      {:ok, %Writer{file: file, prev_time: 0}}
+      {:ok, %Writer{file: file, prev_time: 0, time_quantizer: Quantizer.new(1_000)}}
     end
   end
 
-  def write_event(%Writer{file: file} = writer, time, type, data)
+  def write_event(
+        %Writer{} = writer,
+        time,
+        type,
+        data
+      )
       when type in ["o", "i", "m", "x"] do
-    rel_time = format_time(time - writer.prev_time)
+    {time_quantizer, dt} = Quantizer.next(writer.time_quantizer, time - writer.prev_time)
     data = Jason.encode!(data)
-    event = "[#{rel_time}, \"#{type}\", #{data}]"
+    event = "[#{format_time(dt)}, \"#{type}\", #{data}]"
 
-    with :ok <- IO.write(file, event <> "\n") do
-      {:ok, %{writer | prev_time: time}}
+    with :ok <- IO.write(writer.file, event <> "\n") do
+      {:ok, %{writer | prev_time: time, time_quantizer: time_quantizer}}
     end
   end
 
-  def write_event(%Writer{file: file} = writer, time, "r", {cols, rows}) do
-    rel_time = format_time(time - writer.prev_time)
+  def write_event(
+        %Writer{} = writer,
+        time,
+        "r",
+        {cols, rows}
+      ) do
+    {time_quantizer, dt} = Quantizer.next(writer.time_quantizer, time - writer.prev_time)
     data = Jason.encode!("#{cols}x#{rows}")
-    event = "[#{rel_time}, \"r\", #{data}]"
+    event = "[#{format_time(dt)}, \"r\", #{data}]"
 
-    with :ok <- IO.write(file, event <> "\n") do
-      {:ok, %{writer | prev_time: time}}
+    with :ok <- IO.write(writer.file, event <> "\n") do
+      {:ok, %{writer | prev_time: time, time_quantizer: time_quantizer}}
     end
   end
 
@@ -133,7 +184,7 @@ defmodule Asciinema.Recordings.Asciicast.V3 do
       |> rem(1_000_000)
       |> to_string()
       |> String.pad_leading(6, "0")
-      |> String.trim_trailing("0")
+      |> String.slice(0, 3)
 
     decimal =
       case decimal do

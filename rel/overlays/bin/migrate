@@ -1,3 +1,5 @@
 #!/bin/sh
+set -eu
 
-exec ./bin/asciinema eval Asciinema.Release.migrate
+cd -P -- "$(dirname -- "$0")"
+exec ./asciinema eval Asciinema.Release.migrate

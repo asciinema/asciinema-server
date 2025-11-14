@@ -69,6 +69,21 @@ defmodule Asciinema.Recordings.Asciicast.V2Test do
                shell: nil
              }
     end
+
+    test "invalid file" do
+      filenames = ~w[
+        empty-theme.cast
+        invalid-time-1.cast
+        invalid-time-2.cast
+        invalid-code.cast
+        invalid-data.cast
+        wrong-event-length.cast
+      ]
+
+      Enum.each(filenames, fn filename ->
+        assert V2.fetch_metadata("test/fixtures/2/#{filename}") == {:error, :invalid_format}
+      end)
+    end
   end
 
   describe "event_stream/1" do
@@ -81,8 +96,9 @@ defmodule Asciinema.Recordings.Asciicast.V2Test do
     test "with idle_time_limit" do
       stream = V2.event_stream("test/fixtures/2/full.cast")
 
-      assert Enum.take(stream, 3) == [
+      assert Enum.take(stream, 4) == [
                {1.234567, "o", "foo bar"},
+               {2.0, "r", {80, 24}},
                {2.34567, "i", "\r"},
                {4.84567, "o", "baz qux"}
              ]
@@ -95,6 +111,15 @@ defmodule Asciinema.Recordings.Asciicast.V2Test do
                {1.234567, "o", "foo bar"},
                {5.678987, "o", "baz qux"},
                {8.456789, "o", "żółć jaźń"}
+             ]
+    end
+
+    test "invalid resize" do
+      stream = V2.event_stream("test/fixtures/2/invalid-resize.cast")
+
+      assert Enum.to_list(stream) == [
+               {1.234, "o", "foo bar"},
+               {3.0, "o", "baz qux"}
              ]
     end
   end

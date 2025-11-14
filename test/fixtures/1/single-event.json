@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "width": 96,
+  "height": 26,
+  "duration": 1.234567,
+  "stdout": [
+    [1.234567, "foo bar"]
+  ]
+}

@@ -63,6 +63,8 @@ defmodule AsciinemaWeb.Router do
     get "/explore/featured", RecordingController, :featured, as: :explore
     get "/explore/public", RecordingController, :public, as: :explore
 
+    get "/search", SearchController, :show, as: :search
+
     get "/a/:id/iframe", RecordingController, :iframe
     get "/a/:id/example", RecordingController, :example
 

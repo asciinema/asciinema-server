@@ -31,5 +31,5 @@ config :asciinema, Asciinema.Repo,
   pool_size: 10,
   ssl: false
 
-config :asciinema, Asciinema.FileStore.Local, path: "/var/opt/asciinema/uploads"
+config :asciinema, Asciinema.FileStore.Local, path: "/var/lib/asciinema/uploads"
 config :asciinema, Asciinema.FileCache, path: "/var/cache/asciinema"

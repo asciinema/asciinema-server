@@ -17,7 +17,7 @@ defmodule Asciinema.RecordingsTest do
       assert %Asciicast{
                version: 1,
                command: "/bin/bash",
-               duration: 11.146430,
+               duration: 10.370343,
                shell: "/bin/zsh",
                term_type: "screen-256color",
                term_cols: 96,
@@ -148,7 +148,7 @@ defmodule Asciinema.RecordingsTest do
     end
   end
 
-  describe "generate_snapshot/2" do
+  describe "generate_snapshot/4" do
     @tag :vt
     test "returns list of screen lines" do
       output = [{1.0, "a"}, {2.4, "b"}, {2.6, "c"}]
@@ -159,6 +159,97 @@ defmodule Asciinema.RecordingsTest do
                   [{"ab  ", %{}, 1}],
                   [{"    ", %{}, 1}]
                 ], {2, 0}}
+    end
+  end
+
+  describe "generate_fts_content/3" do
+    @tag :vt
+    test "returns recording content prepared for FTS" do
+      output = [{1.0, "o", "a"}, {2.4, "o", "B"}, {2.6, "o", "c"}]
+      content = Recordings.generate_fts_content(output, 10, 5)
+
+      assert content == "abc "
+    end
+
+    @tag :vt
+    test "includes scrollback" do
+      output = [{1.0, "o", "aaa\n"}, {2.4, "o", "Bbb\n"}, {2.6, "o", "ccc\n"}]
+      content = Recordings.generate_fts_content(output, 10, 2)
+
+      assert content == "aaa bbb ccc "
+    end
+
+    @tag :vt
+    test "keeps words of len > 1, truncates words > 32" do
+      output = [
+        {1.0, "o", "a "},
+        {2.4, "o", "bbbbbbbbbbBbbbbbbbbbbbbbbbbbbB "},
+        {2.6, "o", "CcccccccccccccccccCcccccccccccccccccccCc "}
+      ]
+
+      content = Recordings.generate_fts_content(output, 100, 5)
+
+      assert content == "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb cccccccccccccccccccccccccccccccc "
+    end
+
+    @tag :vt
+    test "alt screen buffer" do
+      output = [
+        # print on primary buffer
+        "nvim\r\n",
+        # switch to alternate buffer
+        "\x1b[?1047h",
+        # print
+        "hello ",
+        # print
+        "w",
+        # print
+        "o",
+        # print
+        "r",
+        # print
+        "l",
+        # print
+        "d",
+        # move back 2 chars
+        "\x08\x08",
+        # print
+        "mz",
+        # print
+        " planet",
+        # move back to the beginning of "wormz"
+        "\x1b[12D",
+        # overwrite "wormz"
+        "wyrm ",
+        # enable insert mode
+        "\x1b[4h",
+        # insert "foo bar baz"
+        " foo bar baz ",
+        # switch back to primary buffer
+        "\x1b[?1047l",
+        # print
+        "bye!"
+      ]
+
+      events = for {text, i} <- Enum.with_index(output), do: {i, "o", text}
+
+      content = Recordings.generate_fts_content(events, 50, 10)
+
+      assert content == "nvim bye world wormz hello wyrm foo bar baz planet "
+    end
+  end
+
+  describe "update_fts_content/1" do
+    test "small file" do
+      asciicast = insert(:asciicast) |> with_file()
+
+      assert Recordings.update_fts_content(asciicast) == :ok
+    end
+
+    test "big file" do
+      asciicast = insert(:asciicast_v3) |> with_file("big.cast")
+
+      assert Recordings.update_fts_content(asciicast) == :ok
     end
   end
 

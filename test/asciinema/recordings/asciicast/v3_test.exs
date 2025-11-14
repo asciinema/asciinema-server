@@ -72,6 +72,21 @@ defmodule Asciinema.Recordings.Asciicast.V3Test do
                shell: nil
              }
     end
+
+    test "invalid file" do
+      filenames = ~w[
+        empty-theme.cast
+        invalid-time-1.cast
+        invalid-time-2.cast
+        invalid-code.cast
+        invalid-data.cast
+        wrong-event-length.cast
+      ]
+
+      Enum.each(filenames, fn filename ->
+        assert V3.fetch_metadata("test/fixtures/3/#{filename}") == {:error, :invalid_format}
+      end)
+    end
   end
 
   describe "event_stream/1" do
@@ -88,7 +103,7 @@ defmodule Asciinema.Recordings.Asciicast.V3Test do
                {1.234567, "o", "foo bar"},
                {2.234567, "i", "\r"},
                {4.734567, "o", "baz qux"},
-               {5.734567, "r", "80x24"},
+               {5.734567, "r", {80, 24}},
                {8.191356, "o", "żółć jaźń"}
              ]
     end
@@ -101,6 +116,15 @@ defmodule Asciinema.Recordings.Asciicast.V3Test do
                {5.678987, "o", "baz qux"},
                {8.481455, "o", "żółć jaźń"},
                {9.481455, "o", "bye!"}
+             ]
+    end
+
+    test "invalid resize" do
+      stream = V3.event_stream("test/fixtures/3/invalid-resize.cast")
+
+      assert Enum.to_list(stream) == [
+               {1.234, "o", "foo bar"},
+               {1.734, "o", "baz qux"}
              ]
     end
   end
@@ -164,7 +188,7 @@ defmodule Asciinema.Recordings.Asciicast.V3Test do
       content = File.read!(path)
 
       assert content ==
-               ~s|{"version":3,"term":{"cols":99,"rows":22}}\n[0.25, "o", "hello world"]\n|
+               ~s|{"version":3,"term":{"cols":99,"rows":22}}\n[0.250, "o", "hello world"]\n|
     end
 
     test "input", %{path: path, writer: writer} do
@@ -172,7 +196,7 @@ defmodule Asciinema.Recordings.Asciicast.V3Test do
       :ok = V3.close(writer)
       content = File.read!(path)
 
-      assert content == ~s|{"version":3,"term":{"cols":99,"rows":22}}\n[1.0, "i", "h"]\n|
+      assert content == ~s|{"version":3,"term":{"cols":99,"rows":22}}\n[1.000, "i", "h"]\n|
     end
 
     test "resize", %{path: path, writer: writer} do
@@ -180,7 +204,7 @@ defmodule Asciinema.Recordings.Asciicast.V3Test do
       :ok = V3.close(writer)
       content = File.read!(path)
 
-      assert content == ~s|{"version":3,"term":{"cols":99,"rows":22}}\n[0.01, "r", "81x25"]\n|
+      assert content == ~s|{"version":3,"term":{"cols":99,"rows":22}}\n[0.010, "r", "81x25"]\n|
     end
 
     test "marker", %{path: path, writer: writer} do
@@ -189,7 +213,7 @@ defmodule Asciinema.Recordings.Asciicast.V3Test do
       content = File.read!(path)
 
       assert content ==
-               ~s|{"version":3,"term":{"cols":99,"rows":22}}\n[123.456789, "m", "intro"]\n|
+               ~s|{"version":3,"term":{"cols":99,"rows":22}}\n[123.457, "m", "intro"]\n|
     end
 
     test "exit", %{path: path, writer: writer} do
@@ -198,7 +222,7 @@ defmodule Asciinema.Recordings.Asciicast.V3Test do
       content = File.read!(path)
 
       assert content ==
-               ~s|{"version":3,"term":{"cols":99,"rows":22}}\n[0.000001, "x", "0"]\n|
+               ~s|{"version":3,"term":{"cols":99,"rows":22}}\n[0.000, "x", "0"]\n|
     end
   end
 
@@ -208,14 +232,14 @@ defmodule Asciinema.Recordings.Asciicast.V3Test do
 
       {:ok, writer} = V3.create(path, {99, 22})
       {:ok, writer} = V3.write_event(writer, 250_000, "o", "hello world")
-      {:ok, writer} = V3.write_event(writer, 1_000_000, "i", "h")
+      {:ok, writer} = V3.write_event(writer, 1_111_000, "i", "h")
       {:ok, writer} = V3.write_event(writer, 1_500_000, "r", {81, 25})
       {:ok, writer} = V3.write_event(writer, 2_000_050, "m", "intro")
       :ok = V3.close(writer)
       content = File.read!(path)
 
       assert content ==
-               ~s|{"version":3,"term":{"cols":99,"rows":22}}\n[0.25, "o", "hello world"]\n[0.75, \"i\", \"h\"]\n[0.5, \"r\", \"81x25\"]\n[0.50005, \"m\", \"intro\"]\n|
+               ~s|{"version":3,"term":{"cols":99,"rows":22}}\n[0.250, "o", "hello world"]\n[0.861, \"i\", \"h\"]\n[0.389, \"r\", \"81x25\"]\n[0.500, \"m\", \"intro\"]\n|
     end
   end
 end

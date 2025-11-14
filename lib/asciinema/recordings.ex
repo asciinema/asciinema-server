@@ -4,8 +4,8 @@ defmodule Asciinema.Recordings do
   import Ecto.Changeset
   import Ecto.Query, warn: false
   alias Asciinema.Recordings.Asciicast.{V1, V2, V3}
-  alias Asciinema.{FileStore, Fonts, Repo, Themes, Vt}
-  alias Asciinema.Workers.{MigrateRecordingFiles, UpdateSnapshot}
+  alias Asciinema.{FileStore, Fonts, Fts, Repo, Themes, Vt}
+  alias Asciinema.Workers.{MigrateRecordingFiles, UpdateFtsContent, UpdateSnapshot}
 
   alias Asciinema.Recordings.{
     Asciicast,
@@ -92,10 +92,34 @@ defmodule Asciinema.Recordings do
 
   defp sort(q, order) do
     case order do
-      :date -> order_by(q, desc: :id)
-      :popularity -> order_by(q, desc: :views_count)
-      :random -> order_by(q, fragment("RANDOM()"))
+      :date ->
+        order_by(q, desc: :id)
+
+      :popularity ->
+        order_by(q, desc: :views_count)
+
+      :random ->
+        order_by(q, fragment("RANDOM()"))
     end
+  end
+
+  def search(%Ecto.Query{} = query, q) do
+    query
+    |> from()
+    |> where(
+      [a],
+      fragment(
+        "(title_tsv || description_tsv || coalesce(content_tsv, ''::tsvector)) @@ websearch_to_tsquery('simple', ?)",
+        ^q
+      )
+    )
+    |> order_by(
+      {:desc,
+       fragment(
+         "ts_rank_cd(setweight(title_tsv, 'A') || setweight(description_tsv, 'B') || setweight(coalesce(content_tsv, ''::tsvector), 'C'), websearch_to_tsquery('simple', ?), 4)",
+         ^q
+       )}
+    )
   end
 
   def paginate(%Ecto.Query{} = query, page, page_size) do
@@ -171,6 +195,10 @@ defmodule Asciinema.Recordings do
         |> Oban.insert!()
       end
 
+      %{asciicast_id: asciicast.id}
+      |> UpdateFtsContent.new()
+      |> Oban.insert!()
+
       {:ok, asciicast}
     end
   end
@@ -179,6 +207,7 @@ defmodule Asciinema.Recordings do
     case V2.fetch_metadata(path) do
       {:ok, metadata} -> {:ok, metadata}
       {:error, {:invalid_version, 3}} -> V3.fetch_metadata(path)
+      {:error, {:invalid_version, _} = reason} -> {:error, reason}
       {:error, :invalid_format} -> V1.fetch_metadata(path)
     end
   end
@@ -366,16 +395,73 @@ defmodule Asciinema.Recordings do
   end
 
   def generate_snapshot(output_stream, cols, rows, secs) do
-    frames = Stream.take_while(output_stream, &frame_before_or_at?(&1, secs))
+    {:ok, vt} = Vt.new(cols, rows, 0)
 
-    {:ok, {lines, cursor}} =
-      Vt.with_vt(cols, rows, [scrollback_limit: 0], fn vt ->
-        Enum.each(frames, fn {_, text} -> Vt.feed(vt, text) end)
+    output_stream
+    |> Stream.take_while(&frame_before_or_at?(&1, secs))
+    |> Enum.each(fn {_, text} -> Vt.feed(vt, text) end)
 
-        Vt.dump_screen(vt)
-      end)
+    Vt.dump_screen(vt)
+  end
 
-    {lines, cursor}
+  def update_fts_content(%Asciicast{} = asciicast) do
+    cols = asciicast.term_cols_override || asciicast.term_cols
+    rows = asciicast.term_rows_override || asciicast.term_rows
+
+    content =
+      asciicast
+      |> event_stream()
+      |> generate_fts_content(cols, rows)
+
+    set_content_tsv(asciicast.id, content)
+  end
+
+  defp set_content_tsv(id, content, attempt \\ 1) do
+    try do
+      Repo.update_all(
+        from(a in "asciicasts",
+          where: a.id == ^id,
+          update: [set: [content_tsv: fragment("to_tsvector('simple', ?)", ^content)]]
+        ),
+        []
+      )
+
+      :ok
+    rescue
+      e in Postgrex.Error ->
+        if e.postgres.code == :program_limit_exceeded do
+          if attempt < 10 do
+            content = String.slice(content, 0, div(String.length(content) * 9, 10))
+            set_content_tsv(id, content, attempt + 1)
+          else
+            {:error, :too_long}
+          end
+        else
+          reraise e, __STACKTRACE__
+        end
+    end
+  end
+
+  def generate_fts_content(events, cols, rows) do
+    {:ok, fts} = Fts.new(cols, rows)
+
+    events
+    |> Stream.each(fn {_, code, data} ->
+      case code do
+        "o" ->
+          Fts.feed(fts, data)
+
+        "r" ->
+          {cols, rows} = data
+          Fts.resize(fts, cols, rows)
+
+        _ ->
+          :ok
+      end
+    end)
+    |> Stream.run()
+
+    Fts.dump(fts)
   end
 
   def event_stream(%Asciicast{} = asciicast) do

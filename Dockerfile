@@ -27,7 +27,7 @@ RUN apk upgrade && \
   mix local.hex --force
 
 COPY native native/
-RUN cd native/vt_nif && cargo build -r
+RUN cd native && cargo build -r
 
 COPY mix.* ./
 RUN mix do deps.get --only prod, deps.compile

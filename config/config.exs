@@ -48,6 +48,10 @@ config :asciinema, AsciinemaWeb.Endpoint,
 # Configures the admin endpoint
 config :asciinema, AsciinemaAdmin.Endpoint,
   url: [host: "localhost"],
+  render_errors: [
+    formats: [html: AsciinemaAdmin.ErrorHTML],
+    layout: false
+  ],
   live_view: [signing_salt: "F3BMP7k9SZ-Y2SMJ"],
   pubsub_server: Asciinema.PubSub
 
@@ -98,9 +102,9 @@ config :asciinema, AsciinemaWeb.DefaultAvatar, adapter: AsciinemaWeb.DefaultAvat
 
 config :asciinema, Oban,
   repo: Asciinema.Repo,
-  queues: [default: 10, emails: 10],
+  queues: [default: 5, emails: 5],
   plugins: [
-    {Oban.Plugins.Pruner, max_age: 604_800},
+    {Oban.Plugins.Pruner, max_age: 3600},
     {Oban.Plugins.Cron,
      crontab: [
        {"0 * * * *", Asciinema.Workers.DeleteUnclaimedRecordings},

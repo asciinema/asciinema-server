@@ -237,7 +237,7 @@ defmodule Asciinema.Streaming.StreamServer do
         current_viewer_count: state.viewer_count,
         term_cols: cols,
         term_rows: rows,
-        snapshot: generate_snapshot(state.vt)
+        snapshot: Vt.dump_screen(state.vt)
       )
 
     publish(state.stream_id, :metadata, state.stream)
@@ -458,11 +458,5 @@ defmodule Asciinema.Streaming.StreamServer do
       {:ok, value} -> [{schema_key, value}]
       :error -> []
     end
-  end
-
-  defp generate_snapshot(vt) do
-    {:ok, {lines, cursor}} = Vt.dump_screen(vt)
-
-    {lines, cursor}
   end
 end
