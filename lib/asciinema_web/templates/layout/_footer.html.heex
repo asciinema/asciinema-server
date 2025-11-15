@@ -1,12 +1,48 @@
 <footer>
   <div class="container">
-    <div class="grid-cols-2">
-      <div>
-        Powered by <a href="https://docs.asciinema.org/manual/server/">asciinema server</a>
+    <div class="grid-cols-3">
+      <div class="links">
+        <ul>
+          <li><a href={~p"/about"}>About {@conn.host}</a></li>
+          <li><a href={~p"/tos"}>Terms of Service</a></li>
+          <li><a href={~p"/privacy"}>Privacy Policy</a></li>
+        </ul>
       </div>
 
-      <div>
-        <a href={~p"/about"}>About {@conn.host}</a>
+      <div class="sponsor-brightbox">
+        Hosted by <br />
+        <a href="https://www.brightbox.com" rel="nofollow">
+          <img src={Routes.static_path(@conn, "/images/brightbox-logo.svg")} alt="Brightbox" />
+        </a>
+      </div>
+
+      <div class="links">
+        <ul>
+          <li>
+            <a
+              rel="me"
+              href="https://fosstodon.org/@asciinema"
+              title="Follow asciinema on Mastodon"
+            >
+              Mastodon
+            </a>
+          </li>
+          <li>
+            <a href="https://discourse.asciinema.org" title="Join asciinema community discussions">
+              Forum
+            </a>
+          </li>
+          <li>
+            <a href="https://matrix.to/#/#asciinema:matrix.org" title="Join asciinema Matrix room">
+              Matrix
+            </a>
+          </li>
+          <li>
+            <a href="https://web.libera.chat/#asciinema" title="Join asciinema IRC channel">
+              IRC
+            </a>
+          </li>
+        </ul>
       </div>
     </div>
   </div>
