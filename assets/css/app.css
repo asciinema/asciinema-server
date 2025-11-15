@@ -34,6 +34,7 @@
 
 /* == Page-specific blocks == */
 
+@import "./pages/_home.css";
 @import "./pages/_static.css";
 @import "./pages/_recording_index.css";
 @import "./pages/_medium_show.css";

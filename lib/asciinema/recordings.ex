@@ -85,6 +85,10 @@ defmodule Asciinema.Recordings do
 
       :snapshotless ->
         where(q, [a], is_nil(a.snapshot))
+
+      :from_last_2_years ->
+        past = Timex.now() |> Timex.shift(years: -2)
+        where(q, [a], a.inserted_at > ^past)
     end
   end
 

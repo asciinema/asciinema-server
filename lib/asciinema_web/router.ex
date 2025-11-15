@@ -57,7 +57,7 @@ defmodule AsciinemaWeb.Router do
     # Use the default browser stack
     pipe_through :browser
 
-    get "/", RecordingController, :auto
+    get "/", HomeController, :show
 
     get "/explore", RecordingController, :auto, as: :explore
     get "/explore/featured", RecordingController, :featured, as: :explore
