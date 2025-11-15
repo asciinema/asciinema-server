@@ -7,7 +7,10 @@ defmodule AsciinemaWeb.RecordingController do
   alias AsciinemaWeb.FallbackController
 
   plug :require_current_user when action in [:edit, :update, :delete]
-  plug :load_and_authorize_asciicast when action in [:show, :edit, :update, :delete, :iframe]
+
+  plug :load_and_authorize_asciicast
+       when action in [:show, :edit, :update, :delete, :iframe, :example]
+
   plug :redirect_to_canonical_path when action == :show
 
   def index(conn, params) do
@@ -235,6 +238,12 @@ defmodule AsciinemaWeb.RecordingController do
     else
       render(conn, "iframe.html", player_opts: player_opts(params))
     end
+  end
+
+  def example(conn, _params) do
+    conn
+    |> put_layout("example.html")
+    |> render("example.html", home_asciicast: nil)
   end
 
   defp download_filename(%Asciicast{version: version, id: id}, %{"dl" => _}) do
