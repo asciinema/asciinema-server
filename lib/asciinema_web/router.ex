@@ -96,6 +96,8 @@ defmodule AsciinemaWeb.Router do
     resources "/clis", CliController, only: [:delete]
 
     get "/about", PageController, :about
+    get "/privacy", PageController, :privacy
+    get "/tos", PageController, :tos
   end
 
   scope "/api", AsciinemaWeb.Api, as: :api do

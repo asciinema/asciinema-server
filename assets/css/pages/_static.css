@@ -10,3 +10,9 @@
     }
   }
 }
+
+.c-page.a-privacy, .c-page.a-tos {
+  main {
+    margin-bottom: 6rem;
+  }
+}

@@ -11,4 +11,16 @@ defmodule AsciinemaWeb.PageController do
       server_version: Application.get_env(:asciinema, :version)
     )
   end
+
+  def privacy(conn, _params) do
+    conn
+    |> assign(:page_title, "Privacy Policy")
+    |> render("privacy.html")
+  end
+
+  def tos(conn, _params) do
+    conn
+    |> assign(:page_title, "Terms of Service")
+    |> render("tos.html")
+  end
 end
