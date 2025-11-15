@@ -325,19 +325,23 @@ header .session-info .dropdown-menu {
 /* == Search width scaling == */
 
 @media (min-width: 768px) {
-  .search-form input.q {
-    width: 200px;
+  .search-form form {
+    display: none;
   }
 }
 
 @media (min-width: 992px) {
   .search-form input.q {
-    width: 300px;
+    width: 200px;
+  }
+
+  .search-form form {
+    display: block;
   }
 }
 
 @media (min-width: 1200px) {
   .search-form input.q {
-    width: 400px;
+    width: 300px;
   }
 }
