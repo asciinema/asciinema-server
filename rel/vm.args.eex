@@ -9,3 +9,7 @@
 
 ## Tweak GC to run more often
 ##-env ERL_FULLSWEEP_AFTER 10
+
+# Use single port for cluster connections
+-kernel inet_dist_listen_min 9001
+-kernel inet_dist_listen_max 9001
