@@ -33,8 +33,7 @@
     }
 
     .player-wrapper {
-      width: min(720px, 100%);
-      margin: var(--space-5) auto;
+      margin: var(--space-5) 0;
 
       .ap-player {
         box-shadow: 0 0 16px 5px rgba(255, 255, 255, 0.2);
