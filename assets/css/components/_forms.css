@@ -203,6 +203,7 @@ legend {
 form legend {
   border-bottom: 1px solid #ddd;
   margin-bottom: 2rem;
+  width: 100%;
 }
 
 /* == Vertical form groups == */
