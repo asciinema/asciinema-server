@@ -185,7 +185,7 @@ defmodule AsciinemaWeb.RecordingController do
 
   def edit(conn, _params) do
     changeset = Recordings.change_asciicast(conn.assigns.asciicast)
-    render(conn, "edit.html", changeset: changeset, instance_url: AsciinemaWeb.Endpoint.url())
+    render_edit_form(conn, changeset)
   end
 
   def update(conn, %{"asciicast" => asciicast_params}) do
@@ -198,8 +198,12 @@ defmodule AsciinemaWeb.RecordingController do
         |> redirect(to: ~p"/a/#{asciicast}")
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, "edit.html", changeset: changeset)
+        render_edit_form(conn, changeset)
     end
+  end
+
+  defp render_edit_form(conn, changeset) do
+    render(conn, "edit.html", changeset: changeset, instance_url: AsciinemaWeb.Endpoint.url())
   end
 
   def delete(conn, _params) do
