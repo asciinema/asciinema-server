@@ -109,20 +109,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Handle focus restoration when modal closes
     dialog.addEventListener('close', () => {
+      const triggerElement = lastTriggerElement;
+      // Clear the reference immediately to avoid cross-modal leakage
+      lastTriggerElement = null;
       // Restore focus to the trigger element that opened the modal
-      if (lastTriggerElement && typeof lastTriggerElement.focus === 'function') {
+      if (triggerElement && typeof triggerElement.focus === 'function') {
         // Small delay to ensure modal is fully closed before focus shift
         setTimeout(() => {
           try {
-            lastTriggerElement.focus();
+            triggerElement.focus();
           } catch (error) {
             // Element may have been removed from DOM
             console.warn('Could not restore focus to trigger element:', error);
           }
         }, 0);
       }
-      // Clear the reference
-      lastTriggerElement = null;
     });
   });
 
