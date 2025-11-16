@@ -62,7 +62,6 @@
   box-shadow: var(--box-shadow-md);
   opacity: 0;
   transform: translateY(-10px);
-  transition: opacity 0.15s ease-in-out, transform 0.15s ease-in-out;
 }
 
 .dropdown[open] .dropdown-menu {
@@ -131,4 +130,28 @@
   font-size: var(--font-size-sm);
   color: #6c757d;
   white-space: nowrap;
+}
+
+/* Safari-only overrides to avoid <details> repaint bug */
+@supports (font: -apple-system-body) {
+  .dropdown-menu {
+    display: block;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-10px);
+    transition: opacity 0.0001s linear,
+                transform 0.0001s linear,
+                visibility 0s linear 0.0001s;
+  }
+
+  .dropdown[open] .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+    transition: opacity 0.0001s linear,
+                transform 0.0001s linear,
+                visibility 0s;
+  }
 }
