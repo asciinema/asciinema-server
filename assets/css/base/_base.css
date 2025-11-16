@@ -12,20 +12,8 @@ body {
   font-family: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   position: relative;
   margin: 0;
-  padding-bottom: 23rem;
+  padding-bottom: 11rem;
   min-height: 100%;
-}
-
-@media (min-width: 768px) {
-  body {
-    padding-bottom: 16rem;
-  }
-}
-
-@media (min-width: 992px) {
-  body {
-    padding-bottom: 11rem;
-  }
 }
 
 /* == Links and text elements == */
