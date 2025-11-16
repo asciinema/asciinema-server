@@ -1,25 +1,14 @@
-/*
- * Main Application JavaScript
- *
- * Loads all interactive behavior for the application.
- * Bootstrap has been fully replaced with modern CSS and native HTML elements.
- */
-
-// === Core Dependencies ===
 import "phoenix_html";
 import { Socket } from "phoenix";
 import { LiveSocket } from "phoenix_live_view";
 
-// === Custom Interactive Behaviors ===
-import './modals';      // Modal management for <dialog> elements
-import './dropdowns';   // Dropdown enhancements for <details> elements
+import './modals';
+import './dropdowns';
 import { createPlayer, cinemaHeight } from './player';
 
-// === Exported Functions ===
 window.createPlayer = createPlayer;
 window.cinemaHeight = cinemaHeight;
 
-// === Application-Specific Behaviors ===
 document.addEventListener('DOMContentLoaded', () => {
   // Mobile header nav toggle
   const navToggle = document.querySelector('.nav-toggle');
@@ -107,7 +96,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// === Phoenix LiveView Setup ===
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content");
 let liveSocket = new LiveSocket("/live", Socket, { params: { _csrf_token: csrfToken } });
 

@@ -1,18 +1,3 @@
-/*
- * Dropdown Enhancements for <details> Elements
- *
- * Adds quality-of-life improvements to native <details> dropdowns:
- * - ESC key closes open dropdowns
- * - Click outside dropdown closes it
- * - Only one dropdown open at a time
- * - Dropdown closes after menu item activation
- * - Maintains graceful degradation (works without JS)
- *
- * Dropdowns using class .dropdown will automatically receive these enhancements.
- *
- * Browser Support: All modern browsers
- */
-
 function closeDropdown(dropdown, { focusSummary = false } = {}) {
   if (!dropdown?.hasAttribute('open')) return;
   dropdown.removeAttribute('open');
@@ -59,7 +44,6 @@ function setupClickOutsideHandler() {
   });
 }
 
-// Close dropdown when pressing ESC key
 function setupEscapeKeyHandler() {
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' || e.key === 'Esc') {
@@ -87,12 +71,9 @@ function setupMenuActivationHandler() {
   });
 }
 
-// Initialize on DOM ready
 document.addEventListener('DOMContentLoaded', () => {
   setupSummaryToggleHandler();
   setupClickOutsideHandler();
   setupEscapeKeyHandler();
   setupMenuActivationHandler();
 });
-
-// No exports needed - this module handles its own initialization
