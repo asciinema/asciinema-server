@@ -14,7 +14,7 @@
 
     input[type=text] {
       width: 100%;
-      font-family: Consolas, Menlo, 'Bitstream Vera Sans Mono', monospace;
+      font-family: var(--font-family-mono);
       font-size: 14px;
       color: #212529;
       background-color: #fff;

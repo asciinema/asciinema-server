@@ -126,7 +126,7 @@ dialog.modal .modal-body h2:first-child {
 dialog.modal input[type=text],
 .modal-body input[type=text] {
   width: 100%;
-  font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-family: var(--font-family-mono);
   font-size: 14px;
   color: #212529;
   background-color: #f7f7f7;
