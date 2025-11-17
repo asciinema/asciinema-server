@@ -258,7 +258,7 @@
         <div>
           <.input field={f[:live_stream_limit]} placeholder="no limit" readonly />
           <small class="form-hint text-muted">
-            Maximum number of streaming endpoints you can create.
+            Maximum number of live streams you can run concurrently.
             <%= if @changeset.data.live_stream_limit do %>
               Contact the admin if you need more.
             <% end %>
