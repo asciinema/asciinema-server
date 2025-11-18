@@ -36,6 +36,16 @@ defmodule Asciinema do
     end
   end
 
+  def initiate_email_change(user, email, url_provider) do
+    with {:ok, {:pending, {email, token}}} <- Accounts.initiate_email_change(user, email) do
+      Emails.send_email(:email_change, email, token, url_provider)
+
+      {:ok, {:pending, email}}
+    end
+  end
+
+  defdelegate finalize_email_change(user, token), to: Accounts
+
   def send_account_deletion_email(user, url_provider) do
     token = Accounts.generate_deletion_token(user)
 

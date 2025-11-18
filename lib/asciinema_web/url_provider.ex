@@ -16,6 +16,11 @@ defmodule AsciinemaWeb.UrlProvider do
   end
 
   @impl true
+  def email_change(token) do
+    url(~p"/user/email?t=#{token}")
+  end
+
+  @impl true
   def account_deletion(token) do
     url(~p"/user/delete?t=#{token}")
   end
