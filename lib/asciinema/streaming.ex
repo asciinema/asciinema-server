@@ -37,18 +37,6 @@ defmodule Asciinema.Streaming do
     end
   end
 
-  # TODO: remove after release of the final CLI 3.0
-  def find_user_stream_by_public_token(%{streams: _} = owner, prefix) do
-    prefix = String.replace(prefix, "%", "")
-
-    owner
-    |> Ecto.assoc(:streams)
-    |> where([s], like(s.public_token, ^"#{prefix}%"))
-    |> first()
-    |> Repo.one()
-    |> Repo.preload(:user)
-  end
-
   def query(filters \\ [], order \\ nil) do
     from(Stream)
     |> apply_filters(filters)
