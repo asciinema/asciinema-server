@@ -159,6 +159,12 @@ header .dropdown summary:focus {
   color: #fff;
 }
 
+header a.nav-link:hover,
+header a.nav-link:focus {
+  background-color: #181818;
+  border-radius: 6px;
+}
+
 header .nav-link.active {
   color: #fff;
 }
