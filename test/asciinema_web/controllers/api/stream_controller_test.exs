@@ -353,46 +353,6 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
     end
   end
 
-  describe "create stream via legacy path" do
-    # { live: true } is implicit here
-    setup [:register_cli, :authenticate]
-
-    test "succeeds when user has streaming enabled", %{conn: conn} do
-      conn = post(conn, ~p"/api/streams")
-
-      assert %{
-               "url" => "http://localhost:4001/s/" <> _,
-               "ws_producer_url" => "ws://localhost:4001/ws/S/" <> _
-             } = json_response(conn, 200)
-    end
-
-    @tag user: [streaming_enabled: false]
-    test "fails when user has streaming disabled", %{conn: conn} do
-      conn = post(conn, ~p"/api/streams")
-
-      assert %{"reason" => "Streaming is disabled for this account"} = json_response(conn, 403)
-    end
-
-    @tag user: [live_stream_limit: 0]
-    test "fails when live stream limit is 0", %{conn: conn, cli: cli} do
-      insert(:stream, user: cli.user, live: false)
-
-      conn = post(conn, ~p"/api/streams")
-
-      assert %{"reason" => "Maximum 0 live streams reached"} = json_response(conn, 422)
-    end
-
-    @tag user: [live_stream_limit: 2]
-    test "fails when live stream limit reached", %{conn: conn, cli: cli} do
-      insert(:stream, user: cli.user, live: false)
-      insert_list(2, :stream, user: cli.user, live: true)
-
-      conn = post(conn, ~p"/api/streams")
-
-      assert %{"reason" => "Maximum 2 live streams reached"} = json_response(conn, 422)
-    end
-  end
-
   describe "update without authentication" do
     test "fails", %{conn: conn} do
       stream = insert(:stream)
@@ -547,36 +507,6 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
       conn = put(conn, ~p"/api/v1/streams/99999", %{"title" => "New title"})
 
       assert %{"type" => "not_found", "message" => "Stream not found"} = json_response(conn, 404)
-    end
-  end
-
-  describe "make live via legacy path" do
-    setup [:register_cli, :authenticate]
-
-    @tag user: [live_stream_limit: 2]
-    test "succeeds when below live stream limit", %{conn: conn, cli: cli} do
-      insert(:stream, user: cli.user, live: true)
-      insert(:stream, user: cli.user, live: false, public_token: "foobar1234567890")
-
-      conn = get(conn, ~p"/api/user/streams/foob")
-
-      assert %{"live" => true} = json_response(conn, 200)
-    end
-
-    @tag user: [live_stream_limit: 2]
-    test "fails when live stream limit hit", %{conn: conn, cli: cli} do
-      insert_list(2, :stream, user: cli.user, live: true)
-      insert(:stream, user: cli.user, live: false, public_token: "foobar1234567890")
-
-      conn = get(conn, ~p"/api/user/streams/foob")
-
-      assert %{"reason" => "Maximum 2 live streams reached"} = json_response(conn, 422)
-    end
-
-    test "fails when stream is not found", %{conn: conn} do
-      conn = get(conn, ~p"/api/user/streams/99999")
-
-      assert %{"reason" => "Stream not found"} = json_response(conn, 404)
     end
   end
 

@@ -9,7 +9,7 @@ html {
 }
 
 body {
-  font-family: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-family: var(--font-family-base);
   position: relative;
   margin: 0;
   padding-bottom: 16rem;
@@ -46,7 +46,7 @@ hr {
 }
 
 h1, h2, h3 {
-  font-family: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-family: var(--font-family-base);
   font-weight: var(--font-weight-normal);
   line-height: var(--line-height-tight);
 }
@@ -80,7 +80,7 @@ pre code {
 }
 
 pre, code {
-  font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-family: var(--font-family-mono);
 }
 
 kbd {

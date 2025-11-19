@@ -110,7 +110,7 @@ defmodule AsciinemaWeb.CoreComponents do
     assigns = assign(assigns, :error, List.first(assigns.field.errors))
 
     ~H"""
-    <small :if={@error} class="form-text text-danger">{translate_error(@error)}</small>
+    <small :if={@error} class="text-danger">{translate_error(@error)}</small>
     """
   end
 end

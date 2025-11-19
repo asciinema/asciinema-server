@@ -86,21 +86,12 @@ defmodule AsciinemaWeb.Features.ProfileTest do
     end
 
     test "complete flow", %{conn: conn} do
-      user = insert(:user, username: "foobar", name: "Test User", email: "test@example.com")
+      user = insert(:user, username: "foobar", name: "Test User")
 
       conn
       |> log_in_user(user)
-      |> visit(~p"/user/edit")
-      |> fill_in("Email", with: "new@example@com")
-      |> within("#account-form", fn conn ->
-        conn |> click_button("Update")
-      end)
-      |> assert_has("div", text: "has invalid format")
-      |> fill_in("Email", with: "new@example.com")
-      |> within("#account-form", fn conn ->
-        conn |> click_button("Update")
-      end)
-      |> assert_has(".flash", text: "updated")
+      |> visit("/")
+      |> click_link("Settings")
       |> fill_in("Display name", with: "New Name")
       |> fill_in("Username", with: "---")
       |> within("#profile-form", fn conn ->

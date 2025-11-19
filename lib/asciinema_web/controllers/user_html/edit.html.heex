@@ -1,19 +1,37 @@
 <div class="container edit-page">
   <div class="form-container user-form">
-    <.form :let={f} for={@changeset} action={~p"/user"} id="account-form" novalidate="novalidate">
+    <.form
+      :let={f}
+      for={@changeset}
+      action={~p"/user/email"}
+      id="account-form"
+      novalidate="novalidate"
+    >
       <legend>Account</legend>
 
       <div class={["form-field", error_class(f, :email)]}>
         <.label for={f[:email]}>Email</.label>
         <div>
           <.input field={f[:email]} type="email" />
-          <.error field={f[:email]} />
+
+          <%= case @conn.params["ec-status"] do %>
+            <% "pending" -> %>
+              <small class="text-success">
+                To finalize the email address change, click the link we sent to
+                <b>{@conn.params["ec-addr"]}</b>
+              </small>
+            <% "invalid" -> %>
+              <small class="text-danger">Invalid address</small>
+            <% "taken" -> %>
+              <small class="text-danger">This address is used by another account</small>
+            <% _ -> %>
+          <% end %>
         </div>
       </div>
 
-      <div class="form-actions">
+      <div :if={@conn.params["ec-addr"] == nil} class="form-actions">
         <div class="form-actions-buttons">
-          <.button type="submit" class="btn btn-primary">Update</.button>
+          <.button type="submit" class="btn btn-primary">Change</.button>
         </div>
       </div>
     </.form>
@@ -240,7 +258,7 @@
         <div>
           <.input field={f[:live_stream_limit]} placeholder="no limit" readonly />
           <small class="form-hint text-muted">
-            Maximum number of streaming endpoints you can create.
+            Maximum number of live streams you can run concurrently.
             <%= if @changeset.data.live_stream_limit do %>
               Contact the admin if you need more.
             <% end %>

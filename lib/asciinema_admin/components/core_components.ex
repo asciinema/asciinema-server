@@ -109,7 +109,7 @@ defmodule AsciinemaAdmin.CoreComponents do
     assigns = assign(assigns, :error, List.first(assigns.field.errors))
 
     ~H"""
-    <small :if={@error} class="form-text text-danger">{elem(@error, 0)}</small>
+    <small :if={@error} class="text-danger">{elem(@error, 0)}</small>
     """
   end
 end

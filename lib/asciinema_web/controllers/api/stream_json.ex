@@ -27,10 +27,6 @@ defmodule AsciinemaWeb.Api.StreamJSON do
 
   def deleted(_assigns), do: %{}
 
-  def error(%{legacy_path: _} = assigns) do
-    %{reason: error(Map.drop(assigns, [:legacy_path])).message}
-  end
-
   def error(%{reason: reason} = assigns) do
     case reason do
       :unauthenticated ->

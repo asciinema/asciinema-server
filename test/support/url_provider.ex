@@ -12,6 +12,11 @@ defmodule Asciinema.TestUrlProvider do
   end
 
   @impl true
+  def email_change(token) do
+    "http://example.com/user/email?token=#{token}"
+  end
+
+  @impl true
   def account_deletion(token) do
     "http://example.com/account_deletion/#{token}"
   end

@@ -60,8 +60,7 @@ defmodule Asciinema.Accounts do
     build_user()
     |> cast(attrs, [:email, :username])
     |> validate_required([:email])
-    |> update_change(:email, &String.downcase/1)
-    |> validate_format(:email, @valid_email_re)
+    |> prepare_email()
     |> validate_username()
     |> add_contraints()
     |> Repo.insert()
@@ -73,8 +72,7 @@ defmodule Asciinema.Accounts do
     build_user()
     |> cast(attrs, [:email, :username])
     |> validate_required([:email])
-    |> update_change(:email, &String.downcase/1)
-    |> validate_format(:email, @valid_email_re)
+    |> prepare_email()
     |> validate_username()
     |> add_contraints()
     |> Repo.insert()
@@ -116,8 +114,7 @@ defmodule Asciinema.Accounts do
       :stream_recording_enabled
     ])
     |> validate_required([:email, :username])
-    |> update_change(:email, &String.downcase/1)
-    |> validate_format(:email, @valid_email_re)
+    |> prepare_email()
     |> validate_username()
     |> validate_inclusion(:term_theme_name, Themes.terminal_themes())
     |> validate_inclusion(:term_font_family, Fonts.terminal_font_families())
@@ -136,11 +133,18 @@ defmodule Asciinema.Accounts do
       :live_stream_limit
     ])
     |> validate_required([:email, :username])
-    |> update_change(:email, &String.downcase/1)
-    |> validate_format(:email, @valid_email_re)
+    |> prepare_email()
     |> validate_username()
     |> validate_number(:live_stream_limit, greater_than_or_equal_to: 0)
     |> add_contraints()
+  end
+
+  defp prepare_email(changeset) do
+    import Ecto.Changeset
+
+    changeset
+    |> update_change(:email, &String.downcase/1)
+    |> validate_format(:email, @valid_email_re)
   end
 
   defp validate_username(changeset) do
@@ -254,6 +258,61 @@ defmodule Asciinema.Accounts do
 
       _ ->
         {:error, :token_expired}
+    end
+  end
+
+  def initiate_email_change(user, email) do
+    import Ecto.Changeset
+
+    changeset =
+      user
+      |> cast(%{email: email}, [:email])
+      |> validate_required([:email])
+      |> prepare_email()
+      |> add_contraints()
+
+    if changeset.changes == %{} do
+      {:ok, :changed}
+    else
+      {:error, result} =
+        Repo.transact(fn ->
+          case Repo.update(changeset) do
+            {:ok, user} ->
+              token = Token.sign(config(:secret), "email-change", {user.id, email})
+              {:error, {:ok, {:pending, {user.email, token}}}}
+
+            {:error, %Changeset{errors: [{:email, {_, [{:validation, :format}]}}]}} ->
+              {:error, {:error, :invalid}}
+
+            {:error, %Changeset{errors: [{:email, {_, [{:constraint, :unique} | _]}}]}} ->
+              {:error, {:error, :taken}}
+          end
+        end)
+
+      result
+    end
+  end
+
+  def finalize_email_change(user, token) do
+    case Token.verify(config(:secret), "email-change", token, max_age: 3600) do
+      {:ok, {user_id, email}} ->
+        if user.id == user_id do
+          result =
+            user
+            |> Changeset.change(email: email)
+            |> add_contraints()
+            |> Repo.update()
+
+          case result do
+            {:ok, user} -> {:ok, user}
+            _ -> {:error, :email_taken}
+          end
+        else
+          {:error, :user_mismatch}
+        end
+
+      {:error, _} ->
+        {:error, :invalid_token}
     end
   end
 

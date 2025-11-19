@@ -54,6 +54,31 @@ defmodule Asciinema.Emails.Email do
     """
   end
 
+  def email_change_email(email_address, url) do
+    base_email()
+    |> to(email_address)
+    |> subject("Email address change")
+    |> body(email_change_email_html(%{url: url, hostname: instance_hostname()}))
+  end
+
+  defp email_change_email_html(assigns) do
+    ~H"""
+    <.layout>
+      <p>
+        It seems you requested a change to the email address associated with your {@hostname} account.
+      </p>
+
+      <p>If you wish to proceed, open the following link in your browser:</p>
+
+      <p><a href={@url}>{@url}</a></p>
+
+      <p>
+        <br /> If you did not initiate this request, just ignore this email.
+      </p>
+    </.layout>
+    """
+  end
+
   def account_deletion_email(email_address, url) do
     base_email()
     |> to(email_address)

@@ -72,10 +72,8 @@
   /* == Typography == */
 
   /* -- Font families -- */
-  --font-family-base: 'Source Sans Pro', -apple-system, BlinkMacSystemFont,
-                      'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --font-family-mono: 'Fira Code Nerd Font', 'JetBrains Mono Nerd Font',
-                      Consolas, Menlo, 'Bitstream Vera Sans Mono', monospace;
+  --font-family-base: 'Fira Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-family-mono: 'JetBrainsMono Nerd Font', 'JetBrains Mono', monospace;
 
   /* -- Font sizes -- */
   --font-size-xs: 0.75rem;   /* 12px - small labels */

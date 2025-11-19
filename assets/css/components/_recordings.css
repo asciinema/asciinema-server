@@ -82,7 +82,7 @@ div.asciicast-card {
   .thumbnail {
     min-height: calc(1.333333 * 16em);
     font-size: 14px;
-    font-family: Consolas, Menlo, 'Bitstream Vera Sans Mono', monospace, 'Powerline Symbols';
+    font-family: var(--font-family-mono);
     overflow: hidden;
     padding: 0;
     background-color: #000;

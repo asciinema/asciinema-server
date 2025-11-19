@@ -18,6 +18,14 @@ defmodule Asciinema.Emails do
     |> deliver()
   end
 
+  def send_email(:email_change, to, token, url_provider) do
+    url = url_provider.email_change(token)
+
+    to
+    |> Email.email_change_email(url)
+    |> deliver()
+  end
+
   def send_email(:account_deletion, to, token, url_provider) do
     url = url_provider.account_deletion(token)
 
