@@ -57,7 +57,7 @@ section.flash {
     color: inherit;
     line-height: 1;
     font-size: 1.125rem;
-    transition: background-color var(--transition-fast), color var(--transition-fast);
+    transition: background-color var(--transition-base), color var(--transition-base);
 
     &:hover {
       background-color: rgba(255, 255, 255, 0.15);

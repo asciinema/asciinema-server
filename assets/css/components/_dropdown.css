@@ -82,8 +82,6 @@
   white-space: nowrap;
   background-color: transparent;
   border: 0;
-  transition: color var(--transition-fast),
-              background-color var(--transition-fast);
 }
 
 .dropdown-item:hover,
