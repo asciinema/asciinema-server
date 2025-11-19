@@ -9,7 +9,8 @@
     background-size: cover;
 
     .hero-layout {
-      padding: var(--space-6) 0;
+      padding-top: var(--space-6);
+      padding-bottom: var(--space-6);
     }
 
     .hero-text {
