@@ -24,7 +24,7 @@
   }
 
   a.delete:hover {
-    background-color: #dc354520;
+    background-color: #dc354520; /* --color-danger with 0x20 alpha */
     text-decoration: none;
   }
 
