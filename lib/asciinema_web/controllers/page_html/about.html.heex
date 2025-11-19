@@ -1,5 +1,5 @@
 <div class="container">
-  <h1>About {@server_name}</h1>
+  <h2>About {@server_name}</h2>
 
   <p>
     <strong>{@server_name}</strong>
@@ -14,7 +14,7 @@
   </p>
 
   <%= if @contact_email_address do %>
-    <h2>Admin contact</h2>
+    <h2>{@server_name} admin contact</h2>
 
     <p>
       You can reach the administrator of this server at <strong><.obfuscated_email address={
@@ -38,7 +38,7 @@
     </p>
   <% end %>
 
-  <h1>About asciinema</h1>
+  <h2>About asciinema</h2>
 
   <p>
     <strong>asciinema</strong> is a suite of tools

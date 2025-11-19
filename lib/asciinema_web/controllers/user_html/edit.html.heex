@@ -16,14 +16,14 @@
 
           <%= case @conn.params["ec-status"] do %>
             <% "pending" -> %>
-              <small class="text-success">
+              <small class="status text-success">
                 To finalize the email address change, click the link we sent to
                 <b>{@conn.params["ec-addr"]}</b>
               </small>
             <% "invalid" -> %>
-              <small class="text-danger">Invalid address</small>
+              <small class="status text-danger">Invalid address</small>
             <% "taken" -> %>
-              <small class="text-danger">This address is used by another account</small>
+              <small class="status text-danger">This address is used by another account</small>
             <% _ -> %>
           <% end %>
         </div>
@@ -338,7 +338,7 @@
               <td>
                 <.link
                   href={~p"/clis/#{t}"}
-                  class="btn btn-danger btn-sm"
+                  class="delete"
                   method="delete"
                   data-confirm="Are you sure? This will prevent future uploads from that system."
                 >

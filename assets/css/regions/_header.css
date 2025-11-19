@@ -135,7 +135,7 @@ header .search-form input {
   padding: var(--space-2);
   text-decoration: none;
   white-space: nowrap;
-  transition: color var(--transition-fast);
+  transition: color var(--transition-base);
 }
 
 .nav-link:hover,
@@ -210,7 +210,7 @@ header .session-info .dropdown-menu {
   background-color: rgba(255, 255, 255, 0.9);
   position: relative;
   border-radius: 999px;
-  transition: background-color var(--transition-fast);
+  transition: background-color var(--transition-base);
 }
 
 .nav-toggle .hamburger-icon::before,
@@ -222,7 +222,7 @@ header .session-info .dropdown-menu {
   background-color: rgba(255, 255, 255, 0.9);
   left: 0;
   border-radius: 999px;
-  transition: transform var(--transition-fast);
+  transition: transform var(--transition-base);
 }
 
 .nav-toggle .hamburger-icon::before {

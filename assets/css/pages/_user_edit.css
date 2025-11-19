@@ -5,7 +5,7 @@
 .c-user.a-edit {
   .user-form {
     form {
-      margin-bottom: 2em;
+      margin-bottom: 3em;
     }
   }
 
@@ -15,6 +15,17 @@
     .revoked {
       opacity: 0.7;
     }
+  }
+
+  a.delete {
+    color: var(--color-danger);
+    padding: 6px;
+    border-radius: 3px;
+  }
+
+  a.delete:hover {
+    background-color: #dc354520;
+    text-decoration: none;
   }
 
   .danger-zone {

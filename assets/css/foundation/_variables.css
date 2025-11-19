@@ -130,9 +130,9 @@
   --box-shadow-focus: 0 0 0 0.15rem var(--color-primary-alpha-soft);
 
   /* == Transition timing == */
-  --transition-fast: 150ms ease-in-out;
-  --transition-base: 250ms ease-in-out;
-  --transition-slow: 350ms ease-in-out;
+  --transition-fast: 75ms ease-in-out;
+  --transition-base: 150ms ease-in-out;
+  --transition-slow: 250ms ease-in-out;
 
   /* == Container sizing == */
   --container-max-width-sm: 540px;
