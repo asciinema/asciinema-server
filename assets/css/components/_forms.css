@@ -84,6 +84,11 @@ form select:focus {
   padding-top: 0;
 }
 
+.form-field small.status {
+  display: inline-block;
+  margin: 0.5rem 0;
+}
+
 @media (min-width: 576px) {
   .form-field {
     grid-template-columns: minmax(150px, 25%) 1fr;

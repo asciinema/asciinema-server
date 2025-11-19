@@ -16,14 +16,14 @@
 
           <%= case @conn.params["ec-status"] do %>
             <% "pending" -> %>
-              <small class="text-success">
+              <small class="status text-success">
                 To finalize the email address change, click the link we sent to
                 <b>{@conn.params["ec-addr"]}</b>
               </small>
             <% "invalid" -> %>
-              <small class="text-danger">Invalid address</small>
+              <small class="status text-danger">Invalid address</small>
             <% "taken" -> %>
-              <small class="text-danger">This address is used by another account</small>
+              <small class="status text-danger">This address is used by another account</small>
             <% _ -> %>
           <% end %>
         </div>
