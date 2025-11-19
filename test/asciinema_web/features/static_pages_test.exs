@@ -4,6 +4,6 @@ defmodule AsciinemaWeb.Features.StaticPagesTest do
   test "about page", %{conn: conn} do
     conn
     |> visit("/about")
-    |> assert_has("h1")
+    |> assert_has("h2")
   end
 end
