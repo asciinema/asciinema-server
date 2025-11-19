@@ -17,6 +17,17 @@
     }
   }
 
+  a.delete {
+    color: var(--color-danger);
+    padding: 6px;
+    border-radius: 3px;
+  }
+
+  a.delete:hover {
+    background-color: #dc354520;
+    text-decoration: none;
+  }
+
   .danger-zone {
     margin-top: 2em;
   }
