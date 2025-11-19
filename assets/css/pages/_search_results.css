@@ -9,7 +9,7 @@
         display: flex;
         gap: 1rem;
         flex-wrap: wrap;
-        margin: 2rem 0 3rem;
+        margin: 2rem 0;
 
         h2 {
           flex-grow: 1;
