@@ -362,9 +362,11 @@
         </table>
 
         <p>
-          The installation ID of your local system is stored in the
-          <code>$HOME/.config/asciinema/install-id</code>
-          file.
+          The installation ID of your local system is stored in:
+          <ul>
+            <li><code>$HOME/.local/state/asciinema/install-id</code> for asciinema CLI 3.x</li>
+            <li><code>$HOME/.config/asciinema/install-id</code> for asciinema CLI 2.x</li>
+          </ul>
         </p>
       <% else %>
         <p>There is currently no CLI authenticated with this account.</p>
