@@ -103,7 +103,6 @@ defmodule Asciinema.Accounts do
 
     user
     |> cast(params, [
-      :email,
       :name,
       :username,
       :term_theme_name,
@@ -113,8 +112,7 @@ defmodule Asciinema.Accounts do
       :default_stream_visibility,
       :stream_recording_enabled
     ])
-    |> validate_required([:email, :username])
-    |> prepare_email()
+    |> validate_required([:username])
     |> validate_username()
     |> validate_inclusion(:term_theme_name, Themes.terminal_themes())
     |> validate_inclusion(:term_font_family, Fonts.terminal_font_families())
