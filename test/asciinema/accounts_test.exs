@@ -56,17 +56,15 @@ defmodule Asciinema.AccountsTest do
     test "success" do
       user = insert(:user)
 
-      assert success(user, %{email: "new@one.com"})
-      assert success(user, %{email: "ANOTHER@ONE.COM"}).email == "another@one.com"
-      assert success(user, %{username: "newone"})
+      assert success(user, %{username: "newone"}).username == "newone"
+      assert success(user, %{name: "New One"}).name == "New One"
     end
 
     test "validation failures" do
       user = insert(:user)
 
-      assert_validation_error(user, %{email: "newone.com"})
-      assert_validation_error(user, %{email: ""})
       assert_validation_error(user, %{username: ""})
+      assert_validation_error(user, %{term_theme_name: "lol"})
     end
 
     defp success(user, attrs) do
