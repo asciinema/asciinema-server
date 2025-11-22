@@ -113,7 +113,7 @@ defmodule Asciinema do
     with {:ok, _} <- result, do: :ok
   end
 
-  defdelegate get_stream(id_or_owner), to: Streaming
+  defdelegate get_stream(id), to: Streaming
 
   def unclaimed_recording_ttl(mode \\ nil)
 
