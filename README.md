@@ -5,7 +5,7 @@ __asciinema server__ is a server-side component of the asciinema ecosystem.
 It implements a hosting platform for terminal session recordings and live
 streaming. It offers a familiar web interface for viewing, browsing, sharing
 and managing recordings and streams. This includes [HTTP
-API](https://docs.asciinema.org/manual/server/api.md), which is used by the
+API](https://docs.asciinema.org/manual/server/api/), which is used by the
 [asciinema CLI](https://docs.asciinema.org/manual/cli/index.md).
 
 The server is built with [Elixir language](https://elixir-lang.org/) and

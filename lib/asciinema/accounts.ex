@@ -60,7 +60,7 @@ defmodule Asciinema.Accounts do
     build_user()
     |> cast(attrs, [:email, :username])
     |> validate_required([:email])
-    |> prepare_email()
+    |> validate_email()
     |> validate_username()
     |> add_contraints()
     |> Repo.insert()
@@ -72,7 +72,7 @@ defmodule Asciinema.Accounts do
     build_user()
     |> cast(attrs, [:email, :username])
     |> validate_required([:email])
-    |> prepare_email()
+    |> validate_email()
     |> validate_username()
     |> add_contraints()
     |> Repo.insert()
@@ -103,7 +103,6 @@ defmodule Asciinema.Accounts do
 
     user
     |> cast(params, [
-      :email,
       :name,
       :username,
       :term_theme_name,
@@ -113,8 +112,7 @@ defmodule Asciinema.Accounts do
       :default_stream_visibility,
       :stream_recording_enabled
     ])
-    |> validate_required([:email, :username])
-    |> prepare_email()
+    |> validate_required([:username])
     |> validate_username()
     |> validate_inclusion(:term_theme_name, Themes.terminal_themes())
     |> validate_inclusion(:term_font_family, Fonts.terminal_font_families())
@@ -133,13 +131,13 @@ defmodule Asciinema.Accounts do
       :live_stream_limit
     ])
     |> validate_required([:email, :username])
-    |> prepare_email()
+    |> validate_email()
     |> validate_username()
     |> validate_number(:live_stream_limit, greater_than_or_equal_to: 0)
     |> add_contraints()
   end
 
-  defp prepare_email(changeset) do
+  defp validate_email(changeset) do
     import Ecto.Changeset
 
     changeset
@@ -188,7 +186,10 @@ defmodule Asciinema.Accounts do
         {:ok, {:login, login_token(user), user.email}}
 
       {{:email, nil}, true} ->
-        changeset = change_user(%User{}, %{email: identifier})
+        changeset =
+          %User{}
+          |> Changeset.change(%{email: identifier})
+          |> validate_email()
 
         if Enum.any?(changeset.errors, &(elem(&1, 0) == :email)) do
           {:error, :email_invalid}
@@ -268,7 +269,7 @@ defmodule Asciinema.Accounts do
       user
       |> cast(%{email: email}, [:email])
       |> validate_required([:email])
-      |> prepare_email()
+      |> validate_email()
       |> add_contraints()
 
     if changeset.changes == %{} do
