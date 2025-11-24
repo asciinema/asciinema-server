@@ -75,8 +75,7 @@
   /* == Meta details rows == */
 
   section.meta {
-    code {
-      color: #212529;
+    pre {
       background-color: #f7f7f7;
     }
 
