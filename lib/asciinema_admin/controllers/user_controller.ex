@@ -26,13 +26,14 @@ defmodule AsciinemaAdmin.UserController do
   def show(conn, %{"id" => id} = params) do
     user = Accounts.get_user(id)
     clis = Accounts.list_clis(user)
+    login_url = AsciinemaWeb.UrlProvider.login(Accounts.login_token(user))
 
     changeset =
       user
       |> Accounts.new_cli()
       |> put_error(params["error"])
 
-    render(conn, :show, user: user, clis: clis, changeset: changeset)
+    render(conn, :show, user: user, clis: clis, changeset: changeset, login_url: login_url)
   end
 
   defp put_error(changeset, nil), do: changeset
