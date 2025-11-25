@@ -136,6 +136,13 @@ dialog.modal input[type=text],
   padding: 9px;
 }
 
+dialog.modal .modal-body {
+  h2, h3 {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+  }
+}
+
 /* == Responsive behavior == */
 
 @media (max-width: 576px) {

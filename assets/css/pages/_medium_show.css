@@ -5,13 +5,6 @@
 /* == Cinema/player block == */
 
 .c-recording.a-show, .c-stream.a-show {
-  main {
-    h1, h2 {
-      margin-top: 2rem;
-      margin-bottom: 1rem;
-    }
-  }
-
   section.cinema {
     background-color: color-mix(in oklab, var(--term-color-background) 80%, black);
 
@@ -99,6 +92,13 @@
 
       .help-tooltip {
         cursor: help;
+      }
+    }
+
+    .description {
+      h1, h2 {
+        margin-top: 2rem;
+        margin-bottom: 1rem;
       }
     }
   }
