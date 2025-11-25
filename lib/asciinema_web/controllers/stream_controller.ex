@@ -78,8 +78,7 @@ defmodule AsciinemaWeb.StreamController do
         conn
       end
 
-    changeset = Streaming.change_stream(conn.assigns.stream)
-    render(conn, :edit, changeset: changeset, instance_url: AsciinemaWeb.Endpoint.url())
+    render_edit_form(conn, Streaming.change_stream(conn.assigns.stream))
   end
 
   def update(conn, %{"stream" => params}) do
@@ -92,8 +91,12 @@ defmodule AsciinemaWeb.StreamController do
         |> redirect_back_or(to: ~p"/s/#{stream}")
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, :edit, changeset: changeset)
+        render_edit_form(conn, changeset)
     end
+  end
+
+  defp render_edit_form(conn, changeset) do
+    render(conn, :edit, changeset: changeset, instance_url: AsciinemaWeb.Endpoint.url())
   end
 
   def delete(conn, params) do
