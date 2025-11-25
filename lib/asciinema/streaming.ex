@@ -194,7 +194,8 @@ defmodule Asciinema.Streaming do
       :term_type,
       :term_version,
       :title,
-      :visibility
+      :visibility,
+      :schedule
     ])
     |> validate_number(:buffer_time,
       greater_than_or_equal_to: 0.0,

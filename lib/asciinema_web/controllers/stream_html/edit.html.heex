@@ -75,6 +75,28 @@
         </div>
       </div>
 
+      <div class="form-field">
+        <.label for={f[:schedule]}>Schedule</.label>
+        <div>
+          <div class="schedule-input">
+            <.input field={f[:schedule]} placeholder="none" autocomplete="off" />
+            <.link href="#" class="" data-modal="schedule-modal">
+              <.info_outline_icon /> Syntax & examples
+            </.link>
+          </div>
+
+          {live_render(@conn, AsciinemaWeb.SchedulePreviewLive,
+            session: %{"schedule" => @schedule, "timezone" => @timezone}
+          )}
+
+          <small class="form-hint text-muted">
+            <p>
+              Setting a schedule will inform your audience when this stream starts.
+            </p>
+          </small>
+        </div>
+      </div>
+
       <div class={["form-field", error_class(f, :term_theme_name)]}>
         <.label for={f[:term_theme_name]}>
           Terminal theme
@@ -193,3 +215,73 @@
     </.form>
   </div>
 </div>
+
+<dialog id="schedule-modal" class="modal modal-lg">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title">
+        <.info_solid_icon /> Stream schedule
+      </h5>
+      <button type="button" class="modal-close" data-modal-close aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <p>
+        Setting a schedule will display the next start time on the stream
+        page, and will list this stream under "Upcoming streams" section on
+        your profile and on the Explore page.
+      </p>
+
+      <p>
+        <small class="text-muted">
+          <.info_outline_icon /> Note that for others to see
+          it listed you must set the <b>Visibility</b> setting to <b>Public</b>.
+        </small>
+      </p>
+
+      <p>
+        The schedule uses 6-field <.link href="https://en.wikipedia.org/wiki/Cron">cron</.link>
+        expression format, with the final 6th field specifying a year:
+      </p>
+
+      <p>
+        <code>minute hour day month weekday year</code>
+      </p>
+
+      <p>
+        A wildcard (<code>*</code>) will be inserted automatically for any field missing on the right hand side of the entered expression, so you can just enter
+        <code>0 11</code>
+        for a stream that happens daily at 11 AM.
+      </p>
+
+      <p>
+        <small class="text-muted">
+          <.info_outline_icon /> You can use
+          <.link href="https://crontab.guru/">crontab.guru</.link>
+          to test your cron expressions.
+        </small>
+      </p>
+
+      <p>
+        The time expressed by the schedule uses the time zone configured in your account settings, which is currently
+        <%= if @timezone do %>
+          set to <b class="ws-nowrap">{@timezone}</b>.
+        <% else %>
+          <b>not set - UTC will be assumed</b>. Set it in the account settings to avoid surprises.
+        <% end %>
+      </p>
+
+      <h3>Examples:</h3>
+
+      <p><code>30 10 23 12 * 2025</code> - on December 23rd, 2025, at 10:30 AM</p>
+      <p><code>30 17 * * 1 *</code> - every Monday, at 17:30 (5:30 PM)</p>
+      <p>
+        <code>30 17 * 3-6 2,4 *</code>
+        - every Tuesday and Thursday from March through June, at 17:30 (5:30 PM)
+      </p>
+      <p><code>0 20 * * * *</code> - every day, at 20:00 (8 PM)</p>
+    </div>
+  </div>
+</dialog>

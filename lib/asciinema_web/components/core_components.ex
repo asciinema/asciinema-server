@@ -114,3 +114,9 @@ defmodule AsciinemaWeb.CoreComponents do
     """
   end
 end
+
+defimpl Phoenix.HTML.Safe, for: Crontab.CronExpression do
+  def to_iodata(exp) do
+    Crontab.CronExpression.Composer.compose(exp)
+  end
+end

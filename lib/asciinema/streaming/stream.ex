@@ -30,6 +30,8 @@ defmodule Asciinema.Streaming.Stream do
     field :snapshot, Asciinema.Ecto.Type.Snapshot
     field :env, :map
     field :audio_url, :string
+    field :schedule, Crontab.CronExpression.Ecto.Type
+    field :next_start_at, :utc_datetime
 
     timestamps(type: :utc_datetime)
 

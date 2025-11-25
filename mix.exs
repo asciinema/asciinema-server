@@ -41,6 +41,7 @@ defmodule Asciinema.MixProject do
     [
       {:briefly, "~> 0.3"},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:crontab, "~> 1.2"},
       {:earmark, "~> 1.4.46"},
       {:ecto_psql_extras, "~> 0.8.8"},
       {:ecto_sql, "~> 3.6"},

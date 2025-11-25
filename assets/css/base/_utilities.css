@@ -186,6 +186,7 @@
 .flex-wrap { flex-wrap: wrap; }
 .flex-nowrap { flex-wrap: nowrap; }
 .flex-wrap-reverse { flex-wrap: wrap-reverse; }
+.ws-nowrap { white-space: nowrap; }
 
 /* Grow/shrink */
 .flex-grow-0 { flex-grow: 0; }
