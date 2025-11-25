@@ -59,11 +59,7 @@
       <div class={["form-field", error_class(f, :title)]}>
         <.label for={f[:title]}>Title</.label>
         <div>
-          <.input
-            field={f[:title]}
-            autofocus={true}
-            placeholder={"#{author_username(@stream)}'s stream"}
-          />
+          <.input field={f[:title]} placeholder={"#{author_username(@stream)}'s stream"} />
           <.error field={f[:title]} />
         </div>
       </div>
