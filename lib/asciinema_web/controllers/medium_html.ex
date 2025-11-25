@@ -6,7 +6,7 @@ defmodule AsciinemaWeb.MediumHTML do
   defp segments(medium) do
     [os(medium), term(medium), shell(medium)]
     |> Enum.filter(& &1)
-    |> Enum.intersperse(" ◆ ")
+    |> Enum.intersperse(" • ")
   end
 
   defp os(medium) do
