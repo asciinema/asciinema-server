@@ -20,7 +20,7 @@ defmodule AsciinemaWeb.UserController do
     token = get_session(conn, :sign_up_token)
     conn = delete_session(conn, :sign_up_token)
 
-    case Asciinema.create_user_from_sign_up_token(token) do
+    case Asciinema.confirm_sign_up(token) do
       {:ok, user} ->
         conn
         |> log_in(user)
@@ -123,7 +123,7 @@ defmodule AsciinemaWeb.UserController do
   end
 
   def delete(conn, %{"token" => token, "confirmed" => _}) do
-    case Asciinema.delete_user(token) do
+    case Asciinema.confirm_account_deletion(token) do
       :ok ->
         conn
         |> log_out()
@@ -145,7 +145,7 @@ defmodule AsciinemaWeb.UserController do
     user = conn.assigns.current_user
     address = user.email
 
-    case Asciinema.send_account_deletion_email(user, AsciinemaWeb.UrlProvider) do
+    case Asciinema.initiate_account_deletion(user, AsciinemaWeb.UrlProvider) do
       :ok ->
         conn
         |> put_flash(:info, "Account removal initiated - check your inbox (#{address})")

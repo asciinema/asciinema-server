@@ -14,7 +14,7 @@ defmodule AsciinemaAdmin.UserController do
   end
 
   def create(conn, %{"user" => attrs}) do
-    case Asciinema.create_user(attrs, :admin) do
+    case Accounts.create_user(attrs, :admin) do
       {:ok, user} ->
         redirect(conn, to: ~p"/admin/users/#{user}")
 
@@ -26,7 +26,7 @@ defmodule AsciinemaAdmin.UserController do
   def show(conn, %{"id" => id} = params) do
     user = Accounts.get_user(id)
     clis = Accounts.list_clis(user)
-    login_url = AsciinemaWeb.UrlProvider.login(Accounts.login_token(user))
+    login_url = AsciinemaWeb.UrlProvider.login(Accounts.generate_login_token(user))
 
     changeset =
       user
