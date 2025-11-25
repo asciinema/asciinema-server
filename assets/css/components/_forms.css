@@ -89,6 +89,10 @@ form select:focus {
   margin: 0.5rem 0;
 }
 
+.form-field small p:last-child {
+  margin-bottom: 0;
+}
+
 @media (min-width: 576px) {
   .form-field {
     grid-template-columns: minmax(150px, 25%) 1fr;
@@ -127,7 +131,7 @@ form select:focus {
   position: relative;
   display: block;
   padding-left: 1.25rem;
-  margin-bottom: 0.75rem;
+  margin-bottom: var(--space-1);
 }
 
 .form-option input[type="radio"],
@@ -158,6 +162,14 @@ form .visibility-radios .form-option small {
   display: block;
   margin-top: var(--space-1);
   margin-left: 0;
+}
+
+.radios .form-option {
+  margin-bottom: var(--space-3);
+}
+
+.radios .form-option:last-child {
+  margin-bottom: 0;
 }
 
 /* == Validation states == */
