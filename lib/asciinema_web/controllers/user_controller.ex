@@ -16,11 +16,12 @@ defmodule AsciinemaWeb.UserController do
     render(conn, "new.html")
   end
 
-  def create(conn, _params) do
+  def create(conn, params) do
     token = get_session(conn, :sign_up_token)
     conn = delete_session(conn, :sign_up_token)
+    timezone = params["timezone"]
 
-    case Asciinema.confirm_sign_up(token) do
+    case Asciinema.confirm_sign_up(token, timezone) do
       {:ok, user} ->
         conn
         |> log_in(user)
@@ -116,6 +117,7 @@ defmodule AsciinemaWeb.UserController do
 
     render(conn, "edit.html",
       changeset: changeset,
+      timezones: Tzdata.canonical_zone_list(),
       streaming_enabled: user.streaming_enabled,
       stream_recording_mode: Streaming.recording_mode(),
       clis: clis

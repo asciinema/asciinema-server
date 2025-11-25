@@ -11,8 +11,8 @@ defmodule Asciinema do
     end
   end
 
-  defdelegate confirm_login(token), to: Accounts
-  defdelegate confirm_sign_up(token), to: Accounts
+  defdelegate confirm_login(token, timezone), to: Accounts
+  defdelegate confirm_sign_up(token, timezone), to: Accounts
   defdelegate change_user(user, params \\ %{}, ctx \\ :user), to: Accounts
 
   def update_user(user, params, ctx \\ :user) do

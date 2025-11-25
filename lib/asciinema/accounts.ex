@@ -105,6 +105,7 @@ defmodule Asciinema.Accounts do
     |> cast(params, [
       :name,
       :username,
+      :timezone,
       :term_theme_name,
       :term_theme_prefer_original,
       :term_font_family,
@@ -114,6 +115,7 @@ defmodule Asciinema.Accounts do
     ])
     |> validate_required([:username])
     |> validate_username()
+    |> validate_inclusion(:timezone, Tzdata.canonical_zone_list())
     |> validate_inclusion(:term_theme_name, Themes.terminal_themes())
     |> validate_inclusion(:term_font_family, Fonts.terminal_font_families())
     |> add_contraints()
@@ -221,10 +223,10 @@ defmodule Asciinema.Accounts do
     Token.sign(config(:secret), "login", {id, last_login_at})
   end
 
-  def confirm_sign_up(token) do
+  def confirm_sign_up(token, timezone \\ nil) do
     with {:ok, email} <- verify_sign_up_token(token),
          {:ok, user} <- create_user(%{email: email}, :user) do
-      {:ok, user}
+      {:ok, set_timezone(user, timezone)}
     else
       {:error, :invalid} -> {:error, :token_invalid}
       {:error, %Ecto.Changeset{errors: [{:email, _}]}} -> {:error, :email_taken}
@@ -238,11 +240,11 @@ defmodule Asciinema.Accounts do
     )
   end
 
-  def confirm_login(token) do
+  def confirm_login(token, timezone \\ nil) do
     with {:ok, {user_id, last_login_at}} <- verify_login_token(token),
          %User{} = user <- Repo.get(User, user_id),
          ^last_login_at <- user.last_login_at && Timex.to_unix(user.last_login_at) do
-      {:ok, user}
+      {:ok, set_timezone(user, timezone)}
     else
       {:error, :invalid} ->
         {:error, :token_invalid}
@@ -254,6 +256,22 @@ defmodule Asciinema.Accounts do
         {:error, :token_expired}
     end
   end
+
+  defp set_timezone(%User{timezone: nil} = user, timezone) do
+    import Ecto.Changeset
+
+    changeset =
+      user
+      |> cast(%{timezone: timezone}, [:timezone])
+      |> validate_inclusion(:timezone, Tzdata.canonical_zone_list())
+
+    case Repo.update(changeset) do
+      {:ok, user} -> user
+      {:error, _} -> user
+    end
+  end
+
+  defp set_timezone(user, _timezone), do: user
 
   def verify_login_token(token) do
     Token.verify(config(:secret), "login", token, max_age: config(:login_token_max_age, 60) * 60)
