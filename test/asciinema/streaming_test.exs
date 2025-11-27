@@ -151,6 +151,16 @@ defmodule Asciinema.StreamingTest do
       assert %{visibility: _, term_theme_name: _} = errors_on(changeset)
     end
 
+    test "invalid schedule" do
+      stream = insert(:stream)
+
+      {:error, changeset} = Streaming.update_stream(stream, %{schedule: "x"})
+      assert %{schedule: _} = errors_on(changeset)
+
+      {:error, changeset} = Streaming.update_stream(stream, %{schedule: "@reboot"})
+      assert %{schedule: _} = errors_on(changeset)
+    end
+
     test "live stream limit" do
       user = insert(:user, live_stream_limit: 1)
       stream_1 = insert(:stream, user: user, live: false)
@@ -190,6 +200,23 @@ defmodule Asciinema.StreamingTest do
       Enum.each(error_results, fn {:error, reason} ->
         assert reason == {:live_stream_limit_reached, 1}
       end)
+    end
+
+    test "auto-update of next_start_at" do
+      user = insert(:user, timezone: "Europe/Warsaw")
+      stream = insert(:stream, user: user, schedule: nil, next_start_at: nil)
+
+      {:ok, stream} = Streaming.update_stream(stream, %{schedule: "0 20 1 6 * 2050"})
+      assert stream.next_start_at == ~U[2050-06-01T18:00:00Z]
+
+      {:ok, stream} = Streaming.update_stream(stream, %{schedule: ""})
+      assert stream.next_start_at == nil
+
+      {:ok, stream} = Streaming.update_stream(stream, %{schedule: "0 21 1 12 * 2000"})
+      assert stream.next_start_at == nil
+
+      {:error, changeset} = Streaming.update_stream(stream, %{schedule: "@reboot"})
+      assert %{schedule: _} = errors_on(changeset)
     end
   end
 

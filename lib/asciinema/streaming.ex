@@ -150,15 +150,14 @@ defmodule Asciinema.Streaming do
   before allowing a new live stream to be created.
   """
   def create_stream(user, params \\ %{}) do
-    %Stream{}
-    |> change(
+    %Stream{
       public_token: generate_public_token(),
       producer_token: generate_producer_token(),
       visibility: user.default_stream_visibility,
       term_theme_prefer_original: user.term_theme_prefer_original
-    )
-    |> put_assoc(:user, user)
+    }
     |> change_stream(params)
+    |> put_assoc(:user, user)
     |> Repo.insert()
     |> convert_live_limit_error(user.live_stream_limit)
   end
@@ -180,6 +179,7 @@ defmodule Asciinema.Streaming do
 
   def change_stream(stream, attrs) when is_map(attrs) do
     stream
+    |> Repo.preload(:user)
     |> cast(attrs, [
       :audio_url,
       :buffer_time,
@@ -197,6 +197,7 @@ defmodule Asciinema.Streaming do
       :visibility,
       :schedule
     ])
+    |> validate_schedule()
     |> validate_number(:buffer_time,
       greater_than_or_equal_to: 0.0,
       less_than_or_equal_to: 30.0
@@ -230,9 +231,25 @@ defmodule Asciinema.Streaming do
   def update_stream(stream, attrs) when is_map(attrs) do
     stream
     |> change_stream(attrs)
+    |> update_next_start_at()
     |> Repo.update()
     |> convert_live_limit_error(stream.user.live_stream_limit)
   end
+
+  defp validate_schedule(changeset) do
+    validate_change(changeset, :schedule, fn _, schedule ->
+      try do
+        get_next_start_at(schedule, user_timezone(changeset))
+
+        []
+      rescue
+        RuntimeError ->
+          [schedule: {"Invalid expression", []}]
+      end
+    end)
+  end
+
+  defp user_timezone(changeset), do: changeset.data.user.timezone || "Etc/UTC"
 
   defp update_peak_viewer_count(changeset) do
     case get_change(changeset, :current_viewer_count, :not_changed) do
@@ -254,6 +271,32 @@ defmodule Asciinema.Streaming do
         changeset
     end
   end
+
+  defp get_next_start_at(schedule, timezone) do
+    schedule
+    |> Crontab.Scheduler.get_next_run_dates(DateTime.now!(timezone))
+    |> Elixir.Stream.take(1)
+    |> Enum.to_list()
+    |> List.first()
+    |> maybe_map(&DateTime.shift_zone!(&1, "Etc/UTC"))
+  end
+
+  defp update_next_start_at(%Changeset{valid?: true} = changeset) do
+    case get_change(changeset, :schedule, :not_changed) do
+      :not_changed ->
+        changeset
+
+      nil ->
+        change(changeset, next_start_at: nil)
+
+      schedule ->
+        timezone = user_timezone(changeset)
+
+        change(changeset, next_start_at: get_next_start_at(schedule, timezone))
+    end
+  end
+
+  defp update_next_start_at(%Changeset{valid?: false} = changeset), do: changeset
 
   def delete_stream(stream), do: Repo.delete(stream)
 
@@ -285,4 +328,7 @@ defmodule Asciinema.Streaming do
   defp generate_producer_token, do: Crypto.random_token(16)
 
   def short_public_token(stream), do: String.slice(stream.public_token, 0, 4)
+
+  defp maybe_map(nil, _fun), do: nil
+  defp maybe_map(value, fun) when is_function(fun, 1), do: fun.(value)
 end
