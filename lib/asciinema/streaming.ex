@@ -215,7 +215,7 @@ defmodule Asciinema.Streaming do
   def update_stream(stream, attrs) when is_list(attrs) do
     stream
     |> cast(Enum.into(attrs, %{}), Stream.__schema__(:fields))
-    |> update_peak_viewer_count()
+    |> change_peak_viewer_count()
     |> change_last_activity()
     |> Repo.update!()
   end
@@ -231,7 +231,7 @@ defmodule Asciinema.Streaming do
   def update_stream(stream, attrs) when is_map(attrs) do
     stream
     |> change_stream(attrs)
-    |> update_next_start_at()
+    |> change_next_start_at()
     |> Repo.update()
     |> convert_live_limit_error(stream.user.live_stream_limit)
   end
@@ -251,7 +251,7 @@ defmodule Asciinema.Streaming do
 
   defp user_timezone(changeset), do: changeset.data.user.timezone || "Etc/UTC"
 
-  defp update_peak_viewer_count(changeset) do
+  defp change_peak_viewer_count(changeset) do
     case get_change(changeset, :current_viewer_count, :not_changed) do
       :not_changed ->
         changeset
@@ -281,7 +281,7 @@ defmodule Asciinema.Streaming do
     |> maybe_map(&DateTime.shift_zone!(&1, "Etc/UTC"))
   end
 
-  defp update_next_start_at(%Changeset{valid?: true} = changeset) do
+  defp change_next_start_at(%Changeset{valid?: true} = changeset) do
     case get_change(changeset, :schedule, :not_changed) do
       :not_changed ->
         changeset
@@ -296,7 +296,7 @@ defmodule Asciinema.Streaming do
     end
   end
 
-  defp update_next_start_at(%Changeset{valid?: false} = changeset), do: changeset
+  defp change_next_start_at(%Changeset{valid?: false} = changeset), do: changeset
 
   def delete_stream(stream), do: Repo.delete(stream)
 
