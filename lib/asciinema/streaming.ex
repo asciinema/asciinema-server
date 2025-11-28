@@ -68,6 +68,10 @@ defmodule Asciinema.Streaming do
       {:prefix, prefix} ->
         prefix = String.replace(prefix, "%", "")
         where(q, [s], like(s.public_token, ^"#{prefix}%"))
+
+      :reschedulable ->
+        now = DateTime.utc_now()
+        where(q, [s], s.next_start_at < ^now)
     end
   end
 
@@ -247,7 +251,8 @@ defmodule Asciinema.Streaming do
     end)
   end
 
-  defp user_timezone(changeset), do: changeset.data.user.timezone || "Etc/UTC"
+  defp user_timezone(%Ecto.Changeset{} = changeset), do: user_timezone(changeset.data)
+  defp user_timezone(%Stream{} = stream), do: stream.user.timezone || "Etc/UTC"
 
   defp change_peak_viewer_count(changeset) do
     case get_change(changeset, :current_viewer_count, :not_changed) do
@@ -295,6 +300,29 @@ defmodule Asciinema.Streaming do
   end
 
   defp change_next_start_at(%Changeset{valid?: false} = changeset), do: changeset
+
+  def reschedule_streams do
+    :reschedulable
+    |> query()
+    |> preload(:user)
+    |> Repo.pages(100)
+    |> Elixir.Stream.flat_map(& &1)
+    |> Enum.each(&reschedule_stream/1)
+
+    :ok
+  end
+
+  def reschedule_stream(stream) do
+    if schedule = stream.schedule do
+      timezone = user_timezone(stream)
+
+      stream
+      |> change(next_start_at: get_next_start_at(schedule, timezone))
+      |> Repo.update!()
+    else
+      stream
+    end
+  end
 
   def delete_stream(stream), do: Repo.delete(stream)
 
