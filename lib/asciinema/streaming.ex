@@ -126,15 +126,13 @@ defmodule Asciinema.Streaming do
     end
   end
 
-  def list(q, limit \\ nil)
-
   def list(q, nil) do
     q
     |> preload(:user)
     |> Repo.all()
   end
 
-  def list(q, limit) do
+  def list(q, limit) when is_integer(limit) do
     q
     |> limit(^limit)
     |> preload(:user)
