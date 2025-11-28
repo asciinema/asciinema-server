@@ -1,9 +1,6 @@
 defmodule Asciinema.Workers.ReindexRecordings do
   use Oban.Worker,
-    unique: [
-      period: :infinity,
-      states: [:available, :retryable]
-    ]
+    unique: [period: :infinity, states: :incomplete]
 
   alias Asciinema.Recordings
   alias Asciinema.Workers.UpdateFtsContent
