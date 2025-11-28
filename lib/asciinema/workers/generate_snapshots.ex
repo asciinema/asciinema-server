@@ -12,9 +12,9 @@ defmodule Asciinema.Workers.GenerateSnapshots do
       |> Recordings.query()
       |> Recordings.stream()
 
-    for asciicast <- asciicasts do
+    Enum.each(asciicasts, fn asciicast ->
       Oban.insert!(UpdateSnapshot.new(%{asciicast_id: asciicast.id}))
-    end
+    end)
 
     :ok
   end

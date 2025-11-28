@@ -9,9 +9,9 @@ defmodule Asciinema.Workers.ReindexRecordings do
   def perform(_job) do
     asciicasts = Recordings.stream(Recordings.query())
 
-    for asciicast <- asciicasts do
+    Enum.each(asciicasts, fn asciicast ->
       Oban.insert!(UpdateFtsContent.new(%{asciicast_id: asciicast.id}))
-    end
+    end)
 
     :ok
   end

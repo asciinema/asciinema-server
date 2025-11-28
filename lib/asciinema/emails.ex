@@ -43,9 +43,9 @@ defmodule Asciinema.Emails do
   defp deliver(email) do
     with {:ok, _metadata} <- Mailer.deliver(email) do
       if Mailer.local_adapter?() do
-        for url <- extract_urls(email) do
+        Enum.each(extract_urls(email), fn url ->
           Logger.info("url from email: #{url}")
-        end
+        end)
       end
 
       :ok

@@ -24,9 +24,9 @@ defmodule Asciinema.Workers.MigrateRecordingFiles do
       |> Recordings.stream()
       |> Recordings.migratable()
 
-    for asciicast <- asciicasts do
+    Enum.each(asciicasts, fn asciicast ->
       Oban.insert!(__MODULE__.new(%{asciicast_id: asciicast.id}))
-    end
+    end)
 
     :ok
   end
@@ -37,9 +37,9 @@ defmodule Asciinema.Workers.MigrateRecordingFiles do
       |> Recordings.stream()
       |> Recordings.migratable()
 
-    for asciicast <- asciicasts do
+    Enum.each(asciicasts, fn asciicast ->
       Oban.insert!(__MODULE__.new(%{asciicast_id: asciicast.id}))
-    end
+    end)
 
     :ok
   end
