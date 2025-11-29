@@ -69,6 +69,10 @@ defmodule Asciinema.Streaming do
         prefix = String.replace(prefix, "%", "")
         where(q, [s], like(s.public_token, ^"#{prefix}%"))
 
+      :upcoming ->
+        now = DateTime.utc_now()
+        where(q, [s], s.next_start_at > ^now and not s.live)
+
       :reschedulable ->
         now = DateTime.utc_now()
         where(q, [s], s.next_start_at < ^now)
@@ -79,6 +83,9 @@ defmodule Asciinema.Streaming do
     case order do
       nil ->
         q
+
+      :soonest ->
+        order_by(q, asc_nulls_last: :next_start_at)
 
       :activity ->
         order_by(q, desc: :live, desc_nulls_last: :last_started_at, desc: :id)

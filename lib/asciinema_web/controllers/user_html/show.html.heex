@@ -68,6 +68,17 @@
       </p>
     </div>
 
+    <%= if @user.streaming_enabled and length(@upcoming_streams) > 0 do %>
+      <h2 :if={@self}>Your upcoming streams</h2>
+      <h2 :if={!@self}>{username(@user)}'s upcoming streams</h2>
+
+      <div class="asciicast-list">
+        <div :for={stream <- @upcoming_streams}>
+          {live_render(@conn, AsciinemaWeb.StreamCardLive, session: %{"stream_id" => stream.id})}
+        </div>
+      </div>
+    <% end %>
+
     <h2 :if={@self}>Your recordings</h2>
 
     <h2 :if={!@self}>{username(@user)}'s recordings</h2>

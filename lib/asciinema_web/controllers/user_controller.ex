@@ -63,6 +63,12 @@ defmodule AsciinemaWeb.UserController do
       |> Authorization.scope(:streams, current_user)
       |> Streaming.list(4)
 
+    upcoming_streams =
+      [:upcoming, user_id: user.id]
+      |> Streaming.query(:soonest)
+      |> Authorization.scope(:streams, current_user)
+      |> Streaming.list(4)
+
     asciicasts =
       [user_id: user.id]
       |> Recordings.query(:date)
@@ -76,6 +82,7 @@ defmodule AsciinemaWeb.UserController do
       user: user,
       self: self,
       live_streams: live_streams,
+      upcoming_streams: upcoming_streams,
       asciicasts: asciicasts
     )
   end
