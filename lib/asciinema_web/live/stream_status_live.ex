@@ -15,12 +15,12 @@ defmodule AsciinemaWeb.StreamStatusLive do
     ~H"""
     <div class="status-line">
       <%= case status(@live, @last_started_at, @last_ended_at, @next_start_at, @now) do %>
-        <% {:live, elapsed} -> %>
+        <% {:live, started_at, elapsed} -> %>
           <span class="status-line-item">
             <.live_icon />
 
             <%= if elapsed do %>
-              Streaming for {elapsed}
+              Streaming for <time title={"Since #{started_at}"}>{elapsed}</time>
             <% else %>
               Stream just started
             <% end %>
@@ -33,12 +33,12 @@ defmodule AsciinemaWeb.StreamStatusLive do
           <span class="status-line-item">
             <.eye_solid_icon /> {@viewer_count} watching
           </span>
-        <% {:scheduled, remaining} -> %>
+        <% {:scheduled, starts_at, remaining} -> %>
           <span class="status-line-item">
             <.offline_icon />
 
             <%= if remaining do %>
-              Starts in {remaining}
+              Starts in <time title={"At #{starts_at}"}>{remaining}</time>
             <% else %>
               Starts in a moment
             <% end %>
@@ -51,9 +51,10 @@ defmodule AsciinemaWeb.StreamStatusLive do
           <span class="status-line-item">
             <.offline_icon /> Stream hasn't started
           </span>
-        <% {:ended, elapsed} -> %>
+        <% {:ended, ended_at, elapsed} -> %>
           <span class="status-line-item">
-            <.offline_icon /> Stream ended {elapsed} ago
+            <.offline_icon /> Stream ended
+            <time :if={elapsed} title={"At #{ended_at}"}>{elapsed} ago</time>
           </span>
       <% end %>
     </div>
@@ -67,15 +68,15 @@ defmodule AsciinemaWeb.StreamStatusLive do
 
     cond do
       live ->
-        {:live, format_duration(time_since_last_start)}
+        {:live, last_started_at, format_duration(time_since_last_start)}
 
       time_until_next_start &&
           (time_since_last_end == nil || time_since_last_end > 3600 ||
              time_until_next_start < 3600) ->
-        {:scheduled, format_duration(time_until_next_start)}
+        {:scheduled, next_start_at, format_duration(time_until_next_start)}
 
       time_since_last_start ->
-        {:ended, format_duration(time_since_last_end)}
+        {:ended, last_ended_at, format_duration(time_since_last_end)}
 
       true ->
         :not_started
