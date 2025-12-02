@@ -14,12 +14,12 @@ defmodule AsciinemaWeb.StreamStatusLive do
     ~H"""
     <div class="status-line">
       <%= case status(@live, @last_started_at, @last_ended_at, @next_start_at, @now) do %>
-        <% {:live, duration} -> %>
+        <% {:live, elapsed} -> %>
           <span class="status-line-item">
             <.live_icon />
 
-            <%= if duration do %>
-              Streaming for {duration}
+            <%= if elapsed do %>
+              Streaming for {elapsed}
             <% else %>
               Stream just started
             <% end %>
@@ -50,9 +50,9 @@ defmodule AsciinemaWeb.StreamStatusLive do
           <span class="status-line-item">
             <.offline_icon /> Stream hasn't started
           </span>
-        <% :ended -> %>
+        <% {:ended, elapsed} -> %>
           <span class="status-line-item">
-            <.offline_icon /> Stream ended
+            <.offline_icon /> Stream ended {elapsed} ago
           </span>
       <% end %>
     </div>
@@ -74,7 +74,7 @@ defmodule AsciinemaWeb.StreamStatusLive do
         {:scheduled, format_duration(time_until_next_start)}
 
       time_since_last_start ->
-        :ended
+        {:ended, format_duration(time_since_last_end)}
 
       true ->
         :not_started
