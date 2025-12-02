@@ -8,7 +8,7 @@ defmodule AsciinemaWeb.MediumHTML do
   attr :author_username, :string, required: true
   attr :author_profile_url, :string, required: true
   attr :author_avatar_url, :string, required: true
-  attr :theme_bg, :string, required: true
+  attr :theme, :any, required: true
   attr :inserted_at, :any, default: nil
   slot :preview, required: true
   slot :duration

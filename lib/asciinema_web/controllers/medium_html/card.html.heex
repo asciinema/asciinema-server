@@ -1,4 +1,7 @@
-<div class="asciicast-card">
+<div
+  class="asciicast-card"
+  style={"--term-color-foreground: #{@theme.fg}; --term-color-background: #{@theme.bg}"}
+>
   <.link href={@url} class="thumbnail-link">
     <div class="play-button">
       <span class="arrow">
@@ -8,10 +11,7 @@
       </span>
     </div>
 
-    <div
-      class="thumbnail"
-      style={"background-color: #{@theme_bg}; border-right: 1ch solid #{@theme_bg}"}
-    >
+    <div class="thumbnail">
       {render_slot(@preview)}
     </div>
   </.link>

@@ -1,14 +1,19 @@
 <MediumHTML.card
   url={~p"/a/#{@asciicast}"}
   title={title(@asciicast)}
-  theme_bg={theme(@asciicast).bg}
+  theme={theme(@asciicast)}
   author_profile_url={author_profile_path(@asciicast)}
   author_username={author_username(@asciicast)}
   author_avatar_url={author_avatar_url(@asciicast)}
   inserted_at={if !assigns[:no_created_at], do: @asciicast.inserted_at}
 >
-  <:preview><.thumbnail asciicast={@asciicast} /></:preview>
-  <:duration>{duration(@asciicast)}</:duration>
+  <:preview>
+    <img src={~p"/a/#{@asciicast}" <> ".svg?f=t&v=#{svg_cache_key(@asciicast)}"} />
+  </:preview>
+
+  <:duration>
+    {duration(@asciicast)}
+  </:duration>
 
   <:badges>
     <.visibility_badge
