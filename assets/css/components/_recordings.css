@@ -101,6 +101,28 @@ div.asciicast-card {
     height: auto;
   }
 
+  .thumbnail .countdown {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    div {
+      font-size: var(--font-size-xl);
+      padding: 1rem 1.5rem;
+    }
+
+    .label {
+      color: var(--term-color-foreground);
+    }
+
+    .counter {
+      color: var(--term-color-background);
+      background-color: var(--term-color-foreground);
+    }
+  }
+
   .info {
     background-color: #fff;
     padding: 10px;
