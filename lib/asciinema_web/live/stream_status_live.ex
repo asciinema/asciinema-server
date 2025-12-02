@@ -153,16 +153,11 @@ defmodule AsciinemaWeb.StreamStatusLive do
     if duration < 60 do
       nil
     else
-      duration
+      (div(duration, 60) * 60)
       |> Timex.Duration.from_seconds()
       |> Timex.format_duration(:humanized)
       |> String.split(", ")
-      |> then(fn parts ->
-        case length(parts) do
-          l when l in [1, 2] -> Enum.take(parts, 1)
-          _ -> Enum.take(parts, 2)
-        end
-      end)
+      |> Enum.take(2)
       |> Enum.join(", ")
     end
   end
