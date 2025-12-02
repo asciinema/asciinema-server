@@ -34,7 +34,9 @@
     <div :if={@user.streaming_enabled and length(@live_streams) > 0}>
       <div class="asciicast-list">
         <div :for={stream <- @live_streams}>
-          {live_render(@conn, AsciinemaWeb.StreamCardLive, session: %{"stream_id" => stream.id})}
+          {live_render(@conn, AsciinemaWeb.LiveStreamCardLive,
+            session: %{"stream_id" => stream.id}
+          )}
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-defmodule AsciinemaWeb.StreamCardLive do
+defmodule AsciinemaWeb.LiveStreamCardLive do
   use AsciinemaWeb, :live_view
   alias Asciinema.Streaming
   alias Asciinema.Streaming.StreamServer
@@ -6,7 +6,7 @@ defmodule AsciinemaWeb.StreamCardLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <AsciinemaWeb.StreamHTML.card stream={@stream} />
+    <AsciinemaWeb.StreamHTML.live_stream_card stream={@stream} />
     """
   end
 

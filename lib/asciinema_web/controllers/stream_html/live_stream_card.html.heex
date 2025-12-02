@@ -1,0 +1,11 @@
+<MediumHTML.card
+  url={~p"/s/#{@stream}"}
+  title={title(@stream)}
+  theme={theme(@stream)}
+  author_profile_url={author_profile_path(@stream)}
+  author_username={author_username(@stream)}
+  author_avatar_url={author_avatar_url(@stream)}
+>
+  <:preview><RecordingSVG.thumbnail asciicast={@stream} /></:preview>
+  <:duration><.live_icon :if={@stream.live} /></:duration>
+</MediumHTML.card>
