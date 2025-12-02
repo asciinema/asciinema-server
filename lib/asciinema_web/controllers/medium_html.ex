@@ -3,6 +3,18 @@ defmodule AsciinemaWeb.MediumHTML do
 
   embed_templates "medium_html/*"
 
+  attr :url, :string, required: true
+  attr :title, :string, required: true
+  attr :author_username, :string, required: true
+  attr :author_profile_url, :string, required: true
+  attr :author_avatar_url, :string, required: true
+  attr :theme_bg, :string, required: true
+  attr :inserted_at, :any, default: nil
+  slot :preview, required: true
+  slot :duration
+  slot :badges
+  def card(assigns)
+
   defp segments(medium) do
     [os(medium), term(medium), shell(medium)]
     |> Enum.filter(& &1)

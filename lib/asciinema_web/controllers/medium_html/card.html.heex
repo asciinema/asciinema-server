@@ -1,0 +1,40 @@
+<div class="asciicast-card">
+  <.link href={@url} class="thumbnail-link">
+    <div class="play-button">
+      <span class="arrow">
+        <svg version="1.1" viewBox="0 0 12 12">
+          <path d="M1,0 L11,6 L1,12 Z" />
+        </svg>
+      </span>
+    </div>
+
+    <div
+      class="thumbnail"
+      style={"background-color: #{@theme_bg}; border-right: 1ch solid #{@theme_bg}"}
+    >
+      {render_slot(@preview)}
+    </div>
+  </.link>
+
+  <div class="info">
+    <h3>
+      <.link href={@url}>{@title}</.link>
+      <span class="duration">{render_slot(@duration)}</span>
+    </h3>
+
+    <span class="author-avatar">
+      <.link href={@author_profile_url} title={@author_username}>
+        <img src={@author_avatar_url} />
+      </.link>
+    </span>
+
+    <small>
+      by <.link href={@author_profile_url}>{@author_username}</.link>
+      <%= if @inserted_at do %>
+        {time_ago_tag(@inserted_at)}
+      <% end %>
+
+      {render_slot(@badges)}
+    </small>
+  </div>
+</div>
