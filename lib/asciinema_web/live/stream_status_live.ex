@@ -42,6 +42,10 @@ defmodule AsciinemaWeb.StreamStatusLive do
               Starts in a moment
             <% end %>
           </span>
+
+          <span class="status-line-item">
+            <.eye_solid_icon /> {@viewer_count} waiting
+          </span>
         <% :not_started -> %>
           <span class="status-line-item">
             <.offline_icon /> Stream hasn't started
