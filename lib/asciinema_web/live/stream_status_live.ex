@@ -8,6 +8,7 @@ defmodule AsciinemaWeb.StreamStatusLive do
 
   @info_timeout 1_000
   @update_interval 10_000
+  @schedule_reload_interval 60_000
 
   @impl true
   def render(assigns) do
@@ -89,12 +90,14 @@ defmodule AsciinemaWeb.StreamStatusLive do
       ViewerTracker.subscribe(stream_id)
       Process.send_after(self(), :info_timeout, @info_timeout)
       Process.send_after(self(), :update, @update_interval)
+      Process.send_after(self(), :reload_schedule, @schedule_reload_interval)
     end
 
     stream = Streaming.get_stream(stream_id)
 
     socket =
       assign(socket,
+        stream_id: stream.id,
         live: stream.live,
         confirmed: false,
         last_started_at: stream.last_started_at,
@@ -142,6 +145,13 @@ defmodule AsciinemaWeb.StreamStatusLive do
     Process.send_after(self(), :update, @update_interval)
 
     {:noreply, assign(socket, :now, DateTime.utc_now())}
+  end
+
+  def handle_info(:reload_schedule, socket) do
+    Process.send_after(self(), :reload_schedule, @schedule_reload_interval)
+    stream = Streaming.get_stream(socket.assigns.stream_id)
+
+    {:noreply, assign(socket, :next_start_at, stream && stream.next_start_at)}
   end
 
   defp env_info_attrs(stream),
