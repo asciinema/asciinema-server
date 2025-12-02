@@ -1,5 +1,6 @@
 defmodule AsciinemaWeb.SchedulePreviewLive do
   use AsciinemaWeb, :live_view
+  alias AsciinemaWeb.StreamHTML
 
   @impl true
   def render(assigns) do
@@ -24,7 +25,7 @@ defmodule AsciinemaWeb.SchedulePreviewLive do
   defp render_times(assigns) do
     ~H"""
     <%= for {t, i} <- Enum.with_index(Enum.take(@times, 3)) do %>
-      <span>{format_start_time(t)}</span>
+      <span>{StreamHTML.format_start_time(t)}</span>
       <span :if={i < min(length(@times), 3) - 1}>➜</span>
     <% end %>
 
@@ -36,14 +37,6 @@ defmodule AsciinemaWeb.SchedulePreviewLive do
     ~H"""
     <span class="text-danger">{String.trim_trailing(@reason, ".")}</span>
     """
-  end
-
-  defp format_start_time(start_time) do
-    if start_time.year == DateTime.utc_now().year do
-      Calendar.strftime(start_time, "%a %d %b %H:%M %Z")
-    else
-      Calendar.strftime(start_time, "%a %d %b %Y %H:%M %Z")
-    end
   end
 
   @impl true
