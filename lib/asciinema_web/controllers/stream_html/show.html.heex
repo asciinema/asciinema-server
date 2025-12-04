@@ -116,39 +116,42 @@
   </div>
 </section>
 
-<section :if={length(@stream_asciicasts) > 0} class="even">
+<section
+  :if={length(@stream_asciicasts) > 0 or (!@user_is_self && length(@other_asciicasts) > 0)}
+  class="even more-by"
+>
   <div class="container">
-    <h2>
-      Past recordings of this stream
-    </h2>
+    <%= if length(@stream_asciicasts) > 0 do %>
+      <h2>
+        Past recordings of this stream
+      </h2>
 
-    <div class="asciicast-list">
-      <div :for={asciicast <- @stream_asciicasts}>
-        <RecordingHTML.card asciicast={asciicast} conn={@conn} />
+      <div class="asciicast-list">
+        <div :for={asciicast <- @stream_asciicasts}>
+          <RecordingHTML.card asciicast={asciicast} conn={@conn} />
+        </div>
       </div>
-    </div>
-  </div>
-</section>
+    <% end %>
 
-<section :if={!@user_is_self && length(@other_asciicasts) > 0} class="even">
-  <div class="container">
-    <h2 :if={length(@stream_asciicasts) == 0}>
-      Recordings by <a href={author_profile_path(@stream)}>{author_username(@stream)}</a>
-    </h2>
+    <%= if !@user_is_self && length(@other_asciicasts) > 0 do %>
+      <h2 :if={length(@stream_asciicasts) == 0}>
+        Recordings by <a href={author_profile_path(@stream)}>{author_username(@stream)}</a>
+      </h2>
 
-    <h2 :if={length(@stream_asciicasts) > 0}>
-      Other recordings by <a href={author_profile_path(@stream)}>{author_username(@stream)}</a>
-    </h2>
+      <h2 :if={length(@stream_asciicasts) > 0}>
+        Other recordings by <a href={author_profile_path(@stream)}>{author_username(@stream)}</a>
+      </h2>
 
-    <div class="asciicast-list">
-      <div :for={asciicast <- @other_asciicasts}>
-        <RecordingHTML.card asciicast={asciicast} conn={@conn} />
+      <div class="asciicast-list">
+        <div :for={asciicast <- @other_asciicasts}>
+          <RecordingHTML.card asciicast={asciicast} conn={@conn} />
+        </div>
       </div>
-    </div>
 
-    <p>
-      <a href={author_profile_path(@stream)} class="btn btn-info">See all</a>
-    </p>
+      <p>
+        <a href={author_profile_path(@stream)} class="btn btn-info">See all</a>
+      </p>
+    <% end %>
   </div>
 </section>
 

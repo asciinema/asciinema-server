@@ -104,4 +104,8 @@
       }
     }
   }
+
+  section.more-by {
+    padding-top: 0;
+  }
 }
