@@ -70,8 +70,8 @@ defmodule Asciinema.Streaming do
         where(q, [s], like(s.public_token, ^"#{prefix}%"))
 
       :upcoming ->
-        now = DateTime.utc_now()
-        where(q, [s], s.next_start_at > ^now and not s.live)
+        ten_min_ago = DateTime.shift(DateTime.utc_now(), minute: -10)
+        where(q, [s], s.next_start_at > ^ten_min_ago and not s.live)
 
       :reschedulable ->
         now = DateTime.utc_now()
