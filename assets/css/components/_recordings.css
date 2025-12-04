@@ -153,6 +153,7 @@ div.asciicast-card {
         margin: auto 0 auto auto;
         padding-left: 1em;
         font-size: 14px;
+        text-align: right;
       }
     }
 
