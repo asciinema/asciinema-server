@@ -11,6 +11,15 @@ defmodule AsciinemaWeb.Features.ProfileTest do
       insert(:stream, user: user, visibility: :public, title: "Public Stream", live: true)
       insert(:stream, user: user, visibility: :unlisted, title: "Unlisted Stream", live: true)
       insert(:stream, user: user, visibility: :private, title: "Private Stream", live: true)
+      hour_from_now = DateTime.shift(DateTime.utc_now(), hour: 1)
+
+      insert(:stream,
+        user: user,
+        visibility: :public,
+        title: "Upcoming Stream",
+        live: false,
+        next_start_at: hour_from_now
+      )
 
       conn
       |> visit(~p"/~foobar")
@@ -22,6 +31,7 @@ defmodule AsciinemaWeb.Features.ProfileTest do
       |> assert_has("a", text: "Public Stream")
       |> refute_has("a", text: "Unlisted Stream")
       |> refute_has("a", text: "Private Stream")
+      |> assert_has("a", text: "Upcoming Stream")
     end
 
     test "as other user", %{conn: conn} do
@@ -54,6 +64,15 @@ defmodule AsciinemaWeb.Features.ProfileTest do
       insert(:stream, user: user, visibility: :public, title: "Public Stream", live: true)
       insert(:stream, user: user, visibility: :unlisted, title: "Unlisted Stream", live: true)
       insert(:stream, user: user, visibility: :private, title: "Private Stream", live: true)
+      hour_from_now = DateTime.shift(DateTime.utc_now(), hour: 1)
+
+      insert(:stream,
+        user: user,
+        visibility: :private,
+        title: "Upcoming Stream",
+        live: false,
+        next_start_at: hour_from_now
+      )
 
       conn
       |> log_in_user(user)
@@ -66,6 +85,7 @@ defmodule AsciinemaWeb.Features.ProfileTest do
       |> assert_has("a", text: "Public Stream")
       |> assert_has("a", text: "Unlisted Stream")
       |> assert_has("a", text: "Private Stream")
+      |> assert_has("a", text: "Upcoming Stream")
     end
 
     test "by ID", %{conn: conn} do
