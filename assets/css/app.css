@@ -41,6 +41,7 @@
 @import "./pages/_simple_layout.css";
 @import "./pages/_stream_index.css";
 @import "./pages/_stream_show.css";
+@import "./pages/_stream_edit.css";
 @import "./pages/_user_show.css";
 @import "./pages/_login.css";
 @import "./pages/_user_edit.css";

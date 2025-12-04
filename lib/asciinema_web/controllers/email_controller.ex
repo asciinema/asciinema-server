@@ -21,7 +21,7 @@ defmodule AsciinemaWeb.EmailController do
   end
 
   def update(conn, %{"t" => token}) do
-    case Asciinema.finalize_email_change(conn.assigns.current_user, token) do
+    case Asciinema.confirm_email_change(conn.assigns.current_user, token) do
       {:ok, _user} ->
         conn
         |> put_flash(:info, "Email address has been changed")

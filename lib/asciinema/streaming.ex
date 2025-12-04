@@ -68,6 +68,14 @@ defmodule Asciinema.Streaming do
       {:prefix, prefix} ->
         prefix = String.replace(prefix, "%", "")
         where(q, [s], like(s.public_token, ^"#{prefix}%"))
+
+      :upcoming ->
+        ten_min_ago = DateTime.shift(DateTime.utc_now(), minute: -10)
+        where(q, [s], s.next_start_at > ^ten_min_ago and not s.live)
+
+      :reschedulable ->
+        now = DateTime.utc_now()
+        where(q, [s], s.next_start_at < ^now)
     end
   end
 
@@ -75,6 +83,9 @@ defmodule Asciinema.Streaming do
     case order do
       nil ->
         q
+
+      :soonest ->
+        order_by(q, asc_nulls_last: :next_start_at)
 
       :activity ->
         order_by(q, desc: :live, desc_nulls_last: :last_started_at, desc: :id)
@@ -126,15 +137,13 @@ defmodule Asciinema.Streaming do
     end
   end
 
-  def list(q, limit \\ nil)
-
   def list(q, nil) do
     q
     |> preload(:user)
     |> Repo.all()
   end
 
-  def list(q, limit) do
+  def list(q, limit) when is_integer(limit) do
     q
     |> limit(^limit)
     |> preload(:user)
@@ -150,15 +159,14 @@ defmodule Asciinema.Streaming do
   before allowing a new live stream to be created.
   """
   def create_stream(user, params \\ %{}) do
-    %Stream{}
-    |> change(
+    %Stream{
       public_token: generate_public_token(),
       producer_token: generate_producer_token(),
       visibility: user.default_stream_visibility,
       term_theme_prefer_original: user.term_theme_prefer_original
-    )
-    |> put_assoc(:user, user)
+    }
     |> change_stream(params)
+    |> put_assoc(:user, user)
     |> Repo.insert()
     |> convert_live_limit_error(user.live_stream_limit)
   end
@@ -180,6 +188,7 @@ defmodule Asciinema.Streaming do
 
   def change_stream(stream, attrs) when is_map(attrs) do
     stream
+    |> Repo.preload(:user)
     |> cast(attrs, [
       :audio_url,
       :buffer_time,
@@ -194,8 +203,10 @@ defmodule Asciinema.Streaming do
       :term_type,
       :term_version,
       :title,
-      :visibility
+      :visibility,
+      :schedule
     ])
+    |> validate_schedule()
     |> validate_number(:buffer_time,
       greater_than_or_equal_to: 0.0,
       less_than_or_equal_to: 30.0
@@ -213,7 +224,7 @@ defmodule Asciinema.Streaming do
   def update_stream(stream, attrs) when is_list(attrs) do
     stream
     |> cast(Enum.into(attrs, %{}), Stream.__schema__(:fields))
-    |> update_peak_viewer_count()
+    |> change_peak_viewer_count()
     |> change_last_activity()
     |> Repo.update!()
   end
@@ -229,11 +240,29 @@ defmodule Asciinema.Streaming do
   def update_stream(stream, attrs) when is_map(attrs) do
     stream
     |> change_stream(attrs)
+    |> change_next_start_at()
     |> Repo.update()
     |> convert_live_limit_error(stream.user.live_stream_limit)
   end
 
-  defp update_peak_viewer_count(changeset) do
+  defp validate_schedule(changeset) do
+    validate_change(changeset, :schedule, fn _, schedule ->
+      try do
+        get_next_start_at(schedule, user_timezone(changeset))
+
+        []
+      rescue
+        # NOTE this may not be needed after upgrading crontab to >1.2.0
+        RuntimeError ->
+          [schedule: {"Invalid expression", []}]
+      end
+    end)
+  end
+
+  defp user_timezone(%Ecto.Changeset{} = changeset), do: user_timezone(changeset.data)
+  defp user_timezone(%Stream{} = stream), do: stream.user.timezone || "Etc/UTC"
+
+  defp change_peak_viewer_count(changeset) do
     case get_change(changeset, :current_viewer_count, :not_changed) do
       :not_changed ->
         changeset
@@ -251,6 +280,55 @@ defmodule Asciinema.Streaming do
 
       false ->
         changeset
+    end
+  end
+
+  defp get_next_start_at(schedule, timezone) do
+    schedule
+    |> Crontab.Scheduler.get_next_run_dates(DateTime.now!(timezone))
+    |> Elixir.Stream.take(1)
+    |> Enum.to_list()
+    |> List.first()
+    |> maybe_map(&DateTime.shift_zone!(&1, "Etc/UTC"))
+  end
+
+  defp change_next_start_at(%Changeset{valid?: true} = changeset) do
+    case get_change(changeset, :schedule, :not_changed) do
+      :not_changed ->
+        changeset
+
+      nil ->
+        change(changeset, next_start_at: nil)
+
+      schedule ->
+        timezone = user_timezone(changeset)
+
+        change(changeset, next_start_at: get_next_start_at(schedule, timezone))
+    end
+  end
+
+  defp change_next_start_at(%Changeset{valid?: false} = changeset), do: changeset
+
+  def reschedule_streams do
+    :reschedulable
+    |> query()
+    |> preload(:user)
+    |> Repo.pages(100)
+    |> Elixir.Stream.flat_map(& &1)
+    |> Enum.each(&reschedule_stream/1)
+
+    :ok
+  end
+
+  def reschedule_stream(stream) do
+    if schedule = stream.schedule do
+      timezone = user_timezone(stream)
+
+      stream
+      |> change(next_start_at: get_next_start_at(schedule, timezone))
+      |> Repo.update!()
+    else
+      stream
     end
   end
 
@@ -284,4 +362,7 @@ defmodule Asciinema.Streaming do
   defp generate_producer_token, do: Crypto.random_token(16)
 
   def short_public_token(stream), do: String.slice(stream.public_token, 0, 4)
+
+  defp maybe_map(nil, _fun), do: nil
+  defp maybe_map(value, fun) when is_function(fun, 1), do: fun.(value)
 end

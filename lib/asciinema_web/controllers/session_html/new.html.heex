@@ -2,8 +2,13 @@
   <h1>Verifying link...</h1>
 </div>
 
-<.form for={@conn} action={~p"/session"} id="login" as={:login}></.form>
+<.form for={@conn} action={~p"/session"} id="login" as={:login}>
+  <input type="hidden" name="timezone" value="" />
+</.form>
 
 <script>
-  document.forms.namedItem("login").submit();
+  const form = document.forms.namedItem("login");
+  const timezoneInput = form.querySelector('input[name="timezone"]');
+  timezoneInput.value = Intl?.DateTimeFormat?.()?.resolvedOptions?.()?.timeZone || '';
+  form.submit();
 </script>

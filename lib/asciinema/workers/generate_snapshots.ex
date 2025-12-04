@@ -1,9 +1,6 @@
 defmodule Asciinema.Workers.GenerateSnapshots do
   use Oban.Worker,
-    unique: [
-      period: :infinity,
-      states: [:available, :retryable]
-    ]
+    unique: [period: :infinity, states: :incomplete]
 
   alias Asciinema.Recordings
   alias Asciinema.Workers.UpdateSnapshot
@@ -15,9 +12,9 @@ defmodule Asciinema.Workers.GenerateSnapshots do
       |> Recordings.query()
       |> Recordings.stream()
 
-    for asciicast <- asciicasts do
+    Enum.each(asciicasts, fn asciicast ->
       Oban.insert!(UpdateSnapshot.new(%{asciicast_id: asciicast.id}))
-    end
+    end)
 
     :ok
   end

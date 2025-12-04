@@ -94,10 +94,31 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  // Dispatch schedule input updates while typing 
+  document.querySelectorAll('#stream_schedule').forEach(input => {
+    input.addEventListener('input', () => {
+      document.dispatchEvent(
+        new CustomEvent("stream-schedule-update", { detail: { schedule: input.value }})
+      );
+    });
+  });
 });
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content");
-let liveSocket = new LiveSocket("/live", Socket, { params: { _csrf_token: csrfToken } });
+
+let Hooks = {};
+
+Hooks.SchedulePreview = {
+  mounted() {
+    // Forward schedule input updates to SchedulePreviewLive
+    document.addEventListener('stream-schedule-update', (event) => {
+      this.pushEvent('update', { schedule: event.detail.schedule });
+    });
+  }
+}
+
+let liveSocket = new LiveSocket("/live", Socket, { params: { _csrf_token: csrfToken }, hooks: Hooks });
 
 // Connect if there are any LiveViews on the page
 liveSocket.connect();

@@ -7,19 +7,20 @@ defmodule AsciinemaWeb.StreamStatusLive do
   defdelegate env_info(stream), to: MediumHTML
 
   @info_timeout 1_000
-  @duration_update_interval 60_000
+  @update_interval 10_000
+  @schedule_reload_interval 60_000
 
   @impl true
   def render(assigns) do
     ~H"""
     <div class="status-line">
-      <%= case {@live, @started_at} do %>
-        <% {true, _} -> %>
+      <%= case status(@live, @last_started_at, @last_ended_at, @next_start_at, @now) do %>
+        <% {:live, started_at, elapsed} -> %>
           <span class="status-line-item">
             <.live_icon />
 
-            <%= if @duration do %>
-              Streaming for {@duration}
+            <%= if elapsed do %>
+              Streaming for <time title={"Since #{started_at}"}>{elapsed}</time>
             <% else %>
               Stream just started
             <% end %>
@@ -32,17 +33,54 @@ defmodule AsciinemaWeb.StreamStatusLive do
           <span class="status-line-item">
             <.eye_solid_icon /> {@viewer_count} watching
           </span>
-        <% {false, nil} -> %>
+        <% {:scheduled, starts_at, remaining} -> %>
+          <span class="status-line-item">
+            <.offline_icon />
+
+            <%= if remaining do %>
+              Starts in <time title={"At #{starts_at}"}>{remaining}</time>
+            <% else %>
+              Starts in a moment
+            <% end %>
+          </span>
+
+          <span class="status-line-item">
+            <.eye_solid_icon /> {@viewer_count} waiting
+          </span>
+        <% :not_started -> %>
           <span class="status-line-item">
             <.offline_icon /> Stream hasn't started
           </span>
-        <% {false, _} -> %>
+        <% {:ended, ended_at, elapsed} -> %>
           <span class="status-line-item">
             <.offline_icon /> Stream ended
+            <time :if={elapsed} title={"At #{ended_at}"}>{elapsed} ago</time>
           </span>
       <% end %>
     </div>
     """
+  end
+
+  defp status(live, last_started_at, last_ended_at, next_start_at, now) do
+    time_until_next_start = next_start_at && DateTime.diff(next_start_at, now)
+    time_since_last_start = last_started_at && DateTime.diff(now, last_started_at)
+    time_since_last_end = last_ended_at && DateTime.diff(now, last_ended_at)
+
+    cond do
+      live ->
+        {:live, last_started_at, format_duration(time_since_last_start)}
+
+      time_until_next_start &&
+          (time_since_last_end == nil || time_since_last_end > 3600 ||
+             time_until_next_start < 3600) ->
+        {:scheduled, next_start_at, format_duration(time_until_next_start)}
+
+      time_since_last_start ->
+        {:ended, last_ended_at, format_duration(time_since_last_end)}
+
+      true ->
+        :not_started
+    end
   end
 
   @impl true
@@ -52,21 +90,24 @@ defmodule AsciinemaWeb.StreamStatusLive do
       StreamServer.request_info(stream_id)
       ViewerTracker.subscribe(stream_id)
       Process.send_after(self(), :info_timeout, @info_timeout)
+      Process.send_after(self(), :update, @update_interval)
+      Process.send_after(self(), :reload_schedule, @schedule_reload_interval)
     end
 
     stream = Streaming.get_stream(stream_id)
 
     socket =
-      socket
-      |> assign(
+      assign(socket,
+        stream_id: stream.id,
         live: stream.live,
         confirmed: false,
-        started_at: stream.last_started_at,
-        duration: nil,
+        last_started_at: stream.last_started_at,
+        last_ended_at: if(!stream.live, do: stream.last_activity_at),
+        next_start_at: stream.next_start_at,
+        now: DateTime.utc_now(),
         viewer_count: stream.current_viewer_count,
         env_info_attrs: env_info_attrs(stream)
       )
-      |> update_duration()
 
     {:ok, socket}
   end
@@ -83,18 +124,14 @@ defmodule AsciinemaWeb.StreamStatusLive do
   def handle_info(%StreamServer.Update{event: e} = update, socket)
       when e in [:info, :reset] do
     %{time: time} = update.data
-    started_at = Timex.shift(Timex.now(), microseconds: -time)
-
-    socket =
-      socket
-      |> assign(live: true, started_at: started_at, confirmed: true)
-      |> update_duration()
+    last_started_at = Timex.shift(Timex.now(), microseconds: -time)
+    socket = assign(socket, live: true, last_started_at: last_started_at, confirmed: true)
 
     {:noreply, socket}
   end
 
   def handle_info(%StreamServer.Update{event: :end}, socket) do
-    {:noreply, assign(socket, live: false)}
+    {:noreply, assign(socket, live: false, last_ended_at: DateTime.utc_now())}
   end
 
   def handle_info(%StreamServer.Update{event: :metadata, data: stream}, socket) do
@@ -105,47 +142,33 @@ defmodule AsciinemaWeb.StreamStatusLive do
     {:noreply, assign(socket, :viewer_count, c)}
   end
 
-  def handle_info(:update_duration, socket) do
-    {:noreply, update_duration(socket)}
+  def handle_info(:update, socket) do
+    Process.send_after(self(), :update, @update_interval)
+
+    {:noreply, assign(socket, :now, DateTime.utc_now())}
+  end
+
+  def handle_info(:reload_schedule, socket) do
+    Process.send_after(self(), :reload_schedule, @schedule_reload_interval)
+    stream = Streaming.get_stream(socket.assigns.stream_id)
+
+    {:noreply, assign(socket, :next_start_at, stream && stream.next_start_at)}
   end
 
   defp env_info_attrs(stream),
     do: Map.take(stream, [:user_agent, :term_type, :term_version, :shell])
 
-  defp update_duration(socket) do
-    socket = assign(socket, :duration, format_duration(socket.assigns.started_at))
-
-    if connected?(socket) do
-      if timer = socket.assigns[:update_timer] do
-        Process.cancel_timer(timer)
-      end
-
-      timer = Process.send_after(self(), :update_duration, @duration_update_interval)
-
-      assign(socket, :update_timer, timer)
-    else
-      socket
-    end
-  end
-
   defp format_duration(nil), do: nil
 
-  defp format_duration(time) do
-    diff = Timex.diff(Timex.now(), time, :seconds)
-
-    if diff < 60 do
+  defp format_duration(duration) do
+    if duration < 60 do
       nil
     else
-      diff
+      (div(duration, 60) * 60)
       |> Timex.Duration.from_seconds()
       |> Timex.format_duration(:humanized)
       |> String.split(", ")
-      |> then(fn parts ->
-        case length(parts) do
-          l when l in [1, 2] -> Enum.take(parts, 1)
-          _ -> Enum.take(parts, 2)
-        end
-      end)
+      |> Enum.take(2)
       |> Enum.join(", ")
     end
   end

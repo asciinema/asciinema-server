@@ -79,9 +79,15 @@ defmodule AsciinemaWeb.RecordingSVG do
     """
   end
 
-  def thumbnail(assigns) do
+  def thumbnail_standalone(assigns) do
     ~H"""
     {raw("<?xml version=\"1.0\"?>")}
+    <.thumbnail asciicast={@asciicast} />
+    """
+  end
+
+  def thumbnail(assigns) do
+    ~H"""
     <.preview
       coords={coords(@asciicast, {80, 15})}
       cols={80}

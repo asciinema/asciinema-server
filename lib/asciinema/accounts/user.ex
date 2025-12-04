@@ -6,6 +6,7 @@ defmodule Asciinema.Accounts.User do
     field :temporary_username, :string
     field :email, :string
     field :name, :string
+    field :timezone, :string
     field :auth_token, :string
     field :term_theme_name, :string
     field :term_theme_prefer_original, :boolean, default: true

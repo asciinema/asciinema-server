@@ -7,7 +7,7 @@
         <.label for={f[:visibility]}>
           Visibility
         </.label>
-        <div class="visibility-radios">
+        <div class="radios visibility-radios">
           <div class="form-option">
             <input
               type="radio"
@@ -59,7 +59,7 @@
       <div class={["form-field", error_class(f, :title)]}>
         <.label for={f[:title]}>Title</.label>
         <div>
-          <.input field={f[:title]} autofocus={true} />
+          <.input field={f[:title]} />
           <.error field={f[:title]} />
         </div>
       </div>
@@ -71,7 +71,7 @@
         <div>
           <.input field={f[:description]} type="textarea" rows={10} />
           <.error field={f[:description]} />
-          <small class="form-hint text-muted">Parsed as Markdown.</small>
+          <small class="form-hint text-muted">Rendered as Markdown.</small>
         </div>
       </div>
 

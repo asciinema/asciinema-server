@@ -36,6 +36,29 @@
       </div>
     </.form>
 
+    <.form :let={f} for={@changeset} action={~p"/user"} id="tz-form" novalidate="novalidate">
+      <div class={["form-field", error_class(f, :timezone)]}>
+        <.label for={f[:timezone]}>Time zone</.label>
+        <div>
+          <.input
+            field={f[:timezone]}
+            type="select"
+            options={@timezones}
+            prompt="Select your time zone"
+          />
+          <small class="form-hint text-muted">
+            Used for scheduling your live streams.
+          </small>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <div class="form-actions-buttons">
+          <.button type="submit" class="btn btn-primary">Update</.button>
+        </div>
+      </div>
+    </.form>
+
     <.form :let={f} for={@changeset} action={~p"/user"} id="profile-form" novalidate="novalidate">
       <legend>Profile</legend>
 
@@ -79,7 +102,7 @@
         <.label for={f[:default_recording_visibility]}>
           Recording visibility
         </.label>
-        <div class="visibility-radios">
+        <div class="radios visibility-radios">
           <div class="form-option">
             <input
               type="radio"
@@ -135,7 +158,7 @@
         <.label for={f[:default_stream_visibility]}>
           Stream visibility
         </.label>
-        <div class="visibility-radios">
+        <div class="radios visibility-radios">
           <div class="form-option">
             <input
               type="radio"

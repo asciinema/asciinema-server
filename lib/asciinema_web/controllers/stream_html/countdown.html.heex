@@ -1,0 +1,13 @@
+<div class="countdown">
+  <%= case @status do %>
+    <% :live -> %>
+      <div class="label">Stream started</div>
+    <% :ended -> %>
+      <div class="label">Stream ended</div>
+    <% {:waiting, nil} -> %>
+      <div class="label">Waiting for the host...</div>
+    <% {:waiting, remaining} -> %>
+      <div class="label">Starts in:</div>
+      <div class="counter">{remaining}</div>
+  <% end %>
+</div>

@@ -85,7 +85,8 @@ div.asciicast-card {
     font-family: var(--font-family-mono);
     overflow: hidden;
     padding: 0;
-    background-color: #000;
+    background-color: var(--term-color-background);
+    border-right: 1ch solid var(--term-color-background);
     border-radius: 3px;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
@@ -98,6 +99,28 @@ div.asciicast-card {
     /* keep intrinsic width so overflow + border-right look correct */
     max-width: none;
     height: auto;
+  }
+
+  .thumbnail .countdown {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    div {
+      font-size: var(--font-size-xl);
+      padding: 1rem 1.5rem;
+    }
+
+    .label {
+      color: var(--term-color-foreground);
+    }
+
+    .counter {
+      color: var(--term-color-background);
+      background-color: var(--term-color-foreground);
+    }
   }
 
   .info {

@@ -375,9 +375,9 @@ defmodule Asciinema.Recordings do
   def delete_asciicasts(%Ecto.Query{} = query) do
     asciicasts = Repo.all(query)
 
-    for a <- asciicasts do
+    Enum.each(asciicasts, fn a ->
       {:ok, _} = delete_asciicast(a)
-    end
+    end)
 
     length(asciicasts)
   end

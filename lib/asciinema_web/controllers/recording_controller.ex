@@ -134,7 +134,7 @@ defmodule AsciinemaWeb.RecordingController do
     else
       variant =
         case conn.params["f"] do
-          "t" -> :thumbnail
+          "t" -> :thumbnail_standalone
           _ -> :show
         end
 

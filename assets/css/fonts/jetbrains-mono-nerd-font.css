@@ -4,9 +4,8 @@
 
 @font-face {
     font-family: "JetBrainsMono Nerd Font";
-    src:    local(JetBrains Mono Regular Nerd Font Complete Mono),
-            local(JetBrains Mono Regular Nerd Font Complete),
-            url("/fonts/JetBrains Mono Regular Nerd Font Complete Mono.ttf") format("truetype");
+    src:    local(JetBrainsMonoNerdFontMono-Regular),
+            url("/fonts/JetBrainsMonoNerdFontMono-Regular.woff2") format("woff2");
     font-stretch: normal;
     font-style: normal;
     font-weight: 400;
@@ -14,9 +13,8 @@
 
 @font-face {
     font-family: "JetBrainsMono Nerd Font";
-    src:    local(JetBrains Mono Bold Nerd Font Complete Mono),
-            local(JetBrains Mono Bold Nerd Font Complete),
-            url("/fonts/JetBrains Mono Bold Nerd Font Complete Mono.ttf") format("truetype");
+    src:    local(JetBrainsMonoNerdFontMono-Bold),
+            url("/fonts/JetBrainsMonoNerdFontMono-Bold.woff2") format("woff2");
     font-stretch: normal;
     font-style: normal;
     font-weight: 700;
@@ -24,9 +22,8 @@
 
 @font-face {
     font-family: "JetBrainsMono Nerd Font";
-    src:    local(JetBrains Mono Italic Nerd Font Complete Mono),
-            local(JetBrains Mono Italic Nerd Font Complete),
-            url("/fonts/JetBrains Mono Italic Nerd Font Complete Mono.ttf") format("truetype");
+    src:    local(JetBrainsMonoNerdFontMono-Italic),
+            url("/fonts/JetBrainsMonoNerdFontMono-Italic.woff2") format("woff2");
     font-stretch: normal;
     font-style: italic;
     font-weight: 400;
@@ -34,9 +31,8 @@
 
 @font-face {
     font-family: "JetBrainsMono Nerd Font";
-    src:    local(JetBrains Mono Bold Italic Nerd Font Complete Mono),
-            local(JetBrains Mono Bold Italic Nerd Font Complete),
-            url("/fonts/JetBrains Mono Bold Italic Nerd Font Complete Mono.ttf") format("truetype");
+    src:    local(JetBrainsMonoNerdFontMono-BoldItalic),
+            url("/fonts/JetBrainsMonoNerdFontMono-BoldItalic.woff2") format("woff2");
     font-stretch: normal;
     font-style: italic;
     font-weight: 700;

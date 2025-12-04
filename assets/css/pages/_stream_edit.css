@@ -1,0 +1,20 @@
+/* ==========================================================================
+ * Stream settings page.
+ * ========================================================================== */
+
+.c-stream.a-edit, .c-stream.a-update {
+  .schedule-input {
+    position: relative;
+
+    a {
+      position: absolute;
+      top: 50%;
+      right: 1rem;
+      transform: translateY(-50%);
+    }
+  }
+
+  .schedule-preview {
+    margin: var(--space-1) 0;
+  }
+}

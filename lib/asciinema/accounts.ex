@@ -105,6 +105,7 @@ defmodule Asciinema.Accounts do
     |> cast(params, [
       :name,
       :username,
+      :timezone,
       :term_theme_name,
       :term_theme_prefer_original,
       :term_font_family,
@@ -114,6 +115,7 @@ defmodule Asciinema.Accounts do
     ])
     |> validate_required([:username])
     |> validate_username()
+    |> validate_inclusion(:timezone, Tzdata.canonical_zone_list())
     |> validate_inclusion(:term_theme_name, Themes.terminal_themes())
     |> validate_inclusion(:term_font_family, Fonts.terminal_font_families())
     |> add_contraints()
@@ -175,7 +177,7 @@ defmodule Asciinema.Accounts do
 
   def sign_up_enabled?, do: config(:sign_up_enabled?, true)
 
-  def generate_login_token(identifier, opts \\ []) do
+  def initiate_login(identifier, opts \\ []) do
     sign_up_enabled? = Keyword.get(opts, :register, sign_up_enabled?())
 
     case {lookup_user(identifier), sign_up_enabled?} do
@@ -183,7 +185,7 @@ defmodule Asciinema.Accounts do
         {:error, :email_missing}
 
       {{_, %User{} = user}, _} ->
-        {:ok, {:login, login_token(user), user.email}}
+        {:ok, {:login, generate_login_token(user), user.email}}
 
       {{:email, nil}, true} ->
         changeset =
@@ -196,7 +198,7 @@ defmodule Asciinema.Accounts do
         else
           email = changeset.changes.email
 
-          {:ok, {:sign_up, sign_up_token(email), email}}
+          {:ok, {:sign_up, generate_sign_up_token(email), email}}
         end
 
       {{_, nil}, _} ->
@@ -212,44 +214,37 @@ defmodule Asciinema.Accounts do
     end
   end
 
-  def sign_up_token(email) do
+  def generate_sign_up_token(email) do
     Token.sign(config(:secret), "sign_up", email)
   end
 
-  def login_token(%User{id: id, last_login_at: last_login_at}) do
+  def generate_login_token(%User{id: id, last_login_at: last_login_at}) do
     last_login_at = last_login_at && Timex.to_unix(last_login_at)
     Token.sign(config(:secret), "login", {id, last_login_at})
   end
 
-  def verify_sign_up_token(token) do
-    result =
-      Token.verify(
-        config(:secret),
-        "sign_up",
-        token,
-        max_age: config(:login_token_max_age, 60) * 60
-      )
-
-    case result do
-      {:ok, email} -> {:ok, email}
+  def confirm_sign_up(token, timezone \\ nil) do
+    with {:ok, email} <- verify_sign_up_token(token),
+         {:ok, user} <- create_user(%{email: email}, :user) do
+      {:ok, set_timezone(user, timezone)}
+    else
       {:error, :invalid} -> {:error, :token_invalid}
+      {:error, %Ecto.Changeset{errors: [{:email, _}]}} -> {:error, :email_taken}
       {:error, _} -> {:error, :token_expired}
     end
   end
 
-  def verify_login_token(token) do
-    result =
-      Token.verify(
-        config(:secret),
-        "login",
-        token,
-        max_age: config(:login_token_max_age, 60) * 60
-      )
+  def verify_sign_up_token(token) do
+    Token.verify(config(:secret), "sign_up", token,
+      max_age: config(:login_token_max_age, 60) * 60
+    )
+  end
 
-    with {:ok, {user_id, last_login_at}} <- result,
+  def confirm_login(token, timezone \\ nil) do
+    with {:ok, {user_id, last_login_at}} <- verify_login_token(token),
          %User{} = user <- Repo.get(User, user_id),
          ^last_login_at <- user.last_login_at && Timex.to_unix(user.last_login_at) do
-      {:ok, user}
+      {:ok, set_timezone(user, timezone)}
     else
       {:error, :invalid} ->
         {:error, :token_invalid}
@@ -260,6 +255,26 @@ defmodule Asciinema.Accounts do
       _ ->
         {:error, :token_expired}
     end
+  end
+
+  defp set_timezone(%User{timezone: nil} = user, timezone) do
+    import Ecto.Changeset
+
+    changeset =
+      user
+      |> cast(%{timezone: timezone}, [:timezone])
+      |> validate_inclusion(:timezone, Tzdata.canonical_zone_list())
+
+    case Repo.update(changeset) do
+      {:ok, user} -> user
+      {:error, _} -> user
+    end
+  end
+
+  defp set_timezone(user, _timezone), do: user
+
+  def verify_login_token(token) do
+    Token.verify(config(:secret), "login", token, max_age: config(:login_token_max_age, 60) * 60)
   end
 
   def initiate_email_change(user, email) do
@@ -279,7 +294,8 @@ defmodule Asciinema.Accounts do
         Repo.transact(fn ->
           case Repo.update(changeset) do
             {:ok, user} ->
-              token = Token.sign(config(:secret), "email-change", {user.id, email})
+              token = generate_email_change_token(user, user.email)
+
               {:error, {:ok, {:pending, {user.email, token}}}}
 
             {:error, %Changeset{errors: [{:email, {_, [{:validation, :format}]}}]}} ->
@@ -294,8 +310,12 @@ defmodule Asciinema.Accounts do
     end
   end
 
-  def finalize_email_change(user, token) do
-    case Token.verify(config(:secret), "email-change", token, max_age: 3600) do
+  def generate_email_change_token(user, email) do
+    Token.sign(config(:secret), "email-change", {user.id, email})
+  end
+
+  def confirm_email_change(user, token) do
+    case verify_email_change_token(token) do
       {:ok, {user_id, email}} ->
         if user.id == user_id do
           result =
@@ -317,15 +337,27 @@ defmodule Asciinema.Accounts do
     end
   end
 
+  def verify_email_change_token(token) do
+    Token.verify(config(:secret), "email-change", token, max_age: 3600)
+  end
+
+  def initiate_account_deletion(user), do: generate_deletion_token(user)
+
   def generate_deletion_token(%User{id: user_id}) do
     Token.sign(config(:secret), "acct-delete", user_id)
   end
 
-  def verify_deletion_token(token) do
-    case Token.verify(config(:secret), "acct-delete", token, max_age: 3600) do
-      {:ok, user_id} -> {:ok, user_id}
-      {:error, _} -> {:error, :token_invalid}
+  def confirm_account_deletion(token) do
+    with {:ok, user_id} <- verify_deletion_token(token),
+         %User{} = user <- Repo.get(User, user_id) do
+      {:ok, user}
+    else
+      _ -> {:error, :token_invalid}
     end
+  end
+
+  def verify_deletion_token(token) do
+    Token.verify(config(:secret), "acct-delete", token, max_age: 3600)
   end
 
   @uuid4 ~r/\A[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}\z/
