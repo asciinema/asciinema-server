@@ -4,9 +4,8 @@
 
 @font-face {
     font-family: "FiraCode Nerd Font";
-    src:    local(Fira Code Regular Nerd Font Complete Mono),
-            local(Fira Code Regular Nerd Font Complete),
-            url("/fonts/Fira Code Regular Nerd Font Complete Mono.ttf") format("truetype");
+    src:    local(FiraCodeNerdFontMono-Regular),
+            url("/fonts/FiraCodeNerdFontMono-Regular.woff2") format("woff2");
     font-stretch: normal;
     font-style: normal;
     font-weight: 400;
@@ -14,9 +13,8 @@
 
 @font-face {
     font-family: "FiraCode Nerd Font";
-    src:    local(Fira Code Bold Nerd Font Complete Mono),
-            local(Fira Code Bold Nerd Font Complete),
-            url("/fonts/Fira Code Bold Nerd Font Complete Mono.ttf") format("truetype");
+    src:    local(FiraCodeNerdFontMono-Bold),
+            url("/fonts/FiraCodeNerdFontMono-Bold.woff2") format("woff2");
     font-stretch: normal;
     font-style: normal;
     font-weight: 700;
