@@ -66,6 +66,7 @@ defmodule AsciinemaWeb.SchedulePreviewLive do
       {:ok, dts}
     end
   rescue
+    # NOTE this may not be needed after upgrading crontab to >1.2.0
     [RuntimeError, CaseClauseError] -> {:error, "Invalid expression"}
   end
 

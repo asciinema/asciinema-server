@@ -252,6 +252,7 @@ defmodule Asciinema.Streaming do
 
         []
       rescue
+        # NOTE this may not be needed after upgrading crontab to >1.2.0
         RuntimeError ->
           [schedule: {"Invalid expression", []}]
       end
