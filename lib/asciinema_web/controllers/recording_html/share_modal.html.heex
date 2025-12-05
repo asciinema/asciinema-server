@@ -8,71 +8,57 @@
     </div>
 
     <div class="modal-body">
+      <.code_with_copy>{url(~p"/a/#{@asciicast}")}</.code_with_copy>
+
       <p>
-        <input
-          data-behavior="auto-select"
-          readonly=""
-          value={url(~p"/a/#{@asciicast}")}
-          type="text"
-        />
+        Append <code>?t=30 </code>to start the playback at 30s, <code>?t=3:20 </code>to start the playback at 3m 20s.
       </p>
 
       <p>
-        <span>
-          Append <code>?t=30 </code>to start the playback at 30s, <code>?t=3:20 </code>to start the playback at 3m 20s.
-        </span>
+        See <a href="https://docs.asciinema.org/manual/server/sharing/">sharing docs</a>
+        for more link customization options.
       </p>
 
       <h2>Embed as image link</h2>
 
       <p>
-        Use snippets below to display a screenshot linking to this recording.<br />
-        Useful in places where scripts are not allowed (e.g. in a project's README file).
+        Use snippets below to display a preview image linking to this recording.<br />
+        Ideal for places where scripts are not allowed, such as project README files.
       </p>
 
       <p>
         <span>HTML:</span>
         <br />
-        <input
-          data-behavior="auto-select"
-          readonly=""
-          value={"<a href=\"" <> url(~p"/a/#{@asciicast}") <> "\" target=\"_blank\"><img src=\"" <> url(~p"/a/#{@asciicast}") <> ".svg\" /></a>"}
-          type="text"
-        />
       </p>
+
+      <.code_with_copy>
+        {"<a href=\"" <>
+          url(~p"/a/#{@asciicast}") <>
+          "\" target=\"_blank\"><img src=\"" <> url(~p"/a/#{@asciicast}") <> ".svg\" /></a>"}
+      </.code_with_copy>
 
       <p>
         <span>Markdown:</span>
         <br />
-        <input
-          data-behavior="auto-select"
-          readonly=""
-          value={"[![asciicast](" <> url(~p"/a/#{@asciicast}") <> ".svg)](" <> url(~p"/a/#{@asciicast}") <> ")"}
-          type="text"
-        />
       </p>
+
+      <.code_with_copy>
+        {"[![asciicast](" <>
+          url(~p"/a/#{@asciicast}") <> ".svg)](" <> url(~p"/a/#{@asciicast}") <> ")"}
+      </.code_with_copy>
 
       <h2>Embed the player</h2>
 
       <p>If you're embedding on your own page or on a site which permits script tags,
         you can use the full player widget:</p>
 
-      <p>
-        <input
-          data-behavior="auto-select"
-          readonly=""
-          value={safe_to_string(embed_script(@asciicast))}
-          type="text"
-        />
-      </p>
+      <.code_with_copy>{safe_to_string(embed_script(@asciicast))}</.code_with_copy>
 
       <p>Paste the above script tag where you want the player to be displayed on your page.</p>
 
-      <hr />
-
       <p>
         See <a href="https://docs.asciinema.org/manual/server/embedding/">embedding docs</a>
-        for additional options.
+        for more player customization options.
       </p>
     </div>
   </div>

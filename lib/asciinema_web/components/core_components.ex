@@ -104,6 +104,21 @@ defmodule AsciinemaWeb.CoreComponents do
     """
   end
 
+  attr :class, :string, default: nil
+  slot :inner_block, required: true
+
+  def code_with_copy(assigns) do
+    ~H"""
+    <div class={["code-with-copy", @class]}>
+      <pre><code>{trim_code(render_slot(@inner_block))}</code></pre>
+      <a href="#" aria-label="Copy to clipboard" title="Copy to clipboard">
+        <AsciinemaWeb.Icons.copy_icon />
+      </a>
+      <span class="copy-notice text-success">Copied!</span>
+    </div>
+    """
+  end
+
   attr :field, Phoenix.HTML.FormField, required: true
 
   def error(assigns) do
@@ -112,6 +127,14 @@ defmodule AsciinemaWeb.CoreComponents do
     ~H"""
     <small :if={@error} class="status text-danger">{translate_error(@error)}</small>
     """
+  end
+
+  defp trim_code(content) do
+    content
+    |> Phoenix.HTML.Safe.to_iodata()
+    |> IO.iodata_to_binary()
+    |> String.trim()
+    |> Phoenix.HTML.raw()
   end
 end
 

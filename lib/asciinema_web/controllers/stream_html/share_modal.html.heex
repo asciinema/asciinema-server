@@ -8,9 +8,7 @@
     </div>
 
     <div class="modal-body">
-      <p>
-        <input data-behavior="auto-select" readonly="" value={url(~p"/s/#{@stream}")} type="text" />
-      </p>
+      <.code_with_copy>{url(~p"/s/#{@stream}")}</.code_with_copy>
     </div>
   </div>
 </dialog>

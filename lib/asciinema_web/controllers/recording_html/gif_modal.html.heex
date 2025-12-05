@@ -18,16 +18,16 @@
           (<code>.cast</code> file), then generate a GIF with the following
           command:</p>
 
-        <pre><code>agg demo.cast demo.gif</code></pre>
+        <.code_with_copy>agg demo.cast demo.gif</.code_with_copy>
       <% else %>
         <p>Once you have it installed, generate a GIF with the following
           command:</p>
 
-        <pre><code>agg <%= url(~p"/a/#{@asciicast}") %> demo.gif</code></pre>
+        <.code_with_copy>agg {url(~p"/a/#{@asciicast}")} demo.gif</.code_with_copy>
 
         <p>Or, if you already downloaded the recording file:</p>
 
-        <pre><code>agg demo.cast demo.gif</code></pre>
+        <.code_with_copy>agg demo.cast demo.gif</.code_with_copy>
       <% end %>
 
       <p>Check <code>agg --help</code> for all available options. You can change font

@@ -88,12 +88,9 @@
   <div class="container">
     <h2>How to stream</h2>
 
-    <.input
-      name="rec-cmd-asciinema-streamer"
-      data-behavior="auto-select"
-      readonly
-      value={"asciinema stream -r #{short_public_token(@stream)}"}
-    />
+    <.code_with_copy class="w-50">
+      asciinema stream -r {short_public_token(@stream)}
+    </.code_with_copy>
 
     <small class="text-muted">
       You need
@@ -104,12 +101,8 @@
     </small>
 
     <h2>Stream URL</h2>
-    <.input
-      name="consumer-url"
-      data-behavior="auto-select"
-      readonly
-      value={url(~p"/s/#{@stream}")}
-    />
+
+    <.code_with_copy class="w-50">{url(~p"/s/#{@stream}")}</.code_with_copy>
 
     <small class="text-muted">This is your unique stream URL. Share this
       freely with your viewers.</small>

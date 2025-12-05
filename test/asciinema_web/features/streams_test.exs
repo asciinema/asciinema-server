@@ -11,7 +11,7 @@ defmodule AsciinemaWeb.Features.StreamsTest do
       |> assert_has("#cinema")
       |> assert_has(".icon-offline")
       |> assert_has("h2", text: "Public Stream")
-      |> refute_has("input[value*='asciinema stream -r']")
+      |> refute_has("pre", text: "asciinema stream -r")
       |> refute_has(".dropdown-item", text: "Settings")
       |> refute_has(".dropdown-item", text: "Delete")
     end
@@ -25,7 +25,7 @@ defmodule AsciinemaWeb.Features.StreamsTest do
       |> assert_has("#cinema")
       |> assert_has(".icon-offline")
       |> assert_has("h2", text: "Unlisted Stream")
-      |> refute_has("input[value*='asciinema stream -r']")
+      |> refute_has("pre", text: "asciinema stream -r")
       |> refute_has(".dropdown-item", text: "Settings")
       |> refute_has(".dropdown-item", text: "Delete")
     end
@@ -68,7 +68,7 @@ defmodule AsciinemaWeb.Features.StreamsTest do
       |> assert_has("#cinema")
       |> assert_has(".icon-offline")
       |> assert_has("h2", text: "Public Stream")
-      |> refute_has("input[value*='asciinema stream -r']")
+      |> refute_has("pre", text: "asciinema stream -r")
       |> refute_has(".dropdown-item", text: "Delete")
     end
 
@@ -83,7 +83,7 @@ defmodule AsciinemaWeb.Features.StreamsTest do
       |> assert_has("#cinema")
       |> assert_has(".icon-offline")
       |> assert_has("h2", text: "Unlisted Stream")
-      |> refute_has("input[value*='asciinema stream -r']")
+      |> refute_has("pre", text: "asciinema stream -r")
       |> refute_has(".dropdown-item", text: "Delete")
     end
 
@@ -108,7 +108,7 @@ defmodule AsciinemaWeb.Features.StreamsTest do
       |> assert_has("#cinema")
       |> assert_has(".icon-offline")
       |> assert_has("h2", text: "My Stream")
-      |> assert_has("input[value*='asciinema stream -r']")
+      |> assert_has("pre", text: "asciinema stream -r")
       |> assert_has(".dropdown-item", text: "Settings")
       |> assert_has(".dropdown-item", text: "Delete")
     end
@@ -123,7 +123,7 @@ defmodule AsciinemaWeb.Features.StreamsTest do
       |> assert_has("#cinema")
       |> assert_has(".icon-offline")
       |> assert_has("h2", text: "My Stream")
-      |> assert_has("input[value*='asciinema stream -r']")
+      |> assert_has("pre", text: "asciinema stream -r")
       |> assert_has(".dropdown-item", text: "Settings")
       |> assert_has(".dropdown-item", text: "Delete")
     end
@@ -138,7 +138,7 @@ defmodule AsciinemaWeb.Features.StreamsTest do
       |> assert_has("#cinema")
       |> assert_has(".icon-offline")
       |> assert_has("h2", text: "Private Stream")
-      |> assert_has("input[value*='asciinema stream -r']")
+      |> assert_has("pre", text: "asciinema stream -r")
       |> assert_has(".dropdown-item", text: "Settings")
       |> assert_has(".dropdown-item", text: "Delete")
     end
