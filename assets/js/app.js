@@ -54,6 +54,58 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // Copy-to-clipboard handler for code blocks
+  document.querySelectorAll(".code-with-copy").forEach(container => {
+    const link = container.querySelector("a");
+    const code = container.querySelector("code");
+    const notice = container.querySelector(".copy-notice");
+    let resetTimer;
+
+    if (!(link && code && notice)) return;
+
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+
+      copyText(code.innerText)
+        .then(() => {
+          container.classList.add("copied");
+
+          clearTimeout(resetTimer);
+          resetTimer = setTimeout(() => {
+            container.classList.remove("copied");
+          }, 2000);
+        })
+        .catch(() => {});
+    });
+  });
+
+  const copyText = (text) => {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text).catch(() => fallbackCopyText(text));
+    }
+
+    return fallbackCopyText(text);
+  };
+
+  const fallbackCopyText = (text) => new Promise((resolve, reject) => {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.setAttribute('readonly', '');
+    textarea.style.position = 'absolute';
+    textarea.style.left = '-9999px';
+    document.body.appendChild(textarea);
+    textarea.select();
+
+    try {
+      document.execCommand('copy');
+      resolve();
+    } catch (err) {
+      reject(err);
+    } finally {
+      textarea.remove();
+    }
+  });
+
   // Flash message close buttons
   document.querySelectorAll('#flash-notice button[data-behavior=close], #flash-alert button[data-behavior=close]').forEach(button => {
     button.addEventListener('click', (e) => {
