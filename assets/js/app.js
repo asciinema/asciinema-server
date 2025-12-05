@@ -75,13 +75,19 @@ document.addEventListener('DOMContentLoaded', () => {
             container.classList.remove("copied");
           }, 2000);
         })
-        .catch(() => {});
+        .catch((err) => {
+          // Surface copy failures to help diagnose blocked clipboard APIs.
+          console.error('Copy to clipboard failed', err);
+        });
     });
   });
 
   const copyText = (text) => {
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      return navigator.clipboard.writeText(text).catch(() => fallbackCopyText(text));
+      return navigator.clipboard.writeText(text).catch((err) => {
+        console.warn('navigator.clipboard.writeText failed, falling back', err);
+        return fallbackCopyText(text);
+      });
     }
 
     return fallbackCopyText(text);
@@ -97,8 +103,11 @@ document.addEventListener('DOMContentLoaded', () => {
     textarea.select();
 
     try {
-      document.execCommand('copy');
-      resolve();
+      if (document.execCommand('copy')) {
+        resolve();
+      } else {
+        reject(new Error('copy command returned false'));
+      }
     } catch (err) {
       reject(err);
     } finally {
