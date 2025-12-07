@@ -133,7 +133,7 @@ defmodule AsciinemaWeb.StreamProducerSocket do
     Logger.info("producer/#{stream_id}: terminating (#{inspect(reason)})")
     Logger.debug("producer/#{stream_id}: state: #{inspect(state)}")
 
-    if reason == :remote || match?({:remote, _, _}, reason) do
+    if reason == :remote || match?({:remote, 1000, _}, reason) do
       StreamServer.stop(state.stream_id)
     end
 
