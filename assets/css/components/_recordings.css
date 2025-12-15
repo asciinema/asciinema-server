@@ -102,6 +102,10 @@ div.asciicast-card {
     height: auto;
   }
 
+  .thumbnail object {
+    pointer-events: none;
+  }
+
   .thumbnail .countdown {
     position: absolute;
     inset: 0;
