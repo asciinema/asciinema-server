@@ -4,6 +4,7 @@ defmodule AsciinemaWeb.RecordingSVG do
   import Phoenix.HTML
   alias Asciinema.{Colors, Media, Themes}
   alias Asciinema.Recordings.Snapshot
+  alias AsciinemaWeb.Router.Helpers, as: Routes
 
   embed_templates "recording_svg/*"
 
@@ -65,7 +66,6 @@ defmodule AsciinemaWeb.RecordingSVG do
 
   def show(assigns) do
     ~H"""
-    {raw("<?xml version=\"1.0\"?>")}
     <.preview
       coords={coords(@asciicast, nil)}
       cols={term_cols(@asciicast)}
@@ -75,16 +75,19 @@ defmodule AsciinemaWeb.RecordingSVG do
       rx={assigns[:rx]}
       ry={assigns[:ry]}
       logo={true}
+      standalone={true}
     />
     """
   end
 
   def thumbnail_standalone(assigns) do
     ~H"""
-    {raw("<?xml version=\"1.0\"?>")}
-    <.thumbnail asciicast={@asciicast} />
+    <.thumbnail asciicast={@asciicast} standalone={true} />
     """
   end
+
+  attr :asciicast, :any, required: true
+  attr :standalone, :boolean, default: false
 
   def thumbnail(assigns) do
     ~H"""
@@ -97,6 +100,7 @@ defmodule AsciinemaWeb.RecordingSVG do
       rx={0}
       ry={0}
       logo={false}
+      standalone={@standalone}
     />
     """
   end
