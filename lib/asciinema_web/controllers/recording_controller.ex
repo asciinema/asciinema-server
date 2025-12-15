@@ -141,6 +141,7 @@ defmodule AsciinemaWeb.RecordingController do
       conn
       |> put_resp_header("cache-control", "public, max-age=#{@svg_max_age}, must-revalidate")
       |> put_etag(RecordingHTML.svg_cache_key(asciicast))
+      |> put_resp_header("access-control-allow-origin", "*")
       |> render(variant, asciicast: asciicast)
     end
   end

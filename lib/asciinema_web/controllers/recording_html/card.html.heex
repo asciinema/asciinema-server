@@ -8,7 +8,11 @@
   inserted_at={if !assigns[:no_created_at], do: @asciicast.inserted_at}
 >
   <:preview>
-    <img src={~p"/a/#{@asciicast}" <> ".svg?f=t&v=#{svg_cache_key(@asciicast)}"} />
+    <object
+      type="image/svg+xml"
+      data={~p"/a/#{@asciicast}" <> ".svg?f=t&v=#{svg_cache_key(@asciicast)}"}
+    >
+    </object>
   </:preview>
 
   <:duration>

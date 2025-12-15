@@ -93,7 +93,8 @@ div.asciicast-card {
   }
 
   .thumbnail img,
-  .thumbnail svg {
+  .thumbnail svg,
+  .thumbnail object {
     display: block;
     width: auto;
     /* keep intrinsic width so overflow + border-right look correct */

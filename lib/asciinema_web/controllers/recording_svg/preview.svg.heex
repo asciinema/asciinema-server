@@ -1,3 +1,4 @@
+{if @standalone, do: raw("<?xml version=\"1.0\"?>")}
 <svg
   xmlns="http://www.w3.org/2000/svg"
   xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -6,7 +7,7 @@
   font-family={
     {:safe,
      @font_family ||
-       "Consolas, Menlo, 'Bitstream Vera Sans Mono', monospace, 'Powerline Symbols'"}
+       "ui-monospace,'Cascadia Code','Source Code Pro',Menlo,Consolas,'DejaVu Sans Mono',monospace,'Symbols Nerd Font'"}
   }
   font-size={"#{font_size()}px"}
 >
@@ -15,6 +16,13 @@
     .fa { fill-opacity: 0.5 }
     .it { font-style: italic }
     .un { text-decoration: underline }
+
+    <%= if @standalone do %>
+    @font-face {
+      font-family: "Symbols Nerd Font";
+      src: url("<%= Routes.static_url(AsciinemaWeb.Endpoint, "/fonts/SymbolsNerdFont-Regular.woff2") %>") format("woff2");
+    }
+    <% end %>
   </style>
 
   <rect
