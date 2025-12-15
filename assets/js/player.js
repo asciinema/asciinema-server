@@ -1,6 +1,6 @@
 import { create } from 'asciinema-player';
 
-const DEFAULT_FONT_FAMILY = 'ui-monospace,"Cascadia Code","Source Code Pro",Menlo,Consolas,"DejaVu Sans Mono",monospace,"Symbols Nerd Font"';
+const DEFAULT_FONT_FAMILY = '"Cascadia Code","Source Code Pro",Menlo,Consolas,"DejaVu Sans Mono",monospace,"Symbols Nerd Font"';
 
 export async function createPlayer(src, container, opts) {
   if (opts.customTerminalFontFamily) {
