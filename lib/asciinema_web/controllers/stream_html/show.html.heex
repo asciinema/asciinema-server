@@ -161,18 +161,17 @@
       { ...opts, fit: 'both', logger: console }
     );
 
-    function resizeCinema({ cols, rows }) {
-      container.style.height = window.cinemaHeight(cols, rows);
-    }
+    player.addEventListener('metadata', ({ size, theme }) => {
+      if (size !== undefined) {
+        container.style.height = window.cinemaHeight(size.cols, size.rows);
+      }
 
-    player.addEventListener('reset', resizeCinema);
-    player.addEventListener('resize', resizeCinema);
-
-    player.addEventListener('reset', () => {
-      const el = player.el.getElementsByClassName('ap-player')[0];
-      const style = window.getComputedStyle(el);
-      const color = style.getPropertyValue("--term-color-background");
-      container.style.setProperty('--term-color-background', color);
+      if (theme !== undefined) {
+        const el = player.el.getElementsByClassName('ap-player')[0];
+        const style = window.getComputedStyle(el);
+        const color = style.getPropertyValue("--term-color-background");
+        container.style.setProperty('--term-color-background', color);
+      }
     });
   });
 </script>
