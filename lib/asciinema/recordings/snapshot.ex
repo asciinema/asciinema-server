@@ -34,15 +34,26 @@ defmodule Asciinema.Recordings.Snapshot do
     |> regroup(mode)
   end
 
-  defp normalize_segment([t, a, w]), do: {t, normalize_colors(a), w}
-  defp normalize_segment({t, a, w}), do: {t, normalize_colors(a), w}
+  defp normalize_segment([t, a, w]), do: {t, a, w}
+  defp normalize_segment({t, a, w}), do: {t, a, w}
 
-  defp normalize_colors(attrs) do
+  def normalize_colors(snapshot, bold_is_bright) do
+    Map.update(snapshot, :lines, [], fn lines ->
+      Enum.map(lines, fn segments ->
+        Enum.map(segments, fn {t, a, w} ->
+          {t, do_normalize_colors(a, bold_is_bright), w}
+        end)
+      end)
+    end)
+  end
+
+  defp do_normalize_colors(attrs, true) do
     attrs
     |> adjust_fg()
-    |> adjust_bg()
     |> invert_colors()
   end
+
+  defp do_normalize_colors(attrs, false), do: invert_colors(attrs)
 
   defp adjust_fg(%{"bold" => true, "fg" => fg} = attrs)
        when is_integer(fg) and fg < 8 do
@@ -50,13 +61,6 @@ defmodule Asciinema.Recordings.Snapshot do
   end
 
   defp adjust_fg(attrs), do: attrs
-
-  defp adjust_bg(%{"blink" => true, "bg" => bg} = attrs)
-       when is_integer(bg) and bg < 8 do
-    Map.put(attrs, "bg", bg + 8)
-  end
-
-  defp adjust_bg(attrs), do: attrs
 
   @default_fg_code 7
   @default_bg_code 0

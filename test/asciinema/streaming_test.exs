@@ -6,7 +6,7 @@ defmodule Asciinema.StreamingTest do
 
   describe "create_stream/2" do
     test "default params" do
-      user = insert(:user, term_theme_prefer_original: false)
+      user = insert(:user, term_theme_prefer_original: false, term_bold_is_bright: false)
 
       assert {:ok, stream} = Streaming.create_stream(user)
 
@@ -17,14 +17,19 @@ defmodule Asciinema.StreamingTest do
                term_cols: nil,
                term_rows: nil,
                term_theme_prefer_original: false,
+               term_bold_is_bright: false,
                shell: nil,
                env: nil
              } = stream
 
-      user = insert(:user, term_theme_prefer_original: true)
+      user = insert(:user, term_theme_prefer_original: true, term_bold_is_bright: true)
 
       assert {:ok, stream} = Streaming.create_stream(user)
-      assert %Stream{term_theme_prefer_original: true} = stream
+
+      assert %Stream{
+               term_theme_prefer_original: true,
+               term_bold_is_bright: true
+             } = stream
     end
 
     test "visibility" do

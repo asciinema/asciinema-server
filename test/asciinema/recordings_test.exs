@@ -116,6 +116,7 @@ defmodule Asciinema.RecordingsTest do
         insert(:user,
           term_theme_name: nil,
           term_theme_prefer_original: false,
+          term_bold_is_bright: false,
           default_recording_visibility: :public
         )
 
@@ -125,6 +126,7 @@ defmodule Asciinema.RecordingsTest do
       assert %Asciicast{
                term_theme_name: nil,
                term_font_family: nil,
+               term_bold_is_bright: false,
                visibility: :public
              } = asciicast
 
@@ -132,6 +134,7 @@ defmodule Asciinema.RecordingsTest do
         insert(:user,
           term_theme_name: "dracula",
           term_theme_prefer_original: false,
+          term_bold_is_bright: true,
           default_recording_visibility: :private
         )
 
@@ -141,6 +144,7 @@ defmodule Asciinema.RecordingsTest do
       assert %Asciicast{
                term_theme_name: nil,
                term_theme_palette: "#" <> _,
+               term_bold_is_bright: true,
                visibility: :private
              } = asciicast
 

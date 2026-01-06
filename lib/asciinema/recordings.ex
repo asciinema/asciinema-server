@@ -187,7 +187,7 @@ defmodule Asciinema.Recordings do
       |> change(attrs)
 
     with {:ok, metadata} <- extract_metadata(upload),
-         changeset = apply_metadata(changeset, metadata, user.term_theme_prefer_original),
+         changeset = apply_metadata(changeset, metadata, user),
          {:ok, %Asciicast{} = asciicast} <- do_create_asciicast(changeset, upload) do
       if asciicast.snapshot == nil do
         %{asciicast_id: asciicast.id}
@@ -217,12 +217,14 @@ defmodule Asciinema.Recordings do
   @hex_color_re ~r/^#[0-9a-f]{6}$/
   @hex_palette_re ~r/^(#[0-9a-f]{6}:){7}((#[0-9a-f]{6}:){8})?#[0-9a-f]{6}$/
 
-  defp apply_metadata(changeset, metadata, prefer_original_theme) do
-    term_theme_name = if metadata[:term_theme_palette] && prefer_original_theme, do: "original"
+  defp apply_metadata(changeset, metadata, user) do
+    term_theme_name =
+      if metadata[:term_theme_palette] && user.term_theme_prefer_original, do: "original"
 
     changeset
     |> put_change(:version, metadata.version)
     |> put_change(:term_theme_name, term_theme_name)
+    |> put_change(:term_bold_is_bright, user.term_bold_is_bright)
     |> cast(metadata, [
       :duration,
       :term_cols,
@@ -302,6 +304,7 @@ defmodule Asciinema.Recordings do
       :term_cols_override,
       :term_rows_override,
       :term_theme_name,
+      :term_bold_is_bright,
       :term_line_height,
       :term_font_family,
       :idle_time_limit,
