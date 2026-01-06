@@ -6,7 +6,7 @@ defmodule Asciinema.StreamingTest do
 
   describe "create_stream/2" do
     test "default params" do
-      user = insert(:user)
+      user = insert(:user, term_theme_prefer_original: false)
 
       assert {:ok, stream} = Streaming.create_stream(user)
 
@@ -16,9 +16,15 @@ defmodule Asciinema.StreamingTest do
                term_version: nil,
                term_cols: nil,
                term_rows: nil,
+               term_theme_prefer_original: false,
                shell: nil,
                env: nil
              } = stream
+
+      user = insert(:user, term_theme_prefer_original: true)
+
+      assert {:ok, stream} = Streaming.create_stream(user)
+      assert %Stream{term_theme_prefer_original: true} = stream
     end
 
     test "visibility" do

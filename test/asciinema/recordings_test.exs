@@ -110,6 +110,56 @@ defmodule Asciinema.RecordingsTest do
 
       assert {:error, :invalid_format} = Recordings.create_asciicast(user, upload)
     end
+
+    test "default settings from user" do
+      user =
+        insert(:user,
+          term_theme_name: nil,
+          term_theme_prefer_original: false,
+          default_recording_visibility: :public
+        )
+
+      upload = fixture(:upload, %{path: "3/full.cast"})
+      {:ok, asciicast} = Recordings.create_asciicast(user, upload)
+
+      assert %Asciicast{
+               term_theme_name: nil,
+               term_font_family: nil,
+               visibility: :public
+             } = asciicast
+
+      user =
+        insert(:user,
+          term_theme_name: "dracula",
+          term_theme_prefer_original: false,
+          default_recording_visibility: :private
+        )
+
+      upload = fixture(:upload, %{path: "3/full.cast"})
+      {:ok, asciicast} = Recordings.create_asciicast(user, upload)
+
+      assert %Asciicast{
+               term_theme_name: nil,
+               term_theme_palette: "#" <> _,
+               visibility: :private
+             } = asciicast
+
+      user =
+        insert(:user,
+          term_theme_name: "dracula",
+          term_theme_prefer_original: true,
+          default_recording_visibility: :private
+        )
+
+      upload = fixture(:upload, %{path: "3/full.cast"})
+      {:ok, asciicast} = Recordings.create_asciicast(user, upload)
+
+      assert %Asciicast{
+               term_theme_name: "original",
+               term_theme_palette: "#" <> _,
+               visibility: :private
+             } = asciicast
+    end
   end
 
   describe "ensure_welcome_asciicast/1" do
