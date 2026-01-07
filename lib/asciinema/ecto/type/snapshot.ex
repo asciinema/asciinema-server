@@ -16,10 +16,13 @@ defmodule Asciinema.Ecto.Type.Snapshot do
   end
 
   def dump(%Snapshot{} = value) do
-    value
-    |> Snapshot.regroup(:cells)
-    |> Snapshot.regroup(:segments, split_specials: false)
-    |> Snapshot.unwrap()
-    |> Jason.encode()
+    lines =
+      for segments <- Snapshot.to_segments(value) do
+        for segment <- segments do
+          Tuple.to_list(segment)
+        end
+      end
+
+    Jason.encode(lines)
   end
 end

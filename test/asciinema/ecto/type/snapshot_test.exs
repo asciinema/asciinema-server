@@ -20,7 +20,7 @@ defmodule Asciinema.Ecto.Type.SnapshotTest do
 
   describe "dump/1" do
     test "serializes Snapshot into JSON" do
-      snapshot = Snapshot.new(@lines)
+      snapshot = Snapshot.new(@lines, :segments)
       assert match?({:ok, "[" <> _}, EctoSnapshot.dump(snapshot))
     end
   end

@@ -107,13 +107,73 @@ defmodule AsciinemaWeb.RecordingSVG do
 
   defp coords(asciicast, crop_size) do
     snapshot = snapshot(asciicast, crop_size)
-    fg = Snapshot.fg_coords(snapshot)
+    segments = Snapshot.to_segments(snapshot, split_specials: true)
+    fg = fg_coords(segments)
 
     %{
-      bg: Snapshot.bg_coords(snapshot),
+      bg: bg_coords(segments),
       text: Enum.flat_map(fg, &keep_text/1),
       special_chars: Enum.flat_map(fg, &keep_special_chars/1)
     }
+  end
+
+  def fg_coords(lines) do
+    lines
+    |> Enum.with_index()
+    |> Enum.map(&text_line_coords/1)
+    |> Enum.filter(&(length(&1.segments) > 0))
+  end
+
+  defp text_line_coords({segments, y}) do
+    {_, segments} =
+      segments
+      |> Enum.flat_map(&split_on_whitespace/1)
+      |> Enum.reduce({0, []}, fn {text, attrs, char_width}, {x, segments} ->
+        width = String.length(text) * char_width
+
+        segments =
+          case text do
+            " " <> _ -> segments
+            _ -> [%{text: text, attrs: attrs, x: x, width: width} | segments]
+          end
+
+        {x + width, segments}
+      end)
+
+    %{y: y, segments: Enum.reverse(segments)}
+  end
+
+  defp split_on_whitespace({text, attrs, 1}) do
+    ~r/(^\s+)|\s{2,}/
+    |> Regex.split(text, include_captures: true)
+    |> Enum.filter(&(String.length(&1) > 0))
+    |> Enum.map(&{&1, attrs, 1})
+  end
+
+  defp split_on_whitespace(segment), do: [segment]
+
+  def bg_coords(lines) do
+    lines
+    |> Enum.with_index()
+    |> Enum.map(&bg_line_coords/1)
+    |> Enum.filter(&(length(&1.segments) > 0))
+  end
+
+  defp bg_line_coords({segments, y}) do
+    {_, segments} =
+      Enum.reduce(segments, {0, []}, fn {text, attrs, char_width}, {x, segments} ->
+        width = String.length(text) * char_width
+
+        segments =
+          case attrs["bg"] do
+            nil -> segments
+            _ -> [%{attrs: attrs, x: x, width: width} | segments]
+          end
+
+        {x + width, segments}
+      end)
+
+    %{y: y, segments: Enum.reverse(segments)}
   end
 
   defp keep_text(%{y: y, segments: segments}) do

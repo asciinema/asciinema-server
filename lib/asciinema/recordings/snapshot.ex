@@ -1,40 +1,39 @@
 defmodule Asciinema.Recordings.Snapshot do
-  @enforce_keys [:lines, :mode]
-  defstruct [:lines, :mode]
+  @enforce_keys [:lines]
+  defstruct [:lines]
 
-  def new(lines, mode \\ :segments)
+  def new(lines, input_mode \\ :cells) do
+    lines = Enum.map(lines, fn segments -> Enum.map(segments, &normalize_segment/1) end)
 
-  def new(lines, mode) do
-    lines = Enum.map(lines, fn segments -> Enum.map(segments, &coerce_segment/1) end)
+    lines =
+      case input_mode do
+        :cells -> lines
+        :segments -> segments_to_cells(lines)
+      end
 
-    %__MODULE__{lines: lines, mode: mode}
+    %__MODULE__{lines: lines}
   end
-
-  defp coerce_segment([t, a, w]), do: {t, a, w}
-  defp coerce_segment([t, a]), do: {t, a, 1}
-  defp coerce_segment({_, _, _} = s), do: s
 
   def build({lines, {col, row} = _cursor}, mode) do
     lines = Enum.map(lines, fn segments -> Enum.map(segments, &normalize_segment/1) end)
 
-    %__MODULE__{lines: lines, mode: mode}
-    |> regroup(:cells)
+    %__MODULE__{lines: lines}
+    |> segments_to_cells(mode)
     |> invert_cell(col, row)
     |> Map.get(:lines)
     |> Enum.map(fn segments -> Enum.map(segments, &normalize_segment/1) end)
-    |> then(fn lines -> %__MODULE__{lines: lines, mode: :cells} end)
-    |> regroup(mode)
+    |> new(:cells)
   end
 
   def build({lines, nil}, mode) do
     lines = Enum.map(lines, fn segments -> Enum.map(segments, &normalize_segment/1) end)
 
-    %__MODULE__{lines: lines, mode: mode}
-    |> regroup(:cells)
-    |> regroup(mode)
+    %__MODULE__{lines: lines}
+    |> segments_to_cells(mode)
   end
 
   defp normalize_segment([t, a, w]), do: {t, a, w}
+  defp normalize_segment([t, a]), do: {t, a, 1}
   defp normalize_segment({t, a, w}), do: {t, a, w}
 
   def normalize_colors(snapshot, bold_is_bright) do
@@ -76,24 +75,26 @@ defmodule Asciinema.Recordings.Snapshot do
 
   defp invert_colors(attrs), do: attrs
 
-  def regroup(snapshot, mode, opts \\ [])
+  def segments_to_cells(%__MODULE__{} = snapshot, :cells), do: snapshot
+  def segments_to_cells(%__MODULE__{} = snapshot, :segments), do: segments_to_cells(snapshot)
 
-  def regroup(%__MODULE__{mode: mode} = snapshot, mode, _opts), do: snapshot
-
-  def regroup(%__MODULE__{lines: lines}, :cells, _opts) do
-    lines =
-      Enum.map(lines, fn line ->
-        Enum.flat_map(line, &split_segment/1)
-      end)
-
-    %__MODULE__{lines: lines, mode: :cells}
+  def segments_to_cells(%__MODULE__{lines: lines}) do
+    %__MODULE__{lines: segments_to_cells(lines)}
   end
 
-  def regroup(%__MODULE__{lines: lines}, :segments, opts) do
-    split_specials = Keyword.get(opts, :split_specials, true)
-    lines = Enum.map(lines, &group_line_segments(&1, split_specials))
+  def segments_to_cells(lines) when is_list(lines) do
+    Enum.map(lines, fn line ->
+      Enum.flat_map(line, &split_segment/1)
+    end)
+  end
 
-    %__MODULE__{lines: lines, mode: :segments}
+  defp cells_to_segments(lines, split_specials) do
+    Enum.map(lines, &group_line_segments(&1, split_specials))
+  end
+
+  def to_segments(%__MODULE__{} = snapshot, opts \\ []) do
+    split_specials = Keyword.get(opts, :split_specials, false)
+    cells_to_segments(snapshot.lines, split_specials)
   end
 
   defp split_segment([text, attrs, char_width]), do: split_segment({text, attrs, char_width})
@@ -158,8 +159,7 @@ defmodule Asciinema.Recordings.Snapshot do
   def seq(snapshot) do
     seq =
       snapshot
-      |> regroup(:segments)
-      |> Map.get(:lines)
+      |> to_segments()
       |> Enum.map_join("\r\n", &line_seq/1)
       |> String.replace(~r/(\r\n\s+)+$/, "")
 
@@ -229,14 +229,10 @@ defmodule Asciinema.Recordings.Snapshot do
     |> Enum.join(";")
   end
 
-  def crop(snapshot, width, height, mode \\ :segments) do
+  def crop(%__MODULE__{} = snapshot, width, height) do
     snapshot
-    |> regroup(:cells)
     |> Map.get(:lines)
     |> Enum.map(&Enum.take(&1, width))
-    |> new(:cells)
-    |> regroup(mode)
-    |> Map.get(:lines)
     |> Enum.reverse()
     |> Enum.drop_while(&blank_line?/1)
     |> Enum.reverse()
@@ -244,7 +240,7 @@ defmodule Asciinema.Recordings.Snapshot do
     |> Enum.reverse()
     |> Enum.take(height)
     |> Enum.reverse()
-    |> new(mode)
+    |> new(:cells)
   end
 
   defp blank_line?(line) do
@@ -267,9 +263,8 @@ defmodule Asciinema.Recordings.Snapshot do
     end
   end
 
-  defp invert_cell(%__MODULE__{mode: mode} = snapshot, col, row) do
+  defp invert_cell(%__MODULE__{} = snapshot, col, row) do
     snapshot
-    |> regroup(:cells)
     |> Map.get(:lines)
     |> List.update_at(row, fn line ->
       List.update_at(line, col, fn {text, attrs, char_width} ->
@@ -278,75 +273,5 @@ defmodule Asciinema.Recordings.Snapshot do
       end)
     end)
     |> new(:cells)
-    |> regroup(mode)
-  end
-
-  def fg_coords(snapshot) do
-    snapshot
-    |> regroup(:segments)
-    |> Map.get(:lines)
-    |> Enum.with_index()
-    |> Enum.map(&text_line_coords/1)
-    |> Enum.filter(&(length(&1.segments) > 0))
-  end
-
-  defp text_line_coords({segments, y}) do
-    {_, segments} =
-      segments
-      |> Enum.flat_map(&split_on_whitespace/1)
-      |> Enum.reduce({0, []}, fn {text, attrs, char_width}, {x, segments} ->
-        width = String.length(text) * char_width
-
-        segments =
-          case text do
-            " " <> _ -> segments
-            _ -> [%{text: text, attrs: attrs, x: x, width: width} | segments]
-          end
-
-        {x + width, segments}
-      end)
-
-    %{y: y, segments: Enum.reverse(segments)}
-  end
-
-  defp split_on_whitespace({text, attrs, 1}) do
-    ~r/(^\s+)|\s{2,}/
-    |> Regex.split(text, include_captures: true)
-    |> Enum.filter(&(String.length(&1) > 0))
-    |> Enum.map(&{&1, attrs, 1})
-  end
-
-  defp split_on_whitespace(segment), do: [segment]
-
-  def bg_coords(snapshot) do
-    snapshot
-    |> regroup(:segments)
-    |> Map.get(:lines)
-    |> Enum.with_index()
-    |> Enum.map(&bg_line_coords/1)
-    |> Enum.filter(&(length(&1.segments) > 0))
-  end
-
-  defp bg_line_coords({segments, y}) do
-    {_, segments} =
-      Enum.reduce(segments, {0, []}, fn {text, attrs, char_width}, {x, segments} ->
-        width = String.length(text) * char_width
-
-        segments =
-          case attrs["bg"] do
-            nil -> segments
-            _ -> [%{attrs: attrs, x: x, width: width} | segments]
-          end
-
-        {x + width, segments}
-      end)
-
-    %{y: y, segments: Enum.reverse(segments)}
-  end
-
-  def unwrap(%__MODULE__{lines: lines}) do
-    Enum.map(lines, fn segments ->
-      Enum.map(segments, &Tuple.to_list/1)
-    end)
   end
 end
