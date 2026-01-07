@@ -16,6 +16,11 @@ defmodule Asciinema.Recordings do
 
   alias Ecto.Changeset
 
+  @secret_token_length 16
+  @legacy_secret_token_length 25
+  @secret_token_lengths [@secret_token_length, @legacy_secret_token_length]
+  @secret_token_re ~r/^[[:alnum:]]+$/
+
   def get_asciicast(id) do
     Asciicast
     |> Repo.get(id)
@@ -35,12 +40,16 @@ defmodule Asciinema.Recordings do
       String.match?(id, ~r/^\d+$/) ->
         get_asciicast(id)
 
-      String.match?(id, ~r/^[[:alnum:]]{25}$/) ->
+      secret_token?(id) ->
         find_asciicast_by_secret_token(id)
 
       true ->
         nil
     end
+  end
+
+  def secret_token?(token) when is_binary(token) do
+    String.match?(token, @secret_token_re) and byte_size(token) in @secret_token_lengths
   end
 
   def query(filters \\ [], order \\ nil)
@@ -176,7 +185,7 @@ defmodule Asciinema.Recordings do
         %{
           filename: filename,
           visibility: user.default_recording_visibility,
-          secret_token: Crypto.random_token(25)
+          secret_token: generate_secret_token()
         },
         fields
       )
@@ -576,4 +585,6 @@ defmodule Asciinema.Recordings do
     q = from(a in Asciicast, where: a.user_id == ^src_user_id)
     Repo.update_all(q, set: [user_id: dst_user_id, updated_at: Timex.now()])
   end
+
+  defp generate_secret_token, do: Crypto.random_token(@secret_token_length)
 end

@@ -259,7 +259,7 @@ defmodule AsciinemaWeb.RecordingController do
         String.match?(id, ~r/^\d+$/) ->
           {Recordings.get_asciicast(id), %{}, :not_found}
 
-        String.match?(id, ~r/^[[:alnum:]]{25}$/) ->
+        Recordings.secret_token?(id) ->
           {Recordings.find_asciicast_by_secret_token(id), %{id: id}, :forbidden}
 
         true ->
