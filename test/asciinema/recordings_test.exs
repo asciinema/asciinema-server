@@ -166,6 +166,22 @@ defmodule Asciinema.RecordingsTest do
     end
   end
 
+  describe "lookup_asciicast/1" do
+    test "accepts current 16-char secret tokens" do
+      asciicast = insert(:asciicast, secret_token: "abcdefghijklmnop")
+      id = asciicast.id
+
+      assert %Asciicast{id: ^id} = Recordings.lookup_asciicast("abcdefghijklmnop")
+    end
+
+    test "accepts legacy 25-char secret tokens" do
+      asciicast = insert(:asciicast, secret_token: "abcdefghijklmnopqrstuvwxy")
+      id = asciicast.id
+
+      assert %Asciicast{id: ^id} = Recordings.lookup_asciicast("abcdefghijklmnopqrstuvwxy")
+    end
+  end
+
   describe "ensure_welcome_asciicast/1" do
     test "works" do
       user = insert(:user)

@@ -97,7 +97,7 @@ defmodule Asciinema.Factory do
     "s3cr3t#{n}"
     |> String.codepoints()
     |> Elixir.Stream.cycle()
-    |> Elixir.Stream.take(25)
+    |> Elixir.Stream.take(16)
     |> Enum.join("")
   end
 
