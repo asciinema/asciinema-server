@@ -170,8 +170,18 @@ defmodule AsciinemaWeb.RecordingHTML do
     asciicast.views_count
   end
 
-  def svg_cache_key(asciicast),
-    do: Timex.to_unix(asciicast.updated_at) - Timex.to_unix(asciicast.inserted_at)
+  def svg_cache_key(asciicast) do
+    key =
+      if snapshot = asciicast.snapshot do
+        Snapshot.seq(snapshot)
+      else
+        to_string(asciicast.updated_at)
+      end <> "\u0000" <> to_string(asciicast.term_bold_is_bright)
+
+    :crypto.hash(:sha256, key)
+    |> binary_part(0, 12)
+    |> Base.url_encode64(padding: false)
+  end
 
   defp owned_by_current_user?(asciicast, conn) do
     conn.assigns[:current_user] && conn.assigns[:current_user].id == asciicast.user_id
