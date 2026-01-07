@@ -125,6 +125,20 @@
         </div>
       </div>
 
+      <div class="form-field form-field-full">
+        <div class="form-option-offset">
+          <div class="form-option">
+            <.input type="checkbox" field={f[:term_bold_is_bright]} />
+            <.label for={f[:term_bold_is_bright]}>
+              Render bold text with bright colors
+            </.label>
+          </div>
+          <small class="form-hint text-muted">
+            This works the same as the "bold-is-bright" setting in many terminal emulators, rendering bold text that uses colors 0-7 with colors 8-15.
+          </small>
+        </div>
+      </div>
+
       <div class={["form-field", error_class(f, :term_font_family)]}>
         <.label for={f[:term_font_family]}>
           Terminal font family

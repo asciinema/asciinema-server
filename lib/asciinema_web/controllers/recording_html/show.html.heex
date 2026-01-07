@@ -150,8 +150,10 @@
       }
     );
 
-    player.addEventListener('resize', ({ cols, rows }) => {
-      container.style.height = window.cinemaHeight(cols, rows);
+    player.addEventListener('metadata', ({ size }) => {
+      if (size !== undefined) {
+        container.style.height = window.cinemaHeight(size.cols, size.rows);
+      }
     });
   });
 </script>

@@ -163,7 +163,8 @@ defmodule Asciinema.Streaming do
       public_token: generate_public_token(),
       producer_token: generate_producer_token(),
       visibility: user.default_stream_visibility,
-      term_theme_prefer_original: user.term_theme_prefer_original
+      term_theme_prefer_original: user.term_theme_prefer_original,
+      term_bold_is_bright: user.term_bold_is_bright
     }
     |> change_stream(params)
     |> put_assoc(:user, user)
@@ -200,6 +201,7 @@ defmodule Asciinema.Streaming do
       :term_line_height,
       :term_theme_name,
       :term_theme_prefer_original,
+      :term_bold_is_bright,
       :term_type,
       :term_version,
       :title,

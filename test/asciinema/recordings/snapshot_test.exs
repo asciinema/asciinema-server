@@ -4,19 +4,18 @@ defmodule Asciinema.Recordings.SnapshotTest do
 
   def crop(snapshot, cols, rows) do
     snapshot
-    |> Snapshot.new()
+    |> Snapshot.new(:segments)
     |> Snapshot.crop(cols, rows)
     |> Map.get(:lines)
   end
 
-  describe "regroup/2" do
+  describe "segments_to_cells/1" do
     test "splits into individual chars" do
       lines = [[[" foo bar ", %{fg: 1}, 1]]]
 
       lines =
         lines
         |> Snapshot.new(:segments)
-        |> Snapshot.regroup(:cells)
         |> Map.get(:lines)
 
       assert lines == [
@@ -33,7 +32,9 @@ defmodule Asciinema.Recordings.SnapshotTest do
                ]
              ]
     end
+  end
 
+  describe "to_segments/1" do
     test "groups into multi-char segments" do
       lines = [
         [
@@ -52,8 +53,7 @@ defmodule Asciinema.Recordings.SnapshotTest do
       lines =
         lines
         |> Snapshot.new(:cells)
-        |> Snapshot.regroup(:segments)
-        |> Map.get(:lines)
+        |> Snapshot.to_segments()
 
       assert lines == [
                [
@@ -65,7 +65,7 @@ defmodule Asciinema.Recordings.SnapshotTest do
              ]
     end
 
-    test "keeps special chars in their own segments" do
+    test "keeps special chars in their own segments when split_specials is true" do
       lines = [
         [
           ["▚", %{}, 1],
@@ -83,8 +83,7 @@ defmodule Asciinema.Recordings.SnapshotTest do
       lines =
         lines
         |> Snapshot.new(:cells)
-        |> Snapshot.regroup(:segments)
-        |> Map.get(:lines)
+        |> Snapshot.to_segments(split_specials: true)
 
       assert lines == [
                [
@@ -136,9 +135,27 @@ defmodule Asciinema.Recordings.SnapshotTest do
                5,
                3
              ) == [
-               [{"bazqu", %{}, 1}],
-               [{"alber", %{}, 1}],
-               [{"balsa", %{}, 1}]
+               [
+                 {"b", %{}, 1},
+                 {"a", %{}, 1},
+                 {"z", %{}, 1},
+                 {"q", %{}, 1},
+                 {"u", %{}, 1}
+               ],
+               [
+                 {"a", %{}, 1},
+                 {"l", %{}, 1},
+                 {"b", %{}, 1},
+                 {"e", %{}, 1},
+                 {"r", %{}, 1}
+               ],
+               [
+                 {"b", %{}, 1},
+                 {"a", %{}, 1},
+                 {"l", %{}, 1},
+                 {"s", %{}, 1},
+                 {"a", %{}, 1}
+               ]
              ]
     end
 
@@ -153,8 +170,20 @@ defmodule Asciinema.Recordings.SnapshotTest do
                5,
                3
              ) == [
-               [{"fooba", %{}, 1}],
-               [{"bazqu", %{}, 1}],
+               [
+                 {"f", %{}, 1},
+                 {"o", %{}, 1},
+                 {"o", %{}, 1},
+                 {"b", %{}, 1},
+                 {"a", %{}, 1}
+               ],
+               [
+                 {"b", %{}, 1},
+                 {"a", %{}, 1},
+                 {"z", %{}, 1},
+                 {"q", %{}, 1},
+                 {"u", %{}, 1}
+               ],
                []
              ]
     end
@@ -169,8 +198,20 @@ defmodule Asciinema.Recordings.SnapshotTest do
                5,
                5
              ) == [
-               [{"fooba", %{}, 1}],
-               [{"bazqu", %{}, 1}],
+               [
+                 {"f", %{}, 1},
+                 {"o", %{}, 1},
+                 {"o", %{}, 1},
+                 {"b", %{}, 1},
+                 {"a", %{}, 1}
+               ],
+               [
+                 {"b", %{}, 1},
+                 {"a", %{}, 1},
+                 {"z", %{}, 1},
+                 {"q", %{}, 1},
+                 {"u", %{}, 1}
+               ],
                [],
                [],
                []
@@ -183,63 +224,11 @@ defmodule Asciinema.Recordings.SnapshotTest do
     [["qux", %{"bg" => "#102030"}, 1], ["连", %{}, 2], ["接", %{}, 2]]
   ]
 
-  describe "fg_coords/1" do
-    test "excludes whitespace" do
-      coords =
-        @lines
-        |> Snapshot.new()
-        |> Snapshot.fg_coords()
-
-      assert coords == [
-               %{
-                 y: 0,
-                 segments: [
-                   %{text: "foo bar", attrs: %{"bg" => 2}, x: 1, width: 7},
-                   %{text: "baz", attrs: %{"bg" => 2}, x: 10, width: 3},
-                   %{text: "!", attrs: %{"fg" => 1}, x: 13, width: 1}
-                 ]
-               },
-               %{
-                 y: 1,
-                 segments: [
-                   %{text: "qux", attrs: %{"bg" => "#102030"}, x: 0, width: 3},
-                   %{text: "连", attrs: %{}, x: 3, width: 2},
-                   %{text: "接", attrs: %{}, x: 5, width: 2}
-                 ]
-               }
-             ]
-    end
-  end
-
-  describe "bg_coords/1" do
-    test "excludes segments with default background" do
-      coords =
-        @lines
-        |> Snapshot.new()
-        |> Snapshot.bg_coords()
-
-      assert coords == [
-               %{
-                 y: 0,
-                 segments: [
-                   %{attrs: %{"bg" => 2}, x: 0, width: 13}
-                 ]
-               },
-               %{
-                 y: 1,
-                 segments: [
-                   %{attrs: %{"bg" => "#102030"}, x: 0, width: 3}
-                 ]
-               }
-             ]
-    end
-  end
-
   describe "seq/1" do
     test "dumps snapshot as an ANSI sequence" do
       seq =
         @lines
-        |> Snapshot.new()
+        |> Snapshot.new(:segments)
         |> Snapshot.seq()
 
       assert seq == "\e[42m foo bar  baz\e[0m\e[31m!\e[0m\r\n\e[48;2;16;32;48mqux\e[0m连接\e[?25l"
