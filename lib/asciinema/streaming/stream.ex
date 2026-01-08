@@ -33,6 +33,7 @@ defmodule Asciinema.Streaming.Stream do
     field :audio_url, :string
     field :schedule, Crontab.CronExpression.Ecto.Type
     field :next_start_at, :utc_datetime
+    field :offline_grace_period, :integer
 
     timestamps(type: :utc_datetime)
 
