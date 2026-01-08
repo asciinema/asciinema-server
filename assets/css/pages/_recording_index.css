@@ -7,13 +7,17 @@
 .c-recording {
   &.a-public, &.a-featured, &.a-auto {
     main {
-      .nav {
-        .nav-link {
-          padding-left: 0.1em;
-        }
+      .recording-index-layout {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        gap: var(--space-6);
+        align-items: flex-start;
+        margin: 2rem 0 1rem 0;
+      }
 
-        .nav-link.active {
-          font-weight: bold;
+      @media (max-width: 991px) {
+        .recording-index-layout {
+          grid-template-columns: 1fr;
         }
       }
 
@@ -21,33 +25,34 @@
         display: flex;
         gap: 1rem;
         flex-wrap: wrap;
-        margin: 2rem 0 1rem 0;
+        margin: 0 0 1rem 0;
 
         h2 {
-          flex-grow: 1;
           margin-top: 0;
           margin-bottom: 1rem;
         }
       }
 
-      .toggles {
+      .sidebar {
         display: flex;
-        gap: 1rem;
+        flex-direction: column;
+        gap: var(--space-4);
       }
 
-      .filtering, .sorting {
-        span {
-          margin-right: 0.5rem;
-          font-size: 0.875rem;
-        }
+      .sidebar-group-title {
+        margin: 0 0 var(--space-2) 0;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--color-text-secondary);
+      }
 
-        a {
-          border-color: #d3d9df;
-        }
+      .sidebar .nav-link {
+        padding: 0.25rem 0;
+      }
 
-        .btn-group .active {
-          font-weight: 600;
-        }
+      .sidebar .nav-link.active {
+        font-weight: 600;
       }
 
       .pagination {
