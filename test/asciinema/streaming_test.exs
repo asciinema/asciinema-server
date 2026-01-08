@@ -232,21 +232,30 @@ defmodule Asciinema.StreamingTest do
   end
 
   describe "mark_inactive_streams_offline/0" do
-    test "marks live streams inactive for more than 1 minute as offline" do
+    test "marks inactive/disconnected streams beyond their grace period as offline" do
       # Stream active within last minute - should stay live
       recent_stream =
-        insert(:stream, live: true, last_activity_at: Timex.shift(Timex.now(), seconds: -30))
+        insert(:stream,
+          live: true,
+          last_activity_at: Timex.shift(Timex.now(), seconds: -30),
+          offline_grace_period: 60
+        )
 
-      # Stream inactive for more than 1 minute - should be marked offline
+      # Stream inactive for more than 2 minutes - should be marked offline
       old_stream =
-        insert(:stream, live: true, last_activity_at: Timex.shift(Timex.now(), minutes: -2))
+        insert(:stream,
+          live: true,
+          last_activity_at: Timex.shift(Timex.now(), seconds: -128),
+          offline_grace_period: 120
+        )
 
       # Stream with nil last_activity_at but recent inserted_at - should stay live
       new_stream =
         insert(:stream,
           live: true,
           last_activity_at: nil,
-          inserted_at: Timex.shift(Timex.now(), seconds: -30)
+          inserted_at: Timex.shift(Timex.now(), seconds: -30),
+          offline_grace_period: 60
         )
 
       # Stream with nil last_activity_at and old inserted_at - should be marked offline
@@ -254,11 +263,16 @@ defmodule Asciinema.StreamingTest do
         insert(:stream,
           live: true,
           last_activity_at: nil,
-          inserted_at: Timex.shift(Timex.now(), minutes: -2)
+          inserted_at: Timex.shift(Timex.now(), minutes: -2),
+          offline_grace_period: 60
         )
 
       # Already offline stream - should remain unchanged
-      insert(:stream, live: false, last_activity_at: Timex.shift(Timex.now(), minutes: -2))
+      insert(:stream,
+        live: false,
+        last_activity_at: Timex.shift(Timex.now(), minutes: -10),
+        offline_grace_period: 300
+      )
 
       count = Streaming.mark_inactive_streams_offline()
 
