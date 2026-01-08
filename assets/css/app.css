@@ -36,7 +36,6 @@
 /* == Page-specific blocks == */
 
 @import "./pages/_static.css";
-@import "./pages/_recording_index.css";
 @import "./pages/_medium_show.css";
 @import "./pages/_simple_layout.css";
 @import "./pages/_stream_index.css";
@@ -48,6 +47,7 @@
 @import "./pages/_user_recording.css";
 @import "./pages/_user_stream.css";
 @import "./pages/_search_results.css";
+@import "./pages/_explore.css";
 
 /* == Self-hosted fonts == */
 

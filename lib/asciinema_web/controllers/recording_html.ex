@@ -1,7 +1,6 @@
 defmodule AsciinemaWeb.RecordingHTML do
   use AsciinemaWeb, :html
   import AsciinemaWeb.ErrorHelpers
-  import Scrivener.HTML
   alias Asciinema.{Accounts, Fonts, Media, Recordings, Themes}
   alias Asciinema.Recordings.{Markers, Snapshot}
   alias AsciinemaWeb.{MediaView, MediumHTML, UserHTML}
@@ -123,39 +122,6 @@ defmodule AsciinemaWeb.RecordingHTML do
       3 -> "application/x-asciicast"
       _ -> nil
     end
-  end
-
-  attr :title, :string, required: true
-  attr :href, :string, required: true
-  attr :active?, :boolean
-  attr :rest, :global
-
-  def nav_link(assigns) do
-    ~H"""
-    <li class="nav-item">
-      <.active_link title={@title} href={@href} active?={@active?} class="nav-link" {@rest} />
-    </li>
-    """
-  end
-
-  attr :title, :string, required: true
-  attr :href, :string, required: true
-  attr :active?, :boolean
-  attr :class, :string
-  attr :rest, :global
-
-  def active_link(assigns) do
-    assigns =
-      if assigns[:active?] do
-        class = Map.get(assigns, :class, "") <> " active"
-        assign(assigns, :class, class)
-      else
-        assigns
-      end
-
-    ~H"""
-    <.link href={@href} class={@class} {@rest}>{@title}</.link>
-    """
   end
 
   def download_filename(asciicast) do

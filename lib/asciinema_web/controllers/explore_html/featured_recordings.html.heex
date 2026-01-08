@@ -1,0 +1,21 @@
+<div class="container">
+  <div class="recording-index-layout">
+    <.sidebar active={:featured_recordings} featured_enabled={@featured_enabled} />
+
+    <div>
+      <div class="heading">
+        <h2>Featured recordings</h2>
+      </div>
+
+      <div class="asciicast-list">
+        <div :for={asciicast <- @asciicasts}>
+          <RecordingHTML.card asciicast={asciicast} />
+        </div>
+      </div>
+
+      <div :if={@asciicasts.total_pages > 1} class="pagination-wrapper">
+        {pagination_links(@asciicasts)}
+      </div>
+    </div>
+  </div>
+</div>

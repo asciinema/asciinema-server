@@ -1,0 +1,25 @@
+<div class="container">
+  <div class="recording-index-layout">
+    <.sidebar active={:popular_recordings} featured_enabled={@featured_enabled} />
+
+    <div>
+      <div class="heading">
+        <h2>Popular recordings</h2>
+      </div>
+
+      <%= if @asciicasts.total_entries > 0 do %>
+        <div class="asciicast-list">
+          <div :for={asciicast <- @asciicasts}>
+            <RecordingHTML.card asciicast={asciicast} />
+          </div>
+        </div>
+
+        <div :if={@asciicasts.total_pages > 1} class="pagination-wrapper">
+          {pagination_links(@asciicasts)}
+        </div>
+      <% else %>
+        <p>No recordings have become popular yet.</p>
+      <% end %>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,29 @@
+<div class="container">
+  <div class="recording-index-layout">
+    <.sidebar active={:recent_recordings} featured_enabled={@featured_enabled} />
+
+    <div>
+      <div class="heading">
+        <h2>Recent recordings</h2>
+      </div>
+
+      <%= if @asciicasts.total_entries > 0 do %>
+        <div class="asciicast-list">
+          <div :for={asciicast <- @asciicasts}>
+            <RecordingHTML.card asciicast={asciicast} />
+          </div>
+        </div>
+
+        <div :if={@asciicasts.total_pages > 1} class="pagination-wrapper">
+          {pagination_links(@asciicasts)}
+        </div>
+      <% else %>
+        <p>No recordings have been made <em>public</em> yet.</p>
+
+        <p>
+          You can make your recording public from its settings page.
+        </p>
+      <% end %>
+    </div>
+  </div>
+</div>

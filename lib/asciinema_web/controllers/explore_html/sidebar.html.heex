@@ -1,0 +1,49 @@
+<aside class="sidebar">
+  <div class="sidebar-group">
+    <h3 class="sidebar-group-title">Streams</h3>
+
+    <nav class="nav flex-column">
+      <.active_link
+        href={~p"/explore/streams/live"}
+        title="Live"
+        active?={@active == :live_streams}
+        class="nav-link"
+      />
+
+      <.active_link
+        href={~p"/explore/streams/upcoming"}
+        title="Upcoming"
+        active?={@active == :upcoming_streams}
+        class="nav-link"
+      />
+    </nav>
+  </div>
+
+  <div class="sidebar-group">
+    <h3 class="sidebar-group-title">Recordings</h3>
+
+    <nav class="nav flex-column">
+      <.active_link
+        :if={@featured_enabled}
+        href={~p"/explore/recordings/featured"}
+        title="Featured"
+        active?={@active == :featured_recordings}
+        class="nav-link"
+      />
+
+      <.active_link
+        href={~p"/explore/recordings/popular"}
+        title="Popular"
+        active?={@active == :popular_recordings}
+        class="nav-link"
+      />
+
+      <.active_link
+        href={~p"/explore/recordings/recent"}
+        title="Recent"
+        active?={@active == :recent_recordings}
+        class="nav-link"
+      />
+    </nav>
+  </div>
+</aside>

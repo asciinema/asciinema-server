@@ -1,33 +1,6 @@
 defmodule AsciinemaWeb.Features.RecordingsTest do
   use AsciinemaWeb.FeatureCase, async: true
 
-  describe "exploring" do
-    test "auto, public, featured", %{conn: conn} do
-      insert(:asciicast, visibility: :public, featured: true, title: "Featured stuff")
-      insert(:asciicast, visibility: :public, title: "Good stuff")
-      insert(:asciicast, visibility: :unlisted, title: "Unlisted stuff")
-      insert(:asciicast, visibility: :private, title: "Private stuff")
-
-      conn
-      |> visit(~p"/")
-      |> click_link("a.nav-link", "Explore")
-      |> assert_has("a", text: "Featured stuff")
-      |> refute_has("a", text: "Good stuff")
-      |> refute_has("a", text: "Unlisted stuff")
-      |> refute_has("a", text: "Private stuff")
-      |> click_link("all public")
-      |> assert_has("a", text: "Featured stuff")
-      |> assert_has("a", text: "Good stuff")
-      |> refute_has("a", text: "Unlisted stuff")
-      |> refute_has("a", text: "Private stuff")
-      |> click_link("featured")
-      |> assert_has("a", text: "Featured stuff")
-      |> refute_has("a", text: "Good stuff")
-      |> refute_has("a", text: "Unlisted stuff")
-      |> refute_has("a", text: "Private stuff")
-    end
-  end
-
   describe "recording viewing" do
     test "public recording via ID as guest", %{conn: conn} do
       owner = insert(:user)

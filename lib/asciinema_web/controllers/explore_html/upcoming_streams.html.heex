@@ -1,0 +1,32 @@
+<div class="container">
+  <div class="recording-index-layout">
+    <.sidebar active={:upcoming_streams} featured_enabled={@featured_enabled} />
+
+    <div>
+      <div class="heading">
+        <h2>Upcoming streams</h2>
+      </div>
+
+      <%= if @streams.total_entries > 0 do %>
+        <div class="asciicast-list">
+          <div :for={stream <- @streams}>
+            {live_render(@conn, AsciinemaWeb.UpcomingStreamCardLive,
+              session: %{"stream_id" => stream.id}
+            )}
+          </div>
+        </div>
+
+        <div :if={@streams.total_pages > 1} class="pagination-wrapper">
+          {pagination_links(@streams)}
+        </div>
+      <% else %>
+        <p>No public streams scheduled at the moment.</p>
+
+        <p>
+          You can set a schedule for your own stream on the stream settings page.
+          Setting its visibility to <em>public</em> will list it here.
+        </p>
+      <% end %>
+    </div>
+  </div>
+</div>
