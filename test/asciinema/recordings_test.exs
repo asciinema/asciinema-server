@@ -343,6 +343,54 @@ defmodule Asciinema.RecordingsTest do
     end
   end
 
+  describe "inc_views_count/1" do
+    test "increments views_count on asciicast" do
+      asciicast = insert(:asciicast, views_count: 5)
+
+      assert {:ok, :ok} = Recordings.inc_views_count(asciicast)
+
+      asciicast = Repo.get!(Asciicast, asciicast.id)
+      assert asciicast.views_count == 6
+    end
+
+    test "creates daily view record for today" do
+      asciicast = insert(:asciicast, views_count: 0)
+      today = Date.utc_today()
+
+      assert {:ok, :ok} = Recordings.inc_views_count(asciicast, today)
+
+      [daily_view] =
+        Repo.all(
+          from(dv in "asciicast_daily_views",
+            where: dv.asciicast_id == ^asciicast.id and dv.date == ^today,
+            select: %{date: dv.date, count: dv.count}
+          )
+        )
+
+      assert daily_view.date == today
+      assert daily_view.count == 1
+    end
+
+    test "increments existing daily view count for today" do
+      asciicast = insert(:asciicast, views_count: 0)
+      today = Date.utc_today()
+
+      Recordings.inc_views_count(asciicast, today)
+      Recordings.inc_views_count(asciicast, today)
+      Recordings.inc_views_count(asciicast, today)
+
+      [daily_view] =
+        Repo.all(
+          from(dv in "asciicast_daily_views",
+            where: dv.asciicast_id == ^asciicast.id and dv.date == ^today,
+            select: %{date: dv.date, count: dv.count}
+          )
+        )
+
+      assert daily_view.count == 3
+    end
+  end
+
   describe "migrate_file/1" do
     test "is noop when the file path is up to date" do
       asciicast =

@@ -523,9 +523,20 @@ defmodule Asciinema.Recordings do
     time <= secs
   end
 
-  def inc_views_count(asciicast) do
-    from(a in Asciicast, where: a.id == ^asciicast.id)
-    |> Repo.update_all(inc: [views_count: 1])
+  def inc_views_count(asciicast, date \\ Date.utc_today()) do
+    Repo.transact(fn ->
+      from(a in Asciicast, where: a.id == ^asciicast.id)
+      |> Repo.update_all(inc: [views_count: 1])
+
+      Repo.insert_all(
+        "asciicast_daily_views",
+        [%{asciicast_id: asciicast.id, date: date, count: 1}],
+        on_conflict: [inc: [count: 1]],
+        conflict_target: [:asciicast_id, :date]
+      )
+
+      {:ok, :ok}
+    end)
   end
 
   def migratable(stream), do: Stream.filter(stream, &stale_path?/1)
