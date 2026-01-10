@@ -9,7 +9,7 @@ defmodule Asciinema.Repo.Migrations.CreateAsciicastDailyViews do
     end
 
     create unique_index(:asciicast_daily_views, [:asciicast_id, :date])
-    create index(:asciicast_daily_views, [:date])
+    create index(:asciicast_daily_views, [:date, :asciicast_id])
 
     execute """
     WITH days AS (

@@ -99,6 +99,9 @@ defmodule Asciinema.Recordings do
       :featured ->
         where(q, [a], a.featured == true and a.visibility == :public)
 
+      :popular ->
+        where(q, [a], a.popularity_score > 0.0 and a.visibility == :public)
+
       :public ->
         where(q, [a], a.visibility == :public)
 
@@ -115,7 +118,7 @@ defmodule Asciinema.Recordings do
         order_by(q, desc: :id)
 
       :popularity ->
-        order_by(q, desc: :views_count)
+        order_by(q, desc: :popularity_score, desc: :id)
 
       :random ->
         order_by(q, fragment("RANDOM()"))
@@ -523,10 +526,98 @@ defmodule Asciinema.Recordings do
     time <= secs
   end
 
+  @popularity_half_life_days 7
+  @popularity_window_days 90
+
+  def recompute_popularity_scores(scope \\ :all) do
+    cutoff = Date.add(Date.utc_today(), -@popularity_window_days)
+
+    decay_scores =
+      from dv in "asciicast_daily_views",
+        where: dv.date >= ^cutoff,
+        group_by: dv.asciicast_id,
+        select: %{
+          asciicast_id: dv.asciicast_id,
+          decay_score:
+            fragment(
+              "sum(? * power(0.5, (CURRENT_DATE - ?)::float / ?))",
+              dv.count,
+              dv.date,
+              ^@popularity_half_life_days
+            )
+        }
+
+    case scope do
+      :all ->
+        ids_with_views =
+          from(dv in "asciicast_daily_views",
+            where: dv.date >= ^cutoff,
+            distinct: true,
+            select: dv.asciicast_id
+          )
+
+        Repo.transact(fn ->
+          # Update asciicasts with daily views in the window.
+          {count, _} =
+            from(a in Asciicast,
+              join: ds in subquery(decay_scores),
+              on: ds.asciicast_id == a.id,
+              where: is_nil(a.archived_at),
+              update: [set: [popularity_score: ds.decay_score, popularity_dirty: false]]
+            )
+            |> Repo.update_all([])
+
+          # Reset scores for non-archived asciicasts without views in the window.
+          Repo.update_all(
+            from(a in Asciicast,
+              where: is_nil(a.archived_at) and a.id not in subquery(ids_with_views)
+            ),
+            set: [popularity_score: 0.0, popularity_dirty: false]
+          )
+
+          {:ok, count}
+        end)
+
+      :dirty ->
+        dirty_ids =
+          from(a in Asciicast,
+            where: a.popularity_dirty == true and is_nil(a.archived_at),
+            select: a.id
+          )
+
+        decay_scores = from(dv in decay_scores, where: dv.asciicast_id in subquery(dirty_ids))
+
+        Repo.transact(fn ->
+          # Update dirty asciicasts that have daily views in the window.
+          {count, _} =
+            from(a in Asciicast,
+              join: ds in subquery(decay_scores),
+              on: ds.asciicast_id == a.id,
+              where: a.id in subquery(dirty_ids),
+              update: [
+                set: [
+                  popularity_score: ds.decay_score,
+                  popularity_dirty: false
+                ]
+              ]
+            )
+            |> Repo.update_all([])
+
+          # Clear remaining dirty asciicasts with no daily views.
+          Repo.update_all(
+            from(a in Asciicast, where: a.id in subquery(dirty_ids)),
+            set: [popularity_score: 0.0, popularity_dirty: false]
+          )
+
+          {:ok, count}
+        end)
+    end
+  end
+
   def inc_views_count(asciicast, date \\ Date.utc_today()) do
     Repo.transact(fn ->
       from(a in Asciicast, where: a.id == ^asciicast.id)
-      |> Repo.update_all(inc: [views_count: 1])
+      |> Repo.update_all(inc: [views_count: 1], set: [popularity_dirty: true])
 
       Repo.insert_all(
         "asciicast_daily_views",
