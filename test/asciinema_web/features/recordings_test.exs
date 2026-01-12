@@ -205,10 +205,7 @@ defmodule AsciinemaWeb.Features.RecordingsTest do
       conn
       |> log_in_user(owner)
       |> visit(~p"/a/#{asciicast.id}")
-      |> assert_has("#cinema")
-      |> assert_has("h2", text: "My Recording")
-      |> assert_has(".dropdown-item", text: "Settings")
-      |> assert_has(".dropdown-item", text: "Delete")
+      |> assert_has("h1", text: "404 Not Found")
     end
 
     test "unlisted recording via token as owner", %{conn: conn} do
@@ -233,10 +230,7 @@ defmodule AsciinemaWeb.Features.RecordingsTest do
       conn
       |> log_in_user(owner)
       |> visit(~p"/a/#{asciicast.id}")
-      |> assert_has("#cinema")
-      |> assert_has("h2", text: "Private Recording")
-      |> assert_has(".dropdown-item", text: "Settings")
-      |> assert_has(".dropdown-item", text: "Delete")
+      |> assert_has("h1", text: "404 Not Found")
     end
 
     test "private recording via token as owner", %{conn: conn} do

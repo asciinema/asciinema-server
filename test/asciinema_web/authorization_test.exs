@@ -61,6 +61,12 @@ defmodule AsciinemaWeb.AuthorizationTest do
       refute Authorization.can?(nil, :iframe, asciicast)
     end
 
+    test "delegates to show for guest on unlisted asciicast" do
+      asciicast = %Asciicast{user_id: 1, visibility: :unlisted}
+
+      assert Authorization.can?(nil, :iframe, asciicast)
+    end
+
     test "delegates to show for guest on public asciicast" do
       asciicast = %Asciicast{user_id: 1, visibility: :public}
 
@@ -78,6 +84,12 @@ defmodule AsciinemaWeb.AuthorizationTest do
       stream = %Stream{user_id: 1, visibility: :private}
 
       refute Authorization.can?(nil, :iframe, stream)
+    end
+
+    test "delegates to show for guest on unlisted stream" do
+      stream = %Stream{user_id: 1, visibility: :unlisted}
+
+      assert Authorization.can?(nil, :iframe, stream)
     end
 
     test "delegates to show for guest on public stream" do

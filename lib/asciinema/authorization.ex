@@ -6,20 +6,18 @@ defmodule Asciinema.Authorization do
   defmodule Policy do
     # for asciicasts
 
-    def can?(%User{id: uid}, _action, %Asciicast{user_id: uid}), do: true
-
-    def can?(_user, :show, %Asciicast{id: token, secret_token: token, visibility: :unlisted}),
-      do: true
-
+    def can?(%User{id: uid}, :show, %Asciicast{user_id: uid}), do: true
+    def can?(%User{id: uid}, :update, %Asciicast{user_id: uid}), do: true
+    def can?(%User{id: uid}, :delete, %Asciicast{user_id: uid}), do: true
+    def can?(_user, :show, %Asciicast{visibility: :unlisted}), do: true
     def can?(_user, :show, %Asciicast{visibility: :public}), do: true
 
     # for streams
 
-    def can?(%User{id: uid}, _action, %Stream{user_id: uid}), do: true
-
-    def can?(_user, :show, %Stream{id: token, public_token: token, visibility: :unlisted}),
-      do: true
-
+    def can?(%User{id: uid}, :show, %Stream{user_id: uid}), do: true
+    def can?(%User{id: uid}, :update, %Stream{user_id: uid}), do: true
+    def can?(%User{id: uid}, :delete, %Stream{user_id: uid}), do: true
+    def can?(_user, :show, %Stream{visibility: :unlisted}), do: true
     def can?(_user, :show, %Stream{visibility: :public}), do: true
 
     # for user
@@ -28,14 +26,20 @@ defmodule Asciinema.Authorization do
 
     # as admin
 
-    def can?(%User{is_admin: true}, _action, _thing), do: true
+    def can?(%User{is_admin: true}, :show, %Asciicast{}), do: true
+    def can?(%User{is_admin: true}, :update, %Asciicast{}), do: true
+    def can?(%User{is_admin: true}, :delete, %Asciicast{}), do: true
+    def can?(%User{is_admin: true}, :show, %Stream{}), do: true
+    def can?(%User{is_admin: true}, :update, %Stream{}), do: true
+    def can?(%User{is_admin: true}, :delete, %Stream{}), do: true
+    def can?(%User{is_admin: true}, :update, %User{}), do: true
 
     # deny everything else
 
     def can?(_user, _action, _thing), do: false
   end
 
-  def can?(user, action, thing), do: Policy.can?(user, action, thing)
+  def can?(user, action, resource), do: Policy.can?(user, action, resource)
 
   defmodule Scope do
     import Ecto.Query

@@ -121,6 +121,32 @@ defmodule Asciinema.StreamingTest do
     end
   end
 
+  describe "lookup_stream/2" do
+    test "accepts numerical ID for public streams" do
+      stream = insert(:stream, visibility: :public)
+      id = stream.id
+
+      assert %Stream{id: ^id} = Streaming.lookup_stream(to_string(id))
+      assert nil == Streaming.lookup_stream("999999999999")
+    end
+
+    test "allows non-public lookup by numerical ID when enabled" do
+      stream = insert(:stream, visibility: :unlisted)
+      id = stream.id
+
+      assert nil == Streaming.lookup_stream(to_string(id))
+      assert %Stream{id: ^id} = Streaming.lookup_stream(to_string(id), true)
+    end
+
+    test "accepts public tokens" do
+      stream = insert(:stream, public_token: "foobar1234567890")
+      id = stream.id
+
+      assert %Stream{id: ^id} = Streaming.lookup_stream("foobar1234567890")
+      assert nil == Streaming.lookup_stream("zzzzzzzzzzzzzzzz")
+    end
+  end
+
   describe "update_stream/2" do
     test "valid params" do
       stream =

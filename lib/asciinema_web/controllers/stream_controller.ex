@@ -152,9 +152,8 @@ defmodule AsciinemaWeb.StreamController do
     if stream && stream.user.streaming_enabled do
       user = conn.assigns[:current_user]
       action = Phoenix.Controller.action_name(conn)
-      resource = Map.merge(stream, %{id: id})
 
-      if Authorization.can?(user, action, resource) do
+      if Authorization.can?(user, action, stream) do
         assign(conn, :stream, stream)
       else
         conn

@@ -27,6 +27,12 @@ defmodule Asciinema.Recordings do
     |> Repo.preload(:user)
   end
 
+  def get_public_asciicast(id) do
+    Asciicast
+    |> Repo.get_by(id: id, visibility: :public)
+    |> Repo.preload(:user)
+  end
+
   def fetch_asciicast(id), do: OK.required(get_asciicast(id), :not_found)
 
   def find_asciicast_by_secret_token(token) do
@@ -35,10 +41,14 @@ defmodule Asciinema.Recordings do
     |> Repo.preload(:user)
   end
 
-  def lookup_asciicast(id) when is_binary(id) do
+  def lookup_asciicast(id, allow_non_public_id \\ false) when is_binary(id) do
     cond do
       String.match?(id, ~r/^\d+$/) ->
-        get_asciicast(id)
+        if allow_non_public_id do
+          get_asciicast(id)
+        else
+          get_public_asciicast(id)
+        end
 
       secret_token?(id) ->
         find_asciicast_by_secret_token(id)

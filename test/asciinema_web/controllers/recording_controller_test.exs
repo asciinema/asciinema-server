@@ -282,7 +282,7 @@ defmodule AsciinemaWeb.RecordingControllerTest do
     setup [:insert_unlisted_recording, :authenticate_as_owner]
 
     test "JS via ID", %{conn: conn, asciicast: asciicast} do
-      test_js_response(conn, ~p"/a/#{asciicast.id}", 200)
+      test_js_response(conn, ~p"/a/#{asciicast.id}", 404)
     end
 
     test "JS via secret token", %{conn: conn, asciicast: asciicast} do
@@ -290,7 +290,7 @@ defmodule AsciinemaWeb.RecordingControllerTest do
     end
 
     test "IFRAME via ID", %{conn: conn, asciicast: asciicast} do
-      test_iframe_response(conn, ~p"/a/#{asciicast.id}/iframe", 200)
+      test_iframe_response(conn, ~p"/a/#{asciicast.id}/iframe", 404)
     end
 
     test "IFRAME via secret token", %{conn: conn, asciicast: asciicast} do
@@ -300,7 +300,7 @@ defmodule AsciinemaWeb.RecordingControllerTest do
     @tag :with_file
     @tag version: 1
     test "CAST v1 via ID", %{conn: conn, asciicast: asciicast} do
-      test_cast_v1_response(conn, ~p"/a/#{asciicast.id}", 200)
+      test_cast_v1_response(conn, ~p"/a/#{asciicast.id}", 404)
     end
 
     @tag :with_file
@@ -312,7 +312,7 @@ defmodule AsciinemaWeb.RecordingControllerTest do
     @tag :with_file
     @tag version: 2
     test "CAST v2 via ID", %{conn: conn, asciicast: asciicast} do
-      test_cast_v2_response(conn, ~p"/a/#{asciicast.id}", 200)
+      test_cast_v2_response(conn, ~p"/a/#{asciicast.id}", 404)
     end
 
     @tag :with_file
@@ -324,7 +324,7 @@ defmodule AsciinemaWeb.RecordingControllerTest do
     @tag :with_file
     @tag version: 3
     test "CAST v3 via ID", %{conn: conn, asciicast: asciicast} do
-      test_cast_v3_response(conn, ~p"/a/#{asciicast.id}", 200)
+      test_cast_v3_response(conn, ~p"/a/#{asciicast.id}", 404)
     end
 
     @tag :with_file
@@ -335,7 +335,7 @@ defmodule AsciinemaWeb.RecordingControllerTest do
 
     @tag :with_file
     test "TXT via ID", %{conn: conn, asciicast: asciicast} do
-      test_txt_response(conn, ~p"/a/#{asciicast.id}", 200)
+      test_txt_response(conn, ~p"/a/#{asciicast.id}", 404)
     end
 
     @tag :with_file
@@ -344,7 +344,7 @@ defmodule AsciinemaWeb.RecordingControllerTest do
     end
 
     test "SVG via ID", %{conn: conn, asciicast: asciicast} do
-      test_svg_response(conn, ~p"/a/#{asciicast.id}", 200)
+      test_svg_response(conn, ~p"/a/#{asciicast.id}", 404)
     end
 
     test "SVG via secret token", %{conn: conn, asciicast: asciicast} do
@@ -353,7 +353,7 @@ defmodule AsciinemaWeb.RecordingControllerTest do
 
     @tag :rsvg
     test "PNG via ID", %{conn: conn, asciicast: asciicast} do
-      test_png_response(conn, ~p"/a/#{asciicast.id}", 200)
+      test_png_response(conn, ~p"/a/#{asciicast.id}", 404)
     end
 
     @tag :rsvg
@@ -363,7 +363,7 @@ defmodule AsciinemaWeb.RecordingControllerTest do
 
     @tag :rsvg
     test "GIF via ID", %{conn: conn, asciicast: asciicast} do
-      test_gif_response(conn, ~p"/a/#{asciicast.id}", 200)
+      test_gif_response(conn, ~p"/a/#{asciicast.id}", 404)
     end
 
     @tag :rsvg
@@ -550,7 +550,7 @@ defmodule AsciinemaWeb.RecordingControllerTest do
     setup [:insert_private_recording, :authenticate_as_owner]
 
     test "JS via ID", %{conn: conn, asciicast: asciicast} do
-      test_js_response(conn, ~p"/a/#{asciicast.id}", 200)
+      test_js_response(conn, ~p"/a/#{asciicast.id}", 404)
     end
 
     test "JS via secret token", %{conn: conn, asciicast: asciicast} do
@@ -558,7 +558,7 @@ defmodule AsciinemaWeb.RecordingControllerTest do
     end
 
     test "IFRAME via ID", %{conn: conn, asciicast: asciicast} do
-      test_iframe_response(conn, ~p"/a/#{asciicast.id}/iframe", 200)
+      test_iframe_response(conn, ~p"/a/#{asciicast.id}/iframe", 404)
     end
 
     test "IFRAME via secret token", %{conn: conn, asciicast: asciicast} do
@@ -568,7 +568,7 @@ defmodule AsciinemaWeb.RecordingControllerTest do
     @tag :with_file
     @tag version: 1
     test "CAST v1 via ID", %{conn: conn, asciicast: asciicast} do
-      test_cast_v1_response(conn, ~p"/a/#{asciicast.id}", 200)
+      test_cast_v1_response(conn, ~p"/a/#{asciicast.id}", 404)
     end
 
     @tag :with_file
@@ -580,7 +580,7 @@ defmodule AsciinemaWeb.RecordingControllerTest do
     @tag :with_file
     @tag version: 2
     test "CAST v2 via ID", %{conn: conn, asciicast: asciicast} do
-      test_cast_v2_response(conn, ~p"/a/#{asciicast.id}", 200)
+      test_cast_v2_response(conn, ~p"/a/#{asciicast.id}", 404)
     end
 
     @tag :with_file
@@ -592,7 +592,7 @@ defmodule AsciinemaWeb.RecordingControllerTest do
     @tag :with_file
     @tag version: 3
     test "CAST v3 via ID", %{conn: conn, asciicast: asciicast} do
-      test_cast_v3_response(conn, ~p"/a/#{asciicast.id}", 200)
+      test_cast_v3_response(conn, ~p"/a/#{asciicast.id}", 404)
     end
 
     @tag :with_file
@@ -603,7 +603,7 @@ defmodule AsciinemaWeb.RecordingControllerTest do
 
     @tag :with_file
     test "TXT via ID", %{conn: conn, asciicast: asciicast} do
-      test_txt_response(conn, ~p"/a/#{asciicast.id}", 200)
+      test_txt_response(conn, ~p"/a/#{asciicast.id}", 404)
     end
 
     @tag :with_file
@@ -612,7 +612,7 @@ defmodule AsciinemaWeb.RecordingControllerTest do
     end
 
     test "SVG via ID", %{conn: conn, asciicast: asciicast} do
-      test_svg_response(conn, ~p"/a/#{asciicast.id}", 200)
+      test_svg_response(conn, ~p"/a/#{asciicast.id}", 404)
     end
 
     test "SVG via secret token", %{conn: conn, asciicast: asciicast} do
@@ -621,7 +621,7 @@ defmodule AsciinemaWeb.RecordingControllerTest do
 
     @tag :rsvg
     test "PNG via ID", %{conn: conn, asciicast: asciicast} do
-      test_png_response(conn, ~p"/a/#{asciicast.id}", 200)
+      test_png_response(conn, ~p"/a/#{asciicast.id}", 404)
     end
 
     @tag :rsvg
@@ -631,7 +631,7 @@ defmodule AsciinemaWeb.RecordingControllerTest do
 
     @tag :rsvg
     test "GIF via ID", %{conn: conn, asciicast: asciicast} do
-      test_gif_response(conn, ~p"/a/#{asciicast.id}", 200)
+      test_gif_response(conn, ~p"/a/#{asciicast.id}", 404)
     end
 
     @tag :rsvg

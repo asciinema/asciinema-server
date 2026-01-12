@@ -13,35 +13,23 @@ defmodule Asciinema.AuthorizationTest do
       assert Authorization.can?(user, :show, asciicast)
     end
 
-    test "owner can read its own unlisted asciicast accessed by id" do
+    test "owner can read its own unlisted asciicast via id" do
       user = %User{id: 1}
-      asciicast = %Asciicast{id: 123, user_id: 1, visibility: :unlisted, secret_token: "s3kr1t"}
+      asciicast = %Asciicast{user_id: 1, visibility: :unlisted}
 
       assert Authorization.can?(user, :show, asciicast)
     end
 
     test "owner can read its own unlisted asciicast via secret token" do
       user = %User{id: 1}
-
-      asciicast = %Asciicast{
-        id: "s3kr1t",
-        user_id: 1,
-        visibility: :unlisted,
-        secret_token: "s3kr1t"
-      }
+      asciicast = %Asciicast{user_id: 1, visibility: :unlisted}
 
       assert Authorization.can?(user, :show, asciicast)
     end
 
     test "any user can read an unlisted asciicast given it knows the secret token" do
       user = %User{id: 1}
-
-      asciicast = %Asciicast{
-        id: "s3kr1t",
-        user_id: 2,
-        visibility: :unlisted,
-        secret_token: "s3kr1t"
-      }
+      asciicast = %Asciicast{user_id: 2, visibility: :unlisted}
 
       assert Authorization.can?(user, :show, asciicast)
     end
@@ -65,19 +53,14 @@ defmodule Asciinema.AuthorizationTest do
       refute Authorization.can?(nil, :show, asciicast)
     end
 
-    test "a guest cannot read an unlisted asciicast accessed by id" do
-      asciicast = %Asciicast{id: 123, user_id: 1, visibility: :unlisted, secret_token: "s3kr1t"}
+    test "a guest can read an unlisted asciicast" do
+      asciicast = %Asciicast{user_id: 1, visibility: :unlisted}
 
-      refute Authorization.can?(nil, :show, asciicast)
+      assert Authorization.can?(nil, :show, asciicast)
     end
 
     test "a guest can read an unlisted asciicast given it knows the secret token" do
-      asciicast = %Asciicast{
-        id: "s3kr1t",
-        user_id: 1,
-        visibility: :unlisted,
-        secret_token: "s3kr1t"
-      }
+      asciicast = %Asciicast{user_id: 1, visibility: :unlisted}
 
       assert Authorization.can?(nil, :show, asciicast)
     end
@@ -89,11 +72,11 @@ defmodule Asciinema.AuthorizationTest do
       refute Authorization.can?(user, :show, asciicast)
     end
 
-    test "non-owner cannot read an unlisted asciicast accessed by id" do
+    test "non-owner can read an unlisted asciicast" do
       user = %User{id: 1}
-      asciicast = %Asciicast{id: 123, user_id: 2, visibility: :unlisted, secret_token: "s3kr1t"}
+      asciicast = %Asciicast{user_id: 2, visibility: :unlisted}
 
-      refute Authorization.can?(user, :show, asciicast)
+      assert Authorization.can?(user, :show, asciicast)
     end
 
     test "admin can read a private asciicast" do
@@ -105,7 +88,7 @@ defmodule Asciinema.AuthorizationTest do
 
     test "admin can read an unlisted asciicast" do
       admin = %User{id: 1, is_admin: true}
-      asciicast = %Asciicast{id: 123, user_id: 2, visibility: :unlisted, secret_token: "s3kr1t"}
+      asciicast = %Asciicast{user_id: 2, visibility: :unlisted}
 
       assert Authorization.can?(admin, :show, asciicast)
     end
@@ -175,7 +158,7 @@ defmodule Asciinema.AuthorizationTest do
 
     test "any user can see an unlisted stream given it knows the public token" do
       user = %User{id: 1}
-      stream = %Stream{id: "t0k3n", user_id: 2, visibility: :unlisted, public_token: "t0k3n"}
+      stream = %Stream{user_id: 2, visibility: :unlisted}
 
       assert Authorization.can?(user, :show, stream)
     end
@@ -192,14 +175,14 @@ defmodule Asciinema.AuthorizationTest do
       refute Authorization.can?(nil, :show, stream)
     end
 
-    test "a guest cannot see an unlisted stream accessed by id" do
-      stream = %Stream{id: 123, user_id: 1, visibility: :unlisted, public_token: "t0k3n"}
+    test "a guest can see an unlisted stream" do
+      stream = %Stream{user_id: 1, visibility: :unlisted}
 
-      refute Authorization.can?(nil, :show, stream)
+      assert Authorization.can?(nil, :show, stream)
     end
 
     test "a guest can see an unlisted stream given it knows the public token" do
-      stream = %Stream{id: "t0k3n", user_id: 1, visibility: :unlisted, public_token: "t0k3n"}
+      stream = %Stream{user_id: 1, visibility: :unlisted}
 
       assert Authorization.can?(nil, :show, stream)
     end
@@ -211,16 +194,16 @@ defmodule Asciinema.AuthorizationTest do
       assert Authorization.can?(user, :show, stream)
     end
 
-    test "owner can see their own unlisted stream accessed by id" do
+    test "owner can see their own unlisted stream via id" do
       user = %User{id: 1}
-      stream = %Stream{id: 123, user_id: 1, visibility: :unlisted, public_token: "t0k3n"}
+      stream = %Stream{user_id: 1, visibility: :unlisted}
 
       assert Authorization.can?(user, :show, stream)
     end
 
     test "owner can see their own unlisted stream via public token" do
       user = %User{id: 1}
-      stream = %Stream{id: "t0k3n", user_id: 1, visibility: :unlisted, public_token: "t0k3n"}
+      stream = %Stream{user_id: 1, visibility: :unlisted}
 
       assert Authorization.can?(user, :show, stream)
     end
@@ -232,11 +215,11 @@ defmodule Asciinema.AuthorizationTest do
       refute Authorization.can?(user, :show, stream)
     end
 
-    test "non-owner cannot see an unlisted stream accessed by id" do
+    test "non-owner can see an unlisted stream" do
       user = %User{id: 1}
-      stream = %Stream{id: 123, user_id: 2, visibility: :unlisted, public_token: "t0k3n"}
+      stream = %Stream{user_id: 2, visibility: :unlisted}
 
-      refute Authorization.can?(user, :show, stream)
+      assert Authorization.can?(user, :show, stream)
     end
 
     test "admin can see a private stream" do
@@ -246,9 +229,9 @@ defmodule Asciinema.AuthorizationTest do
       assert Authorization.can?(admin, :show, stream)
     end
 
-    test "admin can see an unlisted stream accessed by id" do
+    test "admin can see an unlisted stream via id" do
       admin = %User{id: 1, is_admin: true}
-      stream = %Stream{id: 123, user_id: 2, visibility: :unlisted, public_token: "t0k3n"}
+      stream = %Stream{user_id: 2, visibility: :unlisted}
 
       assert Authorization.can?(admin, :show, stream)
     end

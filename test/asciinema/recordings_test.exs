@@ -167,11 +167,29 @@ defmodule Asciinema.RecordingsTest do
   end
 
   describe "lookup_asciicast/1" do
+    test "accepts numerical ID for public recordings" do
+      asciicast = insert(:asciicast, visibility: :public)
+      id = asciicast.id
+
+      assert %Asciicast{id: ^id} = Recordings.lookup_asciicast(to_string(id))
+      assert nil == Recordings.lookup_asciicast("999999999999")
+    end
+
+    test "allows non-public lookup by numerical ID when enabled" do
+      asciicast = insert(:asciicast, visibility: :unlisted)
+      id = asciicast.id
+
+      assert nil == Recordings.lookup_asciicast(to_string(id))
+      assert %Asciicast{id: ^id} = Recordings.lookup_asciicast(to_string(id), true)
+    end
+
     test "accepts current 16-char secret tokens" do
       asciicast = insert(:asciicast, secret_token: "abcdefghijklmnop")
       id = asciicast.id
 
       assert %Asciicast{id: ^id} = Recordings.lookup_asciicast("abcdefghijklmnop")
+
+      assert nil == Recordings.lookup_asciicast("zzzzzzzzzzzzzzzz")
     end
 
     test "accepts legacy 25-char secret tokens" do
@@ -179,6 +197,8 @@ defmodule Asciinema.RecordingsTest do
       id = asciicast.id
 
       assert %Asciicast{id: ^id} = Recordings.lookup_asciicast("abcdefghijklmnopqrstuvwxy")
+
+      assert nil == Recordings.lookup_asciicast("zzzzzzzzzzzzzzzzzzzzzzzzz")
     end
   end
 

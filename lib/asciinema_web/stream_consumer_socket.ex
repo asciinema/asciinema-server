@@ -42,7 +42,7 @@ defmodule AsciinemaWeb.StreamConsumerSocket do
 
   def websocket_init(%{token: token, user_id: user_id}) do
     with {:ok, stream} <- fetch_stream(token),
-         :ok <- authorize(stream, user_id, token) do
+         :ok <- authorize(stream, user_id) do
       Logger.info("consumer/#{stream.id}: connected")
       state = %{stream_id: stream.id, init: false, last_event_time: 0.0}
       StreamServer.subscribe(stream.id, [:output, :input, :resize, :marker, :end, :reset])
@@ -190,13 +190,16 @@ defmodule AsciinemaWeb.StreamConsumerSocket do
     end
   end
 
-  defp fetch_stream(token), do: OK.required(Streaming.lookup_stream(token), :stream_not_found)
+  defp fetch_stream(token) do
+    case Streaming.lookup_stream(token) do
+      nil -> {:error, :stream_not_found}
+      stream -> {:ok, stream}
+    end
+  end
 
-  defp authorize(stream, user_id, token) do
-    resource = Map.put(stream, :id, token)
-
-    if Authorization.can?(nil, :show, resource) ||
-         (user_id && Authorization.can?(Accounts.get_user(user_id), :show, resource)) do
+  defp authorize(stream, user_id) do
+    if Authorization.can?(nil, :show, stream) ||
+         (user_id && Authorization.can?(Accounts.get_user(user_id), :show, stream)) do
       :ok
     else
       {:error, :forbidden}

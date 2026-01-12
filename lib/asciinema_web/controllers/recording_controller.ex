@@ -253,34 +253,25 @@ defmodule AsciinemaWeb.RecordingController do
   defp load_and_authorize_asciicast(conn, _) do
     id = String.trim(conn.params["id"])
 
-    {asciicast, ctx, status} =
-      cond do
-        String.match?(id, ~r/^\d+$/) ->
-          {Recordings.get_asciicast(id), %{}, :not_found}
-
-        Recordings.secret_token?(id) ->
-          {Recordings.find_asciicast_by_secret_token(id), %{id: id}, :forbidden}
-
-        true ->
-          {nil, %{}, :not_found}
-      end
-
-    if asciicast do
-      user = conn.assigns[:current_user]
-      action = Phoenix.Controller.action_name(conn)
-      resource = Map.merge(asciicast, ctx)
-
-      if Authorization.can?(user, action, resource) do
-        assign(conn, :asciicast, asciicast)
-      else
+    case Recordings.lookup_asciicast(id) do
+      nil ->
         conn
-        |> FallbackController.call({:error, status})
+        |> FallbackController.call({:error, :not_found})
         |> halt()
-      end
-    else
-      conn
-      |> FallbackController.call({:error, :not_found})
-      |> halt()
+
+      asciicast ->
+        user = conn.assigns[:current_user]
+        action = Phoenix.Controller.action_name(conn)
+
+        if Authorization.can?(user, action, asciicast) do
+          assign(conn, :asciicast, asciicast)
+        else
+          status = if Recordings.secret_token?(id), do: :forbidden, else: :not_found
+
+          conn
+          |> FallbackController.call({:error, status})
+          |> halt()
+        end
     end
   end
 
