@@ -68,14 +68,14 @@ defmodule AsciinemaWeb.RecordingController do
         |> Authorization.scope(:asciicasts, conn.assigns.current_user)
         |> Recordings.list(4)
 
-      conn
-      |> count_view(asciicast)
-      |> render(
+      render(
+        conn,
         :show,
         page_title: Recordings.title(asciicast),
         asciicast: asciicast,
         player_opts: player_opts(conn.params),
         actions: asciicast_actions(asciicast, conn.assigns.current_user),
+        view_count_url: build_view_count_url(conn, asciicast),
         other_asciicasts: other_asciicasts
       )
     end
@@ -288,19 +288,6 @@ defmodule AsciinemaWeb.RecordingController do
     end
   end
 
-  defp count_view(conn, asciicast) do
-    key = "a#{asciicast.id}"
-
-    case conn.req_cookies[key] do
-      nil ->
-        Recordings.inc_views_count(asciicast)
-        put_resp_cookie(conn, key, "1", max_age: 3600 * 24)
-
-      _ ->
-        conn
-    end
-  end
-
   @actions [:edit, :delete]
 
   defp asciicast_actions(asciicast, user) do
@@ -311,5 +298,16 @@ defmodule AsciinemaWeb.RecordingController do
     params
     |> Ext.Map.rename(%{"t" => "startAt", "i" => "idleTimeLimit"})
     |> PlayerOpts.parse(:recording)
+  end
+
+  defp build_view_count_url(conn, asciicast) do
+    case conn.req_cookies["a#{asciicast.id}"] do
+      nil ->
+        token = Recordings.generate_view_count_token(asciicast.id)
+        ~p"/a/#{asciicast}/views?token=#{token}"
+
+      _ ->
+        nil
+    end
   end
 end

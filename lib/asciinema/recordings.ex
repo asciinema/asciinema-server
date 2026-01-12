@@ -614,7 +614,7 @@ defmodule Asciinema.Recordings do
     end
   end
 
-  def inc_views_count(asciicast, date \\ Date.utc_today()) do
+  def register_view(asciicast, date \\ Date.utc_today()) do
     Repo.transact(fn ->
       from(a in Asciicast, where: a.id == ^asciicast.id)
       |> Repo.update_all(inc: [views_count: 1], set: [popularity_dirty: true])
@@ -699,4 +699,17 @@ defmodule Asciinema.Recordings do
   end
 
   defp generate_secret_token, do: Crypto.random_token(@secret_token_length)
+
+  # View count token - valid for 24 hours
+  @view_count_token_max_age 3600 * 24
+
+  def generate_view_count_token(asciicast_id) do
+    Phoenix.Token.sign(AsciinemaWeb.Endpoint, "view-count", asciicast_id)
+  end
+
+  def verify_view_count_token(token) do
+    Phoenix.Token.verify(AsciinemaWeb.Endpoint, "view-count", token,
+      max_age: @view_count_token_max_age
+    )
+  end
 end

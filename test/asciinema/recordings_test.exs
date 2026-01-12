@@ -343,11 +343,11 @@ defmodule Asciinema.RecordingsTest do
     end
   end
 
-  describe "inc_views_count/1" do
+  describe "register_view/1" do
     test "increments views_count on asciicast" do
       asciicast = insert(:asciicast, views_count: 5)
 
-      assert {:ok, :ok} = Recordings.inc_views_count(asciicast)
+      assert {:ok, :ok} = Recordings.register_view(asciicast)
 
       asciicast = Repo.get!(Asciicast, asciicast.id)
       assert asciicast.views_count == 6
@@ -357,7 +357,7 @@ defmodule Asciinema.RecordingsTest do
       asciicast = insert(:asciicast, views_count: 0)
       today = Date.utc_today()
 
-      assert {:ok, :ok} = Recordings.inc_views_count(asciicast, today)
+      assert {:ok, :ok} = Recordings.register_view(asciicast, today)
 
       [daily_view] =
         Repo.all(
@@ -375,9 +375,9 @@ defmodule Asciinema.RecordingsTest do
       asciicast = insert(:asciicast, views_count: 0)
       today = Date.utc_today()
 
-      Recordings.inc_views_count(asciicast, today)
-      Recordings.inc_views_count(asciicast, today)
-      Recordings.inc_views_count(asciicast, today)
+      Recordings.register_view(asciicast, today)
+      Recordings.register_view(asciicast, today)
+      Recordings.register_view(asciicast, today)
 
       [daily_view] =
         Repo.all(
@@ -393,7 +393,7 @@ defmodule Asciinema.RecordingsTest do
     test "marks asciicast as dirty for popularity recomputation" do
       asciicast = insert(:asciicast, popularity_dirty: false)
 
-      assert {:ok, :ok} = Recordings.inc_views_count(asciicast)
+      assert {:ok, :ok} = Recordings.register_view(asciicast)
 
       asciicast = Repo.get!(Asciicast, asciicast.id)
       assert asciicast.popularity_dirty == true

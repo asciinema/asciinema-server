@@ -253,6 +253,28 @@ defmodule AsciinemaWeb.Features.RecordingsTest do
       |> visit(~p"/a/nopenopenope")
       |> assert_has("h1", text: "404 Not Found")
     end
+
+    test "page reload with view already counted", %{conn: conn} do
+      asciicast = insert(:asciicast, visibility: :public, title: "My Recording")
+
+      session =
+        conn
+        |> visit(~p"/a/#{asciicast}")
+        |> assert_has("h2", text: "My Recording")
+
+      [_, view_count_url] = Regex.run(~r/viewCountUrl = "([^"]+)"/, session.conn.resp_body)
+
+      # Simulate the JS POST that would happen when player starts
+      view_count_conn = post(session.conn, view_count_url)
+
+      session =
+        view_count_conn
+        |> Phoenix.ConnTest.recycle()
+        |> visit(~p"/a/#{asciicast}")
+        |> assert_has("h2", text: "My Recording")
+
+      assert session.conn.resp_body =~ ~s(viewCountUrl = null)
+    end
   end
 
   describe "recording editing" do
