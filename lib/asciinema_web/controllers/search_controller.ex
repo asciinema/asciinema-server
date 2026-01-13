@@ -1,6 +1,7 @@
 defmodule AsciinemaWeb.SearchController do
   use AsciinemaWeb, :controller
-  alias Asciinema.{Authorization, Recordings}
+  alias Asciinema.Recordings
+  alias AsciinemaWeb.Authorization
 
   def show(conn, params) do
     q = params["q"] || ""

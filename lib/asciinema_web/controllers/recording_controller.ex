@@ -1,9 +1,8 @@
 defmodule AsciinemaWeb.RecordingController do
   use AsciinemaWeb, :controller
   alias Asciinema.{FileStore, Recordings, PngGenerator}
-  alias Asciinema.Authorization
   alias Asciinema.Recordings.Asciicast
-  alias AsciinemaWeb.{PlayerOpts, RecordingHTML}
+  alias AsciinemaWeb.{Authorization, PlayerOpts, RecordingHTML}
   alias AsciinemaWeb.FallbackController
 
   plug :require_current_user when action in [:edit, :update, :delete]

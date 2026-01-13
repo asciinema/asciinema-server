@@ -1,9 +1,8 @@
 defmodule AsciinemaWeb.StreamController do
   use AsciinemaWeb, :controller
   import AsciinemaWeb.Plug.ReturnTo
-  alias Asciinema.Authorization
-  alias Asciinema.{Authorization, Recordings, Streaming}
-  alias AsciinemaWeb.{FallbackController, StreamHTML, PlayerOpts}
+  alias Asciinema.{Recordings, Streaming}
+  alias AsciinemaWeb.{Authorization, FallbackController, StreamHTML, PlayerOpts}
   alias Ecto.Changeset
 
   plug :require_current_user when action in [:index, :create, :edit, :update, :delete]
@@ -143,7 +142,7 @@ defmodule AsciinemaWeb.StreamController do
   @actions [:edit, :delete]
 
   defp stream_actions(stream, user) do
-    Enum.filter(@actions, &Asciinema.Authorization.can?(user, &1, stream))
+    Enum.filter(@actions, &Authorization.can?(user, &1, stream))
   end
 
   defp load_and_authorize_stream(conn, _) do

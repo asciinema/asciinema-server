@@ -1,7 +1,7 @@
 defmodule AsciinemaWeb.UserController do
   use AsciinemaWeb, :controller
-  alias Asciinema.Authorization
   alias Asciinema.{Accounts, Streaming, Recordings}
+  alias AsciinemaWeb.Authorization
   require Logger
 
   plug :require_current_user when action in [:edit, :update]

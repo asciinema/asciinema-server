@@ -1,6 +1,7 @@
 defmodule AsciinemaWeb.OembedController do
   use AsciinemaWeb, :controller
-  alias Asciinema.{Recordings, Authorization}
+  alias Asciinema.Recordings
+  alias AsciinemaWeb.Authorization
 
   plug :put_layout, nil
 

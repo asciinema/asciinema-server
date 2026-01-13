@@ -1,6 +1,7 @@
 defmodule AsciinemaWeb.StreamConsumerSocket do
-  alias Asciinema.{Accounts, Authorization, Leb128, Streaming}
+  alias Asciinema.{Accounts, Leb128, Streaming}
   alias Asciinema.Streaming.{StreamServer, ViewerTracker}
+  alias AsciinemaWeb.Authorization
   alias AsciinemaWeb.Endpoint
   require Logger
 

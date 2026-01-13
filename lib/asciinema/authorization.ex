@@ -30,8 +30,6 @@ defmodule Asciinema.Authorization do
     def can?(_user, _action, _thing), do: false
   end
 
-  def can?(user, :edit, thing), do: can?(user, :update, thing)
-  def can?(user, :iframe, thing), do: can?(user, :show, thing)
   def can?(user, action, thing), do: Policy.can?(user, action, thing)
 
   defmodule Scope do

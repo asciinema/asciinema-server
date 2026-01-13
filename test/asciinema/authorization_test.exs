@@ -22,7 +22,13 @@ defmodule Asciinema.AuthorizationTest do
 
     test "owner can read its own unlisted asciicast via secret token" do
       user = %User{id: 1}
-      asciicast = %Asciicast{id: "s3kr1t", user_id: 1, visibility: :unlisted, secret_token: "s3kr1t"}
+
+      asciicast = %Asciicast{
+        id: "s3kr1t",
+        user_id: 1,
+        visibility: :unlisted,
+        secret_token: "s3kr1t"
+      }
 
       assert Authorization.can?(user, :show, asciicast)
     end
@@ -156,45 +162,6 @@ defmodule Asciinema.AuthorizationTest do
       asciicast = %Asciicast{user_id: 1, visibility: :public}
 
       refute Authorization.can?(nil, :delete, asciicast)
-    end
-
-    test "edit action delegates to update" do
-      user = %User{id: 1}
-      asciicast = %Asciicast{user_id: 1, visibility: :public}
-
-      assert Authorization.can?(user, :edit, asciicast)
-    end
-
-    test "non-owner cannot edit someone else's asciicast" do
-      user = %User{id: 1}
-      asciicast = %Asciicast{user_id: 2, visibility: :public}
-
-      refute Authorization.can?(user, :edit, asciicast)
-    end
-
-    test "guest cannot edit an asciicast" do
-      asciicast = %Asciicast{user_id: 1, visibility: :public}
-
-      refute Authorization.can?(nil, :edit, asciicast)
-    end
-
-    test "iframe action delegates to show" do
-      user = %User{id: 1}
-      asciicast = %Asciicast{user_id: 2, visibility: :public}
-
-      assert Authorization.can?(user, :iframe, asciicast)
-    end
-
-    test "guest cannot iframe a private asciicast" do
-      asciicast = %Asciicast{user_id: 1, visibility: :private}
-
-      refute Authorization.can?(nil, :iframe, asciicast)
-    end
-
-    test "guest can iframe a public asciicast" do
-      asciicast = %Asciicast{user_id: 1, visibility: :public}
-
-      assert Authorization.can?(nil, :iframe, asciicast)
     end
   end
 
