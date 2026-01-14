@@ -4,6 +4,7 @@ defmodule AsciinemaWeb.RecordingSVG do
   import Phoenix.HTML
   alias Asciinema.{Colors, Media, Themes}
   alias Asciinema.Recordings.Snapshot
+  alias AsciinemaWeb.Router.Helpers, as: Routes
 
   embed_templates "recording_svg/*"
 
@@ -65,7 +66,6 @@ defmodule AsciinemaWeb.RecordingSVG do
 
   def show(assigns) do
     ~H"""
-    {raw("<?xml version=\"1.0\"?>")}
     <.preview
       coords={coords(@asciicast, nil)}
       cols={term_cols(@asciicast)}
@@ -75,13 +75,22 @@ defmodule AsciinemaWeb.RecordingSVG do
       rx={assigns[:rx]}
       ry={assigns[:ry]}
       logo={true}
+      standalone={true}
     />
     """
   end
 
+  def thumbnail_standalone(assigns) do
+    ~H"""
+    <.thumbnail asciicast={@asciicast} standalone={true} />
+    """
+  end
+
+  attr :asciicast, :any, required: true
+  attr :standalone, :boolean, default: false
+
   def thumbnail(assigns) do
     ~H"""
-    {raw("<?xml version=\"1.0\"?>")}
     <.preview
       coords={coords(@asciicast, {80, 15})}
       cols={80}
@@ -91,19 +100,80 @@ defmodule AsciinemaWeb.RecordingSVG do
       rx={0}
       ry={0}
       logo={false}
+      standalone={@standalone}
     />
     """
   end
 
   defp coords(asciicast, crop_size) do
     snapshot = snapshot(asciicast, crop_size)
-    fg = Snapshot.fg_coords(snapshot)
+    segments = Snapshot.to_segments(snapshot, split_specials: true)
+    fg = fg_coords(segments)
 
     %{
-      bg: Snapshot.bg_coords(snapshot),
+      bg: bg_coords(segments),
       text: Enum.flat_map(fg, &keep_text/1),
       special_chars: Enum.flat_map(fg, &keep_special_chars/1)
     }
+  end
+
+  def fg_coords(lines) do
+    lines
+    |> Enum.with_index()
+    |> Enum.map(&text_line_coords/1)
+    |> Enum.filter(&(length(&1.segments) > 0))
+  end
+
+  defp text_line_coords({segments, y}) do
+    {_, segments} =
+      segments
+      |> Enum.flat_map(&split_on_whitespace/1)
+      |> Enum.reduce({0, []}, fn {text, attrs, char_width}, {x, segments} ->
+        width = String.length(text) * char_width
+
+        segments =
+          case text do
+            " " <> _ -> segments
+            _ -> [%{text: text, attrs: attrs, x: x, width: width} | segments]
+          end
+
+        {x + width, segments}
+      end)
+
+    %{y: y, segments: Enum.reverse(segments)}
+  end
+
+  defp split_on_whitespace({text, attrs, 1}) do
+    ~r/(^\s+)|\s{2,}/
+    |> Regex.split(text, include_captures: true)
+    |> Enum.filter(&(String.length(&1) > 0))
+    |> Enum.map(&{&1, attrs, 1})
+  end
+
+  defp split_on_whitespace(segment), do: [segment]
+
+  def bg_coords(lines) do
+    lines
+    |> Enum.with_index()
+    |> Enum.map(&bg_line_coords/1)
+    |> Enum.filter(&(length(&1.segments) > 0))
+  end
+
+  defp bg_line_coords({segments, y}) do
+    {_, segments} =
+      Enum.reduce(segments, {0, []}, fn {text, attrs, char_width}, {x, segments} ->
+        width = String.length(text) * char_width
+
+        segments =
+          case attrs["bg"] do
+            nil -> segments
+            _ -> [%{attrs: attrs, x: x, width: width} | segments]
+          end
+
+        {x + width, segments}
+      end)
+
+    %{y: y, segments: Enum.reverse(segments)}
   end
 
   defp keep_text(%{y: y, segments: segments}) do
@@ -414,11 +484,12 @@ defmodule AsciinemaWeb.RecordingSVG do
 
   def mix_colors(a, b, ratio), do: Colors.mix(a, b, ratio)
 
-  defp snapshot(%{snapshot: snapshot}, nil) do
-    snapshot || Snapshot.new([])
+  defp snapshot(asciicast, crop_size) do
+    (asciicast.snapshot || Snapshot.new([]))
+    |> maybe_crop(crop_size)
+    |> Snapshot.normalize_colors(asciicast.term_bold_is_bright)
   end
 
-  defp snapshot(%{snapshot: snapshot}, {cols, rows}) do
-    Snapshot.crop(snapshot || Snapshot.new([]), cols, rows)
-  end
+  defp maybe_crop(snapshot, nil), do: snapshot
+  defp maybe_crop(snapshot, {cols, rows}), do: Snapshot.crop(snapshot, cols, rows)
 end

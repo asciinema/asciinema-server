@@ -1,0 +1,111 @@
+/* ==========================================================================
+ * Recording/stream show views.
+ * ========================================================================== */
+
+/* == Cinema/player block == */
+
+.c-recording.a-show, .c-stream.a-show {
+  section.cinema {
+    background-color: color-mix(in oklab, var(--term-color-background) 80%, black);
+
+    .ap-player {
+      box-shadow: color-mix(in oklab, var(--term-color-background) 50%, black) 0px 0px 60px 5px;
+      border: 1px solid color-mix(in oklab,var(--term-color-background) 90%, var(--term-color-foreground));
+    }
+
+    div.ap-wrapper:fullscreen {
+      background-color: inherit;
+    }
+  }
+
+  /* == Metadata/info column == */
+
+  section.info {
+    small {
+      font-size: 14px;
+    }
+
+    .author-avatar {
+      display: block;
+      float: left;
+      width: 42px;
+      height: 42px;
+      margin-right: 10px;
+
+      img {
+        width: 100%;
+        height: 100%;
+        border-radius: 3px;
+      }
+    }
+
+    h2 {
+      margin: -0.1rem 0 0 0;
+      font-size: 1.4rem;
+      position: relative;
+    }
+
+    .actions {
+      .btn-group {
+        display: flex;
+        justify-content: flex-end;
+        gap: var(--space-3, 1rem);
+        flex-wrap: nowrap;
+      }
+
+      @media (max-width: 575px) {
+        .btn-group {
+          flex-wrap: wrap;
+        }
+      }
+
+      .btn-group > * {
+        flex: 0 0 auto;
+      }
+    }
+  }
+
+  /* == Meta details rows == */
+
+  section.meta {
+    pre {
+      background-color: #f7f7f7;
+    }
+
+    .status-line-item {
+      margin-right: 2em;
+
+      .icon {
+        position: relative;
+        top: 1px;
+
+        svg {
+          font-size: 1.5em;
+        }
+      }
+
+      .env-info > span {
+        margin-right: 0.25rem;
+      }
+
+      .icon.icon-live, .icon.icon-offline {
+        margin-right: 0.5em;
+      }
+
+      .help-tooltip {
+        cursor: help;
+      }
+    }
+
+    .description {
+      h1, h2 {
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+      }
+    }
+  }
+
+  section.more-by {
+    padding-top: 0;
+  }
+}

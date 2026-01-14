@@ -1,133 +1,115 @@
 <div class="container">
-  <div class="row">
-    <div class="col-md-12">
-      <div class="heading">
-        <h2>
-          <%= if @page.total_entries == 0 do %>
-            No matching results
-          <% else %>
-            {pluralize(@page.total_entries, "result")}
-          <% end %>
-          for <b>{@q}</b>
-        </h2>
+  <div class="heading">
+    <h2>
+      <%= if @page.total_entries == 0 do %>
+        No matching results
+      <% else %>
+        {pluralize(@page.total_entries, "result")}
+      <% end %>
+      for <b>{@q}</b>
+    </h2>
 
-        <.link
-          href="#"
-          class=""
-          id="search-tips-link"
-          data-toggle="modal"
-          data-target="#search-tips-modal"
-        >
-          <.info_outline_icon /> Search tips
-        </.link>
-      </div>
+    <.link href="#" class="" id="search-tips-link" data-modal="search-tips-modal">
+      <.info_outline_icon /> Search tips
+    </.link>
+  </div>
+
+  <div class="asciicast-list">
+    <div :for={asciicast <- @page}>
+      <RecordingHTML.card asciicast={asciicast} />
     </div>
   </div>
 
-  <div class="row asciicast-list">
-    <div class="col">
-      <div :for={asciicasts <- Enum.chunk_every(@page, 2, 2)} class="row">
-        <div :for={asciicast <- asciicasts} class="col-md-6">
-          <RecordingHTML.card asciicast={asciicast} />
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div :if={@page.total_pages > 1} class="row">
-    <div class="col">
-      {pagination_links(@page, q: @q)}
-    </div>
+  <div :if={@page.total_pages > 1} class="pagination-wrapper">
+    {pagination_links(@page, q: @q)}
   </div>
 </div>
 
-<div class="modal fade" id="search-tips-modal" tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Search tips</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
+<dialog id="search-tips-modal" class="modal modal-lg">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title"><.info_solid_icon /> Search tips</h5>
+      <button type="button" class="modal-close" data-modal-close aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
 
-      <div class="modal-body">
-        <p>
-          The search index includes recording titles, descriptions, and <em>full terminal session content</em>.
-        </p>
+    <div class="modal-body">
+      <p>
+        The search index includes recording titles, descriptions, and <em>full terminal session content</em>.
+      </p>
 
-        <p>
-          By default, only public recordings appear in results. When logged in, your own recordings are also included.
-        </p>
+      <p>
+        By default, only public recordings appear in results. When logged in, your own recordings are also included.
+      </p>
 
-        <hr />
+      <hr />
 
-        <p>
-          To search for both <code>foo</code> and <code>bar</code> enter:
-        </p>
+      <p>
+        To search for both <code>foo</code> and <code>bar</code> enter:
+      </p>
 
-        <p>
-          <code>foo bar</code>
-        </p>
+      <p>
+        <code>foo bar</code>
+      </p>
 
-        <p>
-          Alternatively you can use the <code>and</code> operator explicitly:
-        </p>
+      <p>
+        Alternatively you can use the <code>and</code> operator explicitly:
+      </p>
 
-        <p>
-          <code>foo and bar</code>
-        </p>
+      <p>
+        <code>foo and bar</code>
+      </p>
 
-        <p>
-          To search for either <code>foo</code>
-          or <code>bar</code>
-          use the <code>or</code>
-          operator:
-        </p>
+      <p>
+        To search for either <code>foo</code>
+        or <code>bar</code>
+        use the <code>or</code>
+        operator:
+      </p>
 
-        <p>
-          <code>foo or bar</code>
-        </p>
+      <p>
+        <code>foo or bar</code>
+      </p>
 
-        <p>
-          When no <code>or</code>
-          is used between terms then <code>and</code>
-          is inserted automatically.
-        </p>
+      <p>
+        When no <code>or</code>
+        is used between terms then <code>and</code>
+        is inserted automatically.
+      </p>
 
-        <p>
-          To search for <code>foo</code> but not <code>bar</code> use the <code>-</code> operator:
-        </p>
+      <p>
+        To search for <code>foo</code> but not <code>bar</code> use the <code>-</code> operator:
+      </p>
 
-        <p>
-          <code>foo -bar</code>
-        </p>
+      <p>
+        <code>foo -bar</code>
+      </p>
 
-        <p>
-          To search for an exact phrase wrap it in double quotes:
-        </p>
+      <p>
+        To search for an exact phrase wrap it in double quotes:
+      </p>
 
-        <p>
-          <code>"foo bar"</code>
-        </p>
+      <p>
+        <code>"foo bar"</code>
+      </p>
 
-        <p>
-          You can combine all of the above:
-        </p>
+      <p>
+        You can combine all of the above:
+      </p>
 
-        <p>
-          <code>"foo bar" -baz or qux</code>
-        </p>
+      <p>
+        <code>"foo bar" -baz or qux</code>
+      </p>
 
-        <p>
-          This query will return recordings containing phrase <code>foo bar</code>
-          but not containing word <code>baz</code>, as well as recordings containing <code>qux</code>.
-        </p>
+      <p>
+        This query will return recordings containing phrase <code>foo bar</code>
+        but not containing word <code>baz</code>, as well as recordings containing <code>qux</code>.
+      </p>
 
-        <hr />
+      <hr />
 
-        <p>The search bar can be focused by pressing <kbd>/</kbd> (forward slash) on any page.</p>
-      </div>
+      <p>The search bar can be focused by pressing <kbd>/</kbd> (forward slash) on any page.</p>
     </div>
   </div>
-</div>
+</dialog>

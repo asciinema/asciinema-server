@@ -14,6 +14,7 @@ defmodule Asciinema.Streaming.Stream do
     field :term_theme_bg, :string
     field :term_theme_palette, :string
     field :term_theme_prefer_original, :boolean, default: true
+    field :term_bold_is_bright, :boolean, default: false
     field :term_line_height, :float
     field :term_font_family, :string
     field :live, :boolean, default: false
@@ -30,6 +31,9 @@ defmodule Asciinema.Streaming.Stream do
     field :snapshot, Asciinema.Ecto.Type.Snapshot
     field :env, :map
     field :audio_url, :string
+    field :schedule, Crontab.CronExpression.Ecto.Type
+    field :next_start_at, :utc_datetime
+    field :offline_grace_period, :integer
 
     timestamps(type: :utc_datetime)
 

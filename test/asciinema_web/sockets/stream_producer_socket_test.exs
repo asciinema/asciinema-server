@@ -34,8 +34,8 @@ defmodule AsciinemaWeb.StreamProducerSocketTest do
   end
 
   describe "detect_protocol/1" do
-    test "alis v0" do
-      assert StreamProducerSocket.detect_protocol({:binary, "ALiS\0x1"}) == "v0.alis"
+    test "alis v1" do
+      assert StreamProducerSocket.detect_protocol({:binary, "ALiS\x01"}) == "v1.alis"
     end
 
     test "asciicast v2" do

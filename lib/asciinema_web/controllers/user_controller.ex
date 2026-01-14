@@ -16,11 +16,12 @@ defmodule AsciinemaWeb.UserController do
     render(conn, "new.html")
   end
 
-  def create(conn, _params) do
+  def create(conn, params) do
     token = get_session(conn, :sign_up_token)
     conn = delete_session(conn, :sign_up_token)
+    timezone = params["timezone"]
 
-    case Asciinema.create_user_from_sign_up_token(token) do
+    case Asciinema.confirm_sign_up(token, timezone) do
       {:ok, user} ->
         conn
         |> log_in(user)
@@ -62,6 +63,12 @@ defmodule AsciinemaWeb.UserController do
       |> Authorization.scope(:streams, current_user)
       |> Streaming.list(4)
 
+    upcoming_streams =
+      [:upcoming, user_id: user.id]
+      |> Streaming.query(:soonest)
+      |> Authorization.scope(:streams, current_user)
+      |> Streaming.list(4)
+
     asciicasts =
       [user_id: user.id]
       |> Recordings.query(:date)
@@ -75,6 +82,7 @@ defmodule AsciinemaWeb.UserController do
       user: user,
       self: self,
       live_streams: live_streams,
+      upcoming_streams: upcoming_streams,
       asciicasts: asciicasts
     )
   end
@@ -116,6 +124,7 @@ defmodule AsciinemaWeb.UserController do
 
     render(conn, "edit.html",
       changeset: changeset,
+      timezones: Tzdata.canonical_zone_list(),
       streaming_enabled: user.streaming_enabled,
       stream_recording_mode: Streaming.recording_mode(),
       clis: clis
@@ -123,7 +132,7 @@ defmodule AsciinemaWeb.UserController do
   end
 
   def delete(conn, %{"token" => token, "confirmed" => _}) do
-    case Asciinema.delete_user(token) do
+    case Asciinema.confirm_account_deletion(token) do
       :ok ->
         conn
         |> log_out()
@@ -145,7 +154,7 @@ defmodule AsciinemaWeb.UserController do
     user = conn.assigns.current_user
     address = user.email
 
-    case Asciinema.send_account_deletion_email(user, AsciinemaWeb.UrlProvider) do
+    case Asciinema.initiate_account_deletion(user, AsciinemaWeb.UrlProvider) do
       :ok ->
         conn
         |> put_flash(:info, "Account removal initiated - check your inbox (#{address})")

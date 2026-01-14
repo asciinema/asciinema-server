@@ -1,9 +1,6 @@
 defmodule Asciinema.Workers.UpdateFtsContent do
   use Oban.Worker,
-    unique: [
-      period: :infinity,
-      states: [:available, :retryable]
-    ]
+    unique: [period: :infinity, states: :incomplete]
 
   alias Asciinema.Recordings
   require Logger

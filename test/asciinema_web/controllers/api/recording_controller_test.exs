@@ -8,8 +8,8 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
     [token: Map.get(context, :token, "9da34ff4-9bf7-45d4-aa88-98c933b15a3f")]
   end
 
-  @recording_url ~r|^http://localhost:4001/a/[a-zA-Z0-9]{25}|
-  @successful_response ~r|View.+at.+http://localhost:4001/a/[a-zA-Z0-9]{25}\n|s
+  @recording_url ~r|^http://localhost:4001/a/[a-zA-Z0-9]{16}([a-zA-Z0-9]{9})?|
+  @successful_response ~r|View.+at.+http://localhost:4001/a/[a-zA-Z0-9]{16}([a-zA-Z0-9]{9})?\n|s
 
   describe "create without authentication" do
     test "fails", %{conn: conn} do
@@ -329,12 +329,12 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
       _asciicast =
         insert(:asciicast,
           user: cli.user,
-          secret_token: "abcdefghijklmnopqrstuvwxy",
+          secret_token: "abcdefghijklmnop",
           title: "Original title"
         )
 
       conn =
-        put(conn, ~p"/api/v1/recordings/abcdefghijklmnopqrstuvwxy", %{
+        put(conn, ~p"/api/v1/recordings/abcdefghijklmnop", %{
           "title" => "New title via token"
         })
 
@@ -441,9 +441,9 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
     end
 
     test "succeeds when deleting own recording using secret token", %{conn: conn, cli: cli} do
-      _asciicast = insert(:asciicast, user: cli.user, secret_token: "abcdefghijklmnopqrstuvwxy")
+      _asciicast = insert(:asciicast, user: cli.user, secret_token: "abcdefghijklmnop")
 
-      conn = delete(conn, ~p"/api/v1/recordings/abcdefghijklmnopqrstuvwxy")
+      conn = delete(conn, ~p"/api/v1/recordings/abcdefghijklmnop")
 
       assert response(conn, 204)
     end

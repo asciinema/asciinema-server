@@ -1,0 +1,155 @@
+/* ==========================================================================
+ * Shared dropdown styles for <details> menus (header/profile/actions).
+ * Keeps summary/menu animations consistent across contexts.
+ * ========================================================================== */
+
+/* == Base dropdown structure == */
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown summary {
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.dropdown summary::after {
+  content: '';
+  display: inline-block;
+  margin-left: 0.35rem;
+  border-top: 0.3em solid currentColor;
+  border-right: 0.3em solid transparent;
+  border-left: 0.3em solid transparent;
+  transition: transform var(--transition-fast);
+}
+
+.dropdown summary::-webkit-details-marker {
+  display: none;
+}
+
+.dropdown summary::-moz-list-bullet {
+  list-style-type: none;
+}
+
+.dropdown[open] summary::after {
+  transform: rotate(180deg);
+}
+
+/* == Dropdown menu & items == */
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: var(--z-index-dropdown);
+  display: none;
+  min-width: 10rem;
+  padding: 0.5rem 0;
+  margin: 0.125rem 0 0;
+  font-size: var(--font-size-md);
+  color: var(--color-text-primary);
+  text-align: left;
+  list-style: none;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--box-shadow-md);
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.dropdown[open] .dropdown-menu {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 0.25rem 1.5rem;
+  clear: both;
+  font-weight: var(--font-weight-normal);
+  color: var(--color-text-primary);
+  text-align: inherit;
+  text-decoration: none;
+  white-space: nowrap;
+  background-color: transparent;
+  border: 0;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+  color: #16181b;
+  text-decoration: none;
+  background-color: var(--color-light-hover);
+}
+
+.dropdown-item.active {
+  color: #fff;
+  text-decoration: none;
+  background-color: var(--color-primary);
+}
+
+.dropdown-item.text-danger {
+  color: var(--color-danger);
+}
+
+.dropdown-item.text-danger:hover,
+.dropdown-item.text-danger:focus {
+  color: #fff;
+  background-color: var(--color-danger);
+}
+
+.dropdown-item:disabled,
+.dropdown-item.disabled {
+  color: #6c757d;
+  pointer-events: none;
+  background-color: transparent;
+}
+
+.dropdown-divider {
+  height: 0;
+  margin: 0.5rem 0;
+  overflow: hidden;
+  border-top: 1px solid #e9ecef;
+}
+
+.dropdown-header {
+  display: block;
+  padding: 0.5rem 1.5rem;
+  margin-bottom: 0;
+  font-size: var(--font-size-sm);
+  color: #6c757d;
+  white-space: nowrap;
+}
+
+/* Safari-only overrides to avoid <details> repaint bug */
+@supports (font: -apple-system-body) {
+  .dropdown-menu {
+    display: block;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-10px);
+    transition: opacity 0.0001s linear,
+                transform 0.0001s linear,
+                visibility 0s linear 0.0001s;
+  }
+
+  .dropdown[open] .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+    transition: opacity 0.0001s linear,
+                transform 0.0001s linear,
+                visibility 0s;
+  }
+}

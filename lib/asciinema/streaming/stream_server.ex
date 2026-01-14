@@ -21,8 +21,8 @@ defmodule Asciinema.Streaming.StreamServer do
     GenServer.call(via_tuple(stream_id), :lead)
   end
 
-  def reset(stream_id, args, user_agent, query) do
-    payload = %{args: args, user_agent: user_agent, query: query}
+  def reset(stream_id, args, user_agent) do
+    payload = %{args: args, user_agent: user_agent}
     GenServer.call(via_tuple(stream_id), {:reset, payload})
   end
 
@@ -97,10 +97,10 @@ defmodule Asciinema.Streaming.StreamServer do
   end
 
   def handle_call({:reset, payload}, _from, state) do
-    %{args: args, user_agent: user_agent, query: query} = payload
+    %{args: args, user_agent: user_agent} = payload
     %{time: time, last_id: last_id, term_size: {cols, rows}} = args
     theme = args[:term_theme]
-    schema_changes = schema_changes_for_reset(time, {cols, rows}, user_agent, theme, query)
+    schema_changes = schema_changes_for_reset(time, {cols, rows}, user_agent, theme)
 
     state =
       %{state | theme: theme, user_agent: user_agent}
@@ -420,7 +420,7 @@ defmodule Asciinema.Streaming.StreamServer do
     last_stream_time + Timex.diff(Timex.now(), last_event_time, :microseconds)
   end
 
-  defp schema_changes_for_reset(time, {cols, rows}, user_agent, theme, query) do
+  defp schema_changes_for_reset(time, {cols, rows}, user_agent, theme) do
     fields = [
       [
         last_started_at: Timex.shift(Timex.now(), microseconds: -time),
@@ -428,13 +428,7 @@ defmodule Asciinema.Streaming.StreamServer do
         term_rows: rows,
         user_agent: user_agent
       ],
-      schema_theme_fields(theme),
-      # TODO remove below after relase of CLI 3.0
-      schema_field(:title, query, "title"),
-      schema_field(:term_type, query["term"] || %{}, "type"),
-      schema_field(:term_version, query["term"] || %{}, "version"),
-      schema_field(:shell, query, "shell"),
-      schema_field(:env, query, "env")
+      schema_theme_fields(theme)
     ]
 
     Enum.reduce(fields, &Keyword.merge/2)
@@ -451,12 +445,5 @@ defmodule Asciinema.Streaming.StreamServer do
       term_theme_bg: Colors.hex(theme.bg),
       term_theme_palette: palette
     ]
-  end
-
-  defp schema_field(schema_key, params, param_key) do
-    case Map.fetch(params, param_key) do
-      {:ok, value} -> [{schema_key, value}]
-      :error -> []
-    end
   end
 end

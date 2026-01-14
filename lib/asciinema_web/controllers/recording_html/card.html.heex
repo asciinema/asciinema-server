@@ -1,38 +1,29 @@
-<div class="asciicast-card">
-  <.link href={~p"/a/#{@asciicast}"} class="thumbnail-link">
-    <div class="play-button">
-      <span class="arrow">
-        <svg version="1.1" viewBox="0 0 12 12">
-          <path d="M1,0 L11,6 L1,12 Z" />
-        </svg>
-      </span>
-    </div>
+<MediumHTML.card
+  url={~p"/a/#{@asciicast}"}
+  title={title(@asciicast)}
+  theme={theme(@asciicast)}
+  author_profile_url={author_profile_path(@asciicast)}
+  author_username={author_username(@asciicast)}
+  author_avatar_url={author_avatar_url(@asciicast)}
+  inserted_at={if !assigns[:no_created_at], do: @asciicast.inserted_at}
+>
+  <:preview>
+    <object
+      type="image/svg+xml"
+      data={~p"/a/#{@asciicast}" <> ".svg?f=t&v=#{svg_cache_key(@asciicast)}"}
+    >
+    </object>
+  </:preview>
 
-    <.thumbnail asciicast={@asciicast} />
-  </.link>
+  <:duration>
+    {duration(@asciicast)}
+  </:duration>
 
-  <div class="info">
-    <h3>
-      <.link href={~p"/a/#{@asciicast}"}>{title(@asciicast)}</.link>
-      <span class="duration">{duration(@asciicast)}</span>
-    </h3>
-
-    <span class="author-avatar">
-      <.link href={author_profile_path(@asciicast)} title={author_username(@asciicast)}>
-        <img src={author_avatar_url(@asciicast)} />
-      </.link>
-    </span>
-
-    <small>
-      by <.link href={author_profile_path(@asciicast)}>{author_username(@asciicast)}</.link>
-      <%= if !assigns[:no_created_at] do %>
-        {time_ago_tag(@asciicast.inserted_at)}
-      <% end %>
-      <.visibility_badge
-        :if={assigns[:conn] && owned_by_current_user?(@asciicast, @conn)}
-        visibility={@asciicast.visibility}
-      />
-      <.featured_badge :if={@asciicast.featured} />
-    </small>
-  </div>
-</div>
+  <:badges>
+    <.visibility_badge
+      :if={assigns[:conn] && owned_by_current_user?(@asciicast, @conn)}
+      visibility={@asciicast.visibility}
+    />
+    <.featured_badge :if={@asciicast.featured} />
+  </:badges>
+</MediumHTML.card>

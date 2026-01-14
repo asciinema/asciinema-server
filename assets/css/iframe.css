@@ -1,7 +1,16 @@
-@import "./fonts/fira-code-nerd-font.css";
-@import "./fonts/jetbrains-mono-nerd-font.css";
+/* ==========================================================================
+ * Iframe layout styles (layouts/iframe.html) wrapping embedded player.
+ * Only loads fonts/player CSS needed by the embed.
+ * ========================================================================== */
+
+/* == Font/player imports == */
+
 @import "../node_modules/asciinema-player/dist/bundle/asciinema-player.css";
-@import "./fonts/powerline-symbols.css";
+@import "./fonts/fira-code.css";
+@import "./fonts/jetbrains-mono.css";
+@import "./fonts/symbols-nerd-font.css";
+
+/* == Embed body == */
 
 body.iframe {
   color: #333;

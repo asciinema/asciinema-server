@@ -18,6 +18,14 @@ defmodule Asciinema.Emails do
     |> deliver()
   end
 
+  def send_email(:email_change, to, token, url_provider) do
+    url = url_provider.email_change(token)
+
+    to
+    |> Email.email_change_email(url)
+    |> deliver()
+  end
+
   def send_email(:account_deletion, to, token, url_provider) do
     url = url_provider.account_deletion(token)
 
@@ -35,9 +43,9 @@ defmodule Asciinema.Emails do
   defp deliver(email) do
     with {:ok, _metadata} <- Mailer.deliver(email) do
       if Mailer.local_adapter?() do
-        for url <- extract_urls(email) do
+        Enum.each(extract_urls(email), fn url ->
           Logger.info("url from email: #{url}")
-        end
+        end)
       end
 
       :ok

@@ -131,13 +131,14 @@ defmodule AsciinemaWeb.RecordingController do
     else
       variant =
         case conn.params["f"] do
-          "t" -> :thumbnail
+          "t" -> :thumbnail_standalone
           _ -> :show
         end
 
       conn
       |> put_resp_header("cache-control", "public, max-age=#{@svg_max_age}, must-revalidate")
       |> put_etag(RecordingHTML.svg_cache_key(asciicast))
+      |> put_resp_header("access-control-allow-origin", "*")
       |> render(variant, asciicast: asciicast)
     end
   end
@@ -185,7 +186,7 @@ defmodule AsciinemaWeb.RecordingController do
 
   def edit(conn, _params) do
     changeset = Recordings.change_asciicast(conn.assigns.asciicast)
-    render(conn, "edit.html", changeset: changeset, instance_url: AsciinemaWeb.Endpoint.url())
+    render_edit_form(conn, changeset)
   end
 
   def update(conn, %{"asciicast" => asciicast_params}) do
@@ -198,8 +199,12 @@ defmodule AsciinemaWeb.RecordingController do
         |> redirect(to: ~p"/a/#{asciicast}")
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, "edit.html", changeset: changeset)
+        render_edit_form(conn, changeset)
     end
+  end
+
+  defp render_edit_form(conn, changeset) do
+    render(conn, "edit.html", changeset: changeset, instance_url: AsciinemaWeb.Endpoint.url())
   end
 
   def delete(conn, _params) do
@@ -254,7 +259,7 @@ defmodule AsciinemaWeb.RecordingController do
         String.match?(id, ~r/^\d+$/) ->
           {Recordings.get_asciicast(id), %{}, :not_found}
 
-        String.match?(id, ~r/^[[:alnum:]]{25}$/) ->
+        Recordings.secret_token?(id) ->
           {Recordings.find_asciicast_by_secret_token(id), %{id: id}, :forbidden}
 
         true ->

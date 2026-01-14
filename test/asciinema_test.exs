@@ -7,37 +7,11 @@ defmodule AsciinemaTest do
 
   @urls Asciinema.TestUrlProvider
 
-  describe "create_user/1" do
-    test "succeeds for valid attrs" do
-      assert {:ok, _} = Asciinema.create_user(%{email: "test@example.com", username: "test"})
-    end
-
-    test "fails for invalid attrs" do
-      assert {:error, %Ecto.Changeset{}} =
-               Asciinema.create_user(%{email: "test@example.com", username: "a"})
-    end
-  end
-
-  describe "create_user_from_sign_up_token/1" do
-    test "succeeds when email not taken" do
-      {:ok, {:sign_up, token, _email}} = Asciinema.generate_login_token("test@example.com")
-
-      assert {:ok, _} = Asciinema.create_user_from_sign_up_token(token)
-    end
-
-    test "fails when email address taken" do
-      {:ok, {:sign_up, token, _email}} = Asciinema.generate_login_token("test@example.com")
-      insert(:user, email: "test@example.com")
-
-      assert Asciinema.create_user_from_sign_up_token(token) == {:error, :email_taken}
-    end
-  end
-
-  describe "send_login_email/3" do
+  describe "initiate_login/3" do
     test "existing user, by email" do
       insert(:user, email: "test@example.com")
 
-      assert Asciinema.send_login_email("TEST@EXAMPLE.COM", @urls) == :ok
+      assert Asciinema.initiate_login("TEST@EXAMPLE.COM", @urls) == :ok
 
       assert_email_sent(to: [{nil, "test@example.com"}], subject: "Login to localhost")
     end
@@ -45,7 +19,7 @@ defmodule AsciinemaTest do
     test "existing user, by username" do
       insert(:user, username: "foobar", email: "foobar123@example.com")
 
-      assert Asciinema.send_login_email("foobar", @urls) == :ok
+      assert Asciinema.initiate_login("foobar", @urls) == :ok
 
       assert_email_sent(
         to: [{nil, "foobar123@example.com"}],
@@ -54,26 +28,26 @@ defmodule AsciinemaTest do
     end
 
     test "non-existing user, by email" do
-      assert Asciinema.send_login_email("NEW@EXAMPLE.COM", @urls) == :ok
+      assert Asciinema.initiate_login("NEW@EXAMPLE.COM", @urls) == :ok
 
       assert_email_sent(to: [{nil, "new@example.com"}], subject: "Welcome to localhost")
     end
 
     test "non-existing user, by email, when registration is disabled" do
-      assert Asciinema.send_login_email("new@example.com", @urls, register: false) ==
+      assert Asciinema.initiate_login("new@example.com", @urls, register: false) ==
                {:error, :user_not_found}
 
       assert_no_email_sent()
     end
 
     test "non-existing user, by email, when email is invalid" do
-      assert Asciinema.send_login_email("new@", @urls) == {:error, :email_invalid}
+      assert Asciinema.initiate_login("new@", @urls) == {:error, :email_invalid}
 
       assert_no_email_sent()
     end
 
     test "non-existing user, by username" do
-      assert Asciinema.send_login_email("idontexist", @urls) == {:error, :user_not_found}
+      assert Asciinema.initiate_login("idontexist", @urls) == {:error, :user_not_found}
 
       assert_no_email_sent()
     end

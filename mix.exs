@@ -41,6 +41,7 @@ defmodule Asciinema.MixProject do
     [
       {:briefly, "~> 0.3"},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:crontab, "~> 1.2"},
       {:earmark, "~> 1.4.46"},
       {:ecto_psql_extras, "~> 0.8.8"},
       {:ecto_sql, "~> 3.6"},
@@ -68,7 +69,7 @@ defmodule Asciinema.MixProject do
       {:phoenix_view, "~> 2.0.3"},
       {:phoenix_html, "~> 3.3.3", override: true},
       {:phoenix_live_dashboard, "~> 0.8.7"},
-      {:phoenix_live_reload, "~> 1.5", only: :dev},
+      {:phoenix_live_reload, "~> 1.6", only: :dev},
       {:phoenix_live_view, "~> 1.0.4"},
       {:phoenix_markdown, "~> 1.0"},
       {:phoenix_pubsub, "~> 2.1.3"},

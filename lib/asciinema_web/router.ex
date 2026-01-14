@@ -32,10 +32,6 @@ defmodule AsciinemaWeb.Router do
     plug :put_format, :json
   end
 
-  pipeline :legacy do
-    plug :assign_legacy_marker
-  end
-
   scope "/", AsciinemaWeb do
     pipe_through :asciicast
 
@@ -78,6 +74,12 @@ defmodule AsciinemaWeb.Router do
       only: [:edit, :update, :delete],
       singleton: true do
       resources "/streams", StreamController, only: [:index, :create]
+
+      # new email format/availability validation
+      put "/email", EmailController, :update
+
+      # new email ownership validation via email link
+      get "/email", EmailController, :update
     end
 
     resources "/users", UserController, as: :users, only: [:new, :create]
@@ -112,15 +114,6 @@ defmodule AsciinemaWeb.Router do
 
     # used by CLI 2.x
     post "/asciicasts", RecordingController, :create
-
-    scope "/" do
-      # used by CLI 3.0 RC.5 and earlier
-      # remove after release of the final CLI 3.0
-      pipe_through :legacy
-
-      post "/streams", StreamController, :create
-      get "/user/streams/:id", StreamController, :show
-    end
   end
 
   if Application.compile_env(:asciinema, :dev_routes) do
@@ -144,8 +137,4 @@ defmodule AsciinemaWeb.Router do
   end
 
   defp format_specific_plugs(conn, _other), do: conn
-
-  defp assign_legacy_marker(conn, []) do
-    assign(conn, :legacy_path, true)
-  end
 end

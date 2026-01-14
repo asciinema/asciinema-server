@@ -4,5 +4,6 @@ defmodule Asciinema.UrlProvider do
 
   @callback sign_up(token) :: url
   @callback login(token) :: url
+  @callback email_change(token) :: url
   @callback account_deletion(token) :: url
 end

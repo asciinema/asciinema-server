@@ -1,0 +1,180 @@
+/* ==========================================================================
+ * Layout primitives (containers, grids, helper patterns) shared site-wide.
+ * Keeps Phoenix templates compact by mirroring the most common layouts.
+ * ========================================================================== */
+
+/* == Containers == */
+
+.container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--container-padding);
+  padding-right: var(--container-padding);
+  max-width: var(--container-max-width-xl);
+}
+
+@media (min-width: 576px) {
+  .container {
+    max-width: var(--container-max-width-sm);
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+    max-width: var(--container-max-width-md);
+  }
+}
+
+@media (min-width: 992px) {
+  .container {
+    max-width: var(--container-max-width-lg);
+  }
+}
+
+@media (min-width: 1200px) {
+  .container {
+    max-width: var(--container-max-width-xl);
+  }
+}
+
+/* == Fluid containers == */
+
+.container-fluid {
+  width: 100%;
+  padding-left: var(--container-padding);
+  padding-right: var(--container-padding);
+}
+
+/* == CSS grid utilities == */
+
+/* Basic grid */
+.grid {
+  display: grid;
+  gap: var(--space-5); /* 24px default gap */
+}
+
+/* Column counts */
+.grid-cols-1 {
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: repeat(1, 1fr);
+}
+
+.grid-cols-2 {
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.grid-cols-3 {
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.grid-cols-4 {
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: repeat(4, 1fr);
+}
+
+/* Responsive columns */
+@media (max-width: 767px) {
+  .grid-cols-2,
+  .grid-cols-3,
+  .grid-cols-4 {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  .grid-cols-3,
+  .grid-cols-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Gap utilities */
+.gap-0 { gap: 0; }
+.gap-2 { gap: var(--space-2); }
+.gap-3 { gap: var(--space-3); }
+.gap-4 { gap: var(--space-4); }
+.gap-5 { gap: var(--space-5); }
+.gap-6 { gap: var(--space-6); }
+
+/* == Common layout patterns == */
+
+/* Two column layout (like footer) */
+.two-col-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-5);
+}
+
+@media (max-width: 767px) {
+  .two-col-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Main-sidebar layout (2:1 ratio) */
+.main-sidebar-layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--space-6);
+}
+
+@media (max-width: 991px) {
+  .main-sidebar-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Content-sidebar layout (like recording show: 8:4 = 66.666%:33.333%) */
+.content-sidebar-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-6);
+  align-items: flex-start;
+}
+
+@media (max-width: 767px) {
+  .content-sidebar-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* == Form containers == */
+
+/* Constrains form width on large screens (replaces col-md-12 col-lg-9) */
+.form-container {
+  width: 100%;
+}
+
+@media (min-width: 992px) {
+  .form-container {
+    width: 75%; /* 9/12 = 75% */
+    max-width: 900px;
+  }
+}
+
+/* == Pagination wrapper == */
+
+/* Wrapper for pagination links (replaces row > col) */
+.pagination-wrapper {
+  width: 100%;
+  margin-top: var(--space-5);
+}
+
+/* == Section spacing == */
+
+.section {
+  padding-top: var(--space-6);
+  padding-bottom: var(--space-6);
+}
+
+.section-lg {
+  padding-top: var(--space-8);
+  padding-bottom: var(--space-8);
+}

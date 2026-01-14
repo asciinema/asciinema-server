@@ -1,0 +1,31 @@
+/* ==========================================================================
+ * Icon helpers: inline SVG alignment tweaks and live/offline pills.
+ * ========================================================================== */
+
+/* == Inline SVG alignment == */
+
+span.icon svg {
+  display: inline-block;
+  vertical-align: middle;
+  height: 1em;
+  margin-right: 0.2em;
+  margin-top: -0.15em;
+}
+
+/* == Status pills == */
+
+span.icon-live {
+  font-weight: bold;
+  color: white;
+  background-color: #d40000;
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+}
+
+span.icon-offline {
+  font-weight: bold;
+  color: white;
+  background-color: #666;
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+}

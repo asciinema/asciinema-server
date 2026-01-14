@@ -1,0 +1,43 @@
+/* ==========================================================================
+ * Login/signup views.
+ * ========================================================================== */
+
+/* == Inline login form == */
+
+.login-form {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  gap: var(--space-3);
+
+  .email-field {
+    width: 250px;
+    margin-right: 10px;
+  }
+
+  .hpf-wrapper {
+    position: absolute;
+    left: -9999px;
+  }
+}
+
+/* == Username picker == */
+
+.username-form {
+  input#user_username {
+    width: 200px;
+  }
+}
+
+/* == Page layout tweaks == */
+
+.c-login {
+  h2 {
+    margin-top: var(--space-6);
+    margin-bottom: var(--space-3);
+  }
+
+  .grid-cols-2 > div > :first-child {
+    margin-top: 0;
+  }
+}

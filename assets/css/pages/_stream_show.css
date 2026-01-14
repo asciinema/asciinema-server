@@ -1,0 +1,31 @@
+/* ==========================================================================
+ * Stream show view.
+ * ========================================================================== */
+
+/* == Hero adjustments == */
+
+.c-stream.a-show {
+  section.cinema {
+    transition: background-color 0.2s;
+  }
+
+  section.instructions {
+    padding-top: 0;
+
+    input[type=text] {
+      width: 100%;
+      font-family: var(--font-family-mono);
+      font-size: 14px;
+      color: #212529;
+      background-color: #fff;
+      border-radius: 3px;
+      border: 1px solid #e0e0e0;
+      margin-bottom: 8px;
+      padding: 9px;
+    }
+
+    h3 {
+      font-weight: 600;
+    }
+  }
+}

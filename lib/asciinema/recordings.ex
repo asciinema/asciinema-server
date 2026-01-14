@@ -16,6 +16,11 @@ defmodule Asciinema.Recordings do
 
   alias Ecto.Changeset
 
+  @secret_token_length 16
+  @legacy_secret_token_length 25
+  @secret_token_lengths [@secret_token_length, @legacy_secret_token_length]
+  @secret_token_re ~r/^[[:alnum:]]+$/
+
   def get_asciicast(id) do
     Asciicast
     |> Repo.get(id)
@@ -35,12 +40,16 @@ defmodule Asciinema.Recordings do
       String.match?(id, ~r/^\d+$/) ->
         get_asciicast(id)
 
-      String.match?(id, ~r/^[[:alnum:]]{25}$/) ->
+      secret_token?(id) ->
         find_asciicast_by_secret_token(id)
 
       true ->
         nil
     end
+  end
+
+  def secret_token?(token) when is_binary(token) do
+    String.match?(token, @secret_token_re) and byte_size(token) in @secret_token_lengths
   end
 
   def query(filters \\ [], order \\ nil)
@@ -176,7 +185,7 @@ defmodule Asciinema.Recordings do
         %{
           filename: filename,
           visibility: user.default_recording_visibility,
-          secret_token: Crypto.random_token(25)
+          secret_token: generate_secret_token()
         },
         fields
       )
@@ -187,7 +196,7 @@ defmodule Asciinema.Recordings do
       |> change(attrs)
 
     with {:ok, metadata} <- extract_metadata(upload),
-         changeset = apply_metadata(changeset, metadata, user.term_theme_prefer_original),
+         changeset = apply_metadata(changeset, metadata, user),
          {:ok, %Asciicast{} = asciicast} <- do_create_asciicast(changeset, upload) do
       if asciicast.snapshot == nil do
         %{asciicast_id: asciicast.id}
@@ -217,12 +226,14 @@ defmodule Asciinema.Recordings do
   @hex_color_re ~r/^#[0-9a-f]{6}$/
   @hex_palette_re ~r/^(#[0-9a-f]{6}:){7}((#[0-9a-f]{6}:){8})?#[0-9a-f]{6}$/
 
-  defp apply_metadata(changeset, metadata, prefer_original_theme) do
-    term_theme_name = if metadata[:term_theme_palette] && prefer_original_theme, do: "original"
+  defp apply_metadata(changeset, metadata, user) do
+    term_theme_name =
+      if metadata[:term_theme_palette] && user.term_theme_prefer_original, do: "original"
 
     changeset
     |> put_change(:version, metadata.version)
     |> put_change(:term_theme_name, term_theme_name)
+    |> put_change(:term_bold_is_bright, user.term_bold_is_bright)
     |> cast(metadata, [
       :duration,
       :term_cols,
@@ -302,6 +313,7 @@ defmodule Asciinema.Recordings do
       :term_cols_override,
       :term_rows_override,
       :term_theme_name,
+      :term_bold_is_bright,
       :term_line_height,
       :term_font_family,
       :idle_time_limit,
@@ -371,9 +383,9 @@ defmodule Asciinema.Recordings do
   def delete_asciicasts(%Ecto.Query{} = query) do
     asciicasts = Repo.all(query)
 
-    for a <- asciicasts do
+    Enum.each(asciicasts, fn a ->
       {:ok, _} = delete_asciicast(a)
-    end
+    end)
 
     length(asciicasts)
   end
@@ -573,4 +585,6 @@ defmodule Asciinema.Recordings do
     q = from(a in Asciicast, where: a.user_id == ^src_user_id)
     Repo.update_all(q, set: [user_id: dst_user_id, updated_at: Timex.now()])
   end
+
+  defp generate_secret_token, do: Crypto.random_token(@secret_token_length)
 end

@@ -1,0 +1,146 @@
+/* ==========================================================================
+ * Design tokens (CSS custom properties) shared across every stylesheet.
+ * Define colors, spacing, typography, and scale values used by components.
+ * ========================================================================== */
+
+:root {
+  /* == Colors: brand == */
+  --color-primary: #06989a;
+  --color-primary-hover: #055759;
+  --color-primary-active: #044f51;
+  --color-primary-light: #7dd3d4;
+  --color-primary-alpha: rgba(6, 152, 154, 0.5);
+  --color-primary-alpha-soft: rgba(6, 152, 154, 0.25);
+
+  /* -- Link colors -- */
+  --color-link: #06989a;
+  --color-link-hover: #055759;
+
+  /* == Colors: background == */
+  --color-bg-body: #f7f7f7;           /* Main body background */
+  --color-bg-white: #ffffff;          /* White sections */
+  --color-bg-dark: #222222;           /* Dark sections */
+  --color-bg-dark-alt: #222230;       /* Alternate dark */
+  --color-bg-black: #000000;          /* Header background */
+  --color-bg-code-inline: #eee;       /* Inline code background */
+  --color-bg-code-block: #eee;        /* Code block background */
+
+  /* == Colors: borders == */
+  --color-border-light: #eeeeee;      /* Lightest borders */
+  --color-border-medium: #e0e0e0;     /* Medium borders */
+  --color-border-gray: #dddddd;       /* Gray borders */
+  --color-border-muted: #d3d9df;      /* Muted borders */
+  --color-border-dark: #cccccc;       /* Darker borders */
+  --color-border-darkest: #bbbbbb;    /* Darkest borders */
+
+  /* == Colors: text == */
+  --color-text-primary: #333333;      /* Primary text */
+  --color-text-secondary: #959fa7;    /* Secondary/placeholder */
+  --color-text-dark: #212529;         /* Darker text */
+  --color-text-muted: #6c757d;        /* Muted text */
+  --color-text-white: #ffffff;        /* White text */
+
+  /* == Colors: functional == */
+  --color-success: #06989a;           /* Success (using brand teal) */
+  --color-warning: #c4a000;           /* Warning/alert */
+  --color-danger: #dc3545;            /* Error/danger */
+  --color-danger-hover: #c82333;
+  --color-danger-active: #bd2130;
+  --color-info: #17a2b8;              /* Info */
+  --color-info-hover: #138496;
+  --color-info-active: #117a8b;
+  --color-secondary: #6c757d;         /* Secondary button */
+  --color-secondary-hover: #5a6268;
+  --color-secondary-active: #545b62;
+  --color-light: #f8f9fa;
+  --color-light-hover: #e2e6ea;
+  --color-light-active: #dae0e5;
+  --color-live: #d40000;              /* Live indicator */
+  --color-offline: #666666;           /* Offline status */
+
+  /* == Spacing scale (8px base) == */
+  --space-0: 0;
+  --space-1: 0.25rem;  /* 4px - micro spacing */
+  --space-2: 0.5rem;   /* 8px - small spacing */
+  --space-3: 0.75rem;  /* 12px - medium-small */
+  --space-4: 1rem;     /* 16px - default spacing */
+  --space-5: 1.5rem;   /* 24px - medium spacing */
+  --space-6: 2rem;     /* 32px - large spacing */
+  --space-7: 2.5rem;   /* 40px - extra large */
+  --space-8: 3rem;     /* 48px - section spacing */
+
+  /* == Typography == */
+
+  /* -- Font families -- */
+  --font-family-base: 'Fira Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-family-mono: 'JetBrains Mono', 'Cascadia Code', Menlo, Consolas, 'DejaVu Sans Mono', monospace, 'Symbols Nerd Font';
+
+  /* -- Font sizes -- */
+  --font-size-xs: 0.75rem;   /* 12px - small labels */
+  --font-size-sm: 0.8125rem; /* 13px - small text */
+  --font-size-base: 0.875rem;/* 14px - adjusted from 16px for denser UI */
+  --font-size-md: 1rem;      /* 16px - default */
+  --font-size-lg: 1.125rem;  /* 18px - large text */
+  --font-size-xl: 1.25rem;   /* 20px - extra large */
+  --font-size-2xl: 1.5rem;   /* 24px - h2 */
+  --font-size-3xl: 1.8rem;   /* ~29px - h1 default */
+  --font-size-4xl: 2rem;     /* 32px - h1 large */
+  --font-size-5xl: 2.5rem;   /* 40px - h1 hero */
+
+  /* -- Font weights -- */
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* -- Line heights -- */
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+
+  /* == Breakpoints == */
+  --breakpoint-sm: 576px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 992px;
+  --breakpoint-xl: 1200px;
+
+  /* == Z-index scale == */
+  --z-index-base: 1;
+  --z-index-dropdown: 1000;
+  --z-index-sticky: 1020;
+  --z-index-fixed: 1030;
+  --z-index-modal-backdrop: 1040;
+  --z-index-modal: 1050;
+  --z-index-popover: 1060;
+  --z-index-tooltip: 1070;
+
+  /* == Border radius & shadows == */
+
+  /* -- Border radius -- */
+  --border-radius-sm: 0.2rem;
+  --border-radius: 3px;
+  --border-radius-md: 4px;
+  --border-radius-lg: 6px;
+
+  /* -- Box shadows -- */
+  --box-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.075);
+  --box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --box-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.15);
+  --box-shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.2);
+  --box-shadow-focus: 0 0 0 0.15rem var(--color-primary-alpha-soft);
+
+  /* == Transition timing == */
+  --transition-fast: 75ms ease-in-out;
+  --transition-base: 150ms ease-in-out;
+  --transition-slow: 250ms ease-in-out;
+
+  /* == Container sizing == */
+  --container-max-width-sm: 540px;
+  --container-max-width-md: 720px;
+  --container-max-width-lg: 960px;
+  --container-max-width-xl: 1140px;
+  --container-padding: 15px;  /* Match current padding */
+
+  /* -- Component dimensions -- */
+  --navbar-height: 56px;
+}

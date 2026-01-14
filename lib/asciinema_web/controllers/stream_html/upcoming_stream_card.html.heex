@@ -1,0 +1,22 @@
+<MediumHTML.card
+  url={~p"/s/#{@stream}"}
+  title={title(@stream)}
+  theme={theme(@stream)}
+  author_profile_url={author_profile_path(@stream)}
+  author_username={author_username(@stream)}
+  author_avatar_url={author_avatar_url(@stream)}
+  no_play_overlay={true}
+>
+  <:preview>
+    <.countdown status={@status} />
+  </:preview>
+
+  <:duration>
+    <%= case @status do %>
+      <% :live -> %>
+        <.live_icon />
+      <% _ -> %>
+        Scheduled for {format_start_time(@stream)}
+    <% end %>
+  </:duration>
+</MediumHTML.card>

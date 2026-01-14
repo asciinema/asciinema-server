@@ -4,6 +4,7 @@ defmodule AsciinemaWeb.StreamController do
   alias Asciinema.Authorization
   alias Asciinema.{Authorization, Recordings, Streaming}
   alias AsciinemaWeb.{FallbackController, StreamHTML, PlayerOpts}
+  alias Ecto.Changeset
 
   plug :require_current_user when action in [:index, :create, :edit, :update, :delete]
   plug :load_and_authorize_stream when action in [:show, :edit, :update, :delete]
@@ -78,8 +79,7 @@ defmodule AsciinemaWeb.StreamController do
         conn
       end
 
-    changeset = Streaming.change_stream(conn.assigns.stream)
-    render(conn, :edit, changeset: changeset, instance_url: AsciinemaWeb.Endpoint.url())
+    render_edit_form(conn, Streaming.change_stream(conn.assigns.stream))
   end
 
   def update(conn, %{"stream" => params}) do
@@ -91,8 +91,30 @@ defmodule AsciinemaWeb.StreamController do
         |> put_flash(:info, "Stream #{id} updated.")
         |> redirect_back_or(to: ~p"/s/#{stream}")
 
-      {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, :edit, changeset: changeset)
+      {:error, %Changeset{} = changeset} ->
+        render_edit_form(conn, changeset)
+    end
+  end
+
+  defp render_edit_form(conn, changeset) do
+    render(conn, :edit,
+      changeset: changeset,
+      instance_url: AsciinemaWeb.Endpoint.url(),
+      schedule: schedule_value(conn.params["stream"], changeset),
+      timezone: conn.assigns.current_user.timezone
+    )
+  end
+
+  defp schedule_value(stream_params, changeset) do
+    cond do
+      value = get_in(stream_params, ["schedule"]) ->
+        value
+
+      value = Changeset.get_field(changeset, :schedule) ->
+        Crontab.CronExpression.Composer.compose(value)
+
+      true ->
+        ""
     end
   end
 

@@ -6,10 +6,12 @@ defmodule Asciinema.Accounts.User do
     field :temporary_username, :string
     field :email, :string
     field :name, :string
+    field :timezone, :string
     field :auth_token, :string
     field :term_theme_name, :string
     field :term_theme_prefer_original, :boolean, default: true
     field :term_font_family, :string
+    field :term_bold_is_bright, :boolean, default: false
     field :streaming_enabled, :boolean, default: true
     field :stream_recording_enabled, :boolean, default: true
     field :default_recording_visibility, Ecto.Enum, values: ~w[private unlisted public]a

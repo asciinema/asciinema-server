@@ -1,0 +1,66 @@
+/* ==========================================================================
+ * Flash banner shown via LayoutView `_flash.html`.
+ * Uses max-height transitions so the close button/toggle can collapse it.
+ * ========================================================================== */
+
+/* == Flash container == */
+
+section.flash {
+  max-height: 200px;
+  overflow: hidden;
+  transition: max-height 0.2s ease-out;
+
+  &.hidden {
+    max-height: 0px;
+  }
+
+  .container {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding-top: 10px;
+    padding-bottom: 10px;
+    font-weight: bold;
+  }
+
+  .flash-message {
+    flex: 1;
+    text-align: center;
+  }
+
+  &.notice {
+    color: white;
+    background-color: #06989a;
+  }
+
+  &.alert {
+    color: black;
+    background-color: #c4a000;
+  }
+
+  /* Reset default spacing and borders for flash section */
+  margin-bottom: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+
+  .flash-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    flex-shrink: 0;
+    border-radius: 999px;
+    border: 1px solid currentColor;
+    background-color: transparent;
+    color: inherit;
+    line-height: 1;
+    font-size: 1.125rem;
+    transition: background-color var(--transition-base), color var(--transition-base);
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.15);
+    }
+  }
+}

@@ -1,9 +1,6 @@
 defmodule Asciinema.Workers.DeleteUnclaimedRecordings do
   use Oban.Worker,
-    unique: [
-      period: :infinity,
-      states: [:scheduled, :available, :executing, :retryable]
-    ]
+    unique: [period: :infinity, states: :incomplete]
 
   require Logger
 

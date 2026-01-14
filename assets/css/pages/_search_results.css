@@ -1,0 +1,26 @@
+/* ==========================================================================
+ * Search results page.
+ * ========================================================================== */
+
+.c-search {
+  &.a-show {
+    main {
+      .heading {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin: 2rem 0;
+
+        h2 {
+          flex-grow: 1;
+          margin-top: 0;
+          margin-bottom: 1rem;
+        }
+      }
+
+      .pagination {
+        margin-top: 1rem;
+      }
+    }
+  }
+}

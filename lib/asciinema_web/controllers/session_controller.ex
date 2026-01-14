@@ -11,11 +11,12 @@ defmodule AsciinemaWeb.SessionController do
     render(conn, "new.html")
   end
 
-  def create(conn, _params) do
+  def create(conn, params) do
     login_token = get_session(conn, :login_token)
     conn = delete_session(conn, :login_token)
+    timezone = params["timezone"]
 
-    case Asciinema.verify_login_token(login_token) do
+    case Asciinema.confirm_login(login_token, timezone) do
       {:ok, user} ->
         conn
         |> log_in(user)

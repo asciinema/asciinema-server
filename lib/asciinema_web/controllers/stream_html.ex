@@ -1,8 +1,10 @@
 defmodule AsciinemaWeb.StreamHTML do
   use AsciinemaWeb, :html
+  import AsciinemaWeb.ErrorHelpers
   import Scrivener.HTML
   alias Asciinema.{Accounts, Fonts, Media, Streaming, Themes}
-  alias AsciinemaWeb.{MediaView, RecordingHTML, RecordingSVG}
+  alias Asciinema.Streaming.Stream
+  alias AsciinemaWeb.{MediaView, MediumHTML, RecordingHTML, RecordingSVG}
 
   embed_templates "stream_html/*"
 
@@ -28,6 +30,7 @@ defmodule AsciinemaWeb.StreamHTML do
       rows: term_rows(stream),
       autoplay: stream.audio_url == nil,
       theme: term_theme_name(stream),
+      boldIsBright: stream.term_bold_is_bright,
       terminalLineHeight: stream.term_line_height,
       customTerminalFontFamily: Media.font_family(stream),
       audioUrl: stream.audio_url
@@ -64,6 +67,22 @@ defmodule AsciinemaWeb.StreamHTML do
 
   defp owned_by_current_user?(stream, conn) do
     conn.assigns[:current_user] && conn.assigns[:current_user].id == stream.user_id
+  end
+
+  def format_start_time(%Stream{} = stream) do
+    timezone = stream.user.timezone || "Etc/UTC"
+
+    stream.next_start_at
+    |> DateTime.shift_zone!(timezone)
+    |> format_start_time()
+  end
+
+  def format_start_time(%DateTime{} = start_time) do
+    if start_time.year == DateTime.now!(start_time.time_zone).year do
+      Calendar.strftime(start_time, "%a %d %b %H:%M %Z")
+    else
+      Calendar.strftime(start_time, "%a %d %b %Y %H:%M %Z")
+    end
   end
 
   def head("show.html", assigns), do: head_for_show(assigns)

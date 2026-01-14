@@ -1,61 +1,51 @@
 <div class="container">
-  <div class="row">
-    <div class="col-md-12">
-      <div class="heading">
-        <h2>Published recordings</h2>
+  <div class="heading">
+    <h2>Published recordings</h2>
 
-        <div class="toggles">
-          <div class="filtering">
-            <div class="btn-group btn-group-sm">
-              <.active_link
-                href={~p"/explore/featured"}
-                title="featured"
-                active?={@category == :featured}
-                class="btn btn-light"
-              />
-              <.active_link
-                href={~p"/explore/public"}
-                title="all public"
-                active?={@category == :public}
-                class="btn btn-light sort-popularity"
-              />
-            </div>
-          </div>
+    <div class="toggles">
+      <div class="filtering">
+        <div class="btn-group btn-group-sm">
+          <.active_link
+            href={~p"/explore/featured"}
+            title="featured"
+            active?={@category == :featured}
+            class="btn btn-light"
+          />
+          <.active_link
+            href={~p"/explore/public"}
+            title="all public"
+            active?={@category == :public}
+            class="btn btn-light sort-popularity"
+          />
+        </div>
+      </div>
 
-          <div class="sorting">
-            <div class="btn-group btn-group-sm">
-              <.active_link
-                href="?order=date"
-                title="by upload date"
-                active?={@order == :date}
-                class="btn btn-light"
-              />
-              <.active_link
-                href="?order=popularity"
-                title="by popularity"
-                active?={@order == :popularity}
-                class="btn btn-light sort-popularity"
-              />
-            </div>
-          </div>
+      <div class="sorting">
+        <div class="btn-group btn-group-sm">
+          <.active_link
+            href="?order=date"
+            title="by upload date"
+            active?={@order == :date}
+            class="btn btn-light"
+          />
+          <.active_link
+            href="?order=popularity"
+            title="by popularity"
+            active?={@order == :popularity}
+            class="btn btn-light sort-popularity"
+          />
         </div>
       </div>
     </div>
   </div>
 
-  <div class="row asciicast-list">
-    <div class="col">
-      <div :for={asciicasts <- Enum.chunk_every(@page, 2, 2)} class="row">
-        <div :for={asciicast <- asciicasts} class="col-md-6">
-          <.card asciicast={asciicast} />
-        </div>
-      </div>
+  <div class="asciicast-list">
+    <div :for={asciicast <- @page}>
+      <.card asciicast={asciicast} />
     </div>
   </div>
 
-  <div :if={@page.total_pages > 1} class="row">
-    <div class="col">
-      {pagination_links(@page, order: @order)}
-    </div>
+  <div :if={@page.total_pages > 1} class="pagination-wrapper">
+    {pagination_links(@page, order: @order)}
   </div>
 </div>

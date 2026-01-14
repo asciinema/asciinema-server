@@ -1,0 +1,14 @@
+<dialog id="share-modal" class="modal modal-lg">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title">Share this stream</h5>
+      <button type="button" class="modal-close" data-modal-close aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <.code_with_copy>{url(~p"/s/#{@stream}")}</.code_with_copy>
+    </div>
+  </div>
+</dialog>

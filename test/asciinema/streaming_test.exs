@@ -6,7 +6,7 @@ defmodule Asciinema.StreamingTest do
 
   describe "create_stream/2" do
     test "default params" do
-      user = insert(:user)
+      user = insert(:user, term_theme_prefer_original: false, term_bold_is_bright: false)
 
       assert {:ok, stream} = Streaming.create_stream(user)
 
@@ -16,8 +16,19 @@ defmodule Asciinema.StreamingTest do
                term_version: nil,
                term_cols: nil,
                term_rows: nil,
+               term_theme_prefer_original: false,
+               term_bold_is_bright: false,
                shell: nil,
                env: nil
+             } = stream
+
+      user = insert(:user, term_theme_prefer_original: true, term_bold_is_bright: true)
+
+      assert {:ok, stream} = Streaming.create_stream(user)
+
+      assert %Stream{
+               term_theme_prefer_original: true,
+               term_bold_is_bright: true
              } = stream
     end
 
@@ -151,6 +162,16 @@ defmodule Asciinema.StreamingTest do
       assert %{visibility: _, term_theme_name: _} = errors_on(changeset)
     end
 
+    test "invalid schedule" do
+      stream = insert(:stream)
+
+      {:error, changeset} = Streaming.update_stream(stream, %{schedule: "x"})
+      assert %{schedule: _} = errors_on(changeset)
+
+      {:error, changeset} = Streaming.update_stream(stream, %{schedule: "@reboot"})
+      assert %{schedule: _} = errors_on(changeset)
+    end
+
     test "live stream limit" do
       user = insert(:user, live_stream_limit: 1)
       stream_1 = insert(:stream, user: user, live: false)
@@ -191,24 +212,50 @@ defmodule Asciinema.StreamingTest do
         assert reason == {:live_stream_limit_reached, 1}
       end)
     end
+
+    test "auto-update of next_start_at" do
+      user = insert(:user, timezone: "Europe/Warsaw")
+      stream = insert(:stream, user: user, schedule: nil, next_start_at: nil)
+
+      {:ok, stream} = Streaming.update_stream(stream, %{schedule: "0 20 1 6 * 2050"})
+      assert stream.next_start_at == ~U[2050-06-01T18:00:00Z]
+
+      {:ok, stream} = Streaming.update_stream(stream, %{schedule: ""})
+      assert stream.next_start_at == nil
+
+      {:ok, stream} = Streaming.update_stream(stream, %{schedule: "0 21 1 12 * 2000"})
+      assert stream.next_start_at == nil
+
+      {:error, changeset} = Streaming.update_stream(stream, %{schedule: "@reboot"})
+      assert %{schedule: _} = errors_on(changeset)
+    end
   end
 
   describe "mark_inactive_streams_offline/0" do
-    test "marks live streams inactive for more than 1 minute as offline" do
+    test "marks inactive/disconnected streams beyond their grace period as offline" do
       # Stream active within last minute - should stay live
       recent_stream =
-        insert(:stream, live: true, last_activity_at: Timex.shift(Timex.now(), seconds: -30))
+        insert(:stream,
+          live: true,
+          last_activity_at: Timex.shift(Timex.now(), seconds: -30),
+          offline_grace_period: 60
+        )
 
-      # Stream inactive for more than 1 minute - should be marked offline
+      # Stream inactive for more than 2 minutes - should be marked offline
       old_stream =
-        insert(:stream, live: true, last_activity_at: Timex.shift(Timex.now(), minutes: -2))
+        insert(:stream,
+          live: true,
+          last_activity_at: Timex.shift(Timex.now(), seconds: -128),
+          offline_grace_period: 120
+        )
 
       # Stream with nil last_activity_at but recent inserted_at - should stay live
       new_stream =
         insert(:stream,
           live: true,
           last_activity_at: nil,
-          inserted_at: Timex.shift(Timex.now(), seconds: -30)
+          inserted_at: Timex.shift(Timex.now(), seconds: -30),
+          offline_grace_period: 60
         )
 
       # Stream with nil last_activity_at and old inserted_at - should be marked offline
@@ -216,11 +263,16 @@ defmodule Asciinema.StreamingTest do
         insert(:stream,
           live: true,
           last_activity_at: nil,
-          inserted_at: Timex.shift(Timex.now(), minutes: -2)
+          inserted_at: Timex.shift(Timex.now(), minutes: -2),
+          offline_grace_period: 60
         )
 
       # Already offline stream - should remain unchanged
-      insert(:stream, live: false, last_activity_at: Timex.shift(Timex.now(), minutes: -2))
+      insert(:stream,
+        live: false,
+        last_activity_at: Timex.shift(Timex.now(), minutes: -10),
+        offline_grace_period: 300
+      )
 
       count = Streaming.mark_inactive_streams_offline()
 

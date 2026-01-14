@@ -1,21 +1,18 @@
 defmodule Asciinema do
   alias Asciinema.{Accounts, Emails, Recordings, Repo, Streaming}
 
-  defdelegate create_user(attrs, ctx \\ :user), to: Accounts
+  def initiate_login(identifier, url_provider, opts \\ []) do
+    case Accounts.initiate_login(identifier, opts) do
+      {:ok, {type, token, email}} ->
+        Emails.send_email(type, email, token, url_provider)
 
-  def create_user_from_sign_up_token(token) do
-    with {:ok, email} <- Accounts.verify_sign_up_token(token),
-         {:ok, user} <- create_user(%{email: email}) do
-      {:ok, user}
-    else
-      {:error, %Ecto.Changeset{errors: [{:email, _}]}} ->
-        {:error, :email_taken}
-
-      result ->
+      {:error, _reason} = result ->
         result
     end
   end
 
+  defdelegate confirm_login(token, timezone), to: Accounts
+  defdelegate confirm_sign_up(token, timezone), to: Accounts
   defdelegate change_user(user, params \\ %{}, ctx \\ :user), to: Accounts
 
   def update_user(user, params, ctx \\ :user) do
@@ -26,24 +23,15 @@ defmodule Asciinema do
     end
   end
 
-  def send_login_email(identifier, url_provider, opts \\ []) do
-    case Accounts.generate_login_token(identifier, opts) do
-      {:ok, {type, token, email}} ->
-        Emails.send_email(type, email, token, url_provider)
+  def initiate_email_change(user, email, url_provider) do
+    with {:ok, {:pending, {email, token}}} <- Accounts.initiate_email_change(user, email) do
+      Emails.send_email(:email_change, email, token, url_provider)
 
-      {:error, _reason} = result ->
-        result
+      {:ok, {:pending, email}}
     end
   end
 
-  def send_account_deletion_email(user, url_provider) do
-    token = Accounts.generate_deletion_token(user)
-
-    Emails.send_email(:account_deletion, user.email, token, url_provider)
-  end
-
-  defdelegate generate_login_token(email), to: Accounts
-  defdelegate verify_login_token(token), to: Accounts
+  defdelegate confirm_email_change(user, token), to: Accounts
 
   def register_cli(user, token) do
     case Accounts.register_cli(user, token) do
@@ -82,12 +70,16 @@ defmodule Asciinema do
     end)
   end
 
-  def delete_user(token) when is_binary(token) do
-    with {:ok, user_id} <- Accounts.verify_deletion_token(token),
-         user when not is_nil(user) <- Accounts.get_user(user_id) do
-      :ok = delete_user!(user)
-    else
-      _ -> {:error, :invalid_token}
+  def initiate_account_deletion(user, url_provider) do
+    token = Accounts.initiate_account_deletion(user)
+
+    Emails.send_email(:account_deletion, user.email, token, url_provider)
+  end
+
+  def confirm_account_deletion(token) when is_binary(token) do
+    case Accounts.confirm_account_deletion(token) do
+      {:ok, user} -> :ok = delete_user!(user)
+      {:error, _} -> {:error, :invalid_token}
     end
   end
 
@@ -103,7 +95,7 @@ defmodule Asciinema do
     with {:ok, _} <- result, do: :ok
   end
 
-  defdelegate get_stream(id_or_owner), to: Streaming
+  defdelegate get_stream(id), to: Streaming
 
   def unclaimed_recording_ttl(mode \\ nil)
 

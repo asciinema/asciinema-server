@@ -32,15 +32,11 @@
     <h2 :if={!@self and length(@live_streams) > 0}>{username(@user)}'s live streams</h2>
 
     <div :if={@user.streaming_enabled and length(@live_streams) > 0}>
-      <div class="row asciicast-list">
-        <div class="col-md-12">
-          <div :for={streams <- Enum.chunk_every(@live_streams, 2, 2)} class="row">
-            <div :for={stream <- streams} class="col-md-6">
-              {live_render(@conn, AsciinemaWeb.StreamCardLive,
-                session: %{"stream_id" => stream.id}
-              )}
-            </div>
-          </div>
+      <div class="asciicast-list">
+        <div :for={stream <- @live_streams}>
+          {live_render(@conn, AsciinemaWeb.LiveStreamCardLive,
+            session: %{"stream_id" => stream.id}
+          )}
         </div>
       </div>
     </div>
@@ -50,7 +46,7 @@
 
       <p>To start a new streaming session and expose it via {@conn.host} run:</p>
 
-      <pre><code>asciinema stream -r</code></pre>
+      <.code_with_copy class="w-50">asciinema stream -r</.code_with_copy>
 
       <p>
         <small class="text-muted">
@@ -66,7 +62,7 @@
         If you want to stream using an existing stream configuration then run:
       </p>
 
-      <pre><code>asciinema stream -r <em>STREAM-ID</em></code></pre>
+      <pre class="w-50"><code>asciinema stream -r <em>STREAM-ID</em></code></pre>
 
       <p>
         You will find your existing streams on the <a href="/user/streams">Manage streams</a>
@@ -74,17 +70,26 @@
       </p>
     </div>
 
+    <%= if @user.streaming_enabled and length(@upcoming_streams) > 0 do %>
+      <h2 :if={@self}>Your upcoming streams</h2>
+      <h2 :if={!@self}>{username(@user)}'s upcoming streams</h2>
+
+      <div class="asciicast-list">
+        <div :for={stream <- @upcoming_streams}>
+          {live_render(@conn, AsciinemaWeb.UpcomingStreamCardLive,
+            session: %{"stream_id" => stream.id}
+          )}
+        </div>
+      </div>
+    <% end %>
+
     <h2 :if={@self}>Your recordings</h2>
 
     <h2 :if={!@self}>{username(@user)}'s recordings</h2>
 
-    <div :if={@asciicasts.total_entries > 0} class="row asciicast-list">
-      <div class="col-md-12">
-        <div :for={asciicasts <- Enum.chunk_every(@asciicasts, 2, 2)} class="row">
-          <div :for={asciicast <- asciicasts} class="col-md-6">
-            <RecordingHTML.card asciicast={asciicast} conn={@conn} />
-          </div>
-        </div>
+    <div :if={@asciicasts.total_entries > 0} class="asciicast-list">
+      <div :for={asciicast <- @asciicasts}>
+        <RecordingHTML.card asciicast={asciicast} conn={@conn} />
       </div>
     </div>
 
@@ -140,10 +145,8 @@
       <% end %>
     </div>
 
-    <div :if={@asciicasts.total_pages > 1} class="row">
-      <div class="col">
-        {pagination_links(@asciicasts)}
-      </div>
+    <div :if={@asciicasts.total_pages > 1} class="pagination-wrapper">
+      {pagination_links(@asciicasts)}
     </div>
   </div>
 </div>
