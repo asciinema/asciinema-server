@@ -17,8 +17,8 @@ defmodule Asciinema.Streaming.StreamServer do
     GenServer.start_link(__MODULE__, stream_id, name: via_tuple(stream_id))
   end
 
-  def lead(stream_id) do
-    GenServer.call(via_tuple(stream_id), :lead)
+  def claim(stream_id) do
+    GenServer.call(via_tuple(stream_id), :claim)
   end
 
   def reset(stream_id, args, user_agent) do
@@ -84,16 +84,16 @@ defmodule Asciinema.Streaming.StreamServer do
   end
 
   @impl true
-  def handle_call(:lead, {pid, _} = _from, state) do
+  def handle_call(:claim, {pid, _} = _from, state) do
     state = reschedule_shutdown(state)
 
     {:reply, :ok, %{state | producer: pid}}
   end
 
   def handle_call(_message, {pid1, _}, %{producer: pid2} = state) when pid1 != pid2 do
-    Logger.info("stream/#{state.stream_id}: rejecting call from non-leader producer")
+    Logger.info("stream/#{state.stream_id}: rejecting call from non-owner producer")
 
-    {:reply, {:error, :leadership_lost}, state}
+    {:reply, {:error, :ownership_lost}, state}
   end
 
   def handle_call({:reset, payload}, _from, state) do
