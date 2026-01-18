@@ -238,16 +238,16 @@ defmodule AsciinemaWeb.StreamProducerSocket do
   defp ensure_server(stream_id) do
     Logger.info("producer/#{stream_id}: stream went online, starting server")
     {:ok, _pid} = StreamSupervisor.ensure_child(stream_id)
-    :ok = StreamServer.lead(stream_id)
+    :ok = StreamServer.claim(stream_id)
     Process.send_after(self(), :server_heartbeat, @server_heartbeat_interval)
   end
 
   defp handle_error(reason, state) do
     case reason do
-      :leadership_lost ->
-        Logger.info("producer/#{state.stream_id}: leadership lost")
+      :ownership_lost ->
+        Logger.info("producer/#{state.stream_id}: stream ownership lost")
 
-        {:reply, {:close, 4002, "leadership lost"}, state}
+        {:reply, {:close, 4002, "ownership lost"}, state}
 
       {:invalid_vt_size, {cols, rows}} ->
         Logger.info("producer/#{state.stream_id}: invalid vt size: #{cols}x#{rows}")

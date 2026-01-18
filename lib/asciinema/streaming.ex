@@ -18,16 +18,26 @@ defmodule Asciinema.Streaming do
     |> Repo.preload(:user)
   end
 
+  def get_public_stream(id) do
+    Stream
+    |> Repo.get_by(id: id, visibility: :public)
+    |> Repo.preload(:user)
+  end
+
   def find_stream_by_public_token(token) do
     from(s in Stream, where: s.public_token == ^token)
     |> Repo.one()
     |> Repo.preload(:user)
   end
 
-  def lookup_stream(id) when is_binary(id) do
+  def lookup_stream(id, allow_non_public_id \\ false) when is_binary(id) do
     cond do
       String.match?(id, ~r/^\d+$/) ->
-        get_stream(id)
+        if allow_non_public_id do
+          get_stream(id)
+        else
+          get_public_stream(id)
+        end
 
       String.match?(id, ~r/^[[:alnum:]]{16}$/) ->
         find_stream_by_public_token(id)

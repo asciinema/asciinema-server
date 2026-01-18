@@ -35,6 +35,8 @@ defmodule Asciinema.Recordings.Asciicast do
     field :idle_time_limit, :float
     field :speed, :float
     field :views_count, :integer, default: 0
+    field :popularity_score, :float, default: 0.0
+    field :popularity_dirty, :boolean, default: false
     field :archivable, :boolean, default: true
     field :archived_at, :utc_datetime
     field :markers, :string

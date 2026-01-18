@@ -1,9 +1,8 @@
 defmodule AsciinemaWeb.RecordingController do
   use AsciinemaWeb, :controller
   alias Asciinema.{FileStore, Recordings, PngGenerator}
-  alias Asciinema.Authorization
   alias Asciinema.Recordings.Asciicast
-  alias AsciinemaWeb.{PlayerOpts, RecordingHTML}
+  alias AsciinemaWeb.{Authorization, PlayerOpts, RecordingHTML}
   alias AsciinemaWeb.FallbackController
 
   plug :require_current_user when action in [:edit, :update, :delete]
@@ -72,14 +71,14 @@ defmodule AsciinemaWeb.RecordingController do
         |> Authorization.scope(:asciicasts, conn.assigns.current_user)
         |> Recordings.list(4)
 
-      conn
-      |> count_view(asciicast)
-      |> render(
+      render(
+        conn,
         :show,
         page_title: Recordings.title(asciicast),
         asciicast: asciicast,
         player_opts: player_opts(conn.params),
         actions: asciicast_actions(asciicast, conn.assigns.current_user),
+        view_count_url: build_view_count_url(conn, asciicast),
         other_asciicasts: other_asciicasts
       )
     end
@@ -263,34 +262,25 @@ defmodule AsciinemaWeb.RecordingController do
   defp load_and_authorize_asciicast(conn, _) do
     id = String.trim(conn.params["id"])
 
-    {asciicast, ctx, status} =
-      cond do
-        String.match?(id, ~r/^\d+$/) ->
-          {Recordings.get_asciicast(id), %{}, :not_found}
-
-        Recordings.secret_token?(id) ->
-          {Recordings.find_asciicast_by_secret_token(id), %{id: id}, :forbidden}
-
-        true ->
-          {nil, %{}, :not_found}
-      end
-
-    if asciicast do
-      user = conn.assigns[:current_user]
-      action = Phoenix.Controller.action_name(conn)
-      resource = Map.merge(asciicast, ctx)
-
-      if Authorization.can?(user, action, resource) do
-        assign(conn, :asciicast, asciicast)
-      else
+    case Recordings.lookup_asciicast(id) do
+      nil ->
         conn
-        |> FallbackController.call({:error, status})
+        |> FallbackController.call({:error, :not_found})
         |> halt()
-      end
-    else
-      conn
-      |> FallbackController.call({:error, :not_found})
-      |> halt()
+
+      asciicast ->
+        user = conn.assigns[:current_user]
+        action = Phoenix.Controller.action_name(conn)
+
+        if Authorization.can?(user, action, asciicast) do
+          assign(conn, :asciicast, asciicast)
+        else
+          status = if Recordings.secret_token?(id), do: :forbidden, else: :not_found
+
+          conn
+          |> FallbackController.call({:error, status})
+          |> halt()
+        end
     end
   end
 
@@ -307,19 +297,6 @@ defmodule AsciinemaWeb.RecordingController do
     end
   end
 
-  defp count_view(conn, asciicast) do
-    key = "a#{asciicast.id}"
-
-    case conn.req_cookies[key] do
-      nil ->
-        Recordings.inc_views_count(asciicast)
-        put_resp_cookie(conn, key, "1", max_age: 3600 * 24)
-
-      _ ->
-        conn
-    end
-  end
-
   @actions [:edit, :delete]
 
   defp asciicast_actions(asciicast, user) do
@@ -330,5 +307,16 @@ defmodule AsciinemaWeb.RecordingController do
     params
     |> Ext.Map.rename(%{"t" => "startAt", "i" => "idleTimeLimit"})
     |> PlayerOpts.parse(:recording)
+  end
+
+  defp build_view_count_url(conn, asciicast) do
+    case conn.req_cookies["a#{asciicast.id}"] do
+      nil ->
+        token = Recordings.generate_view_count_token(asciicast.id)
+        ~p"/a/#{asciicast}/views?token=#{token}"
+
+      _ ->
+        nil
+    end
   end
 end

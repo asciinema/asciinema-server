@@ -205,10 +205,7 @@ defmodule AsciinemaWeb.Features.RecordingsTest do
       conn
       |> log_in_user(owner)
       |> visit(~p"/a/#{asciicast.id}")
-      |> assert_has("#cinema")
-      |> assert_has("h2", text: "My Recording")
-      |> assert_has(".dropdown-item", text: "Settings")
-      |> assert_has(".dropdown-item", text: "Delete")
+      |> assert_has("h1", text: "404 Not Found")
     end
 
     test "unlisted recording via token as owner", %{conn: conn} do
@@ -233,10 +230,7 @@ defmodule AsciinemaWeb.Features.RecordingsTest do
       conn
       |> log_in_user(owner)
       |> visit(~p"/a/#{asciicast.id}")
-      |> assert_has("#cinema")
-      |> assert_has("h2", text: "Private Recording")
-      |> assert_has(".dropdown-item", text: "Settings")
-      |> assert_has(".dropdown-item", text: "Delete")
+      |> assert_has("h1", text: "404 Not Found")
     end
 
     test "private recording via token as owner", %{conn: conn} do
@@ -258,6 +252,28 @@ defmodule AsciinemaWeb.Features.RecordingsTest do
       conn
       |> visit(~p"/a/nopenopenope")
       |> assert_has("h1", text: "404 Not Found")
+    end
+
+    test "page reload with view already counted", %{conn: conn} do
+      asciicast = insert(:asciicast, visibility: :public, title: "My Recording")
+
+      session =
+        conn
+        |> visit(~p"/a/#{asciicast}")
+        |> assert_has("h2", text: "My Recording")
+
+      [_, view_count_url] = Regex.run(~r/viewCountUrl = "([^"]+)"/, session.conn.resp_body)
+
+      # Simulate the JS POST that would happen when player starts
+      view_count_conn = post(session.conn, view_count_url)
+
+      session =
+        view_count_conn
+        |> Phoenix.ConnTest.recycle()
+        |> visit(~p"/a/#{asciicast}")
+        |> assert_has("h2", text: "My Recording")
+
+      assert session.conn.resp_body =~ ~s(viewCountUrl = null)
     end
   end
 

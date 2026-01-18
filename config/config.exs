@@ -110,6 +110,8 @@ config :asciinema, Oban,
        {"0 * * * *", Asciinema.Workers.DeleteUnclaimedRecordings},
        {"* * * * *", Asciinema.Workers.MarkOfflineStreams},
        {"* * * * *", Asciinema.Workers.RescheduleStreams},
+       {"0 3 * * *", Asciinema.Workers.RecomputePopularityScores},
+       {"*/5 * * * *", Asciinema.Workers.RecomputeDirtyPopularityScores},
        {"@reboot", Asciinema.Workers.MigrateRecordingFiles}
      ]},
     Oban.Plugins.Lifeline,

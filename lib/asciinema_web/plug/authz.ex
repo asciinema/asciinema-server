@@ -1,5 +1,5 @@
 defmodule AsciinemaWeb.Plug.Authz do
-  alias Asciinema.Authorization
+  alias AsciinemaWeb.Authorization
   alias AsciinemaWeb.FallbackController
   alias Plug.Conn
 

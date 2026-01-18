@@ -114,13 +114,15 @@ defmodule AsciinemaWeb.Api.RecordingController do
   defp load_asciicast(conn, _) do
     id = String.trim(conn.params["id"])
 
-    if asciicast = Recordings.lookup_asciicast(id) do
-      assign(conn, :asciicast, asciicast)
-    else
-      conn
-      |> put_status(:not_found)
-      |> render(:error, reason: :not_found)
-      |> halt()
+    case Recordings.lookup_asciicast(id, true) do
+      nil ->
+        conn
+        |> put_status(:not_found)
+        |> render(:error, reason: :not_found)
+        |> halt()
+
+      asciicast ->
+        assign(conn, :asciicast, asciicast)
     end
   end
 end
