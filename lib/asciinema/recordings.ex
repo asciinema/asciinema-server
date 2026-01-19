@@ -556,29 +556,33 @@ defmodule Asciinema.Recordings do
             select: dv.asciicast_id
           )
 
-        Repo.transact(fn ->
-          # Update asciicasts with daily views in the window.
-          {count, _} =
-            from(a in Asciicast,
-              join: ds in subquery(decay_scores),
-              on: ds.asciicast_id == a.id,
-              where: is_nil(a.archived_at),
-              update: [set: [popularity_score: ds.decay_score, popularity_dirty: false]]
+        Repo.transact(
+          fn ->
+            # Update asciicasts with daily views in the window.
+            {count, _} =
+              from(a in Asciicast,
+                join: ds in subquery(decay_scores),
+                on: ds.asciicast_id == a.id,
+                where: is_nil(a.archived_at),
+                update: [set: [popularity_score: ds.decay_score, popularity_dirty: false]]
+              )
+              |> Repo.update_all([])
+
+            # Reset scores for non-archived asciicasts without views in the window.
+            Repo.update_all(
+              from(a in Asciicast,
+                where:
+                  a.popularity_score > 0.0 and is_nil(a.archived_at) and
+                    a.id not in subquery(ids_with_views)
+              ),
+              set: [popularity_score: 0.0, popularity_dirty: false]
             )
-            |> Repo.update_all([])
 
-          # Reset scores for non-archived asciicasts without views in the window.
-          Repo.update_all(
-            from(a in Asciicast,
-              where:
-                a.popularity_score > 0.0 and is_nil(a.archived_at) and
-                  a.id not in subquery(ids_with_views)
-            ),
-            set: [popularity_score: 0.0, popularity_dirty: false]
-          )
-
-          {:ok, count}
-        end)
+            {:ok, count}
+          end,
+          # 5 min
+          timeout: 5 * 60 * 1000
+        )
 
       :dirty ->
         dirty_ids =
@@ -589,30 +593,34 @@ defmodule Asciinema.Recordings do
 
         decay_scores = from(dv in decay_scores, where: dv.asciicast_id in subquery(dirty_ids))
 
-        Repo.transact(fn ->
-          # Update dirty asciicasts that have daily views in the window.
-          {count, _} =
-            from(a in Asciicast,
-              join: ds in subquery(decay_scores),
-              on: ds.asciicast_id == a.id,
-              where: a.id in subquery(dirty_ids),
-              update: [
-                set: [
-                  popularity_score: ds.decay_score,
-                  popularity_dirty: false
+        Repo.transact(
+          fn ->
+            # Update dirty asciicasts that have daily views in the window.
+            {count, _} =
+              from(a in Asciicast,
+                join: ds in subquery(decay_scores),
+                on: ds.asciicast_id == a.id,
+                where: a.id in subquery(dirty_ids),
+                update: [
+                  set: [
+                    popularity_score: ds.decay_score,
+                    popularity_dirty: false
+                  ]
                 ]
-              ]
+              )
+              |> Repo.update_all([])
+
+            # Clear remaining dirty asciicasts with no daily views.
+            Repo.update_all(
+              from(a in Asciicast, where: a.id in subquery(dirty_ids)),
+              set: [popularity_score: 0.0, popularity_dirty: false]
             )
-            |> Repo.update_all([])
 
-          # Clear remaining dirty asciicasts with no daily views.
-          Repo.update_all(
-            from(a in Asciicast, where: a.id in subquery(dirty_ids)),
-            set: [popularity_score: 0.0, popularity_dirty: false]
-          )
-
-          {:ok, count}
-        end)
+            {:ok, count}
+          end,
+          # 5 min
+          timeout: 5 * 60 * 1000
+        )
     end
   end
 
