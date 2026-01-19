@@ -9,6 +9,7 @@ defmodule Asciinema.Recordings do
 
   alias Asciinema.Recordings.{
     Asciicast,
+    AsciicastStats,
     Markers,
     Paths,
     Text
@@ -24,13 +25,13 @@ defmodule Asciinema.Recordings do
   def get_asciicast(id) do
     Asciicast
     |> Repo.get(id)
-    |> Repo.preload(:user)
+    |> Repo.preload([:user, :stats])
   end
 
   def get_public_asciicast(id) do
     Asciicast
     |> Repo.get_by(id: id, visibility: :public)
-    |> Repo.preload(:user)
+    |> Repo.preload([:user, :stats])
   end
 
   def fetch_asciicast(id), do: OK.required(get_asciicast(id), :not_found)
@@ -38,7 +39,7 @@ defmodule Asciinema.Recordings do
   def find_asciicast_by_secret_token(token) do
     from(a in Asciicast, where: a.secret_token == ^token)
     |> Repo.one()
-    |> Repo.preload(:user)
+    |> Repo.preload([:user, :stats])
   end
 
   def lookup_asciicast(id, allow_non_public_id \\ false) when is_binary(id) do
@@ -65,8 +66,12 @@ defmodule Asciinema.Recordings do
   def query(filters \\ [], order \\ nil)
 
   def query(filters, order) do
+    filters = List.wrap(filters)
+    needs_stats_join = order == :popularity or Enum.member?(filters, :popular)
+
     from(Asciicast)
     |> where([a], is_nil(a.archived_at))
+    |> maybe_join_stats(needs_stats_join)
     |> apply_filters(filters)
     |> sort(order)
   end
@@ -100,7 +105,11 @@ defmodule Asciinema.Recordings do
         where(q, [a], a.featured == true and a.visibility == :public)
 
       :popular ->
-        where(q, [a], a.popularity_score > 0.0 and a.visibility == :public)
+        where(
+          q,
+          [a, stats: s],
+          a.visibility == :public and s.popularity_score > 0.0
+        )
 
       :public ->
         where(q, [a], a.visibility == :public)
@@ -118,12 +127,21 @@ defmodule Asciinema.Recordings do
         order_by(q, desc: :id)
 
       :popularity ->
-        order_by(q, desc: :popularity_score, desc: :id)
+        order_by(q, [a, stats: s],
+          desc: s.popularity_score,
+          desc: s.asciicast_id
+        )
 
       :random ->
         order_by(q, fragment("RANDOM()"))
     end
   end
+
+  defp maybe_join_stats(q, true) do
+    join(q, :inner, [a], s in assoc(a, :stats), as: :stats)
+  end
+
+  defp maybe_join_stats(q, false), do: q
 
   def search(%Ecto.Query{} = query, q) do
     query
@@ -558,22 +576,26 @@ defmodule Asciinema.Recordings do
 
         Repo.transact(
           fn ->
-            # Update asciicasts with daily views in the window.
+            # Update stats for asciicasts with daily views in the window.
             {count, _} =
-              from(a in Asciicast,
+              from(s in AsciicastStats,
+                join: a in Asciicast,
+                on: a.id == s.asciicast_id,
                 join: ds in subquery(decay_scores),
-                on: ds.asciicast_id == a.id,
+                on: ds.asciicast_id == s.asciicast_id,
                 where: is_nil(a.archived_at),
                 update: [set: [popularity_score: ds.decay_score, popularity_dirty: false]]
               )
               |> Repo.update_all([])
 
-            # Reset scores for non-archived asciicasts without views in the window.
+            # Reset scores for non-archived stats without views in the window.
             Repo.update_all(
-              from(a in Asciicast,
+              from(s in AsciicastStats,
+                join: a in Asciicast,
+                on: a.id == s.asciicast_id,
                 where:
-                  a.popularity_score > 0.0 and is_nil(a.archived_at) and
-                    a.id not in subquery(ids_with_views)
+                  is_nil(a.archived_at) and s.asciicast_id not in subquery(ids_with_views) and
+                    (s.popularity_score > 0.0 or s.popularity_dirty == true)
               ),
               set: [popularity_score: 0.0, popularity_dirty: false]
             )
@@ -586,21 +608,23 @@ defmodule Asciinema.Recordings do
 
       :dirty ->
         dirty_ids =
-          from(a in Asciicast,
-            where: a.popularity_dirty == true and is_nil(a.archived_at),
-            select: a.id
+          from(s in AsciicastStats,
+            join: a in Asciicast,
+            on: a.id == s.asciicast_id,
+            where: s.popularity_dirty == true and is_nil(a.archived_at),
+            select: s.asciicast_id
           )
 
         decay_scores = from(dv in decay_scores, where: dv.asciicast_id in subquery(dirty_ids))
 
         Repo.transact(
           fn ->
-            # Update dirty asciicasts that have daily views in the window.
+            # Update dirty stats for asciicasts that have daily views in the window.
             {count, _} =
-              from(a in Asciicast,
+              from(s in AsciicastStats,
                 join: ds in subquery(decay_scores),
-                on: ds.asciicast_id == a.id,
-                where: a.id in subquery(dirty_ids),
+                on: ds.asciicast_id == s.asciicast_id,
+                where: s.asciicast_id in subquery(dirty_ids),
                 update: [
                   set: [
                     popularity_score: ds.decay_score,
@@ -610,9 +634,9 @@ defmodule Asciinema.Recordings do
               )
               |> Repo.update_all([])
 
-            # Clear remaining dirty asciicasts with no daily views.
+            # Clear remaining dirty stats with no daily views.
             Repo.update_all(
-              from(a in Asciicast, where: a.id in subquery(dirty_ids)),
+              from(s in AsciicastStats, where: s.asciicast_id in subquery(dirty_ids)),
               set: [popularity_score: 0.0, popularity_dirty: false]
             )
 
@@ -626,8 +650,19 @@ defmodule Asciinema.Recordings do
 
   def register_view(asciicast, date \\ Date.utc_today()) do
     Repo.transact(fn ->
-      from(a in Asciicast, where: a.id == ^asciicast.id)
-      |> Repo.update_all(inc: [views_count: 1], set: [popularity_dirty: true])
+      Repo.insert_all(
+        AsciicastStats,
+        [
+          %{
+            asciicast_id: asciicast.id,
+            popularity_score: 0.0,
+            total_views: 1,
+            popularity_dirty: true
+          }
+        ],
+        on_conflict: [inc: [total_views: 1], set: [popularity_dirty: true]],
+        conflict_target: [:asciicast_id]
+      )
 
       Repo.insert_all(
         "asciicast_daily_views",

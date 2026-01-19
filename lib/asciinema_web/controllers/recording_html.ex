@@ -167,7 +167,10 @@ defmodule AsciinemaWeb.RecordingHTML do
   def filename_ext(%{version: 3}), do: "cast"
 
   def views_count(asciicast) do
-    asciicast.views_count
+    case asciicast.stats do
+      nil -> 0
+      %{total_views: total_views} -> total_views
+    end
   end
 
   def svg_cache_key(asciicast) do
