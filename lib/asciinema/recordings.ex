@@ -570,7 +570,9 @@ defmodule Asciinema.Recordings do
           # Reset scores for non-archived asciicasts without views in the window.
           Repo.update_all(
             from(a in Asciicast,
-              where: is_nil(a.archived_at) and a.id not in subquery(ids_with_views)
+              where:
+                a.popularity_score > 0.0 and is_nil(a.archived_at) and
+                  a.id not in subquery(ids_with_views)
             ),
             set: [popularity_score: 0.0, popularity_dirty: false]
           )
