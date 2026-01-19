@@ -210,6 +210,41 @@ defmodule Asciinema.RecordingsTest do
     end
   end
 
+  describe "query/2" do
+    test "filters popular recordings to public items with positive scores" do
+      popular = insert(:asciicast, visibility: :public, popularity_score: 1.0)
+      _zero = insert(:asciicast, visibility: :public, popularity_score: 0.0)
+      _private = insert(:asciicast, visibility: :private, popularity_score: 2.0)
+
+      _archived =
+        insert(:asciicast,
+          visibility: :public,
+          popularity_score: 3.0,
+          archived_at: DateTime.utc_now()
+        )
+
+      results =
+        :popular
+        |> Recordings.query()
+        |> Recordings.list(10)
+
+      assert Enum.map(results, & &1.id) == [popular.id]
+    end
+
+    test "orders by popularity score then id" do
+      low = insert(:asciicast, popularity_score: 5.0)
+      mid = insert(:asciicast, popularity_score: 5.0)
+      high = insert(:asciicast, popularity_score: 10.0)
+
+      results =
+        []
+        |> Recordings.query(:popularity)
+        |> Recordings.list(10)
+
+      assert Enum.map(results, & &1.id) == [high.id, mid.id, low.id]
+    end
+  end
+
   describe "delete_asciicast/1" do
     test "v1/v2" do
       asciicast = insert(:asciicast_v1) |> with_file()
