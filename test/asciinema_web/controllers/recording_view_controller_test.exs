@@ -1,22 +1,38 @@
 defmodule AsciinemaWeb.RecordingViewControllerTest do
   use AsciinemaWeb.ConnCase, async: true
   import Asciinema.Factory
+  import Ecto.Query
   alias Asciinema.{Recordings, Repo}
+  alias Asciinema.Recordings.AsciicastStats
 
   describe "create" do
     test "increments view count with valid token", %{conn: conn} do
-      asciicast = insert(:asciicast, views_count: 5)
+      asciicast = insert(:asciicast)
+
+      insert(:asciicast_stats,
+        asciicast_id: asciicast.id,
+        total_views: 5,
+        popularity_dirty: false
+      )
+
       token = Recordings.generate_view_count_token(asciicast.id)
 
       conn = with_csrf(conn)
       conn = post(conn, ~p"/a/#{asciicast}/views?token=#{token}")
 
       assert response(conn, 204)
-      assert Repo.reload!(asciicast).views_count == 6
+      assert total_views(asciicast.id) == 6
     end
 
     test "sets cookie to prevent double counting", %{conn: conn} do
-      asciicast = insert(:asciicast, views_count: 5)
+      asciicast = insert(:asciicast)
+
+      insert(:asciicast_stats,
+        asciicast_id: asciicast.id,
+        total_views: 5,
+        popularity_dirty: false
+      )
+
       token = Recordings.generate_view_count_token(asciicast.id)
 
       conn = with_csrf(conn)
@@ -27,7 +43,14 @@ defmodule AsciinemaWeb.RecordingViewControllerTest do
     end
 
     test "does not increment when cookie already present", %{conn: conn} do
-      asciicast = insert(:asciicast, views_count: 5)
+      asciicast = insert(:asciicast)
+
+      insert(:asciicast_stats,
+        asciicast_id: asciicast.id,
+        total_views: 5,
+        popularity_dirty: false
+      )
+
       token = Recordings.generate_view_count_token(asciicast.id)
 
       conn =
@@ -37,21 +60,34 @@ defmodule AsciinemaWeb.RecordingViewControllerTest do
         |> post(~p"/a/#{asciicast}/views?token=#{token}")
 
       assert response(conn, 204)
-      assert Repo.reload!(asciicast).views_count == 5
+      assert total_views(asciicast.id) == 5
     end
 
     test "returns 400 for invalid token", %{conn: conn} do
-      asciicast = insert(:asciicast, views_count: 5)
+      asciicast = insert(:asciicast)
+
+      insert(:asciicast_stats,
+        asciicast_id: asciicast.id,
+        total_views: 5,
+        popularity_dirty: false
+      )
 
       conn = with_csrf(conn)
       conn = post(conn, ~p"/a/#{asciicast}/views?token=invalid")
 
       assert response(conn, 400)
-      assert Repo.reload!(asciicast).views_count == 5
+      assert total_views(asciicast.id) == 5
     end
 
     test "returns 400 when token ID doesn't match URL ID", %{conn: conn} do
-      asciicast = insert(:asciicast, views_count: 5)
+      asciicast = insert(:asciicast)
+
+      insert(:asciicast_stats,
+        asciicast_id: asciicast.id,
+        total_views: 5,
+        popularity_dirty: false
+      )
+
       other_asciicast = insert(:asciicast)
       token = Recordings.generate_view_count_token(other_asciicast.id)
 
@@ -59,7 +95,7 @@ defmodule AsciinemaWeb.RecordingViewControllerTest do
       conn = post(conn, ~p"/a/#{asciicast}/views?token=#{token}")
 
       assert response(conn, 400)
-      assert Repo.reload!(asciicast).views_count == 5
+      assert total_views(asciicast.id) == 5
     end
 
     test "returns 400 when asciicast doesn't exist", %{conn: conn} do
@@ -72,7 +108,13 @@ defmodule AsciinemaWeb.RecordingViewControllerTest do
     end
 
     test "returns 400 when token is missing", %{conn: conn} do
-      asciicast = insert(:asciicast, views_count: 5)
+      asciicast = insert(:asciicast)
+
+      insert(:asciicast_stats,
+        asciicast_id: asciicast.id,
+        total_views: 5,
+        popularity_dirty: false
+      )
 
       assert_error_sent 400, fn ->
         conn
@@ -80,11 +122,18 @@ defmodule AsciinemaWeb.RecordingViewControllerTest do
         |> post(~p"/a/#{asciicast}/views")
       end
 
-      assert Repo.reload!(asciicast).views_count == 5
+      assert total_views(asciicast.id) == 5
     end
 
     test "returns 403 when CSRF token is missing", %{conn: conn} do
-      asciicast = insert(:asciicast, views_count: 5)
+      asciicast = insert(:asciicast)
+
+      insert(:asciicast_stats,
+        asciicast_id: asciicast.id,
+        total_views: 5,
+        popularity_dirty: false
+      )
+
       token = Recordings.generate_view_count_token(asciicast.id)
 
       conn = require_csrf(conn)
@@ -93,8 +142,17 @@ defmodule AsciinemaWeb.RecordingViewControllerTest do
         post(conn, ~p"/a/#{asciicast}/views?token=#{token}")
       end
 
-      assert Repo.reload!(asciicast).views_count == 5
+      assert total_views(asciicast.id) == 5
     end
+  end
+
+  defp total_views(asciicast_id) do
+    Repo.one(
+      from(s in AsciicastStats,
+        where: s.asciicast_id == ^asciicast_id,
+        select: s.total_views
+      )
+    )
   end
 
   defp with_csrf(conn) do

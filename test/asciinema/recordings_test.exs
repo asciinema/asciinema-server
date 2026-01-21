@@ -2,7 +2,7 @@ defmodule Asciinema.RecordingsTest do
   use Asciinema.DataCase, async: true
   import Asciinema.Factory
   alias Asciinema.Recordings
-  alias Asciinema.Recordings.Asciicast
+  alias Asciinema.Recordings.{Asciicast, AsciicastStats}
 
   describe "create_asciicast/3" do
     test "json file, v1 format" do
@@ -210,6 +210,47 @@ defmodule Asciinema.RecordingsTest do
     end
   end
 
+  describe "query/2" do
+    test "filters popular recordings to public items with positive scores" do
+      popular = insert(:asciicast, visibility: :public)
+      insert(:asciicast_stats, asciicast_id: popular.id, popularity_score: 1.0)
+
+      zero = insert(:asciicast, visibility: :public)
+      insert(:asciicast_stats, asciicast_id: zero.id, popularity_score: 0.0)
+
+      private = insert(:asciicast, visibility: :private)
+      insert(:asciicast_stats, asciicast_id: private.id, popularity_score: 2.0)
+
+      archived = insert(:asciicast, visibility: :public, archived_at: DateTime.utc_now())
+      insert(:asciicast_stats, asciicast_id: archived.id, popularity_score: 3.0)
+
+      results =
+        :popular
+        |> Recordings.query()
+        |> Recordings.list(10)
+
+      assert Enum.map(results, & &1.id) == [popular.id]
+    end
+
+    test "orders by popularity score then id" do
+      low = insert(:asciicast)
+      insert(:asciicast_stats, asciicast_id: low.id, popularity_score: 5.0)
+
+      mid = insert(:asciicast)
+      insert(:asciicast_stats, asciicast_id: mid.id, popularity_score: 5.0)
+
+      high = insert(:asciicast)
+      insert(:asciicast_stats, asciicast_id: high.id, popularity_score: 10.0)
+
+      results =
+        []
+        |> Recordings.query(:popularity)
+        |> Recordings.list(10)
+
+      assert Enum.map(results, & &1.id) == [high.id, mid.id, low.id]
+    end
+  end
+
   describe "delete_asciicast/1" do
     test "v1/v2" do
       asciicast = insert(:asciicast_v1) |> with_file()
@@ -344,17 +385,24 @@ defmodule Asciinema.RecordingsTest do
   end
 
   describe "register_view/1" do
-    test "increments views_count on asciicast" do
-      asciicast = insert(:asciicast, views_count: 5)
+    test "increments total_views on stats" do
+      asciicast = insert(:asciicast)
+
+      insert(:asciicast_stats,
+        asciicast_id: asciicast.id,
+        total_views: 5,
+        popularity_dirty: false
+      )
 
       assert {:ok, :ok} = Recordings.register_view(asciicast)
 
-      asciicast = Repo.get!(Asciicast, asciicast.id)
-      assert asciicast.views_count == 6
+      stats = Repo.get!(AsciicastStats, asciicast.id)
+      assert stats.total_views == 6
+      assert stats.popularity_dirty == true
     end
 
     test "creates daily view record for today" do
-      asciicast = insert(:asciicast, views_count: 0)
+      asciicast = insert(:asciicast)
       today = Date.utc_today()
 
       assert {:ok, :ok} = Recordings.register_view(asciicast, today)
@@ -372,7 +420,7 @@ defmodule Asciinema.RecordingsTest do
     end
 
     test "increments existing daily view count for today" do
-      asciicast = insert(:asciicast, views_count: 0)
+      asciicast = insert(:asciicast)
       today = Date.utc_today()
 
       Recordings.register_view(asciicast, today)
@@ -391,21 +439,31 @@ defmodule Asciinema.RecordingsTest do
     end
 
     test "marks asciicast as dirty for popularity recomputation" do
-      asciicast = insert(:asciicast, popularity_dirty: false)
+      asciicast = insert(:asciicast)
+
+      insert(:asciicast_stats,
+        asciicast_id: asciicast.id,
+        popularity_dirty: false
+      )
 
       assert {:ok, :ok} = Recordings.register_view(asciicast)
 
-      asciicast = Repo.get!(Asciicast, asciicast.id)
-      assert asciicast.popularity_dirty == true
+      stats = Repo.get!(AsciicastStats, asciicast.id)
+      assert stats.popularity_dirty == true
     end
   end
 
   describe "recompute_popularity_scores/1" do
     test "recomputes only for dirty asciicasts" do
       today = Date.utc_today()
-      asciicast = insert(:asciicast, visibility: :public, popularity_dirty: true)
-      stale = insert(:asciicast, visibility: :public, popularity_dirty: true)
-      other = insert(:asciicast, visibility: :public, popularity_score: 9.9)
+      asciicast = insert(:asciicast, visibility: :public)
+      insert(:asciicast_stats, asciicast_id: asciicast.id, popularity_dirty: true)
+
+      stale = insert(:asciicast, visibility: :public)
+      insert(:asciicast_stats, asciicast_id: stale.id, popularity_dirty: true)
+
+      other = insert(:asciicast, visibility: :public)
+      insert(:asciicast_stats, asciicast_id: other.id, popularity_score: 9.9)
 
       Repo.insert_all("asciicast_daily_views", [
         %{asciicast_id: asciicast.id, date: today, count: 4},
@@ -414,9 +472,9 @@ defmodule Asciinema.RecordingsTest do
 
       assert {:ok, 1} = Recordings.recompute_popularity_scores(:dirty)
 
-      asciicast = Repo.get!(Asciicast, asciicast.id)
-      stale = Repo.get!(Asciicast, stale.id)
-      other = Repo.get!(Asciicast, other.id)
+      asciicast = Repo.get!(AsciicastStats, asciicast.id)
+      stale = Repo.get!(AsciicastStats, stale.id)
+      other = Repo.get!(AsciicastStats, other.id)
 
       assert asciicast.popularity_score == 4.0
       assert stale.popularity_score == 0.0
@@ -427,8 +485,11 @@ defmodule Asciinema.RecordingsTest do
 
     test "recomputes for all asciicasts" do
       today = Date.utc_today()
-      asciicast = insert(:asciicast, visibility: :public, popularity_dirty: false)
-      other = insert(:asciicast, visibility: :public, popularity_score: 5.5)
+      asciicast = insert(:asciicast, visibility: :public)
+      insert(:asciicast_stats, asciicast_id: asciicast.id, popularity_dirty: false)
+
+      other = insert(:asciicast, visibility: :public)
+      insert(:asciicast_stats, asciicast_id: other.id, popularity_score: 5.5)
 
       Repo.insert_all("asciicast_daily_views", [
         %{asciicast_id: asciicast.id, date: today, count: 3}
@@ -436,8 +497,8 @@ defmodule Asciinema.RecordingsTest do
 
       assert {:ok, 1} = Recordings.recompute_popularity_scores(:all)
 
-      asciicast = Repo.get!(Asciicast, asciicast.id)
-      other = Repo.get!(Asciicast, other.id)
+      asciicast = Repo.get!(AsciicastStats, asciicast.id)
+      other = Repo.get!(AsciicastStats, other.id)
 
       assert asciicast.popularity_score == 3.0
       assert other.popularity_score == 0.0
@@ -448,6 +509,7 @@ defmodule Asciinema.RecordingsTest do
     test "applies exponential decay to older views" do
       today = Date.utc_today()
       asciicast = insert(:asciicast, visibility: :public)
+      insert(:asciicast_stats, asciicast_id: asciicast.id, popularity_dirty: false)
 
       # Views from exactly 7 days ago (one half-life) should be halved
       # Views from exactly 14 days ago (two half-lives) should be quartered
@@ -459,7 +521,7 @@ defmodule Asciinema.RecordingsTest do
 
       assert {:ok, 1} = Recordings.recompute_popularity_scores(:all)
 
-      asciicast = Repo.get!(Asciicast, asciicast.id)
+      asciicast = Repo.get!(AsciicastStats, asciicast.id)
 
       # Expected: 100 * 1.0 + 100 * 0.5 + 100 * 0.25 = 175.0
       assert asciicast.popularity_score == 175.0
@@ -469,14 +531,16 @@ defmodule Asciinema.RecordingsTest do
       today = Date.utc_today()
 
       archived =
-        insert(:asciicast,
-          visibility: :public,
-          archived_at: DateTime.utc_now(),
-          popularity_score: 99.0,
-          popularity_dirty: true
-        )
+        insert(:asciicast, visibility: :public, archived_at: DateTime.utc_now())
 
-      active = insert(:asciicast, visibility: :public, popularity_dirty: true)
+      insert(:asciicast_stats,
+        asciicast_id: archived.id,
+        popularity_score: 99.0,
+        popularity_dirty: true
+      )
+
+      active = insert(:asciicast, visibility: :public)
+      insert(:asciicast_stats, asciicast_id: active.id, popularity_dirty: true)
 
       Repo.insert_all("asciicast_daily_views", [
         %{asciicast_id: archived.id, date: today, count: 50},
@@ -486,8 +550,8 @@ defmodule Asciinema.RecordingsTest do
       # Test :all scope
       assert {:ok, 1} = Recordings.recompute_popularity_scores(:all)
 
-      archived = Repo.get!(Asciicast, archived.id)
-      active = Repo.get!(Asciicast, active.id)
+      archived = Repo.get!(AsciicastStats, archived.id)
+      active = Repo.get!(AsciicastStats, active.id)
 
       # Archived should be untouched
       assert archived.popularity_score == 99.0
