@@ -1,0 +1,20 @@
+/* ==========================================================================
+ * User streams page.
+ * ========================================================================== */
+
+.c-user-stream {
+  &.a-live,
+  &.a-upcoming {
+    .heading {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: baseline;
+    }
+
+    .heading h2 {
+      flex-grow: 1;
+      margin-top: 0;
+    }
+  }
+}

@@ -45,6 +45,8 @@
 @import "./pages/_user_show.css";
 @import "./pages/_login.css";
 @import "./pages/_user_edit.css";
+@import "./pages/_user_recording.css";
+@import "./pages/_user_stream.css";
 @import "./pages/_search_results.css";
 
 /* == Self-hosted fonts == */

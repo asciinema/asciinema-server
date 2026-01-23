@@ -1,0 +1,26 @@
+<div class="container">
+  <div class="recording-index-layout">
+    <div>
+      <div class="heading">
+        <h2 :if={@self}>Your upcoming streams</h2>
+        <h2 :if={!@self}>Upcoming streams by <.profile_link user={@user} /></h2>
+      </div>
+
+      <%= if @streams.total_entries > 0 do %>
+        <div class="asciicast-list">
+          <div :for={stream <- @streams}>
+            {live_render(@conn, AsciinemaWeb.UpcomingStreamCardLive,
+              session: %{"stream_id" => stream.id}
+            )}
+          </div>
+        </div>
+
+        <div :if={@streams.total_pages > 1} class="pagination-wrapper">
+          {pagination_links(@streams)}
+        </div>
+      <% else %>
+        <p>{username(@user)} has no upcoming streams.</p>
+      <% end %>
+    </div>
+  </div>
+</div>

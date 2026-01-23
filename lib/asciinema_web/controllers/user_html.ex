@@ -1,7 +1,6 @@
 defmodule AsciinemaWeb.UserHTML do
   use AsciinemaWeb, :html
   import AsciinemaWeb.ErrorHelpers
-  import Scrivener.HTML
   alias Asciinema.Fonts
   alias AsciinemaWeb.{DefaultAvatar, MediaView, RecordingHTML}
 
