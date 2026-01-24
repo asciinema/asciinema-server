@@ -34,8 +34,4 @@ defmodule AsciinemaWeb.UsernameController do
         )
     end
   end
-
-  def skip(conn, _params) do
-    redirect(conn, to: profile_path(conn, conn.assigns.current_user))
-  end
 end

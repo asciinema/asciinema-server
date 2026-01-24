@@ -90,7 +90,6 @@ defmodule AsciinemaWeb.Router do
     get "/user/delete", UserController, :delete, as: :user_deletion
 
     resources "/username", UsernameController, only: [:new, :create], singleton: true
-    get "/username/skip", UsernameController, :skip, as: :username
 
     resources "/session", SessionController, only: [:new, :create, :delete], singleton: true
 
