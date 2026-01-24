@@ -121,7 +121,7 @@
 
       <div class="asciicast-list">
         <div :for={asciicast <- @stream_asciicasts}>
-          <RecordingHTML.card asciicast={asciicast} conn={@conn} />
+          <RecordingHTML.card asciicast={asciicast} show_visibility_badge={@user_is_self} />
         </div>
       </div>
     <% end %>
@@ -137,7 +137,7 @@
 
       <div class="asciicast-list">
         <div :for={asciicast <- @other_asciicasts}>
-          <RecordingHTML.card asciicast={asciicast} conn={@conn} />
+          <RecordingHTML.card asciicast={asciicast} show_visibility_badge={@user_is_self} />
         </div>
       </div>
 

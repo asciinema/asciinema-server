@@ -20,10 +20,7 @@
   </:duration>
 
   <:badges>
-    <.visibility_badge
-      :if={assigns[:conn] && owned_by_current_user?(@asciicast, @conn)}
-      visibility={@asciicast.visibility}
-    />
+    <.visibility_badge :if={assigns[:show_visibility_badge]} visibility={@asciicast.visibility} />
     <.featured_badge :if={@asciicast.featured} />
   </:badges>
 </MediumHTML.card>

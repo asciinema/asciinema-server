@@ -20,6 +20,7 @@ defmodule AsciinemaWeb.UpcomingStreamCardLive do
   @impl true
   def mount(_params, %{"stream_id" => stream_id} = session, socket) do
     stream = Streaming.get_stream(stream_id)
+
     socket =
       assign(socket,
         stream: stream,

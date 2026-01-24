@@ -100,7 +100,7 @@
     <%= if length(@asciicasts.items) > 0 do %>
       <div class="asciicast-list">
         <div :for={asciicast <- @asciicasts.items}>
-          <RecordingHTML.card asciicast={asciicast} conn={@conn} />
+          <RecordingHTML.card asciicast={asciicast} show_visibility_badge={@self} />
         </div>
       </div>
     <% else %>
