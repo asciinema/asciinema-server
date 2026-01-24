@@ -10,7 +10,7 @@
         <div class="asciicast-list">
           <div :for={stream <- @streams}>
             {live_render(@conn, AsciinemaWeb.LiveStreamCardLive,
-              session: %{"stream_id" => stream.id}
+              session: %{"stream_id" => stream.id, "show_visibility_badge" => @self}
             )}
           </div>
         </div>

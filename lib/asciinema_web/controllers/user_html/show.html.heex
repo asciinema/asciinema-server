@@ -66,7 +66,7 @@
         <div class="asciicast-list">
           <div :for={stream <- live_streams}>
             {live_render(@conn, AsciinemaWeb.LiveStreamCardLive,
-              session: %{"stream_id" => stream.id}
+              session: %{"stream_id" => stream.id, "show_visibility_badge" => @self}
             )}
           </div>
         </div>
@@ -85,7 +85,7 @@
         <div class="asciicast-list">
           <div :for={stream <- upcoming_streams}>
             {live_render(@conn, AsciinemaWeb.UpcomingStreamCardLive,
-              session: %{"stream_id" => stream.id}
+              session: %{"stream_id" => stream.id, "show_visibility_badge" => @self}
             )}
           </div>
         </div>
