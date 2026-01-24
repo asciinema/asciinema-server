@@ -126,16 +126,8 @@ defmodule AsciinemaWeb.UserController do
     }
   end
 
-  defp get_user(%{"id" => id}) do
-    if String.match?(id, ~r/^\d+$/) do
-      Accounts.get_user(id)
-    else
-      Accounts.find_user_by_username(id)
-    end
-  end
-
   defp get_user(%{"username" => username}) do
-    Accounts.find_user_by_username(username)
+    Accounts.find_user_by_profile_id(username)
   end
 
   def edit(conn, _params) do
@@ -197,7 +189,7 @@ defmodule AsciinemaWeb.UserController do
       :ok ->
         conn
         |> put_flash(:info, "Account removal initiated - check your inbox (#{address})")
-        |> redirect(to: profile_path(conn))
+        |> redirect(to: ~p"/~#{user}")
 
       {:error, reason} ->
         Logger.warning("email delivery error: #{inspect(reason)}")

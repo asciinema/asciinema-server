@@ -28,7 +28,7 @@ defmodule AsciinemaWeb.UserRecordingController do
   end
 
   defp load_user(conn, _opts) do
-    if user = Accounts.find_user_by_username(conn.params["username"]) do
+    if user = Accounts.find_user_by_profile_id(conn.params["username"]) do
       assign(conn, :user, user)
     else
       conn

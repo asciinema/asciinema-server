@@ -14,7 +14,7 @@ defmodule AsciinemaWeb.UsernameController do
 
     case Asciinema.update_user(user, user_params) do
       {:ok, user} ->
-        redirect(conn, to: profile_path(conn, user))
+        redirect(conn, to: ~p"/~#{user}")
 
       {:error, %Ecto.Changeset{} = changeset} ->
         error =

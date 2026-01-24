@@ -34,6 +34,21 @@ defmodule Asciinema.Accounts do
     )
   end
 
+  def find_user_by_profile_id("user:" <> id) do
+    case Integer.parse(id) do
+      {id, ""} ->
+        # narrowing to users with NULL username limits enumeration attacks
+        Repo.one(from(u in User, where: u.id == ^id and is_nil(u.username)))
+
+      _ ->
+        nil
+    end
+  end
+
+  def find_user_by_profile_id(username) when is_binary(username) do
+    find_user_by_username(username)
+  end
+
   def find_user_by_auth_token(auth_token) do
     Repo.get_by(User, auth_token: auth_token)
   end

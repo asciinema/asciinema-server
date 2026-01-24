@@ -60,7 +60,7 @@
           <h2 :if={!@self}>Live streams</h2>
           <a :if={@self} href={~p"/user/streams"}>Manage streams</a>
           <span :if={@self and has_more} class="text-muted">&middot;</span>
-          <a :if={has_more} href={profile_path(@user) <> "/streams/live"}>Browse all</a>
+          <a :if={has_more} href={~p"/~#{@user}/streams/live"}>Browse all</a>
         </div>
 
         <div class="asciicast-list">
@@ -79,7 +79,7 @@
         <div class="heading">
           <h2 :if={@self}>Your upcoming streams</h2>
           <h2 :if={!@self}>Upcoming streams</h2>
-          <a :if={has_more} href={profile_path(@user) <> "/streams/upcoming"}>Browse all</a>
+          <a :if={has_more} href={~p"/~#{@user}/streams/upcoming"}>Browse all</a>
         </div>
 
         <div class="asciicast-list">
@@ -94,7 +94,7 @@
     <div class="heading">
       <h2 :if={@self}>Your recent recordings</h2>
       <h2 :if={!@self}>Recent recordings</h2>
-      <a :if={@asciicasts.has_more} href={profile_path(@user) <> "/recordings"}>Browse all</a>
+      <a :if={@asciicasts.has_more} href={~p"/~#{@user}/recordings"}>Browse all</a>
     </div>
 
     <%= if length(@asciicasts.items) > 0 do %>

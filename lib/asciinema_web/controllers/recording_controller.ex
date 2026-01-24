@@ -213,7 +213,7 @@ defmodule AsciinemaWeb.RecordingController do
       {:ok, _asciicast} ->
         conn
         |> put_flash(:info, "Recording deleted.")
-        |> redirect(to: profile_path(conn, conn.assigns.current_user))
+        |> redirect(to: ~p"/~#{conn.assigns.current_user}")
 
       {:error, _reason} ->
         conn

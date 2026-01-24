@@ -27,3 +27,9 @@ defmodule Asciinema.Accounts.User do
     has_many :clis, Asciinema.Accounts.Cli
   end
 end
+
+defimpl Phoenix.Param, for: Asciinema.Accounts.User do
+  def to_param(%{username: username, id: id}) do
+    username || "user:#{id}"
+  end
+end

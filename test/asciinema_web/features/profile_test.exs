@@ -188,11 +188,11 @@ defmodule AsciinemaWeb.Features.ProfileTest do
       |> assert_has("a", text: "Public Recording")
     end
 
-    test "by ID", %{conn: conn} do
-      user = insert(:user, username: "foobar", name: "Test User")
+    test "without username", %{conn: conn} do
+      user = insert(:user, username: nil, name: "Test User")
 
       conn
-      |> visit(~p"/u/#{user.id}")
+      |> visit(~p"/~#{user}")
       |> assert_has("h1", text: "Test User")
     end
   end

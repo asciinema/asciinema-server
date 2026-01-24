@@ -7,6 +7,6 @@ defmodule AsciinemaWeb.DefaultAvatar.Identicon do
 
   @impl true
   def url(user) do
-    ~p"/u/#{user}/avatar"
+    ~p"/~#{user}/avatar"
   end
 end

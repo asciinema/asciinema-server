@@ -84,12 +84,10 @@ defmodule AsciinemaWeb.Router do
     end
 
     get "/~:username", UserController, :show
+    get "/~:username/avatar", AvatarController, :show
     get "/~:username/recordings", UserRecordingController, :index
     get "/~:username/streams/live", UserStreamController, :live
     get "/~:username/streams/upcoming", UserStreamController, :upcoming
-
-    get "/u/:id", UserController, :show
-    get "/u/:id/avatar", AvatarController, :show
     resources "/users", UserController, as: :users, only: [:new, :create]
     get "/user/delete", UserController, :delete, as: :user_deletion
 
