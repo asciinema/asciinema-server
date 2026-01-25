@@ -2,8 +2,6 @@ defmodule AsciinemaWeb.ExploreController do
   use AsciinemaWeb, :controller
   alias Asciinema.{Recordings, Streaming}
 
-  plug :assign_featured_enabled
-
   def show(conn, _params) do
     live_streams = fetch_live_streams()
     upcoming_streams = fetch_upcoming_streams()
@@ -138,15 +136,6 @@ defmodule AsciinemaWeb.ExploreController do
     ]
 
     render(conn, "upcoming_streams.html", assigns)
-  end
-
-  defp assign_featured_enabled(conn, _opts) do
-    count =
-      :featured
-      |> Recordings.query()
-      |> Recordings.count()
-
-    assign(conn, :featured_enabled, count > 0)
   end
 
   defp list_streams(query, limit) do
