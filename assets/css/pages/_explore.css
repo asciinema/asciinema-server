@@ -14,19 +14,6 @@
       }
     }
 
-    .heading {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-      margin: 0 0 1rem 0;
-
-      h2 {
-        flex-grow: 1;
-        margin-top: 0;
-        margin-bottom: 1rem;
-      }
-    }
-
     .sidebar {
       display: flex;
       flex-direction: column;

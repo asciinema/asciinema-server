@@ -27,6 +27,7 @@
 @import "./components/_flash.css";
 @import "./components/_code.css";
 @import "./components/_recordings.css";
+@import "./components/_section_heading.css";
 
 /* == Regions == */
 
@@ -44,8 +45,6 @@
 @import "./pages/_user_show.css";
 @import "./pages/_login.css";
 @import "./pages/_user_edit.css";
-@import "./pages/_user_recording.css";
-@import "./pages/_user_stream.css";
 @import "./pages/_search_results.css";
 @import "./pages/_explore.css";
 

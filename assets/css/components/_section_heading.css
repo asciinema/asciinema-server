@@ -1,0 +1,28 @@
+/* ==========================================================================
+ * Section heading layout (title + right-aligned actions).
+ * ========================================================================== */
+
+.heading {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: baseline;
+  margin: 4rem 0 2rem 0;
+
+  h2 {
+    flex-grow: 1;
+    margin: 0;
+
+    a {
+      font-size: inherit;
+    }
+  }
+
+  a {
+    font-size: 1.125rem;
+  }
+}
+
+.heading:first-child {
+  margin-top: 0;
+}

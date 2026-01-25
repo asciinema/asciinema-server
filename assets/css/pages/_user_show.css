@@ -40,16 +40,7 @@
     }
   }
 
-  .heading {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-    align-items: baseline;
-    margin: 2em 0 1em 0;
-  }
-
-  .heading h2 {
-    flex-grow: 1;
-    margin: 0;
+  .heading:first-child {
+    margin-top: 3rem;
   }
 }
