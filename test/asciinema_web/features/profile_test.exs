@@ -136,7 +136,7 @@ defmodule AsciinemaWeb.Features.ProfileTest do
       |> log_in_user(user)
       |> visit(~p"/~empty")
       |> assert_has("h2", text: "Your live streams")
-      |> assert_has("p", text: "You have no live streams.")
+      |> assert_has("p", text: "To start a new streaming session")
       |> refute_has("h2", text: "Your upcoming streams")
       |> assert_has("h2", text: "Your recent recordings")
       |> assert_has("p", text: "You have no recordings.")
