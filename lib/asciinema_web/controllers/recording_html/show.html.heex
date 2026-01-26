@@ -112,21 +112,23 @@
   </div>
 </section>
 
-<section :if={length(@other_asciicasts) > 0} class="even more-by">
+<section :if={length(@other_asciicasts.items) > 0} class="even more-by">
   <div class="container">
-    <h2>
-      More by <a href={author_profile_path(@asciicast)}>{author_username(@asciicast)}</a>
-    </h2>
+    <div class="heading">
+      <h2>
+        More recordings by
+        <a href={author_profile_path(@asciicast)}>{author_username(@asciicast)}</a>
+      </h2>
+      <a :if={@other_asciicasts.has_more} href={~p"/~#{@asciicast.user}/recordings"}>
+        Browse all
+      </a>
+    </div>
 
     <div class="asciicast-list">
-      <div :for={asciicast <- @other_asciicasts}>
+      <div :for={asciicast <- @other_asciicasts.items}>
         <.card asciicast={asciicast} conn={@conn} />
       </div>
     </div>
-
-    <p>
-      <a href={author_profile_path(@asciicast)} class="btn btn-info">See all</a>
-    </p>
   </div>
 </section>
 

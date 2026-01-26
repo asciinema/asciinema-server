@@ -108,4 +108,8 @@
   section.more-by {
     padding-top: 0;
   }
+
+  .heading:first-child {
+    margin-top: 3rem;
+  }
 }

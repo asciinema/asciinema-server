@@ -19,15 +19,9 @@ defmodule AsciinemaWeb.RecordingController do
       |> put_status(410)
       |> render(:deleted, ttl: Asciinema.unclaimed_recording_ttl())
     else
-      other_asciicasts =
-        [user_id: asciicast.user_id, id: {:not_eq, asciicast.id}]
-        |> Recordings.query(:random)
-        |> Authorization.scope(:asciicasts, conn.assigns.current_user)
-        |> Recordings.list(4)
+      other_asciicasts = fetch_other_asciicasts(asciicast, conn.assigns.current_user)
 
-      render(
-        conn,
-        :show,
+      render(conn, :show,
         page_title: Recordings.title(asciicast),
         asciicast: asciicast,
         player_opts: player_opts(conn.params),
@@ -138,6 +132,22 @@ defmodule AsciinemaWeb.RecordingController do
         asciicast_id: asciicast.id
       )
     end
+  end
+
+  defp fetch_other_asciicasts(asciicast, current_user) do
+    [user_id: asciicast.user_id, id: {:not_eq, asciicast.id}]
+    |> Recordings.query(:random)
+    |> Authorization.scope(:asciicasts, current_user)
+    |> list_asciicasts(4)
+  end
+
+  defp list_asciicasts(query, limit) do
+    items = Recordings.list(query, limit + 1)
+
+    %{
+      items: Enum.take(items, limit),
+      has_more: length(items) > limit
+    }
   end
 
   def edit(conn, _params) do
