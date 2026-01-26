@@ -27,18 +27,6 @@ defmodule AsciinemaWeb.Features.SignupTest do
       |> assert_has("h1", text: "Joined on")
     end
 
-    test "without setting username", %{conn: conn} do
-      conn
-      |> visit("/")
-      |> click_link("Sign up")
-      |> fill_in("E-mail or username", with: "test@example.com")
-      |> click_button("Log in")
-      |> visit(link_from_email())
-      |> verify_magic_link()
-      |> click_link("I'll do it later")
-      |> assert_has("h1", text: "Joined on")
-    end
-
     test "duplicate emails", %{conn: conn} do
       conn
       |> visit("/")

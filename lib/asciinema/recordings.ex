@@ -66,8 +66,12 @@ defmodule Asciinema.Recordings do
   def query(filters \\ [], order \\ nil)
 
   def query(filters, order) do
-    filters = List.wrap(filters)
-    needs_stats_join = order == :popularity or Enum.member?(filters, :popular)
+    filters =
+      filters
+      |> List.wrap()
+      |> normalize_filters(order)
+
+    needs_stats_join = Enum.member?(filters, :popular)
 
     from(Asciicast)
     |> where([a], is_nil(a.archived_at))
@@ -146,6 +150,9 @@ defmodule Asciinema.Recordings do
   end
 
   defp maybe_join_stats(q, false), do: q
+
+  defp normalize_filters(filters, :popularity), do: Enum.uniq([:popular | filters])
+  defp normalize_filters(filters, _order), do: filters
 
   def search(%Ecto.Query{} = query, q) do
     query

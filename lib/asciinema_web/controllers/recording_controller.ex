@@ -12,49 +12,6 @@ defmodule AsciinemaWeb.RecordingController do
 
   plug :redirect_to_canonical_path when action == :show
 
-  def index(conn, params) do
-    category = params[:category]
-    order = if params["order"] == "popularity", do: :popularity, else: :date
-
-    page =
-      category
-      |> Recordings.query(order)
-      |> Recordings.paginate(params["page"], 14)
-
-    assigns = [
-      page_title: String.capitalize("#{category} recordings"),
-      category: category,
-      sidebar_hidden: params[:sidebar_hidden],
-      page: page,
-      order: order
-    ]
-
-    render(conn, "index.html", assigns)
-  end
-
-  def auto(conn, params) do
-    count =
-      :featured
-      |> Recordings.query()
-      |> Recordings.count()
-
-    case count do
-      0 ->
-        index(conn, Map.merge(params, %{category: :public, sidebar_hidden: true}))
-
-      _ ->
-        index(conn, Map.put(params, :category, :featured))
-    end
-  end
-
-  def public(conn, params) do
-    index(conn, Map.put(params, :category, :public))
-  end
-
-  def featured(conn, params) do
-    index(conn, Map.put(params, :category, :featured))
-  end
-
   def show(conn, _params) do
     do_show(conn, get_format(conn), conn.assigns.asciicast)
   end
@@ -216,7 +173,7 @@ defmodule AsciinemaWeb.RecordingController do
       {:ok, _asciicast} ->
         conn
         |> put_flash(:info, "Recording deleted.")
-        |> redirect(to: profile_path(conn, conn.assigns.current_user))
+        |> redirect(to: ~p"/~#{conn.assigns.current_user}")
 
       {:error, _reason} ->
         conn

@@ -233,13 +233,13 @@ defmodule Asciinema.RecordingsTest do
     end
 
     test "orders by popularity score then id" do
-      low = insert(:asciicast)
+      low = insert(:asciicast, visibility: :public)
       insert(:asciicast_stats, asciicast_id: low.id, popularity_score: 5.0)
 
-      mid = insert(:asciicast)
+      mid = insert(:asciicast, visibility: :public)
       insert(:asciicast_stats, asciicast_id: mid.id, popularity_score: 5.0)
 
-      high = insert(:asciicast)
+      high = insert(:asciicast, visibility: :public)
       insert(:asciicast_stats, asciicast_id: high.id, popularity_score: 10.0)
 
       results =

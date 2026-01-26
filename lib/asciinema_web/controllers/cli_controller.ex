@@ -45,7 +45,7 @@ defmodule AsciinemaWeb.CliController do
     user = conn.assigns.current_user
 
     if user.username do
-      profile_path(user)
+      ~p"/~#{user}"
     else
       ~p"/username/new"
     end

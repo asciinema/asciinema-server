@@ -69,6 +69,9 @@ defmodule Asciinema.Streaming do
       {:user_id, user_id} ->
         where(q, [s], s.user_id == ^user_id)
 
+      :public ->
+        where(q, [s], s.visibility == :public)
+
       :live ->
         where(q, [s], s.live)
 
@@ -96,6 +99,9 @@ defmodule Asciinema.Streaming do
 
       :soonest ->
         order_by(q, asc_nulls_last: :next_start_at)
+
+      :recently_started ->
+        order_by(q, desc: :last_started_at)
 
       :activity ->
         order_by(q, desc: :live, desc_nulls_last: :last_started_at, desc: :id)

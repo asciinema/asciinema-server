@@ -19,4 +19,8 @@
         Scheduled for {format_start_time(@stream)}
     <% end %>
   </:duration>
+
+  <:badges>
+    <.visibility_badge :if={@show_visibility_badge} visibility={@stream.visibility} />
+  </:badges>
 </MediumHTML.card>

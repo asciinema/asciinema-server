@@ -21,7 +21,7 @@ defmodule AsciinemaWeb.MediaView do
   end
 
   def author_profile_path(%{user: user}) do
-    profile_path(user)
+    ~p"/~#{user}"
   end
 
   def theme_options do

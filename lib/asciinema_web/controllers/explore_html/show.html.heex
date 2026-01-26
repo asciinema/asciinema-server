@@ -1,0 +1,80 @@
+<div class="container">
+  <div class="recording-index-layout">
+    <div class="content">
+      <%= if length(@live_streams.items) > 0 do %>
+        <div class="heading">
+          <h2>Live streams</h2>
+          <a :if={@live_streams.has_more} href={~p"/explore/streams/live"}>Browse all</a>
+        </div>
+
+        <div class="asciicast-list">
+          <div :for={stream <- @live_streams.items}>
+            {live_render(@conn, AsciinemaWeb.LiveStreamCardLive,
+              session: %{"stream_id" => stream.id, "show_visibility_badge" => false}
+            )}
+          </div>
+        </div>
+      <% end %>
+
+      <%= if length(@upcoming_streams.items) > 0 do %>
+        <div class="heading">
+          <h2>Upcoming streams</h2>
+          <a :if={@upcoming_streams.has_more} href={~p"/explore/streams/upcoming"}>Browse all</a>
+        </div>
+
+        <div class="asciicast-list">
+          <div :for={stream <- @upcoming_streams.items}>
+            {live_render(@conn, AsciinemaWeb.UpcomingStreamCardLive,
+              session: %{"stream_id" => stream.id, "show_visibility_badge" => false}
+            )}
+          </div>
+        </div>
+      <% end %>
+
+      <%= if length(@featured_asciicasts.items) > 0 do %>
+        <div class="heading">
+          <h2>Featured recordings</h2>
+          <a :if={@featured_asciicasts.has_more} href={~p"/explore/recordings/featured"}>
+            Browse all
+          </a>
+        </div>
+
+        <div class="asciicast-list">
+          <div :for={asciicast <- @featured_asciicasts.items}>
+            <RecordingHTML.card asciicast={asciicast} />
+          </div>
+        </div>
+      <% end %>
+
+      <%= if length(@popular_asciicasts.items) > 0 do %>
+        <div class="heading">
+          <h2>Popular recordings</h2>
+          <a :if={@popular_asciicasts.has_more} href={~p"/explore/recordings/popular"}>
+            Browse all
+          </a>
+        </div>
+
+        <div class="asciicast-list">
+          <div :for={asciicast <- @popular_asciicasts.items}>
+            <RecordingHTML.card asciicast={asciicast} />
+          </div>
+        </div>
+      <% end %>
+
+      <%= if length(@recent_asciicasts.items) > 0 do %>
+        <div class="heading">
+          <h2>Recent recordings</h2>
+          <a :if={@recent_asciicasts.has_more} href={~p"/explore/recordings/recent"}>
+            Browse all
+          </a>
+        </div>
+
+        <div class="asciicast-list">
+          <div :for={asciicast <- @recent_asciicasts.items}>
+            <RecordingHTML.card asciicast={asciicast} />
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

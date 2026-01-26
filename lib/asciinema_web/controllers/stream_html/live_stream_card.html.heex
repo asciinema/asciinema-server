@@ -8,4 +8,8 @@
 >
   <:preview><RecordingSVG.thumbnail asciicast={@stream} /></:preview>
   <:duration><.live_icon :if={@stream.live} /></:duration>
+
+  <:badges>
+    <.visibility_badge :if={@show_visibility_badge} visibility={@stream.visibility} />
+  </:badges>
 </MediumHTML.card>

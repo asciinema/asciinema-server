@@ -47,33 +47,18 @@ defmodule AsciinemaWeb.UserController do
 
   def show(conn, params) do
     if user = get_user(params) do
-      do_show(conn, params, user)
+      do_show(conn, user)
     else
       {:error, :not_found}
     end
   end
 
-  defp do_show(conn, params, user) do
+  defp do_show(conn, user) do
     current_user = conn.assigns.current_user
     self = !!(current_user && current_user.id == user.id)
-
-    live_streams =
-      [:live, user_id: user.id]
-      |> Streaming.query()
-      |> Authorization.scope(:streams, current_user)
-      |> Streaming.list(4)
-
-    upcoming_streams =
-      [:upcoming, user_id: user.id]
-      |> Streaming.query(:soonest)
-      |> Authorization.scope(:streams, current_user)
-      |> Streaming.list(4)
-
-    asciicasts =
-      [user_id: user.id]
-      |> Recordings.query(:date)
-      |> Authorization.scope(:asciicasts, current_user)
-      |> Recordings.paginate(params["page"], 14)
+    live_streams = fetch_live_streams(user, current_user)
+    upcoming_streams = fetch_upcoming_streams(user, current_user)
+    asciicasts = fetch_recent_asciicasts(user, current_user, [live_streams, upcoming_streams])
 
     render(
       conn,
@@ -87,16 +72,62 @@ defmodule AsciinemaWeb.UserController do
     )
   end
 
-  defp get_user(%{"id" => id}) do
-    if String.match?(id, ~r/^\d+$/) do
-      Accounts.get_user(id)
-    else
-      Accounts.find_user_by_username(id)
-    end
+  defp fetch_live_streams(%{streaming_enabled: true} = user, current_user) do
+    [:live, user_id: user.id]
+    |> Streaming.query()
+    |> Authorization.scope(:streams, current_user)
+    |> list_streams(2)
+  end
+
+  defp fetch_live_streams(%{streaming_enabled: false}, _current_user), do: :disabled
+
+  defp fetch_upcoming_streams(%{streaming_enabled: true} = user, current_user) do
+    [:upcoming, user_id: user.id]
+    |> Streaming.query(:soonest)
+    |> Authorization.scope(:streams, current_user)
+    |> list_streams(2)
+  end
+
+  defp fetch_upcoming_streams(%{streaming_enabled: false}, _current_user), do: :disabled
+
+  defp fetch_recent_asciicasts(user, current_user, earlier_sections) do
+    used_rows =
+      Enum.reduce(earlier_sections, 0, fn section, acc ->
+        case section do
+          :disabled -> acc
+          %{items: []} -> acc
+          %{items: _} -> acc + 1
+        end
+      end)
+
+    limit = (4 - used_rows) * 2
+
+    [user_id: user.id]
+    |> Recordings.query(:date)
+    |> Authorization.scope(:asciicasts, current_user)
+    |> list_asciicasts(limit)
+  end
+
+  defp list_streams(query, limit) do
+    items = Streaming.list(query, limit + 1)
+
+    %{
+      items: Enum.take(items, limit),
+      has_more: length(items) > limit
+    }
+  end
+
+  defp list_asciicasts(query, limit) do
+    items = Recordings.list(query, limit + 1)
+
+    %{
+      items: Enum.take(items, limit),
+      has_more: length(items) > limit
+    }
   end
 
   defp get_user(%{"username" => username}) do
-    Accounts.find_user_by_username(username)
+    Accounts.find_user_by_profile_id(username)
   end
 
   def edit(conn, _params) do
@@ -158,7 +189,7 @@ defmodule AsciinemaWeb.UserController do
       :ok ->
         conn
         |> put_flash(:info, "Account removal initiated - check your inbox (#{address})")
-        |> redirect(to: profile_path(conn))
+        |> redirect(to: ~p"/~#{user}")
 
       {:error, reason} ->
         Logger.warning("email delivery error: #{inspect(reason)}")

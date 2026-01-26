@@ -55,9 +55,16 @@ defmodule AsciinemaWeb.Router do
 
     get "/", HomeController, :show
 
-    get "/explore", RecordingController, :auto, as: :explore
-    get "/explore/featured", RecordingController, :featured, as: :explore
-    get "/explore/public", RecordingController, :public, as: :explore
+    get "/explore", ExploreController, :show
+    get "/explore/recordings/featured", ExploreController, :featured_recordings
+    get "/explore/recordings/popular", ExploreController, :popular_recordings
+    get "/explore/recordings/recent", ExploreController, :recent_recordings
+    get "/explore/streams/live", ExploreController, :live_streams
+    get "/explore/streams/upcoming", ExploreController, :upcoming_streams
+
+    # legacy explore URLs
+    get "/explore/featured", ExploreController, :featured_recordings
+    get "/explore/public", ExploreController, :recent_recordings
 
     get "/search", SearchController, :show, as: :search
 
@@ -83,14 +90,15 @@ defmodule AsciinemaWeb.Router do
       get "/email", EmailController, :update
     end
 
-    resources "/users", UserController, as: :users, only: [:new, :create]
-    get "/u/:id", UserController, :show
     get "/~:username", UserController, :show
-    get "/u/:id/avatar", AvatarController, :show
+    get "/~:username/avatar", AvatarController, :show
+    get "/~:username/recordings", UserRecordingController, :index
+    get "/~:username/streams/live", UserStreamController, :live
+    get "/~:username/streams/upcoming", UserStreamController, :upcoming
+    resources "/users", UserController, as: :users, only: [:new, :create]
     get "/user/delete", UserController, :delete, as: :user_deletion
 
     resources "/username", UsernameController, only: [:new, :create], singleton: true
-    get "/username/skip", UsernameController, :skip, as: :username
 
     resources "/session", SessionController, only: [:new, :create, :delete], singleton: true
 
