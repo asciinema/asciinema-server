@@ -39,10 +39,22 @@ defmodule AsciinemaWeb.HomeController do
     |> list_asciicasts(2)
   end
 
+  @popular_pool_size 50
+  @popular_limit 2
+
   defp fetch_popular_asciicasts do
-    :popular
-    |> Recordings.query(:popularity)
-    |> list_asciicasts(2)
+    seed = Date.utc_today()
+
+    asciicasts =
+      :popular
+      |> Recordings.query(:popularity)
+      |> Recordings.list(@popular_pool_size)
+      |> Enum.sort_by(fn asciicast -> :erlang.phash2({asciicast.id, seed}) end)
+
+    %{
+      items: Enum.take(asciicasts, @popular_limit),
+      has_more: length(asciicasts) > @popular_limit
+    }
   end
 
   defp list_streams(query, limit) do
