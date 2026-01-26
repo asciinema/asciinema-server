@@ -4,7 +4,7 @@
       <h1>Record and share your terminal sessions, the&nbsp;simple&nbsp;way.</h1>
 
       <h2>
-        Forget screen recording apps and blurry video. <br>
+        Forget screen recording apps and blurry video. <br />
         Experience a lightweight, text-based approach to terminal recording.
       </h2>
     </div>
@@ -69,15 +69,50 @@
 
 <section class="even">
   <div class="container">
-    <h1>Example sessions recorded with asciinema</h1>
-
-    <div class="asciicast-list">
-      <div :for={asciicast <- @asciicasts}>
-        <RecordingHTML.card asciicast={asciicast} no_created_at={true} />
+    <%= if length(@live_streams.items) > 0 do %>
+      <div class="heading">
+        <h2>Live streams</h2>
+        <a :if={@live_streams.has_more} href={~p"/explore/streams/live"}>Browse all</a>
       </div>
-    </div>
 
-    <p><.link class="btn btn-info" href={~p"/explore"}>Explore more</.link></p>
+      <div class="asciicast-list">
+        <div :for={stream <- @live_streams.items}>
+          {live_render(@conn, AsciinemaWeb.LiveStreamCardLive,
+            session: %{"stream_id" => stream.id, "show_visibility_badge" => false}
+          )}
+        </div>
+      </div>
+    <% end %>
+
+    <%= if length(@featured_asciicasts.items) > 0 do %>
+      <div class="heading">
+        <h2>Featured recordings</h2>
+        <a :if={@featured_asciicasts.has_more} href={~p"/explore/recordings/featured"}>
+          Browse all
+        </a>
+      </div>
+
+      <div class="asciicast-list">
+        <div :for={asciicast <- @featured_asciicasts.items}>
+          <RecordingHTML.card asciicast={asciicast} no_created_at={true} />
+        </div>
+      </div>
+    <% end %>
+
+    <%= if length(@popular_asciicasts.items) > 0 do %>
+      <div class="heading">
+        <h2>Popular recordings</h2>
+        <a :if={@popular_asciicasts.has_more} href={~p"/explore/recordings/popular"}>
+          Browse all
+        </a>
+      </div>
+
+      <div class="asciicast-list">
+        <div :for={asciicast <- @popular_asciicasts.items}>
+          <RecordingHTML.card asciicast={asciicast} no_created_at={true} />
+        </div>
+      </div>
+    <% end %>
   </div>
 </section>
 

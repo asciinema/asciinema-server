@@ -1,6 +1,6 @@
 defmodule AsciinemaWeb.HomeController do
   use AsciinemaWeb, :controller
-  alias Asciinema.Recordings
+  alias Asciinema.{Recordings, Streaming}
 
   def show(conn, _params) do
     asciicast =
@@ -13,16 +13,53 @@ defmodule AsciinemaWeb.HomeController do
         |> List.first()
       end
 
-    asciicasts =
-      [:featured, :from_last_2_years]
-      |> Recordings.query(:random)
-      |> Recordings.list(6)
+    live_streams = fetch_live_streams()
+    featured_asciicasts = fetch_featured_asciicasts()
+    popular_asciicasts = fetch_popular_asciicasts()
 
     render(
       conn,
       :show,
       asciicast: asciicast,
-      asciicasts: asciicasts
+      live_streams: live_streams,
+      featured_asciicasts: featured_asciicasts,
+      popular_asciicasts: popular_asciicasts
     )
+  end
+
+  defp fetch_live_streams do
+    [:public, :live]
+    |> Streaming.query(:recently_started)
+    |> list_streams(2)
+  end
+
+  defp fetch_featured_asciicasts do
+    :featured
+    |> Recordings.query(:random)
+    |> list_asciicasts(2)
+  end
+
+  defp fetch_popular_asciicasts do
+    :popular
+    |> Recordings.query(:popularity)
+    |> list_asciicasts(2)
+  end
+
+  defp list_streams(query, limit) do
+    items = Streaming.list(query, limit + 1)
+
+    %{
+      items: Enum.take(items, limit),
+      has_more: length(items) > limit
+    }
+  end
+
+  defp list_asciicasts(query, limit) do
+    items = Recordings.list(query, limit + 1)
+
+    %{
+      items: Enum.take(items, limit),
+      has_more: length(items) > limit
+    }
   end
 end
