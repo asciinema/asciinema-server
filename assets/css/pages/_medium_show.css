@@ -73,7 +73,7 @@
     }
 
     .status-line-item {
-      margin-right: 2em;
+      white-space: nowrap;
 
       .icon {
         position: relative;
@@ -95,6 +95,13 @@
       .help-tooltip {
         cursor: help;
       }
+    }
+
+    .status-line {
+      display: flex;
+      flex-wrap: wrap;
+      column-gap: 2em;
+      row-gap: 1em;
     }
 
     .description {
