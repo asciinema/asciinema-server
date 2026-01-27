@@ -45,22 +45,10 @@ defmodule AsciinemaWeb.StreamController do
     stream = conn.assigns.stream
     current_user = conn.assigns.current_user
     user_is_self = match?({%{id: id}, %{id: id}}, {current_user, stream.user})
+    stream_asciicasts = fetch_stream_asciicasts(stream, current_user)
+    other_asciicasts = fetch_other_asciicasts(stream, current_user)
 
-    stream_asciicasts =
-      [user_id: stream.user_id, stream_id: stream.id]
-      |> Recordings.query(:date)
-      |> Authorization.scope(:asciicasts, current_user)
-      |> Recordings.list(4)
-
-    other_asciicasts =
-      [user_id: stream.user_id, stream_id: {:not_eq, stream.id}]
-      |> Recordings.query(:random)
-      |> Authorization.scope(:asciicasts, current_user)
-      |> Recordings.list(4)
-
-    render(
-      conn,
-      :show,
+    render(conn, :show,
       page_title: StreamHTML.title(stream),
       player_opts: player_opts(params),
       actions: stream_actions(stream, current_user),
@@ -133,6 +121,29 @@ defmodule AsciinemaWeb.StreamController do
         |> put_flash(:error, "Couldn't remove this stream.")
         |> redirect(to: params["ret"] || ~p"/s/#{stream}")
     end
+  end
+
+  defp fetch_stream_asciicasts(stream, current_user) do
+    [user_id: stream.user_id, stream_id: stream.id]
+    |> Recordings.query(:date)
+    |> Authorization.scope(:asciicasts, current_user)
+    |> list_asciicasts(4)
+  end
+
+  defp fetch_other_asciicasts(stream, current_user) do
+    [user_id: stream.user_id, stream_id: {:not_eq, stream.id}]
+    |> Recordings.query(:random)
+    |> Authorization.scope(:asciicasts, current_user)
+    |> list_asciicasts(4)
+  end
+
+  defp list_asciicasts(query, limit) do
+    items = Recordings.list(query, limit + 1)
+
+    %{
+      items: Enum.take(items, limit),
+      has_more: length(items) > limit
+    }
   end
 
   defp player_opts(params) do
