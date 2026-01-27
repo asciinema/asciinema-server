@@ -248,6 +248,43 @@ defmodule AsciinemaWeb.Features.RecordingsTest do
 
       assert session.conn.resp_body =~ ~s(viewCountUrl = null)
     end
+
+    test "shows more-by section with browse all when more than limit", %{conn: conn} do
+      owner = insert(:user, username: "owner")
+      asciicast = insert(:asciicast, visibility: :public, user: owner)
+      insert_list(6, :asciicast, visibility: :public, user: owner)
+
+      conn
+      |> visit(~p"/a/#{asciicast}")
+      |> assert_has("section.more-by h2", text: "More recordings by")
+      |> assert_has(
+        "section.more-by a[href='#{~p"/~owner/recordings"}']",
+        text: "Browse all"
+      )
+    end
+
+    test "hides browse all when at limit", %{conn: conn} do
+      owner = insert(:user, username: "owner")
+      asciicast = insert(:asciicast, visibility: :public, user: owner)
+      insert_list(4, :asciicast, visibility: :public, user: owner)
+
+      conn
+      |> visit(~p"/a/#{asciicast}")
+      |> assert_has("section.more-by h2", text: "More recordings by")
+      |> refute_has(
+        "section.more-by a[href='#{~p"/~owner/recordings"}']",
+        text: "Browse all"
+      )
+    end
+
+    test "hides more-by section when no other recordings", %{conn: conn} do
+      owner = insert(:user, username: "owner")
+      asciicast = insert(:asciicast, visibility: :public, user: owner)
+
+      conn
+      |> visit(~p"/a/#{asciicast}")
+      |> refute_has("section.more-by")
+    end
   end
 
   describe "recording editing" do

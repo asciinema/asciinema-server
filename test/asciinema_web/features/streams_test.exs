@@ -142,6 +142,49 @@ defmodule AsciinemaWeb.Features.StreamsTest do
       |> assert_has(".dropdown-item", text: "Settings")
       |> assert_has(".dropdown-item", text: "Delete")
     end
+
+    test "shows browse all for other recordings when more than limit", %{conn: conn} do
+      owner = insert(:user, streaming_enabled: true, username: "owner")
+      stream = insert(:stream, visibility: :public, user: owner)
+      other_stream = insert(:stream, visibility: :public, user: owner)
+      insert_list(2, :asciicast, visibility: :public, user: owner, stream: stream)
+      insert_list(6, :asciicast, visibility: :public, user: owner, stream: other_stream)
+
+      conn
+      |> visit(~p"/s/#{stream}")
+      |> assert_has("section.more-by h2", text: "Past recordings of this stream")
+      |> assert_has(
+        "section.more-by a[href='#{~p"/~owner/recordings"}']",
+        text: "Browse all"
+      )
+    end
+
+    test "hides browse all when at limit", %{conn: conn} do
+      owner = insert(:user, streaming_enabled: true, username: "owner")
+      stream = insert(:stream, visibility: :public, user: owner)
+      other_stream = insert(:stream, visibility: :public, user: owner)
+      insert_list(1, :asciicast, visibility: :public, user: owner, stream: stream)
+      insert_list(4, :asciicast, visibility: :public, user: owner, stream: other_stream)
+
+      conn
+      |> visit(~p"/s/#{stream}")
+      |> assert_has("section.more-by h2", text: "Past recordings of this stream")
+      |> refute_has(
+        "section.more-by a[href='#{~p"/~owner/recordings"}']",
+        text: "Browse all"
+      )
+    end
+
+    test "does not show browse all for past recordings section", %{conn: conn} do
+      owner = insert(:user, streaming_enabled: true, username: "owner")
+      stream = insert(:stream, visibility: :public, user: owner)
+      insert_list(5, :asciicast, visibility: :public, user: owner, stream: stream)
+
+      conn
+      |> visit(~p"/s/#{stream}")
+      |> assert_has("section.more-by h2", text: "Past recordings of this stream")
+      |> refute_has("section.more-by a", text: "Browse all")
+    end
   end
 
   describe "stream editing" do

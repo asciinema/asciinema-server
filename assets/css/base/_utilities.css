@@ -232,6 +232,15 @@
 .w-100 { width: 100%; }
 .w-auto { width: auto; }
 
+@media (min-width: 768px) {
+  .w-md-50 { width: 50%; }
+  .w-md-75 { width: 75%; }
+}
+
+@media (min-width: 992px) {
+  .w-lg-50 { width: 50%; }
+}
+
 .h-25 { height: 25%; }
 .h-50 { height: 50%; }
 .h-75 { height: 75%; }
