@@ -12,8 +12,14 @@ body {
   font-family: var(--font-family-base);
   position: relative;
   margin: 0;
-  padding-bottom: 16rem;
+  padding-bottom: 12rem;
   min-height: 100%;
+}
+
+@media (max-width: 480px) {
+  body {
+    padding-bottom: 24rem;
+  }
 }
 
 /* == Links and text elements == */
