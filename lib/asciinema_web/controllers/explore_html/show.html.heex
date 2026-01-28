@@ -41,7 +41,7 @@
 
         <div class="asciicast-list">
           <div :for={asciicast <- @featured_asciicasts.items}>
-            <RecordingHTML.card asciicast={asciicast} />
+            <RecordingHTML.card asciicast={asciicast} no_created_at={true} />
           </div>
         </div>
       <% end %>
@@ -56,7 +56,7 @@
 
         <div class="asciicast-list">
           <div :for={asciicast <- @popular_asciicasts.items}>
-            <RecordingHTML.card asciicast={asciicast} />
+            <RecordingHTML.card asciicast={asciicast} no_created_at={true} />
           </div>
         </div>
       <% end %>
