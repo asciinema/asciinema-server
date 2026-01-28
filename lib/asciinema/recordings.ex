@@ -560,10 +560,11 @@ defmodule Asciinema.Recordings do
 
   def recompute_popularity_scores(scope \\ :all) do
     cutoff = Date.add(Date.utc_today(), -@popularity_window_days)
+    hard_cutoff = ~D[2026-01-19]
 
     decay_scores =
       from dv in "asciicast_daily_views",
-        where: dv.date >= ^cutoff,
+        where: dv.date >= ^cutoff and dv.date >= ^hard_cutoff,
         group_by: dv.asciicast_id,
         select: %{
           asciicast_id: dv.asciicast_id,
@@ -580,7 +581,7 @@ defmodule Asciinema.Recordings do
       :all ->
         ids_with_views =
           from(dv in "asciicast_daily_views",
-            where: dv.date >= ^cutoff,
+            where: dv.date >= ^cutoff and dv.date >= ^hard_cutoff,
             distinct: true,
             select: dv.asciicast_id
           )
