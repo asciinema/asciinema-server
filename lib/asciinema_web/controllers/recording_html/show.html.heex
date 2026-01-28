@@ -126,7 +126,7 @@
 
     <div class="asciicast-list">
       <div :for={asciicast <- @other_asciicasts.items}>
-        <.card asciicast={asciicast} conn={@conn} />
+        <.card asciicast={asciicast} show_visibility_badge={@self} />
       </div>
     </div>
   </div>

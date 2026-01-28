@@ -22,13 +22,16 @@ defmodule AsciinemaWeb.RecordingController do
       |> put_status(410)
       |> render(:deleted, ttl: Asciinema.unclaimed_recording_ttl())
     else
-      other_asciicasts = fetch_other_asciicasts(asciicast, conn.assigns.current_user)
+      current_user = conn.assigns.current_user
+      self = !!(current_user && current_user.id == asciicast.user_id)
+      other_asciicasts = fetch_other_asciicasts(asciicast, current_user)
 
       render(conn, :show,
         page_title: Recordings.title(asciicast),
         asciicast: asciicast,
+        self: self,
         player_opts: player_opts(conn.params),
-        actions: asciicast_actions(asciicast, conn.assigns.current_user),
+        actions: asciicast_actions(asciicast, current_user),
         view_count_url: build_view_count_url(conn, asciicast),
         other_asciicasts: other_asciicasts
       )
