@@ -5,7 +5,7 @@ defmodule AsciinemaWeb.HomeController do
   def show(conn, _params) do
     asciicast =
       if id = Application.get_env(:asciinema, :home_asciicast_id) do
-        Recordings.get_asciicast(id)
+        Recordings.get_asciicast(id, load_snapshot: true)
       else
         :public
         |> Recordings.query()
