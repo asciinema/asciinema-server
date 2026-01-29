@@ -994,8 +994,12 @@ defmodule AsciinemaWeb.RecordingControllerTest do
   defp test_svg_response(conn, url, 200) do
     conn_2 = get(conn, url <> ".svg")
 
-    assert response(conn_2, 200)
+    body = response(conn_2, 200)
     assert response_content_type(conn_2, :svg)
+
+    # Verify snapshot content is rendered (factory creates snapshot with "foo" and "bar")
+    assert body =~ "foo"
+    assert body =~ "bar"
 
     conn_2 =
       conn
