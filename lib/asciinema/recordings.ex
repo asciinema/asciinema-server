@@ -155,21 +155,26 @@ defmodule Asciinema.Recordings do
   defp normalize_filters(filters, _order), do: filters
 
   def search(%Ecto.Query{} = query, q) do
-    query
-    |> from()
-    |> where(
-      [a],
-      fragment(
-        "(title_tsv || description_tsv || coalesce(content_tsv, ''::tsvector)) @@ websearch_to_tsquery('simple', ?)",
-        ^q
-      )
-    )
-    |> order_by(
-      {:desc,
-       fragment(
-         "ts_rank_cd(setweight(title_tsv, 'A') || setweight(description_tsv, 'B') || setweight(coalesce(content_tsv, ''::tsvector), 'C'), websearch_to_tsquery('simple', ?), 4)",
-         ^q
-       )}
+    from(a in query,
+      join: f in "asciicast_fts",
+      on: f.asciicast_id == a.id,
+      where:
+        fragment(
+          "(? || ? || coalesce(?, ''::tsvector)) @@ websearch_to_tsquery('simple', ?)",
+          f.title_tsv,
+          f.description_tsv,
+          f.content_tsv,
+          ^q
+        ),
+      order_by:
+        {:desc,
+         fragment(
+           "ts_rank_cd(setweight(?, 'A') || setweight(?, 'B') || setweight(coalesce(?, ''::tsvector), 'C'), websearch_to_tsquery('simple', ?), 4)",
+           f.title_tsv,
+           f.description_tsv,
+           f.content_tsv,
+           ^q
+         )}
     )
   end
 
@@ -473,8 +478,8 @@ defmodule Asciinema.Recordings do
   defp set_content_tsv(id, content, attempt \\ 1) do
     try do
       Repo.update_all(
-        from(a in "asciicasts",
-          where: a.id == ^id,
+        from(f in "asciicast_fts",
+          where: f.asciicast_id == ^id,
           update: [set: [content_tsv: fragment("to_tsvector('simple', ?)", ^content)]]
         ),
         []
