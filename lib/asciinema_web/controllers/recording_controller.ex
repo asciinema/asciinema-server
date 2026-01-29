@@ -223,7 +223,7 @@ defmodule AsciinemaWeb.RecordingController do
   defp load_and_authorize_asciicast(conn, _) do
     id = String.trim(conn.params["id"])
 
-    case Recordings.lookup_asciicast(id) do
+    case Recordings.lookup_asciicast(id, load_snapshot: true) do
       nil ->
         conn
         |> FallbackController.call({:error, :not_found})

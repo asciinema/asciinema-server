@@ -22,40 +22,51 @@ defmodule Asciinema.Recordings do
   @secret_token_lengths [@secret_token_length, @legacy_secret_token_length]
   @secret_token_re ~r/^[[:alnum:]]+$/
 
-  def get_asciicast(id) do
+  def get_asciicast(id, opts \\ []) do
     Asciicast
+    |> maybe_load_snapshot(opts)
     |> Repo.get(id)
     |> Repo.preload([:user, :stats])
   end
 
-  def get_public_asciicast(id) do
+  def get_public_asciicast(id, opts \\ []) do
     Asciicast
+    |> maybe_load_snapshot(opts)
     |> Repo.get_by(id: id, visibility: :public)
     |> Repo.preload([:user, :stats])
   end
 
   def fetch_asciicast(id), do: OK.required(get_asciicast(id), :not_found)
 
-  def find_asciicast_by_secret_token(token) do
+  def find_asciicast_by_secret_token(token, opts \\ []) do
     from(a in Asciicast, where: a.secret_token == ^token)
+    |> maybe_load_snapshot(opts)
     |> Repo.one()
     |> Repo.preload([:user, :stats])
   end
 
-  def lookup_asciicast(id, allow_non_public_id \\ false) when is_binary(id) do
+  def lookup_asciicast(id, opts \\ []) when is_binary(id) do
     cond do
       String.match?(id, ~r/^\d+$/) ->
-        if allow_non_public_id do
-          get_asciicast(id)
+        if Keyword.get(opts, :allow_non_public_id, false) do
+          get_asciicast(id, opts)
         else
-          get_public_asciicast(id)
+          get_public_asciicast(id, opts)
         end
 
       secret_token?(id) ->
-        find_asciicast_by_secret_token(id)
+        find_asciicast_by_secret_token(id, opts)
 
       true ->
         nil
+    end
+  end
+
+  defp maybe_load_snapshot(query, opts) do
+    if Keyword.get(opts, :load_snapshot, false) do
+      select(query, [asciicast], %{asciicast | snapshot: asciicast.snapshot})
+    else
+      query
     end
   end
 

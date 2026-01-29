@@ -26,7 +26,7 @@ defmodule Asciinema.Recordings.Asciicast do
     field :title, :string
     field :description, :string
     field :snapshot_at, :float
-    field :snapshot, Asciinema.Ecto.Type.Snapshot
+    field :snapshot, Asciinema.Ecto.Type.Snapshot, load_in_query: false
     field :command, :string
     field :shell, :string
     field :uname, :string

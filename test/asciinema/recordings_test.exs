@@ -180,7 +180,9 @@ defmodule Asciinema.RecordingsTest do
       id = asciicast.id
 
       assert nil == Recordings.lookup_asciicast(to_string(id))
-      assert %Asciicast{id: ^id} = Recordings.lookup_asciicast(to_string(id), true)
+
+      assert %Asciicast{id: ^id} =
+               Recordings.lookup_asciicast(to_string(id), allow_non_public_id: true)
     end
 
     test "accepts current 16-char secret tokens" do
@@ -199,6 +201,27 @@ defmodule Asciinema.RecordingsTest do
       assert %Asciicast{id: ^id} = Recordings.lookup_asciicast("abcdefghijklmnopqrstuvwxy")
 
       assert nil == Recordings.lookup_asciicast("zzzzzzzzzzzzzzzzzzzzzzzzz")
+    end
+
+    test "does not load snapshot by default" do
+      snapshot = {[[{"test", %{}, 1}]], {0, 0}}
+      asciicast = insert(:asciicast, visibility: :public, snapshot: snapshot)
+      id = to_string(asciicast.id)
+
+      result = Recordings.lookup_asciicast(id)
+      assert result.id == asciicast.id
+      assert result.snapshot == nil
+    end
+
+    test "loads snapshot when load_snapshot: true" do
+      snapshot = {[[{"test", %{}, 1}]], {0, 0}}
+      asciicast = insert(:asciicast, visibility: :public, snapshot: snapshot)
+      id = to_string(asciicast.id)
+
+      result = Recordings.lookup_asciicast(id, load_snapshot: true)
+      assert result.id == asciicast.id
+      assert %Asciinema.Recordings.Snapshot{} = result.snapshot
+      assert length(result.snapshot.lines) == 1
     end
   end
 

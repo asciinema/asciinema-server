@@ -9,6 +9,7 @@ defmodule AsciinemaWeb.Features.RecordingsTest do
       conn
       |> visit(~p"/a/#{asciicast.id}")
       |> assert_has("#cinema")
+      |> assert_player_opts()
       |> assert_has("h2", text: "Public Recording")
       |> refute_has(".dropdown-item", text: "Settings")
       |> refute_has(".dropdown-item", text: "Delete")
@@ -21,6 +22,7 @@ defmodule AsciinemaWeb.Features.RecordingsTest do
       conn
       |> visit(~p"/a/#{asciicast.secret_token}")
       |> assert_has("#cinema")
+      |> assert_player_opts()
       |> assert_has("h2", text: "Public Recording")
       |> refute_has(".dropdown-item", text: "Settings")
       |> refute_has(".dropdown-item", text: "Delete")
@@ -46,6 +48,7 @@ defmodule AsciinemaWeb.Features.RecordingsTest do
       conn
       |> visit(~p"/a/#{asciicast.secret_token}")
       |> assert_has("#cinema")
+      |> assert_player_opts()
       |> assert_has("h2", text: "Unlisted Recording")
       |> refute_has(".dropdown-item", text: "Settings")
       |> refute_has(".dropdown-item", text: "Delete")
@@ -78,6 +81,7 @@ defmodule AsciinemaWeb.Features.RecordingsTest do
       |> log_in_user(viewer)
       |> visit(~p"/a/#{asciicast.id}")
       |> assert_has("#cinema")
+      |> assert_player_opts()
       |> assert_has("h2", text: "Public Recording")
       |> refute_has(".dropdown-item", text: "Delete")
     end
@@ -91,6 +95,7 @@ defmodule AsciinemaWeb.Features.RecordingsTest do
       |> log_in_user(viewer)
       |> visit(~p"/a/#{asciicast.secret_token}")
       |> assert_has("#cinema")
+      |> assert_player_opts()
       |> assert_has("h2", text: "Public Recording")
       |> refute_has(".dropdown-item", text: "Delete")
     end
@@ -119,6 +124,7 @@ defmodule AsciinemaWeb.Features.RecordingsTest do
       |> log_in_user(viewer)
       |> visit(~p"/a/#{asciicast.secret_token}")
       |> assert_has("#cinema")
+      |> assert_player_opts()
       |> assert_has("h2", text: "Unlisted Recording")
       |> refute_has(".dropdown-item", text: "Delete")
     end
@@ -153,6 +159,7 @@ defmodule AsciinemaWeb.Features.RecordingsTest do
       |> log_in_user(owner)
       |> visit(~p"/a/#{asciicast.id}")
       |> assert_has("#cinema")
+      |> assert_player_opts()
       |> assert_has("h2", text: "My Recording")
       |> assert_has(".dropdown-item", text: "Settings")
       |> assert_has(".dropdown-item", text: "Delete")
@@ -166,6 +173,7 @@ defmodule AsciinemaWeb.Features.RecordingsTest do
       |> log_in_user(owner)
       |> visit(~p"/a/#{asciicast.secret_token}")
       |> assert_has("#cinema")
+      |> assert_player_opts()
       |> assert_has("h2", text: "My Recording")
       |> assert_has(".dropdown-item", text: "Settings")
       |> assert_has(".dropdown-item", text: "Delete")
@@ -189,6 +197,7 @@ defmodule AsciinemaWeb.Features.RecordingsTest do
       |> log_in_user(owner)
       |> visit(~p"/a/#{asciicast.secret_token}")
       |> assert_has("#cinema")
+      |> assert_player_opts()
       |> assert_has("h2", text: "My Recording")
       |> assert_has(".dropdown-item", text: "Settings")
       |> assert_has(".dropdown-item", text: "Delete")
@@ -216,6 +225,7 @@ defmodule AsciinemaWeb.Features.RecordingsTest do
       |> log_in_user(owner)
       |> visit(~p"/a/#{asciicast.secret_token}")
       |> assert_has("#cinema")
+      |> assert_player_opts()
       |> assert_has("h2", text: "Private Recording")
       |> assert_has(".dropdown-item", text: "Settings")
       |> assert_has(".dropdown-item", text: "Delete")
@@ -355,5 +365,12 @@ defmodule AsciinemaWeb.Features.RecordingsTest do
       |> visit(~p"/a/#{asciicast}")
       |> assert_has("h1", text: "404 Not Found")
     end
+  end
+
+  defp assert_player_opts(session) do
+    # Verify the poster option includes snapshot content (factory creates snapshot with "foo" and "bar")
+    assert session.conn.resp_body =~ ~r/"poster":"data:text\/plain,[^"]*foo[^"]*bar/
+
+    session
   end
 end
