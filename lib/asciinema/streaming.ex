@@ -244,7 +244,7 @@ defmodule Asciinema.Streaming do
     |> cast(Enum.into(attrs, %{}), Stream.__schema__(:fields))
     |> change_peak_viewer_count()
     |> change_last_activity()
-    |> Repo.update!()
+    |> Repo.update!(returning: true)
   end
 
   @doc """
