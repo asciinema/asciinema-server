@@ -41,7 +41,7 @@
 </table>
 
 <p>
-  <a href={~p"/admin/users/#{@user}/edit"}>Edit</a>
+  <a href={~p"/admin/users/#{@user.id}/edit"}>Edit</a>
 </p>
 
 <br />
@@ -76,7 +76,7 @@
 
 <h3>Pre-authorize a CLI</h3>
 
-<.form :let={f} for={@changeset} action={~p"/admin/users/#{@user}/clis"}>
+<.form :let={f} for={@changeset} action={~p"/admin/users/#{@user.id}/clis"}>
   <p>
     <.label for={f[:token]}>
       Enter CLI ID (UUID) or a full auth URL obtained by running <code>asciinema auth</code>:

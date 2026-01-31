@@ -74,7 +74,7 @@ defmodule AsciinemaWeb.UserController do
 
   defp fetch_live_streams(%{streaming_enabled: true} = user, current_user) do
     [:live, user_id: user.id]
-    |> Streaming.query()
+    |> Streaming.query(:recently_started)
     |> Authorization.scope(:streams, current_user)
     |> list_streams(2)
   end
