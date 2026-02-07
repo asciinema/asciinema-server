@@ -1,6 +1,7 @@
 defmodule AsciinemaWeb.OembedController do
   use AsciinemaWeb, :controller
-  alias Asciinema.{Recordings, Authorization}
+  alias Asciinema.Recordings
+  alias AsciinemaWeb.Authorization
 
   plug :put_layout, nil
 
@@ -25,28 +26,16 @@ defmodule AsciinemaWeb.OembedController do
   end
 
   defp load_and_authorize_asciicast(id) do
-    {asciicast, ctx, status} =
-      cond do
-        String.match?(id, ~r/^\d+$/) ->
-          {Recordings.get_asciicast(id), %{}, :not_found}
+    case Recordings.lookup_asciicast(id) do
+      nil ->
+        {:error, :not_found}
 
-        Recordings.secret_token?(id) ->
-          {Recordings.find_asciicast_by_secret_token(id), %{id: id}, :forbidden}
-
-        true ->
-          {nil, %{}}
-      end
-
-    if asciicast do
-      resource = Map.merge(asciicast, ctx)
-
-      if Authorization.can?(nil, :show, resource) do
-        {:ok, asciicast}
-      else
-        {:error, status}
-      end
-    else
-      {:error, :not_found}
+      asciicast ->
+        if Authorization.can?(nil, :show, asciicast) do
+          {:ok, asciicast}
+        else
+          if Recordings.secret_token?(id), do: {:error, :forbidden}, else: {:error, :not_found}
+        end
     end
   end
 

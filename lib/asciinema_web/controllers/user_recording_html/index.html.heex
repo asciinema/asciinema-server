@@ -1,0 +1,28 @@
+<div class="container">
+  <div class="recording-index-layout">
+    <div>
+      <div class="heading">
+        <h2 :if={@self}>Your recordings</h2>
+        <h2 :if={!@self}>Recordings by <.profile_link user={@user} /></h2>
+      </div>
+
+      <%= if @asciicasts.total_entries > 0 do %>
+        <div class="asciicast-list">
+          <div :for={asciicast <- @asciicasts}>
+            <RecordingHTML.card asciicast={asciicast} show_visibility_badge={@self} />
+          </div>
+        </div>
+
+        <div :if={@asciicasts.total_pages > 1} class="pagination-wrapper">
+          {pagination_links(@asciicasts)}
+        </div>
+      <% else %>
+        <%= if @self do %>
+          <p>You have no recordings yet.</p>
+        <% else %>
+          <p>{username(@user)} has no public recordings yet.</p>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</div>

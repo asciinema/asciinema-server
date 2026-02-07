@@ -44,7 +44,7 @@ defmodule AsciinemaWeb.SessionController do
     user = conn.assigns.current_user
 
     if user.username do
-      redirect_back_or(conn, to: profile_path(user))
+      redirect_back_or(conn, to: ~p"/~#{user}")
     else
       redirect(conn, to: ~p"/username/new")
     end

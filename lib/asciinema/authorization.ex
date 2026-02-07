@@ -4,35 +4,42 @@ defmodule Asciinema.Authorization do
   alias Asciinema.Streaming.Stream
 
   defmodule Policy do
+    # for asciicasts
+
+    def can?(%User{id: uid}, :show, %Asciicast{user_id: uid}), do: true
+    def can?(%User{id: uid}, :update, %Asciicast{user_id: uid}), do: true
+    def can?(%User{id: uid}, :delete, %Asciicast{user_id: uid}), do: true
+    def can?(_user, :show, %Asciicast{visibility: :unlisted}), do: true
     def can?(_user, :show, %Asciicast{visibility: :public}), do: true
 
-    def can?(_user, :show, %Asciicast{
-          id: secret_token,
-          secret_token: secret_token,
-          visibility: :unlisted
-        }),
-        do: true
+    # for streams
 
+    def can?(%User{id: uid}, :show, %Stream{user_id: uid}), do: true
+    def can?(%User{id: uid}, :update, %Stream{user_id: uid}), do: true
+    def can?(%User{id: uid}, :delete, %Stream{user_id: uid}), do: true
+    def can?(_user, :show, %Stream{visibility: :unlisted}), do: true
     def can?(_user, :show, %Stream{visibility: :public}), do: true
 
-    def can?(_user, :show, %Stream{
-          id: public_token,
-          public_token: public_token,
-          visibility: :unlisted
-        }),
-        do: true
+    # for user
 
-    def can?(nil, _action, _thing), do: false
-    def can?(%User{is_admin: true}, _action, _thing), do: true
-    def can?(user, _action, %Asciicast{user_id: uid}), do: user.id == uid
-    def can?(user, _action, %Stream{user_id: uid}), do: user.id == uid
-    def can?(user, :update, %User{id: uid}), do: user.id == uid
+    def can?(%User{id: uid}, :update, %User{id: uid}), do: true
+
+    # as admin
+
+    def can?(%User{is_admin: true}, :show, %Asciicast{}), do: true
+    def can?(%User{is_admin: true}, :update, %Asciicast{}), do: true
+    def can?(%User{is_admin: true}, :delete, %Asciicast{}), do: true
+    def can?(%User{is_admin: true}, :show, %Stream{}), do: true
+    def can?(%User{is_admin: true}, :update, %Stream{}), do: true
+    def can?(%User{is_admin: true}, :delete, %Stream{}), do: true
+    def can?(%User{is_admin: true}, :update, %User{}), do: true
+
+    # deny everything else
+
     def can?(_user, _action, _thing), do: false
   end
 
-  def can?(user, :edit, thing), do: can?(user, :update, thing)
-  def can?(user, :iframe, thing), do: can?(user, :show, thing)
-  def can?(user, action, thing), do: Policy.can?(user, action, thing)
+  def can?(user, action, resource), do: Policy.can?(user, action, resource)
 
   defmodule Scope do
     import Ecto.Query

@@ -9,6 +9,7 @@ defmodule Asciinema.Recordings do
 
   alias Asciinema.Recordings.{
     Asciicast,
+    AsciicastStats,
     Markers,
     Paths,
     Text
@@ -21,30 +22,51 @@ defmodule Asciinema.Recordings do
   @secret_token_lengths [@secret_token_length, @legacy_secret_token_length]
   @secret_token_re ~r/^[[:alnum:]]+$/
 
-  def get_asciicast(id) do
+  def get_asciicast(id, opts \\ []) do
     Asciicast
+    |> maybe_load_snapshot(opts)
     |> Repo.get(id)
-    |> Repo.preload(:user)
+    |> Repo.preload([:user, :stats])
+  end
+
+  def get_public_asciicast(id, opts \\ []) do
+    Asciicast
+    |> maybe_load_snapshot(opts)
+    |> Repo.get_by(id: id, visibility: :public)
+    |> Repo.preload([:user, :stats])
   end
 
   def fetch_asciicast(id), do: OK.required(get_asciicast(id), :not_found)
 
-  def find_asciicast_by_secret_token(token) do
+  def find_asciicast_by_secret_token(token, opts \\ []) do
     from(a in Asciicast, where: a.secret_token == ^token)
+    |> maybe_load_snapshot(opts)
     |> Repo.one()
-    |> Repo.preload(:user)
+    |> Repo.preload([:user, :stats])
   end
 
-  def lookup_asciicast(id) when is_binary(id) do
+  def lookup_asciicast(id, opts \\ []) when is_binary(id) do
     cond do
       String.match?(id, ~r/^\d+$/) ->
-        get_asciicast(id)
+        if Keyword.get(opts, :allow_non_public_id, false) do
+          get_asciicast(id, opts)
+        else
+          get_public_asciicast(id, opts)
+        end
 
       secret_token?(id) ->
-        find_asciicast_by_secret_token(id)
+        find_asciicast_by_secret_token(id, opts)
 
       true ->
         nil
+    end
+  end
+
+  defp maybe_load_snapshot(query, opts) do
+    if Keyword.get(opts, :load_snapshot, false) do
+      select(query, [asciicast], %{asciicast | snapshot: asciicast.snapshot})
+    else
+      query
     end
   end
 
@@ -55,8 +77,16 @@ defmodule Asciinema.Recordings do
   def query(filters \\ [], order \\ nil)
 
   def query(filters, order) do
+    filters =
+      filters
+      |> List.wrap()
+      |> normalize_filters(order)
+
+    needs_stats_join = Enum.member?(filters, :popular)
+
     from(Asciicast)
     |> where([a], is_nil(a.archived_at))
+    |> maybe_join_stats(needs_stats_join)
     |> apply_filters(filters)
     |> sort(order)
   end
@@ -89,6 +119,13 @@ defmodule Asciinema.Recordings do
       :featured ->
         where(q, [a], a.featured == true and a.visibility == :public)
 
+      :popular ->
+        where(
+          q,
+          [a, stats: s],
+          a.visibility == :public and s.popularity_score > 0.0
+        )
+
       :public ->
         where(q, [a], a.visibility == :public)
 
@@ -105,29 +142,46 @@ defmodule Asciinema.Recordings do
         order_by(q, desc: :id)
 
       :popularity ->
-        order_by(q, desc: :views_count)
+        order_by(q, [a, stats: s],
+          desc: s.popularity_score,
+          desc: s.asciicast_id
+        )
 
       :random ->
         order_by(q, fragment("RANDOM()"))
     end
   end
 
+  defp maybe_join_stats(q, true) do
+    join(q, :inner, [a], s in assoc(a, :stats), as: :stats)
+  end
+
+  defp maybe_join_stats(q, false), do: q
+
+  defp normalize_filters(filters, :popularity), do: Enum.uniq([:popular | filters])
+  defp normalize_filters(filters, _order), do: filters
+
   def search(%Ecto.Query{} = query, q) do
-    query
-    |> from()
-    |> where(
-      [a],
-      fragment(
-        "(title_tsv || description_tsv || coalesce(content_tsv, ''::tsvector)) @@ websearch_to_tsquery('simple', ?)",
-        ^q
-      )
-    )
-    |> order_by(
-      {:desc,
-       fragment(
-         "ts_rank_cd(setweight(title_tsv, 'A') || setweight(description_tsv, 'B') || setweight(coalesce(content_tsv, ''::tsvector), 'C'), websearch_to_tsquery('simple', ?), 4)",
-         ^q
-       )}
+    from(a in query,
+      join: f in "asciicast_fts",
+      on: f.asciicast_id == a.id,
+      where:
+        fragment(
+          "(? || ? || coalesce(?, ''::tsvector)) @@ websearch_to_tsquery('simple', ?)",
+          f.title_tsv,
+          f.description_tsv,
+          f.content_tsv,
+          ^q
+        ),
+      order_by:
+        {:desc,
+         fragment(
+           "ts_rank_cd(setweight(?, 'A') || setweight(?, 'B') || setweight(coalesce(?, ''::tsvector), 'C'), websearch_to_tsquery('simple', ?), 4)",
+           f.title_tsv,
+           f.description_tsv,
+           f.content_tsv,
+           ^q
+         )}
     )
   end
 
@@ -431,8 +485,8 @@ defmodule Asciinema.Recordings do
   defp set_content_tsv(id, content, attempt \\ 1) do
     try do
       Repo.update_all(
-        from(a in "asciicasts",
-          where: a.id == ^id,
+        from(f in "asciicast_fts",
+          where: f.asciicast_id == ^id,
           update: [set: [content_tsv: fragment("to_tsvector('simple', ?)", ^content)]]
         ),
         []
@@ -513,9 +567,135 @@ defmodule Asciinema.Recordings do
     time <= secs
   end
 
-  def inc_views_count(asciicast) do
-    from(a in Asciicast, where: a.id == ^asciicast.id)
-    |> Repo.update_all(inc: [views_count: 1])
+  @popularity_half_life_days 7
+  @popularity_window_days 90
+
+  def recompute_popularity_scores(scope \\ :all) do
+    cutoff = Date.add(Date.utc_today(), -@popularity_window_days)
+
+    decay_scores =
+      from dv in "asciicast_daily_views",
+        where: dv.date >= ^cutoff,
+        group_by: dv.asciicast_id,
+        select: %{
+          asciicast_id: dv.asciicast_id,
+          decay_score:
+            fragment(
+              "sum(? * power(0.5, (CURRENT_DATE - ?)::float / ?))",
+              dv.count,
+              dv.date,
+              ^@popularity_half_life_days
+            )
+        }
+
+    case scope do
+      :all ->
+        ids_with_views =
+          from(dv in "asciicast_daily_views",
+            where: dv.date >= ^cutoff,
+            distinct: true,
+            select: dv.asciicast_id
+          )
+
+        Repo.transact(
+          fn ->
+            # Update stats for asciicasts with daily views in the window.
+            {count, _} =
+              from(s in AsciicastStats,
+                join: a in Asciicast,
+                on: a.id == s.asciicast_id,
+                join: ds in subquery(decay_scores),
+                on: ds.asciicast_id == s.asciicast_id,
+                where: is_nil(a.archived_at),
+                update: [set: [popularity_score: ds.decay_score, popularity_dirty: false]]
+              )
+              |> Repo.update_all([])
+
+            # Reset scores for non-archived stats without views in the window.
+            Repo.update_all(
+              from(s in AsciicastStats,
+                join: a in Asciicast,
+                on: a.id == s.asciicast_id,
+                where:
+                  is_nil(a.archived_at) and s.asciicast_id not in subquery(ids_with_views) and
+                    (s.popularity_score > 0.0 or s.popularity_dirty == true)
+              ),
+              set: [popularity_score: 0.0, popularity_dirty: false]
+            )
+
+            {:ok, count}
+          end,
+          # 5 min
+          timeout: 5 * 60 * 1000
+        )
+
+      :dirty ->
+        dirty_ids =
+          from(s in AsciicastStats,
+            join: a in Asciicast,
+            on: a.id == s.asciicast_id,
+            where: s.popularity_dirty == true and is_nil(a.archived_at),
+            select: s.asciicast_id
+          )
+
+        decay_scores = from(dv in decay_scores, where: dv.asciicast_id in subquery(dirty_ids))
+
+        Repo.transact(
+          fn ->
+            # Update dirty stats for asciicasts that have daily views in the window.
+            {count, _} =
+              from(s in AsciicastStats,
+                join: ds in subquery(decay_scores),
+                on: ds.asciicast_id == s.asciicast_id,
+                where: s.asciicast_id in subquery(dirty_ids),
+                update: [
+                  set: [
+                    popularity_score: ds.decay_score,
+                    popularity_dirty: false
+                  ]
+                ]
+              )
+              |> Repo.update_all([])
+
+            # Clear remaining dirty stats with no daily views.
+            Repo.update_all(
+              from(s in AsciicastStats, where: s.asciicast_id in subquery(dirty_ids)),
+              set: [popularity_score: 0.0, popularity_dirty: false]
+            )
+
+            {:ok, count}
+          end,
+          # 5 min
+          timeout: 5 * 60 * 1000
+        )
+    end
+  end
+
+  def register_view(asciicast, date \\ Date.utc_today()) do
+    Repo.transact(fn ->
+      Repo.insert_all(
+        AsciicastStats,
+        [
+          %{
+            asciicast_id: asciicast.id,
+            popularity_score: 0.0,
+            total_views: 1,
+            popularity_dirty: true
+          }
+        ],
+        on_conflict: [inc: [total_views: 1], set: [popularity_dirty: true]],
+        conflict_target: [:asciicast_id]
+      )
+
+      Repo.insert_all(
+        "asciicast_daily_views",
+        [%{asciicast_id: asciicast.id, date: date, count: 1}],
+        on_conflict: [inc: [count: 1]],
+        conflict_target: [:asciicast_id, :date]
+      )
+
+      {:ok, :ok}
+    end)
   end
 
   def migratable(stream), do: Stream.filter(stream, &stale_path?/1)
@@ -587,4 +767,17 @@ defmodule Asciinema.Recordings do
   end
 
   defp generate_secret_token, do: Crypto.random_token(@secret_token_length)
+
+  # View count token - valid for 24 hours
+  @view_count_token_max_age 3600 * 24
+
+  def generate_view_count_token(asciicast_id) do
+    Phoenix.Token.sign(AsciinemaWeb.Endpoint, "view-count", asciicast_id)
+  end
+
+  def verify_view_count_token(token) do
+    Phoenix.Token.verify(AsciinemaWeb.Endpoint, "view-count", token,
+      max_age: @view_count_token_max_age
+    )
+  end
 end

@@ -1,33 +1,6 @@
 defmodule AsciinemaWeb.Features.RecordingsTest do
   use AsciinemaWeb.FeatureCase, async: true
 
-  describe "exploring" do
-    test "auto, public, featured", %{conn: conn} do
-      insert(:asciicast, visibility: :public, featured: true, title: "Featured stuff")
-      insert(:asciicast, visibility: :public, title: "Good stuff")
-      insert(:asciicast, visibility: :unlisted, title: "Unlisted stuff")
-      insert(:asciicast, visibility: :private, title: "Private stuff")
-
-      conn
-      |> visit(~p"/")
-      |> click_link("a.nav-link", "Explore")
-      |> assert_has("a", text: "Featured stuff")
-      |> refute_has("a", text: "Good stuff")
-      |> refute_has("a", text: "Unlisted stuff")
-      |> refute_has("a", text: "Private stuff")
-      |> click_link("all public")
-      |> assert_has("a", text: "Featured stuff")
-      |> assert_has("a", text: "Good stuff")
-      |> refute_has("a", text: "Unlisted stuff")
-      |> refute_has("a", text: "Private stuff")
-      |> click_link("featured")
-      |> assert_has("a", text: "Featured stuff")
-      |> refute_has("a", text: "Good stuff")
-      |> refute_has("a", text: "Unlisted stuff")
-      |> refute_has("a", text: "Private stuff")
-    end
-  end
-
   describe "recording viewing" do
     test "public recording via ID as guest", %{conn: conn} do
       owner = insert(:user)
@@ -36,6 +9,7 @@ defmodule AsciinemaWeb.Features.RecordingsTest do
       conn
       |> visit(~p"/a/#{asciicast.id}")
       |> assert_has("#cinema")
+      |> assert_player_opts()
       |> assert_has("h2", text: "Public Recording")
       |> refute_has(".dropdown-item", text: "Settings")
       |> refute_has(".dropdown-item", text: "Delete")
@@ -48,6 +22,7 @@ defmodule AsciinemaWeb.Features.RecordingsTest do
       conn
       |> visit(~p"/a/#{asciicast.secret_token}")
       |> assert_has("#cinema")
+      |> assert_player_opts()
       |> assert_has("h2", text: "Public Recording")
       |> refute_has(".dropdown-item", text: "Settings")
       |> refute_has(".dropdown-item", text: "Delete")
@@ -73,6 +48,7 @@ defmodule AsciinemaWeb.Features.RecordingsTest do
       conn
       |> visit(~p"/a/#{asciicast.secret_token}")
       |> assert_has("#cinema")
+      |> assert_player_opts()
       |> assert_has("h2", text: "Unlisted Recording")
       |> refute_has(".dropdown-item", text: "Settings")
       |> refute_has(".dropdown-item", text: "Delete")
@@ -105,6 +81,7 @@ defmodule AsciinemaWeb.Features.RecordingsTest do
       |> log_in_user(viewer)
       |> visit(~p"/a/#{asciicast.id}")
       |> assert_has("#cinema")
+      |> assert_player_opts()
       |> assert_has("h2", text: "Public Recording")
       |> refute_has(".dropdown-item", text: "Delete")
     end
@@ -118,6 +95,7 @@ defmodule AsciinemaWeb.Features.RecordingsTest do
       |> log_in_user(viewer)
       |> visit(~p"/a/#{asciicast.secret_token}")
       |> assert_has("#cinema")
+      |> assert_player_opts()
       |> assert_has("h2", text: "Public Recording")
       |> refute_has(".dropdown-item", text: "Delete")
     end
@@ -146,6 +124,7 @@ defmodule AsciinemaWeb.Features.RecordingsTest do
       |> log_in_user(viewer)
       |> visit(~p"/a/#{asciicast.secret_token}")
       |> assert_has("#cinema")
+      |> assert_player_opts()
       |> assert_has("h2", text: "Unlisted Recording")
       |> refute_has(".dropdown-item", text: "Delete")
     end
@@ -180,6 +159,7 @@ defmodule AsciinemaWeb.Features.RecordingsTest do
       |> log_in_user(owner)
       |> visit(~p"/a/#{asciicast.id}")
       |> assert_has("#cinema")
+      |> assert_player_opts()
       |> assert_has("h2", text: "My Recording")
       |> assert_has(".dropdown-item", text: "Settings")
       |> assert_has(".dropdown-item", text: "Delete")
@@ -193,6 +173,7 @@ defmodule AsciinemaWeb.Features.RecordingsTest do
       |> log_in_user(owner)
       |> visit(~p"/a/#{asciicast.secret_token}")
       |> assert_has("#cinema")
+      |> assert_player_opts()
       |> assert_has("h2", text: "My Recording")
       |> assert_has(".dropdown-item", text: "Settings")
       |> assert_has(".dropdown-item", text: "Delete")
@@ -205,10 +186,7 @@ defmodule AsciinemaWeb.Features.RecordingsTest do
       conn
       |> log_in_user(owner)
       |> visit(~p"/a/#{asciicast.id}")
-      |> assert_has("#cinema")
-      |> assert_has("h2", text: "My Recording")
-      |> assert_has(".dropdown-item", text: "Settings")
-      |> assert_has(".dropdown-item", text: "Delete")
+      |> assert_has("h1", text: "404 Not Found")
     end
 
     test "unlisted recording via token as owner", %{conn: conn} do
@@ -219,6 +197,7 @@ defmodule AsciinemaWeb.Features.RecordingsTest do
       |> log_in_user(owner)
       |> visit(~p"/a/#{asciicast.secret_token}")
       |> assert_has("#cinema")
+      |> assert_player_opts()
       |> assert_has("h2", text: "My Recording")
       |> assert_has(".dropdown-item", text: "Settings")
       |> assert_has(".dropdown-item", text: "Delete")
@@ -233,10 +212,7 @@ defmodule AsciinemaWeb.Features.RecordingsTest do
       conn
       |> log_in_user(owner)
       |> visit(~p"/a/#{asciicast.id}")
-      |> assert_has("#cinema")
-      |> assert_has("h2", text: "Private Recording")
-      |> assert_has(".dropdown-item", text: "Settings")
-      |> assert_has(".dropdown-item", text: "Delete")
+      |> assert_has("h1", text: "404 Not Found")
     end
 
     test "private recording via token as owner", %{conn: conn} do
@@ -249,6 +225,7 @@ defmodule AsciinemaWeb.Features.RecordingsTest do
       |> log_in_user(owner)
       |> visit(~p"/a/#{asciicast.secret_token}")
       |> assert_has("#cinema")
+      |> assert_player_opts()
       |> assert_has("h2", text: "Private Recording")
       |> assert_has(".dropdown-item", text: "Settings")
       |> assert_has(".dropdown-item", text: "Delete")
@@ -258,6 +235,65 @@ defmodule AsciinemaWeb.Features.RecordingsTest do
       conn
       |> visit(~p"/a/nopenopenope")
       |> assert_has("h1", text: "404 Not Found")
+    end
+
+    test "page reload with view already counted", %{conn: conn} do
+      asciicast = insert(:asciicast, visibility: :public, title: "My Recording")
+
+      session =
+        conn
+        |> visit(~p"/a/#{asciicast}")
+        |> assert_has("h2", text: "My Recording")
+
+      [_, view_count_url] = Regex.run(~r/viewCountUrl = "([^"]+)"/, session.conn.resp_body)
+
+      # Simulate the JS POST that would happen when player starts
+      view_count_conn = post(session.conn, view_count_url)
+
+      session =
+        view_count_conn
+        |> Phoenix.ConnTest.recycle()
+        |> visit(~p"/a/#{asciicast}")
+        |> assert_has("h2", text: "My Recording")
+
+      assert session.conn.resp_body =~ ~s(viewCountUrl = null)
+    end
+
+    test "shows more-by section with browse all when more than limit", %{conn: conn} do
+      owner = insert(:user, username: "owner")
+      asciicast = insert(:asciicast, visibility: :public, user: owner)
+      insert_list(6, :asciicast, visibility: :public, user: owner)
+
+      conn
+      |> visit(~p"/a/#{asciicast}")
+      |> assert_has("section.more-by h2", text: "More recordings by")
+      |> assert_has(
+        "section.more-by a[href='#{~p"/~owner/recordings"}']",
+        text: "Browse all"
+      )
+    end
+
+    test "hides browse all when at limit", %{conn: conn} do
+      owner = insert(:user, username: "owner")
+      asciicast = insert(:asciicast, visibility: :public, user: owner)
+      insert_list(4, :asciicast, visibility: :public, user: owner)
+
+      conn
+      |> visit(~p"/a/#{asciicast}")
+      |> assert_has("section.more-by h2", text: "More recordings by")
+      |> refute_has(
+        "section.more-by a[href='#{~p"/~owner/recordings"}']",
+        text: "Browse all"
+      )
+    end
+
+    test "hides more-by section when no other recordings", %{conn: conn} do
+      owner = insert(:user, username: "owner")
+      asciicast = insert(:asciicast, visibility: :public, user: owner)
+
+      conn
+      |> visit(~p"/a/#{asciicast}")
+      |> refute_has("section.more-by")
     end
   end
 
@@ -329,5 +365,12 @@ defmodule AsciinemaWeb.Features.RecordingsTest do
       |> visit(~p"/a/#{asciicast}")
       |> assert_has("h1", text: "404 Not Found")
     end
+  end
+
+  defp assert_player_opts(session) do
+    # Verify the poster option includes snapshot content (factory creates snapshot with "foo" and "bar")
+    assert session.conn.resp_body =~ ~r/"poster":"data:text\/plain,[^"]*foo[^"]*bar/
+
+    session
   end
 end

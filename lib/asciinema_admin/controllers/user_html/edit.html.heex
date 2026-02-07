@@ -3,7 +3,7 @@
 <hr />
 <br />
 
-<.form :let={f} for={@changeset} action={~p"/admin/users/#{@user}"} method="PUT">
+<.form :let={f} for={@changeset} action={~p"/admin/users/#{@user.id}"} method="PUT">
   <p>
     <.label for={f[:username]}>Username</.label>
     <.input field={f[:username]} required />

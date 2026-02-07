@@ -35,7 +35,8 @@ defmodule AsciinemaWeb.Features.ClisTest do
       |> visit(link_from_email())
       |> verify_magic_link()
       |> assert_has(".flash", text: "successfully")
-      |> click_link("I'll do it later")
+      |> fill_in("Your username:", with: "foobar")
+      |> click_button("Continue")
       |> click_link("Settings")
       |> assert_has("table", text: "00000000-0000-0000-0000-000000000000")
     end

@@ -112,21 +112,23 @@
   </div>
 </section>
 
-<section :if={length(@other_asciicasts) > 0} class="even more-by">
+<section :if={length(@other_asciicasts.items) > 0} class="even more-by">
   <div class="container">
-    <h2>
-      More by <a href={author_profile_path(@asciicast)}>{author_username(@asciicast)}</a>
-    </h2>
-
-    <div class="asciicast-list">
-      <div :for={asciicast <- @other_asciicasts}>
-        <.card asciicast={asciicast} conn={@conn} />
-      </div>
+    <div class="heading">
+      <h2>
+        More recordings by
+        <a href={author_profile_path(@asciicast)}>{author_username(@asciicast)}</a>
+      </h2>
+      <a :if={@other_asciicasts.has_more} href={~p"/~#{@asciicast.user}/recordings"}>
+        Browse all
+      </a>
     </div>
 
-    <p>
-      <a href={author_profile_path(@asciicast)} class="btn btn-info">See all</a>
-    </p>
+    <div class="asciicast-list">
+      <div :for={asciicast <- @other_asciicasts.items}>
+        <.card asciicast={asciicast} show_visibility_badge={@self} />
+      </div>
+    </div>
   </div>
 </section>
 
@@ -138,6 +140,7 @@
   window.addEventListener('load', async function() {
     const container = document.getElementById('cinema');
     const opts = <%= safe_json(player_opts(@asciicast, @player_opts)) %>;
+    const viewCountUrl = <%= safe_json(@view_count_url) %>;
 
     const player = await window.createPlayer(
       <%= safe_json(player_src(@asciicast)) %>,
@@ -155,5 +158,22 @@
         container.style.height = window.cinemaHeight(size.cols, size.rows);
       }
     });
+
+    if (viewCountUrl) {
+      let counted = false;
+
+      player.addEventListener('playing', () => {
+        if (counted) return;
+
+        counted = true;
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+        fetch(viewCountUrl, {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'x-csrf-token': csrfToken }
+        });
+      });
+    }
   });
 </script>

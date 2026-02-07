@@ -44,12 +44,12 @@
   </thead>
   <tbody>
     <tr :for={user <- @users}>
-      <td><a href={~p"/admin/users/#{user}"}>{user.id}</a></td>
+      <td><a href={~p"/admin/users/#{user.id}"}>{user.id}</a></td>
       <td><.time_ago time={user.inserted_at} /></td>
       <td>{user.email}</td>
       <td>{user.username}</td>
       <td><.time_ago :if={user.last_login_at} time={user.last_login_at} /></td>
-      <td><a href={~p"/admin/users/#{user}"}>Show</a></td>
+      <td><a href={~p"/admin/users/#{user.id}"}>Show</a></td>
     </tr>
   </tbody>
 </table>

@@ -125,6 +125,7 @@ div.asciicast-card {
     .counter {
       color: var(--term-color-background);
       background-color: var(--term-color-foreground);
+      text-wrap: balance;
     }
   }
 

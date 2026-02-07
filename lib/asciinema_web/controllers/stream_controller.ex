@@ -1,9 +1,8 @@
 defmodule AsciinemaWeb.StreamController do
   use AsciinemaWeb, :controller
   import AsciinemaWeb.Plug.ReturnTo
-  alias Asciinema.Authorization
-  alias Asciinema.{Authorization, Recordings, Streaming}
-  alias AsciinemaWeb.{FallbackController, StreamHTML, PlayerOpts}
+  alias Asciinema.{Recordings, Streaming}
+  alias AsciinemaWeb.{Authorization, FallbackController, StreamHTML, PlayerOpts}
   alias Ecto.Changeset
 
   plug :require_current_user when action in [:index, :create, :edit, :update, :delete]
@@ -46,22 +45,10 @@ defmodule AsciinemaWeb.StreamController do
     stream = conn.assigns.stream
     current_user = conn.assigns.current_user
     user_is_self = match?({%{id: id}, %{id: id}}, {current_user, stream.user})
+    stream_asciicasts = fetch_stream_asciicasts(stream, current_user)
+    other_asciicasts = fetch_other_asciicasts(stream, current_user)
 
-    stream_asciicasts =
-      [user_id: stream.user_id, stream_id: stream.id]
-      |> Recordings.query(:date)
-      |> Authorization.scope(:asciicasts, current_user)
-      |> Recordings.list(4)
-
-    other_asciicasts =
-      [user_id: stream.user_id, stream_id: {:not_eq, stream.id}]
-      |> Recordings.query(:random)
-      |> Authorization.scope(:asciicasts, current_user)
-      |> Recordings.list(4)
-
-    render(
-      conn,
-      :show,
+    render(conn, :show,
       page_title: StreamHTML.title(stream),
       player_opts: player_opts(params),
       actions: stream_actions(stream, current_user),
@@ -136,6 +123,29 @@ defmodule AsciinemaWeb.StreamController do
     end
   end
 
+  defp fetch_stream_asciicasts(stream, current_user) do
+    [user_id: stream.user_id, stream_id: stream.id]
+    |> Recordings.query(:date)
+    |> Authorization.scope(:asciicasts, current_user)
+    |> list_asciicasts(4)
+  end
+
+  defp fetch_other_asciicasts(stream, current_user) do
+    [user_id: stream.user_id, stream_id: {:not_eq, stream.id}]
+    |> Recordings.query(:random)
+    |> Authorization.scope(:asciicasts, current_user)
+    |> list_asciicasts(4)
+  end
+
+  defp list_asciicasts(query, limit) do
+    items = Recordings.list(query, limit + 1)
+
+    %{
+      items: Enum.take(items, limit),
+      has_more: length(items) > limit
+    }
+  end
+
   defp player_opts(params) do
     PlayerOpts.parse(params, :stream)
   end
@@ -143,7 +153,7 @@ defmodule AsciinemaWeb.StreamController do
   @actions [:edit, :delete]
 
   defp stream_actions(stream, user) do
-    Enum.filter(@actions, &Asciinema.Authorization.can?(user, &1, stream))
+    Enum.filter(@actions, &Authorization.can?(user, &1, stream))
   end
 
   defp load_and_authorize_stream(conn, _) do
@@ -153,9 +163,8 @@ defmodule AsciinemaWeb.StreamController do
     if stream && stream.user.streaming_enabled do
       user = conn.assigns[:current_user]
       action = Phoenix.Controller.action_name(conn)
-      resource = Map.merge(stream, %{id: id})
 
-      if Authorization.can?(user, action, resource) do
+      if Authorization.can?(user, action, stream) do
         assign(conn, :stream, stream)
       else
         conn

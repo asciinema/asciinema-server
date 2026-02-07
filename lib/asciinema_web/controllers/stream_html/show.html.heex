@@ -88,7 +88,7 @@
   <div class="container">
     <h2>How to stream</h2>
 
-    <.code_with_copy class="w-50">
+    <.code_with_copy class="w-100 w-md-75 w-lg-50">
       asciinema stream -r {short_public_token(@stream)}
     </.code_with_copy>
 
@@ -102,7 +102,7 @@
 
     <h2>Stream URL</h2>
 
-    <.code_with_copy class="w-50">{url(~p"/s/#{@stream}")}</.code_with_copy>
+    <.code_with_copy class="w-100 w-md-75 w-lg-50">{url(~p"/s/#{@stream}")}</.code_with_copy>
 
     <small class="text-muted">This is your unique stream URL. Share this
       freely with your viewers.</small>
@@ -110,40 +110,48 @@
 </section>
 
 <section
-  :if={length(@stream_asciicasts) > 0 or (!@user_is_self && length(@other_asciicasts) > 0)}
+  :if={
+    length(@stream_asciicasts.items) > 0 or
+      (!@user_is_self && length(@other_asciicasts.items) > 0)
+  }
   class="even more-by"
 >
   <div class="container">
-    <%= if length(@stream_asciicasts) > 0 do %>
-      <h2>
-        Past recordings of this stream
-      </h2>
+    <%= if length(@stream_asciicasts.items) > 0 do %>
+      <div class="heading">
+        <h2>
+          Past recordings of this stream
+        </h2>
+      </div>
 
       <div class="asciicast-list">
-        <div :for={asciicast <- @stream_asciicasts}>
-          <RecordingHTML.card asciicast={asciicast} conn={@conn} />
+        <div :for={asciicast <- @stream_asciicasts.items}>
+          <RecordingHTML.card asciicast={asciicast} show_visibility_badge={@user_is_self} />
         </div>
       </div>
     <% end %>
 
-    <%= if !@user_is_self && length(@other_asciicasts) > 0 do %>
-      <h2 :if={length(@stream_asciicasts) == 0}>
-        Recordings by <a href={author_profile_path(@stream)}>{author_username(@stream)}</a>
-      </h2>
+    <%= if !@user_is_self && length(@other_asciicasts.items) > 0 do %>
+      <div class="heading">
+        <h2 :if={length(@stream_asciicasts.items) == 0}>
+          Recordings by <a href={author_profile_path(@stream)}>{author_username(@stream)}</a>
+        </h2>
 
-      <h2 :if={length(@stream_asciicasts) > 0}>
-        Other recordings by <a href={author_profile_path(@stream)}>{author_username(@stream)}</a>
-      </h2>
+        <h2 :if={length(@stream_asciicasts.items) > 0}>
+          Other recordings by
+          <a href={author_profile_path(@stream)}>{author_username(@stream)}</a>
+        </h2>
 
-      <div class="asciicast-list">
-        <div :for={asciicast <- @other_asciicasts}>
-          <RecordingHTML.card asciicast={asciicast} conn={@conn} />
-        </div>
+        <a :if={@other_asciicasts.has_more} href={~p"/~#{@stream.user}/recordings"}>
+          Browse all
+        </a>
       </div>
 
-      <p>
-        <a href={author_profile_path(@stream)} class="btn btn-info">See all</a>
-      </p>
+      <div class="asciicast-list">
+        <div :for={asciicast <- @other_asciicasts.items}>
+          <RecordingHTML.card asciicast={asciicast} show_visibility_badge={@user_is_self} />
+        </div>
+      </div>
     <% end %>
   </div>
 </section>

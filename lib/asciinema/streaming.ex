@@ -18,16 +18,26 @@ defmodule Asciinema.Streaming do
     |> Repo.preload(:user)
   end
 
+  def get_public_stream(id) do
+    Stream
+    |> Repo.get_by(id: id, visibility: :public)
+    |> Repo.preload(:user)
+  end
+
   def find_stream_by_public_token(token) do
     from(s in Stream, where: s.public_token == ^token)
     |> Repo.one()
     |> Repo.preload(:user)
   end
 
-  def lookup_stream(id) when is_binary(id) do
+  def lookup_stream(id, allow_non_public_id \\ false) when is_binary(id) do
     cond do
       String.match?(id, ~r/^\d+$/) ->
-        get_stream(id)
+        if allow_non_public_id do
+          get_stream(id)
+        else
+          get_public_stream(id)
+        end
 
       String.match?(id, ~r/^[[:alnum:]]{16}$/) ->
         find_stream_by_public_token(id)
@@ -59,6 +69,9 @@ defmodule Asciinema.Streaming do
       {:user_id, user_id} ->
         where(q, [s], s.user_id == ^user_id)
 
+      :public ->
+        where(q, [s], s.visibility == :public)
+
       :live ->
         where(q, [s], s.live)
 
@@ -86,6 +99,9 @@ defmodule Asciinema.Streaming do
 
       :soonest ->
         order_by(q, asc_nulls_last: :next_start_at)
+
+      :recently_started ->
+        order_by(q, desc: :last_started_at)
 
       :activity ->
         order_by(q, desc: :live, desc_nulls_last: :last_started_at, desc: :id)
@@ -228,7 +244,7 @@ defmodule Asciinema.Streaming do
     |> cast(Enum.into(attrs, %{}), Stream.__schema__(:fields))
     |> change_peak_viewer_count()
     |> change_last_activity()
-    |> Repo.update!()
+    |> Repo.update!(returning: true)
   end
 
   @doc """

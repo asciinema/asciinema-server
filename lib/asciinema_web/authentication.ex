@@ -10,7 +10,11 @@ defmodule AsciinemaWeb.Authentication do
 
   @user_key "user_id"
   @token_cookie_name "auth_token"
-  @token_max_age 90 * 24 * 60 * 60
+
+  @token_cookie_opts [
+    max_age: 90 * 24 * 60 * 60,
+    same_site: "Lax"
+  ]
 
   def try_log_in_from_session(conn) do
     user_id = get_session(conn, @user_key)
@@ -70,7 +74,7 @@ defmodule AsciinemaWeb.Authentication do
 
     conn
     |> put_session(@user_key, user.id)
-    |> put_resp_cookie(@token_cookie_name, user.auth_token, max_age: @token_max_age)
+    |> put_resp_cookie(@token_cookie_name, user.auth_token, @token_cookie_opts)
     |> assign(:current_user, user)
   end
 

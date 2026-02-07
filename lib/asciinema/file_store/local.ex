@@ -13,9 +13,19 @@ defmodule Asciinema.FileStore.Local do
     full_dst_path = full_path(dst_path)
     parent_dir = Path.dirname(full_dst_path)
 
-    with :ok <- File.mkdir_p(parent_dir),
-         {:ok, _} <- File.copy(src_local_path, full_dst_path) do
-      :ok
+    # Temp file in same directory ensures same filesystem for atomic rename
+    tmp_path = "#{full_dst_path}.#{System.unique_integer([:positive])}.tmp"
+
+    with :ok <- File.mkdir_p(parent_dir) do
+      try do
+        with {:ok, _} <- File.copy(src_local_path, tmp_path),
+             :ok <- File.rename(tmp_path, full_dst_path) do
+          :ok
+        end
+      after
+        # Clean up temp file if it still exists
+        File.rm(tmp_path)
+      end
     end
   end
 

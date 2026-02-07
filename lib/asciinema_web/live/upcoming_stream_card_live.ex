@@ -9,14 +9,24 @@ defmodule AsciinemaWeb.UpcomingStreamCardLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <StreamHTML.upcoming_stream_card stream={@stream} status={@status} />
+    <StreamHTML.upcoming_stream_card
+      stream={@stream}
+      status={@status}
+      show_visibility_badge={@show_visibility_badge}
+    />
     """
   end
 
   @impl true
-  def mount(_params, %{"stream_id" => stream_id}, socket) do
+  def mount(_params, %{"stream_id" => stream_id} = session, socket) do
     stream = Streaming.get_stream(stream_id)
-    socket = assign(socket, stream: stream, status: {:waiting, remaining(stream)})
+
+    socket =
+      assign(socket,
+        stream: stream,
+        status: {:waiting, remaining(stream)},
+        show_visibility_badge: Map.get(session, "show_visibility_badge", false)
+      )
 
     if connected?(socket) do
       StreamServer.subscribe(stream_id, [:reset, :end])

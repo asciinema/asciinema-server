@@ -26,7 +26,7 @@ defmodule Asciinema.Recordings.Asciicast do
     field :title, :string
     field :description, :string
     field :snapshot_at, :float
-    field :snapshot, Asciinema.Ecto.Type.Snapshot
+    field :snapshot, Asciinema.Ecto.Type.Snapshot, load_in_query: false
     field :command, :string
     field :shell, :string
     field :uname, :string
@@ -34,7 +34,6 @@ defmodule Asciinema.Recordings.Asciicast do
     field :recorded_at, :utc_datetime
     field :idle_time_limit, :float
     field :speed, :float
-    field :views_count, :integer, default: 0
     field :archivable, :boolean, default: true
     field :archived_at, :utc_datetime
     field :markers, :string
@@ -46,6 +45,7 @@ defmodule Asciinema.Recordings.Asciicast do
     belongs_to :user, Asciinema.Accounts.User
     belongs_to :cli, Asciinema.Accounts.Cli
     belongs_to :stream, Asciinema.Streaming.Stream
+    has_one :stats, Asciinema.Recordings.AsciicastStats, foreign_key: :asciicast_id
   end
 
   defimpl Phoenix.Param do

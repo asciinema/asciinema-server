@@ -5,22 +5,6 @@ defmodule AsciinemaWeb.UrlHelpers do
 
   alias AsciinemaWeb.Endpoint
 
-  def profile_path(_conn, user), do: profile_path(user)
-
-  def profile_path(%Plug.Conn{} = conn), do: profile_path(conn.assigns.current_user)
-
-  def profile_path(%{id: id, username: username}) do
-    if username do
-      ~p"/~#{username}"
-    else
-      ~p"/u/#{id}"
-    end
-  end
-
-  def profile_url(user) do
-    Endpoint.url() <> profile_path(user)
-  end
-
   def asciicast_file_url(asciicast) do
     url(~p"/a/#{asciicast}") <> "." <> ext(asciicast)
   end

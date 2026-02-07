@@ -14,86 +14,94 @@
 
         <small>Joined on {joined_at(@user)}</small>
       </h1>
-
-      <p :if={@self} class="actions">
-        <a href={~p"/user/edit"}>Edit profile</a>
-      </p>
     </div>
   </section>
 
   <div class="container">
-    <h2 :if={@self and @user.streaming_enabled}>
-      Your live streams
-      <span class="action">
-        <a href={~p"/user/streams"}>Manage streams</a>
-      </span>
-    </h2>
+    <%= case @live_streams do %>
+      <% :disabled -> %>
+      <% %{items: []} -> %>
+        <%= if @self do %>
+          <div class="heading">
+            <h2>Your live streams</h2>
+            <a href={~p"/user/streams"}>Manage streams</a>
+          </div>
 
-    <h2 :if={!@self and length(@live_streams) > 0}>{username(@user)}'s live streams</h2>
+          <p>To start a new streaming session and expose it via {@conn.host} run:</p>
 
-    <div :if={@user.streaming_enabled and length(@live_streams) > 0}>
-      <div class="asciicast-list">
-        <div :for={stream <- @live_streams}>
-          {live_render(@conn, AsciinemaWeb.LiveStreamCardLive,
-            session: %{"stream_id" => stream.id}
-          )}
+          <.code_with_copy class="w-100 w-md-75 w-lg-50">asciinema stream -r</.code_with_copy>
+
+          <p>
+            <small class="text-muted">
+              You need
+              <a href="https://github.com/asciinema/asciinema/releases/tag/v3.0.0">
+                asciinema CLI 3.0
+              </a>
+              or later.
+            </small>
+          </p>
+
+          <p>
+            If you want to stream using an existing stream configuration then run:
+          </p>
+
+          <pre class="w-100 w-md-75 w-lg-50"><code>asciinema stream -r <em>STREAM-ID</em></code></pre>
+
+          <p>
+            You will find your existing streams on the <a href="/user/streams">Manage streams</a>
+            page, which is always accessible from the user dropdown in the top navigation bar.
+          </p>
+        <% end %>
+      <% %{items: live_streams, has_more: has_more} -> %>
+        <div class="heading">
+          <h2 :if={@self}>Your live streams</h2>
+          <h2 :if={!@self}>Live streams</h2>
+          <a :if={@self} href={~p"/user/streams"}>Manage streams</a>
+          <span :if={@self and has_more} class="text-muted">&middot;</span>
+          <a :if={has_more} href={~p"/~#{@user}/streams/live"}>Browse all</a>
         </div>
-      </div>
-    </div>
 
-    <div :if={@user.streaming_enabled and length(@live_streams) == 0 and @self}>
-      <p><strong>You have no live streams.</strong></p>
-
-      <p>To start a new streaming session and expose it via {@conn.host} run:</p>
-
-      <.code_with_copy class="w-50">asciinema stream -r</.code_with_copy>
-
-      <p>
-        <small class="text-muted">
-          You need
-          <a href="https://github.com/asciinema/asciinema/releases/tag/v3.0.0">
-            asciinema CLI 3.0
-          </a>
-          or later.
-        </small>
-      </p>
-
-      <p>
-        If you want to stream using an existing stream configuration then run:
-      </p>
-
-      <pre class="w-50"><code>asciinema stream -r <em>STREAM-ID</em></code></pre>
-
-      <p>
-        You will find your existing streams on the <a href="/user/streams">Manage streams</a>
-        page, which is always accessible from the user dropdown in the top navigation bar.
-      </p>
-    </div>
-
-    <%= if @user.streaming_enabled and length(@upcoming_streams) > 0 do %>
-      <h2 :if={@self}>Your upcoming streams</h2>
-      <h2 :if={!@self}>{username(@user)}'s upcoming streams</h2>
-
-      <div class="asciicast-list">
-        <div :for={stream <- @upcoming_streams}>
-          {live_render(@conn, AsciinemaWeb.UpcomingStreamCardLive,
-            session: %{"stream_id" => stream.id}
-          )}
+        <div class="asciicast-list">
+          <div :for={stream <- live_streams}>
+            {live_render(@conn, AsciinemaWeb.LiveStreamCardLive,
+              session: %{"stream_id" => stream.id, "show_visibility_badge" => @self}
+            )}
+          </div>
         </div>
-      </div>
     <% end %>
 
-    <h2 :if={@self}>Your recordings</h2>
+    <%= case @upcoming_streams do %>
+      <% :disabled -> %>
+      <% %{items: []} -> %>
+      <% %{items: upcoming_streams, has_more: has_more} -> %>
+        <div class="heading">
+          <h2 :if={@self}>Your upcoming streams</h2>
+          <h2 :if={!@self}>Upcoming streams</h2>
+          <a :if={has_more} href={~p"/~#{@user}/streams/upcoming"}>Browse all</a>
+        </div>
 
-    <h2 :if={!@self}>{username(@user)}'s recordings</h2>
+        <div class="asciicast-list">
+          <div :for={stream <- upcoming_streams}>
+            {live_render(@conn, AsciinemaWeb.UpcomingStreamCardLive,
+              session: %{"stream_id" => stream.id, "show_visibility_badge" => @self}
+            )}
+          </div>
+        </div>
+    <% end %>
 
-    <div :if={@asciicasts.total_entries > 0} class="asciicast-list">
-      <div :for={asciicast <- @asciicasts}>
-        <RecordingHTML.card asciicast={asciicast} conn={@conn} />
-      </div>
+    <div class="heading">
+      <h2 :if={@self}>Your recent recordings</h2>
+      <h2 :if={!@self}>Recent recordings</h2>
+      <a :if={@asciicasts.has_more} href={~p"/~#{@user}/recordings"}>Browse all</a>
     </div>
 
-    <div :if={@asciicasts.total_entries == 0}>
+    <%= if length(@asciicasts.items) > 0 do %>
+      <div class="asciicast-list">
+        <div :for={asciicast <- @asciicasts.items}>
+          <RecordingHTML.card asciicast={asciicast} show_visibility_badge={@self} />
+        </div>
+      </div>
+    <% else %>
       <%= if @self do %>
         <p><strong>You have no recordings.</strong></p>
 
@@ -143,10 +151,6 @@
       <% else %>
         <p :if={!@self}><strong>{username(@user)} has no public recordings.</strong></p>
       <% end %>
-    </div>
-
-    <div :if={@asciicasts.total_pages > 1} class="pagination-wrapper">
-      {pagination_links(@asciicasts)}
-    </div>
+    <% end %>
   </div>
 </div>

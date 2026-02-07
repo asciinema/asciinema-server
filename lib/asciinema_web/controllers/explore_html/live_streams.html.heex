@@ -1,0 +1,30 @@
+<div class="container">
+  <div class="recording-index-layout">
+    <div>
+      <div class="heading">
+        <h2><a href={~p"/explore"}>Explore</a> &raquo; Live streams</h2>
+      </div>
+
+      <%= if @streams.total_entries > 0 do %>
+        <div class="asciicast-list">
+          <div :for={stream <- @streams}>
+            {live_render(@conn, AsciinemaWeb.LiveStreamCardLive,
+              session: %{"stream_id" => stream.id, "show_visibility_badge" => false}
+            )}
+          </div>
+        </div>
+
+        <div :if={@streams.total_pages > 1} class="pagination-wrapper">
+          {pagination_links(@streams)}
+        </div>
+      <% else %>
+        <p>No public live streams at the moment.</p>
+
+        <p>
+          Start your own stream by running <code>asciinema stream -r</code> in your terminal.
+          Setting its visibility to <em>public</em> will list it here.
+        </p>
+      <% end %>
+    </div>
+  </div>
+</div>

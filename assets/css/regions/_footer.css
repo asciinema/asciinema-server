@@ -19,7 +19,7 @@ footer {
     align-items: center;
     grid-template-columns: minmax(0, 1fr) auto;
     column-gap: var(--space-4);
-    row-gap: var(--space-2);
+    row-gap: var(--space-4);
   }
 
   .grid-cols-2 > :first-child {
@@ -33,9 +33,14 @@ footer {
 }
 
 @media (max-width: 480px) {
-  /* maintain two-column flow down to narrow phones */
   footer .grid-cols-2 {
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: 1fr;
     column-gap: var(--space-3);
+  }
+
+  footer .grid-cols-2 > :nth-child(2),
+  footer .grid-cols-2 > :last-child {
+    justify-self: start;
+    text-align: left;
   }
 }

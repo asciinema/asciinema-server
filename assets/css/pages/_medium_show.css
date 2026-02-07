@@ -73,7 +73,7 @@
     }
 
     .status-line-item {
-      margin-right: 2em;
+      white-space: nowrap;
 
       .icon {
         position: relative;
@@ -97,6 +97,13 @@
       }
     }
 
+    .status-line {
+      display: flex;
+      flex-wrap: wrap;
+      column-gap: 2em;
+      row-gap: 1em;
+    }
+
     .description {
       h1, h2 {
         margin-top: 2rem;
@@ -107,5 +114,9 @@
 
   section.more-by {
     padding-top: 0;
+  }
+
+  .heading:first-child {
+    margin-top: 3rem;
   }
 }

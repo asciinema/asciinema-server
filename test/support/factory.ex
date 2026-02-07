@@ -2,7 +2,7 @@ defmodule Asciinema.Factory do
   use ExMachina.Ecto, repo: Asciinema.Repo
   alias Asciinema.Accounts.{Cli, User}
   alias Asciinema.FileStore
-  alias Asciinema.Recordings.Asciicast
+  alias Asciinema.Recordings.{Asciicast, AsciicastStats}
   alias Asciinema.Streaming.Stream
 
   def user_factory do
@@ -74,6 +74,15 @@ defmodule Asciinema.Factory do
       term_rows: 24,
       secret_token: sequence(:secret_token, &secret_token/1),
       snapshot: {[[["foo", %{}, 1]], [["bar", %{}, 1]]], {3, 1}}
+    }
+  end
+
+  def asciicast_stats_factory do
+    %AsciicastStats{
+      asciicast_id: nil,
+      popularity_score: 0.0,
+      total_views: 0,
+      popularity_dirty: false
     }
   end
 

@@ -100,7 +100,7 @@ defmodule AsciinemaWeb.Api.StreamController do
   end
 
   defp load_stream(conn, _opts) do
-    case Streaming.lookup_stream(conn.params["id"]) do
+    case Streaming.lookup_stream(conn.params["id"], true) do
       nil ->
         conn
         |> put_status(:not_found)

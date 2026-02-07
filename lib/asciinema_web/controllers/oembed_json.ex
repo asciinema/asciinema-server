@@ -42,7 +42,7 @@ defmodule AsciinemaWeb.OembedJSON do
       version: 1.0,
       title: asciicast.title,
       author_name: UserHTML.username(asciicast.user),
-      author_url: profile_url(asciicast.user),
+      author_url: url(~p"/~#{asciicast.user}"),
       provider_name: "asciinema",
       provider_url: url(~p"/"),
       thumbnail_url: thumbnail_url,
