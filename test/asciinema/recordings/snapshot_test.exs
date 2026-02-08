@@ -97,6 +97,40 @@ defmodule Asciinema.Recordings.SnapshotTest do
     end
   end
 
+  describe "build/2" do
+    test "inverts the cursor cell after a wide char" do
+      snapshot =
+        Snapshot.build(
+          {[[["a", %{}, 1], ["全", %{}, 2], ["b", %{}, 1]]], {3, 0}},
+          :segments
+        )
+
+      assert snapshot.lines == [
+               [
+                 {"a", %{}, 1},
+                 {"全", %{}, 2},
+                 {"b", %{"inverse" => true}, 1}
+               ]
+             ]
+    end
+
+    test "inverts the wide char when cursor points inside it" do
+      snapshot =
+        Snapshot.build(
+          {[[["a", %{}, 1], ["全", %{}, 2], ["b", %{}, 1]]], {2, 0}},
+          :segments
+        )
+
+      assert snapshot.lines == [
+               [
+                 {"a", %{}, 1},
+                 {"全", %{"inverse" => true}, 2},
+                 {"b", %{}, 1}
+               ]
+             ]
+    end
+  end
+
   describe "crop/3" do
     test "blank taller terminal" do
       assert crop(

@@ -267,11 +267,33 @@ defmodule Asciinema.Recordings.Snapshot do
     snapshot
     |> Map.get(:lines)
     |> List.update_at(row, fn line ->
-      List.update_at(line, col, fn {text, attrs, char_width} ->
-        attrs = Map.put(attrs, "inverse", !(attrs["inverse"] || false))
-        {text, attrs, char_width}
-      end)
+      case cell_index_at_col(line, col) do
+        nil ->
+          line
+
+        index ->
+          List.update_at(line, index, fn {text, attrs, char_width} ->
+            attrs = Map.put(attrs, "inverse", !(attrs["inverse"] || false))
+            {text, attrs, char_width}
+          end)
+      end
     end)
     |> new(:cells)
+  end
+
+  defp cell_index_at_col(line, col) when is_integer(col) and col >= 0 do
+    do_cell_index_at_col(line, col, 0, 0)
+  end
+
+  defp cell_index_at_col(_line, _col), do: nil
+
+  defp do_cell_index_at_col([], _col, _offset, _index), do: nil
+
+  defp do_cell_index_at_col([{_, _, char_width} | rest], col, offset, index) do
+    if col < offset + char_width do
+      index
+    else
+      do_cell_index_at_col(rest, col, offset + char_width, index + 1)
+    end
   end
 end
