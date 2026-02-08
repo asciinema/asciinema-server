@@ -34,21 +34,20 @@
   />
 
   <svg x={x(1)} y={y(0.5)} class="default-text-fill">
-    <g style="shape-rendering: optimizeSpeed">
-      <%= for %{y: y, segments: segments} <- @coords.bg do %>
-        <rect
-          :for={%{x: x, width: width, attrs: attrs} <- segments}
-          x={x(x)}
-          y={y(y)}
-          width={w(width)}
-          height={h(1)}
-          style={bg_style(attrs, @theme)}
-        />
-      <% end %>
+    <image
+      x="0"
+      y="0"
+      width={w(@cols)}
+      height={h(@rows)}
+      href={@image_href}
+      preserveAspectRatio="none"
+      style="image-rendering: pixelated; image-rendering: crisp-edges;"
+    />
 
-      <%= for %{y: y, segments: segments} <- @coords.special_chars do %>
+    <g style="shape-rendering: optimizeSpeed">
+      <%= for %{y: y, segments: segments} <- @coords.vector_symbols do %>
         <%= for %{x: x, text: char, attrs: attrs} <- segments do %>
-          <.special_char char={char} x={x} y={y} attrs={attrs} theme={@theme} />
+          <.vector_symbol char={char} x={x} y={y} attrs={attrs} theme={@theme} />
         <% end %>
       <% end %>
     </g>

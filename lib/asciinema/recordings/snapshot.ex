@@ -147,7 +147,7 @@ defmodule Asciinema.Recordings.Snapshot do
       Enum.member?(@powerline_triangles_range, cp)
   end
 
-  def block_or_powerline_triangle?(char) do
+  def graphic_char?(char) do
     cp = char |> String.to_charlist() |> Enum.at(0)
 
     Enum.member?(@block_elements_range, cp) || Enum.member?(@powerline_triangles_range, cp)

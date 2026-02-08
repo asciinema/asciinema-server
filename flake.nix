@@ -63,6 +63,7 @@
             cat >>config/config.exs <<EOF
             config :asciinema, Asciinema.Vt, skip_compilation?: true
             config :asciinema, Asciinema.Fts, skip_compilation?: true
+            config :asciinema, Asciinema.SvgRaster, skip_compilation?: true
             config :esbuild, path: "${pkgs.esbuild}/bin/esbuild"
             config :tailwind, path: "${pkgs.tailwindcss_3}/bin/tailwindcss"
             EOF
@@ -70,6 +71,7 @@
             mkdir -p priv/native
             cp ${nifs}/lib/libvt.so priv/native/vt.so
             cp ${nifs}/lib/libfts.so priv/native/fts.so
+            cp ${nifs}/lib/libsvg_raster.so priv/native/svg_raster.so
           '';
 
           preInstall = ''

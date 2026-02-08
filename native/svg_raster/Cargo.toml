@@ -1,0 +1,13 @@
+[package]
+name = "svg_raster"
+version = "0.1.0"
+authors = []
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+rustler = "0.37.0"
+flate2 = "1.1.5"
+crc32fast = "1.5.0"
