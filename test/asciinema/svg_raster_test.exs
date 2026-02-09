@@ -18,10 +18,10 @@ defmodule Asciinema.SvgRasterTest do
     decoded = decode_png(png)
 
     assert decoded.width == 16
-    assert decoded.height == 8
+    assert decoded.height == 24
     assert rgb_at(decoded, 0, 0) == {7, 8, 9}
-    assert rgb_at(decoded, 0, 7) == {1, 2, 3}
-    assert rgb_at(decoded, 8, 4) == {4, 5, 6}
+    assert rgb_at(decoded, 0, 23) == {1, 2, 3}
+    assert rgb_at(decoded, 8, 12) == {4, 5, 6}
   end
 
   test "renders black square as centered half-height mosaic block" do
@@ -37,10 +37,30 @@ defmodule Asciinema.SvgRasterTest do
     decoded = decode_png(png)
 
     assert decoded.width == 8
-    assert decoded.height == 8
+    assert decoded.height == 24
     assert rgb_at(decoded, 0, 0) == {1, 2, 3}
-    assert rgb_at(decoded, 0, 2) == {240, 16, 32}
-    assert rgb_at(decoded, 7, 5) == {240, 16, 32}
-    assert rgb_at(decoded, 7, 7) == {1, 2, 3}
+    assert rgb_at(decoded, 0, 6) == {240, 16, 32}
+    assert rgb_at(decoded, 7, 17) == {240, 16, 32}
+    assert rgb_at(decoded, 7, 23) == {1, 2, 3}
+  end
+
+  test "renders sextant symbols with 2x3 cell granularity" do
+    png =
+      SvgRaster.render_png(
+        1,
+        1,
+        {10, 20, 30},
+        [],
+        [{0, 0, 0x1FB3B, {200, 100, 50}}]
+      )
+
+    decoded = decode_png(png)
+
+    assert decoded.width == 8
+    assert decoded.height == 24
+    assert rgb_at(decoded, 5, 2) == {200, 100, 50}
+    assert rgb_at(decoded, 1, 10) == {200, 100, 50}
+    assert rgb_at(decoded, 6, 20) == {200, 100, 50}
+    assert rgb_at(decoded, 1, 2) == {10, 20, 30}
   end
 end

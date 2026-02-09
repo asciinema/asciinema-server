@@ -52,9 +52,9 @@ defmodule AsciinemaWeb.RecordingSvgTest do
       png = decode_embedded_png(svg)
 
       assert png.width == 24
-      assert png.height == 8
+      assert png.height == 24
       assert rgb_at(png, 0, 0) == {17, 34, 51}
-      assert rgb_at(png, 23, 7) == {17, 34, 51}
+      assert rgb_at(png, 23, 23) == {17, 34, 51}
     end
 
     test "rasterizes block symbols into the embedded PNG" do
@@ -69,10 +69,10 @@ defmodule AsciinemaWeb.RecordingSvgTest do
       png = decode_embedded_png(svg)
 
       assert png.width == 16
-      assert png.height == 8
+      assert png.height == 24
       assert rgb_at(png, 0, 0) == {170, 85, 0}
-      assert rgb_at(png, 0, 7) == {18, 19, 20}
-      assert rgb_at(png, 8, 7) == {170, 85, 0}
+      assert rgb_at(png, 0, 23) == {18, 19, 20}
+      assert rgb_at(png, 8, 23) == {170, 85, 0}
     end
 
     test "keeps adjacent block cells seamless in raster output" do
@@ -86,8 +86,8 @@ defmodule AsciinemaWeb.RecordingSvgTest do
       svg = render_svg(asciicast)
       png = decode_embedded_png(svg)
 
-      assert rgb_at(png, 7, 4) == {51, 102, 204}
-      assert rgb_at(png, 8, 4) == {51, 102, 204}
+      assert rgb_at(png, 7, 12) == {51, 102, 204}
+      assert rgb_at(png, 8, 12) == {51, 102, 204}
     end
 
     test "renders black square in mosaic layer and excludes it from text layer" do
@@ -103,11 +103,33 @@ defmodule AsciinemaWeb.RecordingSvgTest do
 
       refute svg =~ "■"
       assert rgb_at(png, 8, 0) == {18, 19, 20}
-      assert rgb_at(png, 8, 2) == {255, 85, 0}
-      assert rgb_at(png, 8, 5) == {255, 85, 0}
-      assert rgb_at(png, 8, 7) == {18, 19, 20}
+      assert rgb_at(png, 8, 6) == {255, 85, 0}
+      assert rgb_at(png, 8, 17) == {255, 85, 0}
+      assert rgb_at(png, 8, 23) == {18, 19, 20}
       assert rgb_at_cell(png, 0, 0) == {18, 19, 20}
       assert rgb_at_cell(png, 2, 0) == {18, 19, 20}
+    end
+
+    test "renders sextant in mosaic layer and excludes it from text layer" do
+      sextant_ul = <<0x1FB00::utf8>>
+
+      asciicast =
+        build(:asciicast,
+          term_cols: 1,
+          term_rows: 1,
+          snapshot: Snapshot.new([[[sextant_ul, %{"fg" => "#00aaee"}, 1]]], :segments)
+        )
+
+      svg = render_svg(asciicast)
+      png = decode_embedded_png(svg)
+
+      refute svg =~ sextant_ul
+      assert png.width == 8
+      assert png.height == 24
+      assert rgb_at(png, 0, 0) == {0, 170, 238}
+      assert rgb_at(png, 3, 7) == {0, 170, 238}
+      assert rgb_at(png, 4, 0) == {18, 19, 20}
+      assert rgb_at(png, 0, 8) == {18, 19, 20}
     end
   end
 
@@ -173,5 +195,5 @@ defmodule AsciinemaWeb.RecordingSvgTest do
     decode_png(Base.decode64!(encoded))
   end
 
-  defp rgb_at_cell(png, x, y), do: rgb_at(png, x * 8, y * 8)
+  defp rgb_at_cell(png, x, y), do: rgb_at(png, x * 8, y * 24)
 end

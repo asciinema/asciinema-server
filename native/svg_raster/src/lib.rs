@@ -17,8 +17,8 @@ type Rgb8 = (u8, u8, u8);
 type BgRun = (usize, usize, usize, Rgb8);
 type MosaicBlock = (usize, usize, u32, Rgb8);
 
-const CELL_V_RES: usize = 8;
-const CELL_H_RES: usize = 8;
+const CELL_X_RES: usize = 8;
+const CELL_Y_RES: usize = 24;
 const MAX_TERM_COLS: usize = 720;
 const MAX_TERM_ROWS: usize = 200;
 const PNG_SIGNATURE: [u8; 8] = [137, 80, 78, 71, 13, 10, 26, 10];
@@ -36,8 +36,8 @@ fn render_png<'a>(
         return Err(Error::Term(Box::new(atoms::invalid_size())));
     }
 
-    let img_w = cols * CELL_V_RES;
-    let img_h = rows * CELL_H_RES;
+    let img_w = cols * CELL_X_RES;
+    let img_h = rows * CELL_Y_RES;
     let pixel_count = img_w * img_h;
     let rgb_len = pixel_count * 3;
     let mut pixels = vec![0u8; rgb_len];
@@ -58,10 +58,10 @@ fn render_png<'a>(
         fill_rect(
             &mut pixels,
             img_w,
-            start_x * CELL_V_RES,
-            y * CELL_H_RES,
-            end_x * CELL_V_RES,
-            (y + 1) * CELL_H_RES,
+            start_x * CELL_X_RES,
+            y * CELL_Y_RES,
+            end_x * CELL_X_RES,
+            (y + 1) * CELL_Y_RES,
             color,
         );
     }
@@ -143,102 +143,179 @@ fn draw_mosaic_block(
     cp: u32,
     color: Rgb8,
 ) {
-    let base_x = cell_x * CELL_V_RES;
-    let base_y = cell_y * CELL_H_RES;
+    let base_x = cell_x * CELL_X_RES;
+    let base_y = cell_y * CELL_Y_RES;
     let origin = (base_x, base_y);
+    let unit_x = CELL_X_RES / 8;
+    let unit_y = CELL_Y_RES / 8;
+    let half_x = CELL_X_RES / 2;
+    let half_y = CELL_Y_RES / 2;
 
     match cp {
         // upper half block
-        0x2580 => fill_cell_rect(pixels, img_w, origin, (0, 0, 8, 4), color),
+        0x2580 => fill_cell_rect(pixels, img_w, origin, (0, 0, CELL_X_RES, half_y), color),
+
         // lower one eighth block
-        0x2581 => fill_cell_rect(pixels, img_w, origin, (0, 7, 8, 8), color),
+        0x2581 => fill_cell_rect(
+            pixels,
+            img_w,
+            origin,
+            (0, unit_y * 7, CELL_X_RES, CELL_Y_RES),
+            color,
+        ),
+
         // lower one quarter block
-        0x2582 => fill_cell_rect(pixels, img_w, origin, (0, 6, 8, 8), color),
+        0x2582 => fill_cell_rect(
+            pixels,
+            img_w,
+            origin,
+            (0, unit_y * 6, CELL_X_RES, CELL_Y_RES),
+            color,
+        ),
+
         // lower three eighths block
-        0x2583 => fill_cell_rect(pixels, img_w, origin, (0, 5, 8, 8), color),
+        0x2583 => fill_cell_rect(
+            pixels,
+            img_w,
+            origin,
+            (0, unit_y * 5, CELL_X_RES, CELL_Y_RES),
+            color,
+        ),
+
         // lower half block
-        0x2584 => fill_cell_rect(pixels, img_w, origin, (0, 4, 8, 8), color),
+        0x2584 => fill_cell_rect(
+            pixels,
+            img_w,
+            origin,
+            (0, half_y, CELL_X_RES, CELL_Y_RES),
+            color,
+        ),
+
         // lower five eighths block
-        0x2585 => fill_cell_rect(pixels, img_w, origin, (0, 3, 8, 8), color),
+        0x2585 => fill_cell_rect(
+            pixels,
+            img_w,
+            origin,
+            (0, unit_y * 3, CELL_X_RES, CELL_Y_RES),
+            color,
+        ),
+
         // lower three quarters block
-        0x2586 => fill_cell_rect(pixels, img_w, origin, (0, 2, 8, 8), color),
+        0x2586 => fill_cell_rect(
+            pixels,
+            img_w,
+            origin,
+            (0, unit_y * 2, CELL_X_RES, CELL_Y_RES),
+            color,
+        ),
+
         // lower seven eighths block
-        0x2587 => fill_cell_rect(pixels, img_w, origin, (0, 1, 8, 8), color),
+        0x2587 => fill_cell_rect(
+            pixels,
+            img_w,
+            origin,
+            (0, unit_y, CELL_X_RES, CELL_Y_RES),
+            color,
+        ),
+
         // full block
-        0x2588 => fill_cell_rect(pixels, img_w, origin, (0, 0, 8, 8), color),
-        // black square (half-height, vertically centered)
-        0x25A0 => fill_cell_rect(pixels, img_w, origin, (0, 2, 8, 6), color),
+        0x2588 => fill_cell_rect(pixels, img_w, origin, (0, 0, CELL_X_RES, CELL_Y_RES), color),
+
         // left seven eighths block
-        0x2589 => fill_cell_rect(pixels, img_w, origin, (0, 0, 7, 8), color),
+        0x2589 => fill_cell_rect(pixels, img_w, origin, (0, 0, unit_x * 7, CELL_Y_RES), color),
+
         // left three quarters block
-        0x258A => fill_cell_rect(pixels, img_w, origin, (0, 0, 6, 8), color),
+        0x258A => fill_cell_rect(pixels, img_w, origin, (0, 0, unit_x * 6, CELL_Y_RES), color),
+
         // left five eighths block
-        0x258B => fill_cell_rect(pixels, img_w, origin, (0, 0, 5, 8), color),
+        0x258B => fill_cell_rect(pixels, img_w, origin, (0, 0, unit_x * 5, CELL_Y_RES), color),
+
         // left half block
-        0x258C => fill_cell_rect(pixels, img_w, origin, (0, 0, 4, 8), color),
+        0x258C => fill_cell_rect(pixels, img_w, origin, (0, 0, half_x, CELL_Y_RES), color),
+
         // left three eighths block
-        0x258D => fill_cell_rect(pixels, img_w, origin, (0, 0, 3, 8), color),
+        0x258D => fill_cell_rect(pixels, img_w, origin, (0, 0, unit_x * 3, CELL_Y_RES), color),
+
         // left one quarter block
-        0x258E => fill_cell_rect(pixels, img_w, origin, (0, 0, 2, 8), color),
+        0x258E => fill_cell_rect(pixels, img_w, origin, (0, 0, unit_x * 2, CELL_Y_RES), color),
+
         // left one eighth block
-        0x258F => fill_cell_rect(pixels, img_w, origin, (0, 0, 1, 8), color),
+        0x258F => fill_cell_rect(pixels, img_w, origin, (0, 0, unit_x, CELL_Y_RES), color),
+
         // right half block
-        0x2590 => fill_cell_rect(pixels, img_w, origin, (4, 0, 8, 8), color),
+        0x2590 => fill_cell_rect(
+            pixels,
+            img_w,
+            origin,
+            (half_x, 0, CELL_X_RES, CELL_Y_RES),
+            color,
+        ),
+
         // light shade
-        0x2591 => fill_cell_rect(pixels, img_w, origin, (0, 0, 8, 8), color),
+        0x2591 => fill_cell_rect(pixels, img_w, origin, (0, 0, CELL_X_RES, CELL_Y_RES), color),
+
         // medium shade
-        0x2592 => fill_cell_rect(pixels, img_w, origin, (0, 0, 8, 8), color),
+        0x2592 => fill_cell_rect(pixels, img_w, origin, (0, 0, CELL_X_RES, CELL_Y_RES), color),
+
         // dark shade
-        0x2593 => fill_cell_rect(pixels, img_w, origin, (0, 0, 8, 8), color),
+        0x2593 => fill_cell_rect(pixels, img_w, origin, (0, 0, CELL_X_RES, CELL_Y_RES), color),
+
         // upper one eighth block
-        0x2594 => fill_cell_rect(pixels, img_w, origin, (0, 0, 8, 1), color),
+        0x2594 => fill_cell_rect(pixels, img_w, origin, (0, 0, CELL_X_RES, unit_y), color),
+
         // right one eighth block
-        0x2595 => fill_cell_rect(pixels, img_w, origin, (7, 0, 8, 8), color),
+        0x2595 => fill_cell_rect(
+            pixels,
+            img_w,
+            origin,
+            (unit_x * 7, 0, CELL_X_RES, CELL_Y_RES),
+            color,
+        ),
+
         // quadrant lower left
         0x2596 => fill_cell_quadrants(pixels, img_w, origin, color, (false, false, true, false)),
+
         // quadrant lower right
         0x2597 => fill_cell_quadrants(pixels, img_w, origin, color, (false, false, false, true)),
+
         // quadrant upper left
         0x2598 => fill_cell_quadrants(pixels, img_w, origin, color, (true, false, false, false)),
+
         // quadrant upper left and lower left and lower right
         0x2599 => fill_cell_quadrants(pixels, img_w, origin, color, (true, false, true, true)),
+
         // quadrant upper left and lower right
         0x259A => fill_cell_quadrants(pixels, img_w, origin, color, (true, false, false, true)),
+
         // quadrant upper left and upper right and lower left
         0x259B => fill_cell_quadrants(pixels, img_w, origin, color, (true, true, true, false)),
+
         // quadrant upper left and upper right and lower right
         0x259C => fill_cell_quadrants(pixels, img_w, origin, color, (true, true, false, true)),
+
         // quadrant upper right
         0x259D => fill_cell_quadrants(pixels, img_w, origin, color, (false, true, false, false)),
+
         // quadrant upper right and lower left
         0x259E => fill_cell_quadrants(pixels, img_w, origin, color, (false, true, true, false)),
+
         // quadrant upper right and lower left and lower right
         0x259F => fill_cell_quadrants(pixels, img_w, origin, color, (false, true, true, true)),
-        _ => {}
-    }
-}
 
-fn fill_cell_quadrants(
-    pixels: &mut [u8],
-    img_w: usize,
-    (base_x, base_y): (usize, usize),
-    color: Rgb8,
-    (ul, ur, ll, lr): (bool, bool, bool, bool),
-) {
-    if ul {
-        fill_cell_rect(pixels, img_w, (base_x, base_y), (0, 0, 4, 4), color);
-    }
+        // black square (half-height, vertically centered)
+        0x25A0 => fill_cell_rect(
+            pixels,
+            img_w,
+            origin,
+            (0, unit_y * 2, CELL_X_RES, unit_y * 6),
+            color,
+        ),
 
-    if ur {
-        fill_cell_rect(pixels, img_w, (base_x, base_y), (4, 0, 8, 4), color);
-    }
-
-    if ll {
-        fill_cell_rect(pixels, img_w, (base_x, base_y), (0, 4, 4, 8), color);
-    }
-
-    if lr {
-        fill_cell_rect(pixels, img_w, (base_x, base_y), (4, 4, 8, 8), color);
+        cp => {
+            if let Some(mask) = sextant_mask(cp) {
+                fill_cell_sextants(pixels, img_w, origin, color, mask);
+            }
+        }
     }
 }
 
@@ -258,6 +335,147 @@ fn fill_cell_rect(
         base_y + local_y1,
         color,
     );
+}
+
+fn fill_cell_quadrants(
+    pixels: &mut [u8],
+    img_w: usize,
+    (base_x, base_y): (usize, usize),
+    color: Rgb8,
+    (ul, ur, ll, lr): (bool, bool, bool, bool),
+) {
+    let half_x = CELL_X_RES / 2;
+    let half_y = CELL_Y_RES / 2;
+
+    if ul {
+        fill_cell_rect(
+            pixels,
+            img_w,
+            (base_x, base_y),
+            (0, 0, half_x, half_y),
+            color,
+        );
+    }
+
+    if ur {
+        fill_cell_rect(
+            pixels,
+            img_w,
+            (base_x, base_y),
+            (half_x, 0, CELL_X_RES, half_y),
+            color,
+        );
+    }
+
+    if ll {
+        fill_cell_rect(
+            pixels,
+            img_w,
+            (base_x, base_y),
+            (0, half_y, half_x, CELL_Y_RES),
+            color,
+        );
+    }
+
+    if lr {
+        fill_cell_rect(
+            pixels,
+            img_w,
+            (base_x, base_y),
+            (half_x, half_y, CELL_X_RES, CELL_Y_RES),
+            color,
+        );
+    }
+}
+
+// Maps Unicode sextant codepoints (U+1FB00..U+1FB3B) to 6-bit masks.
+// The range encodes masks 1–62, skipping values that duplicate existing characters:
+//   0  = empty (no codepoint needed)
+//   21 = left half block (U+258C)
+//   42 = right half block (U+2590)
+//   63 = full block (U+2588)
+// The offset→mask formula adds 1, 2, or 3 to jump over these gaps.
+fn sextant_mask(cp: u32) -> Option<u8> {
+    if !(0x1FB00..=0x1FB3B).contains(&cp) {
+        return None;
+    }
+
+    let offset = (cp - 0x1FB00) as u8;
+
+    let shift = if offset < 20 {
+        1
+    } else if offset < 40 {
+        2
+    } else {
+        3
+    };
+
+    Some(offset + shift)
+}
+
+fn fill_cell_sextants(
+    pixels: &mut [u8],
+    img_w: usize,
+    origin: (usize, usize),
+    color: Rgb8,
+    mask: u8,
+) {
+    let sextant_x = CELL_X_RES / 2;
+    let sextant_y = CELL_Y_RES / 3;
+
+    if (mask & 0b000001) != 0 {
+        fill_cell_rect(pixels, img_w, origin, (0, 0, sextant_x, sextant_y), color);
+    }
+
+    if (mask & 0b000010) != 0 {
+        fill_cell_rect(
+            pixels,
+            img_w,
+            origin,
+            (sextant_x, 0, CELL_X_RES, sextant_y),
+            color,
+        );
+    }
+
+    if (mask & 0b000100) != 0 {
+        fill_cell_rect(
+            pixels,
+            img_w,
+            origin,
+            (0, sextant_y, sextant_x, sextant_y * 2),
+            color,
+        );
+    }
+
+    if (mask & 0b001000) != 0 {
+        fill_cell_rect(
+            pixels,
+            img_w,
+            origin,
+            (sextant_x, sextant_y, CELL_X_RES, sextant_y * 2),
+            color,
+        );
+    }
+
+    if (mask & 0b010000) != 0 {
+        fill_cell_rect(
+            pixels,
+            img_w,
+            origin,
+            (0, sextant_y * 2, sextant_x, CELL_Y_RES),
+            color,
+        );
+    }
+
+    if (mask & 0b100000) != 0 {
+        fill_cell_rect(
+            pixels,
+            img_w,
+            origin,
+            (sextant_x, sextant_y * 2, CELL_X_RES, CELL_Y_RES),
+            color,
+        );
+    }
 }
 
 fn fill_rect(

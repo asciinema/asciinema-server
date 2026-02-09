@@ -101,7 +101,8 @@ defmodule Asciinema.Recordings.SnapshotTest do
         [
           ["a", %{}, 1],
           ["■", %{}, 1],
-          ["b", %{}, 1]
+          ["b", %{}, 1],
+          ["c", %{}, 1]
         ]
       ]
 
@@ -114,7 +115,33 @@ defmodule Asciinema.Recordings.SnapshotTest do
                [
                  {"a", %{}, 1},
                  {"■", %{}, 1},
-                 {"b", %{}, 1}
+                 {"bc", %{}, 1}
+               ]
+             ]
+    end
+
+    test "keeps sextant in its own segment when split_specials is true" do
+      sextant_ul = <<0x1FB00::utf8>>
+
+      lines = [
+        [
+          ["a", %{}, 1],
+          [sextant_ul, %{}, 1],
+          ["b", %{}, 1],
+          ["c", %{}, 1]
+        ]
+      ]
+
+      lines =
+        lines
+        |> Snapshot.new(:cells)
+        |> Snapshot.to_segments(split_specials: true)
+
+      assert lines == [
+               [
+                 {"a", %{}, 1},
+                 {sextant_ul, %{}, 1},
+                 {"bc", %{}, 1}
                ]
              ]
     end
