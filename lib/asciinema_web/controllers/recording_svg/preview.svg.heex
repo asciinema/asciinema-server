@@ -70,9 +70,7 @@
     </text>
   </svg>
 
-  <g :if={@logo} transform="translate(-40 -40)">
-    <svg x="50%" y="50%" width="80" height="80">
-      <.logo />
-    </svg>
-  </g>
+  <svg :if={@show_logo} x={@logo.x} y={@logo.y} width={@logo.size} height={@logo.size}>
+    <.logo />
+  </svg>
 </svg>

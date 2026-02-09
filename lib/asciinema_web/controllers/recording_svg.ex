@@ -68,7 +68,8 @@ defmodule AsciinemaWeb.RecordingSVG do
         cols: cols,
         rows: rows,
         theme: theme,
-        image_href: image_href(coords.bg, coords.mosaic_blocks, cols, rows, theme)
+        image_href: image_href(coords.bg, coords.mosaic_blocks, cols, rows, theme),
+        logo: logo_overlay(cols, rows)
       })
 
     ~H"""
@@ -78,10 +79,11 @@ defmodule AsciinemaWeb.RecordingSVG do
       rows={@rows}
       theme={@theme}
       image_href={@image_href}
+      logo={@logo}
       font_family={assigns[:font_family]}
       rx={assigns[:rx]}
       ry={assigns[:ry]}
-      logo={true}
+      show_logo={true}
       standalone={true}
     />
     """
@@ -106,7 +108,8 @@ defmodule AsciinemaWeb.RecordingSVG do
       Map.merge(assigns, %{
         coords: coords,
         theme: theme,
-        image_href: image_href(coords.bg, coords.mosaic_blocks, cols, rows, theme)
+        image_href: image_href(coords.bg, coords.mosaic_blocks, cols, rows, theme),
+        logo: nil
       })
 
     ~H"""
@@ -116,10 +119,11 @@ defmodule AsciinemaWeb.RecordingSVG do
       rows={15}
       theme={@theme}
       image_href={@image_href}
+      logo={@logo}
       font_family={assigns[:font_family]}
       rx={0}
       ry={0}
-      logo={false}
+      show_logo={false}
       standalone={@standalone}
     />
     """
@@ -288,6 +292,7 @@ defmodule AsciinemaWeb.RecordingSVG do
   @font_size 14
   @line_height 1.333333
   @cell_width 8.42333333
+  @logo_scale 0.2
 
   defp x(x), do: x * @cell_width
 
@@ -298,6 +303,25 @@ defmodule AsciinemaWeb.RecordingSVG do
   defp h(h), do: h * @font_size * @line_height
 
   defp font_size, do: @font_size
+
+  defp logo_overlay(cols, rows) do
+    svg_width = w(cols + 2)
+    svg_height = h(rows + 1)
+
+    size =
+      svg_width
+      |> min(svg_height)
+      |> Kernel.*(@logo_scale)
+      |> round_float()
+
+    %{
+      x: round_float((svg_width - size) / 2),
+      y: round_float((svg_height - size) / 2),
+      size: size
+    }
+  end
+
+  defp round_float(value), do: Float.round(value, 3)
 
   defp image_href(bg_coords, mosaic_block_coords, cols, rows, theme) do
     default_bg = Colors.parse(theme.bg)

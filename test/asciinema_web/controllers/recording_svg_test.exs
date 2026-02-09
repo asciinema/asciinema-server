@@ -147,6 +147,37 @@ defmodule AsciinemaWeb.RecordingSvgTest do
       # asciinema theme default fg is #cccccc
       assert rgb_at_cell(png, 0, 0) == {204, 204, 204}
     end
+
+    test "scales logo size relative to svg dimensions" do
+      small =
+        build(:asciicast,
+          term_cols: 5,
+          term_rows: 2,
+          snapshot: Snapshot.new([[["x", %{}, 1]]], :segments)
+        )
+
+      medium =
+        build(:asciicast,
+          term_cols: 80,
+          term_rows: 24,
+          snapshot: Snapshot.new([[["x", %{}, 1]]], :segments)
+        )
+
+      large =
+        build(:asciicast,
+          term_cols: 240,
+          term_rows: 100,
+          snapshot: Snapshot.new([[["x", %{}, 1]]], :segments)
+        )
+
+      small_svg = render_svg(small)
+      medium_svg = render_svg(medium)
+      large_svg = render_svg(large)
+
+      assert logo_size(small_svg) == 11.2
+      assert logo_size(medium_svg) == 93.333
+      assert logo_size(large_svg) == 377.067
+    end
   end
 
   @lines [
@@ -212,4 +243,12 @@ defmodule AsciinemaWeb.RecordingSvgTest do
   end
 
   defp rgb_at_cell(png, x, y), do: rgb_at(png, x * 8, y * 24)
+
+  defp logo_size(svg) do
+    [_, width, height] =
+      Regex.run(~r/<svg x="[^"]+" y="[^"]+" width="([^"]+)" height="([^"]+)">/, svg)
+
+    assert width == height
+    String.to_float(width)
+  end
 end
