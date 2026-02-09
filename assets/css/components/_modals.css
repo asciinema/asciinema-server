@@ -117,6 +117,7 @@ dialog.modal pre,
 .modal-body pre {
   background-color: var(--color-bg-code-block);
   margin-bottom: var(--space-4);
+  text-wrap: auto;
 }
 
 dialog.modal .modal-body h2:first-child {
