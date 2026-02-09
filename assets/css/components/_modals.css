@@ -143,12 +143,3 @@ dialog.modal .modal-body {
     margin-bottom: 1rem;
   }
 }
-
-/* == Responsive behavior == */
-
-@media (max-width: 576px) {
-  dialog.modal {
-    max-width: 95vw;
-    margin: var(--space-4);
-  }
-}
