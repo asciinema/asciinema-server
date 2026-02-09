@@ -132,13 +132,17 @@ defmodule AsciinemaWeb.RecordingSVG do
   defp coords(asciicast, crop_size) do
     snapshot = snapshot(asciicast, crop_size)
     segments = Snapshot.to_segments(snapshot, split_specials: true)
-    fg = fg_coords(segments)
+
+    layers =
+      segments
+      |> fg_coords()
+      |> split_fg_layers()
 
     %{
       bg: bg_coords(segments),
-      text: Enum.flat_map(fg, &keep_text/1),
-      mosaic_blocks: Enum.flat_map(fg, &keep_mosaic_blocks/1),
-      vector_symbols: Enum.flat_map(fg, &keep_vector_symbols/1)
+      text: layers.text,
+      mosaic_blocks: layers.mosaic_blocks,
+      vector_symbols: layers.vector_symbols
     }
   end
 
@@ -201,34 +205,39 @@ defmodule AsciinemaWeb.RecordingSVG do
     %{y: y, segments: Enum.reverse(segments)}
   end
 
-  defp keep_text(%{y: y, segments: segments}) do
-    segments =
-      Enum.reject(segments, &(&1.width == 1 && Snapshot.graphic_char?(&1.text)))
+  defp split_fg_layers(fg) do
+    {text, mosaic_blocks, vector_symbols} =
+      Enum.reduce(fg, {[], [], []}, fn %{y: y, segments: segments}, {text, mosaic, vector} ->
+        {t, m, v} = split_segments(segments)
 
-    case segments do
-      [] -> []
-      _ -> [%{y: y, segments: segments}]
-    end
+        {
+          prepend_line(text, y, t),
+          prepend_line(mosaic, y, m),
+          prepend_line(vector, y, v)
+        }
+      end)
+
+    %{
+      text: Enum.reverse(text),
+      mosaic_blocks: Enum.reverse(mosaic_blocks),
+      vector_symbols: Enum.reverse(vector_symbols)
+    }
   end
 
-  defp keep_mosaic_blocks(%{y: y, segments: segments}) do
-    segments =
-      Enum.filter(segments, &(&1.width == 1 && mosaic_block?(&1.text)))
+  defp prepend_line(lines, _y, []), do: lines
+  defp prepend_line(lines, y, segments), do: [%{y: y, segments: segments} | lines]
 
-    case segments do
-      [] -> []
-      _ -> [%{y: y, segments: segments}]
-    end
-  end
+  defp split_segments(segments) do
+    {t, m, v} =
+      Enum.reduce(segments, {[], [], []}, fn seg, {t, m, v} ->
+        cond do
+          seg.width == 1 && mosaic_block?(seg.text) -> {t, [seg | m], v}
+          seg.width == 1 && vector_symbol?(seg.text) -> {t, m, [seg | v]}
+          true -> {[seg | t], m, v}
+        end
+      end)
 
-  defp keep_vector_symbols(%{y: y, segments: segments}) do
-    segments =
-      Enum.filter(segments, &(&1.width == 1 && vector_symbol?(&1.text)))
-
-    case segments do
-      [] -> []
-      _ -> [%{y: y, segments: segments}]
-    end
+    {Enum.reverse(t), Enum.reverse(m), Enum.reverse(v)}
   end
 
   defp mosaic_block?(char) do

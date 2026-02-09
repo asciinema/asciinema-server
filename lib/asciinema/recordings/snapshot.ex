@@ -148,15 +148,6 @@ defmodule Asciinema.Recordings.Snapshot do
       Enum.member?(@powerline_triangles_range, cp)
   end
 
-  def graphic_char?(char) do
-    cp = char |> String.to_charlist() |> Enum.at(0)
-
-    Enum.member?(@block_elements_range, cp) ||
-      cp == @black_square ||
-      Enum.member?(@sextants_range, cp) ||
-      Enum.member?(@powerline_triangles_range, cp)
-  end
-
   @csi_init "\x1b["
   @sgr_reset "\x1b[0m"
 
