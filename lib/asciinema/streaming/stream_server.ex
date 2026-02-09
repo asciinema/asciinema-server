@@ -409,7 +409,7 @@ defmodule Asciinema.Streaming.StreamServer do
       Process.cancel_timer(state.shutdown_timer)
     end
 
-    timer = Process.send_after(self(), :shutdown, 60 * 1000)
+    timer = Process.send_after(self(), :shutdown, state.stream.offline_grace_period * 1000)
 
     %{state | shutdown_timer: timer}
   end
