@@ -1,12 +1,7 @@
 use avt::Vt;
 use rustler::{Atom, Binary, Encoder, Env, Error, NifResult, Resource, ResourceArc, Term};
 use std::str;
-use std::{ops::RangeInclusive, sync::RwLock};
-
-const BOX_DRAWING_RANGE: RangeInclusive<char> = '\u{2500}'..='\u{257f}';
-const BLOCK_ELEMENTS_RANGE: RangeInclusive<char> = '\u{2580}'..='\u{259f}';
-const BRAILLE_PATTERNS_RANGE: RangeInclusive<char> = '\u{2800}'..='\u{28ff}';
-const POWERLINE_TRIANGLES_RANGE: RangeInclusive<char> = '\u{e0b0}'..='\u{e0b3}';
+use std::sync::RwLock;
 
 mod atoms {
     rustler::atoms! {
@@ -99,19 +94,9 @@ fn dump_screen(env: Env, resource: ResourceArc<VtResource>) -> NifResult<Term> {
 }
 
 fn line_to_terms<'a>(line: &avt::Line, env: Env<'a>) -> Vec<Term<'a>> {
-    line.chunks(|c1, c2| c1.pen() != c2.pen() || is_special_char(c1) || is_special_char(c2))
+    line.chunks(|c1, c2| c1.pen() != c2.pen() || c1.width() != c2.width())
         .map(|cells| chunk_to_term(cells, env))
         .collect::<Vec<_>>()
-}
-
-fn is_special_char(cell: &avt::Cell) -> bool {
-    let ch = &cell.char();
-
-    cell.width() > 1
-        || BOX_DRAWING_RANGE.contains(ch)
-        || BRAILLE_PATTERNS_RANGE.contains(ch)
-        || BLOCK_ELEMENTS_RANGE.contains(ch)
-        || POWERLINE_TRIANGLES_RANGE.contains(ch)
 }
 
 #[rustler::nif]

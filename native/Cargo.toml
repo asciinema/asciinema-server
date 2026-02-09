@@ -1,4 +1,4 @@
 [workspace]
 resolver = "2"
 
-members = ["vt", "fts"]
+members = ["vt", "fts", "svg_raster"]

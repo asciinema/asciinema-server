@@ -36,23 +36,23 @@ defmodule Asciinema.Recordings.Snapshot do
   defp normalize_segment([t, a]), do: {t, a, 1}
   defp normalize_segment({t, a, w}), do: {t, a, w}
 
-  def normalize_colors(snapshot, bold_is_bright) do
+  def normalize_colors(snapshot, bold_is_bright, theme) do
     Map.update(snapshot, :lines, [], fn lines ->
       Enum.map(lines, fn segments ->
         Enum.map(segments, fn {t, a, w} ->
-          {t, do_normalize_colors(a, bold_is_bright), w}
+          {t, do_normalize_colors(a, bold_is_bright, theme), w}
         end)
       end)
     end)
   end
 
-  defp do_normalize_colors(attrs, true) do
+  defp do_normalize_colors(attrs, true, theme) do
     attrs
     |> adjust_fg()
-    |> invert_colors()
+    |> invert_colors(theme)
   end
 
-  defp do_normalize_colors(attrs, false), do: invert_colors(attrs)
+  defp do_normalize_colors(attrs, false, theme), do: invert_colors(attrs, theme)
 
   defp adjust_fg(%{"bold" => true, "fg" => fg} = attrs)
        when is_integer(fg) and fg < 8 do
@@ -61,19 +61,16 @@ defmodule Asciinema.Recordings.Snapshot do
 
   defp adjust_fg(attrs), do: attrs
 
-  @default_fg_code 7
-  @default_bg_code 0
-
-  defp invert_colors(%{"inverse" => true} = attrs) do
-    fg = attrs["bg"] || @default_bg_code
-    bg = attrs["fg"] || @default_fg_code
+  defp invert_colors(%{"inverse" => true} = attrs, theme) do
+    fg = attrs["bg"] || theme.bg
+    bg = attrs["fg"] || theme.fg
 
     attrs
     |> Map.merge(%{"fg" => fg, "bg" => bg})
     |> Map.delete("inverse")
   end
 
-  defp invert_colors(attrs), do: attrs
+  defp invert_colors(attrs, _theme), do: attrs
 
   def segments_to_cells(%__MODULE__{} = snapshot, :cells), do: snapshot
   def segments_to_cells(%__MODULE__{} = snapshot, :segments), do: segments_to_cells(snapshot)
@@ -136,6 +133,8 @@ defmodule Asciinema.Recordings.Snapshot do
 
   @box_drawing_range Range.new(0x2500, 0x257F)
   @block_elements_range Range.new(0x2580, 0x259F)
+  @black_square 0x25A0
+  @sextants_range Range.new(0x1FB00, 0x1FB3B)
   @braille_patterns_range Range.new(0x2800, 0x28FF)
   @powerline_triangles_range Range.new(0xE0B0, 0xE0B3)
 
@@ -143,14 +142,10 @@ defmodule Asciinema.Recordings.Snapshot do
     cp = char |> String.to_charlist() |> Enum.at(0)
 
     Enum.member?(@box_drawing_range, cp) || Enum.member?(@block_elements_range, cp) ||
+      cp == @black_square ||
+      Enum.member?(@sextants_range, cp) ||
       Enum.member?(@braille_patterns_range, cp) ||
       Enum.member?(@powerline_triangles_range, cp)
-  end
-
-  def block_or_powerline_triangle?(char) do
-    cp = char |> String.to_charlist() |> Enum.at(0)
-
-    Enum.member?(@block_elements_range, cp) || Enum.member?(@powerline_triangles_range, cp)
   end
 
   @csi_init "\x1b["
@@ -267,11 +262,33 @@ defmodule Asciinema.Recordings.Snapshot do
     snapshot
     |> Map.get(:lines)
     |> List.update_at(row, fn line ->
-      List.update_at(line, col, fn {text, attrs, char_width} ->
-        attrs = Map.put(attrs, "inverse", !(attrs["inverse"] || false))
-        {text, attrs, char_width}
-      end)
+      case cell_index_at_col(line, col) do
+        nil ->
+          line
+
+        index ->
+          List.update_at(line, index, fn {text, attrs, char_width} ->
+            attrs = Map.put(attrs, "inverse", !(attrs["inverse"] || false))
+            {text, attrs, char_width}
+          end)
+      end
     end)
     |> new(:cells)
+  end
+
+  defp cell_index_at_col(line, col) when is_integer(col) and col >= 0 do
+    do_cell_index_at_col(line, col, 0, 0)
+  end
+
+  defp cell_index_at_col(_line, _col), do: nil
+
+  defp do_cell_index_at_col([], _col, _offset, _index), do: nil
+
+  defp do_cell_index_at_col([{_, _, char_width} | rest], col, offset, index) do
+    if col < offset + char_width do
+      index
+    else
+      do_cell_index_at_col(rest, col, offset + char_width, index + 1)
+    end
   end
 end

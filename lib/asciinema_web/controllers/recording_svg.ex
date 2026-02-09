@@ -3,6 +3,7 @@ defmodule AsciinemaWeb.RecordingSVG do
   import AsciinemaWeb.RecordingHTML, only: [term_cols: 1, term_rows: 1]
   import Phoenix.HTML
   alias Asciinema.{Colors, Media, Themes}
+  alias Asciinema.SvgRaster
   alias Asciinema.Recordings.Snapshot
   alias AsciinemaWeb.Router.Helpers, as: Routes
 
@@ -37,20 +38,11 @@ defmodule AsciinemaWeb.RecordingSVG do
   defp text_class({"underline", true}), do: "un"
   defp text_class(_), do: nil
 
-  defp bg_style(attrs, theme) do
-    case bg_color(attrs, theme) do
-      nil -> nil
-      color -> "fill: #{color}"
-    end
-  end
-
-  defp bg_color(attrs, theme, default_fallback \\ false)
-  defp bg_color(%{"bg" => bg}, theme, _) when is_integer(bg), do: Themes.color(theme, bg)
-  defp bg_color(%{"bg" => "#" <> _ = c}, _theme, _), do: c
-  defp bg_color(%{"bg" => [_r, _g, _b] = c}, _theme, _), do: Colors.hex(c)
-  defp bg_color(%{"bg" => "rgb(" <> _ = c}, _theme, _), do: c
-  defp bg_color(_, _, false), do: nil
-  defp bg_color(_, theme, true), do: theme.bg
+  defp bg_color(%{"bg" => bg}, theme) when is_integer(bg), do: Themes.color(theme, bg)
+  defp bg_color(%{"bg" => "#" <> _ = c}, _theme), do: c
+  defp bg_color(%{"bg" => [_r, _g, _b] = c}, _theme), do: Colors.hex(c)
+  defp bg_color(%{"bg" => "rgb(" <> _ = c}, _theme), do: c
+  defp bg_color(_, theme), do: theme.bg
 
   defp fg_color(attrs, theme, default_fallback \\ false)
   defp fg_color(%{"fg" => fg}, theme, _) when is_integer(fg), do: Themes.color(theme, fg)
@@ -65,16 +57,33 @@ defmodule AsciinemaWeb.RecordingSVG do
   end
 
   def show(assigns) do
+    cols = term_cols(assigns.asciicast)
+    rows = term_rows(assigns.asciicast)
+    theme = Media.theme(assigns.asciicast)
+    coords = coords(assigns.asciicast, nil)
+
+    assigns =
+      Map.merge(assigns, %{
+        coords: coords,
+        cols: cols,
+        rows: rows,
+        theme: theme,
+        image_href: image_href(coords.bg, coords.mosaic_blocks, cols, rows, theme),
+        logo: logo_overlay(cols, rows)
+      })
+
     ~H"""
     <.preview
-      coords={coords(@asciicast, nil)}
-      cols={term_cols(@asciicast)}
-      rows={term_rows(@asciicast)}
-      theme={Media.theme(@asciicast)}
+      coords={@coords}
+      cols={@cols}
+      rows={@rows}
+      theme={@theme}
+      image_href={@image_href}
+      logo={@logo}
       font_family={assigns[:font_family]}
       rx={assigns[:rx]}
       ry={assigns[:ry]}
-      logo={true}
+      show_logo={true}
       standalone={true}
     />
     """
@@ -90,16 +99,31 @@ defmodule AsciinemaWeb.RecordingSVG do
   attr :standalone, :boolean, default: false
 
   def thumbnail(assigns) do
+    cols = 80
+    rows = 15
+    theme = Media.theme(assigns.asciicast)
+    coords = coords(assigns.asciicast, {cols, rows})
+
+    assigns =
+      Map.merge(assigns, %{
+        coords: coords,
+        theme: theme,
+        image_href: image_href(coords.bg, coords.mosaic_blocks, cols, rows, theme),
+        logo: nil
+      })
+
     ~H"""
     <.preview
-      coords={coords(@asciicast, {80, 15})}
+      coords={@coords}
       cols={80}
       rows={15}
-      theme={Media.theme(@asciicast)}
+      theme={@theme}
+      image_href={@image_href}
+      logo={@logo}
       font_family={assigns[:font_family]}
       rx={0}
       ry={0}
-      logo={false}
+      show_logo={false}
       standalone={@standalone}
     />
     """
@@ -108,12 +132,17 @@ defmodule AsciinemaWeb.RecordingSVG do
   defp coords(asciicast, crop_size) do
     snapshot = snapshot(asciicast, crop_size)
     segments = Snapshot.to_segments(snapshot, split_specials: true)
-    fg = fg_coords(segments)
+
+    layers =
+      segments
+      |> fg_coords()
+      |> split_fg_layers()
 
     %{
       bg: bg_coords(segments),
-      text: Enum.flat_map(fg, &keep_text/1),
-      special_chars: Enum.flat_map(fg, &keep_special_chars/1)
+      text: layers.text,
+      mosaic_blocks: layers.mosaic_blocks,
+      vector_symbols: layers.vector_symbols
     }
   end
 
@@ -176,256 +205,59 @@ defmodule AsciinemaWeb.RecordingSVG do
     %{y: y, segments: Enum.reverse(segments)}
   end
 
-  defp keep_text(%{y: y, segments: segments}) do
-    segments =
-      Enum.reject(segments, &(&1.width == 1 && Snapshot.block_or_powerline_triangle?(&1.text)))
+  defp split_fg_layers(fg) do
+    {text, mosaic_blocks, vector_symbols} =
+      Enum.reduce(fg, {[], [], []}, fn %{y: y, segments: segments}, {text, mosaic, vector} ->
+        {t, m, v} = split_segments(segments)
 
-    case segments do
-      [] -> []
-      _ -> [%{y: y, segments: segments}]
-    end
+        {
+          prepend_line(text, y, t),
+          prepend_line(mosaic, y, m),
+          prepend_line(vector, y, v)
+        }
+      end)
+
+    %{
+      text: Enum.reverse(text),
+      mosaic_blocks: Enum.reverse(mosaic_blocks),
+      vector_symbols: Enum.reverse(vector_symbols)
+    }
   end
 
-  defp keep_special_chars(%{y: y, segments: segments}) do
-    segments =
-      Enum.filter(segments, &(&1.width == 1 && Snapshot.block_or_powerline_triangle?(&1.text)))
+  defp prepend_line(lines, _y, []), do: lines
+  defp prepend_line(lines, y, segments), do: [%{y: y, segments: segments} | lines]
 
-    case segments do
-      [] -> []
-      _ -> [%{y: y, segments: segments}]
-    end
+  defp split_segments(segments) do
+    {t, m, v} =
+      Enum.reduce(segments, {[], [], []}, fn seg, {t, m, v} ->
+        cond do
+          seg.width == 1 && mosaic_block?(seg.text) -> {t, [seg | m], v}
+          seg.width == 1 && vector_symbol?(seg.text) -> {t, m, [seg | v]}
+          true -> {[seg | t], m, v}
+        end
+      end)
+
+    {Enum.reverse(t), Enum.reverse(m), Enum.reverse(v)}
   end
 
-  def special_char(assigns) do
-    case Enum.at(String.to_charlist(assigns.char), 0) do
-      # upper half block
-      0x2580 ->
-        ~H"""
-        <rect x={x(@x)} y={y(@y)} width={w(1)} height={h(0.5)} style={fg(@attrs, @theme)} />
-        """
+  defp mosaic_block?(char) do
+    cp = codepoint(char)
 
-      # lower one eighth block
-      0x2581 ->
-        ~H"""
-        <rect x={x(@x)} y={y(@y + 7 / 8)} width={w(1)} height={h(1 / 8)} style={fg(@attrs, @theme)} />
-        """
+    # block elements || black square || sextants
+    (cp >= 0x2580 and cp <= 0x259F) ||
+      cp == 0x25A0 ||
+      (cp >= 0x1FB00 and cp <= 0x1FB3B)
+  end
 
-      # lower one quarter block
-      0x2582 ->
-        ~H"""
-        <rect x={x(@x)} y={y(@y + 3 / 4)} width={w(1)} height={h(1 / 4)} style={fg(@attrs, @theme)} />
-        """
+  defp vector_symbol?(char) do
+    cp = codepoint(char)
 
-      # lower three eighths block
-      0x2583 ->
-        ~H"""
-        <rect x={x(@x)} y={y(@y + 5 / 8)} width={w(1)} height={h(3 / 8)} style={fg(@attrs, @theme)} />
-        """
+    # powerline triangles
+    cp >= 0xE0B0 and cp <= 0xE0B3
+  end
 
-      # lower half block
-      0x2584 ->
-        ~H"""
-        <rect x={x(@x)} y={y(@y + 0.5)} width={w(1)} height={h(0.5)} style={fg(@attrs, @theme)} />
-        """
-
-      # lower five eighths block
-      0x2585 ->
-        ~H"""
-        <rect x={x(@x)} y={y(@y + 3 / 8)} width={w(1)} height={h(5 / 8)} style={fg(@attrs, @theme)} />
-        """
-
-      # lower three quarters block
-      0x2586 ->
-        ~H"""
-        <rect x={x(@x)} y={y(@y + 1 / 4)} width={w(1)} height={h(3 / 4)} style={fg(@attrs, @theme)} />
-        """
-
-      # lower seven eighths block
-      0x2587 ->
-        ~H"""
-        <rect x={x(@x)} y={y(@y + 1 / 8)} width={w(1)} height={h(7 / 8)} style={fg(@attrs, @theme)} />
-        """
-
-      # full block
-      0x2588 ->
-        ~H"""
-        <rect x={x(@x)} y={y(@y)} width={w(1)} height={h(1)} style={fg(@attrs, @theme)} />
-        """
-
-      # left seven eighths block
-      0x2589 ->
-        ~H"""
-        <rect x={x(@x)} y={y(@y)} width={w(7 / 8)} height={h(1)} style={fg(@attrs, @theme)} />
-        """
-
-      # left three quarters block
-      0x258A ->
-        ~H"""
-        <rect x={x(@x)} y={y(@y)} width={w(3 / 4)} height={h(1)} style={fg(@attrs, @theme)} />
-        """
-
-      # left five eighths block
-      0x258B ->
-        ~H"""
-        <rect x={x(@x)} y={y(@y)} width={w(5 / 8)} height={h(1)} style={fg(@attrs, @theme)} />
-        """
-
-      # left half block
-      0x258C ->
-        ~H"""
-        <rect x={x(@x)} y={y(@y)} width={w(0.5)} height={h(1)} style={fg(@attrs, @theme)} />
-        """
-
-      # left three eighths block
-      0x258D ->
-        ~H"""
-        <rect x={x(@x)} y={y(@y)} width={w(3 / 8)} height={h(1)} style={fg(@attrs, @theme)} />
-        """
-
-      # left one quarter block
-      0x258E ->
-        ~H"""
-        <rect x={x(@x)} y={y(@y)} width={w(1 / 4)} height={h(1)} style={fg(@attrs, @theme)} />
-        """
-
-      # left one eighth block
-      0x258F ->
-        ~H"""
-        <rect x={x(@x)} y={y(@y)} width={w(1 / 8)} height={h(1)} style={fg(@attrs, @theme)} />
-        """
-
-      # right half block
-      0x2590 ->
-        ~H"""
-        <rect x={x(@x + 0.5)} y={y(@y)} width={w(0.5)} height={h(1)} style={fg(@attrs, @theme)} />
-        """
-
-      # light shade
-      0x2591 ->
-        ~H"""
-        <rect
-          x={x(@x)}
-          y={y(@y)}
-          width={w(1)}
-          height={h(1)}
-          style={"fill: #{mix_colors(fg_color(@attrs, @theme, true), bg_color(@attrs, @theme, true), 0.25)}"}
-        />
-        """
-
-      # medium shade
-      0x2592 ->
-        ~H"""
-        <rect
-          x={x(@x)}
-          y={y(@y)}
-          width={w(1)}
-          height={h(1)}
-          style={"fill: #{mix_colors(fg_color(@attrs, @theme, true), bg_color(@attrs, @theme, true), 0.5)}"}
-        />
-        """
-
-      # dark shade
-      0x2593 ->
-        ~H"""
-        <rect
-          x={x(@x)}
-          y={y(@y)}
-          width={w(1)}
-          height={h(1)}
-          style={"fill: #{mix_colors(fg_color(@attrs, @theme, true), bg_color(@attrs, @theme, true), 0.75)}"}
-        />
-        """
-
-      # upper one eighth block
-      0x2594 ->
-        ~H"""
-        <rect x={x(@x)} y={y(@y)} width={w(1)} height={h(1 / 8)} style={fg(@attrs, @theme)} />
-        """
-
-      # right one eighth block
-      0x2595 ->
-        ~H"""
-        <rect x={x(@x + 7 / 8)} y={y(@y)} width={w(1 / 8)} height={h(1)} style={fg(@attrs, @theme)} />
-        """
-
-      # quadrant lower left
-      0x2596 ->
-        ~H"""
-        <rect x={x(@x)} y={y(@y + 0.5)} width={w(0.5)} height={h(0.5)} style={fg(@attrs, @theme)} />
-        """
-
-      # quadrant lower right
-      0x2597 ->
-        ~H"""
-        <rect x={x(@x + 0.5)} y={y(@y + 0.5)} width={w(0.5)} height={h(0.5)} style={fg(@attrs, @theme)} />
-        """
-
-      # quadrant upper left
-      0x2598 ->
-        ~H"""
-        <rect x={x(@x)} y={y(@y)} width={w(0.5)} height={h(0.5)} style={fg(@attrs, @theme)} />
-        """
-
-      # quadrant upper left and lower left and lower right
-      0x2599 ->
-        ~H"""
-        <polygon
-          points={"#{x(@x)} #{y(@y)}, #{x(@x)} #{y(@y + 1)}, #{x(@x + 1)} #{y(@y + 1)}, #{x(@x + 1)} #{y(@y + 0.5)}, #{x(@x + 0.5)} #{y(@y + 0.5)}, #{x(@x + 0.5)} #{y(@y)}"}
-          fill={fg_color(@attrs, @theme, true)}
-        />
-        """
-
-      # quadrant upper left and lower right
-      0x259A ->
-        ~H"""
-        <polygon
-          points={"#{x(@x)} #{y(@y)}, #{x(@x)} #{y(@y + 0.5)}, #{x(@x + 1)} #{y(@y + 0.5)}, #{x(@x + 1)} #{y(@y + 1)}, #{x(@x + 0.5)} #{y(@y + 1)}, #{x(@x + 0.5)} #{y(@y)}"}
-          fill={fg_color(@attrs, @theme, true)}
-        />
-        """
-
-      # quadrant upper left and upper right and lower left
-      0x259B ->
-        ~H"""
-        <polygon
-          points={"#{x(@x)} #{y(@y)}, #{x(@x + 1)} #{y(@y)}, #{x(@x + 1)} #{y(@y + 0.5)}, #{x(@x + 0.5)} #{y(@y + 0.5)}, #{x(@x + 0.5)} #{y(@y + 1)}, #{x(@x)} #{y(@y + 1)}"}
-          fill={fg_color(@attrs, @theme, true)}
-        />
-        """
-
-      # quadrant upper left and upper right and lower right
-      0x259C ->
-        ~H"""
-        <polygon
-          points={"#{x(@x)} #{y(@y)}, #{x(@x + 1)} #{y(@y)}, #{x(@x + 1)} #{y(@y + 1)}, #{x(@x + 0.5)} #{y(@y + 1)}, #{x(@x + 0.5)} #{y(@y + 0.5)}, #{x(@x)} #{y(@y + 0.5)}"}
-          fill={fg_color(@attrs, @theme, true)}
-        />
-        """
-
-      # quadrant upper right
-      0x259D ->
-        ~H"""
-        <rect x={x(@x + 0.5)} y={y(@y)} width={w(0.5)} height={h(0.5)} style={fg(@attrs, @theme)} />
-        """
-
-      # quadrant upper right and lower left
-      0x259E ->
-        ~H"""
-        <polygon
-          points={"#{x(@x + 1)} #{y(@y)}, #{x(@x + 1)} #{y(@y + 0.5)}, #{x(@x)} #{y(@y + 0.5)}, #{x(@x)} #{y(@y + 1)}, #{x(@x + 0.5)} #{y(@y + 1)}, #{x(@x + 0.5)} #{y(@y)}"}
-          fill={fg_color(@attrs, @theme, true)}
-        />
-        """
-
-      # quadrant upper right and lower left and lower right
-      0x259F ->
-        ~H"""
-        <polygon
-          points={"#{x(@x + 1)} #{y(@y)}, #{x(@x + 1)} #{y(@y + 1)}, #{x(@x)} #{y(@y + 1)}, #{x(@x)} #{y(@y + 0.5)}, #{x(@x + 0.5)} #{y(@y + 0.5)}, #{x(@x + 0.5)} #{y(@y)}"}
-          fill={fg_color(@attrs, @theme, true)}
-        />
-        """
-
+  def vector_symbol(assigns) do
+    case codepoint(assigns.char) do
       # powerline right full triangle
       0xE0B0 ->
         ~H"""
@@ -469,6 +301,7 @@ defmodule AsciinemaWeb.RecordingSVG do
   @font_size 14
   @line_height 1.333333
   @cell_width 8.42333333
+  @logo_scale 0.2
 
   defp x(x), do: x * @cell_width
 
@@ -480,16 +313,77 @@ defmodule AsciinemaWeb.RecordingSVG do
 
   defp font_size, do: @font_size
 
-  defp fg(attrs, theme), do: "fill: #{fg_color(attrs, theme, true)}"
+  defp logo_overlay(cols, rows) do
+    svg_width = w(cols + 2)
+    svg_height = h(rows + 1)
 
-  def mix_colors(a, b, ratio), do: Colors.mix(a, b, ratio)
+    size =
+      svg_width
+      |> min(svg_height)
+      |> Kernel.*(@logo_scale)
+      |> round_float()
+
+    %{
+      x: round_float((svg_width - size) / 2),
+      y: round_float((svg_height - size) / 2),
+      size: size
+    }
+  end
+
+  defp round_float(value), do: Float.round(value, 3)
+
+  defp image_href(bg_coords, mosaic_block_coords, cols, rows, theme) do
+    default_bg = Colors.parse(theme.bg)
+
+    bg_runs =
+      for %{y: y, segments: segments} <- bg_coords,
+          %{x: x, width: width, attrs: attrs} <- segments do
+        {y, x, width, bg_color_tuple(attrs, theme)}
+      end
+
+    mosaic_blocks =
+      for %{y: y, segments: segments} <- mosaic_block_coords,
+          %{x: x, text: char, attrs: attrs} <- segments do
+        {y, x, codepoint(char), mosaic_block_color_tuple(char, attrs, theme)}
+      end
+
+    png = SvgRaster.render_png(cols, rows, default_bg, bg_runs, mosaic_blocks)
+
+    "data:image/png;base64," <> Base.encode64(png)
+  end
+
+  defp bg_color_tuple(attrs, theme) do
+    attrs
+    |> bg_color(theme)
+    |> Colors.parse()
+  end
+
+  defp mosaic_block_color_tuple(char, attrs, theme) do
+    color =
+      case codepoint(char) do
+        0x2591 -> Colors.mix(fg_color(attrs, theme, true), bg_color(attrs, theme), 0.25)
+        0x2592 -> Colors.mix(fg_color(attrs, theme, true), bg_color(attrs, theme), 0.5)
+        0x2593 -> Colors.mix(fg_color(attrs, theme, true), bg_color(attrs, theme), 0.75)
+        _ -> fg_color(attrs, theme, true)
+      end
+
+    Colors.parse(color)
+  end
 
   defp snapshot(asciicast, crop_size) do
+    theme = Media.theme(asciicast)
+
     (asciicast.snapshot || Snapshot.new([]))
     |> maybe_crop(crop_size)
-    |> Snapshot.normalize_colors(asciicast.term_bold_is_bright)
+    |> Snapshot.normalize_colors(asciicast.term_bold_is_bright, theme)
   end
 
   defp maybe_crop(snapshot, nil), do: snapshot
   defp maybe_crop(snapshot, {cols, rows}), do: Snapshot.crop(snapshot, cols, rows)
+
+  defp codepoint(char) do
+    char
+    |> String.to_charlist()
+    |> Enum.at(0)
+  end
 end

@@ -95,6 +95,90 @@ defmodule Asciinema.Recordings.SnapshotTest do
                ]
              ]
     end
+
+    test "keeps black square in its own segment when split_specials is true" do
+      lines = [
+        [
+          ["a", %{}, 1],
+          ["■", %{}, 1],
+          ["b", %{}, 1],
+          ["c", %{}, 1]
+        ]
+      ]
+
+      lines =
+        lines
+        |> Snapshot.new(:cells)
+        |> Snapshot.to_segments(split_specials: true)
+
+      assert lines == [
+               [
+                 {"a", %{}, 1},
+                 {"■", %{}, 1},
+                 {"bc", %{}, 1}
+               ]
+             ]
+    end
+
+    test "keeps sextant in its own segment when split_specials is true" do
+      sextant_ul = <<0x1FB00::utf8>>
+
+      lines = [
+        [
+          ["a", %{}, 1],
+          [sextant_ul, %{}, 1],
+          ["b", %{}, 1],
+          ["c", %{}, 1]
+        ]
+      ]
+
+      lines =
+        lines
+        |> Snapshot.new(:cells)
+        |> Snapshot.to_segments(split_specials: true)
+
+      assert lines == [
+               [
+                 {"a", %{}, 1},
+                 {sextant_ul, %{}, 1},
+                 {"bc", %{}, 1}
+               ]
+             ]
+    end
+  end
+
+  describe "build/2" do
+    test "inverts the cursor cell after a wide char" do
+      snapshot =
+        Snapshot.build(
+          {[[["a", %{}, 1], ["全", %{}, 2], ["b", %{}, 1]]], {3, 0}},
+          :segments
+        )
+
+      assert snapshot.lines == [
+               [
+                 {"a", %{}, 1},
+                 {"全", %{}, 2},
+                 {"b", %{"inverse" => true}, 1}
+               ]
+             ]
+    end
+
+    test "inverts the wide char when cursor points inside it" do
+      snapshot =
+        Snapshot.build(
+          {[[["a", %{}, 1], ["全", %{}, 2], ["b", %{}, 1]]], {2, 0}},
+          :segments
+        )
+
+      assert snapshot.lines == [
+               [
+                 {"a", %{}, 1},
+                 {"全", %{"inverse" => true}, 2},
+                 {"b", %{}, 1}
+               ]
+             ]
+    end
   end
 
   describe "crop/3" do

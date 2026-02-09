@@ -15,7 +15,7 @@ defmodule Asciinema.Vt do
   @spec dump(reference) :: binary
   def dump(_vt), do: :erlang.nif_error(:nif_not_loaded)
 
-  @spec dump_screen(reference) :: {list(list({binary, map})), {integer, integer} | nil}
+  @spec dump_screen(reference) :: {list(list({binary, map, integer})), {integer, integer} | nil}
   def dump_screen(_vt), do: :erlang.nif_error(:nif_not_loaded)
 
   @spec text(reference) :: binary

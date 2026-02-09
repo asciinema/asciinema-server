@@ -19,7 +19,7 @@ footer {
     align-items: center;
     grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
     column-gap: var(--space-4);
-    row-gap: var(--space-4);
+    row-gap: var(--space-5);
   }
 
   .grid-cols-3 > :first-child {
@@ -58,9 +58,9 @@ footer {
     column-gap: var(--space-3);
   }
 
-  footer .grid-cols-3 > :nth-child(2),
+  footer .grid-cols-3 > div,
   footer .grid-cols-3 > :last-child {
-    justify-self: start;
-    text-align: left;
+    justify-self: center;
+    text-align: center;
   }
 }
