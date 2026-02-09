@@ -89,6 +89,26 @@ defmodule AsciinemaWeb.RecordingSvgTest do
       assert rgb_at(png, 7, 4) == {51, 102, 204}
       assert rgb_at(png, 8, 4) == {51, 102, 204}
     end
+
+    test "renders black square in mosaic layer and excludes it from text layer" do
+      asciicast =
+        build(:asciicast,
+          term_cols: 3,
+          term_rows: 1,
+          snapshot: Snapshot.new([[["a■b", %{"fg" => "#ff5500"}, 1]]], :segments)
+        )
+
+      svg = render_svg(asciicast)
+      png = decode_embedded_png(svg)
+
+      refute svg =~ "■"
+      assert rgb_at(png, 8, 0) == {18, 19, 20}
+      assert rgb_at(png, 8, 2) == {255, 85, 0}
+      assert rgb_at(png, 8, 5) == {255, 85, 0}
+      assert rgb_at(png, 8, 7) == {18, 19, 20}
+      assert rgb_at_cell(png, 0, 0) == {18, 19, 20}
+      assert rgb_at_cell(png, 2, 0) == {18, 19, 20}
+    end
   end
 
   @lines [

@@ -166,6 +166,8 @@ fn draw_mosaic_block(
         0x2587 => fill_cell_rect(pixels, img_w, origin, (0, 1, 8, 8), color),
         // full block
         0x2588 => fill_cell_rect(pixels, img_w, origin, (0, 0, 8, 8), color),
+        // black square (half-height, vertically centered)
+        0x25A0 => fill_cell_rect(pixels, img_w, origin, (0, 2, 8, 6), color),
         // left seven eighths block
         0x2589 => fill_cell_rect(pixels, img_w, origin, (0, 0, 7, 8), color),
         // left three quarters block

@@ -23,4 +23,24 @@ defmodule Asciinema.SvgRasterTest do
     assert rgb_at(decoded, 0, 7) == {1, 2, 3}
     assert rgb_at(decoded, 8, 4) == {4, 5, 6}
   end
+
+  test "renders black square as centered half-height mosaic block" do
+    png =
+      SvgRaster.render_png(
+        1,
+        1,
+        {1, 2, 3},
+        [],
+        [{0, 0, 0x25A0, {240, 16, 32}}]
+      )
+
+    decoded = decode_png(png)
+
+    assert decoded.width == 8
+    assert decoded.height == 8
+    assert rgb_at(decoded, 0, 0) == {1, 2, 3}
+    assert rgb_at(decoded, 0, 2) == {240, 16, 32}
+    assert rgb_at(decoded, 7, 5) == {240, 16, 32}
+    assert rgb_at(decoded, 7, 7) == {1, 2, 3}
+  end
 end

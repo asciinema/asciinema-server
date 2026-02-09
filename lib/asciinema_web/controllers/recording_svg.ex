@@ -230,7 +230,7 @@ defmodule AsciinemaWeb.RecordingSVG do
   defp mosaic_block?(char) do
     cp = codepoint(char)
 
-    cp >= 0x2580 and cp <= 0x259F
+    (cp >= 0x2580 and cp <= 0x259F) || cp == 0x25A0
   end
 
   defp vector_symbol?(char) do

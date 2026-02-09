@@ -95,6 +95,29 @@ defmodule Asciinema.Recordings.SnapshotTest do
                ]
              ]
     end
+
+    test "keeps black square in its own segment when split_specials is true" do
+      lines = [
+        [
+          ["a", %{}, 1],
+          ["■", %{}, 1],
+          ["b", %{}, 1]
+        ]
+      ]
+
+      lines =
+        lines
+        |> Snapshot.new(:cells)
+        |> Snapshot.to_segments(split_specials: true)
+
+      assert lines == [
+               [
+                 {"a", %{}, 1},
+                 {"■", %{}, 1},
+                 {"b", %{}, 1}
+               ]
+             ]
+    end
   end
 
   describe "build/2" do
