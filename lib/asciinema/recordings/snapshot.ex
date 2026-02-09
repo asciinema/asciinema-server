@@ -36,23 +36,23 @@ defmodule Asciinema.Recordings.Snapshot do
   defp normalize_segment([t, a]), do: {t, a, 1}
   defp normalize_segment({t, a, w}), do: {t, a, w}
 
-  def normalize_colors(snapshot, bold_is_bright) do
+  def normalize_colors(snapshot, bold_is_bright, theme) do
     Map.update(snapshot, :lines, [], fn lines ->
       Enum.map(lines, fn segments ->
         Enum.map(segments, fn {t, a, w} ->
-          {t, do_normalize_colors(a, bold_is_bright), w}
+          {t, do_normalize_colors(a, bold_is_bright, theme), w}
         end)
       end)
     end)
   end
 
-  defp do_normalize_colors(attrs, true) do
+  defp do_normalize_colors(attrs, true, theme) do
     attrs
     |> adjust_fg()
-    |> invert_colors()
+    |> invert_colors(theme)
   end
 
-  defp do_normalize_colors(attrs, false), do: invert_colors(attrs)
+  defp do_normalize_colors(attrs, false, theme), do: invert_colors(attrs, theme)
 
   defp adjust_fg(%{"bold" => true, "fg" => fg} = attrs)
        when is_integer(fg) and fg < 8 do
@@ -61,19 +61,16 @@ defmodule Asciinema.Recordings.Snapshot do
 
   defp adjust_fg(attrs), do: attrs
 
-  @default_fg_code 7
-  @default_bg_code 0
-
-  defp invert_colors(%{"inverse" => true} = attrs) do
-    fg = attrs["bg"] || @default_bg_code
-    bg = attrs["fg"] || @default_fg_code
+  defp invert_colors(%{"inverse" => true} = attrs, theme) do
+    fg = attrs["bg"] || theme.bg
+    bg = attrs["fg"] || theme.fg
 
     attrs
     |> Map.merge(%{"fg" => fg, "bg" => bg})
     |> Map.delete("inverse")
   end
 
-  defp invert_colors(attrs), do: attrs
+  defp invert_colors(attrs, _theme), do: attrs
 
   def segments_to_cells(%__MODULE__{} = snapshot, :cells), do: snapshot
   def segments_to_cells(%__MODULE__{} = snapshot, :segments), do: segments_to_cells(snapshot)

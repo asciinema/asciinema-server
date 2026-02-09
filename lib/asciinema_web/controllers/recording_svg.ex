@@ -338,9 +338,11 @@ defmodule AsciinemaWeb.RecordingSVG do
   end
 
   defp snapshot(asciicast, crop_size) do
+    theme = Media.theme(asciicast)
+
     (asciicast.snapshot || Snapshot.new([]))
     |> maybe_crop(crop_size)
-    |> Snapshot.normalize_colors(asciicast.term_bold_is_bright)
+    |> Snapshot.normalize_colors(asciicast.term_bold_is_bright, theme)
   end
 
   defp maybe_crop(snapshot, nil), do: snapshot

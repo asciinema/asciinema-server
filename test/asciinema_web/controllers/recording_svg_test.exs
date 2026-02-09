@@ -131,6 +131,22 @@ defmodule AsciinemaWeb.RecordingSvgTest do
       assert rgb_at(png, 4, 0) == {18, 19, 20}
       assert rgb_at(png, 0, 8) == {18, 19, 20}
     end
+
+    test "uses theme default fg for inverse cell background" do
+      asciicast =
+        build(:asciicast,
+          term_theme_name: "asciinema",
+          term_cols: 1,
+          term_rows: 1,
+          snapshot: Snapshot.new([[["X", %{"inverse" => true}, 1]]], :segments)
+        )
+
+      svg = render_svg(asciicast)
+      png = decode_embedded_png(svg)
+
+      # asciinema theme default fg is #cccccc
+      assert rgb_at_cell(png, 0, 0) == {204, 204, 204}
+    end
   end
 
   @lines [
