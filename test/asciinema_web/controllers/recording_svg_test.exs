@@ -5,7 +5,7 @@ defmodule AsciinemaWeb.RecordingSvgTest do
   alias Asciinema.Recordings.Snapshot
   alias AsciinemaWeb.RecordingSVG
 
-  describe "show/1" do
+  describe "full/1" do
     test "renders SVG document" do
       asciicast =
         build(:asciicast,
@@ -234,7 +234,7 @@ defmodule AsciinemaWeb.RecordingSvgTest do
   end
 
   defp render_svg(asciicast) do
-    Phoenix.LiveViewTest.rendered_to_string(RecordingSVG.show(%{asciicast: asciicast}))
+    Phoenix.LiveViewTest.rendered_to_string(RecordingSVG.full(%{asciicast: asciicast}))
   end
 
   defp decode_embedded_png(svg) do

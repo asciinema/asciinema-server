@@ -90,7 +90,7 @@ defmodule AsciinemaWeb.RecordingController do
 
       case conn.params["f"] do
         "t" -> render(conn, :thumbnail, asciicast: asciicast, standalone: true)
-        _ -> render(conn, :show, asciicast: asciicast)
+        _ -> render(conn, :full, asciicast: asciicast)
       end
     end
   end

@@ -25,13 +25,7 @@
     <% end %>
   </style>
 
-  <rect
-    width="100%"
-    height="100%"
-    style={"fill: " <> @theme.bg}
-    rx={assigns[:rx] || 4}
-    ry={assigns[:ry] || 4}
-  />
+  <rect width="100%" height="100%" style={"fill: " <> @theme.bg} rx={@rx || 4} ry={@ry || 4} />
 
   <svg x={x(1)} y={y(0.5)} class="default-text-fill">
     <image
@@ -70,7 +64,7 @@
     </text>
   </svg>
 
-  <svg :if={@show_logo} x={@logo.x} y={@logo.y} width={@logo.size} height={@logo.size}>
+  <svg :if={@logo} x={@logo.x} y={@logo.y} width={@logo.size} height={@logo.size}>
     <.logo />
   </svg>
 </svg>
