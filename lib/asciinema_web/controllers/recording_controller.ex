@@ -85,17 +85,16 @@ defmodule AsciinemaWeb.RecordingController do
       |> put_resp_content_type("image/png")
       |> send_file(200, path)
     else
-      variant =
-        case conn.params["f"] do
-          "t" -> :thumbnail_standalone
-          _ -> :show
-        end
+      conn =
+        conn
+        |> put_resp_header("cache-control", "public, max-age=#{@svg_max_age}, must-revalidate")
+        |> put_etag(RecordingHTML.svg_cache_key(asciicast))
+        |> put_resp_header("access-control-allow-origin", "*")
 
-      conn
-      |> put_resp_header("cache-control", "public, max-age=#{@svg_max_age}, must-revalidate")
-      |> put_etag(RecordingHTML.svg_cache_key(asciicast))
-      |> put_resp_header("access-control-allow-origin", "*")
-      |> render(variant, asciicast: asciicast)
+      case conn.params["f"] do
+        "t" -> render(conn, :thumbnail, asciicast: asciicast, standalone: true)
+        _ -> render(conn, :full, asciicast: asciicast)
+      end
     end
   end
 

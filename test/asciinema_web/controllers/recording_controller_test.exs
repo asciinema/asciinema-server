@@ -1016,6 +1016,11 @@ defmodule AsciinemaWeb.RecordingControllerTest do
 
     assert response(conn_2, 200)
     assert response_content_type(conn_2, :svg)
+
+    conn_2 = get(conn, url <> ".svg?f=t")
+
+    assert response(conn_2, 200)
+    assert response_content_type(conn_2, :svg)
   end
 
   defp test_svg_response(conn, url, status) when status >= 400 do
@@ -1034,6 +1039,10 @@ defmodule AsciinemaWeb.RecordingControllerTest do
       conn
       |> put_req_header("accept", "image/*")
       |> get(url)
+
+    assert text_response(conn_2, status)
+
+    conn_2 = get(conn, url <> ".svg?f=t")
 
     assert text_response(conn_2, status)
   end

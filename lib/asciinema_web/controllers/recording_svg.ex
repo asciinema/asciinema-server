@@ -56,42 +56,20 @@ defmodule AsciinemaWeb.RecordingSVG do
     "#{Decimal.round(Decimal.from_float(float), 3)}%"
   end
 
-  def show(assigns) do
-    cols = term_cols(assigns.asciicast)
-    rows = term_rows(assigns.asciicast)
-    theme = Media.theme(assigns.asciicast)
-    coords = coords(assigns.asciicast, nil)
+  attr :asciicast, :any, required: true
+  attr :font_family, :string, default: nil
+  attr :rx, :integer, default: nil
+  attr :ry, :integer, default: nil
 
-    assigns =
-      Map.merge(assigns, %{
-        coords: coords,
-        cols: cols,
-        rows: rows,
-        theme: theme,
-        image_href: image_href(coords.bg, coords.mosaic_blocks, cols, rows, theme),
-        logo: logo_overlay(cols, rows)
-      })
-
+  def full(assigns) do
     ~H"""
     <.preview
-      coords={@coords}
-      cols={@cols}
-      rows={@rows}
-      theme={@theme}
-      image_href={@image_href}
-      logo={@logo}
-      font_family={assigns[:font_family]}
-      rx={assigns[:rx]}
-      ry={assigns[:ry]}
-      show_logo={true}
+      {attrs_for_full(@asciicast)}
+      font_family={@font_family}
+      rx={@rx}
+      ry={@ry}
       standalone={true}
     />
-    """
-  end
-
-  def thumbnail_standalone(assigns) do
-    ~H"""
-    <.thumbnail asciicast={@asciicast} standalone={true} />
     """
   end
 
@@ -99,34 +77,54 @@ defmodule AsciinemaWeb.RecordingSVG do
   attr :standalone, :boolean, default: false
 
   def thumbnail(assigns) do
+    ~H"""
+    <.preview {attrs_for_thumbnail(@asciicast)} rx={0} ry={0} standalone={@standalone} />
+    """
+  end
+
+  attr :cols, :integer, required: true
+  attr :rows, :integer, required: true
+  attr :coords, :any, required: true
+  attr :theme, :any, required: true
+  attr :image_href, :string, required: true
+  attr :standalone, :boolean, required: true
+  attr :logo, :any, default: nil
+  attr :font_family, :string, default: nil
+  attr :rx, :integer, default: nil
+  attr :ry, :integer, default: nil
+
+  def preview(assigns)
+
+  defp attrs_for_full(asciicast) do
+    cols = term_cols(asciicast)
+    rows = term_rows(asciicast)
+    coords = coords(asciicast, nil)
+    theme = Media.theme(asciicast)
+
+    %{
+      cols: cols,
+      rows: rows,
+      coords: coords,
+      theme: theme,
+      image_href: image_href(coords.bg, coords.mosaic_blocks, cols, rows, theme),
+      logo: logo_overlay(cols, rows)
+    }
+  end
+
+  defp attrs_for_thumbnail(asciicast) do
     cols = 80
     rows = 15
-    theme = Media.theme(assigns.asciicast)
-    coords = coords(assigns.asciicast, {cols, rows})
+    coords = coords(asciicast, {cols, rows})
+    theme = Media.theme(asciicast)
 
-    assigns =
-      Map.merge(assigns, %{
-        coords: coords,
-        theme: theme,
-        image_href: image_href(coords.bg, coords.mosaic_blocks, cols, rows, theme),
-        logo: nil
-      })
-
-    ~H"""
-    <.preview
-      coords={@coords}
-      cols={80}
-      rows={15}
-      theme={@theme}
-      image_href={@image_href}
-      logo={@logo}
-      font_family={assigns[:font_family]}
-      rx={0}
-      ry={0}
-      show_logo={false}
-      standalone={@standalone}
-    />
-    """
+    %{
+      cols: cols,
+      rows: rows,
+      coords: coords,
+      theme: theme,
+      image_href: image_href(coords.bg, coords.mosaic_blocks, cols, rows, theme),
+      logo: nil
+    }
   end
 
   defp coords(asciicast, crop_size) do
