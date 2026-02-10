@@ -118,9 +118,6 @@ config :asciinema, Oban,
     Oban.Plugins.Reindexer
   ]
 
-config :scrivener_html,
-  view_style: :bootstrap_v4
-
 config :tzdata, :autoupdate, :disabled
 
 config :esbuild,

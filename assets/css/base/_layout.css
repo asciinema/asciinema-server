@@ -159,14 +159,6 @@
   }
 }
 
-/* == Pagination wrapper == */
-
-/* Wrapper for pagination links (replaces row > col) */
-.pagination-wrapper {
-  width: 100%;
-  margin-top: var(--space-5);
-}
-
 /* == Section spacing == */
 
 .section {

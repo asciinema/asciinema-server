@@ -105,8 +105,6 @@
       </tbody>
     </table>
 
-    <div :if={@streams.total_pages > 1} class="pagination-wrapper">
-      {pagination_links(@streams)}
-    </div>
+    <.pagination_links page={@streams} />
   </div>
 </div>

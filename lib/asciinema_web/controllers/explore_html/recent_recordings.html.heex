@@ -12,9 +12,7 @@
           </div>
         </div>
 
-        <div :if={@asciicasts.total_pages > 1} class="pagination-wrapper">
-          {pagination_links(@asciicasts)}
-        </div>
+        <.pagination_links page={@asciicasts} />
       <% else %>
         <p>No recordings have been made <em>public</em> yet.</p>
 
