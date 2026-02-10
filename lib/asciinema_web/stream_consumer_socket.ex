@@ -1,46 +1,49 @@
 defmodule AsciinemaWeb.StreamConsumerSocket do
+  import Plug.Conn
+
   alias Asciinema.{Accounts, Leb128, Streaming}
   alias Asciinema.Streaming.{StreamServer, ViewerTracker}
   alias AsciinemaWeb.Authorization
-  alias AsciinemaWeb.Endpoint
   require Logger
 
-  @behaviour :cowboy_websocket
+  @behaviour WebSock
 
   @protocol "v1.alis"
   @client_ping_interval 15_000
 
-  # Callbacks
+  def upgrade(conn, %{"public_token" => public_token}) do
+    protocol = negotiated_protocol(conn)
 
-  @impl true
-  def init(req, _opts) do
     params = %{
-      token: req.bindings[:public_token],
-      user_id: user_id_from_session(req),
+      token: public_token,
+      user_id: user_id_from_session(conn),
       stream_id: nil,
-      protocol: nil
+      protocol: protocol
     }
 
-    case :cowboy_req.parse_header("sec-websocket-protocol", req) do
-      :undefined ->
-        {:cowboy_websocket, req, params}
-
-      protos ->
-        if Enum.member?(protos, @protocol) do
-          req = :cowboy_req.set_resp_header("sec-websocket-protocol", @protocol, req)
-          {:cowboy_websocket, req, %{params | protocol: @protocol}, %{compress: true}}
-        else
-          {:cowboy_websocket, req, params}
-        end
+    if protocol do
+      conn
+      |> put_resp_header("sec-websocket-protocol", @protocol)
+      |> do_upgrade(params, compress: true)
+    else
+      do_upgrade(conn, params, compress: false)
     end
   end
 
-  @impl true
-  def websocket_init(%{protocol: nil} = state) do
-    {:reply, {:close, 1002, "protocol negotiation failed"}, state}
+  defp do_upgrade(conn, params, opts) do
+    conn
+    |> WebSockAdapter.upgrade(__MODULE__, params, opts)
+    |> halt()
   end
 
-  def websocket_init(%{token: token, user_id: user_id}) do
+  # WebSock callbacks
+
+  @impl true
+  def init(%{protocol: nil} = state) do
+    {:stop, :protocol_negotiation_failed, {1002, "protocol negotiation failed"}, state}
+  end
+
+  def init(%{token: token, user_id: user_id}) do
     with {:ok, stream} <- fetch_stream(token),
          :ok <- authorize(stream, user_id) do
       Logger.info("consumer/#{stream.id}: connected")
@@ -50,32 +53,32 @@ defmodule AsciinemaWeb.StreamConsumerSocket do
       ViewerTracker.track(stream.id)
       Process.send_after(self(), :client_ping, @client_ping_interval)
 
-      {:reply, magic_string(), state}
+      {:push, magic_string(), state}
     else
       {:error, :stream_not_found} ->
         Logger.warning("consumer: stream not found for public token #{token}")
         :timer.sleep(1000)
 
-        {:reply, :close, %{stream_id: "?"}}
+        {:stop, :normal, %{stream_id: "?"}}
 
       {:error, :forbidden} ->
         Logger.warning("consumer: unauthorized connection attempt")
 
-        {:reply, :close, %{stream_id: token}}
+        {:stop, :normal, %{stream_id: token}}
     end
   end
 
   @impl true
-  def websocket_handle(_frame, state), do: {:ok, state}
+  def handle_in(_frame, state), do: {:ok, state}
 
   @impl true
-  def websocket_info(message, state)
+  def handle_info(message, state)
 
-  def websocket_info(%StreamServer.Update{event: :reset} = update, state) do
+  def handle_info(%StreamServer.Update{event: :reset} = update, state) do
     %{term_size: {cols, rows}} = update.data
     Logger.debug("consumer/#{state.stream_id}: init (#{cols}x#{rows})")
 
-    {:reply,
+    {:push,
      serialize_init(
        update.data.last_id,
        update.data.time,
@@ -85,11 +88,11 @@ defmodule AsciinemaWeb.StreamConsumerSocket do
      ), %{state | init: true, last_event_time: update.data.time}}
   end
 
-  def websocket_info(%StreamServer.Update{event: :info} = update, %{init: false} = state) do
+  def handle_info(%StreamServer.Update{event: :info} = update, %{init: false} = state) do
     %{term_size: {cols, rows}} = update.data
     Logger.debug("consumer/#{state.stream_id}: info (#{cols}x#{rows})")
 
-    {:reply,
+    {:push,
      serialize_init(
        update.data.last_id,
        update.data.time,
@@ -99,67 +102,67 @@ defmodule AsciinemaWeb.StreamConsumerSocket do
      ), %{state | init: true, last_event_time: update.data.time}}
   end
 
-  def websocket_info(%StreamServer.Update{event: :info}, state) do
+  def handle_info(%StreamServer.Update{event: :info}, state) do
     {:ok, state}
   end
 
-  def websocket_info(%StreamServer.Update{}, %{init: false} = state) do
+  def handle_info(%StreamServer.Update{}, %{init: false} = state) do
     {:ok, state}
   end
 
-  def websocket_info(%StreamServer.Update{event: :output} = update, state) do
+  def handle_info(%StreamServer.Update{event: :output} = update, state) do
     %{id: id, time: time, text: text} = update.data
     rel_time = time - state.last_event_time
     msg = serialize_output(id, rel_time, text)
     state = %{state | last_event_time: time}
 
-    {:reply, msg, state}
+    {:push, msg, state}
   end
 
-  def websocket_info(%StreamServer.Update{event: :input} = update, state) do
+  def handle_info(%StreamServer.Update{event: :input} = update, state) do
     %{id: id, time: time, text: text} = update.data
     rel_time = time - state.last_event_time
     msg = serialize_input(id, rel_time, text)
     state = %{state | last_event_time: time}
 
-    {:reply, msg, state}
+    {:push, msg, state}
   end
 
-  def websocket_info(%StreamServer.Update{event: :resize} = update, state) do
+  def handle_info(%StreamServer.Update{event: :resize} = update, state) do
     %{id: id, time: time, term_size: term_size} = update.data
     rel_time = time - state.last_event_time
     msg = serialize_resize(id, rel_time, term_size)
     state = %{state | last_event_time: time}
 
-    {:reply, msg, state}
+    {:push, msg, state}
   end
 
-  def websocket_info(%StreamServer.Update{event: :marker} = update, state) do
+  def handle_info(%StreamServer.Update{event: :marker} = update, state) do
     %{id: id, time: time, label: label} = update.data
     rel_time = time - state.last_event_time
     msg = serialize_marker(id, rel_time, label)
     state = %{state | last_event_time: time}
 
-    {:reply, msg, state}
+    {:push, msg, state}
   end
 
-  def websocket_info(%StreamServer.Update{event: :end} = update, state) do
+  def handle_info(%StreamServer.Update{event: :end} = update, state) do
     %{time: time} = update.data
     rel_time = time - state.last_event_time
     msg = serialize_eot(rel_time)
     state = %{state | last_event_time: time}
 
-    {:reply, msg, state}
+    {:push, msg, state}
   end
 
-  def websocket_info(:client_ping, state) do
+  def handle_info(:client_ping, state) do
     Process.send_after(self(), :client_ping, @client_ping_interval)
 
-    {:reply, :ping, state}
+    {:push, {:ping, ""}, state}
   end
 
   @impl true
-  def terminate(reason, _req, state) do
+  def terminate(reason, state) do
     stream_id = state[:stream_id] || state[:token] || "?"
     Logger.info("consumer/#{stream_id}: terminating (#{inspect(reason)})")
     Logger.debug("consumer/#{stream_id}: state: #{inspect(state)}")
@@ -173,21 +176,10 @@ defmodule AsciinemaWeb.StreamConsumerSocket do
 
   # Private
 
-  @session_key Keyword.fetch!(Application.compile_env!(:asciinema, :session_opts), :key)
-  @signing_salt Keyword.fetch!(Application.compile_env!(:asciinema, :session_opts), :signing_salt)
-
-  defp user_id_from_session(req) do
-    cookies = :cowboy_req.parse_cookies(req)
-
-    with {_, cookie} <- List.keyfind(cookies, @session_key, 0),
-         secret_key_base = Application.fetch_env!(:asciinema, Endpoint)[:secret_key_base],
-         conn = %{secret_key_base: secret_key_base},
-         opts = Plug.Session.COOKIE.init(signing_salt: @signing_salt),
-         {:term, session} <- Plug.Session.COOKIE.get(conn, cookie, opts) do
-      session["user_id"]
-    else
-      _ -> nil
-    end
+  defp user_id_from_session(conn) do
+    conn
+    |> fetch_session()
+    |> get_session("user_id")
   end
 
   defp fetch_stream(token) do
@@ -204,6 +196,16 @@ defmodule AsciinemaWeb.StreamConsumerSocket do
     else
       {:error, :forbidden}
     end
+  end
+
+  defp requested_protocols(conn) do
+    conn
+    |> get_req_header("sec-websocket-protocol")
+    |> Enum.flat_map(&Plug.Conn.Utils.list/1)
+  end
+
+  defp negotiated_protocol(conn) do
+    if Enum.member?(requested_protocols(conn), @protocol), do: @protocol
   end
 
   defp magic_string, do: {:binary, "ALiS\x01"}

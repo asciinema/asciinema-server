@@ -1,6 +1,9 @@
 defmodule AsciinemaWeb.StreamProducerSocketTest do
   use Asciinema.DataCase
   import Asciinema.Factory
+  import Plug.Conn
+  import Plug.Test
+
   alias AsciinemaWeb.StreamProducerSocket
 
   describe "connection" do
@@ -11,15 +14,21 @@ defmodule AsciinemaWeb.StreamProducerSocketTest do
     end
 
     test "successful sub-protocol negotiation, stream not found" do
-      assert {:reply, {:close, 4040, "stream not found"}, _} =
+      assert {:stop, :stream_not_found, {4040, "stream not found"}, _} =
                connect("nope", %{"sec-websocket-protocol" => "v1.alis"})
     end
 
     test "failed sub-protocol negotiation" do
-      assert {:ok, %{has_sent_resp: true, bindings: _, headers: _}, _params} =
-               connect("s3kr1t", %{"sec-websocket-protocol" => "lol"})
+      conn =
+        "s3kr1t"
+        |> build_upgrade_request(%{"sec-websocket-protocol" => "lol"})
+        |> upgrade()
 
-      assert_received {_, {:response, 400, _, _}}
+      {Plug.Adapters.Test.Conn, %{ref: ref}} = conn.adapter
+
+      assert conn.state == :sent
+      assert_received {^ref, {400, _, _}}
+      refute_received {^ref, :upgrade, _}
     end
 
     test "sub-protocol auto-detection, stream found" do
@@ -29,7 +38,7 @@ defmodule AsciinemaWeb.StreamProducerSocketTest do
     end
 
     test "sub-protocol auto-detection, stream not found" do
-      assert {:reply, {:close, 4040, "stream not found"}, _} = connect("nope")
+      assert {:stop, :stream_not_found, {4040, "stream not found"}, _} = connect("nope")
     end
   end
 
@@ -57,21 +66,44 @@ defmodule AsciinemaWeb.StreamProducerSocketTest do
   end
 
   defp connect(producer_token, headers \\ %{}) do
-    req = build_cowboy_request(producer_token, headers)
+    conn =
+      producer_token
+      |> build_upgrade_request(headers)
+      |> upgrade()
 
-    with {:cowboy_websocket, _req, params, %{compress: true}} <-
-           StreamProducerSocket.init(req, []) do
-      StreamProducerSocket.websocket_init(params)
-    end
+    {Plug.Adapters.Test.Conn, %{ref: ref}} = conn.adapter
+
+    assert conn.state == :upgraded
+    assert_received {^ref, :upgrade, {:websocket, {StreamProducerSocket, params, opts}}}
+    assert Keyword.get(opts, :compress) == true
+
+    StreamProducerSocket.init(params)
   end
 
-  defp build_cowboy_request(producer_token, headers) do
-    %{
-      bindings: %{producer_token: producer_token},
-      headers: Map.merge(%{"user-agent" => "asciinema/3.0"}, headers),
-      qs: "foo=1&bar=2",
-      pid: self(),
-      streamid: "id"
+  defp build_upgrade_request(producer_token, headers) do
+    host = "localhost"
+
+    required_headers = %{
+      "connection" => "upgrade",
+      "upgrade" => "websocket",
+      "sec-websocket-key" => "dGhlIHNhbXBsZSBub25jZQ==",
+      "sec-websocket-version" => "13",
+      "user-agent" => "asciinema/3.0"
     }
+
+    merged_headers = Map.merge(required_headers, headers)
+
+    conn =
+      Enum.reduce(merged_headers, conn(:get, "/ws/S/#{producer_token}"), fn {name, value}, conn ->
+        put_req_header(conn, name, value)
+      end)
+
+    %{conn | host: host, req_headers: [{"host", host} | conn.req_headers]}
+  end
+
+  defp upgrade(conn) do
+    path_params = Map.put_new(conn.path_params, "producer_token", List.last(conn.path_info))
+
+    StreamProducerSocket.upgrade(conn, path_params)
   end
 end
