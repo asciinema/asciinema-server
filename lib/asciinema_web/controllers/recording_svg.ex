@@ -89,12 +89,6 @@ defmodule AsciinemaWeb.RecordingSVG do
     """
   end
 
-  def thumbnail_standalone(assigns) do
-    ~H"""
-    <.thumbnail asciicast={@asciicast} standalone={true} />
-    """
-  end
-
   attr :asciicast, :any, required: true
   attr :standalone, :boolean, default: false
 
