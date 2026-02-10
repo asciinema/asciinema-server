@@ -12,10 +12,11 @@ defmodule AsciinemaWeb.RecordingSvgTest do
           snapshot: Snapshot.new([[["foobar", %{}, 1]], [["bazqux", %{}, 1]]], :segments)
         )
 
-      svg = render_svg(asciicast)
+      svg = render_full(asciicast)
 
       assert svg =~ ~r/^<\?xml.+foobar.+bazqux/s
       assert svg =~ "data:image/png;base64,"
+      assert logo_present(svg)
     end
 
     test "supports rgb(...) color in fg/bg text attrs" do
@@ -31,7 +32,7 @@ defmodule AsciinemaWeb.RecordingSvgTest do
             )
         )
 
-      svg = render_svg(asciicast)
+      svg = render_full(asciicast)
 
       assert svg =~ "#102030"
       assert svg =~ "#708090"
@@ -48,7 +49,7 @@ defmodule AsciinemaWeb.RecordingSvgTest do
           snapshot: Snapshot.new([[["abcdefghij", %{"bg" => "#112233"}, 1]]], :segments)
         )
 
-      svg = render_svg(asciicast)
+      svg = render_full(asciicast)
       png = decode_embedded_png(svg)
 
       assert png.width == 24
@@ -65,7 +66,7 @@ defmodule AsciinemaWeb.RecordingSvgTest do
           snapshot: Snapshot.new([[["▀█", %{"fg" => "#aa5500"}, 1]]], :segments)
         )
 
-      svg = render_svg(asciicast)
+      svg = render_full(asciicast)
       png = decode_embedded_png(svg)
 
       assert png.width == 16
@@ -83,7 +84,7 @@ defmodule AsciinemaWeb.RecordingSvgTest do
           snapshot: Snapshot.new([[["██", %{"fg" => "#3366cc"}, 1]]], :segments)
         )
 
-      svg = render_svg(asciicast)
+      svg = render_full(asciicast)
       png = decode_embedded_png(svg)
 
       assert rgb_at(png, 7, 12) == {51, 102, 204}
@@ -98,7 +99,7 @@ defmodule AsciinemaWeb.RecordingSvgTest do
           snapshot: Snapshot.new([[["a■b", %{"fg" => "#ff5500"}, 1]]], :segments)
         )
 
-      svg = render_svg(asciicast)
+      svg = render_full(asciicast)
       png = decode_embedded_png(svg)
 
       refute svg =~ "■"
@@ -120,7 +121,7 @@ defmodule AsciinemaWeb.RecordingSvgTest do
           snapshot: Snapshot.new([[[sextant_ul, %{"fg" => "#00aaee"}, 1]]], :segments)
         )
 
-      svg = render_svg(asciicast)
+      svg = render_full(asciicast)
       png = decode_embedded_png(svg)
 
       refute svg =~ sextant_ul
@@ -141,42 +142,86 @@ defmodule AsciinemaWeb.RecordingSvgTest do
           snapshot: Snapshot.new([[["X", %{"inverse" => true}, 1]]], :segments)
         )
 
-      svg = render_svg(asciicast)
+      svg = render_full(asciicast)
       png = decode_embedded_png(svg)
 
       # asciinema theme default fg is #cccccc
       assert rgb_at_cell(png, 0, 0) == {204, 204, 204}
     end
+  end
 
-    test "scales logo size relative to svg dimensions" do
-      small =
+  describe "thumbnail/1" do
+    test "renders SVG element" do
+      asciicast =
         build(:asciicast,
-          term_cols: 5,
-          term_rows: 2,
+          snapshot: Snapshot.new([[["foobar", %{}, 1]], [["bazqux", %{}, 1]]], :segments)
+        )
+
+      svg = render_thumbnail(asciicast)
+
+      assert svg =~ "foobar"
+      assert svg =~ "bazqux"
+      assert svg =~ "data:image/png;base64,"
+    end
+
+    test "crops snapshot to 80x15" do
+      asciicast =
+        build(:asciicast,
+          term_cols: 200,
+          term_rows: 50,
           snapshot: Snapshot.new([[["x", %{}, 1]]], :segments)
         )
 
-      medium =
+      svg = render_thumbnail(asciicast)
+      png = decode_embedded_png(svg)
+
+      assert png.width == 80 * 8
+      assert png.height == 15 * 24
+    end
+
+    test "uses square corners" do
+      asciicast =
         build(:asciicast,
-          term_cols: 80,
-          term_rows: 24,
           snapshot: Snapshot.new([[["x", %{}, 1]]], :segments)
         )
 
-      large =
+      svg = render_thumbnail(asciicast)
+
+      assert svg =~ ~s(rx="0")
+      assert svg =~ ~s(ry="0")
+    end
+
+    test "does not include logo" do
+      asciicast =
         build(:asciicast,
-          term_cols: 240,
-          term_rows: 100,
           snapshot: Snapshot.new([[["x", %{}, 1]]], :segments)
         )
 
-      small_svg = render_svg(small)
-      medium_svg = render_svg(medium)
-      large_svg = render_svg(large)
+      svg = render_thumbnail(asciicast)
 
-      assert logo_size(small_svg) == 11.2
-      assert logo_size(medium_svg) == 93.333
-      assert logo_size(large_svg) == 377.067
+      refute logo_present(svg)
+    end
+
+    test "does not include XML declaration by default" do
+      asciicast =
+        build(:asciicast,
+          snapshot: Snapshot.new([[["x", %{}, 1]]], :segments)
+        )
+
+      svg = render_thumbnail(asciicast)
+
+      refute svg =~ "<?xml"
+    end
+
+    test "includes XML declaration when standalone" do
+      asciicast =
+        build(:asciicast,
+          snapshot: Snapshot.new([[["x", %{}, 1]]], :segments)
+        )
+
+      svg = render_thumbnail(asciicast, standalone: true)
+
+      assert svg =~ "<?xml"
     end
   end
 
@@ -233,8 +278,17 @@ defmodule AsciinemaWeb.RecordingSvgTest do
     end
   end
 
-  defp render_svg(asciicast) do
+  defp render_full(asciicast) do
     Phoenix.LiveViewTest.rendered_to_string(RecordingSVG.full(%{asciicast: asciicast}))
+  end
+
+  defp render_thumbnail(asciicast, opts \\ []) do
+    Phoenix.LiveViewTest.rendered_to_string(
+      RecordingSVG.thumbnail(%{
+        asciicast: asciicast,
+        standalone: Keyword.get(opts, :standalone, false)
+      })
+    )
   end
 
   defp decode_embedded_png(svg) do
@@ -244,11 +298,5 @@ defmodule AsciinemaWeb.RecordingSvgTest do
 
   defp rgb_at_cell(png, x, y), do: rgb_at(png, x * 8, y * 24)
 
-  defp logo_size(svg) do
-    [_, width, height] =
-      Regex.run(~r/<svg x="[^"]+" y="[^"]+" width="([^"]+)" height="([^"]+)">/, svg)
-
-    assert width == height
-    String.to_float(width)
-  end
+  defp logo_present(svg), do: svg =~ "small-triangle-mask"
 end
