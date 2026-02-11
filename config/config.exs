@@ -66,8 +66,6 @@ config :logger,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
-config :phoenix, :template_engines, md: PhoenixMarkdown.Engine
-
 config :phoenix_template, :format_encoders,
   cast: Jason,
   svg: Phoenix.HTML.Engine,
@@ -117,9 +115,6 @@ config :asciinema, Oban,
     Oban.Plugins.Lifeline,
     Oban.Plugins.Reindexer
   ]
-
-config :scrivener_html,
-  view_style: :bootstrap_v4
 
 config :tzdata, :autoupdate, :disabled
 

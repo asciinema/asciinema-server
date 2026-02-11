@@ -1,7 +1,6 @@
 defmodule AsciinemaWeb.StreamHTML do
   use AsciinemaWeb, :html
   import AsciinemaWeb.ErrorHelpers
-  import Scrivener.HTML
   alias Asciinema.{Accounts, Fonts, Media, Streaming, Themes}
   alias Asciinema.Streaming.Stream
   alias AsciinemaWeb.{MediaView, MediumHTML, RecordingHTML, RecordingSVG}

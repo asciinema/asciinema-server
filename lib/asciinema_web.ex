@@ -142,6 +142,7 @@ defmodule AsciinemaWeb do
       # Core UI components and translation
       import AsciinemaWeb.CoreComponents
       import AsciinemaWeb.Icons
+      import AsciinemaWeb.Pagination
 
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS

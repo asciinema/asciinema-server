@@ -20,9 +20,7 @@
     </div>
   </div>
 
-  <div :if={@page.total_pages > 1} class="pagination-wrapper">
-    {pagination_links(@page, q: @q)}
-  </div>
+  <.pagination_links page={@page} params={[q: @q]} />
 </div>
 
 <dialog id="search-tips-modal" class="modal modal-lg">

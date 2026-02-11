@@ -50,6 +50,10 @@ if config_env() in [:prod, :dev] do
     end
   end
 
+  if env.("BIND_ALL") do
+    config :asciinema, AsciinemaWeb.Endpoint, http: [ip: {0, 0, 0, 0}]
+  end
+
   if url_host = env.("URL_HOST") do
     config :asciinema, AsciinemaWeb.Endpoint, url: [host: url_host]
   end
