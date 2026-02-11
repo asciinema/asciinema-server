@@ -3,6 +3,12 @@ defmodule AsciinemaWeb.PageHTML do
 
   embed_templates "page_html/*"
 
+  @tos_html Path.join(__DIR__, "page_html/_tos.md") |> File.read!() |> Earmark.as_html!()
+  def tos, do: @tos_html
+
+  @privacy_html Path.join(__DIR__, "page_html/_privacy.md") |> File.read!() |> Earmark.as_html!()
+  def privacy, do: @privacy_html
+
   def obfuscated_email(assigns) do
     [username, domain] = String.split(assigns[:address], "@")
     {domain_1, domain_2} = String.split_at(domain, div(String.length(domain), 2))
