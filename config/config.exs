@@ -66,8 +66,6 @@ config :logger,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
-config :phoenix, :template_engines, md: PhoenixMarkdown.Engine
-
 config :phoenix_template, :format_encoders,
   cast: Jason,
   svg: Phoenix.HTML.Engine,

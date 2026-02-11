@@ -69,7 +69,6 @@ defmodule Asciinema.MixProject do
       {:phoenix_live_dashboard, "~> 0.8.7"},
       {:phoenix_live_reload, "~> 1.6", only: :dev},
       {:phoenix_live_view, "~> 1.0.4"},
-      {:phoenix_markdown, "~> 1.0"},
       {:phoenix_pubsub, "~> 2.1.3"},
       {:phoenix_test, "~> 0.7.0", only: :test},
       {:plug_attack, "~> 0.4.3"},
