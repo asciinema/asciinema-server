@@ -51,7 +51,7 @@ defmodule AsciinemaWeb.StreamProducerSocket do
 
       stream ->
         Logger.info("producer/#{stream.id}: connected")
-        state = build_state(stream.id, parser, user_agent)
+        state = set_parser(build_state(stream.id, user_agent), parser)
         Process.send_after(self(), :parser_check, @parser_check_timeout)
         Process.send_after(self(), :client_ping, @client_ping_interval)
         Process.send_after(self(), :bucket_fill, state.bucket.fill_interval)
@@ -59,7 +59,6 @@ defmodule AsciinemaWeb.StreamProducerSocket do
 
         if parser do
           Logger.info("producer/#{stream.id}: negotiated #{parser.impl.name()} protocol")
-          save_protocol(state.stream_id, parser.impl.name())
         else
           Logger.info("producer/#{stream.id}: no protocol negotiated, will try to auto-detect")
         end
@@ -74,8 +73,8 @@ defmodule AsciinemaWeb.StreamProducerSocket do
   def handle_in(message, %{parser: nil} = state) do
     parser = Parser.get(detect_protocol(message))
     Logger.info("producer/#{state.stream_id}: detected #{parser.impl.name()} protocol")
-    save_protocol(state.stream_id, parser.impl.name())
-    handle_in(message, %{state | parser: parser})
+    state = set_parser(state, parser)
+    handle_in(message, state)
   end
 
   def handle_in({payload, opcode: opcode}, %{parser: parser} = state)
@@ -139,7 +138,7 @@ defmodule AsciinemaWeb.StreamProducerSocket do
     Logger.info("producer/#{stream_id}: terminating (#{inspect(reason)})")
     Logger.debug("producer/#{stream_id}: state: #{inspect(state)}")
 
-    if reason == :remote do
+    if reason == :remote && state.stop_server_on_terminate && state[:stream_id] do
       StreamServer.stop(state.stream_id)
     end
 
@@ -152,12 +151,13 @@ defmodule AsciinemaWeb.StreamProducerSocket do
   @default_bucket_fill_amount 10_000
   @default_bucket_size 60_000_000
 
-  defp build_state(stream_id, parser, user_agent) do
+  defp build_state(stream_id, user_agent) do
     %{
       stream_id: stream_id,
       status: :new,
       user_agent: user_agent,
-      parser: parser,
+      parser: nil,
+      stop_server_on_terminate: nil,
       bucket: %{
         size: config(:bucket_size, @default_bucket_size),
         tokens: config(:bucket_size, @default_bucket_size),
@@ -165,6 +165,19 @@ defmodule AsciinemaWeb.StreamProducerSocket do
         fill_amount: config(:bucket_fill_amount, @default_bucket_fill_amount)
       }
     }
+  end
+
+  defp set_parser(state, parser) do
+    if parser do
+      save_protocol(state.stream_id, parser.impl.name())
+    end
+
+    # for protocols that support EOT (alis) we stop the stream server upon
+    # receiving the :eot command, for the rest we stop the server in
+    # terminate/2
+    stop = if parser, do: :eot not in parser.impl.supported_commands()
+
+    %{state | parser: parser, stop_server_on_terminate: stop}
   end
 
   defp run_parser(%{impl: impl, state: state}, message) do
@@ -228,15 +241,18 @@ defmodule AsciinemaWeb.StreamProducerSocket do
 
   defp run_command({:exit, args}, %{status: :online} = state) do
     with :ok <- StreamServer.event(state.stream_id, :exit, args) do
+      # we got :exit, stopping the stream server in terminate/2 is ok at this
+      # point, regardless of EOT support in the protocol
+      state = %{state | stop_server_on_terminate: true}
+
       {:ok, state}
     end
   end
 
   defp run_command({:eot, _}, %{status: :online} = state) do
-    Logger.info("producer/#{state.stream_id}: stream ended, stopping the server")
-    StreamServer.stop(state.stream_id)
+    stop_server(state.stream_id)
 
-    {:ok, %{state | status: :eot}}
+    {:ok, %{state | status: :eot, stop_server_on_terminate: false}}
   end
 
   defp ensure_server(%{status: :online} = state), do: state
@@ -246,6 +262,11 @@ defmodule AsciinemaWeb.StreamProducerSocket do
     {:ok, _pid} = StreamSupervisor.ensure_child(stream_id)
     :ok = StreamServer.claim(stream_id)
     Process.send_after(self(), :server_heartbeat, @server_heartbeat_interval)
+  end
+
+  defp stop_server(stream_id) do
+    Logger.info("producer/#{stream_id}: stream ended, stopping the server")
+    StreamServer.stop(stream_id)
   end
 
   defp handle_error(reason, state) do

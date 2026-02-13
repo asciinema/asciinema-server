@@ -79,6 +79,8 @@ defmodule Asciinema.Streaming.Parser.AlisV1 do
     {:error, :message_invalid}
   end
 
+  def supported_commands, do: [:init, :output, :input, :resize, :marker, :exit, :eot]
+
   defp parse_init(bytes) do
     {last_id, bytes} = decode_varint(bytes)
     {time, bytes} = decode_varint(bytes)
