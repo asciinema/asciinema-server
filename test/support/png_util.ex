@@ -5,15 +5,69 @@ defmodule Asciinema.PngUtil do
     {"IDAT", idat} = Enum.find(chunks, fn {type, _} -> type == "IDAT" end)
     <<width::32, height::32, 8, 2, 0, 0, 0>> = ihdr
     data = idat |> IO.iodata_to_binary() |> :zlib.uncompress()
-    rows = for <<0, row::binary-size(width * 3) <- data>>, do: row
     row_size = width * 3 + 1
 
     bs = byte_size(data)
     ^bs = row_size * height
-    len = length(rows)
-    ^len = height
+    rows = decode_rows(data, width, height)
 
     %{width: width, height: height, rows: rows}
+  end
+
+  defp decode_rows(data, width, height) do
+    row_payload_size = width * 3
+    row_size = row_payload_size + 1
+
+    {_prev_row, rows_rev} =
+      data
+      |> :binary.bin_to_list()
+      |> Enum.chunk_every(row_size)
+      |> Enum.reduce({nil, []}, fn [filter | filtered], {prev_row, rows} ->
+        row =
+          case filter do
+            0 -> filtered
+            1 -> unfilter_sub(filtered)
+            2 -> unfilter_up(filtered, prev_row)
+          end
+
+        {row, [row |> :erlang.list_to_binary() | rows]}
+      end)
+
+    rows = Enum.reverse(rows_rev)
+    ^height = length(rows)
+
+    rows
+  end
+
+  defp unfilter_sub(filtered) do
+    {_channel, _r, _g, _b, row_rev} =
+      Enum.reduce(filtered, {0, 0, 0, 0, []}, fn value, {channel, r, g, b, acc} ->
+        case channel do
+          0 ->
+            raw = rem(value + r, 256)
+            {1, raw, g, b, [raw | acc]}
+
+          1 ->
+            raw = rem(value + g, 256)
+            {2, r, raw, b, [raw | acc]}
+
+          2 ->
+            raw = rem(value + b, 256)
+            {0, r, g, raw, [raw | acc]}
+        end
+      end)
+
+    Enum.reverse(row_rev)
+  end
+
+  defp unfilter_up(filtered, nil), do: filtered
+
+  defp unfilter_up(filtered, prev_row) do
+    prev = :erlang.binary_to_list(prev_row)
+
+    filtered
+    |> Enum.zip(prev)
+    |> Enum.map(fn {value, up} -> rem(value + up, 256) end)
   end
 
   defp parse_chunks(<<>>, acc), do: {Enum.reverse(acc), <<>>}
