@@ -158,7 +158,7 @@ defmodule Asciinema.Recordings.Snapshot do
       snapshot
       |> to_segments()
       |> Enum.map_join("\r\n", &line_seq/1)
-      |> String.replace(~r/(\r\n\s+)+$/, "")
+      |> String.trim_trailing("\r\n")
 
     seq <> @csi_init <> "?25l"
   end
@@ -166,7 +166,7 @@ defmodule Asciinema.Recordings.Snapshot do
   defp line_seq(segments) do
     segments
     |> Enum.map_join("", &segment_seq/1)
-    |> String.replace(~r/\e\[0m\s*$/, "\e[0m")
+    |> String.trim_trailing(" ")
   end
 
   defp segment_seq({text, attrs, _char_width}) do

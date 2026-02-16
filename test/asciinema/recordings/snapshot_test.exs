@@ -317,5 +317,44 @@ defmodule Asciinema.Recordings.SnapshotTest do
 
       assert seq == "\e[42m foo bar  baz\e[0m\e[31m!\e[0m\r\n\e[48;2;16;32;48mqux\e[0m连接\e[?25l"
     end
+
+    test "trims plain trailing spaces on each line" do
+      seq =
+        [
+          [["foo", %{}, 1]],
+          [["   ", %{}, 1]],
+          [["bar", %{}, 1]],
+          [["  ", %{}, 1]]
+        ]
+        |> Snapshot.new(:segments)
+        |> Snapshot.seq()
+
+      assert seq == "foo\r\n\r\nbar\e[?25l"
+    end
+
+    test "drops trailing empty lines" do
+      seq =
+        [
+          [["foo", %{}, 1]],
+          [],
+          []
+        ]
+        |> Snapshot.new(:segments)
+        |> Snapshot.seq()
+
+      assert seq == "foo\e[?25l"
+    end
+
+    test "trims plain whitespace after ANSI reset at each line end" do
+      seq =
+        [
+          [["foo", %{"fg" => 1}, 1], ["   ", %{}, 1]],
+          [["foo", %{"fg" => 1}, 1], ["   ", %{}, 1]]
+        ]
+        |> Snapshot.new(:segments)
+        |> Snapshot.seq()
+
+      assert seq == "\e[31mfoo\e[0m\r\n\e[31mfoo\e[0m\e[?25l"
+    end
   end
 end
