@@ -134,6 +134,7 @@ defmodule Asciinema.Recordings.Snapshot do
   @box_drawing_range Range.new(0x2500, 0x257F)
   @block_elements_range Range.new(0x2580, 0x259F)
   @black_square 0x25A0
+  @black_large_circle 0x2B24
   @sextants_range Range.new(0x1FB00, 0x1FB3B)
   @braille_patterns_range Range.new(0x2800, 0x28FF)
   @powerline_triangles_range Range.new(0xE0B0, 0xE0B3)
@@ -143,6 +144,7 @@ defmodule Asciinema.Recordings.Snapshot do
 
     Enum.member?(@box_drawing_range, cp) || Enum.member?(@block_elements_range, cp) ||
       cp == @black_square ||
+      cp == @black_large_circle ||
       Enum.member?(@sextants_range, cp) ||
       Enum.member?(@braille_patterns_range, cp) ||
       Enum.member?(@powerline_triangles_range, cp)

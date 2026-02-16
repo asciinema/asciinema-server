@@ -1,45 +1,48 @@
 defmodule AsciinemaWeb.StreamProducerSocket do
+  import Plug.Conn
+
   alias Asciinema.Streaming
-  alias Asciinema.Streaming.{StreamServer, StreamSupervisor, Parser}
+  alias Asciinema.Streaming.{Parser, StreamServer, StreamSupervisor}
   require Logger
 
-  @behaviour :cowboy_websocket
+  @behaviour WebSock
 
-  @ws_opts %{compress: true}
+  @ws_opts [compress: true]
   @parser_check_timeout 5_000
   @client_ping_interval 15_000
   @server_heartbeat_interval 15_000
 
-  # Callbacks
+  def upgrade(conn, %{"producer_token" => producer_token}) do
+    params = %{token: producer_token, user_agent: user_agent(conn), parser: nil}
 
-  @impl true
-  def init(req, _opts) do
-    params = %{
-      token: req.bindings[:producer_token],
-      user_agent: req.headers["user-agent"],
-      parser: nil
-    }
-
-    case :cowboy_req.parse_header("sec-websocket-protocol", req) do
-      :undefined ->
-        {:cowboy_websocket, req, params, @ws_opts}
+    case requested_protocols(conn) do
+      [] ->
+        conn
+        |> WebSockAdapter.upgrade(__MODULE__, params, @ws_opts)
+        |> halt()
 
       protos ->
         case select_protocol(protos) do
           nil ->
-            req = :cowboy_req.reply(400, req)
-            {:ok, req, params}
+            conn
+            |> send_resp(400, "")
+            |> halt()
 
           protocol ->
-            req = :cowboy_req.set_resp_header("sec-websocket-protocol", protocol, req)
             parser = Parser.get(protocol)
-            {:cowboy_websocket, req, %{params | parser: parser}, @ws_opts}
+
+            conn
+            |> put_resp_header("sec-websocket-protocol", protocol)
+            |> WebSockAdapter.upgrade(__MODULE__, %{params | parser: parser}, @ws_opts)
+            |> halt()
         end
     end
   end
 
+  # WebSock callbacks
+
   @impl true
-  def websocket_init(params) do
+  def init(params) when is_map(params) do
     %{token: token, parser: parser, user_agent: user_agent} = params
 
     case Streaming.find_live_stream_by_producer_token(token) do
@@ -48,7 +51,7 @@ defmodule AsciinemaWeb.StreamProducerSocket do
 
       stream ->
         Logger.info("producer/#{stream.id}: connected")
-        state = build_state(stream.id, parser, user_agent)
+        state = set_parser(build_state(stream.id, user_agent), parser)
         Process.send_after(self(), :parser_check, @parser_check_timeout)
         Process.send_after(self(), :client_ping, @client_ping_interval)
         Process.send_after(self(), :bucket_fill, state.bucket.fill_interval)
@@ -56,7 +59,6 @@ defmodule AsciinemaWeb.StreamProducerSocket do
 
         if parser do
           Logger.info("producer/#{stream.id}: negotiated #{parser.impl.name()} protocol")
-          save_protocol(state.stream_id, parser.impl.name())
         else
           Logger.info("producer/#{stream.id}: no protocol negotiated, will try to auto-detect")
         end
@@ -66,16 +68,19 @@ defmodule AsciinemaWeb.StreamProducerSocket do
   end
 
   @impl true
-  def websocket_handle(frame, state)
+  def handle_in(frame, state)
 
-  def websocket_handle(message, %{parser: nil} = state) do
+  def handle_in(message, %{parser: nil} = state) do
     parser = Parser.get(detect_protocol(message))
     Logger.info("producer/#{state.stream_id}: detected #{parser.impl.name()} protocol")
-    save_protocol(state.stream_id, parser.impl.name())
-    websocket_handle(message, %{state | parser: parser})
+    state = set_parser(state, parser)
+    handle_in(message, state)
   end
 
-  def websocket_handle({_, payload} = message, %{parser: parser} = state) do
+  def handle_in({payload, opcode: opcode}, %{parser: parser} = state)
+      when opcode in [:text, :binary] do
+    message = {opcode, payload}
+
     with {:ok, commands, new_parser_state} <- run_parser(parser, message),
          {:ok, state} <- run_commands(commands, state),
          {:ok, state} <- drain_bucket(state, byte_size(payload)) do
@@ -86,16 +91,16 @@ defmodule AsciinemaWeb.StreamProducerSocket do
     end
   end
 
-  def websocket_handle(_message, state), do: {:ok, state}
+  def handle_in(_message, state), do: {:ok, state}
 
   @impl true
-  def websocket_info(:client_ping, state) do
+  def handle_info(:client_ping, state) do
     Process.send_after(self(), :client_ping, @client_ping_interval)
 
-    {:reply, :ping, state}
+    {:push, {:ping, ""}, state}
   end
 
-  def websocket_info(:server_heartbeat, %{status: :online} = state) do
+  def handle_info(:server_heartbeat, %{status: :online} = state) do
     Process.send_after(self(), :server_heartbeat, @server_heartbeat_interval)
 
     case StreamServer.heartbeat(state.stream_id) do
@@ -107,14 +112,14 @@ defmodule AsciinemaWeb.StreamProducerSocket do
     end
   end
 
-  def websocket_info(:server_heartbeat, state), do: {:ok, state}
+  def handle_info(:server_heartbeat, state), do: {:ok, state}
 
-  def websocket_info(:parser_check, %{parser: nil} = state),
+  def handle_info(:parser_check, %{parser: nil} = state),
     do: handle_error(:header_timeout, state)
 
-  def websocket_info(:parser_check, state), do: {:ok, state}
+  def handle_info(:parser_check, state), do: {:ok, state}
 
-  def websocket_info(:bucket_fill, state) do
+  def handle_info(:bucket_fill, state) do
     bucket = state.bucket
     tokens = min(bucket.size, bucket.tokens + bucket.fill_amount)
 
@@ -128,12 +133,12 @@ defmodule AsciinemaWeb.StreamProducerSocket do
   end
 
   @impl true
-  def terminate(reason, _req, state) do
+  def terminate(reason, state) do
     stream_id = state[:stream_id] || state[:token] || "?"
     Logger.info("producer/#{stream_id}: terminating (#{inspect(reason)})")
     Logger.debug("producer/#{stream_id}: state: #{inspect(state)}")
 
-    if reason == :remote || match?({:remote, 1000, _}, reason) do
+    if reason == :remote && state.stop_server_on_terminate && state[:stream_id] do
       StreamServer.stop(state.stream_id)
     end
 
@@ -146,12 +151,13 @@ defmodule AsciinemaWeb.StreamProducerSocket do
   @default_bucket_fill_amount 10_000
   @default_bucket_size 60_000_000
 
-  defp build_state(stream_id, parser, user_agent) do
+  defp build_state(stream_id, user_agent) do
     %{
       stream_id: stream_id,
       status: :new,
       user_agent: user_agent,
-      parser: parser,
+      parser: nil,
+      stop_server_on_terminate: nil,
       bucket: %{
         size: config(:bucket_size, @default_bucket_size),
         tokens: config(:bucket_size, @default_bucket_size),
@@ -159,6 +165,19 @@ defmodule AsciinemaWeb.StreamProducerSocket do
         fill_amount: config(:bucket_fill_amount, @default_bucket_fill_amount)
       }
     }
+  end
+
+  defp set_parser(state, parser) do
+    if parser do
+      save_protocol(state.stream_id, parser.impl.name())
+    end
+
+    # for protocols that support EOT (alis) we stop the stream server upon
+    # receiving the :eot command, for the rest we stop the server in
+    # terminate/2
+    stop = if parser, do: :eot not in parser.impl.supported_commands()
+
+    %{state | parser: parser, stop_server_on_terminate: stop}
   end
 
   defp run_parser(%{impl: impl, state: state}, message) do
@@ -222,15 +241,18 @@ defmodule AsciinemaWeb.StreamProducerSocket do
 
   defp run_command({:exit, args}, %{status: :online} = state) do
     with :ok <- StreamServer.event(state.stream_id, :exit, args) do
+      # we got :exit, stopping the stream server in terminate/2 is ok at this
+      # point, regardless of EOT support in the protocol
+      state = %{state | stop_server_on_terminate: true}
+
       {:ok, state}
     end
   end
 
   defp run_command({:eot, _}, %{status: :online} = state) do
-    Logger.info("producer/#{state.stream_id}: stream ended, stopping the server")
-    StreamServer.stop(state.stream_id)
+    stop_server(state.stream_id)
 
-    {:ok, %{state | status: :eot}}
+    {:ok, %{state | status: :eot, stop_server_on_terminate: false}}
   end
 
   defp ensure_server(%{status: :online} = state), do: state
@@ -242,39 +264,44 @@ defmodule AsciinemaWeb.StreamProducerSocket do
     Process.send_after(self(), :server_heartbeat, @server_heartbeat_interval)
   end
 
+  defp stop_server(stream_id) do
+    Logger.info("producer/#{stream_id}: stream ended, stopping the server")
+    StreamServer.stop(stream_id)
+  end
+
   defp handle_error(reason, state) do
     case reason do
       :ownership_lost ->
         Logger.info("producer/#{state.stream_id}: stream ownership lost")
 
-        {:reply, {:close, 4002, "ownership lost"}, state}
+        {:stop, :ownership_lost, {4002, "ownership lost"}, state}
 
       {:invalid_vt_size, {cols, rows}} ->
         Logger.info("producer/#{state.stream_id}: invalid vt size: #{cols}x#{rows}")
 
-        {:reply, {:close, 4003, "invalid terminal size (#{cols}x#{rows})"}, state}
+        {:stop, :invalid_terminal_size, {4003, "invalid terminal size (#{cols}x#{rows})"}, state}
 
       :bucket_empty ->
         Logger.info("producer/#{state.stream_id}: byte budget exceeded")
 
-        {:reply, {:close, 4004, "bandwidth exceeded"}, state}
+        {:stop, :bandwidth_exceeded, {4004, "bandwidth exceeded"}, state}
 
       {:parser, reason, message} ->
         Logger.warning("producer/#{state.stream_id}: parser error: #{reason}")
         Logger.debug("producer/#{state.stream_id}: message: #{inspect(message)}")
 
-        {:reply, {:close, 4005, "message parsing error"}, state}
+        {:stop, :message_parsing_error, {4005, "message parsing error"}, state}
 
       {:stream_not_found, token} ->
         Logger.warning("producer: stream not found for producer token #{token}")
         :timer.sleep(1000)
 
-        {:reply, {:close, 4040, "stream not found"}, state}
+        {:stop, :stream_not_found, {4040, "stream not found"}, state}
 
       :header_timeout ->
         Logger.info("producer/#{state.stream_id}: header timeout")
 
-        {:reply, {:close, 4101, "header timeout"}, state}
+        {:stop, :header_timeout, {4101, "header timeout"}, state}
     end
   end
 
@@ -308,10 +335,25 @@ defmodule AsciinemaWeb.StreamProducerSocket do
     end
   end
 
+  def detect_protocol({payload, opcode: :binary}), do: detect_protocol({:binary, payload})
+  def detect_protocol({payload, opcode: :text}), do: detect_protocol({:text, payload})
+
   defp save_protocol(stream_id, protocol) do
     stream_id
     |> Streaming.get_stream()
     |> Streaming.update_stream(protocol: protocol)
+  end
+
+  defp requested_protocols(conn) do
+    conn
+    |> get_req_header("sec-websocket-protocol")
+    |> Enum.flat_map(&Plug.Conn.Utils.list/1)
+  end
+
+  defp user_agent(conn) do
+    conn
+    |> get_req_header("user-agent")
+    |> List.first()
   end
 
   defp config(key, default) do

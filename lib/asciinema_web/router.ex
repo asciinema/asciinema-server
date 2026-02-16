@@ -111,6 +111,11 @@ defmodule AsciinemaWeb.Router do
     get "/tos", PageController, :tos
   end
 
+  scope "/", AsciinemaWeb do
+    get "/ws/s/:public_token", WebsocketUpgrade, AsciinemaWeb.StreamConsumerSocket
+    get "/ws/S/:producer_token", WebsocketUpgrade, AsciinemaWeb.StreamProducerSocket
+  end
+
   scope "/api", AsciinemaWeb.Api, as: :api do
     pipe_through :api
 

@@ -39,6 +39,7 @@ defmodule Asciinema.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:bandit, "~> 1.10"},
       {:briefly, "~> 0.3"},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:crontab, "~> 1.2"},
@@ -72,7 +73,6 @@ defmodule Asciinema.MixProject do
       {:phoenix_pubsub, "~> 2.1.3"},
       {:phoenix_test, "~> 0.7.0", only: :test},
       {:plug_attack, "~> 0.4.3"},
-      {:plug_cowboy, "~> 2.5"},
       {:poolboy, "~> 1.5"},
       {:postgrex, ">= 0.0.0"},
       {:process_tree, "~> 0.2.1", only: :test},

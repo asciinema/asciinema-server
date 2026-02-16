@@ -21,16 +21,7 @@ config :asciinema,
 
 # Configures the public endpoint
 config :asciinema, AsciinemaWeb.Endpoint,
-  http: [
-    dispatch: [
-      {:_,
-       [
-         {"/ws/s/:public_token", AsciinemaWeb.StreamConsumerSocket, []},
-         {"/ws/S/:producer_token", AsciinemaWeb.StreamProducerSocket, []},
-         {:_, Plug.Cowboy.Handler, {AsciinemaWeb.Endpoint, []}}
-       ]}
-    ]
-  ],
+  adapter: Bandit.PhoenixAdapter,
   url: [host: "localhost"],
   render_errors: [
     formats: [
@@ -47,6 +38,7 @@ config :asciinema, AsciinemaWeb.Endpoint,
 
 # Configures the admin endpoint
 config :asciinema, AsciinemaAdmin.Endpoint,
+  adapter: Bandit.PhoenixAdapter,
   url: [host: "localhost"],
   render_errors: [
     formats: [html: AsciinemaAdmin.ErrorHTML],

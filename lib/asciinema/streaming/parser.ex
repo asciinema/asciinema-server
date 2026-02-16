@@ -3,6 +3,7 @@ defmodule Asciinema.Streaming.Parser do
   @callback init() :: term
   @callback parse({message :: term, opts :: keyword}, term) ::
               {:ok, [{atom, term}], term} | {:error, term}
+  @callback supported_commands() :: [atom]
 
   alias Asciinema.Streaming.Parser
 
