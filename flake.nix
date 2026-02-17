@@ -38,7 +38,7 @@
           pname = "${pname}-node-modules";
           version = "1.0.0";
           src = ./assets;
-          npmDepsHash = "sha256-ilzGzNsaEJw8/+/XpUOFQjnsvHGeOESTBW/ixlkUgV8=";
+          npmDepsHash = "sha256-5omC5I5oxaLoL2FCBO+ekmb75sIAxGWY9cdqDeL0tYM=";
           dontNpmBuild = true;
 
           installPhase = ''
@@ -56,7 +56,7 @@
           mixFodDeps = beamPackages.fetchMixDeps {
             pname = "${pname}-mix-deps";
             inherit src version;
-            hash = "sha256-Ehg4Twv7EOYp3XIdnhPX8suJ3a7uuaslmC5bVyxp6rM=";
+            hash = "sha256-oD+OGpzCuGlqEf8jf65c0zRdR3agv58NxohASn+Bjx8=";
           };
 
           preConfigure = ''
