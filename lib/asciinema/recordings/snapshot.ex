@@ -106,48 +106,67 @@ defmodule Asciinema.Recordings.Snapshot do
   defp group_line_segments([], _split_specials), do: []
 
   defp group_line_segments(cells, split_specials) do
-    {segments, last_segment} =
-      Enum.reduce(cells, {[], nil}, fn {cur_char, cur_attrs, cur_char_width} = current,
-                                       {segments, prev} ->
+    {segments, prev_chars, prev_attrs, prev_char_width} =
+      Enum.reduce(cells, {[], [], nil, nil}, fn {cur_char, cur_attrs, cur_char_width} = current,
+                                                {segments, prev_chars, prev_attrs,
+                                                 prev_char_width} ->
         if split_specials && (cur_char_width > 1 || special_char(cur_char)) do
-          {[current, prev | segments], nil}
+          segments = flush_segment(segments, prev_chars, prev_attrs, prev_char_width)
+          {[current | segments], [], nil, nil}
         else
-          case prev do
-            {prev_chars, prev_attrs, prev_char_width} ->
-              if cur_attrs == prev_attrs && cur_char_width == prev_char_width do
-                {segments, {prev_chars <> cur_char, prev_attrs, prev_char_width}}
-              else
-                {[prev | segments], current}
-              end
+          cond do
+            prev_attrs == nil ->
+              {segments, [cur_char], cur_attrs, cur_char_width}
 
-            nil ->
-              {segments, current}
+            cur_attrs == prev_attrs && cur_char_width == prev_char_width ->
+              {segments, [cur_char | prev_chars], prev_attrs, prev_char_width}
+
+            true ->
+              segments = flush_segment(segments, prev_chars, prev_attrs, prev_char_width)
+              {segments, [cur_char], cur_attrs, cur_char_width}
           end
         end
       end)
 
-    [last_segment | segments]
-    |> Enum.filter(& &1)
+    segments
+    |> flush_segment(prev_chars, prev_attrs, prev_char_width)
     |> Enum.reverse()
   end
 
-  @box_drawing_range Range.new(0x2500, 0x257F)
-  @block_elements_range Range.new(0x2580, 0x259F)
+  defp flush_segment(segments, _chars, nil, _char_width), do: segments
+
+  defp flush_segment(segments, chars, attrs, char_width) do
+    segment_text =
+      chars
+      |> Enum.reverse()
+      |> IO.iodata_to_binary()
+
+    [{segment_text, attrs, char_width} | segments]
+  end
+
+  @box_drawing_first 0x2500
+  @box_drawing_last 0x257F
+  @block_elements_first 0x2580
+  @block_elements_last 0x259F
   @black_square 0x25A0
   @black_large_circle 0x2B24
-  @sextants_range Range.new(0x1FB00, 0x1FB3B)
-  @braille_patterns_range Range.new(0x2800, 0x28FF)
-  @powerline_triangles_range Range.new(0xE0B0, 0xE0B3)
+  @sextants_first 0x1FB00
+  @sextants_last 0x1FB3B
+  @braille_patterns_first 0x2800
+  @braille_patterns_last 0x28FF
+  @powerline_triangles_first 0xE0B0
+  @powerline_triangles_last 0xE0B3
 
   defp special_char(char) do
-    cp = char |> String.to_charlist() |> Enum.at(0)
+    <<cp::utf8>> = char
 
-    Enum.member?(@box_drawing_range, cp) || Enum.member?(@block_elements_range, cp) ||
+    (cp >= @box_drawing_first and cp <= @box_drawing_last) ||
+      (cp >= @block_elements_first and cp <= @block_elements_last) ||
       cp == @black_square ||
       cp == @black_large_circle ||
-      Enum.member?(@sextants_range, cp) ||
-      Enum.member?(@braille_patterns_range, cp) ||
-      Enum.member?(@powerline_triangles_range, cp)
+      (cp >= @sextants_first and cp <= @sextants_last) ||
+      (cp >= @braille_patterns_first and cp <= @braille_patterns_last) ||
+      (cp >= @powerline_triangles_first and cp <= @powerline_triangles_last)
   end
 
   @csi_init "\x1b["
