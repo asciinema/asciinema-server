@@ -83,29 +83,36 @@ fn render_png<'a>(
 
 fn encode_png_rgb8(width: usize, height: usize, pixels: &[u8]) -> NifResult<Vec<u8>> {
     let row_bytes = width * 3;
+    let bytes_per_pixel = 3;
 
     if pixels.len() != row_bytes * height {
         return Err(Error::Term(Box::new(atoms::invalid_data())));
     }
 
-    let mut raw = Vec::with_capacity((row_bytes + 1) * height);
+    let mut encoder = ZlibEncoder::new(Vec::new(), Compression::new(2));
+    let mut row_with_filter = vec![0u8; row_bytes + 1];
+    row_with_filter[0] = 1; // PNG filter type 1 (Sub)
 
     for y in 0..height {
-        raw.push(0);
         let from = y * row_bytes;
         let to = from + row_bytes;
-        raw.extend_from_slice(&pixels[from..to]);
+        let row = &pixels[from..to];
+        let filtered_row = &mut row_with_filter[1..];
+
+        // PNG filter type 1 (Sub): each byte stores the difference from the previous pixel byte.
+        filtered_row[..bytes_per_pixel].copy_from_slice(&row[..bytes_per_pixel]);
+
+        for idx in bytes_per_pixel..row_bytes {
+            filtered_row[idx] = row[idx].wrapping_sub(row[idx - bytes_per_pixel]);
+        }
+
+        encoder
+            .write_all(&row_with_filter)
+            .map_err(|_| Error::Term(Box::new(atoms::invalid_data())))?;
     }
-
-    let mut encoder = ZlibEncoder::new(Vec::new(), Compression::default());
-    encoder
-        .write_all(&raw)
-        .map_err(|_| Error::Term(Box::new(atoms::invalid_data())))?;
-
     let idat = encoder
         .finish()
         .map_err(|_| Error::Term(Box::new(atoms::invalid_data())))?;
-
     let mut png = Vec::with_capacity(PNG_SIGNATURE.len() + 128 + idat.len());
     png.extend_from_slice(&PNG_SIGNATURE);
 
@@ -491,16 +498,22 @@ fn fill_rect(
         return;
     }
 
-    for y in y0..y1 {
-        let row_start = (y * img_w + x0) * 3;
-        let row_end = (y * img_w + x1) * 3;
-        let row = &mut pixels[row_start..row_end];
+    let row_byte_len = (x1 - x0) * 3;
+    let first_row_start = (y0 * img_w + x0) * 3;
+    let first_row_end = first_row_start + row_byte_len;
 
-        for px in row.chunks_exact_mut(3) {
-            px[0] = r;
-            px[1] = g;
-            px[2] = b;
-        }
+    for px in pixels[first_row_start..first_row_end].chunks_exact_mut(3) {
+        px[0] = r;
+        px[1] = g;
+        px[2] = b;
+    }
+
+    for y in (y0 + 1)..y1 {
+        let row_start = (y * img_w + x0) * 3;
+        let (before, after) = pixels.split_at_mut(row_start);
+        let row = &mut after[..row_byte_len];
+        let src = &before[first_row_start..first_row_end];
+        row.copy_from_slice(src);
     }
 }
 
