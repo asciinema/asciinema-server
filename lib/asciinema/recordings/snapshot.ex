@@ -81,7 +81,9 @@ defmodule Asciinema.Recordings.Snapshot do
 
   def segments_to_cells(lines) when is_list(lines) do
     Enum.map(lines, fn line ->
-      Enum.flat_map(line, &split_segment/1)
+      line
+      |> Enum.reduce([], &split_segment/2)
+      |> Enum.reverse()
     end)
   end
 
@@ -94,13 +96,19 @@ defmodule Asciinema.Recordings.Snapshot do
     cells_to_segments(snapshot.lines, split_specials)
   end
 
-  defp split_segment([text, attrs, char_width]), do: split_segment({text, attrs, char_width})
-  defp split_segment([text, attrs]), do: split_segment({text, attrs, 1})
+  defp split_segment([text, attrs, char_width], acc),
+    do: split_segment({text, attrs, char_width}, acc)
 
-  defp split_segment({text, attrs, char_width}) do
-    text
-    |> String.codepoints()
-    |> Enum.map(&{&1, attrs, char_width})
+  defp split_segment([text, attrs], acc), do: split_segment({text, attrs, 1}, acc)
+
+  defp split_segment({text, attrs, char_width}, acc) do
+    split_text_to_cells(text, attrs, char_width, acc)
+  end
+
+  defp split_text_to_cells(<<>>, _attrs, _char_width, acc), do: acc
+
+  defp split_text_to_cells(<<cp::utf8, rest::binary>>, attrs, char_width, acc) do
+    split_text_to_cells(rest, attrs, char_width, [{<<cp::utf8>>, attrs, char_width} | acc])
   end
 
   defp group_line_segments([], _split_specials), do: []
