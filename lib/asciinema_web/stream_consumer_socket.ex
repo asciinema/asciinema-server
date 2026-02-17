@@ -56,15 +56,15 @@ defmodule AsciinemaWeb.StreamConsumerSocket do
       {:push, magic_string(), state}
     else
       {:error, :stream_not_found} ->
-        Logger.warning("consumer: stream not found for public token #{token}")
+        Logger.info("consumer: stream not found for public token #{token}")
         :timer.sleep(1000)
 
-        {:stop, :normal, %{stream_id: "?"}}
+        {:stop, :stream_not_found, {4040, "stream not found"}, %{stream_id: "?"}}
 
       {:error, :forbidden} ->
-        Logger.warning("consumer: unauthorized connection attempt")
+        Logger.info("consumer: unauthorized connection attempt")
 
-        {:stop, :normal, %{stream_id: token}}
+        {:stop, :forbidden, {4030, "unauthorized"}, %{stream_id: token}}
     end
   end
 
