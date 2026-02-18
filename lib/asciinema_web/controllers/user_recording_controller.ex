@@ -15,7 +15,7 @@ defmodule AsciinemaWeb.UserRecordingController do
       [user_id: user.id]
       |> Recordings.query(:date)
       |> Authorization.scope(:asciicasts, current_user)
-      |> Recordings.paginate(params["page"], 14)
+      |> Recordings.paginate(params["page"], 14, pagination_opts(conn, owner_id: user.id))
 
     render(
       conn,

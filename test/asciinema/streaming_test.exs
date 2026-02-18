@@ -318,5 +318,36 @@ defmodule Asciinema.StreamingTest do
     end
   end
 
+  describe "paginate/4" do
+    test "caps total entries and pages when max_pages is set" do
+      user = insert(:user)
+      insert_list(21, :stream, user: user)
+
+      page =
+        [user_id: user.id]
+        |> Streaming.query(:id)
+        |> Streaming.paginate(11, 2, max_pages: 10)
+
+      assert page.total_pages == 10
+      assert page.total_entries == 20
+      assert page.page_number == 10
+      assert length(page.entries) == 2
+    end
+
+    test "doesn't cap pages when max_pages is not set" do
+      user = insert(:user)
+      insert_list(21, :stream, user: user)
+
+      page =
+        [user_id: user.id]
+        |> Streaming.query(:id)
+        |> Streaming.paginate(11, 2)
+
+      assert page.total_pages > 10
+      assert page.page_number == 11
+      assert page.total_entries == 21
+    end
+  end
+
   defp reload(stream), do: Streaming.get_stream(stream.id)
 end

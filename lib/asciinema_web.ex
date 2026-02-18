@@ -33,6 +33,7 @@ defmodule AsciinemaWeb do
       import AsciinemaWeb.Plug.ReturnTo
       import AsciinemaWeb.Plug.Authz
       import AsciinemaWeb.Caching
+      import AsciinemaWeb.PaginationHelpers
 
       unquote(verified_routes())
 

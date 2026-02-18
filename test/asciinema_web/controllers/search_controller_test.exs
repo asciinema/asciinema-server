@@ -1,7 +1,10 @@
 defmodule AsciinemaWeb.SearchControllerTest do
-  use AsciinemaWeb.ConnCase, async: true
+  use AsciinemaWeb.ConnCase, async: false
   import Asciinema.Factory
+  import AsciinemaWeb.PaginationTestHelpers
   alias Asciinema.Recordings
+
+  setup :setup_pagination_limits
 
   setup do
     user = insert(:user)
@@ -62,6 +65,29 @@ defmodule AsciinemaWeb.SearchControllerTest do
       refute response =~ "Another 1"
       refute response =~ "Another 2"
       assert response =~ "No matching results"
+    end
+
+    test "applies guest and authenticated limits", %{conn: conn, user: user} do
+      insert_list(241, :asciicast, title: "Foo foo", visibility: :public)
+
+      guest_response =
+        conn
+        |> get(~p"/search?q=foo&page=11")
+        |> html_response(200)
+
+      assert_active_page(guest_response, 9)
+      refute guest_response =~ ~s(href="?page=10&amp;q=foo")
+      refute guest_response =~ ~s(href="?page=11&amp;q=foo")
+
+      authenticated_response =
+        build_conn()
+        |> log_in(user)
+        |> get(~p"/search?q=foo&page=11")
+        |> html_response(200)
+
+      assert_active_page(authenticated_response, 10)
+      assert authenticated_response =~ ~s(href="?page=9&amp;q=foo")
+      refute authenticated_response =~ ~s(href="?page=11&amp;q=foo")
     end
   end
 end

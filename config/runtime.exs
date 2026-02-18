@@ -264,6 +264,26 @@ if config_env() in [:prod, :dev] do
     config :asciinema, Asciinema.Accounts, upload_auth_required: true
   end
 
+  if max_pages = env.("GUEST_PAGINATION_MAX_PAGES") do
+    case Integer.parse(max_pages) do
+      {max_pages, ""} when max_pages > 0 ->
+        config :asciinema, guest_pagination_max_pages: max_pages
+
+      _ ->
+        raise "GUEST_PAGINATION_MAX_PAGES must be a positive integer"
+    end
+  end
+
+  if max_pages = env.("AUTHENTICATED_PAGINATION_MAX_PAGES") do
+    case Integer.parse(max_pages) do
+      {max_pages, ""} when max_pages > 0 ->
+        config :asciinema, authenticated_pagination_max_pages: max_pages
+
+      _ ->
+        raise "AUTHENTICATED_PAGINATION_MAX_PAGES must be a positive integer"
+    end
+  end
+
   if tpl = env.("UPLOAD_PATH_TPL") do
     config :asciinema, Asciinema.Recordings.Paths, recording: tpl
   end
