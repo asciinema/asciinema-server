@@ -279,7 +279,9 @@ defmodule Asciinema.Recordings do
         %{
           filename: filename,
           visibility: user.default_recording_visibility,
-          secret_token: generate_secret_token()
+          secret_token: generate_secret_token(),
+          term_bold_is_bright: user.term_bold_is_bright,
+          term_adaptive_palette: user.term_adaptive_palette
         },
         fields
       )
@@ -327,7 +329,6 @@ defmodule Asciinema.Recordings do
     changeset
     |> put_change(:version, metadata.version)
     |> put_change(:term_theme_name, term_theme_name)
-    |> put_change(:term_bold_is_bright, user.term_bold_is_bright)
     |> cast(metadata, [
       :duration,
       :term_cols,
@@ -408,6 +409,7 @@ defmodule Asciinema.Recordings do
       :term_rows_override,
       :term_theme_name,
       :term_bold_is_bright,
+      :term_adaptive_palette,
       :term_line_height,
       :term_font_family,
       :idle_time_limit,

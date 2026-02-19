@@ -244,6 +244,20 @@
       <div class="form-field form-field-full">
         <div class="form-option-offset">
           <div class="form-option">
+            <.input type="checkbox" field={f[:term_adaptive_palette]} />
+            <.label for={f[:term_adaptive_palette]}>
+              Use adaptive terminal palette
+            </.label>
+          </div>
+          <small class="form-hint text-muted">
+            Adapts the 256-color palette to base 16 colors of the selected theme for consistent and aesthetic look.
+          </small>
+        </div>
+      </div>
+
+      <div class="form-field form-field-full">
+        <div class="form-option-offset">
+          <div class="form-option">
             <.input type="checkbox" field={f[:term_bold_is_bright]} />
             <.label for={f[:term_bold_is_bright]}>
               Render bold text with bright colors

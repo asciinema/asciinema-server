@@ -26,6 +26,7 @@ defmodule AsciinemaWeb.RecordingHTML do
       rows: term_rows(asciicast),
       theme: Media.term_theme_name(asciicast),
       boldIsBright: asciicast.term_bold_is_bright,
+      adaptivePalette: asciicast.term_adaptive_palette,
       terminalLineHeight: asciicast.term_line_height,
       customTerminalFontFamily: Media.font_family(asciicast),
       poster: poster(asciicast.snapshot),

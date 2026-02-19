@@ -356,7 +356,9 @@ defmodule Asciinema.Streaming.StreamServer do
 
     fields = %{
       stream_id: state.stream_id,
-      user_agent: state.user_agent
+      user_agent: state.user_agent,
+      term_bold_is_bright: state.stream.term_bold_is_bright,
+      term_adaptive_palette: state.stream.term_adaptive_palette
     }
 
     {:ok, _} = Recordings.create_asciicast(state.stream.user, upload, fields)

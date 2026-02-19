@@ -117,6 +117,7 @@ defmodule Asciinema.RecordingsTest do
           term_theme_name: nil,
           term_theme_prefer_original: false,
           term_bold_is_bright: false,
+          term_adaptive_palette: false,
           default_recording_visibility: :public
         )
 
@@ -127,6 +128,7 @@ defmodule Asciinema.RecordingsTest do
                term_theme_name: nil,
                term_font_family: nil,
                term_bold_is_bright: false,
+               term_adaptive_palette: false,
                visibility: :public
              } = asciicast
 
@@ -135,6 +137,7 @@ defmodule Asciinema.RecordingsTest do
           term_theme_name: "dracula",
           term_theme_prefer_original: false,
           term_bold_is_bright: true,
+          term_adaptive_palette: true,
           default_recording_visibility: :private
         )
 
@@ -145,6 +148,7 @@ defmodule Asciinema.RecordingsTest do
                term_theme_name: nil,
                term_theme_palette: "#" <> _,
                term_bold_is_bright: true,
+               term_adaptive_palette: true,
                visibility: :private
              } = asciicast
 
@@ -162,6 +166,27 @@ defmodule Asciinema.RecordingsTest do
                term_theme_name: "original",
                term_theme_palette: "#" <> _,
                visibility: :private
+             } = asciicast
+    end
+
+    test "explicit terminal render options override user defaults" do
+      user =
+        insert(:user,
+          term_bold_is_bright: false,
+          term_adaptive_palette: false
+        )
+
+      upload = fixture(:upload, %{path: "3/full.cast"})
+
+      {:ok, asciicast} =
+        Recordings.create_asciicast(user, upload, %{
+          term_bold_is_bright: true,
+          term_adaptive_palette: true
+        })
+
+      assert %Asciicast{
+               term_bold_is_bright: true,
+               term_adaptive_palette: true
              } = asciicast
     end
   end

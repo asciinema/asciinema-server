@@ -17,6 +17,7 @@ defmodule Asciinema.Recordings.Asciicast do
     field :term_theme_bg, :string
     field :term_theme_palette, :string
     field :term_bold_is_bright, :boolean, default: false
+    field :term_adaptive_palette, :boolean, default: false
     field :term_line_height, :float
     field :term_font_family, :string
     field :visibility, Ecto.Enum, values: ~w[private unlisted public]a, default: :unlisted
