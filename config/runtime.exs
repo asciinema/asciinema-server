@@ -139,6 +139,10 @@ if config_env() in [:prod, :dev] do
     config :asciinema, Asciinema.Repo, pool_size: String.to_integer(db_pool_size)
   end
 
+  if search_work_mem = env.("SEARCH_WORK_MEM") do
+    config :asciinema, :search_work_mem, search_work_mem
+  end
+
   if env.("ECTO_IPV6") in ~w(true 1) do
     config :asciinema, Asciinema.Repo, socket_options: [:inet6]
   end
@@ -262,6 +266,26 @@ if config_env() in [:prod, :dev] do
 
   if env.("UPLOAD_AUTH_REQUIRED") in ["1", "true"] do
     config :asciinema, Asciinema.Accounts, upload_auth_required: true
+  end
+
+  if max_pages = env.("GUEST_PAGINATION_MAX_PAGES") do
+    case Integer.parse(max_pages) do
+      {max_pages, ""} when max_pages > 0 ->
+        config :asciinema, guest_pagination_max_pages: max_pages
+
+      _ ->
+        raise "GUEST_PAGINATION_MAX_PAGES must be a positive integer"
+    end
+  end
+
+  if max_pages = env.("AUTHENTICATED_PAGINATION_MAX_PAGES") do
+    case Integer.parse(max_pages) do
+      {max_pages, ""} when max_pages > 0 ->
+        config :asciinema, authenticated_pagination_max_pages: max_pages
+
+      _ ->
+        raise "AUTHENTICATED_PAGINATION_MAX_PAGES must be a positive integer"
+    end
   end
 
   if tpl = env.("UPLOAD_PATH_TPL") do

@@ -15,7 +15,7 @@ defmodule AsciinemaWeb.UserStreamController do
       [:live, user_id: user.id]
       |> Streaming.query(:recently_started)
       |> Authorization.scope(:streams, current_user)
-      |> Streaming.paginate(params["page"], 14)
+      |> Streaming.paginate(params["page"], 14, pagination_opts(conn, owner_id: user.id))
 
     render(
       conn,
@@ -36,7 +36,7 @@ defmodule AsciinemaWeb.UserStreamController do
       [{:user_id, user.id}, :upcoming]
       |> Streaming.query(:soonest)
       |> Authorization.scope(:streams, current_user)
-      |> Streaming.paginate(params["page"], 14)
+      |> Streaming.paginate(params["page"], 14, pagination_opts(conn, owner_id: user.id))
 
     render(
       conn,

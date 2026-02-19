@@ -1,5 +1,5 @@
 defmodule AsciinemaWeb.StreamConsumerSocketTest do
-  use Asciinema.DataCase
+  use Asciinema.DataCase, async: true
   import Asciinema.Factory
   import Plug.Conn
   import Plug.Test
@@ -22,13 +22,16 @@ defmodule AsciinemaWeb.StreamConsumerSocketTest do
     end
 
     test "successful protocol negotiation, stream not found" do
-      assert {:stop, :normal, %{stream_id: "?"}} = connect("nope1234567890ab", @headers)
+      assert {:stop, :stream_not_found, {4040, "stream not found"}, %{stream_id: "?"}} =
+               connect("nope1234567890ab", @headers)
     end
 
     test "private stream, guest user, forbidden" do
       stream = insert(:stream, visibility: :private)
 
-      assert {:stop, :normal, %{stream_id: token}} = connect(stream.public_token, @headers)
+      assert {:stop, :forbidden, {4030, "unauthorized"}, %{stream_id: token}} =
+               connect(stream.public_token, @headers)
+
       assert token == stream.public_token
     end
 

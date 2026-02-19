@@ -1,5 +1,5 @@
 defmodule AsciinemaWeb.StreamProducerSocketTest do
-  use Asciinema.DataCase
+  use Asciinema.DataCase, async: true
   import Asciinema.Factory
   import Plug.Conn
   import Plug.Test

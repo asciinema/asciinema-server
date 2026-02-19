@@ -21,6 +21,7 @@ defmodule Asciinema.Recordings do
   @legacy_secret_token_length 25
   @secret_token_lengths [@secret_token_length, @legacy_secret_token_length]
   @secret_token_re ~r/^[[:alnum:]]+$/
+  @search_work_mem "32MB"
 
   def get_asciicast(id, opts \\ []) do
     Asciicast
@@ -189,10 +190,45 @@ defmodule Asciinema.Recordings do
     )
   end
 
-  def paginate(%Ecto.Query{} = query, page, page_size) do
+  def paginate(%Ecto.Query{} = query, page, page_size, opts \\ []) do
+    paginate_opts =
+      [page: page, page_size: page_size] ++ maybe_total_entries_opt(query, page_size, opts)
+
     query
     |> preload(:user)
-    |> Repo.paginate(page: page, page_size: page_size)
+    |> Repo.paginate(paginate_opts)
+  end
+
+  def search_paginate(%Ecto.Query{} = query, page, page_size, opts \\ []) do
+    search_work_mem = Application.get_env(:asciinema, :search_work_mem, @search_work_mem)
+
+    Repo.with_work_mem(search_work_mem, fn ->
+      paginate(query, page, page_size, opts)
+    end)
+  end
+
+  defp maybe_total_entries_opt(query, page_size, opts) do
+    case opts[:max_pages] do
+      nil ->
+        []
+
+      max_pages ->
+        max_entries = page_size * max_pages
+        limit = max_entries + 1
+
+        limited_count =
+          query
+          |> exclude(:preload)
+          |> exclude(:order_by)
+          |> exclude(:select)
+          |> select([asciicast], asciicast.id)
+          |> limit(^limit)
+          |> subquery()
+          |> select([entry], count(entry.id))
+          |> Repo.one()
+
+        [options: [total_entries: min(limited_count || 0, max_entries)]]
+    end
   end
 
   def list(q, limit) do

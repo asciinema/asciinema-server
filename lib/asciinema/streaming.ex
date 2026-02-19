@@ -111,10 +111,37 @@ defmodule Asciinema.Streaming do
     end
   end
 
-  def paginate(%Ecto.Query{} = query, page, page_size) do
+  def paginate(%Ecto.Query{} = query, page, page_size, opts \\ []) do
+    paginate_opts =
+      [page: page, page_size: page_size] ++ maybe_total_entries_opt(query, page_size, opts)
+
     query
     |> preload(:user)
-    |> Repo.paginate(page: page, page_size: page_size)
+    |> Repo.paginate(paginate_opts)
+  end
+
+  defp maybe_total_entries_opt(query, page_size, opts) do
+    case opts[:max_pages] do
+      nil ->
+        []
+
+      max_pages ->
+        max_entries = page_size * max_pages
+        limit = max_entries + 1
+
+        limited_count =
+          query
+          |> exclude(:preload)
+          |> exclude(:order_by)
+          |> exclude(:select)
+          |> select([stream], stream.id)
+          |> limit(^limit)
+          |> subquery()
+          |> select([entry], count(entry.id))
+          |> Repo.one()
+
+        [options: [total_entries: min(limited_count || 0, max_entries)]]
+    end
   end
 
   def cursor_paginate(query, last_id \\ nil, limit \\ 10)
