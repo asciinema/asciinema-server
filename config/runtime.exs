@@ -139,6 +139,10 @@ if config_env() in [:prod, :dev] do
     config :asciinema, Asciinema.Repo, pool_size: String.to_integer(db_pool_size)
   end
 
+  if search_work_mem = env.("SEARCH_WORK_MEM") do
+    config :asciinema, :search_work_mem, search_work_mem
+  end
+
   if env.("ECTO_IPV6") in ~w(true 1) do
     config :asciinema, Asciinema.Repo, socket_options: [:inet6]
   end

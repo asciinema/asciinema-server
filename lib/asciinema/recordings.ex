@@ -21,6 +21,7 @@ defmodule Asciinema.Recordings do
   @legacy_secret_token_length 25
   @secret_token_lengths [@secret_token_length, @legacy_secret_token_length]
   @secret_token_re ~r/^[[:alnum:]]+$/
+  @search_work_mem "32MB"
 
   def get_asciicast(id, opts \\ []) do
     Asciicast
@@ -192,6 +193,14 @@ defmodule Asciinema.Recordings do
     query
     |> preload(:user)
     |> Repo.paginate(paginate_opts)
+  end
+
+  def search_paginate(%Ecto.Query{} = query, page, page_size, opts \\ []) do
+    search_work_mem = Application.get_env(:asciinema, :search_work_mem, @search_work_mem)
+
+    Repo.with_work_mem(search_work_mem, fn ->
+      paginate(query, page, page_size, opts)
+    end)
   end
 
   defp maybe_total_entries_opt(query, page_size, opts) do
