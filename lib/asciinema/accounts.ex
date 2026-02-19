@@ -124,6 +124,7 @@ defmodule Asciinema.Accounts do
       :term_theme_name,
       :term_theme_prefer_original,
       :term_bold_is_bright,
+      :term_adaptive_palette,
       :term_font_family,
       :default_recording_visibility,
       :default_stream_visibility,

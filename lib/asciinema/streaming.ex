@@ -207,7 +207,8 @@ defmodule Asciinema.Streaming do
       producer_token: generate_producer_token(),
       visibility: user.default_stream_visibility,
       term_theme_prefer_original: user.term_theme_prefer_original,
-      term_bold_is_bright: user.term_bold_is_bright
+      term_bold_is_bright: user.term_bold_is_bright,
+      term_adaptive_palette: user.term_adaptive_palette
     }
     |> change_stream(params)
     |> put_assoc(:user, user)
@@ -245,6 +246,7 @@ defmodule Asciinema.Streaming do
       :term_theme_name,
       :term_theme_prefer_original,
       :term_bold_is_bright,
+      :term_adaptive_palette,
       :term_type,
       :term_version,
       :title,

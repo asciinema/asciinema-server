@@ -30,6 +30,7 @@ defmodule AsciinemaWeb.StreamHTML do
       autoplay: stream.audio_url == nil,
       theme: term_theme_name(stream),
       boldIsBright: stream.term_bold_is_bright,
+      adaptivePalette: stream.term_adaptive_palette,
       terminalLineHeight: stream.term_line_height,
       customTerminalFontFamily: Media.font_family(stream),
       audioUrl: stream.audio_url
