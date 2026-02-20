@@ -229,6 +229,14 @@ defmodule Asciinema.Streaming do
     end
   end
 
+  @max_title_len 128
+  @max_description_len 4096
+  @max_term_type_len 64
+  @max_term_version_len 255
+  @max_shell_len 255
+  @max_user_agent_len 255
+  @max_audio_url_len 255
+
   def change_stream(stream, attrs \\ %{})
 
   def change_stream(stream, attrs) when is_map(attrs) do
@@ -264,13 +272,26 @@ defmodule Asciinema.Streaming do
       less_than_or_equal_to: 2.0
     )
     |> validate_inclusion(:term_font_family, Fonts.terminal_font_families())
+    |> validate_length(:title, max: @max_title_len)
+    |> validate_length(:description, max: @max_description_len)
+    |> validate_length(:audio_url, max: @max_audio_url_len)
     |> validate_format(:audio_url, ~r|^https?://|)
+    |> truncate(:term_type, @max_term_type_len)
+    |> truncate(:term_version, @max_term_version_len)
+    |> truncate(:shell, @max_shell_len)
     |> check_constraint(:live, name: "live_stream_limit")
+  end
+
+  defp truncate(changeset, field, max_len) do
+    update_change(changeset, field, fn value ->
+      if value, do: String.slice(value, 0, max_len)
+    end)
   end
 
   def update_stream(stream, attrs) when is_list(attrs) do
     stream
     |> cast(Enum.into(attrs, %{}), Stream.__schema__(:fields))
+    |> truncate(:user_agent, @max_user_agent_len)
     |> change_peak_viewer_count()
     |> change_last_activity()
     |> Repo.update!(returning: true)
