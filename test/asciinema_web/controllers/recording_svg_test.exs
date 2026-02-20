@@ -2,6 +2,7 @@ defmodule AsciinemaWeb.RecordingSvgTest do
   use ExUnit.Case, async: true
   import Asciinema.Factory
   import Asciinema.PngUtil
+  alias Asciinema.Colors
   alias Asciinema.Recordings.Snapshot
   alias AsciinemaWeb.RecordingSVG
 
@@ -147,6 +148,64 @@ defmodule AsciinemaWeb.RecordingSvgTest do
 
       # asciinema theme default fg is #cccccc
       assert rgb_at_cell(png, 0, 0) == {204, 204, 204}
+    end
+
+    test "uses fixed palette for indexed 256 colors by default" do
+      asciicast =
+        build(:asciicast,
+          term_theme_name: "dracula",
+          term_adaptive_palette: false,
+          term_cols: 13,
+          term_rows: 2,
+          snapshot: palette_index_snapshot()
+        )
+
+      png = asciicast |> render_full() |> decode_embedded_png()
+
+      assert_palette_rows(png, [
+        "#000000",
+        "#0000ff",
+        "#00ff00",
+        "#00ffff",
+        "#ff0000",
+        "#ff00ff",
+        "#ffff00",
+        "#ffffff",
+        "#878787",
+        "#afafaf",
+        "#080808",
+        "#767676",
+        "#eeeeee"
+      ])
+    end
+
+    test "uses adaptive palette for indexed 256 colors when enabled" do
+      asciicast =
+        build(:asciicast,
+          term_theme_name: "dracula",
+          term_adaptive_palette: true,
+          term_cols: 13,
+          term_rows: 2,
+          snapshot: palette_index_snapshot()
+        )
+
+      png = asciicast |> render_full() |> decode_embedded_png()
+
+      assert_palette_rows(png, [
+        "#282a36",
+        "#bd93f9",
+        "#50fa7b",
+        "#8be9fd",
+        "#ff5555",
+        "#ff79c6",
+        "#f1fa8c",
+        "#f8f8f2",
+        "#ab9c99",
+        "#d1c1bc",
+        "#2f313d",
+        "#84868b",
+        "#efefea"
+      ])
     end
   end
 
@@ -299,4 +358,22 @@ defmodule AsciinemaWeb.RecordingSvgTest do
   defp rgb_at_cell(png, x, y), do: rgb_at(png, x * 8, y * 24)
 
   defp logo_present(svg), do: svg =~ "small-triangle-mask"
+
+  defp palette_index_snapshot do
+    indices = [16, 21, 46, 51, 196, 201, 226, 231, 102, 145, 232, 243, 255]
+    fg_row = Enum.map(indices, &{"█", %{"fg" => &1}, 1})
+    bg_row = Enum.map(indices, &{" ", %{"bg" => &1}, 1})
+
+    Snapshot.new([fg_row, bg_row], :cells)
+  end
+
+  defp assert_palette_rows(png, colors) do
+    colors
+    |> Enum.map(&Colors.parse/1)
+    |> Enum.with_index()
+    |> Enum.each(fn {color, x} ->
+      assert rgb_at_cell(png, x, 0) == color
+      assert rgb_at_cell(png, x, 1) == color
+    end)
+  end
 end

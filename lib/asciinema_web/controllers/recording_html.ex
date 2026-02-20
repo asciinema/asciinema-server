@@ -146,7 +146,10 @@ defmodule AsciinemaWeb.RecordingHTML do
         Snapshot.seq(snapshot)
       else
         to_string(asciicast.updated_at)
-      end <> "\u0000" <> to_string(asciicast.term_bold_is_bright)
+      end <>
+        "\u0000" <>
+        to_string(asciicast.term_bold_is_bright) <>
+        "\u0000" <> to_string(asciicast.term_adaptive_palette)
 
     :crypto.hash(:sha256, key)
     |> binary_part(0, 12)
