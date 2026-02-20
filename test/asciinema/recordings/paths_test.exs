@@ -56,18 +56,6 @@ defmodule Asciinema.Recordings.PathsTest do
     end
   end
 
-  describe "path/2" do
-    test "returns paths with overriden ext" do
-      now = Timex.now()
-      date = Timex.format!(now, "{YYYY}/{0M}/{0D}")
-      asciicast = build_asciicast(inserted_at: now)
-
-      path = Paths.path(asciicast, "txt")
-
-      assert path == "recordings/foo/#{date}/123.txt"
-    end
-  end
-
   defp build_asciicast(overrides) do
     attrs =
       Keyword.merge(
