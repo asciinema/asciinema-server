@@ -99,6 +99,9 @@ defmodule Asciinema.Recordings.Asciicast.V3 do
 
     {:ok, duration}
   rescue
+    Jason.DecodeError ->
+      {:error, :invalid_format}
+
     MatchError ->
       {:error, :invalid_format}
 
