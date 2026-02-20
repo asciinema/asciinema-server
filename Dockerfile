@@ -63,6 +63,7 @@ RUN apk add --no-cache \
   tini \
   bash \
   ca-certificates \
+  fd \
   rsvg-convert \
   ttf-dejavu \
   pngquant

@@ -82,6 +82,7 @@
           buildInputs = with pkgs; [
             librsvg
             pngquant
+            fd
           ];
 
           removeCookie = false;

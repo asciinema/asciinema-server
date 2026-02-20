@@ -26,6 +26,8 @@ defmodule Asciinema.Application do
       Asciinema.Telemetry,
       # Start the Ecto repository
       Asciinema.Repo,
+      # Start file cache
+      {Asciinema.FileCache, file_cache_opts()},
       # Start PNG generator poolboy pool
       :poolboy.child_spec(:worker, Asciinema.PngGenerator.Rsvg.poolboy_config(), []),
       # Start Oban
@@ -57,5 +59,9 @@ defmodule Asciinema.Application do
 
   defp oban_config do
     Application.fetch_env!(:asciinema, Oban)
+  end
+
+  defp file_cache_opts do
+    [name: Asciinema.FileCache] ++ Application.fetch_env!(:asciinema, Asciinema.FileCache)
   end
 end
