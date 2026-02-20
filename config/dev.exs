@@ -76,6 +76,9 @@ config :phoenix, :stacktrace_depth, 20
 # Initialize plugs at runtime for faster development compilation
 config :phoenix, :plug_init_mode, :runtime
 
+# Disable memory monitoring - supresses :system_memory_high_watermark noise
+config :os_mon, start_memsup: false
+
 config :asciinema, Asciinema.Telemetry, enabled: false
 
 # Import custom config.
