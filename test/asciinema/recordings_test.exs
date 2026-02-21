@@ -111,6 +111,20 @@ defmodule Asciinema.RecordingsTest do
       assert {:error, :invalid_format} = Recordings.create_asciicast(user, upload)
     end
 
+    test "syntax error in asciicast v2 file" do
+      user = insert(:user)
+      upload = fixture(:upload, %{path: "2/broken.cast"})
+
+      assert {:error, :invalid_format} = Recordings.create_asciicast(user, upload)
+    end
+
+    test "syntax error in asciicast v3 file" do
+      user = insert(:user)
+      upload = fixture(:upload, %{path: "3/broken.cast"})
+
+      assert {:error, :invalid_format} = Recordings.create_asciicast(user, upload)
+    end
+
     test "default settings from user" do
       user =
         insert(:user,

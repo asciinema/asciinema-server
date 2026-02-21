@@ -317,6 +317,14 @@ defmodule Asciinema.Recordings do
     end
   end
 
+  @max_title_len 128
+  @max_description_len 4096
+  @max_term_type_len 64
+  @max_term_version_len 255
+  @max_shell_len 255
+  @max_command_len 255
+  @max_user_agent_len 255
+  @max_audio_url_len 255
   @max_term_cols 720
   @max_term_rows 200
   @hex_color_re ~r/^#[0-9a-f]{6}$/
@@ -353,6 +361,12 @@ defmodule Asciinema.Recordings do
     |> validate_format(:term_theme_bg, @hex_color_re)
     |> validate_format(:term_theme_palette, @hex_palette_re)
     |> validate_change(:env, &validate_env/2)
+    |> truncate(:term_type, @max_term_type_len)
+    |> truncate(:term_version, @max_term_version_len)
+    |> truncate(:command, @max_command_len)
+    |> truncate(:shell, @max_shell_len)
+    |> truncate(:title, @max_title_len)
+    |> truncate(:user_agent, @max_user_agent_len)
   end
 
   defp validate_env(:env, env) do
@@ -373,6 +387,12 @@ defmodule Asciinema.Recordings do
       end
 
     errors
+  end
+
+  defp truncate(changeset, field, max_len) do
+    update_change(changeset, field, fn value ->
+      if value, do: String.slice(value, 0, max_len)
+    end)
   end
 
   defp do_create_asciicast(changeset, file) do
@@ -418,6 +438,10 @@ defmodule Asciinema.Recordings do
       :markers,
       :audio_url
     ])
+    |> validate_length(:title, max: @max_title_len)
+    |> validate_length(:description, max: @max_description_len)
+    |> validate_length(:audio_url, max: @max_audio_url_len)
+    |> validate_format(:audio_url, ~r|^https?://|)
     |> validate_number(:term_cols_override,
       greater_than: 0,
       less_than_or_equal_to: @max_term_cols
@@ -435,7 +459,6 @@ defmodule Asciinema.Recordings do
     |> validate_inclusion(:term_font_family, Fonts.terminal_font_families())
     |> validate_number(:snapshot_at, greater_than: 0)
     |> validate_change(:markers, &Markers.validate/2)
-    |> validate_format(:audio_url, ~r|^https?://|)
   end
 
   def update_asciicast(asciicast, attrs \\ %{}) do

@@ -98,8 +98,8 @@ defmodule AsciinemaWeb.RecordingSVG do
   defp attrs_for_full(asciicast) do
     cols = term_cols(asciicast)
     rows = term_rows(asciicast)
-    coords = coords(asciicast, nil)
-    theme = Media.theme(asciicast)
+    theme = svg_theme(asciicast)
+    coords = coords(asciicast, nil, theme)
 
     %{
       cols: cols,
@@ -114,8 +114,8 @@ defmodule AsciinemaWeb.RecordingSVG do
   defp attrs_for_thumbnail(asciicast) do
     cols = 80
     rows = 15
-    coords = coords(asciicast, {cols, rows})
-    theme = Media.theme(asciicast)
+    theme = svg_theme(asciicast)
+    coords = coords(asciicast, {cols, rows}, theme)
 
     %{
       cols: cols,
@@ -127,8 +127,8 @@ defmodule AsciinemaWeb.RecordingSVG do
     }
   end
 
-  defp coords(asciicast, crop_size) do
-    snapshot = snapshot(asciicast, crop_size)
+  defp coords(asciicast, crop_size, theme) do
+    snapshot = snapshot(asciicast, crop_size, theme)
     segments = Snapshot.to_segments(snapshot, split_specials: true)
 
     layers =
@@ -368,12 +368,16 @@ defmodule AsciinemaWeb.RecordingSVG do
     Colors.parse(color)
   end
 
-  defp snapshot(asciicast, crop_size) do
-    theme = Media.theme(asciicast)
-
+  defp snapshot(asciicast, crop_size, theme) do
     (asciicast.snapshot || Snapshot.new([]))
     |> maybe_crop(crop_size)
     |> Snapshot.normalize_colors(asciicast.term_bold_is_bright, theme)
+  end
+
+  defp svg_theme(asciicast) do
+    asciicast
+    |> Media.theme()
+    |> Themes.with_256_palette(asciicast.term_adaptive_palette || false)
   end
 
   defp maybe_crop(snapshot, nil), do: snapshot

@@ -59,7 +59,7 @@
       <div class={["form-field", error_class(f, :title)]}>
         <.label for={f[:title]}>Title</.label>
         <div>
-          <.input field={f[:title]} />
+          <.input field={f[:title]} maxlength={128} />
           <.error field={f[:title]} />
         </div>
       </div>
@@ -69,7 +69,7 @@
           Description
         </.label>
         <div>
-          <.input field={f[:description]} type="textarea" rows={10} />
+          <.input field={f[:description]} type="textarea" rows={10} maxlength={4096} />
           <.error field={f[:description]} />
           <small class="form-hint text-muted">Rendered as Markdown.</small>
         </div>
@@ -234,7 +234,7 @@
           Audio URL
         </.label>
         <div>
-          <.input field={f[:audio_url]} type="url" />
+          <.input field={f[:audio_url]} type="url" maxlength={255} />
           <.error field={f[:audio_url]} />
           <small class="form-hint text-muted">
             Use it when you want to add a voice-over or a soundtrack to your
