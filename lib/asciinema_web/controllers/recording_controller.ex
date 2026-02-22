@@ -88,9 +88,15 @@ defmodule AsciinemaWeb.RecordingController do
         |> put_etag(RecordingHTML.svg_cache_key(asciicast))
         |> put_resp_header("access-control-allow-origin", "*")
 
-      case conn.params["f"] do
-        "t" -> render(conn, :thumbnail, asciicast: asciicast, standalone: true)
-        _ -> render(conn, :full, asciicast: asciicast)
+      if fresh?(conn) do
+        conn
+        |> send_resp(304, "")
+        |> halt()
+      else
+        case conn.params["f"] do
+          "t" -> render(conn, :thumbnail, asciicast: asciicast, standalone: true)
+          _ -> render(conn, :full, asciicast: asciicast)
+        end
       end
     end
   end
