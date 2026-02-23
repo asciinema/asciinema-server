@@ -64,9 +64,18 @@ defmodule AsciinemaWeb.RecordingController do
       |> put_status(410)
       |> text("This recording has been deleted\n")
     else
-      send_download(conn, {:file, Recordings.text_file_path(asciicast)},
-        filename: "#{asciicast.id}.txt"
-      )
+      case get_txt_path(asciicast) do
+        {:ok, path} ->
+          send_download(conn, {:file, path}, filename: "#{asciicast.id}.txt")
+
+        {:error, %FileCache.Error{type: :timeout}} ->
+          conn
+          |> put_resp_header("retry-after", "5")
+          |> send_resp(503, "")
+
+        {:error, error} ->
+          raise error
+      end
     end
   end
 
@@ -170,6 +179,10 @@ defmodule AsciinemaWeb.RecordingController do
 
       File.write!(path, Phoenix.HTML.Safe.to_iodata(svg))
     end)
+  end
+
+  defp get_txt_path(asciicast) do
+    FileCache.fetch_path(:txt, asciicast.id, &File.write!(&1, Recordings.text(asciicast)))
   end
 
   defp fetch_other_asciicasts(asciicast, current_user) do

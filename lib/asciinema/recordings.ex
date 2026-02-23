@@ -622,7 +622,6 @@ defmodule Asciinema.Recordings do
   end
 
   defdelegate text(asciicast), to: Text
-  defdelegate text_file_path(asciicast), to: Text
 
   defp frame_before_or_at?({time, _}, secs) do
     time <= secs
