@@ -29,15 +29,15 @@ defmodule AsciinemaWeb.PngGenerator do
     {:ok, nil}
   end
 
-  def generate(asciicast, png_path) do
-    generate(@name, asciicast, png_path)
+  def generate(asciicast, tmp_dir_path) do
+    generate(@name, asciicast, tmp_dir_path)
   end
 
-  def generate(server, asciicast, png_path) do
+  def generate(server, asciicast, tmp_dir_path) do
     try do
-      case GenServer.call(server, {:generate, asciicast, png_path}, @call_timeout) do
-        :ok ->
-          :ok
+      case GenServer.call(server, {:generate, asciicast, tmp_dir_path}, @call_timeout) do
+        {:ok, png_path} ->
+          png_path
 
         {:error, error} ->
           raise error
@@ -63,56 +63,47 @@ defmodule AsciinemaWeb.PngGenerator do
   end
 
   @impl true
-  def handle_call({:generate, asciicast, png_path}, _from, state) do
+  def handle_call({:generate, asciicast, tmp_dir_path}, _from, state) do
     reply =
       try do
-        case do_generate(asciicast, png_path) do
-          :ok ->
-            :ok
-
-          {:error, %Error{} = error} ->
-            {:error, error}
-        end
+        do_generate(asciicast, tmp_dir_path)
       rescue
         exception ->
-          {:error, %Error{type: :generator_failed, reason: {:error, exception}}}
+          {:error, %Error{type: :failure, reason: {:error, exception}}}
       catch
         kind, reason ->
-          {:error, %Error{type: :generator_failed, reason: {kind, reason}}}
+          {:error, %Error{type: :failure, reason: {kind, reason}}}
       end
 
     {:reply, reply, state}
   end
 
-  defp do_generate(asciicast, png_path) do
-    svg_path = png_path <> ".svg"
+  defp do_generate(asciicast, tmp_dir_path) do
+    png_path = Path.join(tmp_dir_path, "#{asciicast.id}.png")
+    svg_path = Path.join(tmp_dir_path, "#{asciicast.id}.svg")
 
-    try do
-      svg =
-        RecordingSVG.full(%{
-          asciicast: asciicast,
-          font_family: font_family(),
-          rx: 0,
-          ry: 0
-        })
+    svg =
+      RecordingSVG.full(%{
+        asciicast: asciicast,
+        font_family: font_family(),
+        rx: 0,
+        ry: 0
+      })
 
-      File.write!(svg_path, Phoenix.HTML.Safe.to_iodata(svg))
+    File.write!(svg_path, Phoenix.HTML.Safe.to_iodata(svg))
 
-      args = [svg_path, png_path, "#{@zoom}"]
-      opts = [stderr_to_stdout: true]
+    args = [svg_path, png_path, "#{@zoom}"]
+    opts = [stderr_to_stdout: true]
 
-      case System.cmd(script_path(), args, opts) do
-        {_, 0} ->
-          :ok
+    case System.cmd(script_path(), args, opts) do
+      {_, 0} ->
+        {:ok, png_path}
 
-        {_, 124} ->
-          {:error, %Error{type: :timeout, reason: :rsvg_convert, retryable: true}}
+      {_, 124} ->
+        {:error, %Error{type: :timeout, reason: :rsvg_convert, retryable: true}}
 
-        result ->
-          {:error, %Error{type: :generator_failed, reason: result}}
-      end
-    after
-      _ = File.rm(svg_path)
+      result ->
+        {:error, %Error{type: :failure, reason: result}}
     end
   end
 

@@ -192,7 +192,9 @@ defmodule AsciinemaWeb.RecordingController do
   defp get_svg_path(asciicast, params, cache_key) do
     variant = if params["f"] == "t", do: :thumbnail, else: :full
 
-    FileCache.fetch_path(:svg, {asciicast.id, variant, cache_key}, fn path ->
+    FileCache.fetch_path(:svg, {asciicast.id, variant, cache_key}, fn tmp_dir ->
+      path = Path.join(tmp_dir, "#{asciicast.id}.svg")
+
       svg =
         case variant do
           :thumbnail ->
@@ -203,11 +205,18 @@ defmodule AsciinemaWeb.RecordingController do
         end
 
       File.write!(path, Phoenix.HTML.Safe.to_iodata(svg))
+
+      path
     end)
   end
 
   defp get_txt_path(asciicast) do
-    FileCache.fetch_path(:txt, asciicast.id, &File.write!(&1, Recordings.text(asciicast)))
+    FileCache.fetch_path(:txt, asciicast.id, fn tmp_dir ->
+      path = Path.join(tmp_dir, "#{asciicast.id}.txt")
+      File.write!(path, Recordings.text(asciicast))
+
+      path
+    end)
   end
 
   defp get_png_path(asciicast, cache_key) do
