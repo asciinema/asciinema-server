@@ -1,6 +1,5 @@
 defmodule AsciinemaWeb.RecordingSVG do
   use Phoenix.Component
-  import AsciinemaWeb.RecordingHTML, only: [term_cols: 1, term_rows: 1]
   import Phoenix.HTML
   alias Asciinema.{Colors, Media, Themes}
   alias Asciinema.SvgRaster
@@ -56,6 +55,27 @@ defmodule AsciinemaWeb.RecordingSVG do
     "#{Decimal.round(Decimal.from_float(float), 3)}%"
   end
 
+  # Bump when SVG rendering output can change without recording data changes.
+  @svg_renderer_salt 1
+
+  def svg_cache_key(asciicast) do
+    key =
+      if snapshot = asciicast.snapshot do
+        Snapshot.seq(snapshot)
+      else
+        to_string(asciicast.updated_at)
+      end <>
+        "\u0000" <>
+        to_string(asciicast.term_bold_is_bright) <>
+        "\u0000" <>
+        to_string(asciicast.term_adaptive_palette) <>
+        "\u0000" <> Integer.to_string(@svg_renderer_salt)
+
+    :crypto.hash(:sha256, key)
+    |> binary_part(0, 12)
+    |> Base.url_encode64(padding: false)
+  end
+
   attr :asciicast, :any, required: true
   attr :font_family, :string, default: nil
   attr :rx, :integer, default: nil
@@ -94,6 +114,10 @@ defmodule AsciinemaWeb.RecordingSVG do
   attr :ry, :integer, default: nil
 
   def preview(assigns)
+
+  defp term_cols(asciicast), do: asciicast.term_cols_override || asciicast.term_cols
+
+  defp term_rows(asciicast), do: asciicast.term_rows_override || asciicast.term_rows
 
   defp attrs_for_full(asciicast) do
     cols = term_cols(asciicast)

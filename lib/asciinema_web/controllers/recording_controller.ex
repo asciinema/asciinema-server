@@ -2,7 +2,7 @@ defmodule AsciinemaWeb.RecordingController do
   use AsciinemaWeb, :controller
   alias Asciinema.{FileCache, FileStore, Recordings, PngGenerator}
   alias Asciinema.Recordings.Asciicast
-  alias AsciinemaWeb.{Authorization, PlayerOpts, RecordingHTML, RecordingSVG}
+  alias AsciinemaWeb.{Authorization, PlayerOpts, RecordingSVG}
   alias AsciinemaWeb.FallbackController
 
   plug :require_current_user when action in [:edit, :update, :delete]
@@ -88,7 +88,7 @@ defmodule AsciinemaWeb.RecordingController do
       |> put_resp_content_type("image/png")
       |> send_file(200, path)
     else
-      cache_key = RecordingHTML.svg_cache_key(asciicast)
+      cache_key = RecordingSVG.svg_cache_key(asciicast)
       max_age = svg_max_age(conn.params, cache_key)
 
       conn =

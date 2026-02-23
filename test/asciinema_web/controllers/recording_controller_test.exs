@@ -842,7 +842,7 @@ defmodule AsciinemaWeb.RecordingControllerTest do
     setup [:insert_public_recording]
 
     test "uses 1 year max-age only for matching v param", %{conn: conn, asciicast: asciicast} do
-      cache_key = AsciinemaWeb.RecordingHTML.svg_cache_key(asciicast)
+      cache_key = AsciinemaWeb.RecordingSVG.svg_cache_key(asciicast)
 
       conn = get(conn, ~p"/a/#{asciicast.id}" <> ".svg?v=" <> cache_key)
 
