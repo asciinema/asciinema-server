@@ -49,7 +49,17 @@ defmodule AsciinemaWeb.PngGenerator do
   end
 
   def png_cache_key(asciicast) do
-    "#{RecordingSVG.svg_cache_key(asciicast)}:#{@png_renderer_salt}"
+    key = [
+      RecordingSVG.svg_cache_key(asciicast),
+      <<0>>,
+      to_string(font_family() || ""),
+      <<0>>,
+      Integer.to_string(@png_renderer_salt)
+    ]
+
+    :crypto.hash(:sha256, key)
+    |> binary_part(0, 12)
+    |> Base.url_encode64(padding: false)
   end
 
   @impl true
