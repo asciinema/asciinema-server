@@ -1,8 +1,8 @@
 defmodule AsciinemaWeb.RecordingController do
   use AsciinemaWeb, :controller
-  alias Asciinema.{FileStore, Recordings, PngGenerator}
+  alias Asciinema.{FileCache, FileStore, Recordings, PngGenerator}
   alias Asciinema.Recordings.Asciicast
-  alias AsciinemaWeb.{Authorization, PlayerOpts, RecordingHTML}
+  alias AsciinemaWeb.{Authorization, PlayerOpts, RecordingSVG}
   alias AsciinemaWeb.FallbackController
 
   plug :require_current_user when action in [:edit, :update, :delete]
@@ -67,14 +67,20 @@ defmodule AsciinemaWeb.RecordingController do
       |> put_status(410)
       |> text("This recording has been deleted\n")
     else
-      send_download(conn, {:file, Recordings.text_file_path(asciicast)},
-        filename: "#{asciicast.id}.txt"
-      )
+      case get_txt_path(asciicast) do
+        {:ok, path} ->
+          send_download(conn, {:file, path}, filename: "#{asciicast.id}.txt")
+
+        {:error, %FileCache.Error{type: :timeout}} ->
+          conn
+          |> put_resp_header("retry-after", "5")
+          |> send_resp(503, "")
+
+        {:error, error} ->
+          raise error
+      end
     end
   end
-
-  # 1 hour
-  @svg_max_age 3600
 
   def do_show(conn, "svg", asciicast) do
     if asciicast.archived_at do
@@ -85,15 +91,35 @@ defmodule AsciinemaWeb.RecordingController do
       |> put_resp_content_type("image/png")
       |> send_file(200, path)
     else
+      cache_key = RecordingSVG.svg_cache_key(asciicast)
+      max_age = svg_max_age(conn.params, cache_key)
+
       conn =
         conn
-        |> put_resp_header("cache-control", "public, max-age=#{@svg_max_age}, must-revalidate")
-        |> put_etag(RecordingHTML.svg_cache_key(asciicast))
+        |> put_resp_header("cache-control", "public, max-age=#{max_age}, must-revalidate")
+        |> put_etag(cache_key)
         |> put_resp_header("access-control-allow-origin", "*")
+        |> put_resp_content_type("image/svg+xml; charset=utf-8")
 
-      case conn.params["f"] do
-        "t" -> render(conn, :thumbnail, asciicast: asciicast, standalone: true)
-        _ -> render(conn, :full, asciicast: asciicast)
+      if fresh?(conn) do
+        conn
+        |> send_resp(304, "")
+        |> halt()
+      else
+        case get_svg_path(asciicast, conn.params, cache_key) do
+          {:ok, path} ->
+            conn
+            |> send_file(200, path)
+            |> halt()
+
+          {:error, %FileCache.Error{type: :timeout}} ->
+            conn
+            |> put_resp_header("retry-after", "5")
+            |> send_resp(503, "")
+
+          {:error, error} ->
+            raise error
+        end
       end
     end
   end
@@ -137,6 +163,30 @@ defmodule AsciinemaWeb.RecordingController do
         asciicast_id: asciicast.id
       )
     end
+  end
+
+  defp svg_max_age(%{"v" => v}, cache_key) when v == cache_key, do: 60 * 60 * 24 * 365
+  defp svg_max_age(_params, _cache_key), do: 60 * 60
+
+  defp get_svg_path(asciicast, params, cache_key) do
+    variant = if params["f"] == "t", do: :thumbnail, else: :full
+
+    FileCache.fetch_path(:svg, {asciicast.id, variant, cache_key}, fn path ->
+      svg =
+        case variant do
+          :thumbnail ->
+            RecordingSVG.thumbnail(%{asciicast: asciicast, standalone: true})
+
+          :full ->
+            RecordingSVG.full(%{asciicast: asciicast})
+        end
+
+      File.write!(path, Phoenix.HTML.Safe.to_iodata(svg))
+    end)
+  end
+
+  defp get_txt_path(asciicast) do
+    FileCache.fetch_path(:txt, asciicast.id, &File.write!(&1, Recordings.text(asciicast)))
   end
 
   defp fetch_other_asciicasts(asciicast, current_user) do

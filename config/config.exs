@@ -80,7 +80,12 @@ config :sentry,
 config :asciinema, Asciinema.FileStore, adapter: Asciinema.FileStore.Local
 config :asciinema, Asciinema.FileStore.Local, path: "uploads/"
 
-config :asciinema, Asciinema.FileCache, path: "cache/"
+config :asciinema, Asciinema.FileCache,
+  path: "cache/",
+  buckets: [
+    txt: 60 * 60 * 24 * 30,
+    svg: 60 * 60 * 24 * 30
+  ]
 
 config :asciinema, Asciinema.PngGenerator, adapter: Asciinema.PngGenerator.Rsvg
 

@@ -10,7 +10,10 @@
   <:preview>
     <object
       type="image/svg+xml"
-      data={~p"/a/#{@asciicast}" <> ".svg?f=t&v=#{svg_cache_key(@asciicast)}"}
+      data={
+        ~p"/a/#{@asciicast}" <>
+          ".svg?f=t&v=#{RecordingSVG.svg_cache_key(@asciicast)}"
+      }
     >
     </object>
   </:preview>

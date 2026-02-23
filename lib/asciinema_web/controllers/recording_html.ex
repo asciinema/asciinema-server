@@ -3,7 +3,7 @@ defmodule AsciinemaWeb.RecordingHTML do
   import AsciinemaWeb.ErrorHelpers
   alias Asciinema.{Accounts, Fonts, Media, Recordings, Themes}
   alias Asciinema.Recordings.{Markers, Snapshot}
-  alias AsciinemaWeb.{MediaView, MediumHTML, UserHTML}
+  alias AsciinemaWeb.{MediaView, MediumHTML, RecordingSVG, UserHTML}
 
   embed_templates "recording_html/*"
 
@@ -138,22 +138,6 @@ defmodule AsciinemaWeb.RecordingHTML do
       nil -> 0
       %{total_views: total_views} -> total_views
     end
-  end
-
-  def svg_cache_key(asciicast) do
-    key =
-      if snapshot = asciicast.snapshot do
-        Snapshot.seq(snapshot)
-      else
-        to_string(asciicast.updated_at)
-      end <>
-        "\u0000" <>
-        to_string(asciicast.term_bold_is_bright) <>
-        "\u0000" <> to_string(asciicast.term_adaptive_palette)
-
-    :crypto.hash(:sha256, key)
-    |> binary_part(0, 12)
-    |> Base.url_encode64(padding: false)
   end
 
   defp owned_by_current_user?(asciicast, conn) do
