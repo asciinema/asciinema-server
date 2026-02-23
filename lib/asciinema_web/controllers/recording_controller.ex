@@ -79,9 +79,6 @@ defmodule AsciinemaWeb.RecordingController do
     end
   end
 
-  # 1 hour
-  @svg_max_age 3600
-
   def do_show(conn, "svg", asciicast) do
     if asciicast.archived_at do
       path = Application.app_dir(:asciinema, "priv/static/images/archived.png")
@@ -92,10 +89,11 @@ defmodule AsciinemaWeb.RecordingController do
       |> send_file(200, path)
     else
       cache_key = RecordingHTML.svg_cache_key(asciicast)
+      max_age = svg_max_age(conn.params, cache_key)
 
       conn =
         conn
-        |> put_resp_header("cache-control", "public, max-age=#{@svg_max_age}, must-revalidate")
+        |> put_resp_header("cache-control", "public, max-age=#{max_age}, must-revalidate")
         |> put_etag(cache_key)
         |> put_resp_header("access-control-allow-origin", "*")
         |> put_resp_content_type("image/svg+xml; charset=utf-8")
@@ -163,6 +161,9 @@ defmodule AsciinemaWeb.RecordingController do
       )
     end
   end
+
+  defp svg_max_age(%{"v" => v}, cache_key) when v == cache_key, do: 60 * 60 * 24 * 365
+  defp svg_max_age(_params, _cache_key), do: 60 * 60
 
   defp get_svg_path(asciicast, params, cache_key) do
     variant = if params["f"] == "t", do: :thumbnail, else: :full

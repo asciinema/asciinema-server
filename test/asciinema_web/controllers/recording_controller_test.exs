@@ -838,6 +838,25 @@ defmodule AsciinemaWeb.RecordingControllerTest do
     end
   end
 
+  describe "SVG cache-control" do
+    setup [:insert_public_recording]
+
+    test "uses 1 year max-age only for matching v param", %{conn: conn, asciicast: asciicast} do
+      cache_key = AsciinemaWeb.RecordingHTML.svg_cache_key(asciicast)
+
+      conn = get(conn, ~p"/a/#{asciicast.id}" <> ".svg?v=" <> cache_key)
+
+      assert ["public, max-age=31536000, must-revalidate"] =
+               get_resp_header(conn, "cache-control")
+    end
+
+    test "uses 1 hour max-age for non-matching v param", %{conn: conn, asciicast: asciicast} do
+      conn = get(conn, ~p"/a/#{asciicast.id}" <> ".svg?v=stale")
+
+      assert ["public, max-age=3600, must-revalidate"] = get_resp_header(conn, "cache-control")
+    end
+  end
+
   defp insert_public_recording(context) do
     [asciicast: insert_recording(:public, context)]
   end
