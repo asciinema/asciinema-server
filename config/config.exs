@@ -84,14 +84,11 @@ config :asciinema, Asciinema.FileCache,
   path: "cache/",
   buckets: [
     txt: 60 * 60 * 24 * 30,
-    svg: 60 * 60 * 24 * 30
+    svg: 60 * 60 * 24 * 30,
+    png: 60 * 60 * 24 * 30
   ]
 
-config :asciinema, Asciinema.PngGenerator, adapter: Asciinema.PngGenerator.Rsvg
-
-config :asciinema, Asciinema.PngGenerator.Rsvg,
-  pool_size: 2,
-  font_family: "monospace"
+config :asciinema, AsciinemaWeb.PngGenerator, font_family: "monospace"
 
 config :asciinema, AsciinemaWeb.DefaultAvatar, adapter: AsciinemaWeb.DefaultAvatar.Identicon
 

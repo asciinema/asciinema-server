@@ -857,6 +857,29 @@ defmodule AsciinemaWeb.RecordingControllerTest do
     end
   end
 
+  describe "PNG cache-control" do
+    setup [:insert_public_recording]
+
+    test "uses 1 hour max-age and etag", %{conn: conn, asciicast: asciicast} do
+      conn = get(conn, ~p"/a/#{asciicast.id}" <> ".png")
+
+      assert ["public, max-age=3600, must-revalidate"] = get_resp_header(conn, "cache-control")
+      assert [_etag] = get_resp_header(conn, "etag")
+    end
+
+    test "returns 304 for matching if-none-match", %{conn: conn, asciicast: asciicast} do
+      conn = get(conn, ~p"/a/#{asciicast.id}" <> ".png")
+      [etag] = get_resp_header(conn, "etag")
+
+      conn =
+        build_conn()
+        |> put_req_header("if-none-match", etag)
+        |> get(~p"/a/#{asciicast.id}" <> ".png")
+
+      assert response(conn, 304) == ""
+    end
+  end
+
   defp insert_public_recording(context) do
     [asciicast: insert_recording(:public, context)]
   end

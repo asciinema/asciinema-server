@@ -28,8 +28,8 @@ defmodule Asciinema.Application do
       Asciinema.Repo,
       # Start file cache
       {Asciinema.FileCache, file_cache_opts()},
-      # Start PNG generator poolboy pool
-      :poolboy.child_spec(:worker, Asciinema.PngGenerator.Rsvg.poolboy_config(), []),
+      # Start PNG generator
+      AsciinemaWeb.PngGenerator,
       # Start Oban
       {Oban, oban_config()},
       # Start distributed registry

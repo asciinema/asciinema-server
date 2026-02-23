@@ -1,8 +1,8 @@
 defmodule AsciinemaWeb.RecordingController do
   use AsciinemaWeb, :controller
-  alias Asciinema.{FileCache, FileStore, Recordings, PngGenerator}
+  alias Asciinema.{FileCache, FileStore, Recordings}
   alias Asciinema.Recordings.Asciicast
-  alias AsciinemaWeb.{Authorization, PlayerOpts, RecordingSVG}
+  alias AsciinemaWeb.{Authorization, PlayerOpts, PngGenerator, RecordingSVG}
   alias AsciinemaWeb.FallbackController
 
   plug :require_current_user when action in [:edit, :update, :delete]
@@ -121,8 +121,8 @@ defmodule AsciinemaWeb.RecordingController do
     end
   end
 
-  # 7 days
-  @png_max_age 604_800
+  @png_max_age 60 * 60
+  @png_cache_timeout 45_000
 
   def do_show(conn, "png", asciicast) do
     if asciicast.archived_at do
@@ -133,18 +133,42 @@ defmodule AsciinemaWeb.RecordingController do
       |> put_resp_content_type("image/png")
       |> send_file(200, path)
     else
-      case PngGenerator.generate(asciicast) do
-        {:ok, png_path} ->
-          conn
-          |> put_resp_content_type(MIME.from_path(png_path))
-          |> put_resp_header("cache-control", "public, max-age=#{@png_max_age}")
-          |> send_file(200, png_path)
-          |> halt()
+      cache_key = PngGenerator.png_cache_key(asciicast)
 
-        {:error, :busy} ->
-          conn
-          |> put_resp_header("retry-after", "5")
-          |> send_resp(503, "")
+      conn =
+        conn
+        |> put_resp_header("cache-control", "public, max-age=#{@png_max_age}, must-revalidate")
+        |> put_etag(cache_key)
+        |> put_resp_content_type("image/png")
+
+      if fresh?(conn) do
+        conn
+        |> send_resp(304, "")
+        |> halt()
+      else
+        case get_png_path(asciicast, cache_key) do
+          {:ok, path} ->
+            conn
+            |> send_file(200, path)
+            |> halt()
+
+          {:error, %FileCache.Error{type: :timeout}} ->
+            conn
+            |> put_resp_header("retry-after", "5")
+            |> send_resp(503, "")
+
+          {:error,
+           %FileCache.Error{
+             type: :generator_failed,
+             reason: %PngGenerator.Error{retryable: true}
+           }} ->
+            conn
+            |> put_resp_header("retry-after", "5")
+            |> send_resp(503, "")
+
+          {:error, error} ->
+            raise error
+        end
       end
     end
   end
@@ -184,6 +208,15 @@ defmodule AsciinemaWeb.RecordingController do
 
   defp get_txt_path(asciicast) do
     FileCache.fetch_path(:txt, asciicast.id, &File.write!(&1, Recordings.text(asciicast)))
+  end
+
+  defp get_png_path(asciicast, cache_key) do
+    FileCache.fetch_path(
+      :png,
+      {asciicast.id, cache_key},
+      &PngGenerator.generate(asciicast, &1),
+      @png_cache_timeout
+    )
   end
 
   defp fetch_other_asciicasts(asciicast, current_user) do

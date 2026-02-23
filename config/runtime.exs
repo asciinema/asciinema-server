@@ -207,12 +207,8 @@ if config_env() in [:prod, :dev] do
     config :asciinema, Asciinema.Emails.Mailer, tls_options: tls_options
   end
 
-  if rsvg_pool_size = env.("RSVG_POOL_SIZE") do
-    config :asciinema, Asciinema.PngGenerator.Rsvg, pool_size: String.to_integer(rsvg_pool_size)
-  end
-
   if rsvg_font_family = env.("RSVG_FONT_FAMILY") do
-    config :asciinema, Asciinema.PngGenerator.Rsvg, font_family: rsvg_font_family
+    config :asciinema, AsciinemaWeb.PngGenerator, font_family: rsvg_font_family
   end
 
   if limit = env.("UPLOAD_SIZE_LIMIT") do

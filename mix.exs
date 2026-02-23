@@ -73,7 +73,6 @@ defmodule Asciinema.MixProject do
       {:phoenix_pubsub, "~> 2.1.3"},
       {:phoenix_test, "~> 0.7.0", only: :test},
       {:plug_attack, "~> 0.4.3"},
-      {:poolboy, "~> 1.5"},
       {:postgrex, ">= 0.0.0"},
       {:process_tree, "~> 0.2.1", only: :test},
       {:remote_ip, "~> 1.1"},
