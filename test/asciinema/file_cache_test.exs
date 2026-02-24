@@ -5,7 +5,7 @@ defmodule Asciinema.FileCacheTest do
 
   describe "get_path/5" do
     test "cache miss then cache hit runs generator only once" do
-      %{pid: cache} = start_cache(buckets: [txt: 60], collect_interval: 10)
+      %{pid: cache} = start_cache(buckets: [txt: 60], cache_cleanup_interval: 10)
       counter = start_counter()
       generator = generator(counter, "hello")
 
@@ -17,7 +17,7 @@ defmodule Asciinema.FileCacheTest do
     end
 
     test "concurrent requests for same key are coalesced" do
-      %{pid: cache} = start_cache(buckets: [txt: 60], collect_interval: 10)
+      %{pid: cache} = start_cache(buckets: [txt: 60], cache_cleanup_interval: 10)
       counter = start_counter()
       generator = generator(counter, "hello", sleep_ms: 50)
 
@@ -36,7 +36,7 @@ defmodule Asciinema.FileCacheTest do
     end
 
     test "custom timeout can be passed for slow generator" do
-      %{pid: cache} = start_cache(buckets: [txt: 60], collect_interval: 10)
+      %{pid: cache} = start_cache(buckets: [txt: 60], cache_cleanup_interval: 10)
       counter = start_counter()
       generator = generator(counter, "hello", sleep_ms: 100)
 
@@ -47,7 +47,7 @@ defmodule Asciinema.FileCacheTest do
     end
 
     test "raises on generator failure" do
-      %{pid: cache} = start_cache(buckets: [txt: 60], collect_interval: 10)
+      %{pid: cache} = start_cache(buckets: [txt: 60], cache_cleanup_interval: 10)
 
       error =
         assert_raise FileCache.Error, fn ->
@@ -64,7 +64,7 @@ defmodule Asciinema.FileCacheTest do
 
   describe "fetch_path/5" do
     test "returns error on generator failure and cache process survives" do
-      %{pid: cache} = start_cache(buckets: [txt: 60], collect_interval: 10)
+      %{pid: cache} = start_cache(buckets: [txt: 60], cache_cleanup_interval: 10)
 
       assert {:error,
               %FileCache.Error{
@@ -89,7 +89,7 @@ defmodule Asciinema.FileCacheTest do
     end
 
     test "returns timeout error when generator takes too long" do
-      %{pid: cache} = start_cache(buckets: [txt: 60], collect_interval: 10)
+      %{pid: cache} = start_cache(buckets: [txt: 60], cache_cleanup_interval: 10)
       counter = start_counter()
       generator = generator(counter, "hello", sleep_ms: 100)
 
@@ -109,12 +109,24 @@ defmodule Asciinema.FileCacheTest do
       assert File.read!(path) == "hello"
       assert counter_value(counter) == 1
     end
+
+    test "returns invalid_generator_output when generator returns invalid path" do
+      %{pid: cache} = start_cache(buckets: [txt: 60], cache_cleanup_interval: 10)
+
+      assert {:error,
+              %FileCache.Error{
+                type: :invalid_generator_output,
+                bucket: :txt,
+                key: :bad_output,
+                reason: {:invalid_return, :ok}
+              }} = FileCache.fetch_path(cache, :txt, :bad_output, fn _tmp_dir -> :ok end)
+    end
   end
 
   describe "collect/prune cycle" do
     test "removes stale files and keeps fresh files" do
       %{pid: cache, path: base_path, buckets: buckets} =
-        start_cache(buckets: [txt: 60, svg: 60], collect_interval: 10)
+        start_cache(buckets: [txt: 60, svg: 60], cache_cleanup_interval: 10)
 
       txt_counter = start_counter()
       svg_counter = start_counter()
@@ -128,8 +140,8 @@ defmodule Asciinema.FileCacheTest do
       assert counter_value(svg_counter) == 1
 
       base_path
-      |> FileCache.collect(buckets)
-      |> FileCache.prune()
+      |> FileCache.collect_stale_files(buckets)
+      |> FileCache.prune_stale_files()
 
       FileCache.get_path(cache, :txt, :txt_key, txt_generator)
       FileCache.get_path(cache, :svg, :svg_key, svg_generator)
@@ -139,7 +151,7 @@ defmodule Asciinema.FileCacheTest do
     end
 
     test "scheduler runs collect on configured interval" do
-      %{pid: cache} = start_cache(buckets: [txt: 60], collect_interval: 1)
+      %{pid: cache} = start_cache(buckets: [txt: 60], cache_cleanup_interval: 1)
       counter = start_counter()
       generator = generator(counter, "hello", mtime: 1)
 
@@ -153,19 +165,10 @@ defmodule Asciinema.FileCacheTest do
     end
   end
 
-  describe "start_link/1 options validation" do
+  describe "start_link/1" do
     test "path is required" do
       assert_raise KeyError, fn ->
         FileCache.start_link([])
-      end
-    end
-
-    test "collect_interval must be :midnight or positive integer seconds" do
-      assert_raise FunctionClauseError, fn ->
-        FileCache.start_link(
-          path: unique_cache_path(),
-          collect_interval: 0
-        )
       end
     end
   end
@@ -190,12 +193,14 @@ defmodule Asciinema.FileCacheTest do
     sleep_ms = Keyword.get(opts, :sleep_ms, 0)
     mtime = Keyword.get(opts, :mtime)
 
-    fn tmp_path ->
+    fn tmp_dir ->
       _ = :atomics.add_get(counter, 1, 1)
 
       if sleep_ms > 0 do
         Process.sleep(sleep_ms)
       end
+
+      tmp_path = Path.join(tmp_dir, "value.txt")
 
       :ok = File.write(tmp_path, content)
 
@@ -203,7 +208,7 @@ defmodule Asciinema.FileCacheTest do
         :ok = File.touch(tmp_path, mtime)
       end
 
-      :ok
+      tmp_path
     end
   end
 

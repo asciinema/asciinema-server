@@ -3,6 +3,10 @@ defmodule Asciinema.FileCache do
   require Logger
 
   @default_get_path_timeout 5_000
+  @default_cache_cleanup_interval :midnight
+  @default_work_dir_cleanup_interval 60 * 60
+  @default_work_dir_ttl 60 * 60
+  @work_ns "tmp"
 
   defmodule Error do
     defexception [:type, :bucket, :key, :reason, :kind, :stacktrace]
@@ -29,14 +33,23 @@ defmodule Asciinema.FileCache do
   end
 
   def start_link(opts) when is_list(opts) do
-    base_path = Keyword.fetch!(opts, :path)
+    base_path = opts |> Keyword.fetch!(:path) |> Path.expand()
     buckets = Keyword.get(opts, :buckets, [])
-    collect_interval = Keyword.get(opts, :collect_interval, :midnight)
+
+    cache_cleanup_interval =
+      Keyword.get(opts, :cache_cleanup_interval, @default_cache_cleanup_interval)
+
+    work_dir_cleanup_interval =
+      Keyword.get(opts, :work_dir_cleanup_interval, @default_work_dir_cleanup_interval)
+
+    work_dir_ttl = Keyword.get(opts, :work_dir_ttl, @default_work_dir_ttl)
 
     init_arg = %{
       base_path: base_path,
       buckets: buckets,
-      collect_interval: normalize_collect_interval(collect_interval)
+      cache_cleanup_interval: cache_cleanup_interval,
+      work_dir_cleanup_interval: work_dir_cleanup_interval,
+      work_dir_ttl: work_dir_ttl
     }
 
     GenServer.start_link(__MODULE__, init_arg, Keyword.take(opts, [:name]))
@@ -95,9 +108,12 @@ defmodule Asciinema.FileCache do
   def init(%{
         base_path: base_path,
         buckets: buckets,
-        collect_interval: collect_interval
+        cache_cleanup_interval: cache_cleanup_interval,
+        work_dir_cleanup_interval: work_dir_cleanup_interval,
+        work_dir_ttl: work_dir_ttl
       }) do
-    schedule_collect(collect_interval)
+    schedule_cache_cleanup(cache_cleanup_interval)
+    schedule_work_dir_cleanup(work_dir_cleanup_interval)
 
     if !System.find_executable("fd") do
       Logger.warning("fd executable not found in PATH, required for file cache cleanup")
@@ -107,7 +123,9 @@ defmodule Asciinema.FileCache do
       base_path: base_path,
       buckets: init_buckets(buckets),
       task_refs: %{},
-      collect_interval: collect_interval
+      cache_cleanup_interval: cache_cleanup_interval,
+      work_dir_cleanup_interval: work_dir_cleanup_interval,
+      work_dir_ttl: work_dir_ttl
     }
 
     {:ok, state}
@@ -145,17 +163,25 @@ defmodule Asciinema.FileCache do
   end
 
   @impl true
-  def handle_cast({:prune, candidates}, state) do
-    prune(candidates)
+  def handle_cast({:prune_stale_files, stale_files}, state) do
+    prune_stale_files(stale_files)
 
     {:noreply, state}
   end
 
   @impl true
-  def handle_info(:collect, state) do
+  def handle_info(:cleanup_cache, state) do
     bucket_ttls = Enum.map(state.buckets, fn {bucket, %{ttl: ttl}} -> {bucket, ttl} end)
-    :ok = collect_async(self(), state.base_path, bucket_ttls)
-    schedule_collect(state.collect_interval)
+    :ok = collect_and_report_stale_files_async(self(), state.base_path, bucket_ttls)
+    schedule_cache_cleanup(state.cache_cleanup_interval)
+
+    {:noreply, state}
+  end
+
+  @impl true
+  def handle_info(:cleanup_work_dirs, state) do
+    :ok = cleanup_work_dirs_async(state.base_path, state.work_dir_ttl)
+    schedule_work_dir_cleanup(state.work_dir_cleanup_interval)
 
     {:noreply, state}
   end
@@ -182,52 +208,70 @@ defmodule Asciinema.FileCache do
   @doc false
   def generate(base_path, path, generator) do
     full_path = full_path(base_path, path)
-    tmp_path = full_path <> ".tmp"
+    work_root = full_path(base_path, @work_ns)
+    work_dir = create_work_dir!(work_root)
 
     try do
       :ok = File.mkdir_p(Path.dirname(full_path))
-      :ok = generator.(tmp_path)
-      :ok = File.rename(tmp_path, full_path)
-      {:ok, full_path}
+      output_path = generator.(work_dir)
+
+      case validate_output_path(work_dir, output_path) do
+        {:ok, output_path} ->
+          :ok = File.rename(output_path, full_path)
+          _ = File.rm_rf(work_dir)
+          {:ok, full_path}
+
+        {:error, reason} ->
+          {:error, reason}
+      end
     rescue
       exception ->
-        _ = File.rm(tmp_path)
         {:error, {:generator_failed, :error, exception, __STACKTRACE__}}
     catch
       kind, reason ->
-        _ = File.rm(tmp_path)
         {:error, {:generator_failed, kind, reason, __STACKTRACE__}}
     end
   end
 
-  def collect(base_path, buckets) do
+  def collect_stale_files(base_path, buckets) do
     buckets
-    |> Enum.map(&collect_bucket(base_path, &1))
+    |> Enum.map(&collect_stale_bucket_files(base_path, &1))
     |> Enum.flat_map(& &1)
   end
 
   @doc false
-  def collect_and_cast(server, base_path, buckets) do
-    candidates = collect(base_path, buckets)
-    GenServer.cast(server, {:prune, candidates})
+  def collect_and_report_stale_files(server, base_path, buckets) do
+    stale_files = collect_stale_files(base_path, buckets)
+    GenServer.cast(server, {:prune_stale_files, stale_files})
   end
 
-  defp collect_bucket(base_path, {bucket, ttl_seconds}) do
+  defp collect_stale_bucket_files(base_path, {bucket, ttl_seconds}) do
     bucket_path = full_path(base_path, to_string(bucket))
     cutoff = System.os_time(:second) - ttl_seconds
 
     if File.dir?(bucket_path) do
-      collect_candidates_with_fd(bucket_path, cutoff)
+      collect_stale_files_with_fd(bucket_path, cutoff)
     else
       []
     end
   end
 
-  def prune(candidates) do
-    Enum.each(candidates, &prune_file/1)
+  def prune_stale_files(stale_files) do
+    Enum.each(stale_files, &prune_stale_file/1)
   end
 
-  defp prune_file({full_path, cutoff}) do
+  def cleanup_work_dirs(base_path, ttl_seconds) do
+    work_root = full_path(base_path, @work_ns)
+    cutoff = System.os_time(:second) - ttl_seconds
+    :ok = File.mkdir_p(work_root)
+    {:ok, entries} = File.ls(work_root)
+
+    Enum.each(entries, fn entry ->
+      cleanup_work_dir(Path.join(work_root, entry), cutoff)
+    end)
+  end
+
+  defp prune_stale_file({full_path, cutoff}) do
     case File.stat(full_path, time: :posix) do
       {:ok, %File.Stat{mtime: mtime}} when mtime < cutoff ->
         _ = File.rm(full_path)
@@ -238,15 +282,30 @@ defmodule Asciinema.FileCache do
     end
   end
 
-  defp schedule_collect(:midnight) do
+  defp cleanup_work_dir(path, cutoff) do
+    case File.stat(path, time: :posix) do
+      {:ok, %File.Stat{mtime: mtime}} when mtime < cutoff ->
+        _ = File.rm_rf(path)
+        :ok
+
+      _ ->
+        :ok
+    end
+  end
+
+  defp schedule_cache_cleanup(:midnight) do
     now = Timex.now()
     next_midnight = now |> Timex.shift(days: 1) |> Timex.beginning_of_day()
     time_till_midnight = max(Timex.diff(next_midnight, now, :milliseconds), 0)
-    Process.send_after(self(), :collect, time_till_midnight)
+    Process.send_after(self(), :cleanup_cache, time_till_midnight)
   end
 
-  defp schedule_collect(interval_seconds) when is_integer(interval_seconds) do
-    Process.send_after(self(), :collect, interval_seconds * 1000)
+  defp schedule_cache_cleanup(interval_seconds) when is_integer(interval_seconds) do
+    Process.send_after(self(), :cleanup_cache, interval_seconds * 1000)
+  end
+
+  defp schedule_work_dir_cleanup(interval_seconds) when is_integer(interval_seconds) do
+    Process.send_after(self(), :cleanup_work_dirs, interval_seconds * 1000)
   end
 
   defp key_hash(key) do
@@ -275,23 +334,28 @@ defmodule Asciinema.FileCache do
     task.ref
   end
 
-  defp collect_async(server, base_path, buckets) do
+  defp collect_and_report_stale_files_async(server, base_path, buckets) do
     {:ok, _} =
       Task.Supervisor.start_child(
         Asciinema.TaskSupervisor,
         __MODULE__,
-        :collect_and_cast,
+        :collect_and_report_stale_files,
         [server, base_path, buckets]
       )
 
     :ok
   end
 
-  defp normalize_collect_interval(:midnight), do: :midnight
+  defp cleanup_work_dirs_async(base_path, ttl_seconds) do
+    {:ok, _} =
+      Task.Supervisor.start_child(
+        Asciinema.TaskSupervisor,
+        __MODULE__,
+        :cleanup_work_dirs,
+        [base_path, ttl_seconds]
+      )
 
-  defp normalize_collect_interval(interval_seconds)
-       when is_integer(interval_seconds) and interval_seconds > 0 do
-    interval_seconds
+    :ok
   end
 
   defp init_buckets(buckets) do
@@ -300,7 +364,7 @@ defmodule Asciinema.FileCache do
     end
   end
 
-  defp collect_candidates_with_fd(bucket_path, cutoff) do
+  defp collect_stale_files_with_fd(bucket_path, cutoff) do
     case System.find_executable("fd") do
       nil ->
         []
@@ -323,7 +387,7 @@ defmodule Asciinema.FileCache do
             |> Enum.map(&{&1, cutoff})
 
           {output, _} ->
-            Logger.error("file cache collect failed: #{output}")
+            Logger.error("file cache stale file collection failed: #{output}")
             []
         end
     end
@@ -333,6 +397,41 @@ defmodule Asciinema.FileCache do
     waiters = get_in(state, [:buckets, bucket, :inflight, path])
     Enum.each(waiters, &GenServer.reply(&1, reply))
     update_in(state, [:buckets, bucket, :inflight], &Map.delete(&1, path))
+  end
+
+  defp create_work_dir!(work_root) do
+    :ok = File.mkdir_p(work_root)
+    path = Path.join(work_root, UUID.uuid4())
+    :ok = File.mkdir(path)
+
+    path
+  end
+
+  defp validate_output_path(work_dir, output_path) when is_binary(output_path) do
+    abs_output_path = Path.absname(output_path, work_dir)
+
+    if !path_within_dir?(abs_output_path, work_dir) do
+      {:error, {:invalid_generator_output, {:outside_work_dir, output_path}}}
+    else
+      case File.stat(abs_output_path) do
+        {:ok, %File.Stat{type: :regular}} ->
+          {:ok, abs_output_path}
+
+        {:ok, %File.Stat{type: type}} ->
+          {:error, {:invalid_generator_output, {:not_regular_file, type}}}
+
+        {:error, reason} ->
+          {:error, {:invalid_generator_output, {:missing_or_unreadable, output_path, reason}}}
+      end
+    end
+  end
+
+  defp validate_output_path(_work_dir, output_path) do
+    {:error, {:invalid_generator_output, {:invalid_return, output_path}}}
+  end
+
+  defp path_within_dir?(path, dir) do
+    path == dir or String.starts_with?(path, dir <> "/")
   end
 
   defp to_error(bucket, key, {:generator_failed, kind, reason, stacktrace}) do
@@ -361,6 +460,15 @@ defmodule Asciinema.FileCache do
       bucket: bucket,
       key: key,
       reason: timeout
+    }
+  end
+
+  defp to_error(bucket, key, {:invalid_generator_output, reason}) do
+    %Error{
+      type: :invalid_generator_output,
+      bucket: bucket,
+      key: key,
+      reason: reason
     }
   end
 end
