@@ -57,9 +57,14 @@ jobs:
       - name: Install system packages
         run: |
           sudo apt-get update
-          sudo apt-get install -y librsvg2-bin fd-find
+          sudo apt-get install -y librsvg2-bin
+      - name: Install fd
+        run: |
           mkdir -p "$HOME/.local/bin"
-          ln -sf "$(command -v fdfind)" "$HOME/.local/bin/fd"
+          curl -fsSL -o /tmp/fd.tar.gz \
+            https://github.com/sharkdp/fd/releases/download/v10.2.0/fd-v10.2.0-x86_64-unknown-linux-gnu.tar.gz
+          tar -xzf /tmp/fd.tar.gz -C /tmp
+          install -m 0755 /tmp/fd-v10.2.0-x86_64-unknown-linux-gnu/fd "$HOME/.local/bin/fd"
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
       - name: Verify system tools
         run: |
