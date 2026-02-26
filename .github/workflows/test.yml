@@ -54,6 +54,19 @@ jobs:
           profile: minimal
           toolchain: ${{ env.rust }}
           override: true
+      - name: Install system packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y librsvg2-bin fd-find
+          mkdir -p "$HOME/.local/bin"
+          ln -sf "$(command -v fdfind)" "$HOME/.local/bin/fd"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - name: Verify system tools
+        run: |
+          which fd
+          fd --version
+          which rsvg-convert
+          rsvg-convert --version
       - name: Cache Mix
         uses: actions/cache@v3
         with:
