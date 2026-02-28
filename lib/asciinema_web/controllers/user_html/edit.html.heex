@@ -308,7 +308,7 @@
           Stream limit
         </.label>
         <div>
-          <.input field={f[:live_stream_limit]} placeholder="no limit" readonly />
+          <.input field={f[:live_stream_limit]} placeholder="no limit" readonly disabled />
           <small class="form-hint text-muted">
             Maximum number of live streams you can run concurrently.
             <%= if @changeset.data.live_stream_limit do %>
