@@ -38,7 +38,7 @@
           pname = "${pname}-node-modules";
           version = "1.0.0";
           src = ./assets;
-          npmDepsHash = "sha256-VX5hrT3AClY8sCjqJM3nlvLZZIMC794BKQt3qT3wvQ0=";
+          npmDepsHash = "sha256-H2xnY1Y8AZ2zFGX3Wr78AxgG2EPXX7BLg5tSdYhwLtM=";
           dontNpmBuild = true;
 
           installPhase = ''
