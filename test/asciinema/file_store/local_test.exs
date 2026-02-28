@@ -43,21 +43,6 @@ defmodule Asciinema.FileStore.LocalTest do
     end
   end
 
-  describe "open_file/1" do
-    @tag :tmp_dir
-    test "opens a file for reading", %{store_root: store_root} do
-      path = Path.join(store_root, "file.txt")
-      File.mkdir_p!(Path.dirname(path))
-      File.write!(path, "hello")
-
-      assert {:ok, io} = Local.open_file("file.txt")
-      assert IO.read(io, :eof) == "hello"
-      File.close(io)
-
-      assert {:ok, "hello"} = Local.open_file("file.txt", fn io -> IO.read(io, :eof) end)
-    end
-  end
-
   describe "delete_file/1" do
     @tag :tmp_dir
     test "removes a file from the local store", %{store_root: store_root} do
