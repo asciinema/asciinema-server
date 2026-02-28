@@ -1,9 +1,10 @@
 defmodule Asciinema.FileStore.S3 do
   use Asciinema.Config
-  use Asciinema.FileStore
   import Phoenix.Controller, only: [redirect: 2]
   import Plug.Conn
   alias ExAws.{S3, Config}
+
+  @behaviour Asciinema.FileStore
 
   @impl true
   def url(path) do
@@ -77,8 +78,11 @@ defmodule Asciinema.FileStore.S3 do
   end
 
   @impl true
-  def open_file(path, function \\ nil) do
-    response = bucket() |> S3.get_object(base_path() <> path) |> make_request()
+  def get_local_path(path) do
+    response =
+      bucket()
+      |> S3.get_object(base_path() <> path)
+      |> make_request()
 
     with {:ok, %{headers: headers, body: body}} <- response do
       body =
@@ -87,11 +91,10 @@ defmodule Asciinema.FileStore.S3 do
           _ -> body
         end
 
-      if function do
-        File.open(body, [:ram, :binary, :read], function)
-      else
-        File.open(body, [:ram, :binary, :read])
-      end
+      {:ok, tmp_path} = Briefly.create()
+      File.write!(tmp_path, body)
+
+      {:ok, tmp_path}
     end
   end
 

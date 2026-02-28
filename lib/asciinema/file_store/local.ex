@@ -1,7 +1,8 @@
 defmodule Asciinema.FileStore.Local do
   use Asciinema.Config
-  use Asciinema.FileStore
   import Plug.Conn
+
+  @behaviour Asciinema.FileStore
 
   @impl true
   def url(_path) do
@@ -57,17 +58,8 @@ defmodule Asciinema.FileStore.Local do
   end
 
   @impl true
-  def open_file(path) do
-    File.open(full_path(path), [:binary, :read])
-  end
-
-  @impl true
-  def open_file(path, nil) do
-    open_file(path)
-  end
-
-  def open_file(path, function) do
-    File.open(full_path(path), [:binary, :read], function)
+  def get_local_path(path) do
+    {:ok, full_path(path)}
   end
 
   @impl true

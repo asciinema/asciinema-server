@@ -592,13 +592,12 @@ defmodule Asciinema.Recordings do
   end
 
   def event_stream(%Asciicast{} = asciicast) do
-    {:ok, local_tmp_path} = Briefly.create()
-    :ok = FileStore.download_file(asciicast.path, local_tmp_path)
+    {:ok, local_path} = FileStore.get_local_path(asciicast.path)
 
     case asciicast.version do
-      1 -> V1.event_stream(local_tmp_path)
-      2 -> V2.event_stream(local_tmp_path)
-      3 -> V3.event_stream(local_tmp_path)
+      1 -> V1.event_stream(local_path)
+      2 -> V2.event_stream(local_path)
+      3 -> V3.event_stream(local_path)
     end
   end
 

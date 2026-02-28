@@ -16,31 +16,11 @@ defmodule Asciinema.FileStore do
   @callback serve_file(conn :: %Plug.Conn{}, path :: String.t(), filename :: String.t()) ::
               %Plug.Conn{}
 
-  @doc "Opens the given path in store"
-  @callback open_file(path :: String.t()) :: {:ok, File.io_device()} | {:error, File.posix()}
-
-  @doc "Opens the given path in store, executes given fn and closes the file"
-  @callback open_file(path :: String.t(), function :: (File.io_device() -> res)) ::
-              {:ok, res} | {:error, File.posix()}
-            when res: var
-
-  @doc "Downloads file from given path in store to local path"
-  @callback download_file(path :: String.t(), local_path :: String.t()) :: :ok | {:error, term}
+  @doc "Returns local filesystem path for a given store path"
+  @callback get_local_path(path :: String.t()) :: {:ok, String.t()} | {:error, term}
 
   @doc "Deletes file"
   @callback delete_file(path :: String.t()) :: :ok | {:error, term}
-
-  defmacro __using__(_) do
-    quote do
-      @behaviour Asciinema.FileStore
-
-      def download_file(store_path, local_path) do
-        with {:ok, {:ok, _}} <- open_file(store_path, &:file.copy(&1, local_path)) do
-          :ok
-        end
-      end
-    end
-  end
 
   # Shortcuts
 
@@ -56,12 +36,8 @@ defmodule Asciinema.FileStore do
     adapter().move_file(from_path, to_path)
   end
 
-  def open_file(path, f) do
-    adapter().open_file(path, f)
-  end
-
-  def download_file(store_path, local_path) do
-    adapter().download_file(store_path, local_path)
+  def get_local_path(path) do
+    adapter().get_local_path(path)
   end
 
   def delete_file(path) do
