@@ -111,19 +111,12 @@ if config_env() in [:prod, :dev] do
     ]
 
   if bucket = env.("S3_BUCKET") do
+    config :asciinema, Asciinema.FileStore, adapter: Asciinema.FileStore.S3
+
     config :asciinema, Asciinema.FileStore.S3,
       bucket: bucket,
       path: "uploads/",
       proxy_path_prefix: env.("S3_PROXY_PATH_PREFIX")
-
-    config :asciinema, Asciinema.FileStore, adapter: Asciinema.FileStore.Cached
-
-    config :asciinema, Asciinema.FileStore.Cached,
-      remote_store: Asciinema.FileStore.S3,
-      cache_store: Asciinema.FileStore.Local
-
-    config :asciinema, Asciinema.FileStore.Local,
-      path: Path.join(cache_path || "/var/cache/asciinema", "uploads")
 
     if endpoint = env.("S3_ENDPOINT") do
       uri = URI.parse(endpoint)
