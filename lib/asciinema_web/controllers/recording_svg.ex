@@ -56,7 +56,7 @@ defmodule AsciinemaWeb.RecordingSVG do
   end
 
   # Bump when SVG rendering output can change without recording data changes.
-  @svg_renderer_salt 1
+  @svg_renderer_salt 2
 
   def svg_cache_key(asciicast) do
     key =
@@ -265,8 +265,14 @@ defmodule AsciinemaWeb.RecordingSVG do
   defp mosaic_block?(char) do
     cp = codepoint(char)
 
-    # block elements || black square || sextants
+    # block elements || box drawing vertical lines || black square || sextants
     (cp >= 0x2580 and cp <= 0x259F) ||
+      cp == 0x2502 ||
+      cp == 0x2503 ||
+      cp == 0x2575 ||
+      cp == 0x2577 ||
+      cp == 0x2579 ||
+      cp == 0x257B ||
       cp == 0x25A0 ||
       (cp >= 0x1FB00 and cp <= 0x1FB3B)
   end

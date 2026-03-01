@@ -159,6 +159,24 @@ fn draw_mosaic_block(
     let half_y = CELL_Y_RES / 2;
 
     match cp {
+        // box drawings light vertical (https://symbl.cc/en/2502/)
+        0x2502 => fill_cell_rect(pixels, img_w, origin, (4, 0, 5, CELL_Y_RES), color),
+
+        // box drawings heavy vertical (https://symbl.cc/en/2503/)
+        0x2503 => fill_cell_rect(pixels, img_w, origin, (3, 0, 5, CELL_Y_RES), color),
+
+        // box drawings light up (https://symbl.cc/en/2575/)
+        0x2575 => fill_cell_rect(pixels, img_w, origin, (4, 0, 5, half_y), color),
+
+        // box drawings light down (https://symbl.cc/en/2577/)
+        0x2577 => fill_cell_rect(pixels, img_w, origin, (4, half_y, 5, CELL_Y_RES), color),
+
+        // box drawings heavy up (https://symbl.cc/en/2579/)
+        0x2579 => fill_cell_rect(pixels, img_w, origin, (3, 0, 5, half_y), color),
+
+        // box drawings heavy down (https://symbl.cc/en/257B/)
+        0x257B => fill_cell_rect(pixels, img_w, origin, (3, half_y, 5, CELL_Y_RES), color),
+
         // upper half block
         0x2580 => fill_cell_rect(pixels, img_w, origin, (0, 0, CELL_X_RES, half_y), color),
 

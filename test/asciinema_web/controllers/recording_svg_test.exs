@@ -92,6 +92,69 @@ defmodule AsciinemaWeb.RecordingSvgTest do
       assert rgb_at(png, 8, 12) == {51, 102, 204}
     end
 
+    test "renders box drawing vertical lines in mosaic layer and excludes them from text layer" do
+      asciicast =
+        build(:asciicast,
+          term_cols: 2,
+          term_rows: 1,
+          snapshot: Snapshot.new([[["│┃", %{"fg" => "#ff5500"}, 1]]], :segments)
+        )
+
+      svg = render_full(asciicast)
+      png = decode_embedded_png(svg)
+
+      refute svg =~ "│"
+      refute svg =~ "┃"
+
+      # light line: x + 4, width 1
+      assert rgb_at(png, 4, 12) == {255, 85, 0}
+      assert rgb_at(png, 3, 12) == {18, 19, 20}
+
+      # heavy line: x + 3, width 2
+      assert rgb_at(png, 11, 12) == {255, 85, 0}
+      assert rgb_at(png, 12, 12) == {255, 85, 0}
+      assert rgb_at(png, 10, 12) == {18, 19, 20}
+    end
+
+    test "renders box drawing vertical half-lines in mosaic layer and excludes them from text layer" do
+      half_lines = <<0x2575::utf8, 0x2577::utf8, 0x2579::utf8, 0x257B::utf8>>
+
+      asciicast =
+        build(:asciicast,
+          term_cols: 4,
+          term_rows: 1,
+          snapshot: Snapshot.new([[[half_lines, %{"fg" => "#ff5500"}, 1]]], :segments)
+        )
+
+      svg = render_full(asciicast)
+      png = decode_embedded_png(svg)
+
+      refute svg =~ <<0x2575::utf8>>
+      refute svg =~ <<0x2577::utf8>>
+      refute svg =~ <<0x2579::utf8>>
+      refute svg =~ <<0x257B::utf8>>
+
+      # light up (top half only)
+      assert rgb_at(png, 4, 5) == {255, 85, 0}
+      assert rgb_at(png, 4, 18) == {18, 19, 20}
+      assert rgb_at(png, 3, 5) == {18, 19, 20}
+
+      # light down (bottom half only)
+      assert rgb_at(png, 12, 5) == {18, 19, 20}
+      assert rgb_at(png, 12, 18) == {255, 85, 0}
+      assert rgb_at(png, 11, 18) == {18, 19, 20}
+
+      # heavy up (top half only)
+      assert rgb_at(png, 19, 5) == {255, 85, 0}
+      assert rgb_at(png, 20, 5) == {255, 85, 0}
+      assert rgb_at(png, 20, 18) == {18, 19, 20}
+
+      # heavy down (bottom half only)
+      assert rgb_at(png, 27, 5) == {18, 19, 20}
+      assert rgb_at(png, 27, 18) == {255, 85, 0}
+      assert rgb_at(png, 28, 18) == {255, 85, 0}
+    end
+
     test "renders black square in mosaic layer and excludes it from text layer" do
       asciicast =
         build(:asciicast,
