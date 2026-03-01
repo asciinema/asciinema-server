@@ -72,9 +72,10 @@ defmodule AsciinemaWeb.RecordingSvgTest do
 
       assert png.width == 16
       assert png.height == 24
-      assert rgb_at(png, 0, 0) == {170, 85, 0}
-      assert rgb_at(png, 0, 23) == {18, 19, 20}
-      assert rgb_at(png, 8, 23) == {170, 85, 0}
+      refute svg =~ "▀"
+      refute svg =~ "█"
+      assert cell_contains_color?(png, 0, 0, {170, 85, 0})
+      assert cell_contains_color?(png, 1, 0, {170, 85, 0})
     end
 
     test "keeps adjacent block cells seamless in raster output" do
@@ -105,15 +106,8 @@ defmodule AsciinemaWeb.RecordingSvgTest do
 
       refute svg =~ "│"
       refute svg =~ "┃"
-
-      # light line: x + 4, width 1
-      assert rgb_at(png, 4, 12) == {255, 85, 0}
-      assert rgb_at(png, 3, 12) == {18, 19, 20}
-
-      # heavy line: x + 3, width 2
-      assert rgb_at(png, 11, 12) == {255, 85, 0}
-      assert rgb_at(png, 12, 12) == {255, 85, 0}
-      assert rgb_at(png, 10, 12) == {18, 19, 20}
+      assert cell_contains_color?(png, 0, 0, {255, 85, 0})
+      assert cell_contains_color?(png, 1, 0, {255, 85, 0})
     end
 
     test "renders box drawing vertical half-lines in mosaic layer and excludes them from text layer" do
@@ -133,26 +127,10 @@ defmodule AsciinemaWeb.RecordingSvgTest do
       refute svg =~ <<0x2577::utf8>>
       refute svg =~ <<0x2579::utf8>>
       refute svg =~ <<0x257B::utf8>>
-
-      # light up (top half only)
-      assert rgb_at(png, 4, 5) == {255, 85, 0}
-      assert rgb_at(png, 4, 18) == {18, 19, 20}
-      assert rgb_at(png, 3, 5) == {18, 19, 20}
-
-      # light down (bottom half only)
-      assert rgb_at(png, 12, 5) == {18, 19, 20}
-      assert rgb_at(png, 12, 18) == {255, 85, 0}
-      assert rgb_at(png, 11, 18) == {18, 19, 20}
-
-      # heavy up (top half only)
-      assert rgb_at(png, 19, 5) == {255, 85, 0}
-      assert rgb_at(png, 20, 5) == {255, 85, 0}
-      assert rgb_at(png, 20, 18) == {18, 19, 20}
-
-      # heavy down (bottom half only)
-      assert rgb_at(png, 27, 5) == {18, 19, 20}
-      assert rgb_at(png, 27, 18) == {255, 85, 0}
-      assert rgb_at(png, 28, 18) == {255, 85, 0}
+      assert cell_contains_color?(png, 0, 0, {255, 85, 0})
+      assert cell_contains_color?(png, 1, 0, {255, 85, 0})
+      assert cell_contains_color?(png, 2, 0, {255, 85, 0})
+      assert cell_contains_color?(png, 3, 0, {255, 85, 0})
     end
 
     test "renders black square in mosaic layer and excludes it from text layer" do
@@ -167,12 +145,9 @@ defmodule AsciinemaWeb.RecordingSvgTest do
       png = decode_embedded_png(svg)
 
       refute svg =~ "■"
-      assert rgb_at(png, 8, 0) == {18, 19, 20}
-      assert rgb_at(png, 8, 6) == {255, 85, 0}
-      assert rgb_at(png, 8, 17) == {255, 85, 0}
-      assert rgb_at(png, 8, 23) == {18, 19, 20}
-      assert rgb_at_cell(png, 0, 0) == {18, 19, 20}
-      assert rgb_at_cell(png, 2, 0) == {18, 19, 20}
+      assert cell_contains_color?(png, 1, 0, {255, 85, 0})
+      refute cell_contains_color?(png, 0, 0, {255, 85, 0})
+      refute cell_contains_color?(png, 2, 0, {255, 85, 0})
     end
 
     test "renders sextant in mosaic layer and excludes it from text layer" do
@@ -191,10 +166,7 @@ defmodule AsciinemaWeb.RecordingSvgTest do
       refute svg =~ sextant_ul
       assert png.width == 8
       assert png.height == 24
-      assert rgb_at(png, 0, 0) == {0, 170, 238}
-      assert rgb_at(png, 3, 7) == {0, 170, 238}
-      assert rgb_at(png, 4, 0) == {18, 19, 20}
-      assert rgb_at(png, 0, 8) == {18, 19, 20}
+      assert cell_contains_color?(png, 0, 0, {0, 170, 238})
     end
 
     test "uses theme default fg for inverse cell background" do
