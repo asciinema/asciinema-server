@@ -59,6 +59,48 @@ defmodule AsciinemaWeb.RecordingSvgTest do
       assert rgb_at(png, 23, 23) == {17, 34, 51}
     end
 
+    test "routes representative rasterized glyph groups to embedded PNG layer" do
+      fg = {255, 85, 0}
+      sextant_ul = <<0x1FB00::utf8>>
+      line = "█│┃╵╷╹╻■" <> sextant_ul
+
+      asciicast =
+        build(:asciicast,
+          term_cols: 9,
+          term_rows: 1,
+          snapshot: Snapshot.new([[[line, %{"fg" => "#ff5500"}, 1]]], :segments)
+        )
+
+      svg = render_full(asciicast)
+      png = decode_embedded_png(svg)
+
+      # block elements
+      refute svg =~ "█"
+      assert cell_contains_color?(png, 0, 0, fg)
+
+      # box verticals
+      refute svg =~ "│"
+      refute svg =~ "┃"
+      refute svg =~ "╵"
+      refute svg =~ "╷"
+      refute svg =~ "╹"
+      refute svg =~ "╻"
+      assert cell_contains_color?(png, 1, 0, fg)
+      assert cell_contains_color?(png, 2, 0, fg)
+      assert cell_contains_color?(png, 3, 0, fg)
+      assert cell_contains_color?(png, 4, 0, fg)
+      assert cell_contains_color?(png, 5, 0, fg)
+      assert cell_contains_color?(png, 6, 0, fg)
+
+      # black square
+      refute svg =~ "■"
+      assert cell_contains_color?(png, 7, 0, fg)
+
+      # sextants
+      refute svg =~ sextant_ul
+      assert cell_contains_color?(png, 8, 0, fg)
+    end
+
     test "rasterizes block symbols into the embedded PNG" do
       asciicast =
         build(:asciicast,

@@ -24,6 +24,44 @@ defmodule Asciinema.SvgRasterTest do
     assert rgb_at(decoded, 8, 12) == {4, 5, 6}
   end
 
+  test "renders representative glyphs grouped by rasterized groups" do
+    fg = {240, 16, 32}
+    bg = {1, 2, 3}
+
+    # 0: █, 1: │, 2: ┃, 3: ╵, 4: ╷, 5: ╹, 6: ╻, 7: ■, 8: 🬀
+    mosaic_blocks = [
+      {0, 0, 0x2588, fg},
+      {0, 1, 0x2502, fg},
+      {0, 2, 0x2503, fg},
+      {0, 3, 0x2575, fg},
+      {0, 4, 0x2577, fg},
+      {0, 5, 0x2579, fg},
+      {0, 6, 0x257B, fg},
+      {0, 7, 0x25A0, fg},
+      {0, 8, 0x1FB00, fg}
+    ]
+
+    png = SvgRaster.render_png(9, 1, bg, [], mosaic_blocks)
+    decoded = decode_png(png)
+
+    # block elements
+    assert cell_contains_color?(decoded, 0, 0, fg)
+
+    # box verticals
+    assert cell_contains_color?(decoded, 1, 0, fg)
+    assert cell_contains_color?(decoded, 2, 0, fg)
+    assert cell_contains_color?(decoded, 3, 0, fg)
+    assert cell_contains_color?(decoded, 4, 0, fg)
+    assert cell_contains_color?(decoded, 5, 0, fg)
+    assert cell_contains_color?(decoded, 6, 0, fg)
+
+    # black square
+    assert cell_contains_color?(decoded, 7, 0, fg)
+
+    # sextants
+    assert cell_contains_color?(decoded, 8, 0, fg)
+  end
+
   test "renders box drawing vertical lines with light/heavy widths" do
     png =
       SvgRaster.render_png(
