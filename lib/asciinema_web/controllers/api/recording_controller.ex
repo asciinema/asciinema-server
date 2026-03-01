@@ -9,14 +9,22 @@ defmodule AsciinemaWeb.Api.RecordingController do
   plug :load_asciicast when action in [:update, :delete]
   plug :authorize, :asciicast when action in [:update, :delete]
 
-  def create(conn, %{"asciicast" => %Plug.Upload{} = upload}), do: create(conn, upload)
-  def create(conn, %{"file" => %Plug.Upload{} = upload}), do: create(conn, upload)
+  def create(conn, %{"asciicast" => %Plug.Upload{}} = params),
+    do: create(conn, Map.pop(params, "asciicast"))
 
-  def create(conn, upload) do
+  def create(conn, %{"file" => %Plug.Upload{}} = params),
+    do: create(conn, Map.pop(params, "file"))
+
+  def create(conn, {upload, params}) do
     cli = conn.assigns.cli
     user_agent = get_user_agent(conn)
 
-    case Recordings.create_asciicast(cli.user, upload, %{cli_id: cli.id, user_agent: user_agent}) do
+    case Recordings.create_asciicast(
+           cli.user,
+           upload,
+           %{cli_id: cli.id, user_agent: user_agent},
+           params
+         ) do
       {:ok, asciicast} ->
         conn
         |> put_status(:created)

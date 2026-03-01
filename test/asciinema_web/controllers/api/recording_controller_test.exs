@@ -3,6 +3,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
   import Asciinema.Factory
   alias Asciinema.Accounts
   alias Asciinema.AppEnv
+  alias Asciinema.Recordings
 
   setup(context) do
     [token: Map.get(context, :token, "9da34ff4-9bf7-45d4-aa88-98c933b15a3f")]
@@ -195,6 +196,47 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       assert %{"url" => "http" <> _} = json_response(conn, 201)
       assert List.first(get_resp_header(conn, "location")) =~ @recording_url
+    end
+
+    test "stores user agent from request header", %{conn: conn} do
+      upload = fixture(:upload, %{path: "2/minimal.cast"})
+      user_agent = "asciinema/3.0.0 target/x86_64-unknown-linux-gnu"
+
+      conn =
+        conn
+        |> put_req_header("user-agent", user_agent)
+        |> upload(upload)
+
+      assert %{"id" => id} = json_response(conn, 201)
+      assert Recordings.get_asciicast(id).user_agent == user_agent
+    end
+
+    test "accepts title, description, visibility and audio_url params", %{conn: conn} do
+      upload = fixture(:upload, %{path: "2/minimal.cast"})
+
+      params = %{
+        "title" => "Upload title",
+        "description" => "Upload description",
+        "visibility" => "private",
+        "audio_url" => "https://example.com/audio.opus"
+      }
+
+      conn = upload(conn, upload, params)
+
+      assert %{
+               "id" => id,
+               "title" => "Upload title",
+               "description" => "Upload description",
+               "visibility" => "private",
+               "audio_url" => "https://example.com/audio.opus"
+             } = json_response(conn, 201)
+
+      asciicast = Recordings.get_asciicast(id)
+
+      assert asciicast.title == "Upload title"
+      assert asciicast.description == "Upload description"
+      assert asciicast.visibility == :private
+      assert asciicast.audio_url == "https://example.com/audio.opus"
     end
   end
 
@@ -464,10 +506,10 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
     end
   end
 
-  defp upload(conn, upload) do
+  defp upload(conn, upload, params \\ %{}) do
     conn
     |> put_resp_content_type("application/json")
-    |> post(~p"/api/v1/recordings", %{"file" => upload})
+    |> post(~p"/api/v1/recordings", Map.put(params, "file", upload))
   end
 
   defp require_registered_cli(_context) do
