@@ -273,7 +273,14 @@ defmodule Asciinema.Recordings do
     :ok
   end
 
-  def create_asciicast(user, %Plug.Upload{filename: filename} = upload, fields \\ %{}) do
+  def create_asciicast(
+        user,
+        %Plug.Upload{filename: filename} = upload,
+        # defaults and private fields
+        safe_fields \\ %{},
+        # user provided fields
+        unsafe_fields \\ %{}
+      ) do
     attrs =
       Map.merge(
         %{
@@ -283,7 +290,7 @@ defmodule Asciinema.Recordings do
           term_bold_is_bright: user.term_bold_is_bright,
           term_adaptive_palette: user.term_adaptive_palette
         },
-        fields
+        safe_fields
       )
 
     changeset =
@@ -293,6 +300,7 @@ defmodule Asciinema.Recordings do
 
     with {:ok, metadata} <- extract_metadata(upload),
          changeset = apply_metadata(changeset, metadata, user),
+         changeset = change_asciicast(changeset, unsafe_fields),
          {:ok, %Asciicast{} = asciicast} <- do_create_asciicast(changeset, upload) do
       if asciicast.snapshot == nil do
         %{asciicast_id: asciicast.id}
