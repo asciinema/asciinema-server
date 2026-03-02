@@ -1,6 +1,6 @@
 defmodule AsciinemaWeb.RecordingController do
   use AsciinemaWeb, :controller
-  alias Asciinema.{FileCache, FileStore, Recordings}
+  alias Asciinema.{FileCache, FileStore, HttpUtil, Recordings}
   alias Asciinema.Recordings.Asciicast
   alias AsciinemaWeb.{Authorization, PlayerOpts, PngGenerator, RecordingSVG}
   alias AsciinemaWeb.FallbackController
@@ -39,11 +39,14 @@ defmodule AsciinemaWeb.RecordingController do
     if asciicast.archived_at do
       send_resp(conn, 410, "")
     else
-      filename = download_filename(asciicast, conn.params)
+      filename = attachment_filename(asciicast, conn.params)
+      path = get_cast_path(asciicast)
 
       conn
+      |> put_resp_header("content-type", "application/x-asciicast")
       |> put_resp_header("access-control-allow-origin", "*")
-      |> FileStore.serve_file(asciicast.path, filename)
+      |> put_content_disposition(filename)
+      |> send_file(200, path)
     end
   end
 
@@ -189,6 +192,26 @@ defmodule AsciinemaWeb.RecordingController do
   defp svg_max_age(%{"v" => v}, cache_key) when v == cache_key, do: 60 * 60 * 24 * 365
   defp svg_max_age(_params, _cache_key), do: 60 * 60
 
+  defp get_cast_path(asciicast) do
+    case FileStore.uri(asciicast.path) do
+      "file://" <> path ->
+        path
+
+      "http" <> _rest = url ->
+        FileCache.get_path(
+          :cast,
+          asciicast.id,
+          fn tmp_dir ->
+            path = Path.join(tmp_dir, "#{asciicast.id}.cast")
+            :ok = HttpUtil.download_to(url, path, timeout: 30_000)
+
+            path
+          end,
+          40_000
+        )
+    end
+  end
+
   defp get_svg_path(asciicast, params, cache_key) do
     variant = if params["f"] == "t", do: :thumbnail, else: :full
 
@@ -226,6 +249,12 @@ defmodule AsciinemaWeb.RecordingController do
       &PngGenerator.generate(asciicast, &1),
       @png_cache_timeout
     )
+  end
+
+  defp put_content_disposition(conn, nil), do: conn
+
+  defp put_content_disposition(conn, filename) do
+    put_resp_header(conn, "content-disposition", "attachment; filename=#{filename}")
   end
 
   defp fetch_other_asciicasts(asciicast, current_user) do
@@ -298,7 +327,7 @@ defmodule AsciinemaWeb.RecordingController do
     end
   end
 
-  defp download_filename(%Asciicast{version: version, id: id}, %{"dl" => _}) do
+  defp attachment_filename(%Asciicast{version: version, id: id}, %{"dl" => _}) do
     case version do
       0 -> "#{id}.json"
       1 -> "#{id}.json"
@@ -307,7 +336,7 @@ defmodule AsciinemaWeb.RecordingController do
     end
   end
 
-  defp download_filename(_asciicast, _params) do
+  defp attachment_filename(_asciicast, _params) do
     nil
   end
 

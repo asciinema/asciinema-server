@@ -26,7 +26,7 @@ defmodule Asciinema.MixProject do
   def application do
     [
       mod: {Asciinema.Application, []},
-      extra_applications: [:logger, :runtime_tools, :os_mon]
+      extra_applications: [:logger, :runtime_tools, :os_mon, :inets, :ssl]
     ]
   end
 

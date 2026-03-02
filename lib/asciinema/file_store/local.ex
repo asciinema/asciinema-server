@@ -1,12 +1,16 @@
 defmodule Asciinema.FileStore.Local do
   use Asciinema.Config
-  import Plug.Conn
 
   @behaviour Asciinema.FileStore
 
   @impl true
-  def url(_path) do
-    nil
+  def uri(path) do
+    abs_path =
+      path
+      |> full_path()
+      |> Path.expand()
+
+    "file://" <> abs_path
   end
 
   @impl true
@@ -37,24 +41,6 @@ defmodule Asciinema.FileStore.Local do
     parent_dir = Path.dirname(full_to_path)
     :ok = File.mkdir_p(parent_dir)
     File.rename(full_from_path, full_to_path)
-  end
-
-  @impl true
-  def serve_file(conn, path, nil) do
-    do_serve_file(conn, path)
-  end
-
-  def serve_file(conn, path, filename) do
-    conn
-    |> put_resp_header("content-disposition", "attachment; filename=#{filename}")
-    |> do_serve_file(path)
-  end
-
-  defp do_serve_file(conn, path) do
-    conn
-    |> put_resp_header("content-type", MIME.from_path(path))
-    |> send_file(200, full_path(path))
-    |> halt()
   end
 
   @impl true

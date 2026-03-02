@@ -115,8 +115,7 @@ if config_env() in [:prod, :dev] do
 
     config :asciinema, Asciinema.FileStore.S3,
       bucket: bucket,
-      path: "uploads/",
-      proxy_path_prefix: env.("S3_PROXY_PATH_PREFIX")
+      path: "uploads/"
 
     if endpoint = env.("S3_ENDPOINT") do
       uri = URI.parse(endpoint)

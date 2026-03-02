@@ -83,6 +83,7 @@ config :asciinema, Asciinema.FileStore.Local, path: "uploads/"
 config :asciinema, Asciinema.FileCache,
   path: "cache/",
   buckets: [
+    cast: 60 * 60 * 24 * 30,
     txt: 60 * 60 * 24 * 30,
     svg: 60 * 60 * 24 * 30,
     png: 60 * 60 * 24 * 30

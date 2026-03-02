@@ -966,11 +966,13 @@ defmodule AsciinemaWeb.RecordingControllerTest do
   defp test_cast_v1_response(conn, url, 200) do
     conn_2 = get(conn, url <> ".cast")
 
-    assert %{"version" => 1} = json_response(conn_2, 200)
+    assert json = asciicast_response(conn_2, 200)
+    assert %{"version" => 1} = Jason.decode!(json)
 
     conn_2 = get(conn, url <> ".json")
 
-    assert %{"version" => 1} = json_response(conn_2, 200)
+    assert json = asciicast_response(conn_2, 200)
+    assert %{"version" => 1} = Jason.decode!(json)
   end
 
   defp test_cast_v1_response(conn, url, status) when status >= 400 do
