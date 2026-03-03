@@ -1,6 +1,6 @@
 defmodule AsciinemaWeb.RecordingController do
   use AsciinemaWeb, :controller
-  alias Asciinema.{FileCache, FileStore, HttpUtil, Recordings}
+  alias Asciinema.{FileCache, FileStore, Gzip, HttpUtil, Recordings}
   alias Asciinema.Recordings.Asciicast
   alias AsciinemaWeb.{Authorization, PlayerOpts, PngGenerator, RecordingSVG}
   alias AsciinemaWeb.FallbackController
@@ -8,6 +8,7 @@ defmodule AsciinemaWeb.RecordingController do
   plug :require_current_user when action in [:edit, :update, :delete]
   plug :load_and_authorize_asciicast when action in [:show, :edit, :update, :delete, :iframe]
   plug :redirect_to_canonical_path when action == :show
+  @gzip_chunk_size 64 * 1024
 
   def show(conn, _params) do
     do_show(conn, get_format(conn), conn.assigns.asciicast)
@@ -40,11 +41,15 @@ defmodule AsciinemaWeb.RecordingController do
       send_resp(conn, 410, "")
     else
       filename = attachment_filename(asciicast, conn.params)
-      path = get_cast_path(asciicast)
+      cast_path = get_cast_path(asciicast)
+      gzip? = accepts_gzip?(conn)
+      path = if gzip?, do: get_gzipped_cast_path(asciicast, cast_path), else: cast_path
 
       conn
       |> put_resp_header("content-type", "application/x-asciicast")
       |> put_resp_header("access-control-allow-origin", "*")
+      |> put_resp_header("vary", "accept-encoding")
+      |> maybe_put_content_encoding(gzip?)
       |> put_content_disposition(filename)
       |> send_file(200, path)
     end
@@ -200,7 +205,7 @@ defmodule AsciinemaWeb.RecordingController do
       "http" <> _rest = url ->
         FileCache.get_path(
           :cast,
-          asciicast.id,
+          {:plain, asciicast.id},
           fn tmp_dir ->
             path = Path.join(tmp_dir, "#{asciicast.id}.cast")
             :ok = HttpUtil.download_to(url, path, timeout: 30_000)
@@ -210,6 +215,23 @@ defmodule AsciinemaWeb.RecordingController do
           40_000
         )
     end
+  end
+
+  defp get_gzipped_cast_path(asciicast, cast_path) do
+    FileCache.get_path(
+      :cast,
+      {:gzip, asciicast.id},
+      fn tmp_dir ->
+        path = Path.join(tmp_dir, "#{asciicast.id}.cast.gz")
+
+        cast_path
+        |> File.stream!([], @gzip_chunk_size)
+        |> Enum.into(Gzip.stream!(path, @gzip_chunk_size))
+
+        path
+      end,
+      40_000
+    )
   end
 
   defp get_svg_path(asciicast, params, cache_key) do
@@ -255,6 +277,20 @@ defmodule AsciinemaWeb.RecordingController do
 
   defp put_content_disposition(conn, filename) do
     put_resp_header(conn, "content-disposition", "attachment; filename=#{filename}")
+  end
+
+  defp maybe_put_content_encoding(conn, true) do
+    put_resp_header(conn, "content-encoding", "gzip")
+  end
+
+  defp maybe_put_content_encoding(conn, false), do: conn
+
+  defp accepts_gzip?(conn) do
+    conn
+    |> get_req_header("accept-encoding")
+    |> Enum.any?(fn value ->
+      String.contains?(String.downcase(value), "gzip")
+    end)
   end
 
   defp fetch_other_asciicasts(asciicast, current_user) do

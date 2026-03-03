@@ -880,6 +880,58 @@ defmodule AsciinemaWeb.RecordingControllerTest do
     end
   end
 
+  describe "cast gzip encoding" do
+    setup [:insert_public_recording]
+
+    @tag :with_file
+    test "serves plain .cast/.json when gzip is not requested", %{
+      conn: conn,
+      asciicast: asciicast
+    } do
+      conn_1 = get(conn, ~p"/a/#{asciicast.id}" <> ".cast")
+      body_1 = asciicast_response(conn_1, 200)
+
+      assert ["accept-encoding"] = get_resp_header(conn_1, "vary")
+      assert [] == get_resp_header(conn_1, "content-encoding")
+      assert ~s({"version": 2) <> _ = body_1
+
+      conn_2 = get(conn, ~p"/a/#{asciicast.id}" <> ".json")
+      body_2 = asciicast_response(conn_2, 200)
+
+      assert ["accept-encoding"] = get_resp_header(conn_2, "vary")
+      assert [] == get_resp_header(conn_2, "content-encoding")
+      assert ~s({"version": 2) <> _ = body_2
+    end
+
+    @tag :with_file
+    test "serves gzip .cast/.json when accept-encoding includes gzip", %{
+      conn: conn,
+      asciicast: asciicast
+    } do
+      conn_1 =
+        conn
+        |> put_req_header("accept-encoding", "gzip, deflate")
+        |> get(~p"/a/#{asciicast.id}" <> ".cast")
+
+      gzip_body_1 = asciicast_response(conn_1, 200)
+
+      assert ["accept-encoding"] = get_resp_header(conn_1, "vary")
+      assert ["gzip"] = get_resp_header(conn_1, "content-encoding")
+      assert ~s({"version": 2) <> _ = :zlib.gunzip(gzip_body_1)
+
+      conn_2 =
+        conn
+        |> put_req_header("accept-encoding", "br, gzip")
+        |> get(~p"/a/#{asciicast.id}" <> ".json")
+
+      gzip_body_2 = asciicast_response(conn_2, 200)
+
+      assert ["accept-encoding"] = get_resp_header(conn_2, "vary")
+      assert ["gzip"] = get_resp_header(conn_2, "content-encoding")
+      assert ~s({"version": 2) <> _ = :zlib.gunzip(gzip_body_2)
+    end
+  end
+
   defp insert_public_recording(context) do
     [asciicast: insert_recording(:public, context)]
   end
