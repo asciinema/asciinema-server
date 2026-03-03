@@ -238,11 +238,11 @@ defmodule AsciinemaWeb.RecordingController do
         path
       end)
 
-    with {:ok, svg_path} <- result do
+    with {:ok, path} <- result do
       if gzip? do
-        fetch_gzipped_path(:svg, {:gzip, asciicast.id, variant, cache_key}, svg_path)
+        fetch_gzipped_path(:svg, {:gzip, asciicast.id, variant, cache_key}, path)
       else
-        {:ok, svg_path}
+        {:ok, path}
       end
     end
   end
@@ -256,11 +256,11 @@ defmodule AsciinemaWeb.RecordingController do
         path
       end)
 
-    with {:ok, txt_path} <- result do
+    with {:ok, path} <- result do
       if gzip? do
-        fetch_gzipped_path(:txt, {:gzip, asciicast.id}, txt_path)
+        fetch_gzipped_path(:txt, {:gzip, asciicast.id}, path)
       else
-        {:ok, txt_path}
+        {:ok, path}
       end
     end
   end
