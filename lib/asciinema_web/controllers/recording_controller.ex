@@ -267,19 +267,14 @@ defmodule AsciinemaWeb.RecordingController do
 
   defp fetch_gzipped_path(bucket, key, source_path) do
     FileCache.fetch_path(bucket, key, fn tmp_dir ->
-      path = Path.join(tmp_dir, Path.basename(source_path))
-      gzip_file!(source_path, path)
+      gz_path = Path.join(tmp_dir, Path.basename(source_path)) <> ".gz"
+
+      source_path
+      |> File.stream!([], @gzip_chunk_size)
+      |> Enum.into(Gzip.stream!(gz_path, @gzip_chunk_size))
+
+      gz_path
     end)
-  end
-
-  defp gzip_file!(source_path, target_path) do
-    gz_path = target_path <> ".gz"
-
-    source_path
-    |> File.stream!([], @gzip_chunk_size)
-    |> Enum.into(Gzip.stream!(gz_path, @gzip_chunk_size))
-
-    gz_path
   end
 
   defp get_png_path(asciicast, cache_key) do
