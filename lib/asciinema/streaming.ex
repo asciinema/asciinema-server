@@ -414,12 +414,15 @@ defmodule Asciinema.Streaming do
   end
 
   def mark_inactive_streams_offline do
+    now = DateTime.utc_now()
+
     q =
       from(s in Stream,
         where:
           s.live and
             fragment(
-              "COALESCE(last_activity_at, inserted_at) < now() - make_interval(secs => offline_grace_period)"
+              "COALESCE(last_activity_at, inserted_at) < ?::timestamp - make_interval(secs => offline_grace_period)",
+              ^now
             )
       )
 

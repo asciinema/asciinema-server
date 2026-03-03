@@ -85,4 +85,20 @@ defmodule Asciinema.PngUtil do
 
     {r, g, b}
   end
+
+  def cell_pixels(png, cell_x, cell_y, cell_w \\ 8, cell_h \\ 24) do
+    base_x = cell_x * cell_w
+    base_y = cell_y * cell_h
+
+    for y <- base_y..(base_y + cell_h - 1),
+        x <- base_x..(base_x + cell_w - 1) do
+      rgb_at(png, x, y)
+    end
+  end
+
+  def cell_contains_color?(png, cell_x, cell_y, color, cell_w \\ 8, cell_h \\ 24) do
+    png
+    |> cell_pixels(cell_x, cell_y, cell_w, cell_h)
+    |> Enum.any?(&(&1 == color))
+  end
 end

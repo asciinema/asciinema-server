@@ -5,8 +5,21 @@ defmodule AsciinemaWeb.RecordingSVG do
   alias Asciinema.SvgRaster
   alias Asciinema.Recordings.Snapshot
   alias AsciinemaWeb.Router.Helpers, as: Routes
+  alias Phoenix.HTML
 
   embed_templates "recording_svg/*"
+
+  def render_to_iodata(:thumbnail, asciicast) do
+    %{asciicast: asciicast, standalone: true}
+    |> thumbnail()
+    |> HTML.Safe.to_iodata()
+  end
+
+  def render_to_iodata(:full, asciicast) do
+    %{asciicast: asciicast}
+    |> full()
+    |> HTML.Safe.to_iodata()
+  end
 
   def text_extra_attrs(attrs, theme),
     do: %{style: text_style(attrs, theme), class: text_class(attrs)}
@@ -56,7 +69,7 @@ defmodule AsciinemaWeb.RecordingSVG do
   end
 
   # Bump when SVG rendering output can change without recording data changes.
-  @svg_renderer_salt 1
+  @svg_renderer_salt 2
 
   def svg_cache_key(asciicast) do
     key =
@@ -265,8 +278,14 @@ defmodule AsciinemaWeb.RecordingSVG do
   defp mosaic_block?(char) do
     cp = codepoint(char)
 
-    # block elements || black square || sextants
+    # block elements || box drawing vertical lines || black square || sextants
     (cp >= 0x2580 and cp <= 0x259F) ||
+      cp == 0x2502 ||
+      cp == 0x2503 ||
+      cp == 0x2575 ||
+      cp == 0x2577 ||
+      cp == 0x2579 ||
+      cp == 0x257B ||
       cp == 0x25A0 ||
       (cp >= 0x1FB00 and cp <= 0x1FB3B)
   end
