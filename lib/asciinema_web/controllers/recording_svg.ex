@@ -5,8 +5,21 @@ defmodule AsciinemaWeb.RecordingSVG do
   alias Asciinema.SvgRaster
   alias Asciinema.Recordings.Snapshot
   alias AsciinemaWeb.Router.Helpers, as: Routes
+  alias Phoenix.HTML
 
   embed_templates "recording_svg/*"
+
+  def render_to_iodata(:thumbnail, asciicast) do
+    %{asciicast: asciicast, standalone: true}
+    |> thumbnail()
+    |> HTML.Safe.to_iodata()
+  end
+
+  def render_to_iodata(:full, asciicast) do
+    %{asciicast: asciicast}
+    |> full()
+    |> HTML.Safe.to_iodata()
+  end
 
   def text_extra_attrs(attrs, theme),
     do: %{style: text_style(attrs, theme), class: text_class(attrs)}
