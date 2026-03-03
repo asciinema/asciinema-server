@@ -63,13 +63,13 @@ defmodule Asciinema.Recordings do
     end
   end
 
-  def get_cast_path(asciicast) do
+  def fetch_cast_path(asciicast) do
     case FileStore.uri(asciicast.path) do
       "file://" <> path ->
-        path
+        {:ok, path}
 
       "http" <> _rest = url ->
-        FileCache.get_path(
+        FileCache.fetch_path(
           :cast,
           {:plain, asciicast.id},
           fn tmp_dir ->
@@ -80,6 +80,16 @@ defmodule Asciinema.Recordings do
           end,
           40_000
         )
+    end
+  end
+
+  def get_cast_path!(asciicast) do
+    case fetch_cast_path(asciicast) do
+      {:ok, path} ->
+        path
+
+      {:error, error} ->
+        raise error
     end
   end
 
@@ -620,7 +630,7 @@ defmodule Asciinema.Recordings do
   end
 
   def event_stream(%Asciicast{} = asciicast) do
-    path = get_cast_path(asciicast)
+    path = get_cast_path!(asciicast)
 
     case asciicast.version do
       1 -> V1.event_stream(path)

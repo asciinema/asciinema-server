@@ -42,15 +42,25 @@ defmodule AsciinemaWeb.RecordingController do
     else
       filename = attachment_filename(asciicast, conn.params)
       gzip? = accepts_gzip?(conn)
-      path = get_cast_path(asciicast, gzip?)
 
-      conn
-      |> put_resp_header("content-type", "application/x-asciicast")
-      |> put_resp_header("access-control-allow-origin", "*")
-      |> put_resp_header("vary", "accept-encoding")
-      |> maybe_put_content_encoding(gzip?)
-      |> put_content_disposition(filename)
-      |> send_file(200, path)
+      case get_cast_path(asciicast, gzip?) do
+        {:ok, path} ->
+          conn
+          |> put_resp_header("content-type", "application/x-asciicast")
+          |> put_resp_header("access-control-allow-origin", "*")
+          |> put_resp_header("vary", "accept-encoding")
+          |> maybe_put_content_encoding(gzip?)
+          |> put_content_disposition(filename)
+          |> send_file(200, path)
+
+        {:error, %FileCache.Error{type: :timeout}} ->
+          conn
+          |> put_resp_header("retry-after", "5")
+          |> send_resp(503, "")
+
+        {:error, error} ->
+          raise error
+      end
     end
   end
 
@@ -207,25 +217,13 @@ defmodule AsciinemaWeb.RecordingController do
   defp svg_max_age(_params, _cache_key), do: 60 * 60
 
   defp get_cast_path(asciicast, gzip?) do
-    path = Recordings.get_cast_path(asciicast)
-
-    if gzip? do
-      get_gzipped_cast_path(asciicast, path)
-    else
-      path
+    with {:ok, path} <- Recordings.fetch_cast_path(asciicast) do
+      if gzip? do
+        fetch_gzipped_path(:cast, {:gzip, asciicast.id}, path)
+      else
+        {:ok, path}
+      end
     end
-  end
-
-  defp get_gzipped_cast_path(asciicast, cast_path) do
-    FileCache.get_path(
-      :cast,
-      {:gzip, asciicast.id},
-      fn tmp_dir ->
-        path = Path.join(tmp_dir, "#{asciicast.id}.cast")
-        gzip_file!(cast_path, path)
-      end,
-      40_000
-    )
   end
 
   defp get_svg_path(asciicast, params, cache_key, gzip?) do
