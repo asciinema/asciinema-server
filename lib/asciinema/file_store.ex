@@ -12,9 +12,6 @@ defmodule Asciinema.FileStore do
   @doc "Moves file to a new path"
   @callback move_file(from_path :: Path.t(), to_path :: Path.t()) :: :ok | {:error, term}
 
-  @doc "Returns local filesystem path for a given store path"
-  @callback get_local_path(path :: String.t()) :: {:ok, String.t()} | {:error, term}
-
   @doc "Deletes file"
   @callback delete_file(path :: String.t()) :: :ok | {:error, term}
 
@@ -30,10 +27,6 @@ defmodule Asciinema.FileStore do
 
   def move_file(from_path, to_path) do
     adapter().move_file(from_path, to_path)
-  end
-
-  def get_local_path(path) do
-    adapter().get_local_path(path)
   end
 
   def delete_file(path) do

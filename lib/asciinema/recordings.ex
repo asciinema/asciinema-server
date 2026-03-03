@@ -4,7 +4,7 @@ defmodule Asciinema.Recordings do
   import Ecto.Changeset
   import Ecto.Query, warn: false
   alias Asciinema.Recordings.Asciicast.{V1, V2, V3}
-  alias Asciinema.{FileStore, Fonts, Fts, Repo, Themes, Vt}
+  alias Asciinema.{FileCache, FileStore, Fonts, Fts, HttpUtil, Repo, Themes, Vt}
   alias Asciinema.Workers.{MigrateRecordingFiles, UpdateFtsContent, UpdateSnapshot}
 
   alias Asciinema.Recordings.{
@@ -60,6 +60,26 @@ defmodule Asciinema.Recordings do
 
       true ->
         nil
+    end
+  end
+
+  def get_cast_path(asciicast) do
+    case FileStore.uri(asciicast.path) do
+      "file://" <> path ->
+        path
+
+      "http" <> _rest = url ->
+        FileCache.get_path(
+          :cast,
+          {:plain, asciicast.id},
+          fn tmp_dir ->
+            path = Path.join(tmp_dir, "#{asciicast.id}.cast")
+            :ok = HttpUtil.download_to(url, path, timeout: 30_000)
+
+            path
+          end,
+          40_000
+        )
     end
   end
 
@@ -600,12 +620,12 @@ defmodule Asciinema.Recordings do
   end
 
   def event_stream(%Asciicast{} = asciicast) do
-    {:ok, local_path} = FileStore.get_local_path(asciicast.path)
+    path = get_cast_path(asciicast)
 
     case asciicast.version do
-      1 -> V1.event_stream(local_path)
-      2 -> V2.event_stream(local_path)
-      3 -> V3.event_stream(local_path)
+      1 -> V1.event_stream(path)
+      2 -> V2.event_stream(path)
+      3 -> V3.event_stream(path)
     end
   end
 

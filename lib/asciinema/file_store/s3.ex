@@ -44,27 +44,6 @@ defmodule Asciinema.FileStore.S3 do
   end
 
   @impl true
-  def get_local_path(path) do
-    response =
-      bucket()
-      |> S3.get_object(base_path() <> path)
-      |> make_request()
-
-    with {:ok, %{headers: headers, body: body}} <- response do
-      body =
-        case List.keyfind(headers, "Content-Encoding", 0) do
-          {"Content-Encoding", "gzip"} -> :zlib.gunzip(body)
-          _ -> body
-        end
-
-      {:ok, tmp_path} = Briefly.create()
-      File.write!(tmp_path, body)
-
-      {:ok, tmp_path}
-    end
-  end
-
-  @impl true
   def delete_file(path) do
     req = S3.delete_object(bucket(), base_path() <> path)
 

@@ -44,11 +44,6 @@ defmodule Asciinema.FileStore.Local do
   end
 
   @impl true
-  def get_local_path(path) do
-    {:ok, full_path(path)}
-  end
-
-  @impl true
   def delete_file(path) do
     File.rm(full_path(path))
   end

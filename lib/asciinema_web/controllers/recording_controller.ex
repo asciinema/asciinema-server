@@ -1,6 +1,6 @@
 defmodule AsciinemaWeb.RecordingController do
   use AsciinemaWeb, :controller
-  alias Asciinema.{FileCache, FileStore, Gzip, HttpUtil, Recordings}
+  alias Asciinema.{FileCache, Gzip, Recordings}
   alias Asciinema.Recordings.Asciicast
   alias AsciinemaWeb.{Authorization, PlayerOpts, PngGenerator, RecordingSVG}
   alias AsciinemaWeb.FallbackController
@@ -41,9 +41,8 @@ defmodule AsciinemaWeb.RecordingController do
       send_resp(conn, 410, "")
     else
       filename = attachment_filename(asciicast, conn.params)
-      cast_path = get_cast_path(asciicast)
       gzip? = accepts_gzip?(conn)
-      path = if gzip?, do: get_gzipped_cast_path(asciicast, cast_path), else: cast_path
+      path = get_cast_path(asciicast, gzip?)
 
       conn
       |> put_resp_header("content-type", "application/x-asciicast")
@@ -207,23 +206,13 @@ defmodule AsciinemaWeb.RecordingController do
   defp svg_max_age(%{"v" => v}, cache_key) when v == cache_key, do: 60 * 60 * 24 * 365
   defp svg_max_age(_params, _cache_key), do: 60 * 60
 
-  defp get_cast_path(asciicast) do
-    case FileStore.uri(asciicast.path) do
-      "file://" <> path ->
-        path
+  defp get_cast_path(asciicast, gzip?) do
+    path = Recordings.get_cast_path(asciicast)
 
-      "http" <> _rest = url ->
-        FileCache.get_path(
-          :cast,
-          {:plain, asciicast.id},
-          fn tmp_dir ->
-            path = Path.join(tmp_dir, "#{asciicast.id}.cast")
-            :ok = HttpUtil.download_to(url, path, timeout: 30_000)
-
-            path
-          end,
-          40_000
-        )
+    if gzip? do
+      get_gzipped_cast_path(asciicast, path)
+    else
+      path
     end
   end
 
