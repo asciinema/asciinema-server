@@ -250,13 +250,15 @@ defmodule AsciinemaWeb.RecordingController do
   end
 
   defp get_txt_path(asciicast, gzip?) do
-    with {:ok, txt_path} <-
-           FileCache.fetch_path(:txt, asciicast.id, fn tmp_dir ->
-             path = Path.join(tmp_dir, "#{asciicast.id}.txt")
-             File.write!(path, Recordings.text(asciicast))
+    result =
+      FileCache.fetch_path(:txt, asciicast.id, fn tmp_dir ->
+        path = Path.join(tmp_dir, "#{asciicast.id}.txt")
+        File.write!(path, Recordings.text(asciicast))
 
-             path
-           end) do
+        path
+      end)
+
+    with {:ok, txt_path} <- result do
       if gzip? do
         fetch_gzipped_path(:txt, {:gzip, asciicast.id}, txt_path)
       else
