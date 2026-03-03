@@ -72,9 +72,16 @@ defmodule AsciinemaWeb.RecordingController do
       |> put_status(410)
       |> text("This recording has been deleted\n")
     else
-      case get_txt_path(asciicast) do
+      gzip? = accepts_gzip?(conn)
+
+      case get_txt_path(asciicast, gzip?) do
         {:ok, path} ->
-          send_download(conn, {:file, path}, filename: "#{asciicast.id}.txt")
+          conn
+          |> put_resp_header("content-type", "text/plain")
+          |> put_resp_header("vary", "accept-encoding")
+          |> maybe_put_content_encoding(gzip?)
+          |> put_resp_header("content-disposition", "attachment; filename=#{asciicast.id}.txt")
+          |> send_file(200, path)
 
         {:error, %FileCache.Error{type: :timeout}} ->
           conn
@@ -98,12 +105,15 @@ defmodule AsciinemaWeb.RecordingController do
     else
       cache_key = RecordingSVG.svg_cache_key(asciicast)
       max_age = svg_max_age(conn.params, cache_key)
+      gzip? = accepts_gzip?(conn)
 
       conn =
         conn
         |> put_resp_header("cache-control", "public, max-age=#{max_age}, must-revalidate")
         |> put_etag(cache_key)
         |> put_resp_header("access-control-allow-origin", "*")
+        |> put_resp_header("vary", "accept-encoding")
+        |> maybe_put_content_encoding(gzip?)
         |> put_resp_content_type("image/svg+xml; charset=utf-8")
 
       if fresh?(conn) do
@@ -111,7 +121,7 @@ defmodule AsciinemaWeb.RecordingController do
         |> send_resp(304, "")
         |> halt()
       else
-        case get_svg_path(asciicast, conn.params, cache_key) do
+        case get_svg_path(asciicast, conn.params, cache_key, gzip?) do
           {:ok, path} ->
             conn
             |> send_file(200, path)
@@ -222,46 +232,72 @@ defmodule AsciinemaWeb.RecordingController do
       :cast,
       {:gzip, asciicast.id},
       fn tmp_dir ->
-        path = Path.join(tmp_dir, "#{asciicast.id}.cast.gz")
-
-        cast_path
-        |> File.stream!([], @gzip_chunk_size)
-        |> Enum.into(Gzip.stream!(path, @gzip_chunk_size))
-
-        path
+        path = Path.join(tmp_dir, "#{asciicast.id}.cast")
+        gzip_file!(cast_path, path)
       end,
       40_000
     )
   end
 
-  defp get_svg_path(asciicast, params, cache_key) do
+  defp get_svg_path(asciicast, params, cache_key, gzip?) do
     variant = if params["f"] == "t", do: :thumbnail, else: :full
 
-    FileCache.fetch_path(:svg, {asciicast.id, variant, cache_key}, fn tmp_dir ->
-      path = Path.join(tmp_dir, "#{asciicast.id}.svg")
+    with {:ok, svg_path} <-
+           FileCache.fetch_path(:svg, {asciicast.id, variant, cache_key}, fn tmp_dir ->
+             path = Path.join(tmp_dir, "#{asciicast.id}.svg")
 
-      svg =
-        case variant do
-          :thumbnail ->
-            RecordingSVG.thumbnail(%{asciicast: asciicast, standalone: true})
+             svg =
+               case variant do
+                 :thumbnail ->
+                   RecordingSVG.thumbnail(%{asciicast: asciicast, standalone: true})
 
-          :full ->
-            RecordingSVG.full(%{asciicast: asciicast})
-        end
+                 :full ->
+                   RecordingSVG.full(%{asciicast: asciicast})
+               end
 
-      File.write!(path, Phoenix.HTML.Safe.to_iodata(svg))
+             File.write!(path, Phoenix.HTML.Safe.to_iodata(svg))
 
-      path
+             path
+           end) do
+      if gzip? do
+        fetch_gzipped_path(:svg, {:gzip, asciicast.id, variant, cache_key}, svg_path)
+      else
+        {:ok, svg_path}
+      end
+    end
+  end
+
+  defp get_txt_path(asciicast, gzip?) do
+    with {:ok, txt_path} <-
+           FileCache.fetch_path(:txt, asciicast.id, fn tmp_dir ->
+             path = Path.join(tmp_dir, "#{asciicast.id}.txt")
+             File.write!(path, Recordings.text(asciicast))
+
+             path
+           end) do
+      if gzip? do
+        fetch_gzipped_path(:txt, {:gzip, asciicast.id}, txt_path)
+      else
+        {:ok, txt_path}
+      end
+    end
+  end
+
+  defp fetch_gzipped_path(bucket, key, source_path) do
+    FileCache.fetch_path(bucket, key, fn tmp_dir ->
+      path = Path.join(tmp_dir, Path.basename(source_path))
+      gzip_file!(source_path, path)
     end)
   end
 
-  defp get_txt_path(asciicast) do
-    FileCache.fetch_path(:txt, asciicast.id, fn tmp_dir ->
-      path = Path.join(tmp_dir, "#{asciicast.id}.txt")
-      File.write!(path, Recordings.text(asciicast))
+  defp gzip_file!(source_path, target_path) do
+    gz_path = target_path <> ".gz"
 
-      path
-    end)
+    source_path
+    |> File.stream!([], @gzip_chunk_size)
+    |> Enum.into(Gzip.stream!(gz_path, @gzip_chunk_size))
+
+    gz_path
   end
 
   defp get_png_path(asciicast, cache_key) do

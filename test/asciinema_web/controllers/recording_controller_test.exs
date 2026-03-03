@@ -932,6 +932,85 @@ defmodule AsciinemaWeb.RecordingControllerTest do
     end
   end
 
+  describe "txt gzip encoding" do
+    setup [:insert_public_recording]
+
+    @tag :with_file
+    test "serves plain .txt when gzip is not requested", %{conn: conn, asciicast: asciicast} do
+      conn = get(conn, ~p"/a/#{asciicast.id}" <> ".txt")
+      plain_body = response(conn, 200)
+
+      assert ["accept-encoding"] = get_resp_header(conn, "vary")
+      assert [] == get_resp_header(conn, "content-encoding")
+      assert List.first(get_resp_header(conn, "content-type")) == "text/plain"
+
+      assert List.first(get_resp_header(conn, "content-disposition")) ==
+               "attachment; filename=#{asciicast.id}.txt"
+
+      assert is_binary(plain_body)
+    end
+
+    @tag :with_file
+    test "serves gzip .txt when accept-encoding includes gzip", %{
+      conn: conn,
+      asciicast: asciicast
+    } do
+      plain_conn = get(conn, ~p"/a/#{asciicast.id}" <> ".txt")
+      plain_body = response(plain_conn, 200)
+
+      gzip_conn =
+        conn
+        |> put_req_header("accept-encoding", "gzip, br")
+        |> get(~p"/a/#{asciicast.id}" <> ".txt")
+
+      gzip_body = response(gzip_conn, 200)
+
+      assert ["accept-encoding"] = get_resp_header(gzip_conn, "vary")
+      assert ["gzip"] = get_resp_header(gzip_conn, "content-encoding")
+      assert List.first(get_resp_header(gzip_conn, "content-type")) == "text/plain"
+
+      assert List.first(get_resp_header(gzip_conn, "content-disposition")) ==
+               "attachment; filename=#{asciicast.id}.txt"
+
+      assert :zlib.gunzip(gzip_body) == plain_body
+    end
+  end
+
+  describe "svg gzip encoding" do
+    setup [:insert_public_recording]
+
+    test "serves plain .svg when gzip is not requested", %{conn: conn, asciicast: asciicast} do
+      conn = get(conn, ~p"/a/#{asciicast.id}" <> ".svg")
+      plain_body = response(conn, 200)
+
+      assert ["accept-encoding"] = get_resp_header(conn, "vary")
+      assert [] == get_resp_header(conn, "content-encoding")
+      assert response_content_type(conn, :svg)
+      assert plain_body =~ "foo"
+      assert plain_body =~ "bar"
+    end
+
+    test "serves gzip .svg when accept-encoding includes gzip", %{
+      conn: conn,
+      asciicast: asciicast
+    } do
+      plain_conn = get(conn, ~p"/a/#{asciicast.id}" <> ".svg")
+      plain_body = response(plain_conn, 200)
+
+      gzip_conn =
+        conn
+        |> put_req_header("accept-encoding", "deflate, gzip")
+        |> get(~p"/a/#{asciicast.id}" <> ".svg")
+
+      gzip_body = response(gzip_conn, 200)
+
+      assert ["accept-encoding"] = get_resp_header(gzip_conn, "vary")
+      assert ["gzip"] = get_resp_header(gzip_conn, "content-encoding")
+      assert response_content_type(gzip_conn, :svg)
+      assert :zlib.gunzip(gzip_body) == plain_body
+    end
+  end
+
   defp insert_public_recording(context) do
     [asciicast: insert_recording(:public, context)]
   end
