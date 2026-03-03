@@ -71,7 +71,7 @@ defmodule Asciinema.Recordings do
       "http" <> _rest = url ->
         FileCache.fetch_path(
           :cast,
-          {:plain, asciicast.id},
+          asciicast.id,
           fn tmp_dir ->
             path = Path.join(tmp_dir, "#{asciicast.id}.cast")
             :ok = HttpUtil.download_to(url, path, timeout: 30_000)
