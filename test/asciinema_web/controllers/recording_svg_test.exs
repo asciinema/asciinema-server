@@ -3,6 +3,7 @@ defmodule AsciinemaWeb.RecordingSvgTest do
   import Asciinema.Factory
   import Asciinema.PngUtil
   alias Asciinema.Colors
+  alias Asciinema.Ecto.Type.Snapshot, as: EctoSnapshot
   alias Asciinema.Recordings.Snapshot
   alias AsciinemaWeb.RecordingSVG
 
@@ -10,7 +11,7 @@ defmodule AsciinemaWeb.RecordingSvgTest do
     test "renders SVG document" do
       asciicast =
         build(:asciicast,
-          snapshot: Snapshot.new([[["foobar", %{}, 1]], [["bazqux", %{}, 1]]], :segments)
+          snapshot: snapshot([[["foobar", %{}, 1]], [["bazqux", %{}, 1]]])
         )
 
       svg = render_full(asciicast)
@@ -24,13 +25,10 @@ defmodule AsciinemaWeb.RecordingSvgTest do
       asciicast =
         build(:asciicast,
           snapshot:
-            Snapshot.new(
-              [
-                [["foo", %{"fg" => [16, 32, 48]}, 1], ["bar", %{"bg" => "rgb(64,80,96)"}, 1]],
-                [["baz", %{"fg" => "#708090"}, 1]]
-              ],
-              :segments
-            )
+            snapshot([
+              [["foo", %{"fg" => [16, 32, 48]}, 1], ["bar", %{"bg" => "rgb(64,80,96)"}, 1]],
+              [["baz", %{"fg" => "#708090"}, 1]]
+            ])
         )
 
       svg = render_full(asciicast)
@@ -42,12 +40,47 @@ defmodule AsciinemaWeb.RecordingSvgTest do
       assert rgb_at_cell(png, 3, 0) == {64, 80, 96}
     end
 
+    test "preserves leading and repeated spaces in SVG text runs" do
+      svg =
+        build(:asciicast, snapshot: snapshot([[["  foo  bar", %{}, 1]]]))
+        |> render_full()
+
+      assert svg =~ ~s(xml:space="preserve")
+      assert svg =~ "  foo  bar"
+    end
+
+    @tag :rsvg
+    test "preserves spaces when rasterized with librsvg" do
+      one_space =
+        build(:asciicast, snapshot: snapshot([[["foo bar", %{}, 1]]]))
+        |> render_full()
+        |> rasterize_svg()
+
+      two_spaces =
+        build(:asciicast, snapshot: snapshot([[["foo  bar", %{}, 1]]]))
+        |> render_full()
+        |> rasterize_svg()
+
+      no_leading_spaces =
+        build(:asciicast, snapshot: snapshot([[["foo", %{}, 1]]]))
+        |> render_full()
+        |> rasterize_svg()
+
+      leading_spaces =
+        build(:asciicast, snapshot: snapshot([[["  foo", %{}, 1]]]))
+        |> render_full()
+        |> rasterize_svg()
+
+      refute one_space == two_spaces
+      refute no_leading_spaces == leading_spaces
+    end
+
     test "clips background segments to configured terminal width" do
       asciicast =
         build(:asciicast,
           term_cols_override: 3,
           term_rows_override: 1,
-          snapshot: Snapshot.new([[["abcdefghij", %{"bg" => "#112233"}, 1]]], :segments)
+          snapshot: snapshot([[["abcdefghij", %{"bg" => "#112233"}, 1]]])
         )
 
       svg = render_full(asciicast)
@@ -68,7 +101,7 @@ defmodule AsciinemaWeb.RecordingSvgTest do
         build(:asciicast,
           term_cols: 9,
           term_rows: 1,
-          snapshot: Snapshot.new([[[line, %{"fg" => "#ff5500"}, 1]]], :segments)
+          snapshot: snapshot([[[line, %{"fg" => "#ff5500"}, 1]]])
         )
 
       svg = render_full(asciicast)
@@ -106,7 +139,7 @@ defmodule AsciinemaWeb.RecordingSvgTest do
         build(:asciicast,
           term_cols: 2,
           term_rows: 1,
-          snapshot: Snapshot.new([[["▀█", %{"fg" => "#aa5500"}, 1]]], :segments)
+          snapshot: snapshot([[["▀█", %{"fg" => "#aa5500"}, 1]]])
         )
 
       svg = render_full(asciicast)
@@ -125,7 +158,7 @@ defmodule AsciinemaWeb.RecordingSvgTest do
         build(:asciicast,
           term_cols: 2,
           term_rows: 1,
-          snapshot: Snapshot.new([[["██", %{"fg" => "#3366cc"}, 1]]], :segments)
+          snapshot: snapshot([[["██", %{"fg" => "#3366cc"}, 1]]])
         )
 
       svg = render_full(asciicast)
@@ -140,7 +173,7 @@ defmodule AsciinemaWeb.RecordingSvgTest do
         build(:asciicast,
           term_cols: 2,
           term_rows: 1,
-          snapshot: Snapshot.new([[["│┃", %{"fg" => "#ff5500"}, 1]]], :segments)
+          snapshot: snapshot([[["│┃", %{"fg" => "#ff5500"}, 1]]])
         )
 
       svg = render_full(asciicast)
@@ -159,7 +192,7 @@ defmodule AsciinemaWeb.RecordingSvgTest do
         build(:asciicast,
           term_cols: 4,
           term_rows: 1,
-          snapshot: Snapshot.new([[[half_lines, %{"fg" => "#ff5500"}, 1]]], :segments)
+          snapshot: snapshot([[[half_lines, %{"fg" => "#ff5500"}, 1]]])
         )
 
       svg = render_full(asciicast)
@@ -180,7 +213,7 @@ defmodule AsciinemaWeb.RecordingSvgTest do
         build(:asciicast,
           term_cols: 3,
           term_rows: 1,
-          snapshot: Snapshot.new([[["a■b", %{"fg" => "#ff5500"}, 1]]], :segments)
+          snapshot: snapshot([[["a■b", %{"fg" => "#ff5500"}, 1]]])
         )
 
       svg = render_full(asciicast)
@@ -199,7 +232,7 @@ defmodule AsciinemaWeb.RecordingSvgTest do
         build(:asciicast,
           term_cols: 1,
           term_rows: 1,
-          snapshot: Snapshot.new([[[sextant_ul, %{"fg" => "#00aaee"}, 1]]], :segments)
+          snapshot: snapshot([[[sextant_ul, %{"fg" => "#00aaee"}, 1]]])
         )
 
       svg = render_full(asciicast)
@@ -217,7 +250,7 @@ defmodule AsciinemaWeb.RecordingSvgTest do
           term_theme_name: "asciinema",
           term_cols: 1,
           term_rows: 1,
-          snapshot: Snapshot.new([[["X", %{"inverse" => true}, 1]]], :segments)
+          snapshot: snapshot([[["X", %{"inverse" => true}, 1]]])
         )
 
       svg = render_full(asciicast)
@@ -290,7 +323,7 @@ defmodule AsciinemaWeb.RecordingSvgTest do
     test "renders SVG element" do
       asciicast =
         build(:asciicast,
-          snapshot: Snapshot.new([[["foobar", %{}, 1]], [["bazqux", %{}, 1]]], :segments)
+          snapshot: snapshot([[["foobar", %{}, 1]], [["bazqux", %{}, 1]]])
         )
 
       svg = render_thumbnail(asciicast)
@@ -305,7 +338,7 @@ defmodule AsciinemaWeb.RecordingSvgTest do
         build(:asciicast,
           term_cols: 200,
           term_rows: 50,
-          snapshot: Snapshot.new([[["x", %{}, 1]]], :segments)
+          snapshot: snapshot([[["x", %{}, 1]]])
         )
 
       svg = render_thumbnail(asciicast)
@@ -318,7 +351,7 @@ defmodule AsciinemaWeb.RecordingSvgTest do
     test "uses square corners" do
       asciicast =
         build(:asciicast,
-          snapshot: Snapshot.new([[["x", %{}, 1]]], :segments)
+          snapshot: snapshot([[["x", %{}, 1]]])
         )
 
       svg = render_thumbnail(asciicast)
@@ -330,7 +363,7 @@ defmodule AsciinemaWeb.RecordingSvgTest do
     test "does not include logo" do
       asciicast =
         build(:asciicast,
-          snapshot: Snapshot.new([[["x", %{}, 1]]], :segments)
+          snapshot: snapshot([[["x", %{}, 1]]])
         )
 
       svg = render_thumbnail(asciicast)
@@ -341,7 +374,7 @@ defmodule AsciinemaWeb.RecordingSvgTest do
     test "does not include XML declaration by default" do
       asciicast =
         build(:asciicast,
-          snapshot: Snapshot.new([[["x", %{}, 1]]], :segments)
+          snapshot: snapshot([[["x", %{}, 1]]])
         )
 
       svg = render_thumbnail(asciicast)
@@ -352,65 +385,12 @@ defmodule AsciinemaWeb.RecordingSvgTest do
     test "includes XML declaration when standalone" do
       asciicast =
         build(:asciicast,
-          snapshot: Snapshot.new([[["x", %{}, 1]]], :segments)
+          snapshot: snapshot([[["x", %{}, 1]]])
         )
 
       svg = render_thumbnail(asciicast, standalone: true)
 
       assert svg =~ "<?xml"
-    end
-  end
-
-  @lines [
-    [{" foo bar  baz", %{"bg" => 2}, 1}, {"!", %{"fg" => 1}, 1}],
-    [{"qux", %{"bg" => "#102030"}, 1}, {"连", %{}, 2}, {"接", %{}, 2}]
-  ]
-
-  describe "fg_coords/1" do
-    test "excludes whitespace" do
-      coords =
-        RecordingSVG.fg_coords(@lines)
-
-      assert coords == [
-               %{
-                 y: 0,
-                 segments: [
-                   %{text: "foo bar", attrs: %{"bg" => 2}, x: 1, width: 7},
-                   %{text: "baz", attrs: %{"bg" => 2}, x: 10, width: 3},
-                   %{text: "!", attrs: %{"fg" => 1}, x: 13, width: 1}
-                 ]
-               },
-               %{
-                 y: 1,
-                 segments: [
-                   %{text: "qux", attrs: %{"bg" => "#102030"}, x: 0, width: 3},
-                   %{text: "连", attrs: %{}, x: 3, width: 2},
-                   %{text: "接", attrs: %{}, x: 5, width: 2}
-                 ]
-               }
-             ]
-    end
-  end
-
-  describe "bg_coords/1" do
-    test "excludes segments with default background" do
-      coords =
-        RecordingSVG.bg_coords(@lines)
-
-      assert coords == [
-               %{
-                 y: 0,
-                 segments: [
-                   %{attrs: %{"bg" => 2}, x: 0, width: 13}
-                 ]
-               },
-               %{
-                 y: 1,
-                 segments: [
-                   %{attrs: %{"bg" => "#102030"}, x: 0, width: 3}
-                 ]
-               }
-             ]
     end
   end
 
@@ -432,16 +412,29 @@ defmodule AsciinemaWeb.RecordingSvgTest do
     decode_png(Base.decode64!(encoded))
   end
 
+  defp rasterize_svg(svg) do
+    path = Briefly.create!(extname: ".svg")
+    File.write!(path, svg)
+    {png, 0} = System.cmd("rsvg-convert", [path])
+
+    png
+  end
+
   defp rgb_at_cell(png, x, y), do: rgb_at(png, x * 8, y * 24)
 
   defp logo_present(svg), do: svg =~ "small-triangle-mask"
+
+  defp snapshot(lines) do
+    {:ok, snapshot} = EctoSnapshot.cast({lines, nil})
+    snapshot
+  end
 
   defp palette_index_snapshot do
     indices = [16, 21, 46, 51, 196, 201, 226, 231, 102, 145, 232, 243, 255]
     fg_row = Enum.map(indices, &{"█", %{"fg" => &1}, 1})
     bg_row = Enum.map(indices, &{" ", %{"bg" => &1}, 1})
 
-    Snapshot.new([fg_row, bg_row], :cells)
+    Snapshot.new([fg_row, bg_row])
   end
 
   defp assert_palette_rows(png, colors) do
