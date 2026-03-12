@@ -69,7 +69,7 @@ defmodule AsciinemaWeb.RecordingSVG do
   end
 
   # Bump when SVG rendering output can change without recording data changes.
-  @svg_renderer_salt 2
+  @svg_renderer_salt 3
 
   def svg_cache_key(asciicast) do
     key =
@@ -165,114 +165,147 @@ defmodule AsciinemaWeb.RecordingSVG do
   end
 
   defp coords(asciicast, crop_size, theme) do
-    snapshot = snapshot(asciicast, crop_size, theme)
-    segments = Snapshot.to_segments(snapshot, split_specials: true)
-
-    layers =
-      segments
-      |> fg_coords()
-      |> split_fg_layers()
-
-    %{
-      bg: bg_coords(segments),
-      text: layers.text,
-      mosaic_blocks: layers.mosaic_blocks,
-      vector_symbols: layers.vector_symbols
-    }
+    asciicast
+    |> snapshot(crop_size, theme)
+    |> coords_from_snapshot()
   end
 
-  def fg_coords(lines) do
-    lines
-    |> Enum.with_index()
-    |> Enum.map(&text_line_coords/1)
-    |> Enum.filter(&(length(&1.segments) > 0))
-  end
-
-  defp text_line_coords({segments, y}) do
-    {_, segments} =
-      segments
-      |> Enum.flat_map(&split_on_whitespace/1)
-      |> Enum.reduce({0, []}, fn {text, attrs, char_width}, {x, segments} ->
-        width = String.length(text) * char_width
-
-        segments =
-          case text do
-            " " <> _ -> segments
-            _ -> [%{text: text, attrs: attrs, x: x, width: width} | segments]
-          end
-
-        {x + width, segments}
-      end)
-
-    %{y: y, segments: Enum.reverse(segments)}
-  end
-
-  defp split_on_whitespace({text, attrs, 1}) do
-    ~r/(^\s+)|\s{2,}/
-    |> Regex.split(text, include_captures: true)
-    |> Enum.filter(&(String.length(&1) > 0))
-    |> Enum.map(&{&1, attrs, 1})
-  end
-
-  defp split_on_whitespace(segment), do: [segment]
-
-  def bg_coords(lines) do
-    lines
-    |> Enum.with_index()
-    |> Enum.map(&bg_line_coords/1)
-    |> Enum.filter(&(length(&1.segments) > 0))
-  end
-
-  defp bg_line_coords({segments, y}) do
-    {_, segments} =
-      Enum.reduce(segments, {0, []}, fn {text, attrs, char_width}, {x, segments} ->
-        width = String.length(text) * char_width
-
-        segments =
-          case attrs["bg"] do
-            nil -> segments
-            _ -> [%{attrs: attrs, x: x, width: width} | segments]
-          end
-
-        {x + width, segments}
-      end)
-
-    %{y: y, segments: Enum.reverse(segments)}
-  end
-
-  defp split_fg_layers(fg) do
-    {text, mosaic_blocks, vector_symbols} =
-      Enum.reduce(fg, {[], [], []}, fn %{y: y, segments: segments}, {text, mosaic, vector} ->
-        {t, m, v} = split_segments(segments)
+  defp coords_from_snapshot(snapshot) do
+    {bg, text, mosaic_blocks, vector_symbols} =
+      snapshot
+      |> Enum.with_index()
+      |> Enum.reduce({[], [], [], []}, fn {line, y}, {bg, text, mosaic_blocks, vector_symbols} ->
+        {line_bg, line_text, line_mosaic, line_vector} = line_coords(line)
 
         {
-          prepend_line(text, y, t),
-          prepend_line(mosaic, y, m),
-          prepend_line(vector, y, v)
+          prepend_line(bg, y, Enum.reverse(line_bg)),
+          prepend_line(text, y, Enum.reverse(line_text)),
+          prepend_line(mosaic_blocks, y, Enum.reverse(line_mosaic)),
+          prepend_line(vector_symbols, y, Enum.reverse(line_vector))
         }
       end)
 
     %{
+      bg: Enum.reverse(bg),
       text: Enum.reverse(text),
       mosaic_blocks: Enum.reverse(mosaic_blocks),
       vector_symbols: Enum.reverse(vector_symbols)
     }
   end
 
+  defp line_coords(line) do
+    {state, pending} =
+      Enum.reduce(
+        line,
+        {{[], [], [], []}, nil},
+        fn {x, cp, attrs, char_width}, {state, pending} ->
+          char = <<cp::utf8>>
+
+          cond do
+            positioning_split?(cp, char_width) ->
+              state =
+                pending
+                |> flush_coords_segment(state)
+                |> add_coords_segment(x, char, attrs, char_width)
+
+              {state, nil}
+
+            pending == nil ->
+              {state, {x, [char], attrs, char_width}}
+
+            same_segment?(pending, attrs, char_width) ->
+              {state, append_char(pending, char)}
+
+            true ->
+              {flush_coords_segment(pending, state), {x, [char], attrs, char_width}}
+          end
+        end
+      )
+
+    flush_coords_segment(pending, state)
+  end
+
+  defp same_segment?({_x, _chars, attrs, char_width}, attrs, char_width), do: true
+  defp same_segment?(_pending, _attrs, _char_width), do: false
+
+  defp append_char({x, chars, attrs, char_width}, char),
+    do: {x, [char | chars], attrs, char_width}
+
+  defp flush_coords_segment(nil, state), do: state
+
+  defp flush_coords_segment({x, chars, attrs, char_width}, state) do
+    add_coords_segment(state, x, chars_to_text(chars), attrs, char_width)
+  end
+
+  defp chars_to_text(chars) do
+    chars
+    |> Enum.reverse()
+    |> IO.iodata_to_binary()
+  end
+
+  defp add_coords_segment({bg, text, mosaics, vectors}, x, segment_text, attrs, char_width) do
+    width = String.length(segment_text) * char_width
+
+    bg =
+      case attrs["bg"] do
+        nil -> bg
+        _ -> [%{attrs: attrs, x: x, width: width} | bg]
+      end
+
+    {text, mosaics, vectors} =
+      emit_fg_segments(segment_text, attrs, char_width, x, {text, mosaics, vectors})
+
+    {bg, text, mosaics, vectors}
+  end
+
+  defp emit_fg_segments(segment_text, attrs, char_width, x, {text, mosaics, vectors}) do
+    segment = %{
+      text: segment_text,
+      attrs: attrs,
+      x: x,
+      width: String.length(segment_text) * char_width
+    }
+
+    {text, mosaics, vectors} =
+      cond do
+        mosaic_block?(segment_text) ->
+          {text, [segment | mosaics], vectors}
+
+        vector_symbol?(segment_text) ->
+          {text, mosaics, [segment | vectors]}
+
+        true ->
+          {[segment | text], mosaics, vectors}
+      end
+
+    {text, mosaics, vectors}
+  end
+
   defp prepend_line(lines, _y, []), do: lines
   defp prepend_line(lines, y, segments), do: [%{y: y, segments: segments} | lines]
 
-  defp split_segments(segments) do
-    {t, m, v} =
-      Enum.reduce(segments, {[], [], []}, fn seg, {t, m, v} ->
-        cond do
-          seg.width == 1 && mosaic_block?(seg.text) -> {t, [seg | m], v}
-          seg.width == 1 && vector_symbol?(seg.text) -> {t, m, [seg | v]}
-          true -> {[seg | t], m, v}
-        end
-      end)
+  @box_drawing_first 0x2500
+  @box_drawing_last 0x257F
+  @block_elements_first 0x2580
+  @block_elements_last 0x259F
+  @black_square 0x25A0
+  @black_large_circle 0x2B24
+  @sextants_first 0x1FB00
+  @sextants_last 0x1FB3B
+  @braille_patterns_first 0x2800
+  @braille_patterns_last 0x28FF
+  @powerline_triangles_first 0xE0B0
+  @powerline_triangles_last 0xE0B3
 
-    {Enum.reverse(t), Enum.reverse(m), Enum.reverse(v)}
+  defp positioning_split?(cp, char_width) do
+    char_width > 1 ||
+      (cp >= @box_drawing_first and cp <= @box_drawing_last) ||
+      (cp >= @block_elements_first and cp <= @block_elements_last) ||
+      cp == @black_square ||
+      cp == @black_large_circle ||
+      (cp >= @sextants_first and cp <= @sextants_last) ||
+      (cp >= @braille_patterns_first and cp <= @braille_patterns_last) ||
+      (cp >= @powerline_triangles_first and cp <= @powerline_triangles_last)
   end
 
   defp mosaic_block?(char) do
@@ -426,9 +459,5 @@ defmodule AsciinemaWeb.RecordingSVG do
   defp maybe_crop(snapshot, nil), do: snapshot
   defp maybe_crop(snapshot, {cols, rows}), do: Snapshot.crop(snapshot, cols, rows)
 
-  defp codepoint(char) do
-    char
-    |> String.to_charlist()
-    |> Enum.at(0)
-  end
+  defp codepoint(<<cp::utf8, _::binary>>), do: cp
 end

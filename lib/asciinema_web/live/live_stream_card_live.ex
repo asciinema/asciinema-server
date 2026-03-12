@@ -30,6 +30,14 @@ defmodule AsciinemaWeb.LiveStreamCardLive do
 
   @impl true
   def handle_info(%StreamServer.Update{event: :metadata} = update, socket) do
+    Process.send_after(self(), :gc, 100)
+
     {:noreply, assign(socket, stream: update.data)}
+  end
+
+  def handle_info(:gc, socket) do
+    :erlang.garbage_collect(self())
+
+    {:noreply, socket}
   end
 end

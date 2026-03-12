@@ -16,6 +16,7 @@
     .fa { fill-opacity: 0.5 }
     .it { font-style: italic }
     .un { text-decoration: underline }
+    .term-text tspan tspan { white-space: pre }
 
     <%= if @standalone do %>
     @font-face {
@@ -46,7 +47,7 @@
       <% end %>
     </g>
 
-    <text style={"fill: " <> @theme.fg}>
+    <text xml:space="preserve" class="term-text" style={"fill: " <> @theme.fg}>
       <tspan :for={%{y: y, segments: segments} <- @coords.text} y={y(y)}>
         <tspan
           :for={{%{x: x, text: text, attrs: attrs}, i} <- Enum.with_index(segments)}
@@ -57,9 +58,8 @@
           }
           x={x(x)}
           {text_extra_attrs(attrs, @theme)}
-        >
-          {html_escape(text)}
-        </tspan>
+          phx-no-format
+        >{html_escape(text)}</tspan>
       </tspan>
     </text>
   </svg>
