@@ -101,6 +101,7 @@
               rust-analyzer
               rustPackages.clippy
               shellcheck
+              imagemagick
             ]
             ++ self.packages.${system}.default.buildInputs
             ++ lib.optional stdenv.isLinux [ inotify-tools ];

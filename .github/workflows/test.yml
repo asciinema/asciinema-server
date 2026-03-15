@@ -57,7 +57,7 @@ jobs:
       - name: Install system packages
         run: |
           sudo apt-get update
-          sudo apt-get install -y librsvg2-bin
+          sudo apt-get install -y imagemagick librsvg2-bin
       - name: Install fd
         run: |
           mkdir -p "$HOME/.local/bin"
@@ -70,6 +70,8 @@ jobs:
         run: |
           which fd
           fd --version
+          which magick
+          magick --version
           which rsvg-convert
           rsvg-convert --version
       - name: Cache Mix
