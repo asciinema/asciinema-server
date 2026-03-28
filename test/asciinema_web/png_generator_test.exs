@@ -205,8 +205,18 @@ defmodule AsciinemaWeb.PngGeneratorTest do
     matches / total >= @cell_bg_ratio
   end
 
+  defp has_magick? do
+    System.find_executable("magick") != nil
+  end
+
   defp png_dimensions(png_path) do
-    {output, 0} = System.cmd("magick", ["identify", "-format", "%w %h", png_path])
+    {output, 0} =
+      if has_magick?() do
+        System.cmd("magick", ["identify", "-format", "%w %h", png_path])
+      else
+        System.cmd("identify", ["-format", "%w %h", png_path])
+      end
+
     [width, height] = String.split(output)
 
     {String.to_integer(width), String.to_integer(height)}
@@ -214,7 +224,13 @@ defmodule AsciinemaWeb.PngGeneratorTest do
 
   defp raw_img(png_path) do
     dimensions = png_dimensions(png_path)
-    {rgb, 0} = System.cmd("magick", [png_path, "-alpha", "off", "rgb:-"])
+
+    {rgb, 0} =
+      if has_magick?() do
+        System.cmd("magick", [png_path, "-alpha", "off", "rgb:-"])
+      else
+        System.cmd("convert", [png_path, "-alpha", "off", "rgb:-"])
+      end
 
     {dimensions, rgb}
   end

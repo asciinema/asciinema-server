@@ -70,8 +70,8 @@ jobs:
         run: |
           which fd
           fd --version
-          which magick
-          magick --version
+          which convert
+          convert --version
           which rsvg-convert
           rsvg-convert --version
       - name: Cache Mix
