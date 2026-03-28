@@ -63,6 +63,45 @@ defmodule AsciinemaWeb.PngGeneratorTest do
   end
 
   @tag :rsvg
+  test "renders mosaic symbols into PNG output" do
+    tmp_dir = Briefly.create!(directory: true)
+
+    image =
+      cells_asciicast(11, ["▀", "▖", <<0x1FB00::utf8>>], 20, 8)
+      |> generate_png(tmp_dir)
+      |> raw_img()
+
+    assert_cell_has_ink_at(image, 0, 0, 0.5, 0.25)
+    assert_cell_has_background_at(image, 0, 0, 0.5, 0.75)
+
+    assert_cell_has_ink_at(image, 1, 0, 0.25, 0.75)
+    assert_cell_has_background_at(image, 1, 0, 0.25, 0.25)
+    assert_cell_has_background_at(image, 1, 0, 0.75, 0.75)
+
+    assert_cell_has_ink_at(image, 2, 0, 0.25, 0.15)
+    assert_cell_has_background_at(image, 2, 0, 0.75, 0.15)
+    assert_cell_has_background_at(image, 2, 0, 0.25, 0.5)
+  end
+
+  @tag :rsvg
+  test "renders filled vector symbols into PNG output" do
+    tmp_dir = Briefly.create!(directory: true)
+
+    image =
+      cells_asciicast(12, [<<0xE0B0::utf8>>, <<0xE0B2::utf8>>], 20, 8)
+      |> generate_png(tmp_dir)
+      |> raw_img()
+
+    assert_cell_has_ink_at(image, 0, 0, 0.25, 0.5)
+    assert_cell_has_ink_at(image, 0, 0, 0.5, 0.5)
+    assert_cell_has_background_at(image, 0, 0, 0.85, 0.15)
+
+    assert_cell_has_ink_at(image, 1, 0, 0.5, 0.5)
+    assert_cell_has_ink_at(image, 1, 0, 0.75, 0.5)
+    assert_cell_has_background_at(image, 1, 0, 0.15, 0.15)
+  end
+
+  @tag :rsvg
   test "preserves leading and repeated spaces in PNG output" do
     tmp_dir = Briefly.create!(directory: true)
     cols = 20
