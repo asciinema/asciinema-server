@@ -45,6 +45,24 @@ defmodule AsciinemaWeb.PngGeneratorTest do
   end
 
   @tag :rsvg
+  test "renders Nerd Font symbols into PNG output" do
+    tmp_dir = Briefly.create!(directory: true)
+
+    image =
+      cells_asciicast(1, [<<0xF43A::utf8>>], 20, 8)
+      |> generate_png(tmp_dir)
+      |> raw_img()
+
+    assert_cell_has_ink_at(image, 0, 0, 0.68, 0.14)
+    assert_cell_has_ink_at(image, 0, 0, 0.41, 0.23)
+    assert_cell_has_ink_at(image, 0, 0, 0.14, 0.50)
+    assert_cell_has_ink_at(image, 0, 0, 0.86, 0.50)
+    assert_cell_has_background_at(image, 0, 0, 0.50, 0.50)
+    assert_cell_has_background_at(image, 0, 0, 0.72, 0.72)
+    assert_cell_has_background_at(image, 0, 0, 0.06, 0.06)
+  end
+
+  @tag :rsvg
   test "preserves leading and repeated spaces in PNG output" do
     tmp_dir = Briefly.create!(directory: true)
     cols = 20
