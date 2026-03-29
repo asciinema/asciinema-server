@@ -71,7 +71,7 @@ defmodule Asciinema.MixProject do
       {:phoenix_live_reload, "~> 1.6", only: :dev},
       {:phoenix_live_view, "~> 1.0.4"},
       {:phoenix_pubsub, "~> 2.1.3"},
-      {:phoenix_test, "~> 0.7.0", only: :test},
+      {:phoenix_test, "~> 0.9.0", only: :test},
       {:plug_attack, "~> 0.4.3"},
       {:postgrex, ">= 0.0.0"},
       {:process_tree, "~> 0.2.1", only: :test},

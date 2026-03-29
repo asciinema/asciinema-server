@@ -318,8 +318,6 @@ defmodule AsciinemaWeb.Features.RecordingsTest do
       |> assert_has("h1", text: "403 Forbidden")
     end
 
-    @tag :skip
-    # TODO try to re-enable after upgrade of phoenix_test
     test "complete flow", %{conn: conn} do
       user = insert(:user)
       asciicast = insert(:asciicast, user: user, title: "Test Recording", visibility: :private)
@@ -329,7 +327,7 @@ defmodule AsciinemaWeb.Features.RecordingsTest do
       |> visit(~p"/a/#{asciicast}/edit")
       |> fill_in("Title", with: "New Title")
       |> choose("Unlisted")
-      |> uncheck("Use the actual terminal theme when available")
+      |> uncheck("Use adaptive terminal palette")
       |> fill_in("Terminal line height", with: "0.5")
       |> click_button("Save")
       |> refute_has(".flash", text: "updated")
