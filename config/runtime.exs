@@ -282,8 +282,6 @@ if config_env() in [:prod, :dev] do
 
   if dsn = env.("SENTRY_DSN") do
     config :sentry, dsn: dsn
-  else
-    config :sentry, included_environments: []
   end
 
   if email = env.("CONTACT_EMAIL_ADDRESS") do

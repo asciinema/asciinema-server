@@ -52,8 +52,15 @@ config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
 
-config :logger,
-  backends: [:console, Sentry.LoggerBackend]
+config :asciinema, :logger, [
+  {:handler, :sentry, Sentry.LoggerHandler,
+   %{
+     config: %{
+       metadata: [:file, :line],
+       rate_limiting: [max_events: 10, interval: _1_second = 1_000]
+     }
+   }}
+]
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
@@ -70,10 +77,10 @@ config :mime, :types, %{
 config :asciinema, Asciinema.Emails.Mailer, adapter: Swoosh.Adapters.Local
 
 config :sentry,
-  dsn: "https://public:secret@sentry.io/1",
   environment_name: config_env(),
+  client: Sentry.HackneyClient,
   enable_source_code_context: true,
-  root_source_code_path: File.cwd!(),
+  root_source_code_paths: [File.cwd!()],
   tags: %{env: config_env()},
   in_app_module_allow_list: [Asciinema]
 

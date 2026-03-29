@@ -9,6 +9,7 @@ defmodule Asciinema.Application do
   def start(_type, _args) do
     :ok = Oban.Telemetry.attach_default_logger()
     :ok = Asciinema.ObanErrorReporter.configure()
+    Logger.add_handlers(:asciinema)
 
     topologies = Application.get_env(:libcluster, :topologies, [])
 
