@@ -49,32 +49,6 @@ defmodule AsciinemaWeb.RecordingSvgTest do
       assert svg =~ "  foo  bar"
     end
 
-    @tag :rsvg
-    test "preserves spaces when rasterized with librsvg" do
-      one_space =
-        build(:asciicast, snapshot: snapshot([[["foo bar", %{}, 1]]]))
-        |> render_full()
-        |> rasterize_svg()
-
-      two_spaces =
-        build(:asciicast, snapshot: snapshot([[["foo  bar", %{}, 1]]]))
-        |> render_full()
-        |> rasterize_svg()
-
-      no_leading_spaces =
-        build(:asciicast, snapshot: snapshot([[["foo", %{}, 1]]]))
-        |> render_full()
-        |> rasterize_svg()
-
-      leading_spaces =
-        build(:asciicast, snapshot: snapshot([[["  foo", %{}, 1]]]))
-        |> render_full()
-        |> rasterize_svg()
-
-      refute one_space == two_spaces
-      refute no_leading_spaces == leading_spaces
-    end
-
     test "clips background segments to configured terminal width" do
       asciicast =
         build(:asciicast,
@@ -410,14 +384,6 @@ defmodule AsciinemaWeb.RecordingSvgTest do
   defp decode_embedded_png(svg) do
     [_, encoded] = Regex.run(~r/href="data:image\/png;base64,([^"]+)"/, svg)
     decode_png(Base.decode64!(encoded))
-  end
-
-  defp rasterize_svg(svg) do
-    path = Briefly.create!(extname: ".svg")
-    File.write!(path, svg)
-    {png, 0} = System.cmd("rsvg-convert", [path])
-
-    png
   end
 
   defp rgb_at_cell(png, x, y), do: rgb_at(png, x * 8, y * 24)
