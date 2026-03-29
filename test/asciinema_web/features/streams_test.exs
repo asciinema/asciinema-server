@@ -208,8 +208,6 @@ defmodule AsciinemaWeb.Features.StreamsTest do
       |> assert_has("h1", text: "403 Forbidden")
     end
 
-    @tag :skip
-    # TODO try to re-enable after upgrade of phoenix_test
     test "complete flow", %{conn: conn} do
       user = insert(:user, streaming_enabled: true)
       stream = insert(:stream, user: user, title: "Test Stream", visibility: :private)

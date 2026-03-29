@@ -18,9 +18,9 @@
         pname = "asciinema-server";
         pkgs = nixpkgs.legacyPackages.${system};
 
-        beamPackages = pkgs.beam.packages.erlang_26.extend (
+        beamPackages = pkgs.beam.packages.erlang_27.extend (
           _: prev: {
-            elixir = prev.elixir_1_18;
+            elixir = prev.elixir_1_19;
           }
         );
 
@@ -56,7 +56,7 @@
           mixFodDeps = beamPackages.fetchMixDeps {
             pname = "${pname}-mix-deps";
             inherit src version;
-            hash = "sha256-dlrv3nlpwKMJX4q6XYVgr5AWczpv0ejKqZAhO87K2H8=";
+            hash = "sha256-GT+gr7hAH7Sw0isPDVpDhOIB5mm37QB86dpauwSqSdE=";
           };
 
           preConfigure = ''
@@ -101,6 +101,7 @@
               rust-analyzer
               rustPackages.clippy
               shellcheck
+              imagemagick
             ]
             ++ self.packages.${system}.default.buildInputs
             ++ lib.optional stdenv.isLinux [ inotify-tools ];

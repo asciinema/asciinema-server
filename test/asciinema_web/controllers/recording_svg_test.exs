@@ -49,32 +49,6 @@ defmodule AsciinemaWeb.RecordingSvgTest do
       assert svg =~ "  foo  bar"
     end
 
-    @tag :rsvg
-    test "preserves spaces when rasterized with librsvg" do
-      one_space =
-        build(:asciicast, snapshot: snapshot([[["foo bar", %{}, 1]]]))
-        |> render_full()
-        |> rasterize_svg()
-
-      two_spaces =
-        build(:asciicast, snapshot: snapshot([[["foo  bar", %{}, 1]]]))
-        |> render_full()
-        |> rasterize_svg()
-
-      no_leading_spaces =
-        build(:asciicast, snapshot: snapshot([[["foo", %{}, 1]]]))
-        |> render_full()
-        |> rasterize_svg()
-
-      leading_spaces =
-        build(:asciicast, snapshot: snapshot([[["  foo", %{}, 1]]]))
-        |> render_full()
-        |> rasterize_svg()
-
-      refute one_space == two_spaces
-      refute no_leading_spaces == leading_spaces
-    end
-
     test "clips background segments to configured terminal width" do
       asciicast =
         build(:asciicast,
@@ -92,7 +66,7 @@ defmodule AsciinemaWeb.RecordingSvgTest do
       assert rgb_at(png, 23, 23) == {17, 34, 51}
     end
 
-    test "routes representative rasterized glyph groups to embedded PNG layer" do
+    test "routes only supported rasterized glyph groups to embedded PNG layer" do
       fg = {255, 85, 0}
       sextant_ul = <<0x1FB00::utf8>>
       line = "█│┃╵╷╹╻■" <> sextant_ul
@@ -111,17 +85,17 @@ defmodule AsciinemaWeb.RecordingSvgTest do
       refute svg =~ "█"
       assert cell_contains_color?(png, 0, 0, fg)
 
-      # box verticals
-      refute svg =~ "│"
+      # light verticals stay in text, heavy ones are rasterized
+      assert svg =~ "│"
       refute svg =~ "┃"
-      refute svg =~ "╵"
-      refute svg =~ "╷"
+      assert svg =~ "╵"
+      assert svg =~ "╷"
       refute svg =~ "╹"
       refute svg =~ "╻"
-      assert cell_contains_color?(png, 1, 0, fg)
+      refute cell_contains_color?(png, 1, 0, fg)
       assert cell_contains_color?(png, 2, 0, fg)
-      assert cell_contains_color?(png, 3, 0, fg)
-      assert cell_contains_color?(png, 4, 0, fg)
+      refute cell_contains_color?(png, 3, 0, fg)
+      refute cell_contains_color?(png, 4, 0, fg)
       assert cell_contains_color?(png, 5, 0, fg)
       assert cell_contains_color?(png, 6, 0, fg)
 
@@ -168,7 +142,7 @@ defmodule AsciinemaWeb.RecordingSvgTest do
       assert rgb_at(png, 8, 12) == {51, 102, 204}
     end
 
-    test "renders box drawing vertical lines in mosaic layer and excludes them from text layer" do
+    test "renders heavy box drawing vertical lines in mosaic layer" do
       asciicast =
         build(:asciicast,
           term_cols: 2,
@@ -179,13 +153,13 @@ defmodule AsciinemaWeb.RecordingSvgTest do
       svg = render_full(asciicast)
       png = decode_embedded_png(svg)
 
-      refute svg =~ "│"
+      assert svg =~ "│"
       refute svg =~ "┃"
-      assert cell_contains_color?(png, 0, 0, {255, 85, 0})
+      refute cell_contains_color?(png, 0, 0, {255, 85, 0})
       assert cell_contains_color?(png, 1, 0, {255, 85, 0})
     end
 
-    test "renders box drawing vertical half-lines in mosaic layer and excludes them from text layer" do
+    test "renders heavy box drawing vertical half-lines in mosaic layer" do
       half_lines = <<0x2575::utf8, 0x2577::utf8, 0x2579::utf8, 0x257B::utf8>>
 
       asciicast =
@@ -198,12 +172,12 @@ defmodule AsciinemaWeb.RecordingSvgTest do
       svg = render_full(asciicast)
       png = decode_embedded_png(svg)
 
-      refute svg =~ <<0x2575::utf8>>
-      refute svg =~ <<0x2577::utf8>>
+      assert svg =~ <<0x2575::utf8>>
+      assert svg =~ <<0x2577::utf8>>
       refute svg =~ <<0x2579::utf8>>
       refute svg =~ <<0x257B::utf8>>
-      assert cell_contains_color?(png, 0, 0, {255, 85, 0})
-      assert cell_contains_color?(png, 1, 0, {255, 85, 0})
+      refute cell_contains_color?(png, 0, 0, {255, 85, 0})
+      refute cell_contains_color?(png, 1, 0, {255, 85, 0})
       assert cell_contains_color?(png, 2, 0, {255, 85, 0})
       assert cell_contains_color?(png, 3, 0, {255, 85, 0})
     end
@@ -410,14 +384,6 @@ defmodule AsciinemaWeb.RecordingSvgTest do
   defp decode_embedded_png(svg) do
     [_, encoded] = Regex.run(~r/href="data:image\/png;base64,([^"]+)"/, svg)
     decode_png(Base.decode64!(encoded))
-  end
-
-  defp rasterize_svg(svg) do
-    path = Briefly.create!(extname: ".svg")
-    File.write!(path, svg)
-    {png, 0} = System.cmd("rsvg-convert", [path])
-
-    png
   end
 
   defp rgb_at_cell(png, x, y), do: rgb_at(png, x * 8, y * 24)

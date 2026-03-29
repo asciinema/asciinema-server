@@ -6,9 +6,10 @@ defmodule AsciinemaWeb.PngGenerator do
   @name __MODULE__
   @zoom 2
   @call_timeout 30_000
+  @symbols_font_name "Symbols Nerd Font"
 
   # Bump when PNG output bytes can change without SVG cache key changing
-  @png_renderer_salt 1
+  @png_renderer_salt 2
 
   defmodule Error do
     defexception [:type, :reason, retryable: false]
@@ -81,6 +82,7 @@ defmodule AsciinemaWeb.PngGenerator do
   defp do_generate(asciicast, tmp_dir_path) do
     png_path = Path.join(tmp_dir_path, "#{asciicast.id}.png")
     svg_path = Path.join(tmp_dir_path, "#{asciicast.id}.svg")
+    fontconfig_path = Path.join(tmp_dir_path, "fonts.conf")
 
     svg =
       RecordingSVG.full(%{
@@ -91,9 +93,10 @@ defmodule AsciinemaWeb.PngGenerator do
       })
 
     File.write!(svg_path, Phoenix.HTML.Safe.to_iodata(svg))
+    File.write!(fontconfig_path, fontconfig_xml())
 
     args = [svg_path, png_path, "#{@zoom}"]
-    opts = [stderr_to_stdout: true]
+    opts = [stderr_to_stdout: true, env: [{"FONTCONFIG_FILE", fontconfig_path}]]
 
     case System.cmd(script_path(), args, opts) do
       {_, 0} ->
@@ -111,7 +114,37 @@ defmodule AsciinemaWeb.PngGenerator do
     Path.join(:code.priv_dir(:asciinema), "svg2png.sh")
   end
 
+  defp fontconfig_xml do
+    """
+    <?xml version="1.0"?>
+    <!DOCTYPE fontconfig SYSTEM "fonts.dtd">
+    <fontconfig>
+      <include ignore_missing="yes">fonts.conf</include>
+      <dir>#{fonts_dir()}</dir>
+      <selectfont>
+        <rejectfont>
+          <glob>#{Path.join(fonts_dir(), "*.woff2")}</glob>
+        </rejectfont>
+      </selectfont>
+    </fontconfig>
+    """
+  end
+
+  defp fonts_dir do
+    Application.app_dir(:asciinema, "priv/static/fonts")
+  end
+
   defp font_family do
-    Keyword.get(Application.get_env(:asciinema, __MODULE__), :font_family)
+    Application.get_env(:asciinema, __MODULE__, [])
+    |> Keyword.fetch!(:font_family)
+    |> ensure_symbols_font_family()
+  end
+
+  defp ensure_symbols_font_family(font_family) do
+    if String.contains?(font_family, @symbols_font_name) do
+      font_family
+    else
+      font_family <> ",'#{@symbols_font_name}'"
+    end
   end
 end
