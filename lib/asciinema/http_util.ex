@@ -16,7 +16,7 @@ defmodule Asciinema.HttpUtil do
         http_options
       )
 
-    decompress? = Keyword.get(http_options, :decompress, true)
+    {decompress?, http_options} = Keyword.pop(http_options, :decompress, true)
     timeout = Keyword.fetch!(http_options, :timeout)
     request_options = [sync: false, stream: :self, body_format: :binary]
     headers = [{~c"accept-encoding", if(decompress?, do: ~c"gzip", else: ~c"identity")}]
