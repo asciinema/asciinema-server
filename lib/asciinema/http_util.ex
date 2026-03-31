@@ -16,16 +16,18 @@ defmodule Asciinema.HttpUtil do
         http_options
       )
 
+    decompress? = Keyword.get(http_options, :decompress, true)
     timeout = Keyword.fetch!(http_options, :timeout)
     request_options = [sync: false, stream: :self, body_format: :binary]
+    headers = [{~c"accept-encoding", if(decompress?, do: ~c"gzip", else: ~c"identity")}]
 
-    case :httpc.request(:get, {url, []}, http_options, request_options) do
+    case :httpc.request(:get, {url, headers}, http_options, request_options) do
       {:ok, req_id} ->
         case File.open(path, [:write, :binary]) do
           {:ok, io} ->
             result =
               try do
-                recv_stream(req_id, io, timeout, nil)
+                recv_stream(req_id, io, timeout, nil, decompress?)
               after
                 File.close(io)
               end
@@ -42,21 +44,21 @@ defmodule Asciinema.HttpUtil do
     end
   end
 
-  defp recv_stream(req_id, io, timeout, inflater) do
+  defp recv_stream(req_id, io, timeout, inflater, decompress?) do
     receive do
       {:http, {^req_id, :stream_start, headers}} ->
         if partial_content?(headers) do
           {:error, {:http_status, 206}, inflater, true}
         else
-          case maybe_open_inflater(headers) do
-            {:ok, inflater} -> recv_stream(req_id, io, timeout, inflater)
+          case maybe_open_inflater(headers, decompress?) do
+            {:ok, inflater} -> recv_stream(req_id, io, timeout, inflater, decompress?)
             {:error, reason, inflater} -> {:error, reason, inflater, true}
           end
         end
 
       {:http, {^req_id, :stream, chunk}} ->
         case write_chunk(io, inflater, chunk) do
-          :ok -> recv_stream(req_id, io, timeout, inflater)
+          :ok -> recv_stream(req_id, io, timeout, inflater, decompress?)
           {:error, reason} -> {:error, reason, inflater, true}
         end
 
@@ -113,7 +115,7 @@ defmodule Asciinema.HttpUtil do
     end)
   end
 
-  defp maybe_open_inflater(headers) do
+  defp maybe_open_inflater(headers, true) do
     if gzip_encoded?(headers) do
       inflater = :zlib.open()
 
@@ -127,6 +129,8 @@ defmodule Asciinema.HttpUtil do
       {:ok, nil}
     end
   end
+
+  defp maybe_open_inflater(_headers, false), do: {:ok, nil}
 
   defp write_chunk(io, nil, chunk), do: safe_binwrite(io, chunk)
 
