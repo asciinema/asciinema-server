@@ -5,7 +5,11 @@ defmodule Asciinema.GzipTest do
   test "stream!/2 validates chunk_size" do
     assert_raise ArgumentError, fn -> Gzip.stream!("foo.gz", 0) end
     assert_raise ArgumentError, fn -> Gzip.stream!("foo.gz", -1) end
-    assert_raise ArgumentError, fn -> Gzip.stream!("foo.gz", :line) end
+  end
+
+  test "stream!/2 accepts :line and rejects other non-integer modes" do
+    assert %Gzip.Stream{} = Gzip.stream!("foo.gz", :line)
+    assert_raise ArgumentError, fn -> Gzip.stream!("foo.gz", :foo) end
   end
 
   test "stream!/2 reads and inflates gzip data in chunks" do
@@ -34,6 +38,19 @@ defmodule Asciinema.GzipTest do
       |> IO.iodata_to_binary()
 
     assert inflated == plain
+  end
+
+  test "stream!/2 reads and inflates gzip data as lines" do
+    plain = "alpha\nbeta\n\ngamma"
+    path = Briefly.create!()
+    File.write!(path, :zlib.gzip(plain))
+
+    inflated =
+      path
+      |> Gzip.stream!(:line)
+      |> Enum.to_list()
+
+    assert inflated == ["alpha\n", "beta\n", "\n", "gamma"]
   end
 
   test "stream!/2 raises on invalid gzip content when consumed" do

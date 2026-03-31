@@ -218,10 +218,15 @@ defmodule AsciinemaWeb.RecordingController do
 
   defp get_cast_path(asciicast, gzip?) do
     with {:ok, path} <- Recordings.fetch_cast_path(asciicast) do
-      if gzip? do
-        fetch_gzipped_path(:cast_gz, asciicast.id, path)
-      else
-        {:ok, path}
+      case {asciicast.compressed, gzip?} do
+        {compressed, compressed} ->
+          {:ok, path}
+
+        {false, true} ->
+          fetch_gzipped_path(Recordings.cast_cache_bucket(true), asciicast.id, path)
+
+        {true, false} ->
+          fetch_plain_path(Recordings.cast_cache_bucket(false), asciicast.id, path)
       end
     end
   end
@@ -277,6 +282,23 @@ defmodule AsciinemaWeb.RecordingController do
         |> Enum.into(Gzip.stream!(gz_path, @gzip_chunk_size))
 
         gz_path
+      end,
+      15_000
+    )
+  end
+
+  defp fetch_plain_path(bucket, key, source_path) do
+    FileCache.fetch_path(
+      bucket,
+      key,
+      fn tmp_dir ->
+        path = Path.join(tmp_dir, Path.rootname(Path.basename(source_path), ".gz"))
+
+        source_path
+        |> Gzip.stream!(@gzip_chunk_size)
+        |> Enum.into(File.stream!(path, [:write, :binary], @gzip_chunk_size))
+
+        path
       end,
       15_000
     )

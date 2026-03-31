@@ -1,15 +1,22 @@
 defmodule Asciinema.Gzip do
   alias __MODULE__.Stream
 
+  @read_chunk_size 64 * 1024
+
   defmodule Stream do
-    @enforce_keys [:path, :chunk_size]
-    defstruct [:path, :chunk_size]
+    @enforce_keys [:path, :mode]
+    defstruct [:path, :mode, :chunk_size]
   end
 
   @spec stream!(Path.t(), pos_integer()) :: Stream.t()
   def stream!(path, chunk_size)
       when is_binary(path) and is_integer(chunk_size) and chunk_size > 0 do
-    %Stream{path: path, chunk_size: chunk_size}
+    %Stream{path: path, mode: :bytes, chunk_size: chunk_size}
+  end
+
+  @spec stream!(Path.t(), :line) :: Stream.t()
+  def stream!(path, :line) when is_binary(path) do
+    %Stream{path: path, mode: :line, chunk_size: @read_chunk_size}
   end
 
   def stream!(path, _chunk_size) when not is_binary(path) do
@@ -18,13 +25,13 @@ defmodule Asciinema.Gzip do
 
   def stream!(_path, chunk_size) do
     raise ArgumentError,
-          "expected chunk_size to be a positive integer, got: #{inspect(chunk_size)}"
+          "expected chunk_size to be a positive integer or :line, got: #{inspect(chunk_size)}"
   end
 
   def reader_resource(%Stream{} = stream) do
     Elixir.Stream.resource(
       fn -> open_reader!(stream) end,
-      &next_chunk/1,
+      &next_item/1,
       &close_reader/1
     )
   end
@@ -67,14 +74,23 @@ defmodule Asciinema.Gzip do
     close_writer(state)
   end
 
-  defp open_reader!(%Stream{path: path, chunk_size: chunk_size}) do
+  defp open_reader!(%Stream{path: path, chunk_size: chunk_size, mode: mode}) do
     case File.open(path, [:read, :binary]) do
       {:ok, file} ->
         inflater = :zlib.open()
 
         try do
           :ok = :zlib.inflateInit(inflater, 31)
-          %{path: path, chunk_size: chunk_size, file: file, inflater: inflater, eof?: false}
+
+          %{
+            path: path,
+            mode: mode,
+            chunk_size: chunk_size,
+            file: file,
+            inflater: inflater,
+            eof?: false,
+            buffer: <<>>
+          }
         catch
           :error, reason ->
             :zlib.close(inflater)
@@ -89,30 +105,76 @@ defmodule Asciinema.Gzip do
     end
   end
 
+  defp next_item(%{mode: :bytes} = state), do: next_chunk(state)
+  defp next_item(%{mode: :line} = state), do: next_line(state)
+
   defp next_chunk(%{eof?: true} = state), do: {:halt, state}
 
   defp next_chunk(state) do
+    {decompressed, state} = inflate_more(state)
+
+    if decompressed == <<>> do
+      if state.eof?, do: {:halt, state}, else: {[], state}
+    else
+      {[decompressed], state}
+    end
+  end
+
+  defp next_line(state) do
+    case extract_lines(state.buffer, state.eof?) do
+      {:emit, lines, buffer} ->
+        {lines, %{state | buffer: buffer}}
+
+      :need_more ->
+        {decompressed, state} = inflate_more(state)
+        next_line(%{state | buffer: state.buffer <> decompressed})
+
+      :halt ->
+        {:halt, state}
+    end
+  end
+
+  defp inflate_more(%{eof?: true} = state), do: {<<>>, state}
+
+  defp inflate_more(state) do
     case IO.binread(state.file, state.chunk_size) do
       :eof ->
         decompressed = inflate!(state.inflater, <<>>, state.path)
-        state = %{state | eof?: true}
-
-        if decompressed == <<>> do
-          {:halt, state}
-        else
-          {[decompressed], state}
-        end
+        {decompressed, %{state | eof?: true}}
 
       {:error, reason} ->
         raise File.Error, reason: reason, action: "read file", path: state.path
 
       compressed when is_binary(compressed) ->
         decompressed = inflate!(state.inflater, compressed, state.path)
+        {decompressed, state}
+    end
+  end
 
-        if decompressed == <<>> do
-          {[], state}
+  defp extract_lines(<<>>, true), do: :halt
+
+  defp extract_lines(buffer, eof?) do
+    case :binary.matches(buffer, "\n") do
+      [] when eof? ->
+        {:emit, [buffer], <<>>}
+
+      [] ->
+        :need_more
+
+      newline_positions ->
+        {lines, start} =
+          Enum.reduce(newline_positions, {[], 0}, fn {index, 1}, {lines, start} ->
+            line = :binary.part(buffer, start, index + 1 - start)
+            {[line | lines], index + 1}
+          end)
+
+        lines = Enum.reverse(lines)
+        rest = :binary.part(buffer, start, byte_size(buffer) - start)
+
+        if eof? and rest != <<>> do
+          {:emit, lines ++ [rest], <<>>}
         else
-          {[decompressed], state}
+          {:emit, lines, rest}
         end
     end
   end
@@ -181,6 +243,16 @@ defmodule Asciinema.Gzip do
     catch
       _, _ -> :ok
     end
+  end
+
+  def compress_file(input_path, output_path \\ nil) do
+    output_path = output_path || Briefly.create!()
+
+    input_path
+    |> File.stream!(@read_chunk_size)
+    |> Enum.into(stream!(output_path, @read_chunk_size))
+
+    output_path
   end
 end
 

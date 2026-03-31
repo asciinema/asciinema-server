@@ -1,5 +1,6 @@
 defmodule Asciinema.Recordings.Asciicast.V1Test do
   use ExUnit.Case, async: true
+  import Asciinema.GzipTestHelpers
   alias Asciinema.Recordings.Asciicast.V1
 
   describe "fetch_metadata/1" do
@@ -16,6 +17,25 @@ defmodule Asciinema.Recordings.Asciicast.V1Test do
                title: nil,
                env: %{},
                shell: nil
+             }
+    end
+
+    test "supports gzipped files" do
+      {:ok, metadata} = V1.fetch_metadata(gzip_fixture!("test/fixtures/1/full.json"))
+
+      assert metadata == %{
+               version: 1,
+               term_cols: 96,
+               term_rows: 26,
+               term_type: "screen-256color",
+               command: "/bin/bash",
+               duration: 10.370343,
+               title: "bashing :)",
+               env: %{
+                 "TERM" => "screen-256color",
+                 "SHELL" => "/bin/zsh"
+               },
+               shell: "/bin/zsh"
              }
     end
 
@@ -72,6 +92,12 @@ defmodule Asciinema.Recordings.Asciicast.V1Test do
   describe "event_stream/1" do
     test "full" do
       stream = V1.event_stream("test/fixtures/1/full.json")
+
+      assert Enum.take(stream, 2) == [{1.234567, "o", "foo bar"}, {6.913554, "o", "baz qux"}]
+    end
+
+    test "supports gzipped files" do
+      stream = V1.event_stream(gzip_fixture!("test/fixtures/1/full.json"))
 
       assert Enum.take(stream, 2) == [{1.234567, "o", "foo bar"}, {6.913554, "o", "baz qux"}]
     end

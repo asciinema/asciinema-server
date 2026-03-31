@@ -19,7 +19,7 @@ defmodule Asciinema.Recordings.Paths do
       "{month}" => String.pad_leading(to_string(time.month), 2, "0"),
       "{day}" => String.pad_leading(to_string(time.day), 2, "0"),
       "{shard}" => shard(asciicast.id),
-      "{ext}" => ext(asciicast.version)
+      "{ext}" => ext(asciicast.version, asciicast.compressed)
     }
 
     tpl
@@ -38,9 +38,8 @@ defmodule Asciinema.Recordings.Paths do
     "#{a}/#{b}"
   end
 
-  defp ext(1), do: "json"
-  defp ext(2), do: "cast"
-  defp ext(3), do: "cast"
+  defp ext(1, compressed), do: if(compressed, do: "json.gz", else: "json")
+  defp ext(_, compressed), do: if(compressed, do: "cast.gz", else: "cast")
 
   defp resolve_env_var(match, env) do
     env = env || %{}

@@ -3,8 +3,9 @@ defmodule Asciinema.Recordings do
   import Ecto, only: [build_assoc: 2]
   import Ecto.Changeset
   import Ecto.Query, warn: false
+  alias Asciinema.Recordings.Asciicast.Reader
   alias Asciinema.Recordings.Asciicast.{V1, V2, V3}
-  alias Asciinema.{FileCache, FileStore, Fonts, Fts, HttpUtil, Repo, Themes, Vt}
+  alias Asciinema.{FileCache, FileStore, Fonts, Fts, Gzip, HttpUtil, Repo, Themes, Vt}
   alias Asciinema.Workers.{MigrateRecordingFiles, UpdateFtsContent, UpdateSnapshot}
 
   alias Asciinema.Recordings.{
@@ -64,17 +65,24 @@ defmodule Asciinema.Recordings do
   end
 
   def fetch_cast_path(asciicast) do
+    bucket = cast_cache_bucket(asciicast.compressed)
+
     case FileStore.uri(asciicast.path) do
       "file://" <> path ->
         {:ok, path}
 
       "http" <> _rest = url ->
         FileCache.fetch_path(
-          :cast,
+          bucket,
           asciicast.id,
           fn tmp_dir ->
-            path = Path.join(tmp_dir, "#{asciicast.id}.cast")
-            :ok = HttpUtil.download_to(url, path, timeout: 30_000)
+            path = Path.join(tmp_dir, to_string(asciicast.id))
+
+            :ok =
+              HttpUtil.download_to(url, path,
+                timeout: 30_000,
+                decompress: false
+              )
 
             path
           end,
@@ -82,6 +90,9 @@ defmodule Asciinema.Recordings do
         )
     end
   end
+
+  def cast_cache_bucket(true), do: :cast_gz
+  def cast_cache_bucket(false), do: :cast
 
   def get_cast_path!(asciicast) do
     case fetch_cast_path(asciicast) do
@@ -311,6 +322,7 @@ defmodule Asciinema.Recordings do
       Map.merge(
         %{
           filename: filename,
+          compressed: true,
           visibility: user.default_recording_visibility,
           secret_token: generate_secret_token(),
           term_bold_is_bright: user.term_bold_is_bright,
@@ -327,7 +339,8 @@ defmodule Asciinema.Recordings do
     with {:ok, metadata} <- extract_metadata(upload),
          changeset = apply_metadata(changeset, metadata, user),
          changeset = change_asciicast(changeset, unsafe_fields),
-         {:ok, %Asciicast{} = asciicast} <- do_create_asciicast(changeset, upload) do
+         file_path = Gzip.compress_file(upload.path),
+         {:ok, %Asciicast{} = asciicast} <- do_create_asciicast(changeset, file_path) do
       if asciicast.snapshot == nil do
         %{asciicast_id: asciicast.id}
         |> UpdateSnapshot.new()
@@ -343,11 +356,15 @@ defmodule Asciinema.Recordings do
   end
 
   defp extract_metadata(%Plug.Upload{path: path}) do
-    case V2.fetch_metadata(path) do
-      {:ok, metadata} -> {:ok, metadata}
-      {:error, {:invalid_version, 3}} -> V3.fetch_metadata(path)
-      {:error, {:invalid_version, _} = reason} -> {:error, reason}
-      {:error, :invalid_format} -> V1.fetch_metadata(path)
+    if Reader.compressed?(path) do
+      {:error, :invalid_format}
+    else
+      case V2.fetch_metadata(path) do
+        {:ok, metadata} -> {:ok, metadata}
+        {:error, {:invalid_version, 3}} -> V3.fetch_metadata(path)
+        {:error, {:invalid_version, _} = reason} -> {:error, reason}
+        {:error, :invalid_format} -> V1.fetch_metadata(path)
+      end
     end
   end
 
@@ -429,11 +446,11 @@ defmodule Asciinema.Recordings do
     end)
   end
 
-  defp do_create_asciicast(changeset, file) do
+  defp do_create_asciicast(changeset, file_path) do
     Repo.transact(fn ->
       with {:ok, asciicast} <- Repo.insert(changeset) do
         asciicast = assign_path(asciicast)
-        save_file(asciicast.path, file)
+        save_file(asciicast.path, file_path)
 
         {:ok, asciicast}
       end
@@ -449,8 +466,8 @@ defmodule Asciinema.Recordings do
     |> Repo.update!()
   end
 
-  defp save_file(path, %{path: tmp_path, content_type: content_type}) do
-    :ok = FileStore.put_file(path, tmp_path, content_type)
+  defp save_file(store_path, local_path) do
+    :ok = FileStore.put_file(store_path, local_path, "application/x-asciicast")
   end
 
   def change_asciicast(asciicast, attrs \\ %{}) do
@@ -631,11 +648,12 @@ defmodule Asciinema.Recordings do
 
   def event_stream(%Asciicast{} = asciicast) do
     path = get_cast_path!(asciicast)
+    opts = [compressed: asciicast.compressed]
 
     case asciicast.version do
-      1 -> V1.event_stream(path)
-      2 -> V2.event_stream(path)
-      3 -> V3.event_stream(path)
+      1 -> V1.event_stream(path, opts)
+      2 -> V2.event_stream(path, opts)
+      3 -> V3.event_stream(path, opts)
     end
   end
 
