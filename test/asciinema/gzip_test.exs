@@ -53,6 +53,22 @@ defmodule Asciinema.GzipTest do
     assert inflated == ["alpha\n", "beta\n", "\n", "gamma"]
   end
 
+  test "stream!/2 line mode handles gzip headers larger than the read chunk" do
+    plain = "alpha\nbeta\n\ngamma"
+    path = Briefly.create!()
+    File.write!(path, gzip_with_comment(plain, String.duplicate("x", 70_000)))
+
+    inflated =
+      Task.async(fn ->
+        path
+        |> Gzip.stream!(:line)
+        |> Enum.to_list()
+      end)
+      |> Task.await(500)
+
+    assert inflated == ["alpha\n", "beta\n", "\n", "gamma"]
+  end
+
   test "stream!/2 raises on invalid gzip content when consumed" do
     path = Briefly.create!()
     File.write!(path, "not gzip")
@@ -98,5 +114,30 @@ defmodule Asciinema.GzipTest do
     Enum.into(["second payload"], Gzip.stream!(path, 8))
 
     assert :zlib.gunzip(File.read!(path)) == "second payload"
+  end
+
+  defp gzip_with_comment(data, comment) do
+    z = :zlib.open()
+
+    try do
+      :ok = :zlib.deflateInit(z, :default, :deflated, -15, 8, :default)
+      compressed = :zlib.deflate(z, data, :finish)
+
+      [
+        <<0x1F, 0x8B, 8, 0x10, 0::little-32, 0, 255>>,
+        comment,
+        <<0>>,
+        compressed,
+        <<:erlang.crc32(data)::little-32, byte_size(data)::little-32>>
+      ]
+    after
+      try do
+        :zlib.deflateEnd(z)
+      catch
+        _, _ -> :ok
+      end
+
+      :zlib.close(z)
+    end
   end
 end

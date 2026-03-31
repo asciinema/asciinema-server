@@ -126,8 +126,13 @@ defmodule Asciinema.Gzip do
         {lines, %{state | buffer: buffer}}
 
       :need_more ->
-        {decompressed, state} = inflate_more(state)
-        next_line(%{state | buffer: state.buffer <> decompressed})
+        case inflate_more(state) do
+          {<<>>, %{eof?: false} = state} ->
+            {[], state}
+
+          {decompressed, state} ->
+            next_line(%{state | buffer: state.buffer <> decompressed})
+        end
 
       :halt ->
         {:halt, state}
