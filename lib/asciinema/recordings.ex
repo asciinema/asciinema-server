@@ -339,7 +339,10 @@ defmodule Asciinema.Recordings do
     with {:ok, metadata} <- extract_metadata(upload),
          changeset = apply_metadata(changeset, metadata, user),
          changeset = change_asciicast(changeset, unsafe_fields),
+         uncompressed_size = file_size(upload.path),
          file_path = Gzip.compress_file(upload.path),
+         compressed_size = file_size(file_path),
+         changeset = change(changeset, %{uncompressed_size: uncompressed_size, compressed_size: compressed_size}),
          {:ok, %Asciicast{} = asciicast} <- do_create_asciicast(changeset, file_path) do
       if asciicast.snapshot == nil do
         %{asciicast_id: asciicast.id}
@@ -353,6 +356,10 @@ defmodule Asciinema.Recordings do
 
       {:ok, asciicast}
     end
+  end
+
+  defp file_size(path) do
+    File.stat!(path).size
   end
 
   defp extract_metadata(%Plug.Upload{path: path}) do

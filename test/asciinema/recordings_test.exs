@@ -108,6 +108,20 @@ defmodule Asciinema.RecordingsTest do
       assert DateTime.to_unix(asciicast.recorded_at) == 1_506_410_422
     end
 
+    test "stores compressed and uncompressed file sizes for new uploads" do
+      user = insert(:user)
+      upload = fixture(:upload, %{path: "2/full.cast"})
+      expected_uncompressed_size = File.stat!(upload.path).size
+
+      {:ok, asciicast} = Recordings.create_asciicast(user, upload)
+
+      stored_path = Recordings.get_cast_path!(asciicast)
+      expected_compressed_size = File.stat!(stored_path).size
+
+      assert asciicast.uncompressed_size == expected_uncompressed_size
+      assert asciicast.compressed_size == expected_compressed_size
+    end
+
     test "invalid file format" do
       user = insert(:user)
       upload = fixture(:upload, %{path: "favicon.png"})
