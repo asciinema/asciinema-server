@@ -1,10 +1,11 @@
 defmodule Asciinema.Recordings.Asciicast.V1 do
   alias Asciinema.Recordings.EventStream
+  alias Asciinema.Recordings.Asciicast.Reader
 
-  def event_stream(path) when is_binary(path) do
+  def event_stream(path, opts \\ []) when is_binary(path) and is_list(opts) do
     asciicast =
       path
-      |> File.read!()
+      |> Reader.read_iodata!(opts)
       |> Jason.decode!()
 
     1 = asciicast["version"]
@@ -19,9 +20,9 @@ defmodule Asciinema.Recordings.Asciicast.V1 do
     {time, "o", data}
   end
 
-  def fetch_metadata(path) do
-    with {:ok, attrs} <- parse_file(path),
-         {:ok, duration} <- get_duration(path) do
+  def fetch_metadata(path, opts \\ []) when is_binary(path) and is_list(opts) do
+    with {:ok, attrs} <- parse_file(path, opts),
+         {:ok, duration} <- get_duration(path, opts) do
       metadata = %{
         version: 1,
         term_cols: attrs["width"],
@@ -38,9 +39,10 @@ defmodule Asciinema.Recordings.Asciicast.V1 do
     end
   end
 
-  defp parse_file(path) do
-    with {:ok, json} <- File.read(path),
-         {:ok, %{"version" => 1} = attrs} <- Jason.decode(json) do
+  defp parse_file(path, opts) do
+    json = Reader.read_iodata!(path, opts)
+
+    with {:ok, %{"version" => 1} = attrs} <- Jason.decode(json) do
       {:ok, attrs}
     else
       {:ok, %{"version" => version}} ->
@@ -51,10 +53,10 @@ defmodule Asciinema.Recordings.Asciicast.V1 do
     end
   end
 
-  defp get_duration(path) do
+  defp get_duration(path, opts) do
     duration =
       path
-      |> event_stream()
+      |> event_stream(opts)
       |> Enum.reduce(0, fn {t, _, _}, _prev_t -> t end)
 
     {:ok, duration}

@@ -1,5 +1,6 @@
 defmodule Asciinema.Recordings.Asciicast.V3Test do
   use ExUnit.Case, async: true
+  import Asciinema.GzipTestHelpers
   alias Asciinema.Recordings.Asciicast.V3
 
   describe "fetch_metadata/1" do
@@ -22,6 +23,32 @@ defmodule Asciinema.Recordings.Asciicast.V3Test do
                env: %{},
                idle_time_limit: nil,
                shell: nil
+             }
+    end
+
+    test "supports gzipped files" do
+      {:ok, metadata} = V3.fetch_metadata(gzip_fixture!("test/fixtures/3/full.cast"))
+
+      assert metadata == %{
+               version: 3,
+               term_cols: 96,
+               term_rows: 26,
+               term_type: "xterm-ghostty",
+               term_version: "ghostty 1.1.3-889478f-nix",
+               term_theme_fg: "#aaaaaa",
+               term_theme_bg: "#bbbbbb",
+               term_theme_palette:
+                 "#151515:#ac4142:#7e8e50:#e5b567:#6c99bb:#9f4e85:#7dd6cf:#d0d0d0:#505050:#ac4142:#7e8e50:#e5b567:#6c99bb:#9f4e85:#7dd6cf:#f5f5f5",
+               command: "/bin/bash -l",
+               duration: 8.191356,
+               recorded_at: ~U[2025-04-10 16:20:22Z],
+               title: "bashing :)",
+               env: %{
+                 "TERM" => "xterm-ghostty",
+                 "SHELL" => "/usr/bin/fish"
+               },
+               idle_time_limit: 2.5,
+               shell: "/usr/bin/fish"
              }
     end
 
@@ -125,6 +152,18 @@ defmodule Asciinema.Recordings.Asciicast.V3Test do
       assert Enum.to_list(stream) == [
                {1.234, "o", "foo bar"},
                {1.734, "o", "baz qux"}
+             ]
+    end
+
+    test "supports gzipped files" do
+      stream = V3.event_stream(gzip_fixture!("test/fixtures/3/full.cast"))
+
+      assert Enum.take(stream, 5) == [
+               {1.234567, "o", "foo bar"},
+               {2.234567, "i", "\r"},
+               {4.734567, "o", "baz qux"},
+               {5.734567, "r", {80, 24}},
+               {8.191356, "o", "żółć jaźń"}
              ]
     end
   end

@@ -40,6 +40,7 @@ defmodule Asciinema.Recordings.Asciicast do
     field :markers, :string
     field :env, :map
     field :audio_url, :string
+    field :compressed, :boolean
 
     timestamps(type: :utc_datetime)
 

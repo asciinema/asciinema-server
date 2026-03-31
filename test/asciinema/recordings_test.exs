@@ -1,6 +1,7 @@
 defmodule Asciinema.RecordingsTest do
   use Asciinema.DataCase, async: true
   import Asciinema.Factory
+  import Asciinema.GzipTestHelpers
   alias Asciinema.Recordings
   alias Asciinema.Recordings.{Asciicast, AsciicastStats}
 
@@ -16,6 +17,7 @@ defmodule Asciinema.RecordingsTest do
 
       assert %Asciicast{
                version: 1,
+               compressed: true,
                command: "/bin/bash",
                duration: 10.370343,
                shell: "/bin/zsh",
@@ -28,7 +30,7 @@ defmodule Asciinema.RecordingsTest do
                cli_id: ^cli_id
              } = asciicast
 
-      assert asciicast.path =~ ~r|^recordings/.+\.json$|
+      assert asciicast.path =~ ~r|^recordings/.+\.json\.gz$|
     end
 
     test "json file, v1 format (missing required data)" do
@@ -56,6 +58,7 @@ defmodule Asciinema.RecordingsTest do
 
       assert %Asciicast{
                version: 2,
+               compressed: true,
                term_cols: 96,
                term_rows: 26,
                term_type: nil,
@@ -73,7 +76,7 @@ defmodule Asciinema.RecordingsTest do
                cli_id: ^cli_id
              } = asciicast
 
-      assert asciicast.path =~ ~r|^recordings/.+\.cast$|
+      assert asciicast.path =~ ~r|^recordings/.+\.cast\.gz$|
     end
 
     test "cast file, v2 format, full" do
@@ -84,6 +87,7 @@ defmodule Asciinema.RecordingsTest do
 
       assert %Asciicast{
                version: 2,
+               compressed: true,
                term_cols: 96,
                term_rows: 26,
                duration: 7.34567,
@@ -100,7 +104,7 @@ defmodule Asciinema.RecordingsTest do
                user_agent: "a/user/agent"
              } = asciicast
 
-      assert asciicast.path =~ ~r|^recordings/.+\.cast$|
+      assert asciicast.path =~ ~r|^recordings/.+\.cast\.gz$|
       assert DateTime.to_unix(asciicast.recorded_at) == 1_506_410_422
     end
 
@@ -334,6 +338,21 @@ defmodule Asciinema.RecordingsTest do
 
     test "with asciicast v2 file" do
       asciicast = insert(:asciicast_v2) |> with_file()
+
+      stream = Recordings.event_stream(asciicast)
+
+      assert Enum.count(stream) == 786
+    end
+
+    test "with compressed asciicast file" do
+      asciicast =
+        insert(:asciicast_v2,
+          compressed: true,
+          path: "recordings/compressed/welcome.cast.gz"
+        )
+
+      path = gzip_fixture!("test/fixtures/welcome.cast")
+      :ok = Asciinema.FileStore.put_file(asciicast.path, path, "application/x-asciicast")
 
       stream = Recordings.event_stream(asciicast)
 

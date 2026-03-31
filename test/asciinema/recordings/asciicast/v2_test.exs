@@ -1,5 +1,6 @@
 defmodule Asciinema.Recordings.Asciicast.V2Test do
   use ExUnit.Case, async: true
+  import Asciinema.GzipTestHelpers
   alias Asciinema.Recordings.Asciicast.V2
 
   describe "fetch_metadata/1" do
@@ -21,6 +22,31 @@ defmodule Asciinema.Recordings.Asciicast.V2Test do
                env: %{},
                idle_time_limit: nil,
                shell: nil
+             }
+    end
+
+    test "supports gzipped files" do
+      {:ok, metadata} = V2.fetch_metadata(gzip_fixture!("test/fixtures/2/full.cast"))
+
+      assert metadata == %{
+               version: 2,
+               term_cols: 96,
+               term_rows: 26,
+               term_type: "screen-256color",
+               term_theme_fg: "#aaaaaa",
+               term_theme_bg: "#bbbbbb",
+               term_theme_palette:
+                 "#151515:#ac4142:#7e8e50:#e5b567:#6c99bb:#9f4e85:#7dd6cf:#d0d0d0:#505050:#ac4142:#7e8e50:#e5b567:#6c99bb:#9f4e85:#7dd6cf:#f5f5f5",
+               command: "/bin/bash -l",
+               duration: 7.34567,
+               recorded_at: ~U[2017-09-26 07:20:22Z],
+               title: "bashing :)",
+               env: %{
+                 "TERM" => "screen-256color",
+                 "SHELL" => "/bin/zsh"
+               },
+               idle_time_limit: 2.5,
+               shell: "/bin/zsh"
              }
     end
 
@@ -120,6 +146,17 @@ defmodule Asciinema.Recordings.Asciicast.V2Test do
       assert Enum.to_list(stream) == [
                {1.234, "o", "foo bar"},
                {3.0, "o", "baz qux"}
+             ]
+    end
+
+    test "supports gzipped files" do
+      stream = V2.event_stream(gzip_fixture!("test/fixtures/2/full.cast"))
+
+      assert Enum.take(stream, 4) == [
+               {1.234567, "o", "foo bar"},
+               {2.0, "r", {80, 24}},
+               {2.34567, "i", "\r"},
+               {4.84567, "o", "baz qux"}
              ]
     end
   end

@@ -11,6 +11,14 @@ defmodule Asciinema.HttpUtilTest do
     assert File.read!(path) == body
   end
 
+  test "download_to/2 requests gzip encoding by default" do
+    %{base_url: base_url} = start_server(response: :echo_accept_encoding)
+    path = Briefly.create!()
+
+    assert :ok == HttpUtil.download_to(base_url <> "/headers.cast", path)
+    assert File.read!(path) == "gzip"
+  end
+
   test "download_to/2 saves decompressed gzip response" do
     body = ~s({"version": 2, "stdout": "hello"}\n)
     %{base_url: base_url} = start_server(response: {:gzip, body})
@@ -18,6 +26,23 @@ defmodule Asciinema.HttpUtilTest do
 
     assert :ok == HttpUtil.download_to(base_url <> "/gzip.cast", path)
     assert File.read!(path) == body
+  end
+
+  test "download_to/3 preserves gzip response when decompress is false" do
+    body = ~s({"version": 2, "stdout": "hello"}\n)
+    %{base_url: base_url} = start_server(response: {:gzip, body})
+    path = Briefly.create!()
+
+    assert :ok == HttpUtil.download_to(base_url <> "/gzip.cast", path, decompress: false)
+    assert File.read!(path) == :zlib.gzip(body)
+  end
+
+  test "download_to/3 requests identity encoding when decompress is false" do
+    %{base_url: base_url} = start_server(response: :echo_accept_encoding)
+    path = Briefly.create!()
+
+    assert :ok == HttpUtil.download_to(base_url <> "/headers.cast", path, decompress: false)
+    assert File.read!(path) == "identity"
   end
 
   test "download_to/2 returns normalized error on non-200 response" do
@@ -72,6 +97,16 @@ defmodule Asciinema.HttpUtilTest do
           |> put_resp_content_type("application/x-asciicast")
           |> put_resp_header("content-encoding", "gzip")
           |> send_resp(200, :zlib.gzip(body))
+
+        :echo_accept_encoding ->
+          accept_encoding =
+            conn
+            |> get_req_header("accept-encoding")
+            |> List.first("")
+
+          conn
+          |> put_resp_content_type("text/plain")
+          |> send_resp(200, accept_encoding)
 
         {:partial, body, total_size} ->
           end_byte = byte_size(body) - 1

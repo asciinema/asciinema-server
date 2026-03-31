@@ -1,6 +1,7 @@
 defmodule Asciinema.Recordings.Asciicast.V3 do
   alias Asciinema.Colors
   alias Asciinema.Quantizer
+  alias Asciinema.Recordings.Asciicast.Reader
   alias Asciinema.Recordings.EventStream
 
   defmodule Writer do
@@ -8,10 +9,10 @@ defmodule Asciinema.Recordings.Asciicast.V3 do
     defstruct [:file, :prev_time, :time_quantizer]
   end
 
-  def event_stream(path) when is_binary(path) do
+  def event_stream(path, opts \\ []) when is_binary(path) and is_list(opts) do
     ["{" <> _ = header_line] =
       path
-      |> File.stream!([], :line)
+      |> Reader.stream_lines!(opts)
       |> Stream.take(1)
       |> Enum.to_list()
 
@@ -19,7 +20,7 @@ defmodule Asciinema.Recordings.Asciicast.V3 do
     3 = header["version"]
 
     path
-    |> File.stream!([], :line)
+    |> Reader.stream_lines!(opts)
     |> Stream.drop(1)
     |> Stream.reject(fn line -> line == "\n" or String.starts_with?(line, "#") end)
     |> Stream.map(&Jason.decode!/1)
@@ -43,9 +44,9 @@ defmodule Asciinema.Recordings.Asciicast.V3 do
     [{time, code, data}]
   end
 
-  def fetch_metadata(path) do
-    with {:ok, header} <- parse_header(path),
-         {:ok, duration} <- get_duration(path) do
+  def fetch_metadata(path, opts \\ []) when is_binary(path) and is_list(opts) do
+    with {:ok, header} <- parse_header(path, opts),
+         {:ok, duration} <- get_duration(path, opts) do
       metadata = %{
         version: 3,
         term_cols: get_in(header, ["term", "cols"]),
@@ -68,12 +69,19 @@ defmodule Asciinema.Recordings.Asciicast.V3 do
     end
   end
 
-  defp parse_header(path) do
-    with {:ok, line} when is_binary(line) <- File.open(path, fn f -> IO.read(f, :line) end),
+  defp parse_header(path, opts) do
+    with [line] when is_binary(line) <-
+           path
+           |> Reader.stream_lines!(opts)
+           |> Stream.take(1)
+           |> Enum.to_list(),
          {:ok, %{"version" => 3} = header} <- Jason.decode(line),
          :ok <- validate_theme(get_in(header, ["term", "theme"])) do
       {:ok, header}
     else
+      [] ->
+        {:error, :invalid_format}
+
       {:ok, %{"version" => version}} ->
         {:error, {:invalid_version, version}}
 
@@ -91,10 +99,10 @@ defmodule Asciinema.Recordings.Asciicast.V3 do
 
   defp validate_theme(_theme), do: {:error, :invalid_theme}
 
-  defp get_duration(path) do
+  defp get_duration(path, opts) do
     duration =
       path
-      |> event_stream()
+      |> event_stream(opts)
       |> Enum.reduce(0, fn {t, _, _}, _prev_t -> t end)
 
     {:ok, duration}

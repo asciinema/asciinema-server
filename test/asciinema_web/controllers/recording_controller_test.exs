@@ -930,6 +930,52 @@ defmodule AsciinemaWeb.RecordingControllerTest do
       assert ["gzip"] = get_resp_header(conn_2, "content-encoding")
       assert ~s({"version": 2) <> _ = :zlib.gunzip(gzip_body_2)
     end
+
+    @tag :with_gzipped_file
+    test "serves plain .cast/.json when stored file is gzipped and gzip is not requested", %{
+      conn: conn,
+      asciicast: asciicast
+    } do
+      conn_1 = get(conn, ~p"/a/#{asciicast.id}" <> ".cast")
+      body_1 = asciicast_response(conn_1, 200)
+
+      assert ["accept-encoding"] = get_resp_header(conn_1, "vary")
+      assert [] == get_resp_header(conn_1, "content-encoding")
+      assert ~s({"version": 2) <> _ = body_1
+
+      conn_2 = get(conn, ~p"/a/#{asciicast.id}" <> ".json")
+      body_2 = asciicast_response(conn_2, 200)
+
+      assert ["accept-encoding"] = get_resp_header(conn_2, "vary")
+      assert [] == get_resp_header(conn_2, "content-encoding")
+      assert ~s({"version": 2) <> _ = body_2
+    end
+
+    @tag :with_gzipped_file
+    test "serves gzip .cast/.json when stored file is gzipped and accept-encoding includes gzip",
+         %{conn: conn, asciicast: asciicast} do
+      conn_1 =
+        conn
+        |> put_req_header("accept-encoding", "gzip, deflate")
+        |> get(~p"/a/#{asciicast.id}" <> ".cast")
+
+      gzip_body_1 = asciicast_response(conn_1, 200)
+
+      assert ["accept-encoding"] = get_resp_header(conn_1, "vary")
+      assert ["gzip"] = get_resp_header(conn_1, "content-encoding")
+      assert ~s({"version": 2) <> _ = :zlib.gunzip(gzip_body_1)
+
+      conn_2 =
+        conn
+        |> put_req_header("accept-encoding", "br, gzip")
+        |> get(~p"/a/#{asciicast.id}" <> ".json")
+
+      gzip_body_2 = asciicast_response(conn_2, 200)
+
+      assert ["accept-encoding"] = get_resp_header(conn_2, "vary")
+      assert ["gzip"] = get_resp_header(conn_2, "content-encoding")
+      assert ~s({"version": 2) <> _ = :zlib.gunzip(gzip_body_2)
+    end
   end
 
   describe "txt gzip encoding" do
@@ -1026,13 +1072,18 @@ defmodule AsciinemaWeb.RecordingControllerTest do
   defp insert_recording(visibility, context) do
     version = Map.get(context, :version, 2)
     with_file = Map.get(context, :with_file, false)
+    with_gzipped_file = Map.get(context, :with_gzipped_file, false)
 
-    asciicast = insert(:"asciicast_v#{version}", visibility: visibility)
+    asciicast =
+      insert(:"asciicast_v#{version}",
+        visibility: visibility,
+        compressed: with_gzipped_file
+      )
 
-    if with_file do
-      with_file(asciicast)
-    else
-      asciicast
+    cond do
+      with_gzipped_file -> with_gzipped_file(asciicast)
+      with_file -> with_file(asciicast)
+      true -> asciicast
     end
   end
 
@@ -1272,5 +1323,26 @@ defmodule AsciinemaWeb.RecordingControllerTest do
     assert response_content_type(conn, :png)
 
     true
+  end
+
+  defp with_gzipped_file(asciicast, filename \\ nil)
+
+  defp with_gzipped_file(asciicast, nil) do
+    filename =
+      case asciicast.version do
+        1 -> "welcome.json"
+        2 -> "welcome.cast"
+        3 -> "3/full.cast"
+      end
+
+    with_gzipped_file(asciicast, filename)
+  end
+
+  defp with_gzipped_file(asciicast, filename) do
+    path = Briefly.create!()
+    File.write!(path, :zlib.gzip(File.read!("test/fixtures/#{filename}")))
+    :ok = Asciinema.FileStore.put_file(asciicast.path, path, "application/x-asciicast")
+
+    asciicast
   end
 end
