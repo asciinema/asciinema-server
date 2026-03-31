@@ -12,6 +12,14 @@ defmodule Asciinema.GzipTest do
     assert_raise ArgumentError, fn -> Gzip.stream!("foo.gz", :foo) end
   end
 
+  test "uncompressed_size/1 returns gzip footer size" do
+    plain = "footer size test\n"
+    path = Briefly.create!()
+    File.write!(path, :zlib.gzip(plain))
+
+    assert Gzip.uncompressed_size(path) == {:ok, byte_size(plain)}
+  end
+
   test "stream!/2 reads and inflates gzip data in chunks" do
     plain = String.duplicate("abc123\n", 200)
     path = Briefly.create!()
