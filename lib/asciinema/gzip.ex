@@ -28,6 +28,31 @@ defmodule Asciinema.Gzip do
           "expected chunk_size to be a positive integer or :line, got: #{inspect(chunk_size)}"
   end
 
+  @spec uncompressed_size(Path.t()) :: {:ok, non_neg_integer()} | {:error, :invalid_gzip}
+  def uncompressed_size(path) do
+    case File.open(path, [:read, :binary], fn file ->
+           case :file.position(file, {:eof, -4}) do
+             {:ok, _position} ->
+               case IO.binread(file, 4) do
+                 <<size::little-32>> -> {:ok, size}
+                 _ -> {:error, :invalid_gzip}
+               end
+
+             {:error, :einval} ->
+               {:error, :invalid_gzip}
+
+             {:error, reason} ->
+               raise File.Error, reason: reason, action: "read file"
+           end
+         end) do
+      {:ok, result} ->
+        result
+
+      {:error, reason} ->
+        raise File.Error, reason: reason, action: "open file", path: path
+    end
+  end
+
   def reader_resource(%Stream{} = stream) do
     Elixir.Stream.resource(
       fn -> open_reader!(stream) end,
