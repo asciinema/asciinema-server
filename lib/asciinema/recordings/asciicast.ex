@@ -40,7 +40,7 @@ defmodule Asciinema.Recordings.Asciicast do
     field :markers, :string
     field :env, :map
     field :audio_url, :string
-    field :compressed, :boolean
+    field :compressed, :boolean, default: false
     field :compressed_size, :integer
     field :uncompressed_size, :integer
 

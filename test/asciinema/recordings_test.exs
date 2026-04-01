@@ -221,6 +221,21 @@ defmodule Asciinema.RecordingsTest do
                term_adaptive_palette: true
              } = asciicast
     end
+
+    test "uses fresh username for path generation when user struct is stale" do
+      user = insert(:user, username: "old-username")
+      upload = fixture(:upload, %{path: "2/full.cast"})
+
+      Repo.update_all(
+        from(u in "users", where: u.id == ^user.id),
+        set: [username: "new-username"]
+      )
+
+      {:ok, asciicast} = Recordings.create_asciicast(user, upload)
+
+      assert asciicast.path =~ "recordings/new-username/"
+      refute asciicast.path =~ "recordings/old-username/"
+    end
   end
 
   describe "lookup_asciicast/1" do
@@ -716,8 +731,8 @@ defmodule Asciinema.RecordingsTest do
       asciicast =
         :asciicast
         |> insert()
-        |> Recordings.assign_path()
         |> with_file()
+        |> Recordings.migrate_file()
 
       assert ^asciicast = Recordings.migrate_file(asciicast)
     end
