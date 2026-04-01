@@ -286,6 +286,16 @@ defmodule Asciinema.Recordings do
     |> Stream.flat_map(& &1)
   end
 
+  def uncompressed_asciicast_ids_stream do
+    from(a in Asciicast,
+      where: a.compressed == false,
+      select: %{id: a.id}
+    )
+    |> Repo.pages(1000)
+    |> Stream.flat_map(& &1)
+    |> Stream.map(& &1.id)
+  end
+
   def count(q), do: Repo.count(q)
 
   def count_by(q, field) do
@@ -346,7 +356,11 @@ defmodule Asciinema.Recordings do
          uncompressed_size = file_size(upload.path),
          file_path = Gzip.compress_file(upload.path),
          compressed_size = file_size(file_path),
-         changeset = change(changeset, %{uncompressed_size: uncompressed_size, compressed_size: compressed_size}),
+         changeset =
+           change(changeset, %{
+             uncompressed_size: uncompressed_size,
+             compressed_size: compressed_size
+           }),
          {:ok, %Asciicast{} = asciicast} <- do_create_asciicast(changeset, file_path) do
       if asciicast.snapshot == nil do
         %{asciicast_id: asciicast.id}
@@ -557,6 +571,37 @@ defmodule Asciinema.Recordings do
     end
   end
 
+  def compress_asciicast(%Asciicast{compressed: true} = asciicast), do: {:ok, asciicast}
+
+  def compress_asciicast(%Asciicast{} = asciicast) do
+    asciicast = Repo.preload(asciicast, :user)
+    old_path = asciicast.path
+    new_path = compressed_path(asciicast)
+    source_path = get_cast_path!(asciicast)
+    gzip_path = Gzip.compress_file(source_path)
+
+    try do
+      attrs = %{
+        compressed: true,
+        path: new_path,
+        uncompressed_size: file_size(source_path),
+        compressed_size: file_size(gzip_path)
+      }
+
+      :ok = save_file(new_path, gzip_path)
+      asciicast = Repo.update!(change(asciicast, attrs))
+      maybe_delete_file(old_path)
+
+      {:ok, asciicast}
+    rescue
+      error ->
+        maybe_delete_file(new_path)
+        reraise error, __STACKTRACE__
+    after
+      File.rm(gzip_path)
+    end
+  end
+
   def delete_asciicasts(%{asciicasts: _} = owner) do
     delete_asciicasts(Ecto.assoc(owner, :asciicasts))
   end
@@ -691,6 +736,26 @@ defmodule Asciinema.Recordings do
 
   defp frame_before_or_at?({time, _}, secs) do
     time <= secs
+  end
+
+  defp compressed_path(asciicast) do
+    asciicast
+    |> Map.put(:compressed, true)
+    |> Paths.path()
+  end
+
+  defp maybe_delete_file(path) do
+    case FileStore.delete_file(path) do
+      :ok ->
+        :ok
+
+      {:error, :enoent} ->
+        :ok
+
+      {:error, reason} ->
+        Logger.warning("failed to delete file #{path}: #{inspect(reason)}")
+        :ok
+    end
   end
 
   @popularity_half_life_days 7
