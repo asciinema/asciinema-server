@@ -359,14 +359,10 @@ defmodule Asciinema.Recordings do
            }),
          {:ok, %Asciicast{} = asciicast} <- do_create_asciicast(changeset, file_path) do
       if asciicast.snapshot == nil do
-        %{asciicast_id: asciicast.id}
-        |> UpdateSnapshot.new()
-        |> Oban.insert!()
+        schedule_snapshot_update(asciicast.id)
       end
 
-      %{asciicast_id: asciicast.id}
-      |> UpdateFtsContent.new()
-      |> Oban.insert!()
+      schedule_fts_content_update(asciicast.id)
 
       {:ok, asciicast}
     end
@@ -489,6 +485,18 @@ defmodule Asciinema.Recordings do
 
   defp save_file(store_path, local_path) do
     :ok = FileStore.put_file(store_path, local_path, "application/x-asciicast")
+  end
+
+  defp schedule_snapshot_update(asciicast_id) do
+    %{asciicast_id: asciicast_id}
+    |> UpdateSnapshot.new()
+    |> Oban.insert!()
+  end
+
+  defp schedule_fts_content_update(asciicast_id) do
+    %{asciicast_id: asciicast_id}
+    |> UpdateFtsContent.new()
+    |> Oban.insert!()
   end
 
   def change_asciicast(asciicast, attrs \\ %{}) do
