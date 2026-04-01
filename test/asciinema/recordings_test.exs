@@ -341,6 +341,28 @@ defmodule Asciinema.RecordingsTest do
     end
   end
 
+  describe "compress_asciicast/1" do
+    test "compresses a legacy asciicast and backfills sizes" do
+      asciicast = insert(:asciicast_v2) |> with_file("2/full.cast")
+      old_path = asciicast.path
+      expected_uncompressed_size = File.stat!("test/fixtures/2/full.cast").size
+      expected_event_count = Enum.count(Recordings.event_stream(asciicast))
+
+      assert {:ok, %{id: id}} = Recordings.compress_asciicast(asciicast)
+
+      asciicast = Recordings.get_asciicast(id)
+      stored_path = Recordings.get_cast_path!(asciicast)
+
+      assert asciicast.compressed == true
+      assert asciicast.path =~ ~r|\.cast\.gz$|
+      assert asciicast.path != old_path
+      assert asciicast.uncompressed_size == expected_uncompressed_size
+      assert asciicast.compressed_size == File.stat!(stored_path).size
+      assert Enum.count(Recordings.event_stream(asciicast)) == expected_event_count
+      assert Asciinema.FileStore.delete_file(old_path) == {:error, :enoent}
+    end
+  end
+
   describe "event_stream/1" do
     test "with asciicast v1 file" do
       asciicast = insert(:asciicast_v1) |> with_file()
