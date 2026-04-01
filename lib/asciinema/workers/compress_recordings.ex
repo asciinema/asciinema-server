@@ -1,5 +1,6 @@
 defmodule Asciinema.Workers.CompressRecordings do
   use Oban.Worker,
+    queue: :maintenance,
     unique: [period: :infinity, states: :incomplete]
 
   alias Asciinema.Recordings
