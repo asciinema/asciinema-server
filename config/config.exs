@@ -21,7 +21,7 @@ config :asciinema,
 
 # Configures the public endpoint
 config :asciinema, AsciinemaWeb.Endpoint,
-  adapter: Bandit.PhoenixAdapter,
+  adapter: Phoenix.Endpoint.Cowboy2Adapter,
   url: [host: "localhost"],
   render_errors: [
     formats: [
@@ -38,7 +38,7 @@ config :asciinema, AsciinemaWeb.Endpoint,
 
 # Configures the admin endpoint
 config :asciinema, AsciinemaAdmin.Endpoint,
-  adapter: Bandit.PhoenixAdapter,
+  adapter: Phoenix.Endpoint.Cowboy2Adapter,
   url: [host: "localhost"],
   render_errors: [
     formats: [html: AsciinemaAdmin.ErrorHTML],

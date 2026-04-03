@@ -66,16 +66,18 @@ defmodule Asciinema.HttpUtilTest do
   end
 
   defp start_server(opts) do
-    server =
+    ref = make_ref()
+
+    _server =
       start_supervised!(
-        {Bandit,
-         plug: {__MODULE__.MockServer, %{response: Keyword.fetch!(opts, :response)}},
+        {Plug.Cowboy,
+         ref: ref,
          scheme: :http,
-         ip: {127, 0, 0, 1},
-         port: 0}
+         plug: {__MODULE__.MockServer, %{response: Keyword.fetch!(opts, :response)}},
+         options: [ip: {127, 0, 0, 1}, port: 0]}
       )
 
-    {:ok, {{127, 0, 0, 1}, port}} = ThousandIsland.listener_info(server)
+    {{127, 0, 0, 1}, port} = :ranch.get_addr(ref)
 
     %{base_url: "http://127.0.0.1:#{port}"}
   end

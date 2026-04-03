@@ -324,55 +324,126 @@ defmodule Asciinema.Recordings do
     :ok
   end
 
-  def create_asciicast(
-        user,
-        %Plug.Upload{filename: filename} = upload,
-        # defaults and private fields
-        safe_fields \\ %{},
-        # user provided fields
-        unsafe_fields \\ %{}
-      ) do
+  def create_asciicast(user, upload, attrs \\ %{}, params \\ %{}) do
+    with {:ok, metadata} <- extract_metadata(upload),
+         changeset = build_asciicast(user, attrs, metadata, params),
+         :ok <- validate_asciicast(changeset),
+         {local_path, changeset} = compress_file(upload.path, changeset),
+         {store_path, changeset} = assign_store_path(changeset),
+         :ok <- save_file(local_path, store_path),
+         {:ok, asciicast} <- insert_asciicast_or_delete_file(changeset, store_path),
+         :ok <- schedule_bg_jobs(asciicast) do
+      {:ok, asciicast}
+    end
+  end
+
+  defp build_asciicast(user, attrs, metadata, params) do
+    defaults = %{
+      visibility: user.default_recording_visibility,
+      secret_token: generate_secret_token(),
+      term_bold_is_bright: user.term_bold_is_bright,
+      term_adaptive_palette: user.term_adaptive_palette,
+      term_theme_name: term_theme_name(user, metadata)
+    }
+
+    {version, metadata} = Map.pop!(metadata, :version)
+    {filename, metadata} = Map.pop!(metadata, :filename)
+    {duration, metadata} = Map.pop!(metadata, :duration)
+
     attrs =
-      Map.merge(
-        %{
-          filename: filename,
-          compressed: true,
-          visibility: user.default_recording_visibility,
-          secret_token: generate_secret_token(),
-          term_bold_is_bright: user.term_bold_is_bright,
-          term_adaptive_palette: user.term_adaptive_palette
-        },
-        safe_fields
-      )
+      Map.merge(attrs, %{
+        version: version,
+        filename: filename,
+        duration: duration
+      })
+
+    user
+    |> build_assoc(:asciicasts)
+    |> change(defaults)
+    |> change(attrs)
+    |> apply_metadata(metadata)
+    |> change_asciicast(params)
+  end
+
+  defp validate_asciicast(%Changeset{valid?: true}), do: :ok
+  defp validate_asciicast(%Changeset{valid?: false} = changeset), do: {:error, changeset}
+
+  defp compress_file(input_path, changeset) do
+    output_path = Gzip.compress_file(input_path)
 
     changeset =
-      user
-      |> build_assoc(:asciicasts)
-      |> change(attrs)
+      change(changeset, %{
+        uncompressed_size: file_size(input_path),
+        compressed_size: file_size(output_path),
+        compressed: true
+      })
 
-    with {:ok, metadata} <- extract_metadata(upload),
-         changeset = apply_metadata(changeset, metadata, user),
-         changeset = change_asciicast(changeset, unsafe_fields),
-         uncompressed_size = file_size(upload.path),
-         file_path = Gzip.compress_file(upload.path),
-         compressed_size = file_size(file_path),
-         changeset =
-           change(changeset, %{
-             uncompressed_size: uncompressed_size,
-             compressed_size: compressed_size
-           }),
-         {:ok, %Asciicast{} = asciicast} <- do_create_asciicast(changeset, file_path) do
-      if asciicast.snapshot == nil do
-        %{asciicast_id: asciicast.id}
-        |> UpdateSnapshot.new()
-        |> Oban.insert!()
+    {output_path, changeset}
+  end
+
+  defp assign_store_path(changeset) do
+    # Paths.path/1 needs id and inserted_at so we have to prepare them here
+    changeset =
+      if Changeset.get_field(changeset, :id) != nil do
+        changeset
+      else
+        change(changeset,
+          id: get_next_asciicast_id(),
+          inserted_at: DateTime.truncate(DateTime.utc_now(), :second)
+        )
       end
 
-      %{asciicast_id: asciicast.id}
-      |> UpdateFtsContent.new()
-      |> Oban.insert!()
+    asciicast =
+      changeset
+      |> Changeset.apply_changes()
+      |> Repo.preload(:user, force: true)
 
-      {:ok, asciicast}
+    path = Paths.path(asciicast)
+    changeset = change(changeset, path: path)
+
+    {path, changeset}
+  end
+
+  defp save_file(local_path, store_path) do
+    FileStore.put_file(store_path, local_path, "application/x-asciicast")
+  end
+
+  defp get_next_asciicast_id do
+    [[id]] = Repo.query!("SELECT nextval('asciicasts_id_seq')").rows
+
+    id
+  end
+
+  defp insert_asciicast_or_delete_file(changeset, store_path) do
+    try do
+      case Repo.insert(changeset) do
+        {:ok, asciicast} ->
+          {:ok, asciicast}
+
+        {:error, changeset} ->
+          maybe_delete_file(store_path)
+          {:error, changeset}
+      end
+    rescue
+      error ->
+        maybe_delete_file(store_path)
+        reraise error, __STACKTRACE__
+    end
+  end
+
+  defp schedule_bg_jobs(asciicast) do
+    if asciicast.snapshot == nil do
+      schedule_snapshot_update(asciicast.id)
+    end
+
+    schedule_fts_content_update(asciicast.id)
+
+    :ok
+  end
+
+  defp term_theme_name(user, metadata) do
+    if metadata[:term_theme_palette] && user.term_theme_prefer_original do
+      "original"
     end
   end
 
@@ -380,18 +451,39 @@ defmodule Asciinema.Recordings do
     File.stat!(path).size
   end
 
-  defp extract_metadata(%Plug.Upload{path: path}) do
+  defp extract_metadata(%Plug.Upload{path: path, filename: filename}) do
     if Reader.compressed?(path) do
       {:error, :invalid_format}
     else
-      case V2.fetch_metadata(path) do
-        {:ok, metadata} -> {:ok, metadata}
-        {:error, {:invalid_version, 3}} -> V3.fetch_metadata(path)
-        {:error, {:invalid_version, _} = reason} -> {:error, reason}
-        {:error, :invalid_format} -> V1.fetch_metadata(path)
+      result =
+        case V2.fetch_metadata(path) do
+          {:ok, metadata} -> {:ok, metadata}
+          {:error, {:invalid_version, 3}} -> V3.fetch_metadata(path)
+          {:error, {:invalid_version, _} = reason} -> {:error, reason}
+          {:error, :invalid_format} -> V1.fetch_metadata(path)
+        end
+
+      with {:ok, metadata} <- result do
+        {:ok, Map.put(metadata, :filename, filename)}
       end
     end
   end
+
+  @allowed_metadata [
+    :term_cols,
+    :term_rows,
+    :term_type,
+    :term_version,
+    :term_theme_fg,
+    :term_theme_bg,
+    :term_theme_palette,
+    :command,
+    :shell,
+    :recorded_at,
+    :env,
+    :idle_time_limit,
+    :title
+  ]
 
   @max_title_len 128
   @max_description_len 4096
@@ -399,38 +491,16 @@ defmodule Asciinema.Recordings do
   @max_term_version_len 255
   @max_shell_len 255
   @max_command_len 255
-  @max_user_agent_len 255
   @max_audio_url_len 255
   @max_term_cols 720
   @max_term_rows 200
   @hex_color_re ~r/^#[0-9a-f]{6}$/
   @hex_palette_re ~r/^(#[0-9a-f]{6}:){7}((#[0-9a-f]{6}:){8})?#[0-9a-f]{6}$/
 
-  defp apply_metadata(changeset, metadata, user) do
-    term_theme_name =
-      if metadata[:term_theme_palette] && user.term_theme_prefer_original, do: "original"
-
+  defp apply_metadata(changeset, metadata) do
     changeset
-    |> put_change(:version, metadata.version)
-    |> put_change(:term_theme_name, term_theme_name)
-    |> cast(metadata, [
-      :duration,
-      :term_cols,
-      :term_rows,
-      :term_type,
-      :term_version,
-      :term_theme_fg,
-      :term_theme_bg,
-      :term_theme_palette,
-      :command,
-      :shell,
-      :uname,
-      :recorded_at,
-      :env,
-      :idle_time_limit,
-      :title
-    ])
-    |> validate_required([:duration, :term_cols, :term_rows])
+    |> cast(metadata, @allowed_metadata)
+    |> validate_required([:term_cols, :term_rows])
     |> validate_number(:term_cols, greater_than: 0, less_than_or_equal_to: @max_term_cols)
     |> validate_number(:term_rows, greater_than: 0, less_than_or_equal_to: @max_term_rows)
     |> validate_format(:term_theme_fg, @hex_color_re)
@@ -442,7 +512,6 @@ defmodule Asciinema.Recordings do
     |> truncate(:command, @max_command_len)
     |> truncate(:shell, @max_shell_len)
     |> truncate(:title, @max_title_len)
-    |> truncate(:user_agent, @max_user_agent_len)
   end
 
   defp validate_env(:env, env) do
@@ -471,28 +540,16 @@ defmodule Asciinema.Recordings do
     end)
   end
 
-  defp do_create_asciicast(changeset, file_path) do
-    Repo.transact(fn ->
-      with {:ok, asciicast} <- Repo.insert(changeset) do
-        asciicast = assign_path(asciicast)
-        save_file(asciicast.path, file_path)
-
-        {:ok, asciicast}
-      end
-    end)
+  defp schedule_snapshot_update(asciicast_id) do
+    %{asciicast_id: asciicast_id}
+    |> UpdateSnapshot.new()
+    |> Oban.insert!()
   end
 
-  def assign_path(asciicast) do
-    asciicast = Repo.preload(asciicast, :user)
-    path = Paths.path(asciicast)
-
-    asciicast
-    |> Changeset.change(path: path)
-    |> Repo.update!()
-  end
-
-  defp save_file(store_path, local_path) do
-    :ok = FileStore.put_file(store_path, local_path, "application/x-asciicast")
+  defp schedule_fts_content_update(asciicast_id) do
+    %{asciicast_id: asciicast_id}
+    |> UpdateFtsContent.new()
+    |> Oban.insert!()
   end
 
   def change_asciicast(asciicast, attrs \\ %{}) do
@@ -575,30 +632,22 @@ defmodule Asciinema.Recordings do
 
   def compress_asciicast(%Asciicast{} = asciicast) do
     asciicast = Repo.preload(asciicast, :user)
-    old_path = asciicast.path
-    new_path = compressed_path(asciicast)
+    old_store_path = asciicast.path
     source_path = get_cast_path!(asciicast)
-    gzip_path = Gzip.compress_file(source_path)
+    {gzip_path, changeset} = compress_file(source_path, asciicast)
+    {new_store_path, changeset} = assign_store_path(changeset)
+    :ok = save_file(gzip_path, new_store_path)
+    _ = File.rm(gzip_path)
 
     try do
-      attrs = %{
-        compressed: true,
-        path: new_path,
-        uncompressed_size: file_size(source_path),
-        compressed_size: file_size(gzip_path)
-      }
-
-      :ok = save_file(new_path, gzip_path)
-      asciicast = Repo.update!(change(asciicast, attrs))
-      maybe_delete_file(old_path)
+      asciicast = Repo.update!(changeset)
+      maybe_delete_file(old_store_path)
 
       {:ok, asciicast}
     rescue
       error ->
-        maybe_delete_file(new_path)
+        maybe_delete_file(new_store_path)
         reraise error, __STACKTRACE__
-    after
-      File.rm(gzip_path)
     end
   end
 
@@ -736,12 +785,6 @@ defmodule Asciinema.Recordings do
 
   defp frame_before_or_at?({time, _}, secs) do
     time <= secs
-  end
-
-  defp compressed_path(asciicast) do
-    asciicast
-    |> Map.put(:compressed, true)
-    |> Paths.path()
   end
 
   defp maybe_delete_file(path) do
