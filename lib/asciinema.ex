@@ -14,6 +14,7 @@ defmodule Asciinema do
   defdelegate confirm_login(token, timezone), to: Accounts
   defdelegate confirm_sign_up(token, timezone), to: Accounts
   defdelegate change_user(user, params \\ %{}, ctx \\ :user), to: Accounts
+  defdelegate preview_cli_claim(user, install_id), to: Accounts
 
   def update_user(user, params, ctx \\ :user) do
     with {:ok, user} <- Accounts.update_user(user, params, ctx) do
@@ -34,13 +35,16 @@ defmodule Asciinema do
   defdelegate confirm_email_change(user, token), to: Accounts
 
   def register_cli(user, token) do
+    confirm_cli_claim(user, token)
+  end
+
+  def confirm_cli_claim(user, token) do
     case Accounts.register_cli(user, token) do
       {:ok, _cli} ->
         :ok
 
       {:error, {:needs_merge, tmp_user}} ->
-        merge_accounts(tmp_user, user)
-        :ok
+        claim_tmp_cli(tmp_user, user)
 
       {:error, _reason} = result ->
         result
@@ -68,6 +72,23 @@ defmodule Asciinema do
 
       {:ok, Accounts.get_user(dst_user.id)}
     end)
+  end
+
+  defp claim_tmp_cli(src_user, dst_user) do
+    src_user = Accounts.find_user(src_user)
+    dst_user = Accounts.find_user(dst_user)
+
+    case Repo.transact(fn ->
+           Recordings.reassign_asciicasts(src_user.id, dst_user.id)
+           Streaming.reassign_streams(src_user.id, dst_user.id)
+           Accounts.reassign_clis(src_user.id, dst_user.id)
+           Accounts.delete_user!(src_user)
+
+           {:ok, :ok}
+         end) do
+      {:ok, :ok} -> :ok
+      {:error, reason} -> {:error, reason}
+    end
   end
 
   def initiate_account_deletion(user, url_provider) do

@@ -3,27 +3,33 @@ defmodule AsciinemaWeb.CliController do
 
   plug :require_current_user
 
-  def register(conn, %{"install_id" => install_id}) do
-    case Asciinema.register_cli(conn.assigns.current_user, install_id) do
+  def show(conn, %{"install_id" => install_id}) do
+    preview = Asciinema.preview_cli_claim(conn.assigns.current_user, install_id)
+
+    render(conn, :show, install_id: install_id, preview: preview)
+  end
+
+  def create(conn, %{"install_id" => install_id}) do
+    case Asciinema.confirm_cli_claim(conn.assigns.current_user, install_id) do
       :ok ->
         conn
         |> put_flash(:info, "CLI successfully authenticated with your account")
-        |> redirect_back_or(to: next_path(conn))
+        |> redirect(to: next_path(conn))
 
       {:error, :token_taken} ->
         conn
         |> put_flash(:error, "This CLI has been authenticated with a different user account")
-        |> redirect_back_or(to: next_path(conn))
+        |> redirect(to: ~p"/connect/#{install_id}")
 
       {:error, :token_invalid} ->
         conn
         |> put_flash(:error, "Invalid installation ID - make sure to paste the URL correctly")
-        |> redirect_back_or(to: ~p"/")
+        |> redirect(to: ~p"/connect/#{install_id}")
 
       {:error, :cli_revoked} ->
         conn
         |> put_flash(:error, "This CLI authentication has been revoked")
-        |> redirect_back_or(to: ~p"/")
+        |> redirect(to: ~p"/connect/#{install_id}")
     end
   end
 
