@@ -9,8 +9,8 @@ defmodule AsciinemaWeb.Features.ClisTest do
       |> log_in_user(user)
       |> visit("/connect/00000000-0000-0000-0000-000000000000")
       |> refute_has(".flash", text: "successfully")
-      |> assert_has("h1", text: "Authenticate this CLI")
-      |> click_button("Authenticate this CLI")
+      |> assert_has("h1", text: "Authenticate CLI")
+      |> click_button("Authenticate CLI")
       |> assert_has(".flash", text: "successfully")
       |> click_link("Settings")
       |> assert_has("table", text: "00000000-0000-0000-0000-000000000000")
@@ -23,8 +23,8 @@ defmodule AsciinemaWeb.Features.ClisTest do
       conn
       |> log_in_user(user)
       |> visit("/connect/#{cli.token}")
-      |> assert_has("h1", text: "Authenticate this CLI")
-      |> assert_has("main", text: "already been authenticated")
+      |> assert_has("h1", text: "Authenticate CLI")
+      |> assert_has("main", text: "already authenticated")
       |> click_link("Settings")
       |> assert_has("table", text: cli.token)
     end
@@ -39,8 +39,8 @@ defmodule AsciinemaWeb.Features.ClisTest do
       |> visit(link_from_email())
       |> verify_magic_link()
       |> assert_path("/connect/00000000-0000-0000-0000-000000000000")
-      |> assert_has("h1", text: "Authenticate this CLI")
-      |> click_button("Authenticate this CLI")
+      |> assert_has("h1", text: "Authenticate CLI")
+      |> click_button("Authenticate CLI")
       |> assert_has(".flash", text: "successfully")
       |> fill_in("Your username:", with: "foobar")
       |> click_button("Continue")
@@ -60,8 +60,8 @@ defmodule AsciinemaWeb.Features.ClisTest do
       |> visit(link_from_email())
       |> verify_magic_link()
       |> assert_path("/connect/00000000-0000-0000-0000-000000000000")
-      |> assert_has("h1", text: "Authenticate this CLI")
-      |> click_button("Authenticate this CLI")
+      |> assert_has("h1", text: "Authenticate CLI")
+      |> click_button("Authenticate CLI")
       |> assert_has(".flash", text: "successfully")
       |> click_link("Settings")
       |> assert_has("table", text: "00000000-0000-0000-0000-000000000000")
@@ -74,7 +74,7 @@ defmodule AsciinemaWeb.Features.ClisTest do
       |> log_in_user(user)
       |> visit("/connect/invalid-id")
       |> assert_path("/connect/invalid-id")
-      |> assert_has("h1", text: "Authenticate this CLI")
+      |> assert_has("h1", text: "Authenticate CLI")
       |> assert_has("main", text: "Invalid installation ID")
     end
 
@@ -106,8 +106,9 @@ defmodule AsciinemaWeb.Features.ClisTest do
       conn
       |> log_in_user(user)
       |> visit("/connect/#{cli.token}")
-      |> assert_has("main", text: "claim previous anonymous uploads")
-      |> click_button("Authenticate this CLI")
+      |> assert_has("main", text: "add 0 recordings from previous anonymous uploads")
+      |> assert_has("main", text: "0 recordings")
+      |> click_button("Authenticate CLI")
       |> assert_has(".flash", text: "successfully")
     end
   end

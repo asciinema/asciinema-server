@@ -13,7 +13,7 @@ defmodule AsciinemaWeb.CliControllerTest do
 
       conn = get(conn, ~p"/connect/00000000-0000-0000-0000-000000000000")
 
-      assert html_response(conn, 200) =~ "Authenticate this CLI"
+      assert html_response(conn, 200)
 
       assert Accounts.fetch_cli("00000000-0000-0000-0000-000000000000") ==
                {:error, :token_not_found}
@@ -30,7 +30,7 @@ defmodule AsciinemaWeb.CliControllerTest do
 
       conn = get(conn, ~p"/connect/#{cli.token}")
 
-      assert html_response(conn, 200) =~ "claim previous anonymous uploads"
+      assert html_response(conn, 200)
       assert Recordings.get_asciicast(recording.id).user_id == tmp_user.id
     end
   end

@@ -469,7 +469,7 @@ defmodule Asciinema.Accounts do
     cond do
       user.id == cli.user.id -> {:ok, :owned_by_user}
       cli.user.email -> {:error, :token_taken}
-      true -> {:ok, {:claimable_tmp_user, cli}}
+      true -> {:ok, {:claimable_tmp_user, cli, Repo.count(assoc(cli.user, :asciicasts))}}
     end
   end
 

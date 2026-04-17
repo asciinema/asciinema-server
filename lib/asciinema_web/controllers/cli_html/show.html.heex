@@ -1,24 +1,28 @@
 <div class="container">
-  <h1>Authenticate this CLI</h1>
+  <h2>Authenticate CLI</h2>
+  <p><strong>Install ID:</strong> <code>{install_id_preview(@install_id)}</code></p>
 
   <%= case @preview do %>
     <% {:ok, :new_cli} -> %>
-      <p>This will link this CLI to your account.</p>
+      <p>Authenticate this CLI with your account to finish <code>asciinema auth</code>.</p>
       <.form :let={_f} for={%{}} action={~p"/connect/#{@install_id}"} method="post">
-        <button type="submit" class="btn btn-primary">Authenticate this CLI</button>
+        <button type="submit" class="btn btn-primary">Authenticate CLI</button>
       </.form>
     <% {:ok, :owned_by_user} -> %>
-      <p>This CLI has already been authenticated with your account.</p>
-    <% {:ok, {:claimable_tmp_user, _cli}} -> %>
-      <p>This will link this CLI to your account.</p>
-      <p>This will also claim previous anonymous uploads from this machine.</p>
+      <p>This CLI is already authenticated with your account.</p>
+    <% {:ok, {:claimable_tmp_user, _cli, recording_count}} -> %>
+      <p>Authenticate this CLI with your account to finish <code>asciinema auth</code>.</p>
+      <p>
+        This will also add <strong>{recording_count_text(recording_count)}</strong>
+        from previous anonymous uploads made with this CLI.
+      </p>
       <.form :let={_f} for={%{}} action={~p"/connect/#{@install_id}"} method="post">
-        <button type="submit" class="btn btn-primary">Authenticate this CLI</button>
+        <button type="submit" class="btn btn-primary">Authenticate CLI</button>
       </.form>
     <% {:error, :token_taken} -> %>
-      <p>This CLI has been authenticated with a different user account.</p>
+      <p>This CLI is authenticated with a different user account.</p>
     <% {:error, :token_invalid} -> %>
-      <p>Invalid installation ID - make sure to paste the URL correctly.</p>
+      <p>Invalid installation ID. Check that the URL was pasted correctly.</p>
     <% {:error, :cli_revoked} -> %>
       <p>This CLI authentication has been revoked.</p>
   <% end %>
