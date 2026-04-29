@@ -102,7 +102,8 @@ defmodule AsciinemaWeb.Router do
 
     resources "/session", SessionController, only: [:new, :create, :delete], singleton: true
 
-    get "/connect/:install_id", CliController, :register, as: :connect
+    get "/connect/:install_id", CliController, :show
+    post "/connect/:install_id", CliController, :create
 
     resources "/clis", CliController, only: [:delete]
 

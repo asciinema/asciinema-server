@@ -54,7 +54,7 @@ defmodule AsciinemaWeb.PlugAttack do
   end
 
   rule "throttle CLI registrations", conn do
-    if conn.method == "GET" and match?(["connect", _], conn.path_info) do
+    if conn.method == "POST" and match?(["connect", _], conn.path_info) do
       throttle({:register_cli, conn.remote_ip}, limit_for(:register_cli))
     end
   end

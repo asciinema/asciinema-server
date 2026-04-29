@@ -77,7 +77,7 @@ defmodule AsciinemaWeb.PlugAttackTest do
   end
 
   test "throttles CLI registrations" do
-    assert_throttled_after("GET", "/connect/install-id", 1)
+    assert_throttled_after("POST", "/connect/install-id", 1)
   end
 
   test "GET /login falls through to default rule" do

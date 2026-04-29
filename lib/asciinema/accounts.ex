@@ -379,7 +379,24 @@ defmodule Asciinema.Accounts do
 
   @uuid4 ~r/\A[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}\z/
 
-  def register_cli(%User{} = user, install_id) do
+  def preview_cli_claim(%User{} = user, install_id) do
+    case fetch_cli(install_id) do
+      {:ok, cli} ->
+        preview_cli_ownership(user, cli)
+
+      {:error, :cli_revoked} = result ->
+        result
+
+      {:error, :token_not_found} ->
+        if valid_install_id?(install_id) do
+          {:ok, :new_cli}
+        else
+          {:error, :token_invalid}
+        end
+    end
+  end
+
+  def claim_cli(%User{} = user, install_id) do
     case fetch_cli(install_id) do
       {:ok, cli} ->
         check_cli_ownership(user, cli)
@@ -392,7 +409,7 @@ defmodule Asciinema.Accounts do
     end
   end
 
-  def register_cli(username, install_id) when is_binary(username) do
+  def get_or_create_upload_cli(username, install_id) when is_binary(username) do
     case fetch_cli(install_id) do
       {:ok, cli} ->
         {:ok, cli}
@@ -446,6 +463,18 @@ defmodule Asciinema.Accounts do
       cli.user.email -> {:error, :token_taken}
       true -> {:error, {:needs_merge, cli.user}}
     end
+  end
+
+  defp preview_cli_ownership(user, cli) do
+    cond do
+      user.id == cli.user.id -> {:ok, :owned_by_user}
+      cli.user.email -> {:error, :token_taken}
+      true -> {:ok, {:claimable_tmp_user, cli, Repo.count(assoc(cli.user, :asciicasts))}}
+    end
+  end
+
+  defp valid_install_id?(install_id) do
+    Regex.match?(@uuid4, install_id)
   end
 
   def fetch_cli(token) do
