@@ -6,7 +6,7 @@ defmodule AsciinemaAdmin.CliController do
     user = Accounts.get_user(user_id)
     install_id = extract_install_id(token)
 
-    case Asciinema.register_cli(user, install_id) do
+    case Asciinema.claim_cli(user, install_id) do
       :ok ->
         redirect(conn, to: ~p"/admin/users/#{user}")
 

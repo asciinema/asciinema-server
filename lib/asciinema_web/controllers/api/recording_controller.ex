@@ -85,7 +85,7 @@ defmodule AsciinemaWeb.Api.RecordingController do
   defp assign_cli(conn, _opts) do
     %{install_id: install_id, username: username} = conn.assigns
 
-    with {:ok, cli} <- Accounts.register_cli(username, install_id) do
+    with {:ok, cli} <- Accounts.get_or_create_upload_cli(username, install_id) do
       conn
       |> assign(:cli, cli)
       |> assign(:current_user, cli.user)

@@ -396,7 +396,7 @@ defmodule Asciinema.Accounts do
     end
   end
 
-  def register_cli(%User{} = user, install_id) do
+  def claim_cli(%User{} = user, install_id) do
     case fetch_cli(install_id) do
       {:ok, cli} ->
         check_cli_ownership(user, cli)
@@ -409,7 +409,7 @@ defmodule Asciinema.Accounts do
     end
   end
 
-  def register_cli(username, install_id) when is_binary(username) do
+  def get_or_create_upload_cli(username, install_id) when is_binary(username) do
     case fetch_cli(install_id) do
       {:ok, cli} ->
         {:ok, cli}

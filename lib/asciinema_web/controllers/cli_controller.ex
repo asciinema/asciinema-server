@@ -10,7 +10,7 @@ defmodule AsciinemaWeb.CliController do
   end
 
   def create(conn, %{"install_id" => install_id}) do
-    case Asciinema.confirm_cli_claim(conn.assigns.current_user, install_id) do
+    case Asciinema.claim_cli(conn.assigns.current_user, install_id) do
       :ok ->
         conn
         |> put_flash(:info, "CLI successfully authenticated with your account")
