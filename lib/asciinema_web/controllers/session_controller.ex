@@ -1,19 +1,17 @@
 defmodule AsciinemaWeb.SessionController do
   use AsciinemaWeb, :controller
 
+  plug :redirect_current_user when action in [:new, :create]
+
   def new(conn, %{"t" => login_token}) do
-    conn
-    |> put_session(:login_token, login_token)
-    |> redirect(to: ~p"/session/new")
+    render(conn, "new.html", login_token: login_token)
   end
 
   def new(conn, _params) do
-    render(conn, "new.html")
+    redirect(conn, to: ~p"/login/new")
   end
 
-  def create(conn, params) do
-    login_token = get_session(conn, :login_token)
-    conn = delete_session(conn, :login_token)
+  def create(conn, %{"t" => login_token} = params) do
     timezone = params["timezone"]
 
     case Asciinema.confirm_login(login_token, timezone) do
@@ -40,6 +38,12 @@ defmodule AsciinemaWeb.SessionController do
     end
   end
 
+  def create(conn, _params) do
+    conn
+    |> put_flash(:error, "Invalid login link.")
+    |> redirect(to: ~p"/login/new")
+  end
+
   defp redirect_to_profile(conn) do
     user = conn.assigns.current_user
 
@@ -49,6 +53,21 @@ defmodule AsciinemaWeb.SessionController do
       redirect(conn, to: ~p"/username/new")
     end
   end
+
+  defp redirect_current_user(
+         %{assigns: %{current_user: %Asciinema.Accounts.User{} = user}} = conn,
+         _
+       ) do
+    conn
+    |> put_flash(:info, "You're already logged in.")
+    |> redirect(to: current_user_path(user))
+    |> halt()
+  end
+
+  defp redirect_current_user(conn, _), do: conn
+
+  defp current_user_path(%{username: username} = user) when is_binary(username), do: ~p"/~#{user}"
+  defp current_user_path(_user), do: ~p"/username/new"
 
   def delete(conn, _params) do
     conn

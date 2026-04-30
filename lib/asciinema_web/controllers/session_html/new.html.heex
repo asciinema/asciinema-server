@@ -1,14 +1,16 @@
 <div class="container">
-  <h1>Verifying link...</h1>
-</div>
+  <h2>Log in</h2>
+  <p>Confirm to finish logging in to {@conn.host}.</p>
 
-<.form for={@conn} action={~p"/session"} id="login" as={:login}>
-  <input type="hidden" name="timezone" value="" />
-</.form>
+  <.form for={@conn} action={~p"/session"} id="login">
+    <input type="hidden" name="t" value={@login_token} />
+    <input type="hidden" name="timezone" value="" />
+    <button type="submit" class="btn btn-primary">Log in</button>
+  </.form>
+</div>
 
 <script>
   const form = document.forms.namedItem("login");
   const timezoneInput = form.querySelector('input[name="timezone"]');
   timezoneInput.value = Intl?.DateTimeFormat?.()?.resolvedOptions?.()?.timeZone || '';
-  form.submit();
 </script>
