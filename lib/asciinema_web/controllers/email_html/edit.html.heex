@@ -1,0 +1,9 @@
+<div class="container">
+  <h2>Change email</h2>
+  <p>Confirm to finish changing your email address.</p>
+
+  <.form for={@conn} action={~p"/user/email"} method="put">
+    <input type="hidden" name="t" value={@token} />
+    <button type="submit" class="btn btn-primary">Change email</button>
+  </.form>
+</div>

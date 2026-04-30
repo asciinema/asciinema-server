@@ -3,6 +3,16 @@ defmodule AsciinemaWeb.EmailController do
 
   plug :require_current_user
 
+  def edit(conn, %{"t" => token}) do
+    render(conn, "edit.html", token: token)
+  end
+
+  def edit(conn, _params) do
+    conn
+    |> put_flash(:error, "Invalid or expired link")
+    |> redirect(to: ~p"/user/edit")
+  end
+
   def update(conn, %{"user" => %{"email" => email}}) do
     case Asciinema.initiate_email_change(
            conn.assigns.current_user,
