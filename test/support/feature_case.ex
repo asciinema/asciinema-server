@@ -17,8 +17,7 @@ defmodule AsciinemaWeb.FeatureCase do
       import Phoenix.ConnTest,
         only: [
           init_test_session: 2,
-          post: 2,
-          redirected_to: 1
+          post: 2
         ]
 
       import Asciinema.Fixtures
@@ -36,24 +35,16 @@ defmodule AsciinemaWeb.FeatureCase do
       end
 
       defp verify_magic_link(session) do
-        cond do
-          session.conn.resp_body =~ "Confirm to finish logging in" ->
-            click_button(session, "Log in")
+        button =
+          cond do
+            session.conn.resp_body =~ ~r/<button[^>]*>\s*Log in\s*<\/button>/ ->
+              "Log in"
 
-          session.conn.resp_body =~ "Confirm to finish signing up" ->
-            click_button(session, "Sign up")
+            session.conn.resp_body =~ ~r/<button[^>]*>\s*Sign up\s*<\/button>/ ->
+              "Sign up"
+          end
 
-          true ->
-            verify_auto_submitted_magic_link(session)
-        end
-      end
-
-      defp verify_auto_submitted_magic_link(session) do
-        # Simulate the automatic JS submit by submitting a hidden form
-        [_, url] = Regex.run(~r{action="(/[^"]+)".+method="post"}, session.conn.resp_body)
-
-        conn = post(session.conn, url)
-        visit(conn, redirected_to(conn))
+        click_button(session, button)
       end
     end
   end
