@@ -331,20 +331,32 @@ defmodule Asciinema.Accounts do
     Token.sign(config(:secret), "email-change", {user.id, email})
   end
 
+  def verify_email_change(user, token), do: do_verify_email_change(user, token)
+
   def confirm_email_change(user, token) do
-    case verify_email_change_token(token) do
+    case do_verify_email_change(user, token) do
+      {:ok, email} ->
+        result =
+          user
+          |> Changeset.change(email: email)
+          |> add_contraints()
+          |> Repo.update()
+
+        case result do
+          {:ok, user} -> {:ok, user}
+          _ -> {:error, :email_taken}
+        end
+
+      {:error, _reason} = result ->
+        result
+    end
+  end
+
+  defp do_verify_email_change(user, token) do
+    case Token.verify(config(:secret), "email-change", token, max_age: 3600) do
       {:ok, {user_id, email}} ->
         if user.id == user_id do
-          result =
-            user
-            |> Changeset.change(email: email)
-            |> add_contraints()
-            |> Repo.update()
-
-          case result do
-            {:ok, user} -> {:ok, user}
-            _ -> {:error, :email_taken}
-          end
+          {:ok, email}
         else
           {:error, :user_mismatch}
         end
@@ -352,10 +364,6 @@ defmodule Asciinema.Accounts do
       {:error, _} ->
         {:error, :invalid_token}
     end
-  end
-
-  def verify_email_change_token(token) do
-    Token.verify(config(:secret), "email-change", token, max_age: 3600)
   end
 
   def initiate_account_deletion(user), do: generate_deletion_token(user)

@@ -14,7 +14,22 @@ defmodule AsciinemaWeb.EmailControllerTest do
         |> get(~p"/user/email?t=#{token}")
 
       assert html_response(conn, 200) =~ "Confirm to finish changing your email address"
+      assert html_response(conn, 200) =~ "new@example.com"
       assert Accounts.get_user(user.id).email == "old@example.com"
+    end
+
+    test "rejects token generated for another user", %{conn: conn} do
+      user = insert(:user)
+      other_user = insert(:user)
+      token = Accounts.generate_email_change_token(other_user, "new@example.com")
+
+      conn =
+        conn
+        |> log_in(user)
+        |> get(~p"/user/email?t=#{token}")
+
+      assert redirected_to(conn, 302) == ~p"/user/edit"
+      assert flash(conn, :error) =~ "generated for another account"
     end
 
     test "redirects when token is missing", %{conn: conn} do

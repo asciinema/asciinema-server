@@ -136,4 +136,27 @@ defmodule Asciinema.AccountsTest do
       assert Accounts.confirm_email_change(user, token) == {:error, :email_taken}
     end
   end
+
+  describe "verify_email_change/2" do
+    test "succeeds when token valid and generated for user" do
+      user = insert(:user)
+      token = Accounts.generate_email_change_token(user, "new@example.com")
+
+      assert Accounts.verify_email_change(user, token) == {:ok, "new@example.com"}
+    end
+
+    test "fails when invalid token" do
+      user = insert(:user)
+
+      assert Accounts.verify_email_change(user, "invalid") == {:error, :invalid_token}
+    end
+
+    test "fails when token was generated for another user" do
+      user = insert(:user)
+      other_user = insert(:user)
+      token = Accounts.generate_email_change_token(other_user, "new@example.com")
+
+      assert Accounts.verify_email_change(user, token) == {:error, :user_mismatch}
+    end
+  end
 end

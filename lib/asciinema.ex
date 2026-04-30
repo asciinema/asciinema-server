@@ -33,6 +33,7 @@ defmodule Asciinema do
   end
 
   defdelegate confirm_email_change(user, token), to: Accounts
+  defdelegate verify_email_change(user, token), to: Accounts
 
   def claim_cli(user, install_id) do
     case Accounts.claim_cli(user, install_id) do
