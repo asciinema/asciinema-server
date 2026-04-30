@@ -43,6 +43,21 @@ defmodule AsciinemaWeb.EmailControllerTest do
       assert redirected_to(conn, 302) == ~p"/user/edit"
       assert flash(conn, :error) =~ "Invalid or expired link"
     end
+
+    test "rejects token when email has changed since token generation", %{conn: conn} do
+      user = insert(:user, email: "old@example.com")
+      token = Accounts.generate_email_change_token(user, "new@example.com")
+      other_token = Accounts.generate_email_change_token(user, "other@example.com")
+      {:ok, user} = Accounts.confirm_email_change(user, other_token)
+
+      conn =
+        conn
+        |> log_in(user)
+        |> get(~p"/user/email?t=#{token}")
+
+      assert redirected_to(conn, 302) == ~p"/user/edit"
+      assert flash(conn, :error) =~ "no longer valid"
+    end
   end
 
   describe "update" do
@@ -74,6 +89,22 @@ defmodule AsciinemaWeb.EmailControllerTest do
       assert flash(conn, :error) =~ "generated for another account"
       assert Accounts.get_user(user.id).email == "user@example.com"
       assert Accounts.get_user(other_user.id).email == "other@example.com"
+    end
+
+    test "rejects token when email has changed since token generation", %{conn: conn} do
+      user = insert(:user, email: "old@example.com")
+      token = Accounts.generate_email_change_token(user, "new@example.com")
+      other_token = Accounts.generate_email_change_token(user, "other@example.com")
+      {:ok, user} = Accounts.confirm_email_change(user, other_token)
+
+      conn =
+        conn
+        |> log_in(user)
+        |> put(~p"/user/email", %{"t" => token})
+
+      assert redirected_to(conn, 302) == ~p"/user/edit"
+      assert flash(conn, :error) =~ "no longer valid"
+      assert Accounts.get_user(user.id).email == "other@example.com"
     end
   end
 end

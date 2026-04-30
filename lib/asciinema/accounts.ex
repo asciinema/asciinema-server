@@ -9,6 +9,7 @@ defmodule Asciinema.Accounts do
 
   @valid_email_re ~r/^[A-Z0-9._%+-]+@([A-Z0-9-]+\.)+[A-Z]{2,}$/i
   @valid_username_re ~r/^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]$/
+  @email_hash_bytes 8
 
   def get_user([{_k, _v}] = kv), do: Repo.get_by(User, kv)
 
@@ -310,10 +311,10 @@ defmodule Asciinema.Accounts do
       {:error, result} =
         Repo.transact(fn ->
           case Repo.update(changeset) do
-            {:ok, user} ->
-              token = generate_email_change_token(user, user.email)
+            {:ok, updated_user} ->
+              token = generate_email_change_token(user, updated_user.email)
 
-              {:error, {:ok, {:pending, {user.email, token}}}}
+              {:error, {:ok, {:pending, {updated_user.email, token}}}}
 
             {:error, %Changeset{errors: [{:email, {_, [{:validation, :format}]}}]}} ->
               {:error, {:error, :invalid}}
@@ -328,7 +329,7 @@ defmodule Asciinema.Accounts do
   end
 
   def generate_email_change_token(user, email) do
-    Token.sign(config(:secret), "email-change", {user.id, email})
+    Token.sign(config(:secret), "email-change", {user.id, email_hash(user.email), email})
   end
 
   def verify_email_change(user, token), do: do_verify_email_change(user, token)
@@ -354,16 +355,22 @@ defmodule Asciinema.Accounts do
 
   defp do_verify_email_change(user, token) do
     case Token.verify(config(:secret), "email-change", token, max_age: 3600) do
-      {:ok, {user_id, email}} ->
-        if user.id == user_id do
-          {:ok, email}
-        else
-          {:error, :user_mismatch}
+      {:ok, {user_id, old_email_hash, email}} ->
+        cond do
+          user.id != user_id -> {:error, :user_mismatch}
+          email_hash(user.email) != old_email_hash -> {:error, :email_changed}
+          true -> {:ok, email}
         end
 
       {:error, _} ->
         {:error, :invalid_token}
     end
+  end
+
+  defp email_hash(email) do
+    :sha256
+    |> :crypto.hash(String.downcase(email))
+    |> binary_part(0, @email_hash_bytes)
   end
 
   def initiate_account_deletion(user), do: generate_deletion_token(user)

@@ -17,6 +17,11 @@ defmodule AsciinemaWeb.EmailController do
         conn
         |> put_flash(:error, "Email not updated - the link was generated for another account")
         |> redirect(to: ~p"/user/edit")
+
+      {:error, :email_changed} ->
+        conn
+        |> put_flash(:error, "Email not updated - the link is no longer valid")
+        |> redirect(to: ~p"/user/edit")
     end
   end
 
@@ -63,6 +68,11 @@ defmodule AsciinemaWeb.EmailController do
       {:error, :user_mismatch} ->
         conn
         |> put_flash(:error, "Email not updated - the link was generated for another account")
+        |> redirect(to: ~p"/user/edit")
+
+      {:error, :email_changed} ->
+        conn
+        |> put_flash(:error, "Email not updated - the link is no longer valid")
         |> redirect(to: ~p"/user/edit")
     end
   end
