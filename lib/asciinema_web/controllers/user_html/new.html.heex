@@ -1,14 +1,16 @@
 <div class="container">
-  <h1>Verifying link...</h1>
+  <h2>Sign up</h2>
+  <p>You're almost there. Confirm to create your asciinema account.</p>
+
+  <.form for={@conn} action={~p"/users"} id="sign-up">
+    <input type="hidden" name="t" value={@sign_up_token} />
+    <input type="hidden" name="timezone" value="" />
+    <button type="submit" class="btn btn-primary">Sign up</button>
+  </.form>
 </div>
 
-<.form for={@conn} action={~p"/users"} id="login" as={:login}>
-  <input type="hidden" name="timezone" value="" />
-</.form>
-
 <script>
-  const form = document.forms.namedItem("login");
+  const form = document.forms.namedItem("sign-up");
   const timezoneInput = form.querySelector('input[name="timezone"]');
   timezoneInput.value = Intl?.DateTimeFormat?.()?.resolvedOptions?.()?.timeZone || '';
-  form.submit();
 </script>

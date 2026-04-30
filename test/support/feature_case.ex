@@ -36,10 +36,15 @@ defmodule AsciinemaWeb.FeatureCase do
       end
 
       defp verify_magic_link(session) do
-        if session.conn.resp_body =~ "Confirm to finish logging in" do
-          click_button(session, "Log in")
-        else
-          verify_auto_submitted_magic_link(session)
+        cond do
+          session.conn.resp_body =~ "Confirm to finish logging in" ->
+            click_button(session, "Log in")
+
+          session.conn.resp_body =~ "Confirm to finish signing up" ->
+            click_button(session, "Sign up")
+
+          true ->
+            verify_auto_submitted_magic_link(session)
         end
       end
 

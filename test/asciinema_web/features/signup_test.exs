@@ -14,7 +14,7 @@ defmodule AsciinemaWeb.Features.SignupTest do
       |> click_button("Log in")
       |> assert_has("h1", text: "Check your inbox")
       |> visit(link_from_email())
-      |> assert_has("h1", text: "Verifying link...")
+      |> assert_has("h2", text: "Sign up")
       |> verify_magic_link()
       |> assert_has(".flash", text: "Welcome to")
       |> assert_has("h1", text: "Choose your username")
@@ -48,7 +48,7 @@ defmodule AsciinemaWeb.Features.SignupTest do
 
       conn
       |> visit(first_link)
-      |> assert_has("h1", text: "Verifying link...")
+      |> assert_has("h2", text: "Sign up")
       |> verify_magic_link()
       |> assert_has(".flash", text: "already")
       |> assert_path("/login/new")
@@ -61,7 +61,7 @@ defmodule AsciinemaWeb.Features.SignupTest do
       |> fill_in("E-mail or username", with: "test@example.com")
       |> click_button("Log in")
       |> visit(String.replace(link_from_email(), ~r{t=.+}, "t=nope"))
-      |> assert_has("h1", text: "Verifying link...")
+      |> assert_has("h2", text: "Sign up")
       |> verify_magic_link()
       |> refute_has(".flash", text: "Welcome")
       |> assert_has(".flash", text: "Invalid sign-up link")
