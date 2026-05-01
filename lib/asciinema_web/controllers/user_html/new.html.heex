@@ -1,11 +1,30 @@
 <div class="container">
-  <h2>Sign up</h2>
-  <p>You're almost there. Confirm to create your asciinema account.</p>
+  <h2>Finish signing up</h2>
+  <p>Choose your username and create your {@conn.host} account.</p>
 
-  <.form for={@conn} action={~p"/users"} id="sign-up">
+  <.form for={@conn} action={~p"/users"} id="sign-up" class="username-form">
     <input type="hidden" name="t" value={@sign_up_token} />
     <input type="hidden" name="timezone" value="" />
-    <button type="submit" class="btn btn-primary">Sign up</button>
+
+    <div class="form-field-vertical">
+      <label for="user_username">Your username:</label>
+      <input id="user_username" name="username" value={@username} data-behavior="focus" required />
+
+      <%= case assigns[:error] do %>
+        <% nil -> %>
+        <% :username_invalid -> %>
+          <p class="text-danger">
+            Use only letters, digits and "-" character. <br /> Examples:
+            <em>johndoe, gosia3000, ultimate-debugger</em>
+          </p>
+        <% :username_taken -> %>
+          <p class="text-danger">
+            This username is already taken.
+          </p>
+      <% end %>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create account</button>
   </.form>
 </div>
 

@@ -8,7 +8,7 @@ defmodule AsciinemaWeb.UserController do
   plug :redirect_current_user when action in [:new, :create]
 
   def new(conn, %{"t" => sign_up_token}) do
-    render(conn, "new.html", sign_up_token: sign_up_token)
+    render(conn, "new.html", sign_up_token: sign_up_token, username: nil)
   end
 
   def new(conn, _params) do
@@ -17,13 +17,14 @@ defmodule AsciinemaWeb.UserController do
 
   def create(conn, %{"t" => token} = params) do
     timezone = params["timezone"]
+    username = params["username"]
 
-    case Asciinema.confirm_sign_up(token, timezone) do
+    case Asciinema.confirm_sign_up(token, username, timezone) do
       {:ok, user} ->
         conn
         |> log_in(user)
         |> put_flash(:info, "Welcome to asciinema!")
-        |> redirect_back_then(to: ~p"/username/new")
+        |> redirect_back_or(to: ~p"/~#{user}")
 
       {:error, :token_invalid} ->
         conn
@@ -39,6 +40,15 @@ defmodule AsciinemaWeb.UserController do
         conn
         |> put_flash(:error, "You already signed up with this email.")
         |> redirect(to: ~p"/login/new")
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        conn
+        |> put_status(422)
+        |> render("new.html",
+          sign_up_token: token,
+          username: username,
+          error: username_error(changeset)
+        )
     end
   end
 
@@ -125,6 +135,14 @@ defmodule AsciinemaWeb.UserController do
 
   defp current_user_path(%{username: username} = user) when is_binary(username), do: ~p"/~#{user}"
   defp current_user_path(_user), do: ~p"/username/new"
+
+  defp username_error(changeset) do
+    case Keyword.get(changeset.errors, :username) do
+      {_msg, [{_, :format}]} -> :username_invalid
+      {_msg, [{_, :required}]} -> :username_invalid
+      {_msg, _} -> :username_taken
+    end
+  end
 
   defp list_streams(query, limit) do
     items = Streaming.list(query, limit + 1)

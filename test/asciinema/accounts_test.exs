@@ -4,34 +4,53 @@ defmodule Asciinema.AccountsTest do
   use Oban.Testing, repo: Asciinema.Repo
   alias Asciinema.Accounts
 
-  describe "create_user/2" do
+  describe "create_user/1" do
     test "succeeds for valid attrs" do
       assert {:ok, _} =
-               Accounts.create_user(%{email: "test@example.com", username: "test"}, :user)
+               Accounts.create_user(%{email: "test@example.com", username: "test"})
     end
 
     test "fails for invalid attrs" do
       assert {:error, %Ecto.Changeset{}} =
-               Accounts.create_user(%{email: "test@example.com", username: "a"}, :user)
+               Accounts.create_user(%{email: "test@example.com", username: "a"})
+    end
+
+    test "fails without username" do
+      assert {:error, %Ecto.Changeset{}} =
+               Accounts.create_user(%{email: "test@example.com"})
     end
   end
 
-  describe "confirm_sign_up/1" do
+  describe "confirm_sign_up/3" do
     test "succeeds when token valid and email not taken" do
       {:ok, {:sign_up, token, _email}} = Accounts.initiate_login("test@example.com")
 
-      assert {:ok, _} = Accounts.confirm_sign_up(token)
+      assert {:ok, %{username: "signupacct"}} = Accounts.confirm_sign_up(token, "signupacct")
     end
 
     test "fails when invalid token" do
-      assert Accounts.confirm_sign_up("invalid") == {:error, :token_invalid}
+      assert Accounts.confirm_sign_up("invalid", "signupacct") == {:error, :token_invalid}
     end
 
     test "fails when email address taken" do
       {:ok, {:sign_up, token, _email}} = Accounts.initiate_login("test@example.com")
       insert(:user, email: "test@example.com")
 
-      assert Accounts.confirm_sign_up(token) == {:error, :email_taken}
+      assert Accounts.confirm_sign_up(token, "signupacct") == {:error, :email_taken}
+    end
+
+    test "fails when username invalid" do
+      {:ok, {:sign_up, token, _email}} = Accounts.initiate_login("test@example.com")
+
+      assert {:error, %Ecto.Changeset{}} = Accounts.confirm_sign_up(token, "---")
+      assert Accounts.find_user("test@example.com") == nil
+    end
+
+    test "fails when username blank" do
+      {:ok, {:sign_up, token, _email}} = Accounts.initiate_login("test@example.com")
+
+      assert {:error, %Ecto.Changeset{}} = Accounts.confirm_sign_up(token, "")
+      assert Accounts.find_user("test@example.com") == nil
     end
   end
 

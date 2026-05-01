@@ -42,6 +42,9 @@ defmodule AsciinemaWeb.FeatureCase do
 
             session.conn.resp_body =~ ~r/<button[^>]*>\s*Sign up\s*<\/button>/ ->
               "Sign up"
+
+            session.conn.resp_body =~ ~r/<button[^>]*>\s*Create account\s*<\/button>/ ->
+              "Create account"
           end
 
         click_button(session, button)

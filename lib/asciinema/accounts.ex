@@ -70,24 +70,12 @@ defmodule Asciinema.Accounts do
     )
   end
 
-  def create_user(attrs, :user) do
+  def create_user(attrs) do
     import Ecto.Changeset
 
     build_user()
     |> cast(attrs, [:email, :username])
-    |> validate_required([:email])
-    |> validate_email()
-    |> validate_username()
-    |> add_contraints()
-    |> Repo.insert()
-  end
-
-  def create_user(attrs, :admin) do
-    import Ecto.Changeset
-
-    build_user()
-    |> cast(attrs, [:email, :username])
-    |> validate_required([:email])
+    |> validate_required([:email, :username])
     |> validate_email()
     |> validate_username()
     |> add_contraints()
@@ -241,13 +229,14 @@ defmodule Asciinema.Accounts do
     Token.sign(config(:secret), "login", {id, last_login_at})
   end
 
-  def confirm_sign_up(token, timezone \\ nil) do
+  def confirm_sign_up(token, username, timezone \\ nil) do
     with {:ok, email} <- verify_sign_up_token(token),
-         {:ok, user} <- create_user(%{email: email}, :user) do
+         {:ok, user} <- create_user(%{email: email, username: username}) do
       {:ok, set_timezone(user, timezone)}
     else
       {:error, :invalid} -> {:error, :token_invalid}
       {:error, %Ecto.Changeset{errors: [{:email, _}]}} -> {:error, :email_taken}
+      {:error, %Ecto.Changeset{errors: [{:username, _} | _]} = changeset} -> {:error, changeset}
       {:error, _} -> {:error, :token_expired}
     end
   end
