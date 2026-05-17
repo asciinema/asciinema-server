@@ -16,10 +16,10 @@ defmodule AsciinemaWeb.Features.SignupTest do
       |> visit(link_from_email())
       |> assert_has("h2", text: "Finish signing up")
       |> fill_in("Your username:", with: "---")
-      |> verify_magic_link()
+      |> click_button("Create account")
       |> assert_has("p", text: "only letters")
       |> fill_in("Your username:", with: "signupflow")
-      |> verify_magic_link()
+      |> click_button("Create account")
       |> assert_has(".flash", text: "Welcome to")
       |> assert_path("/~signupflow")
       |> assert_has("h1", text: "Joined on")
@@ -42,14 +42,14 @@ defmodule AsciinemaWeb.Features.SignupTest do
       |> submit()
       |> visit(link_from_email())
       |> fill_in("Your username:", with: "dupesignup")
-      |> verify_magic_link()
+      |> click_button("Create account")
       |> assert_has(".flash", text: "Welcome to")
 
       conn
       |> visit(first_link)
       |> assert_has("h2", text: "Finish signing up")
       |> fill_in("Your username:", with: "dupesignup")
-      |> verify_magic_link()
+      |> click_button("Create account")
       |> assert_has(".flash", text: "already")
       |> assert_path("/login/new")
     end
@@ -63,7 +63,7 @@ defmodule AsciinemaWeb.Features.SignupTest do
       |> visit(String.replace(link_from_email(), ~r{t=.+}, "t=nope"))
       |> assert_has("h2", text: "Finish signing up")
       |> fill_in("Your username:", with: "badlinksignup")
-      |> verify_magic_link()
+      |> click_button("Create account")
       |> refute_has(".flash", text: "Welcome")
       |> assert_has(".flash", text: "Invalid sign-up link")
     end

@@ -33,22 +33,6 @@ defmodule AsciinemaWeb.FeatureCase do
 
         link
       end
-
-      defp verify_magic_link(session) do
-        button =
-          cond do
-            session.conn.resp_body =~ ~r/<button[^>]*>\s*Log in\s*<\/button>/ ->
-              "Log in"
-
-            session.conn.resp_body =~ ~r/<button[^>]*>\s*Sign up\s*<\/button>/ ->
-              "Sign up"
-
-            session.conn.resp_body =~ ~r/<button[^>]*>\s*Create account\s*<\/button>/ ->
-              "Create account"
-          end
-
-        click_button(session, button)
-      end
     end
   end
 
