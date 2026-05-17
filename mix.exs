@@ -49,7 +49,7 @@ defmodule Asciinema.MixProject do
       {:ex_aws, "~> 2.2"},
       {:ex_aws_s3, "~> 2.1"},
       {:ex_machina, "~> 2.4", only: :test},
-      {:gen_smtp, "~> 1.2"},
+      {:gen_smtp, "~> 1.3"},
       {:gettext, "~> 0.20"},
       {:hackney, "~> 1.18"},
       {:horde, "~> 0.8.7"},

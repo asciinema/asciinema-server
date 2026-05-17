@@ -18,7 +18,7 @@
         pname = "asciinema-server";
         pkgs = nixpkgs.legacyPackages.${system};
 
-        beamPackages = pkgs.beam.packages.erlang_27.extend (
+        beamPackages = pkgs.beam.packages.erlang_28.extend (
           _: prev: {
             elixir = prev.elixir_1_19;
           }
