@@ -5,7 +5,7 @@ defmodule Asciinema.Recordings do
   import Ecto.Query, warn: false
   alias Asciinema.Recordings.Asciicast.Reader
   alias Asciinema.Recordings.Asciicast.{V1, V2, V3}
-  alias Asciinema.{FileCache, FileStore, Fonts, Fts, Gzip, HttpUtil, Repo, Themes, Vt}
+  alias Asciinema.{FileCache, FileStore, Fonts, Fts, HttpUtil, Repo, Themes, Vt, Zstd}
   alias Asciinema.Workers.{MigrateRecordingFiles, UpdateFtsContent, UpdateSnapshot}
 
   alias Asciinema.Recordings.{
@@ -91,7 +91,7 @@ defmodule Asciinema.Recordings do
     end
   end
 
-  def cast_cache_bucket(true), do: :cast_gz
+  def cast_cache_bucket(true), do: :cast_zst
   def cast_cache_bucket(false), do: :cast
 
   def get_cast_path!(asciicast) do
@@ -365,7 +365,7 @@ defmodule Asciinema.Recordings do
   defp validate_asciicast(%Changeset{valid?: false} = changeset), do: {:error, changeset}
 
   defp compress_file(input_path, changeset) do
-    output_path = Gzip.compress_file(input_path)
+    output_path = Zstd.compress_file(input_path)
 
     changeset =
       change(changeset, %{
@@ -630,10 +630,10 @@ defmodule Asciinema.Recordings do
     asciicast = Repo.preload(asciicast, :user)
     old_store_path = asciicast.path
     source_path = get_cast_path!(asciicast)
-    {gzip_path, changeset} = compress_file(source_path, asciicast)
+    {zst_path, changeset} = compress_file(source_path, asciicast)
     {new_store_path, changeset} = assign_store_path(changeset)
-    :ok = save_file(gzip_path, new_store_path)
-    _ = File.rm(gzip_path)
+    :ok = save_file(zst_path, new_store_path)
+    _ = File.rm(zst_path)
 
     try do
       asciicast = Repo.update!(changeset)

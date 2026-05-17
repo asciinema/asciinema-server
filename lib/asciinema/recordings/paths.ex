@@ -38,8 +38,8 @@ defmodule Asciinema.Recordings.Paths do
     "#{a}/#{b}"
   end
 
-  defp ext(1, compressed), do: if(compressed, do: "json.gz", else: "json")
-  defp ext(_, compressed), do: if(compressed, do: "cast.gz", else: "cast")
+  defp ext(1, compressed), do: if(compressed, do: "json.zst", else: "json")
+  defp ext(_, compressed), do: if(compressed, do: "cast.zst", else: "cast")
 
   defp resolve_env_var(match, env) do
     env = env || %{}

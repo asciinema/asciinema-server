@@ -1,12 +1,12 @@
 defmodule Asciinema.Recordings.Asciicast.Reader do
-  alias Asciinema.Gzip
+  alias Asciinema.Zstd
 
   @chunk_size 64 * 1024
 
   @spec read_iodata!(Path.t(), keyword()) :: iodata()
   def read_iodata!(path, opts \\ []) when is_binary(path) and is_list(opts) do
     if compressed?(path, opts) do
-      Enum.to_list(Gzip.stream!(path, @chunk_size))
+      Enum.to_list(Zstd.stream!(path, @chunk_size))
     else
       [File.read!(path)]
     end
@@ -15,7 +15,7 @@ defmodule Asciinema.Recordings.Asciicast.Reader do
   @spec stream_lines!(Path.t(), keyword()) :: Enumerable.t()
   def stream_lines!(path, opts \\ []) when is_binary(path) and is_list(opts) do
     if compressed?(path, opts) do
-      Gzip.stream!(path, :line)
+      Zstd.stream!(path, :line)
     else
       File.stream!(path, :line)
     end
@@ -23,12 +23,13 @@ defmodule Asciinema.Recordings.Asciicast.Reader do
 
   @spec compressed?(Path.t(), keyword()) :: boolean()
   def compressed?(path, opts \\ []) when is_binary(path) and is_list(opts) do
-    Keyword.get_lazy(opts, :compressed, fn -> gzip?(path) end)
+    Keyword.get_lazy(opts, :compressed, fn -> compressed_file?(path) end)
   end
 
-  defp gzip?(path) do
-    case File.open(path, [:read, :binary], fn file -> IO.binread(file, 2) end) do
-      {:ok, <<0x1F, 0x8B>>} -> true
+  defp compressed_file?(path) do
+    case File.open(path, [:read, :binary], fn file -> IO.binread(file, 4) end) do
+      {:ok, <<0x28, 0xB5, 0x2F, 0xFD>>} -> true
+      {:ok, <<0x1F, 0x8B, _::binary-size(2)>>} -> true
       {:ok, _} -> false
       {:error, reason} -> raise File.Error, reason: reason, action: "open file", path: path
     end

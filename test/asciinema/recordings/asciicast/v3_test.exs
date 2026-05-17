@@ -1,6 +1,6 @@
 defmodule Asciinema.Recordings.Asciicast.V3Test do
   use ExUnit.Case, async: true
-  import Asciinema.GzipTestHelpers
+  import Asciinema.ZstdTestHelpers
   alias Asciinema.Recordings.Asciicast.V3
 
   describe "fetch_metadata/1" do
@@ -26,8 +26,8 @@ defmodule Asciinema.Recordings.Asciicast.V3Test do
              }
     end
 
-    test "supports gzipped files" do
-      {:ok, metadata} = V3.fetch_metadata(gzip_fixture!("test/fixtures/3/full.cast"))
+    test "supports zstd-compressed files" do
+      {:ok, metadata} = V3.fetch_metadata(zstd_fixture!("test/fixtures/3/full.cast"))
 
       assert metadata == %{
                version: 3,
@@ -155,8 +155,8 @@ defmodule Asciinema.Recordings.Asciicast.V3Test do
              ]
     end
 
-    test "supports gzipped files" do
-      stream = V3.event_stream(gzip_fixture!("test/fixtures/3/full.cast"))
+    test "supports zstd-compressed files" do
+      stream = V3.event_stream(zstd_fixture!("test/fixtures/3/full.cast"))
 
       assert Enum.take(stream, 5) == [
                {1.234567, "o", "foo bar"},
