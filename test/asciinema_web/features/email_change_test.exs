@@ -21,6 +21,8 @@ defmodule AsciinemaWeb.Features.EmailChangeTest do
       end)
       |> assert_has("small", text: "To finalize the email address change")
       |> visit(link_from_email())
+      |> assert_has("p", text: "Confirm to finish changing your email address to new@example.com")
+      |> click_button("Change email")
       |> assert_has(".flash", text: "Email address has been changed")
       |> assert_path(~p"/user/edit")
       |> assert_has("input", value: "new@example.com")

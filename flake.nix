@@ -18,7 +18,7 @@
         pname = "asciinema-server";
         pkgs = nixpkgs.legacyPackages.${system};
 
-        beamPackages = pkgs.beam.packages.erlang_27.extend (
+        beamPackages = pkgs.beam.packages.erlang_28.extend (
           _: prev: {
             elixir = prev.elixir_1_19;
           }
@@ -56,7 +56,7 @@
           mixFodDeps = beamPackages.fetchMixDeps {
             pname = "${pname}-mix-deps";
             inherit src version;
-            hash = "sha256-+6qnixVxaM6Akadqv4wZegi9SVb2cIH+WbOD3kxcm0Y=";
+            hash = "sha256-wHOsucNVN1isViUMzq2Ix26oUrjU7aldgBAdn0wXce0=";
           };
 
           preConfigure = ''

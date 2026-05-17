@@ -12,7 +12,7 @@ defmodule Asciinema do
   end
 
   defdelegate confirm_login(token, timezone), to: Accounts
-  defdelegate confirm_sign_up(token, timezone), to: Accounts
+  defdelegate confirm_sign_up(token, username, timezone), to: Accounts
   defdelegate change_user(user, params \\ %{}, ctx \\ :user), to: Accounts
   defdelegate preview_cli_claim(user, install_id), to: Accounts
 
@@ -33,6 +33,7 @@ defmodule Asciinema do
   end
 
   defdelegate confirm_email_change(user, token), to: Accounts
+  defdelegate verify_email_change(user, token), to: Accounts
 
   def claim_cli(user, install_id) do
     case Accounts.claim_cli(user, install_id) do

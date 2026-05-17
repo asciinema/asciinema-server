@@ -5,28 +5,26 @@ defmodule AsciinemaWeb.UserController do
   require Logger
 
   plug :require_current_user when action in [:edit, :update]
+  plug :redirect_current_user when action in [:new, :create]
 
   def new(conn, %{"t" => sign_up_token}) do
-    conn
-    |> put_session(:sign_up_token, sign_up_token)
-    |> redirect(to: ~p"/users/new")
+    render(conn, "new.html", sign_up_token: sign_up_token, username: nil)
   end
 
   def new(conn, _params) do
-    render(conn, "new.html")
+    redirect(conn, to: ~p"/login/new")
   end
 
-  def create(conn, params) do
-    token = get_session(conn, :sign_up_token)
-    conn = delete_session(conn, :sign_up_token)
+  def create(conn, %{"t" => token} = params) do
     timezone = params["timezone"]
+    username = params["username"]
 
-    case Asciinema.confirm_sign_up(token, timezone) do
+    case Asciinema.confirm_sign_up(token, username, timezone) do
       {:ok, user} ->
         conn
         |> log_in(user)
         |> put_flash(:info, "Welcome to asciinema!")
-        |> redirect_back_then(to: ~p"/username/new")
+        |> redirect_back_or(to: ~p"/~#{user}")
 
       {:error, :token_invalid} ->
         conn
@@ -42,7 +40,22 @@ defmodule AsciinemaWeb.UserController do
         conn
         |> put_flash(:error, "You already signed up with this email.")
         |> redirect(to: ~p"/login/new")
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        conn
+        |> put_status(422)
+        |> render("new.html",
+          sign_up_token: token,
+          username: username,
+          error: username_error(changeset)
+        )
     end
+  end
+
+  def create(conn, _params) do
+    conn
+    |> put_flash(:error, "Invalid sign-up link.")
+    |> redirect(to: ~p"/login/new")
   end
 
   def show(conn, params) do
@@ -106,6 +119,29 @@ defmodule AsciinemaWeb.UserController do
     |> Recordings.query(:date)
     |> Authorization.scope(:asciicasts, current_user)
     |> list_asciicasts(limit)
+  end
+
+  defp redirect_current_user(
+         %{assigns: %{current_user: %Asciinema.Accounts.User{} = user}} = conn,
+         _
+       ) do
+    conn
+    |> put_flash(:info, "You're already logged in.")
+    |> redirect(to: current_user_path(user))
+    |> halt()
+  end
+
+  defp redirect_current_user(conn, _), do: conn
+
+  defp current_user_path(%{username: username} = user) when is_binary(username), do: ~p"/~#{user}"
+  defp current_user_path(_user), do: ~p"/username/new"
+
+  defp username_error(changeset) do
+    case Keyword.get(changeset.errors, :username) do
+      {_msg, [{_, :format}]} -> :username_invalid
+      {_msg, [{_, :required}]} -> :username_invalid
+      {_msg, _} -> :username_taken
+    end
   end
 
   defp list_streams(query, limit) do

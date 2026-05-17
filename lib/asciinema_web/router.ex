@@ -82,12 +82,8 @@ defmodule AsciinemaWeb.Router do
       only: [:edit, :update, :delete],
       singleton: true do
       resources "/streams", StreamController, only: [:index, :create]
-
-      # new email format/availability validation
+      get "/email", EmailController, :edit
       put "/email", EmailController, :update
-
-      # new email ownership validation via email link
-      get "/email", EmailController, :update
     end
 
     get "/~:username", UserController, :show

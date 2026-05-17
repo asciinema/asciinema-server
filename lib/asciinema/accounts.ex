@@ -9,6 +9,7 @@ defmodule Asciinema.Accounts do
 
   @valid_email_re ~r/^[A-Z0-9._%+-]+@([A-Z0-9-]+\.)+[A-Z]{2,}$/i
   @valid_username_re ~r/^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]$/
+  @email_hash_bytes 8
 
   def get_user([{_k, _v}] = kv), do: Repo.get_by(User, kv)
 
@@ -69,24 +70,12 @@ defmodule Asciinema.Accounts do
     )
   end
 
-  def create_user(attrs, :user) do
+  def create_user(attrs) do
     import Ecto.Changeset
 
     build_user()
     |> cast(attrs, [:email, :username])
-    |> validate_required([:email])
-    |> validate_email()
-    |> validate_username()
-    |> add_contraints()
-    |> Repo.insert()
-  end
-
-  def create_user(attrs, :admin) do
-    import Ecto.Changeset
-
-    build_user()
-    |> cast(attrs, [:email, :username])
-    |> validate_required([:email])
+    |> validate_required([:email, :username])
     |> validate_email()
     |> validate_username()
     |> add_contraints()
@@ -240,13 +229,14 @@ defmodule Asciinema.Accounts do
     Token.sign(config(:secret), "login", {id, last_login_at})
   end
 
-  def confirm_sign_up(token, timezone \\ nil) do
+  def confirm_sign_up(token, username, timezone \\ nil) do
     with {:ok, email} <- verify_sign_up_token(token),
-         {:ok, user} <- create_user(%{email: email}, :user) do
+         {:ok, user} <- create_user(%{email: email, username: username}) do
       {:ok, set_timezone(user, timezone)}
     else
       {:error, :invalid} -> {:error, :token_invalid}
       {:error, %Ecto.Changeset{errors: [{:email, _}]}} -> {:error, :email_taken}
+      {:error, %Ecto.Changeset{errors: [{:username, _} | _]} = changeset} -> {:error, changeset}
       {:error, _} -> {:error, :token_expired}
     end
   end
@@ -310,10 +300,10 @@ defmodule Asciinema.Accounts do
       {:error, result} =
         Repo.transact(fn ->
           case Repo.update(changeset) do
-            {:ok, user} ->
-              token = generate_email_change_token(user, user.email)
+            {:ok, updated_user} ->
+              token = generate_email_change_token(user, updated_user.email)
 
-              {:error, {:ok, {:pending, {user.email, token}}}}
+              {:error, {:ok, {:pending, {updated_user.email, token}}}}
 
             {:error, %Changeset{errors: [{:email, {_, [{:validation, :format}]}}]}} ->
               {:error, {:error, :invalid}}
@@ -328,25 +318,37 @@ defmodule Asciinema.Accounts do
   end
 
   def generate_email_change_token(user, email) do
-    Token.sign(config(:secret), "email-change", {user.id, email})
+    Token.sign(config(:secret), "email-change", {user.id, email_hash(user.email), email})
   end
 
-  def confirm_email_change(user, token) do
-    case verify_email_change_token(token) do
-      {:ok, {user_id, email}} ->
-        if user.id == user_id do
-          result =
-            user
-            |> Changeset.change(email: email)
-            |> add_contraints()
-            |> Repo.update()
+  def verify_email_change(user, token), do: do_verify_email_change(user, token)
 
-          case result do
-            {:ok, user} -> {:ok, user}
-            _ -> {:error, :email_taken}
-          end
-        else
-          {:error, :user_mismatch}
+  def confirm_email_change(user, token) do
+    case do_verify_email_change(user, token) do
+      {:ok, email} ->
+        result =
+          user
+          |> Changeset.change(email: email)
+          |> add_contraints()
+          |> Repo.update()
+
+        case result do
+          {:ok, user} -> {:ok, user}
+          _ -> {:error, :email_taken}
+        end
+
+      {:error, _reason} = result ->
+        result
+    end
+  end
+
+  defp do_verify_email_change(user, token) do
+    case Token.verify(config(:secret), "email-change", token, max_age: 3600) do
+      {:ok, {user_id, old_email_hash, email}} ->
+        cond do
+          user.id != user_id -> {:error, :user_mismatch}
+          email_hash(user.email) != old_email_hash -> {:error, :email_changed}
+          true -> {:ok, email}
         end
 
       {:error, _} ->
@@ -354,8 +356,10 @@ defmodule Asciinema.Accounts do
     end
   end
 
-  def verify_email_change_token(token) do
-    Token.verify(config(:secret), "email-change", token, max_age: 3600)
+  defp email_hash(email) do
+    :sha256
+    |> :crypto.hash(String.downcase(email))
+    |> binary_part(0, @email_hash_bytes)
   end
 
   def initiate_account_deletion(user), do: generate_deletion_token(user)
