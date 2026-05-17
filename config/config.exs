@@ -91,6 +91,7 @@ config :asciinema, Asciinema.FileCache,
   path: "cache/",
   buckets: [
     cast: 60 * 60 * 24 * 30,
+    cast_zst: 60 * 60 * 24 * 30,
     cast_gz: 60 * 60 * 24 * 30,
     txt: 60 * 60 * 24 * 30,
     txt_gz: 60 * 60 * 24 * 30,

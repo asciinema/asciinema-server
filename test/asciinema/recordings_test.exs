@@ -1,7 +1,7 @@
 defmodule Asciinema.RecordingsTest do
   use Asciinema.DataCase, async: true
   import Asciinema.Factory
-  import Asciinema.GzipTestHelpers
+  import Asciinema.ZstdTestHelpers
   alias Asciinema.Recordings
   alias Asciinema.Recordings.{Asciicast, AsciicastStats}
 
@@ -30,7 +30,7 @@ defmodule Asciinema.RecordingsTest do
                cli_id: ^cli_id
              } = asciicast
 
-      assert asciicast.path =~ ~r|^recordings/.+\.json\.gz$|
+      assert asciicast.path =~ ~r|^recordings/.+\.json\.zst$|
     end
 
     test "json file, v1 format (missing required data)" do
@@ -76,7 +76,7 @@ defmodule Asciinema.RecordingsTest do
                cli_id: ^cli_id
              } = asciicast
 
-      assert asciicast.path =~ ~r|^recordings/.+\.cast\.gz$|
+      assert asciicast.path =~ ~r|^recordings/.+\.cast\.zst$|
     end
 
     test "cast file, v2 format, full" do
@@ -104,7 +104,7 @@ defmodule Asciinema.RecordingsTest do
                user_agent: "a/user/agent"
              } = asciicast
 
-      assert asciicast.path =~ ~r|^recordings/.+\.cast\.gz$|
+      assert asciicast.path =~ ~r|^recordings/.+\.cast\.zst$|
       assert DateTime.to_unix(asciicast.recorded_at) == 1_506_410_422
     end
 
@@ -127,6 +127,20 @@ defmodule Asciinema.RecordingsTest do
       upload = fixture(:upload, %{path: "favicon.png"})
 
       assert {:error, :invalid_format} = Recordings.create_asciicast(user, upload)
+    end
+
+    test "compressed upload" do
+      user = insert(:user)
+
+      zstd_path = zstd_fixture!("test/fixtures/2/full.cast")
+      zstd_upload = %Plug.Upload{path: zstd_path, filename: "full.cast.zst"}
+
+      gzip_path = Briefly.create!()
+      File.write!(gzip_path, :zlib.gzip(File.read!("test/fixtures/2/full.cast")))
+      gzip_upload = %Plug.Upload{path: gzip_path, filename: "full.cast.gz"}
+
+      assert {:error, :invalid_format} = Recordings.create_asciicast(user, zstd_upload)
+      assert {:error, :invalid_format} = Recordings.create_asciicast(user, gzip_upload)
     end
 
     test "syntax error in asciicast v2 file" do
@@ -369,7 +383,7 @@ defmodule Asciinema.RecordingsTest do
       stored_path = Recordings.get_cast_path!(asciicast)
 
       assert asciicast.compressed == true
-      assert asciicast.path =~ ~r|\.cast\.gz$|
+      assert asciicast.path =~ ~r|\.cast\.zst$|
       assert asciicast.path != old_path
       assert asciicast.uncompressed_size == expected_uncompressed_size
       assert asciicast.compressed_size == File.stat!(stored_path).size
@@ -395,14 +409,14 @@ defmodule Asciinema.RecordingsTest do
       assert Enum.count(stream) == 786
     end
 
-    test "with compressed asciicast file" do
+    test "with zstd-compressed asciicast file" do
       asciicast =
         insert(:asciicast_v2,
           compressed: true,
-          path: "recordings/compressed/welcome.cast.gz"
+          path: "recordings/compressed/welcome.cast.zst"
         )
 
-      path = gzip_fixture!("test/fixtures/welcome.cast")
+      path = zstd_fixture!("test/fixtures/welcome.cast")
       :ok = Asciinema.FileStore.put_file(asciicast.path, path, "application/x-asciicast")
 
       stream = Recordings.event_stream(asciicast)
