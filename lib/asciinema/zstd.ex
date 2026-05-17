@@ -2,6 +2,7 @@ defmodule Asciinema.Zstd do
   alias __MODULE__.Stream
 
   @read_chunk_size 64 * 1024
+  @compression_level 9
 
   defmodule Stream do
     @enforce_keys [:path, :mode]
@@ -39,7 +40,7 @@ defmodule Asciinema.Zstd do
   def open_writer!(%Stream{path: path}) do
     case File.open(path, [:write, :binary]) do
       {:ok, file} ->
-        case :zstd.context(:compress) do
+        case :zstd.context(:compress, %{compressionLevel: @compression_level}) do
           {:ok, context} ->
             %{path: path, file: file, context: context}
 
