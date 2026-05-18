@@ -19,6 +19,16 @@ defmodule Asciinema.ZstdTest do
            |> Enum.join() == plain
   end
 
+  test "stream!/2 handles multi-fragment zstd output" do
+    plain = String.duplicate("hello zstd stream\n", 200_000)
+    path = Briefly.create!()
+    File.write!(path, :zstd.compress(plain))
+
+    assert path
+           |> Zstd.stream!(17)
+           |> Enum.join() == plain
+  end
+
   test "stream!/2 reads and decompresses zstd data as lines" do
     plain = "one\ntwo\nthree"
     path = Briefly.create!()
