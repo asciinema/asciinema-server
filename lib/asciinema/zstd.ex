@@ -193,8 +193,11 @@ defmodule Asciinema.Zstd do
   defp stream!(context, data, path, operation) do
     try do
       case :zstd.stream(context, data) do
-        {:continue, output} -> IO.iodata_to_binary(output)
-        {:done, output} -> IO.iodata_to_binary(output)
+        {status, output} when status in [:continue, :done] ->
+          IO.iodata_to_binary(output)
+
+        {status, rest, output} when status in [:continue, :done] ->
+          IO.iodata_to_binary([output, stream!(context, rest, path, operation)])
       end
     catch
       :error, reason ->
@@ -205,8 +208,8 @@ defmodule Asciinema.Zstd do
   defp finish!(context, data, path, operation) do
     try do
       case :zstd.finish(context, data) do
-        {:continue, output} -> IO.iodata_to_binary(output)
-        {:done, output} -> IO.iodata_to_binary(output)
+        {status, output} when status in [:continue, :done] ->
+          IO.iodata_to_binary(output)
       end
     catch
       :error, reason ->
