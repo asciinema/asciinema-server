@@ -2,29 +2,40 @@ defmodule Asciinema.Zstd do
   alias __MODULE__.Stream
 
   @read_chunk_size 64 * 1024
-  @compression_level 9
 
   defmodule Stream do
     @enforce_keys [:path, :mode]
-    defstruct [:path, :mode, :chunk_size]
+    defstruct [:path, :mode, :chunk_size, writer_opts: []]
   end
 
   @spec stream!(Path.t(), pos_integer()) :: Stream.t()
-  def stream!(path, chunk_size)
-      when is_binary(path) and is_integer(chunk_size) and chunk_size > 0 do
-    %Stream{path: path, mode: :bytes, chunk_size: chunk_size}
+  def stream!(path, chunk_size), do: stream!(path, chunk_size, [])
+
+  @spec stream!(Path.t(), pos_integer(), keyword()) :: Stream.t()
+  def stream!(path, chunk_size, opts)
+      when is_binary(path) and is_integer(chunk_size) and chunk_size > 0 and is_list(opts) do
+    opts = Keyword.validate!(opts, [:compression_level])
+    %Stream{path: path, mode: :bytes, chunk_size: chunk_size, writer_opts: opts}
   end
 
   @spec stream!(Path.t(), :line) :: Stream.t()
-  def stream!(path, :line) when is_binary(path) do
+  def stream!(path, :line, []) when is_binary(path) do
     %Stream{path: path, mode: :line, chunk_size: @read_chunk_size}
   end
 
-  def stream!(path, _chunk_size) when not is_binary(path) do
+  def stream!(path, :line, opts) when is_binary(path) and is_list(opts) do
+    raise ArgumentError, "opts are not supported in :line mode, got: #{inspect(opts)}"
+  end
+
+  def stream!(path, _chunk_size, _opts) when not is_binary(path) do
     raise ArgumentError, "expected path to be a binary, got: #{inspect(path)}"
   end
 
-  def stream!(_path, chunk_size) do
+  def stream!(_path, _chunk_size, opts) when not is_list(opts) do
+    raise ArgumentError, "expected opts to be a keyword list, got: #{inspect(opts)}"
+  end
+
+  def stream!(_path, chunk_size, _opts) do
     raise ArgumentError,
           "expected chunk_size to be a positive integer or :line, got: #{inspect(chunk_size)}"
   end
@@ -37,10 +48,10 @@ defmodule Asciinema.Zstd do
     )
   end
 
-  def open_writer!(%Stream{path: path}) do
+  def open_writer!(%Stream{path: path, writer_opts: writer_opts}) do
     case File.open(path, [:write, :binary]) do
       {:ok, file} ->
-        case :zstd.context(:compress, %{compressionLevel: @compression_level}) do
+        case :zstd.context(:compress, compression_options(writer_opts)) do
           {:ok, context} ->
             %{path: path, file: file, context: context}
 
@@ -241,14 +252,28 @@ defmodule Asciinema.Zstd do
     end
   end
 
-  def compress_file(input_path, output_path \\ nil) do
+  def compress_file(input_path), do: compress_file(input_path, nil, [])
+
+  def compress_file(input_path, opts) when is_list(opts), do: compress_file(input_path, nil, opts)
+
+  def compress_file(input_path, output_path), do: compress_file(input_path, output_path, [])
+
+  def compress_file(input_path, output_path, opts)
+      when (is_binary(output_path) or is_nil(output_path)) and is_list(opts) do
     output_path = output_path || Briefly.create!()
 
     input_path
     |> File.stream!(@read_chunk_size)
-    |> Enum.into(stream!(output_path, @read_chunk_size))
+    |> Enum.into(stream!(output_path, @read_chunk_size, opts))
 
     output_path
+  end
+
+  defp compression_options(opts) do
+    case Keyword.fetch(opts, :compression_level) do
+      {:ok, level} -> %{compressionLevel: level}
+      :error -> %{}
+    end
   end
 end
 
