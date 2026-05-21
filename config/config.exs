@@ -94,8 +94,10 @@ config :asciinema, Asciinema.FileCache,
     cast_zst: 60 * 60 * 24 * 30,
     cast_gz: 60 * 60 * 24 * 30,
     txt: 60 * 60 * 24 * 30,
+    txt_zst: 60 * 60 * 24 * 30,
     txt_gz: 60 * 60 * 24 * 30,
     svg: 60 * 60 * 24 * 30,
+    svg_zst: 60 * 60 * 24 * 30,
     svg_gz: 60 * 60 * 24 * 30,
     png: 60 * 60 * 24 * 30
   ]

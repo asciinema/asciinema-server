@@ -369,7 +369,7 @@ defmodule Asciinema.Recordings do
   defp validate_asciicast(%Changeset{valid?: false} = changeset), do: {:error, changeset}
 
   defp compress_file(input_path, changeset) do
-    output_path = Zstd.compress_file(input_path)
+    output_path = Zstd.compress_file(input_path, compression_level: 9)
 
     changeset =
       change(changeset, %{

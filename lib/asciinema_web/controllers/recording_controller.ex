@@ -44,7 +44,7 @@ defmodule AsciinemaWeb.RecordingController do
       send_resp(conn, 410, "")
     else
       filename = attachment_filename(asciicast, conn.params)
-      encoding = preferred_cast_encoding(conn)
+      encoding = preferred_response_encoding(conn)
 
       case get_cast_path(asciicast, encoding) do
         {:ok, path} ->
@@ -84,14 +84,14 @@ defmodule AsciinemaWeb.RecordingController do
       |> put_status(410)
       |> text("This recording has been deleted\n")
     else
-      gzip? = accepts_encoding?(conn, "gzip")
+      encoding = preferred_response_encoding(conn)
 
-      case get_txt_path(asciicast, gzip?) do
+      case get_txt_path(asciicast, encoding) do
         {:ok, path} ->
           conn
           |> put_resp_header("content-type", "text/plain")
           |> put_resp_header("vary", "accept-encoding")
-          |> maybe_put_content_encoding(gzip?)
+          |> maybe_put_content_encoding(encoding)
           |> put_resp_header("content-disposition", "attachment; filename=#{asciicast.id}.txt")
           |> send_file(200, path)
 
@@ -117,7 +117,7 @@ defmodule AsciinemaWeb.RecordingController do
     else
       cache_key = RecordingSVG.svg_cache_key(asciicast)
       max_age = svg_max_age(conn.params, cache_key)
-      gzip? = accepts_encoding?(conn, "gzip")
+      encoding = preferred_response_encoding(conn)
 
       conn =
         conn
@@ -125,7 +125,7 @@ defmodule AsciinemaWeb.RecordingController do
         |> put_etag(cache_key)
         |> put_resp_header("access-control-allow-origin", "*")
         |> put_resp_header("vary", "accept-encoding")
-        |> maybe_put_content_encoding(gzip?)
+        |> maybe_put_content_encoding(encoding)
         |> put_resp_content_type("image/svg+xml; charset=utf-8")
 
       if fresh?(conn) do
@@ -133,7 +133,7 @@ defmodule AsciinemaWeb.RecordingController do
         |> send_resp(304, "")
         |> halt()
       else
-        case get_svg_path(asciicast, conn.params, cache_key, gzip?) do
+        case get_svg_path(asciicast, conn.params, cache_key, encoding) do
           {:ok, path} ->
             conn
             |> send_file(200, path)
@@ -226,7 +226,7 @@ defmodule AsciinemaWeb.RecordingController do
           {:ok, path}
 
         {true, :gzip} ->
-          fetch_gzipped_path(:cast_gz, asciicast.id, path, :zstd)
+          fetch_gzip_path(:cast_gz, asciicast.id, path, :zstd)
 
         {true, :identity} ->
           fetch_plain_path(Recordings.cast_cache_bucket(false), asciicast.id, path, :zstd)
@@ -235,7 +235,7 @@ defmodule AsciinemaWeb.RecordingController do
           fetch_zstd_path(Recordings.cast_cache_bucket(true), asciicast.id, path)
 
         {false, :gzip} ->
-          fetch_gzipped_path(:cast_gz, asciicast.id, path)
+          fetch_gzip_path(:cast_gz, asciicast.id, path)
 
         {false, :identity} ->
           {:ok, path}
@@ -243,7 +243,7 @@ defmodule AsciinemaWeb.RecordingController do
     end
   end
 
-  defp get_svg_path(asciicast, params, cache_key, gzip?) do
+  defp get_svg_path(asciicast, params, cache_key, encoding) do
     variant = if params["f"] == "t", do: :thumbnail, else: :full
 
     result =
@@ -256,15 +256,17 @@ defmodule AsciinemaWeb.RecordingController do
       end)
 
     with {:ok, path} <- result do
-      if gzip? do
-        fetch_gzipped_path(:svg_gz, {asciicast.id, variant, cache_key}, path)
-      else
-        {:ok, path}
+      key = {asciicast.id, variant, cache_key}
+
+      case encoding do
+        :identity -> {:ok, path}
+        :gzip -> fetch_gzip_path(:svg_gz, key, path)
+        :zstd -> fetch_zstd_path(:svg_zst, key, path)
       end
     end
   end
 
-  defp get_txt_path(asciicast, gzip?) do
+  defp get_txt_path(asciicast, encoding) do
     result =
       FileCache.fetch_path(:txt, asciicast.id, fn tmp_dir ->
         path = Path.join(tmp_dir, "#{asciicast.id}.txt")
@@ -274,15 +276,15 @@ defmodule AsciinemaWeb.RecordingController do
       end)
 
     with {:ok, path} <- result do
-      if gzip? do
-        fetch_gzipped_path(:txt_gz, asciicast.id, path)
-      else
-        {:ok, path}
+      case encoding do
+        :identity -> {:ok, path}
+        :gzip -> fetch_gzip_path(:txt_gz, asciicast.id, path)
+        :zstd -> fetch_zstd_path(:txt_zst, asciicast.id, path)
       end
     end
   end
 
-  defp fetch_gzipped_path(bucket, key, source_path, source_encoding \\ :identity) do
+  defp fetch_gzip_path(bucket, key, source_path, source_encoding \\ :identity) do
     FileCache.fetch_path(
       bucket,
       key,
@@ -358,13 +360,10 @@ defmodule AsciinemaWeb.RecordingController do
 
   defp maybe_put_content_encoding(conn, :identity), do: conn
 
-  defp maybe_put_content_encoding(conn, true), do: maybe_put_content_encoding(conn, :gzip)
-  defp maybe_put_content_encoding(conn, false), do: conn
-
   defp stream_path!(path, :identity), do: File.stream!(path, [], @encoding_chunk_size)
   defp stream_path!(path, :zstd), do: Zstd.stream!(path, @encoding_chunk_size)
 
-  defp preferred_cast_encoding(conn) do
+  defp preferred_response_encoding(conn) do
     encodings = accepted_encodings(conn)
 
     cond do
@@ -372,12 +371,6 @@ defmodule AsciinemaWeb.RecordingController do
       accepted?(encodings, "gzip") -> :gzip
       true -> :identity
     end
-  end
-
-  defp accepts_encoding?(conn, encoding) do
-    conn
-    |> accepted_encodings()
-    |> accepted?(encoding)
   end
 
   defp accepted_encodings(conn) do

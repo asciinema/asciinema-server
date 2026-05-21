@@ -9,6 +9,20 @@ defmodule Asciinema.ZstdTest do
     assert %Zstd.Stream{} = Zstd.stream!("foo.zst", :line)
   end
 
+  test "stream!/3 validates opts" do
+    assert_raise ArgumentError, "expected opts to be a keyword list, got: :bad", fn ->
+      Zstd.stream!("foo.zst", 8, :bad)
+    end
+  end
+
+  test "stream!/3 rejects opts in line mode" do
+    assert_raise ArgumentError,
+                 "opts are not supported in :line mode, got: [compression_level: 9]",
+                 fn ->
+                   Zstd.stream!("foo.zst", :line, compression_level: 9)
+                 end
+  end
+
   test "stream!/2 reads and decompresses zstd data in chunks" do
     plain = String.duplicate("hello zstd\n", 100)
     path = Briefly.create!()
@@ -63,6 +77,15 @@ defmodule Asciinema.ZstdTest do
            |> Enum.join() == plain
   end
 
+  test "stream!/3 accepts compression options for writing" do
+    plain = "hello zstd stream options"
+    path = Briefly.create!()
+
+    _result = Enum.into([plain], Zstd.stream!(path, 16, compression_level: 9))
+
+    assert Enum.join(Zstd.stream!(path, 8)) == plain
+  end
+
   test "collectable writes truncate existing zstd file" do
     path = Briefly.create!()
 
@@ -79,6 +102,16 @@ defmodule Asciinema.ZstdTest do
     File.write!(input_path, plain)
 
     assert Zstd.compress_file(input_path, output_path) == output_path
+    assert Enum.join(Zstd.stream!(output_path, 8)) == plain
+  end
+
+  test "compress_file/3 accepts compression options" do
+    plain = "hello zstd file options"
+    input_path = Briefly.create!()
+    output_path = Briefly.create!()
+    File.write!(input_path, plain)
+
+    assert Zstd.compress_file(input_path, output_path, compression_level: 9) == output_path
     assert Enum.join(Zstd.stream!(output_path, 8)) == plain
   end
 end
