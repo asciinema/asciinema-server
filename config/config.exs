@@ -117,8 +117,7 @@ config :asciinema, Oban,
        {"* * * * *", Asciinema.Workers.MarkOfflineStreams},
        {"* * * * *", Asciinema.Workers.RescheduleStreams},
        {"0 3 * * *", Asciinema.Workers.RecomputePopularityScores},
-       {"*/5 * * * *", Asciinema.Workers.RecomputeDirtyPopularityScores},
-       {"@reboot", Asciinema.Workers.MigrateRecordingFiles}
+       {"*/5 * * * *", Asciinema.Workers.RecomputeDirtyPopularityScores}
      ]},
     Oban.Plugins.Lifeline,
     Oban.Plugins.Reindexer
