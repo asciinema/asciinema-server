@@ -1,4 +1,4 @@
-defmodule Asciinema.Recordings.Asciicast.Reader do
+defmodule Asciinema.Asciicast.Reader do
   alias Asciinema.Zstd
 
   @chunk_size 64 * 1024

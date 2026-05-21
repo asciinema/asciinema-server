@@ -1,7 +1,7 @@
-defmodule Asciinema.Recordings.Asciicast.V3Test do
+defmodule Asciinema.Asciicast.V3Test do
   use ExUnit.Case, async: true
   import Asciinema.ZstdTestHelpers
-  alias Asciinema.Recordings.Asciicast.V3
+  alias Asciinema.Asciicast.V3
 
   describe "fetch_metadata/1" do
     test "minimal" do

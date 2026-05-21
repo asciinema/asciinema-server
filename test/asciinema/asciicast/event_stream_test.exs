@@ -1,6 +1,6 @@
-defmodule Asciinema.Recordings.EventStreamTest do
+defmodule Asciinema.Asciicast.EventStreamTest do
   use ExUnit.Case, async: true
-  alias Asciinema.Recordings.EventStream
+  alias Asciinema.Asciicast.EventStream
 
   describe "to_absolute_time/1" do
     test "transforms relative timestamps to absolute" do

@@ -1,4 +1,4 @@
-defmodule Asciinema.Recordings.EventStream do
+defmodule Asciinema.Asciicast.EventStream do
   def to_absolute_time(stream) do
     Stream.scan(stream, &to_absolute_time/2)
   end

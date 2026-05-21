@@ -1,6 +1,5 @@
-defmodule Asciinema.Recordings.Asciicast.V1 do
-  alias Asciinema.Recordings.EventStream
-  alias Asciinema.Recordings.Asciicast.Reader
+defmodule Asciinema.Asciicast.V1 do
+  alias Asciinema.Asciicast.{EventStream, Reader}
 
   def event_stream(path, opts \\ []) when is_binary(path) and is_list(opts) do
     asciicast =

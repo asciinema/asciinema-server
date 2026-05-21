@@ -13,7 +13,10 @@ defmodule Asciinema.RecordingsTest do
       upload = fixture(:upload, %{path: "1/full.json"})
 
       {:ok, asciicast} =
-        Recordings.create_asciicast(user, upload, %{cli_id: cli_id, user_agent: "a/user/agent"})
+        Recordings.create_asciicast(user, upload.path, %{
+          cli_id: cli_id,
+          user_agent: "a/user/agent"
+        })
 
       assert %Asciicast{
                version: 1,
@@ -37,14 +40,14 @@ defmodule Asciinema.RecordingsTest do
       user = insert(:user)
       upload = fixture(:upload, %{path: "1/invalid.json"})
 
-      assert {:error, %Ecto.Changeset{}} = Recordings.create_asciicast(user, upload)
+      assert {:error, %Ecto.Changeset{}} = Recordings.create_asciicast(user, upload.path)
     end
 
     test "json file, unsupported version number" do
       user = insert(:user)
       upload = fixture(:upload, %{path: "5/asciicast.json"})
 
-      assert {:error, {:invalid_version, 5}} = Recordings.create_asciicast(user, upload)
+      assert {:error, {:invalid_version, 5}} = Recordings.create_asciicast(user, upload.path)
     end
 
     test "cast file, v2 format, minimal" do
@@ -54,7 +57,10 @@ defmodule Asciinema.RecordingsTest do
       upload = fixture(:upload, %{path: "2/minimal.cast"})
 
       {:ok, asciicast} =
-        Recordings.create_asciicast(user, upload, %{cli_id: cli_id, user_agent: "a/user/agent"})
+        Recordings.create_asciicast(user, upload.path, %{
+          cli_id: cli_id,
+          user_agent: "a/user/agent"
+        })
 
       assert %Asciicast{
                version: 2,
@@ -83,7 +89,8 @@ defmodule Asciinema.RecordingsTest do
       user = insert(:user)
       upload = fixture(:upload, %{path: "2/full.cast"})
 
-      {:ok, asciicast} = Recordings.create_asciicast(user, upload, %{user_agent: "a/user/agent"})
+      {:ok, asciicast} =
+        Recordings.create_asciicast(user, upload.path, %{user_agent: "a/user/agent"})
 
       assert %Asciicast{
                version: 2,
@@ -113,7 +120,7 @@ defmodule Asciinema.RecordingsTest do
       upload = fixture(:upload, %{path: "2/full.cast"})
       expected_uncompressed_size = File.stat!(upload.path).size
 
-      {:ok, asciicast} = Recordings.create_asciicast(user, upload)
+      {:ok, asciicast} = Recordings.create_asciicast(user, upload.path)
 
       stored_path = Recordings.get_cast_path!(asciicast)
       expected_compressed_size = File.stat!(stored_path).size
@@ -126,35 +133,33 @@ defmodule Asciinema.RecordingsTest do
       user = insert(:user)
       upload = fixture(:upload, %{path: "favicon.png"})
 
-      assert {:error, :invalid_format} = Recordings.create_asciicast(user, upload)
+      assert {:error, :invalid_format} = Recordings.create_asciicast(user, upload.path)
     end
 
     test "compressed upload" do
       user = insert(:user)
 
       zstd_path = zstd_fixture!("test/fixtures/2/full.cast")
-      zstd_upload = %Plug.Upload{path: zstd_path, filename: "full.cast.zst"}
 
       gzip_path = Briefly.create!()
       File.write!(gzip_path, :zlib.gzip(File.read!("test/fixtures/2/full.cast")))
-      gzip_upload = %Plug.Upload{path: gzip_path, filename: "full.cast.gz"}
 
-      assert {:error, :invalid_format} = Recordings.create_asciicast(user, zstd_upload)
-      assert {:error, :invalid_format} = Recordings.create_asciicast(user, gzip_upload)
+      assert {:error, :invalid_format} = Recordings.create_asciicast(user, zstd_path)
+      assert {:error, :invalid_format} = Recordings.create_asciicast(user, gzip_path)
     end
 
     test "syntax error in asciicast v2 file" do
       user = insert(:user)
       upload = fixture(:upload, %{path: "2/broken.cast"})
 
-      assert {:error, :invalid_format} = Recordings.create_asciicast(user, upload)
+      assert {:error, :invalid_format} = Recordings.create_asciicast(user, upload.path)
     end
 
     test "syntax error in asciicast v3 file" do
       user = insert(:user)
       upload = fixture(:upload, %{path: "3/broken.cast"})
 
-      assert {:error, :invalid_format} = Recordings.create_asciicast(user, upload)
+      assert {:error, :invalid_format} = Recordings.create_asciicast(user, upload.path)
     end
 
     test "default settings from user" do
@@ -168,7 +173,7 @@ defmodule Asciinema.RecordingsTest do
         )
 
       upload = fixture(:upload, %{path: "3/full.cast"})
-      {:ok, asciicast} = Recordings.create_asciicast(user, upload)
+      {:ok, asciicast} = Recordings.create_asciicast(user, upload.path)
 
       assert %Asciicast{
                term_theme_name: nil,
@@ -188,7 +193,7 @@ defmodule Asciinema.RecordingsTest do
         )
 
       upload = fixture(:upload, %{path: "3/full.cast"})
-      {:ok, asciicast} = Recordings.create_asciicast(user, upload)
+      {:ok, asciicast} = Recordings.create_asciicast(user, upload.path)
 
       assert %Asciicast{
                term_theme_name: nil,
@@ -206,7 +211,7 @@ defmodule Asciinema.RecordingsTest do
         )
 
       upload = fixture(:upload, %{path: "3/full.cast"})
-      {:ok, asciicast} = Recordings.create_asciicast(user, upload)
+      {:ok, asciicast} = Recordings.create_asciicast(user, upload.path)
 
       assert %Asciicast{
                term_theme_name: "original",
@@ -225,7 +230,7 @@ defmodule Asciinema.RecordingsTest do
       upload = fixture(:upload, %{path: "3/full.cast"})
 
       {:ok, asciicast} =
-        Recordings.create_asciicast(user, upload, %{
+        Recordings.create_asciicast(user, upload.path, %{
           term_bold_is_bright: true,
           term_adaptive_palette: true
         })
@@ -245,10 +250,62 @@ defmodule Asciinema.RecordingsTest do
         set: [username: "new-username"]
       )
 
-      {:ok, asciicast} = Recordings.create_asciicast(user, upload)
+      {:ok, asciicast} = Recordings.create_asciicast(user, upload.path)
 
       assert asciicast.path =~ "recordings/new-username/"
       refute asciicast.path =~ "recordings/old-username/"
+    end
+
+    test "stores filename from params" do
+      user = insert(:user)
+      upload = fixture(:upload, %{path: "2/full.cast"})
+
+      {:ok, asciicast} =
+        Recordings.create_asciicast(user, upload.path, %{}, %{"filename" => "my-recording.cast"})
+
+      assert asciicast.filename == "my-recording.cast"
+    end
+
+    test "strips path components from filename" do
+      user = insert(:user)
+      upload = fixture(:upload, %{path: "2/full.cast"})
+
+      {:ok, asciicast} =
+        Recordings.create_asciicast(user, upload.path, %{}, %{
+          "filename" => "../../etc/passwd/evil.cast"
+        })
+
+      assert asciicast.filename == "evil.cast"
+    end
+
+    test "truncates very long filenames" do
+      user = insert(:user)
+      upload = fixture(:upload, %{path: "2/full.cast"})
+      long_name = String.duplicate("a", 1000) <> ".cast"
+
+      {:ok, asciicast} =
+        Recordings.create_asciicast(user, upload.path, %{}, %{"filename" => long_name})
+
+      assert byte_size(asciicast.filename) == 255
+    end
+
+    test "uses fallback filename when filename is missing" do
+      user = insert(:user)
+      upload = fixture(:upload, %{path: "2/full.cast"})
+
+      {:ok, asciicast} = Recordings.create_asciicast(user, upload.path)
+
+      assert asciicast.filename == "asciicast.cast"
+    end
+
+    test "uses fallback filename when filename is not a binary" do
+      user = insert(:user)
+      upload = fixture(:upload, %{path: "2/full.cast"})
+
+      {:ok, asciicast} =
+        Recordings.create_asciicast(user, upload.path, %{}, %{"filename" => 123})
+
+      assert asciicast.filename == "asciicast.cast"
     end
   end
 

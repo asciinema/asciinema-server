@@ -3,8 +3,8 @@ defmodule Asciinema.Recordings do
   import Ecto, only: [build_assoc: 2]
   import Ecto.Changeset
   import Ecto.Query, warn: false
-  alias Asciinema.Recordings.Asciicast.Reader
-  alias Asciinema.Recordings.Asciicast.{V1, V2, V3}
+  alias Asciinema.Asciicast.Reader
+  alias Asciinema.Asciicast.{V1, V2, V3}
   alias Asciinema.{FileCache, FileStore, Fonts, Fts, HttpUtil, Repo, Themes, Vt, Zstd}
   alias Asciinema.Workers.{MigrateRecordingFiles, UpdateFtsContent, UpdateSnapshot}
 
@@ -304,29 +304,27 @@ defmodule Asciinema.Recordings do
     if Repo.count(Ecto.assoc(user, :asciicasts)) == 0 do
       cast_path = Path.join(:code.priv_dir(:asciinema), "welcome.cast")
 
-      upload = %Plug.Upload{
-        path: cast_path,
-        filename: "ascii.cast",
-        content_type: "application/octet-stream"
-      }
-
       {:ok, _} =
-        create_asciicast(user, upload, %{
-          visibility: :public,
-          snapshot_at: 106.0
-        })
+        create_asciicast(
+          user,
+          cast_path,
+          %{visibility: :public, snapshot_at: 106.0},
+          %{"filename" => "ascii.cast"}
+        )
     end
 
     :ok
   end
 
-  def create_asciicast(user, upload, attrs \\ %{}, params \\ %{}) do
-    with {:ok, metadata} <- extract_metadata(upload),
+  def create_asciicast(user, local_path, attrs \\ %{}, params \\ %{})
+      when is_binary(local_path) do
+    with {:ok, metadata} <- extract_metadata(local_path),
+         metadata = Map.put(metadata, :filename, normalize_filename(params)),
          changeset = build_asciicast(user, attrs, metadata, params),
          :ok <- validate_asciicast(changeset),
-         {local_path, changeset} = compress_file(upload.path, changeset),
+         {compressed_path, changeset} = compress_file(local_path, changeset),
          {store_path, changeset} = assign_store_path(changeset),
-         :ok <- save_file(local_path, store_path),
+         :ok <- save_file(compressed_path, store_path),
          {:ok, asciicast} <- insert_asciicast_or_delete_file(changeset, store_path),
          :ok <- schedule_bg_jobs(asciicast) do
       {:ok, asciicast}
@@ -357,6 +355,7 @@ defmodule Asciinema.Recordings do
     |> build_assoc(:asciicasts)
     |> change(defaults)
     |> change(attrs)
+    |> foreign_key_constraint(:stream_id)
     |> apply_metadata(metadata)
     |> change_asciicast(params)
   end
@@ -447,21 +446,30 @@ defmodule Asciinema.Recordings do
     File.stat!(path).size
   end
 
-  defp extract_metadata(%Plug.Upload{path: path, filename: filename}) do
+  defp extract_metadata(path) when is_binary(path) do
     if Reader.compressed?(path) do
       {:error, :invalid_format}
     else
-      result =
-        case V2.fetch_metadata(path) do
-          {:ok, metadata} -> {:ok, metadata}
-          {:error, {:invalid_version, 3}} -> V3.fetch_metadata(path)
-          {:error, {:invalid_version, _} = reason} -> {:error, reason}
-          {:error, :invalid_format} -> V1.fetch_metadata(path)
-        end
-
-      with {:ok, metadata} <- result do
-        {:ok, Map.put(metadata, :filename, filename)}
+      case V2.fetch_metadata(path) do
+        {:ok, metadata} -> {:ok, metadata}
+        {:error, {:invalid_version, 3}} -> V3.fetch_metadata(path)
+        {:error, {:invalid_version, _} = reason} -> {:error, reason}
+        {:error, :invalid_format} -> V1.fetch_metadata(path)
       end
+    end
+  end
+
+  @max_filename_len 255
+
+  defp normalize_filename(params) do
+    case params["filename"] || params[:filename] do
+      filename when is_binary(filename) ->
+        filename
+        |> Path.basename()
+        |> String.slice(0, @max_filename_len)
+
+      _ ->
+        "asciicast.cast"
     end
   end
 
