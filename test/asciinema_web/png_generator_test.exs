@@ -88,17 +88,139 @@ defmodule AsciinemaWeb.PngGeneratorTest do
     tmp_dir = Briefly.create!(directory: true)
 
     image =
-      cells_asciicast(12, [<<0xE0B0::utf8>>, <<0xE0B2::utf8>>], 20, 8)
+      cells_asciicast(
+        12,
+        [<<0xE0B0::utf8>>, <<0xE0B2::utf8>>, <<0xE0BA::utf8>>, <<0xE0BE::utf8>>],
+        20,
+        8
+      )
       |> generate_png(tmp_dir)
       |> raw_img()
 
+    # E0B0 right full triangle filled (M0,0 L1,0.5 L0,1 Z)
     assert_cell_has_ink_at(image, 0, 0, 0.25, 0.5)
     assert_cell_has_ink_at(image, 0, 0, 0.5, 0.5)
     assert_cell_has_background_at(image, 0, 0, 0.85, 0.15)
 
+    # E0B2 left full triangle filled (M1,0 L0,0.5 L1,1 Z)
     assert_cell_has_ink_at(image, 1, 0, 0.5, 0.5)
     assert_cell_has_ink_at(image, 1, 0, 0.75, 0.5)
     assert_cell_has_background_at(image, 1, 0, 0.15, 0.15)
+
+    # E0BA lower-right triangle filled (M1,1 L1,0 L0,1 Z); interior x+y >= 1
+    assert_cell_has_ink_at(image, 2, 0, 0.75, 0.75)
+    assert_cell_has_ink_at(image, 2, 0, 0.9, 0.9)
+    assert_cell_has_background_at(image, 2, 0, 0.1, 0.1)
+
+    # E0BE upper-right triangle filled (M1,0 L1,1 L0,0 Z); interior y <= x
+    assert_cell_has_ink_at(image, 3, 0, 0.75, 0.25)
+    assert_cell_has_ink_at(image, 3, 0, 0.9, 0.1)
+    assert_cell_has_background_at(image, 3, 0, 0.1, 0.9)
+  end
+
+  @tag :rsvg
+  test "renders rounded Powerline caps into PNG output" do
+    tmp_dir = Briefly.create!(directory: true)
+
+    image =
+      cells_asciicast(
+        13,
+        [<<0xE0B4::utf8>>, <<0xE0B6::utf8>>, <<0xE0B5::utf8>>, <<0xE0B7::utf8>>],
+        20,
+        8
+      )
+      |> generate_png(tmp_dir)
+      |> raw_img()
+
+    # E0B4 right half-disk filled
+    assert_cell_has_ink_at(image, 0, 0, 0.5, 0.5)
+    assert_cell_has_ink_at(image, 0, 0, 0.25, 0.5)
+    assert_cell_has_background_at(image, 0, 0, 0.9, 0.1)
+    assert_cell_has_background_at(image, 0, 0, 0.9, 0.9)
+
+    # E0B6 left half-disk filled
+    assert_cell_has_ink_at(image, 1, 0, 0.5, 0.5)
+    assert_cell_has_ink_at(image, 1, 0, 0.75, 0.5)
+    assert_cell_has_background_at(image, 1, 0, 0.1, 0.1)
+    assert_cell_has_background_at(image, 1, 0, 0.1, 0.9)
+
+    # E0B5 right half-disk stroked: arc on right side of cell at upper y
+    assert_cell_has_ink_at(image, 2, 0, 0.5, 0.07)
+    assert_cell_has_ink_at(image, 2, 0, 0.6, 0.1)
+    assert_cell_has_background_at(image, 2, 0, 0.5, 0.5)
+    assert_cell_has_background_at(image, 2, 0, 0.4, 0.1)
+
+    # E0B7 left half-disk stroked: arc on left side of cell at upper y (mirror)
+    assert_cell_has_ink_at(image, 3, 0, 0.5, 0.07)
+    assert_cell_has_ink_at(image, 3, 0, 0.4, 0.1)
+    assert_cell_has_background_at(image, 3, 0, 0.5, 0.5)
+    assert_cell_has_background_at(image, 3, 0, 0.6, 0.1)
+  end
+
+  @tag :rsvg
+  test "renders Powerline separators, outlines, and quadrant triangles into PNG output" do
+    tmp_dir = Briefly.create!(directory: true)
+
+    image =
+      cells_asciicast(
+        14,
+        [
+          <<0xE0B8::utf8>>,
+          <<0xE0B9::utf8>>,
+          <<0xE0BB::utf8>>,
+          <<0xE0BC::utf8>>,
+          <<0xE0B1::utf8>>,
+          <<0xE0B3::utf8>>,
+          <<0xE0BD::utf8>>,
+          <<0xE0BF::utf8>>
+        ],
+        20,
+        8
+      )
+      |> generate_png(tmp_dir)
+      |> raw_img()
+
+    # E0B8 lower-left triangle filled (M0,1 L0,0 L1,1 Z)
+    assert_cell_has_ink_at(image, 0, 0, 0.25, 0.75)
+    assert_cell_has_ink_at(image, 0, 0, 0.1, 0.9)
+    assert_cell_has_background_at(image, 0, 0, 0.9, 0.1)
+
+    # E0B9 backslash separator (M0,0 L1,1), stroked
+    assert_cell_has_ink_at(image, 1, 0, 0.5, 0.5)
+    assert_cell_has_background_at(image, 1, 0, 0.9, 0.1)
+    assert_cell_has_background_at(image, 1, 0, 0.1, 0.9)
+
+    # E0BB forwardslash separator (M0,1 L1,0), stroked
+    assert_cell_has_ink_at(image, 2, 0, 0.5, 0.5)
+    assert_cell_has_background_at(image, 2, 0, 0.1, 0.1)
+    assert_cell_has_background_at(image, 2, 0, 0.9, 0.9)
+
+    # E0BC upper-left triangle filled (M0,0 L1,0 L0,1 Z)
+    assert_cell_has_ink_at(image, 3, 0, 0.25, 0.25)
+    assert_cell_has_ink_at(image, 3, 0, 0.1, 0.1)
+    assert_cell_has_background_at(image, 3, 0, 0.9, 0.9)
+
+    # E0B1 right outline triangle stroked (M0,0 L1,0.5 L0,1); interior must NOT fill
+    assert_cell_has_ink_at(image, 4, 0, 0.5, 0.25)
+    assert_cell_has_ink_at(image, 4, 0, 0.5, 0.75)
+    assert_cell_has_background_at(image, 4, 0, 0.25, 0.5)
+    assert_cell_has_background_at(image, 4, 0, 0.9, 0.1)
+
+    # E0B3 left outline triangle stroked (M1,0 L0,0.5 L1,1); interior must NOT fill
+    assert_cell_has_ink_at(image, 5, 0, 0.5, 0.25)
+    assert_cell_has_ink_at(image, 5, 0, 0.5, 0.75)
+    assert_cell_has_background_at(image, 5, 0, 0.75, 0.5)
+    assert_cell_has_background_at(image, 5, 0, 0.1, 0.1)
+
+    # E0BD redundant forwardslash separator (same shape as E0BB)
+    assert_cell_has_ink_at(image, 6, 0, 0.5, 0.5)
+    assert_cell_has_background_at(image, 6, 0, 0.1, 0.1)
+    assert_cell_has_background_at(image, 6, 0, 0.9, 0.9)
+
+    # E0BF redundant backslash separator (same shape as E0B9)
+    assert_cell_has_ink_at(image, 7, 0, 0.5, 0.5)
+    assert_cell_has_background_at(image, 7, 0, 0.9, 0.1)
+    assert_cell_has_background_at(image, 7, 0, 0.1, 0.9)
   end
 
   @tag :rsvg

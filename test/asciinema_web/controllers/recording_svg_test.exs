@@ -218,6 +218,32 @@ defmodule AsciinemaWeb.RecordingSvgTest do
       assert cell_contains_color?(png, 0, 0, {0, 170, 238})
     end
 
+    test "routes full Powerline range (U+E0B0..U+E0BF) to vector SVG layer" do
+      fg = {255, 85, 0}
+      codepoints = Enum.to_list(0xE0B0..0xE0BF)
+      line = for cp <- codepoints, into: "", do: <<cp::utf8>>
+
+      asciicast =
+        build(:asciicast,
+          term_cols: length(codepoints),
+          term_rows: 1,
+          snapshot: snapshot([[[line, %{"fg" => "#ff5500"}, 1]]])
+        )
+
+      svg = render_full(asciicast)
+      png = decode_embedded_png(svg)
+
+      for cp <- codepoints do
+        char = <<cp::utf8>>
+        refute svg =~ char, "expected SVG not to render literal #{inspect(char)}"
+      end
+
+      for col <- 0..(length(codepoints) - 1) do
+        refute cell_contains_color?(png, col, 0, fg),
+               "expected cell #{col} to only contain background in embedded PNG"
+      end
+    end
+
     test "uses theme default fg for inverse cell background" do
       asciicast =
         build(:asciicast,
