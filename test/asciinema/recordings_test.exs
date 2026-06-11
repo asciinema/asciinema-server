@@ -451,6 +451,17 @@ defmodule Asciinema.RecordingsTest do
       assert archived.id in only_ids
     end
 
+    test "filters by token (exact secret_token match)" do
+      target = insert(:asciicast, secret_token: "tok-target-aaaaaaaa")
+      insert(:asciicast, secret_token: "tok-other-bbbbbbbbbb")
+
+      results =
+        %Query{scope: :admin, archived: :include, filters: [{:token, "tok-target-aaaaaaaa"}]}
+        |> Recordings.list(10)
+
+      assert Enum.map(results, & &1.id) == [target.id]
+    end
+
     test "filters by user, id exclusion, featured, and snapshotless" do
       user = insert(:user)
       other_user = insert(:user)

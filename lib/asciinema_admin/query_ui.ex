@@ -188,7 +188,8 @@ defmodule AsciinemaAdmin.QueryUI do
     size:&lt;size&gt;
     views:&lt;number&gt;
     stream:&lt;yes|no|id&gt;
-    audio:&lt;yes|no&gt;</pre>
+    audio:&lt;yes|no&gt;
+    token:&lt;secret token&gt;</pre>
       </section>
     </div>
     <p class="muted">
@@ -210,6 +211,7 @@ defmodule AsciinemaAdmin.QueryUI do
     scheduled:yes
     started:never
     peak-viewers:&gt;50
+    recordings:&gt;0
     created:30d</pre>
       </section>
       <section>
@@ -224,7 +226,9 @@ defmodule AsciinemaAdmin.QueryUI do
     created:&lt;date&gt;
     started:&lt;date|never&gt;
     current-viewers:&lt;number&gt;
-    peak-viewers:&lt;number&gt;</pre>
+    peak-viewers:&lt;number&gt;
+    recordings:&lt;number&gt;
+    token:&lt;public token&gt;</pre>
       </section>
     </div>
     <p class="muted">
@@ -249,7 +253,7 @@ defmodule AsciinemaAdmin.QueryUI do
   defp suggestions(:recordings) do
     %{
       tokens:
-        ~w[id title user visibility featured archived created duration size views stream audio],
+        ~w[id title user visibility featured archived created duration size views stream audio token],
       values: %{
         visibility: ~w[public unlisted private],
         featured: ~w[yes no],
@@ -267,7 +271,7 @@ defmodule AsciinemaAdmin.QueryUI do
   defp suggestions(:streams) do
     %{
       tokens:
-        ~w[id title user visibility live scheduled audio created started current-viewers peak-viewers],
+        ~w[id title user visibility live scheduled audio created started current-viewers peak-viewers recordings token],
       values: %{
         visibility: ~w[public unlisted private],
         live: ~w[yes no],
@@ -276,7 +280,8 @@ defmodule AsciinemaAdmin.QueryUI do
         created: ["30d", "today", ">=2026-01-01"],
         started: ["never", "30d", ">=2026-01-01"],
         "current-viewers": ["0", ">10", "0..2"],
-        "peak-viewers": ["0", ">50", "10..100"]
+        "peak-viewers": ["0", ">50", "10..100"],
+        recordings: ["0", ">0", "0..2"]
       }
     }
   end

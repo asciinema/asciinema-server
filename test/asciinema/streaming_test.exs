@@ -464,6 +464,33 @@ defmodule Asciinema.StreamingTest do
       assert Enum.map(results, & &1.id) == [target.id]
     end
 
+    test "filters by recording count" do
+      with_recordings = insert(:stream)
+      insert_list(2, :asciicast, stream_id: with_recordings.id)
+      without_recordings = insert(:stream)
+
+      assert %Query{scope: :system, filters: [{:recording_count, {:gt, 0}}]}
+             |> Streaming.list(10)
+             |> Enum.map(& &1.id) == [with_recordings.id]
+
+      assert %Query{scope: :system, filters: [{:recording_count, {:eq, 0}}]}
+             |> Streaming.list(10)
+             |> Enum.map(& &1.id) == [without_recordings.id]
+
+      assert %Query{scope: :system, filters: [{:recording_count, {:between, 1, 3}}]}
+             |> Streaming.list(10)
+             |> Enum.map(& &1.id) == [with_recordings.id]
+    end
+
+    test "filters by token (exact public_token match)" do
+      target = insert(:stream, public_token: "tok-target-aaaaaaaa")
+      insert(:stream, public_token: "tok-other-bbbbbbbbbb")
+
+      assert %Query{scope: :system, filters: [{:token, "tok-target-aaaaaaaa"}]}
+             |> Streaming.list(10)
+             |> Enum.map(& &1.id) == [target.id]
+    end
+
     test "nil prefix is ignored" do
       stream = insert(:stream)
 

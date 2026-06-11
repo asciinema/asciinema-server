@@ -204,6 +204,9 @@ defmodule Asciinema.Recordings do
         |> ensure_fts_join()
         |> where([fts: f], fragment("? @@ websearch_to_tsquery('simple', ?)", f.title_tsv, ^text))
 
+      {:token, token} ->
+        where(q, [a], a.secret_token == ^token)
+
       :featured ->
         where(q, [a], a.featured == true)
 

@@ -214,15 +214,15 @@ defmodule Asciinema.Accounts do
 
   defp with_counts(q) do
     q
-    |> ensure_recording_count_join()
-    |> ensure_stream_count_join()
+    |> ensure_recording_counts_join()
+    |> ensure_stream_counts_join()
     |> select_merge([recording_counts: rc, stream_counts: sc], %{
       recording_count: coalesce(rc.count, 0),
       stream_count: coalesce(sc.count, 0)
     })
   end
 
-  defp ensure_recording_count_join(q) do
+  defp ensure_recording_counts_join(q) do
     if has_named_binding?(q, :recording_counts) do
       q
     else
@@ -236,7 +236,7 @@ defmodule Asciinema.Accounts do
     end
   end
 
-  defp ensure_stream_count_join(q) do
+  defp ensure_stream_counts_join(q) do
     if has_named_binding?(q, :stream_counts) do
       q
     else

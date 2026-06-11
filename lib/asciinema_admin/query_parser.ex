@@ -98,11 +98,11 @@ defmodule AsciinemaAdmin.QueryParser do
        do: token
 
   defp canonical_token(:recordings, token)
-       when token in ~w[id title user visibility featured archived created duration size views stream audio],
+       when token in ~w[id title user visibility featured archived created duration size views stream audio token],
        do: token
 
   defp canonical_token(:streams, token)
-       when token in ~w[id title user visibility live scheduled audio created started current-viewers peak-viewers],
+       when token in ~w[id title user visibility live scheduled audio created started current-viewers peak-viewers recordings token],
        do: token
 
   defp canonical_token(_entity, _token), do: nil
@@ -141,6 +141,9 @@ defmodule AsciinemaAdmin.QueryParser do
 
       {entity, "visibility"} when entity in [:recordings, :streams] ->
         parse_visibility(value)
+
+      {entity, "token"} when entity in [:recordings, :streams] ->
+        {:ok, {:token, value}, value}
 
       {:recordings, "featured"} ->
         parse_bool(value, :featured)
@@ -193,6 +196,9 @@ defmodule AsciinemaAdmin.QueryParser do
 
       {:streams, "peak-viewers"} ->
         parse_integer_condition("peak-viewers", value, :peak_viewer_count)
+
+      {:streams, "recordings"} ->
+        parse_integer_condition("recordings", value, :recording_count)
     end
   end
 

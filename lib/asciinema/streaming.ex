@@ -110,6 +110,9 @@ defmodule Asciinema.Streaming do
       {:title, {:search, text}} ->
         search_title(q, text)
 
+      {:token, token} ->
+        where(q, [s], s.public_token == ^token)
+
       {:prefix, nil} ->
         q
 
@@ -151,6 +154,11 @@ defmodule Asciinema.Streaming do
 
       {:peak_viewer_count, condition} ->
         apply_field_condition(q, :peak_viewer_count, condition)
+
+      {:recording_count, condition} ->
+        q
+        |> ensure_recording_counts_join()
+        |> apply_count_condition(condition)
     end
   end
 
@@ -220,6 +228,44 @@ defmodule Asciinema.Streaming do
       join(q, :inner, [s], u in assoc(s, :user), as: :user)
     end
   end
+
+  defp ensure_recording_counts_join(q) do
+    if has_named_binding?(q, :recording_counts) do
+      q
+    else
+      counts =
+        from(a in Asciinema.Recordings.Asciicast,
+          where: not is_nil(a.stream_id),
+          group_by: a.stream_id,
+          select: %{stream_id: a.stream_id, count: count(a.id)}
+        )
+
+      join(q, :left, [s], c in subquery(counts), on: c.stream_id == s.id, as: :recording_counts)
+    end
+  end
+
+  defp apply_count_condition(q, {:eq, value}),
+    do: where(q, [recording_counts: c], coalesce(c.count, 0) == ^value)
+
+  defp apply_count_condition(q, {:gt, value}),
+    do: where(q, [recording_counts: c], coalesce(c.count, 0) > ^value)
+
+  defp apply_count_condition(q, {:gte, value}),
+    do: where(q, [recording_counts: c], coalesce(c.count, 0) >= ^value)
+
+  defp apply_count_condition(q, {:lt, value}),
+    do: where(q, [recording_counts: c], coalesce(c.count, 0) < ^value)
+
+  defp apply_count_condition(q, {:lte, value}),
+    do: where(q, [recording_counts: c], coalesce(c.count, 0) <= ^value)
+
+  defp apply_count_condition(q, {:between, from_value, to_value}),
+    do:
+      where(
+        q,
+        [recording_counts: c],
+        coalesce(c.count, 0) >= ^from_value and coalesce(c.count, 0) <= ^to_value
+      )
 
   defp search_title(q, text) do
     text

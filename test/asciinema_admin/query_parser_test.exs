@@ -46,6 +46,29 @@ defmodule AsciinemaAdmin.QueryParserTest do
     assert {:stream_count, {:between, 0, 2}} in parsed.filters
   end
 
+  test "parses stream recordings count filter" do
+    parsed = QueryParser.parse(:streams, "recordings:>0")
+
+    assert parsed.errors == []
+    assert {:recording_count, {:gt, 0}} in parsed.filters
+    assert parsed.normalized_filter == "recordings:>0"
+
+    parsed = QueryParser.parse(:streams, "recordings:0")
+    assert parsed.errors == []
+    assert {:recording_count, {:eq, 0}} in parsed.filters
+  end
+
+  test "parses token exact-match filter for recordings and streams" do
+    parsed = QueryParser.parse(:recordings, "token:abc123XYZ")
+    assert parsed.errors == []
+    assert {:token, "abc123XYZ"} in parsed.filters
+    assert parsed.normalized_filter == "token:abc123XYZ"
+
+    parsed = QueryParser.parse(:streams, "token:abc123XYZ")
+    assert parsed.errors == []
+    assert {:token, "abc123XYZ"} in parsed.filters
+  end
+
   test "date ranges include complete UTC end day" do
     parsed = QueryParser.parse(:recordings, "created:2026-01-01..2026-01-02")
 
