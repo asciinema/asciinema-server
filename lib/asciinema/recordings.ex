@@ -453,6 +453,19 @@ defmodule Asciinema.Recordings do
     |> Enum.into(%{})
   end
 
+  @doc """
+  Returns `{compressed_total, uncompressed_total}` bytes summed across the
+  user's recordings. Either side is `nil` when no recording has that size set.
+  """
+  def byte_totals(user_id) do
+    Repo.one(
+      from(a in Asciicast,
+        where: a.user_id == ^user_id,
+        select: {sum(a.compressed_size), sum(a.uncompressed_size)}
+      )
+    )
+  end
+
   def ensure_welcome_asciicast(user) do
     if Repo.count(Ecto.assoc(user, :asciicasts)) == 0 do
       cast_path = Path.join(:code.priv_dir(:asciinema), "welcome.cast")

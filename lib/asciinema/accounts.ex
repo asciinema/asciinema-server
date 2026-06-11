@@ -54,9 +54,52 @@ defmodule Asciinema.Accounts do
     Repo.get_by(User, auth_token: auth_token)
   end
 
-  def list_users(limit \\ 1000) do
-    Repo.all(from(u in User, order_by: [asc: :id], limit: ^limit))
+  @doc """
+  Lists users for the admin panel, as a `Scrivener.Page`.
+
+  Options:
+    * `:search`    – free text matching id (exact), username (ILIKE) or email (ILIKE)
+    * `:sort_by`   – `:inserted_at` (default) or `:last_login_at`
+    * `:sort_dir`  – `:desc` (default) or `:asc`
+    * `:page`      – page number (default `1`)
+    * `:page_size` – rows per page (default `50`)
+  """
+  def list_users(opts \\ []) do
+    search = opts[:search]
+    sort_by = opts[:sort_by] || :inserted_at
+    sort_dir = opts[:sort_dir] || :desc
+
+    User
+    |> list_users_search(search)
+    |> list_users_sort(sort_by, sort_dir)
+    |> Repo.paginate(page: opts[:page] || 1, page_size: opts[:page_size] || 50)
   end
+
+  defp list_users_search(query, nil), do: query
+  defp list_users_search(query, ""), do: query
+
+  defp list_users_search(query, search) do
+    case Integer.parse(search) do
+      {id, ""} ->
+        from u in query, where: u.id == ^id
+
+      _ ->
+        pattern = "%#{search}%"
+        from u in query, where: ilike(u.username, ^pattern) or ilike(u.email, ^pattern)
+    end
+  end
+
+  defp list_users_sort(query, :inserted_at, :desc),
+    do: order_by(query, [u], desc: u.inserted_at, desc: u.id)
+
+  defp list_users_sort(query, :inserted_at, :asc),
+    do: order_by(query, [u], asc: u.inserted_at, asc: u.id)
+
+  defp list_users_sort(query, :last_login_at, :desc),
+    do: order_by(query, [u], desc_nulls_last: u.last_login_at, desc: u.id)
+
+  defp list_users_sort(query, :last_login_at, :asc),
+    do: order_by(query, [u], asc_nulls_last: u.last_login_at, asc: u.id)
 
   def build_user(attrs \\ %{}) do
     Changeset.change(
@@ -451,6 +494,7 @@ defmodule Asciinema.Accounts do
     user
     |> build_assoc(:clis)
     |> cast(attrs, [:token])
+    |> validate_required([:token])
     |> validate_format(:token, @uuid4)
     |> unique_constraint(:token, name: "clis_token_index")
   end

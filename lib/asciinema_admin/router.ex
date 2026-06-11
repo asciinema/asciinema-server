@@ -24,6 +24,18 @@ defmodule AsciinemaAdmin.Router do
 
     get "/", HomeController, :show
 
+    get "/users", UserController, :index
+    get "/users/new", UserController, :new
+    post "/users", UserController, :create
+    get "/users/:id", UserController, :show
+    get "/users/:id/edit", UserController, :edit
+    put "/users/:id", UserController, :update
+    delete "/users/:id", UserController, :delete
+    get "/users/:id/merge", UserController, :merge_confirm
+    post "/users/:id/merge", UserController, :merge
+
+    post "/users/:user_id/clis", CliController, :create
+
     live_dashboard "/system/dashboard", metrics: Asciinema.Telemetry
     oban_dashboard("/system/oban")
   end

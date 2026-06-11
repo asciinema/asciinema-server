@@ -186,6 +186,28 @@ hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
   gap: 0.5rem;
 }
 
+.page-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+/* Avatars */
+
+.avatar {
+  flex: none;
+  border-radius: 3px;
+  background: var(--surface-2);
+  object-fit: cover;
+}
+
+.page-title .avatar { width: 32px; height: 32px; }
+
+/* Small avatar inline with a username; sized under the row's line box so
+   it never grows table-row height. */
+.user-cell { display: inline-flex; align-items: center; gap: 0.4rem; }
+.avatar-sm { width: 18px; height: 18px; }
+
 /* Buttons */
 
 .btn {
@@ -338,6 +360,8 @@ textarea { min-height: 6rem; resize: vertical; }
   font-size: 0.8rem;
 }
 
+.merge-target { flex: 1; max-width: 24rem; }
+
 /* Cards (stat tiles, dashboard tiles) */
 
 .card {
@@ -375,6 +399,86 @@ textarea { min-height: 6rem; resize: vertical; }
 .flash-error { background: var(--danger-bg); border-color: var(--danger); color: var(--danger-strong); }
 
 time { color: inherit; }
+
+abbr[title] {
+  cursor: help;
+  text-decoration: underline dotted;
+  text-decoration-color: var(--muted);
+  text-underline-offset: 2px;
+}
+
+/* Filter bar (search box above index tables) */
+
+.filter-bar {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.filter-bar input[type="search"] {
+  width: 100%;
+  max-width: 32rem;
+}
+
+/* Row actions in tables */
+
+.row-actions { white-space: nowrap; }
+.row-actions a + a { margin-left: 0.75rem; }
+
+/* Pagination */
+
+/* pinned slots keep the page indicator centered when prev/next are absent */
+.pagination {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+
+.pagination .pg-prev { grid-column: 1; justify-self: start; }
+.pagination .pg-page { grid-column: 2; justify-self: center; }
+.pagination .pg-next { grid-column: 3; justify-self: end; }
+
+/* Key-value tables (detail pages) */
+
+table.kv th {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-weight: 500;
+  background: transparent;
+  width: 12rem;
+  padding-left: 0;
+}
+
+table.kv td {
+  background: transparent;
+  padding-right: 0;
+}
+
+table.kv tbody tr:hover { background: transparent; }
+
+/* Two-column grid */
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 800px) {
+  .grid-2 { grid-template-columns: 1fr; }
+}
+
+.mt { margin-top: 1.5rem; }
+
+/* Danger zone styling */
+
+.danger-zone { border-color: var(--danger); }
+.danger-zone h3 { color: var(--danger); }
 
 /* Utilities */
 

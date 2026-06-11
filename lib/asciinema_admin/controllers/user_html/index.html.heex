@@ -1,0 +1,74 @@
+<.page title="Users">
+  <:actions>
+    <.button href={~p"/admin/users/new"} variant={:primary}>New user</.button>
+  </:actions>
+
+  <form class="filter-bar" method="get" action={~p"/admin/users"}>
+    <input
+      type="search"
+      name="q"
+      value={@search}
+      placeholder="Search by id, username, or email"
+      autocomplete="off"
+    />
+    <input type="hidden" name="sort_by" value={@sort_by} />
+    <input type="hidden" name="sort_dir" value={@sort_dir} />
+    <button type="submit" class="btn">Search</button>
+    <.link :if={@search != ""} href={~p"/admin/users"} class="muted">clear</.link>
+  </form>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th class="num">id</th>
+          <th>username</th>
+          <th>email</th>
+          <th>
+            <.link href={
+              ~p"/admin/users?#{sort_link_params(@sort_by, @sort_dir, :inserted_at, @filter_params)}"
+            }>
+              created{sort_arrow(@sort_by, @sort_dir, :inserted_at)}
+            </.link>
+          </th>
+          <th>
+            <.link href={
+              ~p"/admin/users?#{sort_link_params(@sort_by, @sort_dir, :last_login_at, @filter_params)}"
+            }>
+              last login{sort_arrow(@sort_by, @sort_dir, :last_login_at)}
+            </.link>
+          </th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr :for={u <- @users}>
+          <td class="num mono">
+            <.link href={~p"/admin/users/#{u.id}"}>{u.id}</.link>
+          </td>
+          <td>
+            <.link href={~p"/admin/users/#{u.id}"} class="user-cell">
+              <img src={avatar_url(u)} class="avatar avatar-sm" alt="" />
+              {u.username || "—"}
+            </.link>
+          </td>
+          <td class="muted">{u.email}</td>
+          <td><.time_ago time={u.inserted_at} /></td>
+          <td>
+            <.time_ago :if={u.last_login_at} time={u.last_login_at} />
+            <span :if={!u.last_login_at} class="muted">never</span>
+          </td>
+          <td class="row-actions">
+            <.link href={~p"/admin/users/#{u.id}"}>view</.link>
+            <.link href={~p"/admin/users/#{u.id}/edit"}>edit</.link>
+          </td>
+        </tr>
+        <tr :if={@users == []}>
+          <td colspan="6" class="muted">No users match.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <.pagination page={@page} params={@filter_params} />
+</.page>

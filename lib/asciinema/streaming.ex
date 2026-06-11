@@ -266,6 +266,9 @@ defmodule Asciinema.Streaming do
     |> Repo.all()
   end
 
+  def count(%Query{} = spec), do: spec |> query() |> count()
+  def count(q), do: Repo.count(q)
+
   @doc """
   Creates a new stream for the given user.
 

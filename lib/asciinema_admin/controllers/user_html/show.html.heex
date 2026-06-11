@@ -1,0 +1,178 @@
+<.page title={@user.username || "User ##{@user.id}"} avatar={avatar_url(@user)}>
+  <:actions>
+    <.button href={~p"/admin/users/#{@user.id}/edit"}>Edit</.button>
+  </:actions>
+
+  <div class="grid-2">
+    <section class="card">
+      <h3>Account</h3>
+      <table class="kv">
+        <tbody>
+          <tr>
+            <th>id</th>
+            <td class="mono">{@user.id}</td>
+          </tr>
+          <tr>
+            <th>username</th>
+            <td>{@user.username || "—"}</td>
+          </tr>
+          <tr>
+            <th>email</th>
+            <td>{@user.email}</td>
+          </tr>
+          <tr>
+            <th>display name</th>
+            <td>{@user.name || "—"}</td>
+          </tr>
+          <tr>
+            <th>created</th>
+            <td><.time_ago time={@user.inserted_at} /></td>
+          </tr>
+          <tr>
+            <th>last login</th>
+            <td>
+              <.time_ago :if={@user.last_login_at} time={@user.last_login_at} />
+              <span :if={!@user.last_login_at} class="muted">never</span>
+            </td>
+          </tr>
+          <tr>
+            <th>is admin?</th>
+            <td>{if @user.is_admin, do: "yes", else: "no"}</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h3>Activity</h3>
+      <table class="kv">
+        <tbody>
+          <tr>
+            <th>recordings</th>
+            <td class="mono">
+              {@recording_count}
+              <span
+                :if={@bytes_compressed && @bytes_uncompressed && @bytes_uncompressed > 0}
+                class="muted"
+              >
+                ·
+                <.bytes_summary compressed={@bytes_compressed} uncompressed={@bytes_uncompressed} />
+              </span>
+            </td>
+          </tr>
+          <tr>
+            <th>streams</th>
+            <td class="mono">{@stream_count}</td>
+          </tr>
+          <tr>
+            <th>active CLIs</th>
+            <td class="mono">{Enum.count(@clis, &is_nil(&1.revoked_at))}</td>
+          </tr>
+        </tbody>
+      </table>
+      <h3 class="mt">Streaming</h3>
+      <table class="kv">
+        <tbody>
+          <tr>
+            <th>enabled</th>
+            <td>{if @user.streaming_enabled, do: "yes", else: "no"}</td>
+          </tr>
+          <tr>
+            <th>live stream limit</th>
+            <td>{@user.live_stream_limit || "no limit"}</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+
+  <section class="card mt">
+    <h3>Authorized CLIs</h3>
+    <%= if @clis == [] do %>
+      <p class="muted">None.</p>
+    <% else %>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>token</th>
+              <th>registered</th>
+              <th>revoked</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr :for={cli <- @clis}>
+              <td class="mono">{cli.token}</td>
+              <td><.time_ago time={cli.inserted_at} /></td>
+              <td>
+                <.time_ago :if={cli.revoked_at} time={cli.revoked_at} />
+                <span :if={!cli.revoked_at} class="muted">—</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
+
+    <h4 class="mt">Pre-authorize a CLI</h4>
+    <.form :let={f} for={@cli_changeset} action={~p"/admin/users/#{@user.id}/clis"} class="form">
+      <div class="field">
+        <label for={f[:token].id}>
+          CLI install ID (UUID) or full <code>asciinema auth</code> URL
+        </label>
+        <input
+          type="text"
+          id={f[:token].id}
+          name={f[:token].name}
+          value={f[:token].value}
+          placeholder="xxxxxxxx-xxxx-xxxx-..."
+          required
+        />
+        <p :if={msg = error_message(f[:token])} class="form-error">{msg}</p>
+      </div>
+      <div>
+        <button type="submit" class="btn">Authorize</button>
+      </div>
+    </.form>
+  </section>
+
+  <section class="card mt">
+    <h3>Merge into another user</h3>
+    <p class="muted">
+      Moves all recordings, streams, and CLIs from <strong>{@user.username || @user.id}</strong>
+      into the target user and deletes this account. This cannot be undone.
+    </p>
+    <form method="get" action={~p"/admin/users/#{@user.id}/merge"} class="row gap-2">
+      <input
+        type="text"
+        name="target"
+        placeholder="id, username, or email"
+        required
+        class="merge-target"
+      />
+      <button type="submit" class="btn">Merge…</button>
+    </form>
+  </section>
+
+  <section class="card mt">
+    <h3>Log in as this user</h3>
+    <p>
+      <a href={@login_url} target="_blank" rel="noopener" class="mono">{@login_url}</a>
+    </p>
+  </section>
+
+  <section class="card mt danger-zone">
+    <h3>Delete user</h3>
+    <p class="muted">
+      Hard deletes the user, their recordings, streams, and CLIs. There is no undo.
+    </p>
+    <.form
+      for={%{}}
+      method="delete"
+      action={~p"/admin/users/#{@user.id}"}
+      data-confirm={"Delete user ##{@user.id} (#{@user.username || @user.email}) and all their content?"}
+    >
+      <button type="submit" class="btn btn-danger">Delete user</button>
+    </.form>
+  </section>
+</.page>

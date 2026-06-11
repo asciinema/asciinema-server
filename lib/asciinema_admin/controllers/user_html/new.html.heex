@@ -1,0 +1,32 @@
+<.page title="New user">
+  <.form :let={f} for={@changeset} action={~p"/admin/users"} class="form">
+    <div class="field">
+      <label for={f[:username].id}>Username</label>
+      <input
+        type="text"
+        id={f[:username].id}
+        name={f[:username].name}
+        value={f[:username].value}
+        required
+      />
+      <p :if={msg = error_message(f[:username])} class="form-error">{msg}</p>
+    </div>
+
+    <div class="field">
+      <label for={f[:email].id}>Email</label>
+      <input
+        type="email"
+        id={f[:email].id}
+        name={f[:email].name}
+        value={f[:email].value}
+        required
+      />
+      <p :if={msg = error_message(f[:email])} class="form-error">{msg}</p>
+    </div>
+
+    <div class="row gap-2">
+      <button type="submit" class="btn btn-primary">Create user</button>
+      <.link href={~p"/admin/users"} class="muted">Cancel</.link>
+    </div>
+  </.form>
+</.page>

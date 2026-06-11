@@ -196,4 +196,83 @@ defmodule Asciinema.AccountsTest do
       assert Accounts.verify_email_change(user, token) == {:error, :email_changed}
     end
   end
+
+  describe "list_users/1" do
+    test "returns all users on one page by default" do
+      base = length(Accounts.list_users().entries)
+      insert_list(3, :user)
+
+      assert length(Accounts.list_users().entries) == base + 3
+    end
+
+    test "respects the :page_size option" do
+      insert_list(5, :user)
+
+      assert length(Accounts.list_users(page_size: 2).entries) == 2
+    end
+
+    test "orders by inserted_at desc, id desc by default" do
+      first = insert(:user)
+      second = insert(:user)
+      third = insert(:user)
+
+      ids = Accounts.list_users(page_size: 3).entries |> Enum.map(& &1.id)
+
+      assert ids == [third.id, second.id, first.id]
+    end
+
+    test "search by id" do
+      user = insert(:user)
+      _other = insert(:user)
+
+      assert [%{id: id}] = Accounts.list_users(search: to_string(user.id)).entries
+      assert id == user.id
+    end
+
+    test "search by username (case-insensitive substring)" do
+      user = insert(:user, username: "AliceCool")
+      _other = insert(:user, username: "bob")
+
+      assert [%{id: id}] = Accounts.list_users(search: "ali").entries
+      assert id == user.id
+    end
+
+    test "search by email (case-insensitive substring)" do
+      user = insert(:user, email: "alice@example.com")
+      _other = insert(:user, email: "bob@example.com")
+
+      assert [%{id: id}] = Accounts.list_users(search: "ALICE@").entries
+      assert id == user.id
+    end
+
+    test "search by unknown value returns empty" do
+      insert(:user, username: "alice")
+
+      assert Accounts.list_users(search: "no-such-user").entries == []
+    end
+
+    test "sort by :last_login_at desc with NULLs last" do
+      a = insert(:user, last_login_at: ~U[2025-01-01 00:00:00Z])
+      b = insert(:user, last_login_at: ~U[2025-02-01 00:00:00Z])
+      c = insert(:user, last_login_at: nil)
+
+      ids =
+        Accounts.list_users(sort_by: :last_login_at, sort_dir: :desc).entries
+        |> Enum.map(& &1.id)
+        |> Enum.filter(&(&1 in [a.id, b.id, c.id]))
+
+      assert ids == [b.id, a.id, c.id]
+    end
+
+    test "offset pagination returns subsequent pages" do
+      insert_list(3, :user)
+
+      all = Accounts.list_users(page_size: 100).entries |> Enum.map(& &1.id)
+      page1 = Accounts.list_users(page: 1, page_size: 2).entries |> Enum.map(& &1.id)
+      page2 = Accounts.list_users(page: 2, page_size: 2).entries |> Enum.map(& &1.id)
+
+      assert page1 == Enum.take(all, 2)
+      assert page2 == all |> Enum.drop(2) |> Enum.take(2)
+    end
+  end
 end
