@@ -145,6 +145,13 @@ defmodule AsciinemaAdmin.CoreComponents do
     ~H|<span class="sep">·</span>|
   end
 
+  @doc "Eight ANSI palette colors of a named terminal theme, for palette_strip/1."
+  def named_theme_colors(name) do
+    name
+    |> Asciinema.Themes.named_theme()
+    |> Asciinema.Themes.preview_colors()
+  end
+
   @doc """
   Avatar + username link to the admin user page. No whitespace between the
   avatar and the name — the gap is pure CSS margin.
@@ -290,6 +297,26 @@ defmodule AsciinemaAdmin.CoreComponents do
     >
       {Timex.from_now(@time)}
     </time>
+    """
+  end
+
+  @doc "An 8-colour palette as SVG bars; crispEdges keeps them gapless at any zoom."
+  attr :colors, :list, required: true
+
+  def palette_strip(assigns) do
+    ~H"""
+    <svg
+      class="palette-strip"
+      viewBox="0 0 8 1"
+      width="112"
+      height="14"
+      preserveAspectRatio="none"
+      shape-rendering="crispEdges"
+      role="img"
+      aria-label="terminal palette"
+    >
+      <rect :for={{c, i} <- Enum.with_index(@colors)} x={i} y="0" width="1" height="1" fill={c} />
+    </svg>
     """
   end
 

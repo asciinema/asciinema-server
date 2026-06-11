@@ -851,6 +851,12 @@ table.kv tbody tr:last-child td {
   border-bottom: 0;
 }
 
+/* hairline ring keeps a light final bar distinct from the card */
+.palette-strip {
+  vertical-align: middle;
+  box-shadow: 0 0 0 1px var(--border);
+}
+
 /* Two-column grid */
 
 .grid-2 {

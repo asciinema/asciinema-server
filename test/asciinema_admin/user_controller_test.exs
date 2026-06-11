@@ -116,7 +116,8 @@ defmodule AsciinemaAdmin.UserControllerTest do
       # surfaced fields
       assert body =~ "Europe/Warsaw"
       assert body =~ "unlisted"
-      assert body =~ "dracula"
+      # theme slug renders via its friendly display name
+      assert body =~ "Dracula"
       # operational sections
       assert body =~ "Authorized CLIs"
       assert body =~ "Merge into another user"

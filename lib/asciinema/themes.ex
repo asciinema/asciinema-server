@@ -194,6 +194,11 @@ defmodule Asciinema.Themes do
 
   def terminal_themes, do: Map.keys(@themes)
 
+  @doc "The theme's first eight ANSI colors, for compact palette previews."
+  def preview_colors(theme) do
+    Enum.map(0..7, &color(theme, &1))
+  end
+
   def display_name("original"), do: "Original terminal theme"
   def display_name(theme), do: Map.fetch!(@themes, theme).name
 

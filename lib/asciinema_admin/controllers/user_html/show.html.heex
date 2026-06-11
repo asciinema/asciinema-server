@@ -157,7 +157,10 @@
             <tr>
               <th>theme</th>
               <td>
-                {@user.term_theme_name}<span :if={!@user.term_theme_name} class="muted">default</span>
+                <.palette_strip colors={theme_colors(@user)} />
+                <span class="muted">
+                  <.sep />{theme_name(@user)}
+                </span>
               </td>
             </tr>
             <tr>
