@@ -414,6 +414,13 @@ tbody tr.revoked { opacity: 0.5; }
   gap: 1rem;
 }
 
+.form-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
 .field {
   display: flex;
   flex-direction: column;
@@ -426,7 +433,7 @@ label {
   font-weight: 500;
 }
 
-input[type="text"], input[type="email"], input[type="number"], input[type="search"], textarea, select {
+input[type="text"], input[type="email"], input[type="number"], input[type="search"], input[type="url"], textarea, select {
   font-family: inherit;
   font-size: 0.9rem;
   line-height: 1.4;

@@ -58,7 +58,7 @@
       <p :if={msg = error_message(f[:live_stream_limit])} class="form-error">{msg}</p>
     </div>
 
-    <div class="row gap-2">
+    <div class="form-actions">
       <button type="submit" class="btn btn-primary">Save</button>
       <.link href={~p"/admin/users/#{@user.id}"} class="muted">Cancel</.link>
     </div>

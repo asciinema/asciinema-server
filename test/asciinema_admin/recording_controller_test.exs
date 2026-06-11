@@ -104,17 +104,35 @@ defmodule AsciinemaAdmin.RecordingControllerTest do
 
   describe "GET /admin/recordings/:id/edit and PUT" do
     test "updates the recording", %{conn: conn} do
-      asciicast = insert(:asciicast, title: "Old")
+      # The cols/rows overrides trigger snapshot regeneration, which reads the file
+      asciicast = insert(:asciicast, title: "Old", compressed: false) |> with_file()
 
       conn =
         put(conn, ~p"/admin/recordings/#{asciicast.id}", %{
-          "asciicast" => %{"title" => "New title", "visibility" => "public"}
+          "asciicast" => %{
+            "title" => "New title",
+            "visibility" => "public",
+            "term_cols_override" => "100",
+            "term_rows_override" => "30",
+            "term_theme_name" => "dracula",
+            "term_font_family" => "Fira Code",
+            "speed" => "2.0",
+            "idle_time_limit" => "1.5",
+            "audio_url" => "https://example.com/audio.mp3"
+          }
         })
 
       assert redirected_to(conn) == ~p"/admin/recordings/#{asciicast.id}"
       updated = Repo.get!(Asciicast, asciicast.id)
       assert updated.title == "New title"
       assert updated.visibility == :public
+      assert updated.term_cols_override == 100
+      assert updated.term_rows_override == 30
+      assert updated.term_theme_name == "dracula"
+      assert updated.term_font_family == "Fira Code"
+      assert updated.speed == 2.0
+      assert updated.idle_time_limit == 1.5
+      assert updated.audio_url == "https://example.com/audio.mp3"
     end
 
     test "rerenders edit on validation failure (invalid visibility)", %{conn: conn} do

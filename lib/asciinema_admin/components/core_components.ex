@@ -374,6 +374,8 @@ defmodule AsciinemaAdmin.CoreComponents do
     """
   end
 
+  # Terminal kv value renderers, shared by the recording and stream show pages.
+
   @doc "Terminal size value (cols × rows)."
   attr :cols, :any, default: nil
   attr :rows, :any, default: nil
@@ -435,6 +437,37 @@ defmodule AsciinemaAdmin.CoreComponents do
       }
     </style>
     """
+  end
+
+  @doc "Theme `{label, value}` options for a medium's theme select."
+  def theme_options(medium) do
+    for theme <- original_theme_option(medium) ++ Asciinema.Themes.terminal_themes() do
+      {Asciinema.Themes.display_name(theme), theme}
+    end
+  end
+
+  defp original_theme_option(%{term_theme_palette: nil}), do: []
+  defp original_theme_option(_medium), do: ["original"]
+
+  @doc "Label for the blank theme option: the user's account default theme."
+  def default_theme_label(medium) do
+    name = Asciinema.Accounts.default_term_theme_name(medium.user)
+
+    "Account default (#{Asciinema.Themes.display_name(name)})"
+  end
+
+  @doc "Font family `{label, value}` options for a medium's font select."
+  def font_family_options do
+    for family <- Asciinema.Fonts.terminal_font_families() do
+      {Asciinema.Fonts.display_name(family), family}
+    end
+  end
+
+  @doc "Label for the blank font option: the user's account default font."
+  def default_font_label(medium) do
+    family = Asciinema.Accounts.default_font_family(medium.user) || "default"
+
+    "Account default (#{Asciinema.Fonts.display_name(family)})"
   end
 
   @doc "Terminal font value (family, with line height when set)."

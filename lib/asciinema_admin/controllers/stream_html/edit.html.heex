@@ -39,7 +39,64 @@
       <p :if={msg = error_message(f[:schedule])} class="form-error">{msg}</p>
     </div>
 
-    <div class="row gap-2">
+    <div class="field">
+      <label for={f[:term_theme_name].id}>Terminal theme</label>
+      <select id={f[:term_theme_name].id} name={f[:term_theme_name].name}>
+        <option value="">{default_theme_label(@stream)}</option>
+        <option
+          :for={{label, value} <- theme_options(@stream)}
+          value={value}
+          selected={f[:term_theme_name].value == value}
+        >
+          {label}
+        </option>
+      </select>
+      <p :if={msg = error_message(f[:term_theme_name])} class="form-error">{msg}</p>
+    </div>
+
+    <div class="field">
+      <label for={f[:term_font_family].id}>Terminal font family</label>
+      <select id={f[:term_font_family].id} name={f[:term_font_family].name}>
+        <option value="">{default_font_label(@stream)}</option>
+        <option
+          :for={{label, value} <- font_family_options()}
+          value={value}
+          selected={f[:term_font_family].value == value}
+        >
+          {label}
+        </option>
+      </select>
+      <p :if={msg = error_message(f[:term_font_family])} class="form-error">{msg}</p>
+    </div>
+
+    <div class="field">
+      <label for={f[:buffer_time].id}>Buffer time (sec, blank for adaptive)</label>
+      <input
+        type="number"
+        id={f[:buffer_time].id}
+        name={f[:buffer_time].name}
+        value={f[:buffer_time].value}
+        min="0"
+        max="30"
+        step="any"
+        placeholder="auto"
+      />
+      <p :if={msg = error_message(f[:buffer_time])} class="form-error">{msg}</p>
+    </div>
+
+    <div class="field">
+      <label for={f[:audio_url].id}>Audio URL</label>
+      <input
+        type="url"
+        id={f[:audio_url].id}
+        name={f[:audio_url].name}
+        value={f[:audio_url].value}
+        maxlength="255"
+      />
+      <p :if={msg = error_message(f[:audio_url])} class="form-error">{msg}</p>
+    </div>
+
+    <div class="form-actions">
       <button type="submit" class="btn btn-primary">Save</button>
       <.link href={~p"/admin/streams/#{@stream.id}"} class="muted">Cancel</.link>
     </div>

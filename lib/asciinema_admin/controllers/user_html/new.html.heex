@@ -24,7 +24,7 @@
       <p :if={msg = error_message(f[:email])} class="form-error">{msg}</p>
     </div>
 
-    <div class="row gap-2">
+    <div class="form-actions">
       <button type="submit" class="btn btn-primary">Create user</button>
       <.link href={~p"/admin/users"} class="muted">Cancel</.link>
     </div>

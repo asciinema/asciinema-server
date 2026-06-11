@@ -112,17 +112,37 @@ defmodule AsciinemaAdmin.StreamControllerTest do
     end
   end
 
-  describe "PUT /admin/streams/:id" do
+  describe "GET /admin/streams/:id/edit and PUT" do
     test "updates the stream", %{conn: conn} do
       stream = insert(:stream, title: "Old")
 
       conn =
         put(conn, ~p"/admin/streams/#{stream.id}", %{
-          "stream" => %{"title" => "New title"}
+          "stream" => %{
+            "title" => "New title",
+            "term_theme_name" => "nord",
+            "term_font_family" => "JetBrains Mono",
+            "buffer_time" => "2.5",
+            "audio_url" => "https://example.com/stream.m3u8"
+          }
         })
 
       assert redirected_to(conn) == ~p"/admin/streams/#{stream.id}"
-      assert Repo.get!(Stream, stream.id).title == "New title"
+      updated = Repo.get!(Stream, stream.id)
+      assert updated.title == "New title"
+      assert updated.term_theme_name == "nord"
+      assert updated.term_font_family == "JetBrains Mono"
+      assert updated.buffer_time == 2.5
+      assert updated.audio_url == "https://example.com/stream.m3u8"
+    end
+
+    test "renders the edit form", %{conn: conn} do
+      stream = insert(:stream, title: "edit-me")
+
+      body = conn |> get(~p"/admin/streams/#{stream.id}/edit") |> html_response(200)
+
+      assert body =~ "Edit stream ##{stream.id}"
+      assert body =~ "Account default"
     end
 
     test "rerenders edit form on validation failure (invalid cron schedule)",
