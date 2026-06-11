@@ -1,4 +1,8 @@
 <.page title={@stream.title || "Stream ##{@stream.id}"}>
+  <:status>
+    <.tag :if={@stream.live} variant={:live}>live</.tag>
+    <.tag :if={!@stream.live} variant={:muted}>offline</.tag>
+  </:status>
   <:actions>
     <.button href={~p"/admin/streams/#{@stream.id}/edit"}>Edit</.button>
   </:actions>
@@ -48,21 +52,6 @@
             <tr>
               <th>updated</th>
               <td><.time_ago time={@stream.updated_at} /></td>
-            </tr>
-          </tbody>
-        </table>
-      </section>
-
-      <section class="card">
-        <h3>Status</h3>
-        <table class="kv">
-          <tbody>
-            <tr>
-              <th>live</th>
-              <td>
-                <.tag :if={@stream.live} variant={:success}>live</.tag>
-                <span :if={!@stream.live} class="muted">offline</span>
-              </td>
             </tr>
             <tr>
               <th>viewers</th>

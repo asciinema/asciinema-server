@@ -1,4 +1,7 @@
 <.page title={@asciicast.title || "Recording ##{@asciicast.id}"}>
+  <:status :if={@asciicast.archived_at}>
+    <.tag variant={:muted}>archived</.tag>
+  </:status>
   <:actions>
     <.button href={~p"/admin/recordings/#{@asciicast.id}/edit"}>Edit</.button>
   </:actions>
@@ -59,24 +62,13 @@
               <th>updated</th>
               <td><.time_ago time={@asciicast.updated_at} /></td>
             </tr>
-          </tbody>
-        </table>
-      </section>
-
-      <section class="card">
-        <h3>Status</h3>
-        <table class="kv">
-          <tbody>
+            <tr :if={@asciicast.archived_at}>
+              <th>archived</th>
+              <td><.time_ago time={@asciicast.archived_at} /></td>
+            </tr>
             <tr>
               <th>views</th>
               <td>{(@asciicast.stats && @asciicast.stats.total_views) || 0}</td>
-            </tr>
-            <tr>
-              <th>archived</th>
-              <td>
-                <.time_ago :if={@asciicast.archived_at} time={@asciicast.archived_at} />
-                <.none :if={!@asciicast.archived_at} />
-              </td>
             </tr>
           </tbody>
         </table>

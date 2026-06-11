@@ -13,6 +13,7 @@ defmodule AsciinemaAdmin.CoreComponents do
   attr :title, :string, required: true
   attr :avatar, :string, default: nil
   attr :class, :string, default: nil
+  slot :status, doc: "state badges beside the title"
   slot :actions
   slot :inner_block, required: true
 
@@ -23,6 +24,7 @@ defmodule AsciinemaAdmin.CoreComponents do
         <div class="page-title">
           <img :if={@avatar} src={@avatar} class="avatar" alt="" />
           <h1>{@title}</h1>
+          {render_slot(@status)}
         </div>
         <div :if={@actions != []} class="page-actions">
           {render_slot(@actions)}
@@ -57,7 +59,7 @@ defmodule AsciinemaAdmin.CoreComponents do
   end
 
   @doc "A small label tag for visibility/state badges."
-  attr :variant, :atom, default: :default, values: [:default, :muted, :danger, :success]
+  attr :variant, :atom, default: :default, values: [:default, :muted, :danger, :success, :live]
   attr :class, :string, default: nil
   slot :inner_block, required: true
 
