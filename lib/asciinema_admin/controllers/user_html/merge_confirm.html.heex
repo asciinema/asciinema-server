@@ -30,11 +30,19 @@
             </tr>
             <tr>
               <th>recordings</th>
-              <td>{@src_recording_count}</td>
+              <td>
+                <.link href={~p"/admin/recordings?#{%{q: "user:#{@src.id}"}}"}>
+                  {@src_recording_count}
+                </.link>
+              </td>
             </tr>
             <tr>
               <th>streams</th>
-              <td>{@src_stream_count}</td>
+              <td>
+                <.link href={~p"/admin/streams?#{%{q: "user:#{@src.id}"}}"}>
+                  {@src_stream_count}
+                </.link>
+              </td>
             </tr>
             <tr>
               <th>CLIs</th>
@@ -66,14 +74,19 @@
             <tr>
               <th>recordings</th>
               <td>
-                {@dst_recording_count} →
-                <strong>{@dst_recording_count + @src_recording_count}</strong>
+                <.link href={~p"/admin/recordings?#{%{q: "user:#{@dst.id}"}}"}>
+                  {@dst_recording_count}
+                </.link>
+                → <strong>{@dst_recording_count + @src_recording_count}</strong>
               </td>
             </tr>
             <tr>
               <th>streams</th>
               <td>
-                {@dst_stream_count} → <strong>{@dst_stream_count + @src_stream_count}</strong>
+                <.link href={~p"/admin/streams?#{%{q: "user:#{@dst.id}"}}"}>
+                  {@dst_stream_count}
+                </.link>
+                → <strong>{@dst_stream_count + @src_stream_count}</strong>
               </td>
             </tr>
             <tr>

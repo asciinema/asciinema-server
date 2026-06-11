@@ -95,16 +95,41 @@ defmodule AsciinemaAdmin.UserControllerTest do
 
   describe "GET /admin/users/:id" do
     test "renders the user detail page", %{conn: conn} do
-      user = insert(:user, username: "alice")
+      user =
+        insert(:user,
+          username: "alice",
+          timezone: "Europe/Warsaw",
+          default_recording_visibility: :unlisted,
+          term_theme_name: "dracula"
+        )
 
       conn = get(conn, ~p"/admin/users/#{user.id}")
       body = html_response(conn, 200)
 
       assert body =~ "alice"
+      # cards
+      assert body =~ "Account"
       assert body =~ "Activity"
+      assert body =~ "Streaming"
+      assert body =~ "Visibility defaults"
+      assert body =~ "Terminal defaults"
+      # surfaced fields
+      assert body =~ "Europe/Warsaw"
+      assert body =~ "unlisted"
+      assert body =~ "dracula"
+      # operational sections
       assert body =~ "Authorized CLIs"
       assert body =~ "Merge into another user"
       assert body =~ "Delete user"
+    end
+
+    test "falls back to the temporary username when no username is set", %{conn: conn} do
+      user = insert(:user, username: nil, temporary_username: "temp-1234")
+
+      body = conn |> get(~p"/admin/users/#{user.id}") |> html_response(200)
+
+      assert body =~ "temp-1234"
+      assert body =~ "temporary"
     end
 
     test "returns 404 for missing user", %{conn: conn} do

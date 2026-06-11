@@ -4,86 +4,184 @@
   </:actions>
 
   <div class="grid-2">
-    <section class="card">
-      <h3>Account</h3>
-      <table class="kv">
-        <tbody>
-          <tr>
-            <th>id</th>
-            <td class="mono">{@user.id}</td>
-          </tr>
-          <tr>
-            <th>username</th>
-            <td>{@user.username || "—"}</td>
-          </tr>
-          <tr>
-            <th>email</th>
-            <td>{@user.email}</td>
-          </tr>
-          <tr>
-            <th>display name</th>
-            <td>{@user.name || "—"}</td>
-          </tr>
-          <tr>
-            <th>created</th>
-            <td><.time_ago time={@user.inserted_at} /></td>
-          </tr>
-          <tr>
-            <th>last login</th>
-            <td>
-              <.time_ago :if={@user.last_login_at} time={@user.last_login_at} />
-              <span :if={!@user.last_login_at} class="muted">never</span>
-            </td>
-          </tr>
-          <tr>
-            <th>is admin?</th>
-            <td>{if @user.is_admin, do: "yes", else: "no"}</td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
+    <div class="card-stack">
+      <section class="card">
+        <h3>Account</h3>
+        <table class="kv">
+          <tbody>
+            <tr>
+              <th>id</th>
+              <td><code>{@user.id}</code></td>
+            </tr>
+            <tr>
+              <th>username</th>
+              <td>
+                <%= cond do %>
+                  <% @user.username -> %>
+                    {@user.username}
+                  <% @user.temporary_username -> %>
+                    {@user.temporary_username}<.sep /><span class="muted">temporary</span>
+                  <% true -> %>
+                    <.none />
+                <% end %>
+              </td>
+            </tr>
+            <tr>
+              <th>email</th>
+              <td>{@user.email}</td>
+            </tr>
+            <tr>
+              <th>display name</th>
+              <td>{@user.name}<.none :if={!@user.name} /></td>
+            </tr>
+            <tr>
+              <th>timezone</th>
+              <td>
+                <code :if={@user.timezone}>{@user.timezone}</code> <.none :if={!@user.timezone} />
+              </td>
+            </tr>
+            <tr>
+              <th>created</th>
+              <td><.time_ago time={@user.inserted_at} /></td>
+            </tr>
+            <tr>
+              <th>last login</th>
+              <td>
+                <.time_ago :if={@user.last_login_at} time={@user.last_login_at} />
+                <span :if={!@user.last_login_at} class="muted">never</span>
+              </td>
+            </tr>
+            <tr>
+              <th>updated</th>
+              <td><.time_ago time={@user.updated_at} /></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
 
-    <section class="card">
-      <h3>Activity</h3>
-      <table class="kv">
-        <tbody>
-          <tr>
-            <th>recordings</th>
-            <td class="mono">
-              {@recording_count}
-              <span
-                :if={@bytes_compressed && @bytes_uncompressed && @bytes_uncompressed > 0}
-                class="muted"
-              >
-                ·
-                <.bytes_summary compressed={@bytes_compressed} uncompressed={@bytes_uncompressed} />
-              </span>
-            </td>
-          </tr>
-          <tr>
-            <th>streams</th>
-            <td class="mono">{@stream_count}</td>
-          </tr>
-          <tr>
-            <th>active CLIs</th>
-            <td class="mono">{Enum.count(@clis, &is_nil(&1.revoked_at))}</td>
-          </tr>
-        </tbody>
-      </table>
-      <h3 class="mt">Streaming</h3>
-      <table class="kv">
-        <tbody>
-          <tr>
-            <th>enabled</th>
-            <td>{if @user.streaming_enabled, do: "yes", else: "no"}</td>
-          </tr>
-          <tr>
-            <th>live stream limit</th>
-            <td>{@user.live_stream_limit || "no limit"}</td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
+      <section class="card">
+        <h3>Activity</h3>
+        <table class="kv">
+          <tbody>
+            <tr>
+              <th>recordings</th>
+              <td>
+                <.link href={~p"/admin/recordings?#{%{q: "user:#{@user.id}"}}"}>
+                  {@recording_count}
+                </.link>
+                <span
+                  :if={@bytes_compressed && @bytes_uncompressed && @bytes_uncompressed > 0}
+                  class="muted"
+                >
+                  <.sep /><.bytes_summary
+                    compressed={@bytes_compressed}
+                    uncompressed={@bytes_uncompressed}
+                  />
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <th>streams</th>
+              <td>
+                <.link href={~p"/admin/streams?#{%{q: "user:#{@user.id}"}}"}>
+                  {@stream_count}
+                </.link>
+              </td>
+            </tr>
+            <tr>
+              <th>active CLIs</th>
+              <td>{Enum.count(@clis, &is_nil(&1.revoked_at))}</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+
+    <div class="card-stack">
+      <section class="card">
+        <h3>Streaming</h3>
+        <table class="kv">
+          <tbody>
+            <tr>
+              <th>enabled</th>
+              <td>{if @user.streaming_enabled, do: "yes", else: "no"}</td>
+            </tr>
+            <tr>
+              <th>automatic recording</th>
+              <td>{if @user.stream_recording_enabled, do: "yes", else: "no"}</td>
+            </tr>
+            <tr>
+              <th>live stream limit</th>
+              <td>{@user.live_stream_limit || "no limit"}</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="card">
+        <h3>Visibility defaults</h3>
+        <table class="kv">
+          <tbody>
+            <tr>
+              <th>recordings</th>
+              <td>
+                <.tag
+                  :if={@user.default_recording_visibility}
+                  variant={visibility_variant(@user.default_recording_visibility)}
+                >
+                  {@user.default_recording_visibility}
+                </.tag>
+                <.none :if={!@user.default_recording_visibility} />
+              </td>
+            </tr>
+            <tr>
+              <th>streams</th>
+              <td>
+                <.tag
+                  :if={@user.default_stream_visibility}
+                  variant={visibility_variant(@user.default_stream_visibility)}
+                >
+                  {@user.default_stream_visibility}
+                </.tag>
+                <.none :if={!@user.default_stream_visibility} />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="card">
+        <h3>Terminal defaults</h3>
+        <table class="kv">
+          <tbody>
+            <tr>
+              <th>theme</th>
+              <td>
+                {@user.term_theme_name}<span :if={!@user.term_theme_name} class="muted">default</span>
+              </td>
+            </tr>
+            <tr>
+              <th>prefer original</th>
+              <td>{if @user.term_theme_prefer_original, do: "yes", else: "no"}</td>
+            </tr>
+            <tr>
+              <th>font</th>
+              <td>
+                {@user.term_font_family}<span :if={!@user.term_font_family} class="muted">default</span>
+              </td>
+            </tr>
+            <tr>
+              <th>bold is bright</th>
+              <td>{if @user.term_bold_is_bright, do: "yes", else: "no"}</td>
+            </tr>
+            <tr>
+              <th>adaptive palette</th>
+              <td>{if @user.term_adaptive_palette, do: "yes", else: "no"}</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
   </div>
 
   <section class="card mt">
@@ -110,7 +208,7 @@
               <td><.time_ago time={cli.inserted_at} /></td>
               <td>
                 <.time_ago :if={cli.revoked_at} time={cli.revoked_at} />
-                <span :if={!cli.revoked_at} class="muted">—</span>
+                <.none :if={!cli.revoked_at} />
               </td>
             </tr>
           </tbody>

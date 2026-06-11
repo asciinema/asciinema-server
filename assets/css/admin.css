@@ -560,6 +560,11 @@ abbr[title] {
   margin-bottom: 0.75rem;
 }
 
+.filter-pinned {
+  margin: 0 0 0.75rem;
+  font-size: 0.85rem;
+}
+
 .filter-bar input[type="search"] {
   width: 100%;
   max-width: 32rem;
