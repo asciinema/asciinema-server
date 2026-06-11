@@ -1,4 +1,7 @@
 @import "../node_modules/asciinema-player/dist/bundle/asciinema-player.css";
+@import "./fonts/fira-code.css";
+@import "./fonts/jetbrains-mono.css";
+@import "./fonts/symbols-nerd-font.css";
 
 /* Reset & base typography */
 

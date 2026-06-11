@@ -38,6 +38,7 @@ defmodule AsciinemaAdmin.Router do
 
     get "/recordings", RecordingController, :index
     get "/recordings/:id", RecordingController, :show
+    get "/recordings/:id/file", RecordingController, :cast_file
     get "/recordings/:id/edit", RecordingController, :edit
     put "/recordings/:id", RecordingController, :update
     delete "/recordings/:id", RecordingController, :delete

@@ -54,6 +54,7 @@ defmodule AsciinemaAdmin.StreamController do
       page_title: stream.title || "Stream ##{stream.id}",
       stream: stream,
       player_src: StreamHTML.player_src(stream),
+      player_opts: StreamHTML.player_opts(stream),
       recordings: Recordings.list(recordings_query, @recordings_limit, preload: [:user]),
       recording_count: Recordings.count(recordings_query)
     )

@@ -201,4 +201,26 @@ defmodule AsciinemaAdmin.CoreComponents do
     </time>
     """
   end
+
+  @doc """
+  Sets the player's `--term-color-*` variables — "original" theme colors
+  exist only as DB columns, so the page must supply them.
+  """
+  attr :medium, :any, required: true
+
+  def term_theme_style(assigns) do
+    assigns = assign(assigns, :theme, Asciinema.Media.theme(assigns.medium))
+
+    ~H"""
+    <style>
+      .admin-player div.ap-player {
+        --term-color-foreground: <%= @theme.fg %>;
+        --term-color-background: <%= @theme.bg %>;
+        <%= for {c, i} <- Enum.with_index(Tuple.to_list(@theme.palette)) do %>
+        --term-color-<%= i %>: <%= c %>;
+        <% end %>
+      }
+    </style>
+    """
+  end
 end

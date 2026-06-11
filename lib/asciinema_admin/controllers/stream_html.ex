@@ -15,4 +15,15 @@ defmodule AsciinemaAdmin.StreamHTML do
     path = "/ws/s/#{stream.public_token}"
     to_string(%{uri | scheme: scheme, path: path})
   end
+
+  @doc "80×24 covers streams with no producer yet; autoplay spares a click per preview."
+  def player_opts(stream) do
+    %{
+      cols: stream.term_cols || 80,
+      rows: stream.term_rows || 24,
+      theme: Asciinema.Media.player_theme_name(stream),
+      customTerminalFontFamily: Asciinema.Media.font_family(stream),
+      autoplay: true
+    }
+  end
 end

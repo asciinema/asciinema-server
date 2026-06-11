@@ -36,7 +36,25 @@ defmodule AsciinemaAdmin.RecordingControllerTest do
       assert body =~ "Metadata"
       assert body =~ "Quick actions"
       assert body =~ ~s(id="player")
+      assert body =~ "/admin/recordings/#{asciicast.id}/file"
       assert body =~ "Delete recording"
+    end
+
+    test "supplies the original theme colors to the player", %{conn: conn} do
+      asciicast =
+        insert(:asciicast,
+          term_theme_name: "original",
+          term_theme_fg: "#aabbcc",
+          term_theme_bg: "#112233",
+          term_theme_palette: Enum.map_join(0..15, ":", fn i -> "#0000#{16 + i}" end)
+        )
+
+      body = conn |> get(~p"/admin/recordings/#{asciicast.id}") |> html_response(200)
+
+      assert body =~ "--term-color-foreground: #aabbcc"
+      assert body =~ "--term-color-background: #112233"
+      assert body =~ "--term-color-0: #000016"
+      assert body =~ "--term-color-15: #000031"
     end
   end
 
@@ -121,6 +139,37 @@ defmodule AsciinemaAdmin.RecordingControllerTest do
       updated = Repo.get!(Asciicast, asciicast.id)
       assert is_nil(updated.archived_at)
       assert updated.archivable == false
+    end
+  end
+
+  describe "GET /admin/recordings/:id/file" do
+    test "serves the cast file with the right content type, regardless of visibility",
+         %{conn: conn} do
+      asciicast =
+        insert(:asciicast_v2, visibility: :private, compressed: false) |> with_file()
+
+      conn = get(conn, ~p"/admin/recordings/#{asciicast.id}/file")
+
+      assert response(conn, 200)
+      assert get_resp_header(conn, "content-type") == ["application/x-asciicast"]
+    end
+
+    test "decompresses a compressed recording cached without a .zst suffix", %{conn: conn} do
+      # mirrors remote/S3 storage: zstd-compressed bytes cached at a path without a .zst suffix
+      asciicast = insert(:asciicast_v2, visibility: :private, compressed: true)
+      zst_path = Asciinema.ZstdTestHelpers.zstd_fixture!("test/fixtures/welcome.cast")
+      :ok = Asciinema.FileStore.put_file(asciicast.path, zst_path, "application/x-asciicast")
+
+      conn = get(conn, ~p"/admin/recordings/#{asciicast.id}/file")
+
+      assert response(conn, 200) == File.read!("test/fixtures/welcome.cast")
+      assert get_resp_header(conn, "content-type") == ["application/x-asciicast"]
+    end
+
+    test "returns 404 for missing id", %{conn: conn} do
+      assert_raise Ecto.NoResultsError, fn ->
+        get(conn, ~p"/admin/recordings/9999999/file")
+      end
     end
   end
 

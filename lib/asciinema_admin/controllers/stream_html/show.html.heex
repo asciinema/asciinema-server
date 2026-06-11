@@ -138,7 +138,15 @@
       WebSocket handshake the player uses isn't authorized for them.
     </p>
   <% else %>
-    <div id="player" data-src={@player_src} class="admin-player mt"></div>
+    <.term_theme_style medium={@stream} />
+
+    <div
+      id="player"
+      data-src={@player_src}
+      data-player-opts={Jason.encode!(@player_opts)}
+      class="admin-player mt"
+    >
+    </div>
   <% end %>
 
   <section class="card mt">

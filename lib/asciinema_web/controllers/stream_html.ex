@@ -28,7 +28,7 @@ defmodule AsciinemaWeb.StreamHTML do
       cols: term_cols(stream),
       rows: term_rows(stream),
       autoplay: stream.audio_url == nil,
-      theme: term_theme_name(stream),
+      theme: Media.player_theme_name(stream),
       boldIsBright: stream.term_bold_is_bright,
       adaptivePalette: stream.term_adaptive_palette,
       terminalLineHeight: stream.term_line_height,
@@ -37,14 +37,6 @@ defmodule AsciinemaWeb.StreamHTML do
     ]
     |> Keyword.merge(opts)
     |> Enum.into(%{})
-  end
-
-  defp term_theme_name(stream) do
-    if stream.term_theme_prefer_original do
-      "auto/#{Media.term_theme_name(stream)}"
-    else
-      Media.term_theme_name(stream)
-    end
   end
 
   def cinema_height(stream) do

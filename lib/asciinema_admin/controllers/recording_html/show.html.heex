@@ -165,7 +165,15 @@
     </div>
   </section>
 
-  <div id="player" data-src={@player_src} class="admin-player mt"></div>
+  <.term_theme_style medium={@asciicast} />
+
+  <div
+    id="player"
+    data-src={@player_src}
+    data-player-opts={Jason.encode!(@player_opts)}
+    class="admin-player mt"
+  >
+  </div>
 
   <section class="card mt danger-zone">
     <h3>Delete recording</h3>
