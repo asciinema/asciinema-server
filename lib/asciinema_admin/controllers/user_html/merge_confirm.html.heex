@@ -18,12 +18,7 @@
             </tr>
             <tr>
               <th>username</th>
-              <td>
-                <.link href={~p"/admin/users/#{@src.id}"} class="user-cell">
-                  <img src={avatar_url(@src)} class="avatar avatar-sm" alt="" />
-                  {@src.username || @src.id}
-                </.link>
-              </td>
+              <td><.user_link user={@src} /></td>
             </tr>
             <tr>
               <th>name</th>
@@ -58,12 +53,7 @@
             </tr>
             <tr>
               <th>username</th>
-              <td>
-                <.link href={~p"/admin/users/#{@dst.id}"} class="user-cell">
-                  <img src={avatar_url(@dst)} class="avatar avatar-sm" alt="" />
-                  {@dst.username || @dst.id}
-                </.link>
-              </td>
+              <td><.user_link user={@dst} /></td>
             </tr>
             <tr>
               <th>name</th>

@@ -7,25 +7,24 @@
   />
 
   <div class="table-wrap">
-    <table>
+    <table class="list-table">
       <thead>
         <tr>
           <th class="num">id</th>
-          <th>title</th>
+          <th class="col-title">title</th>
           <th>user</th>
           <th>visibility</th>
-          <th>status</th>
-          <th>
+          <th class="num">
             <.link href={~p"/admin/recordings?#{sort_params(@index, "duration.desc")}"}>
               duration{sort_arrow(@index, "duration.desc")}
             </.link>
           </th>
-          <th>
+          <th class="num">
             <.link href={~p"/admin/recordings?#{sort_params(@index, "size.desc")}"}>
               size{sort_arrow(@index, "size.desc")}
             </.link>
           </th>
-          <th>
+          <th class="num">
             <.link href={~p"/admin/recordings?#{sort_params(@index, "views.desc")}"}>
               views{sort_arrow(@index, "views.desc")}
             </.link>
@@ -39,19 +38,32 @@
         </tr>
       </thead>
       <tbody>
-        <tr :for={a <- @recordings}>
+        <tr
+          :for={a <- @recordings}
+          class={a.archived_at && "archived"}
+          title={a.archived_at && "Archived"}
+        >
           <td class="num mono">
             <.link href={~p"/admin/recordings/#{a.id}"}>{a.id}</.link>
           </td>
-          <td>{a.title || "—"}</td>
-          <td>{a.user && (a.user.username || a.user.id)}</td>
-          <td>
-            <.tag variant={visibility_variant(a.visibility)}>{a.visibility}</.tag>
+          <td class="col-title">
+            <div class="title-cell">
+              <span class="title-text">{a.title || "—"}</span><span
+                :if={a.featured}
+                class="flag"
+                title="Featured"
+              ><AsciinemaAdmin.Icons.star_icon /></span><span
+                :if={a.audio_url}
+                class="flag"
+                title="Has audio"
+              ><AsciinemaAdmin.Icons.speaker_wave_icon /></span>
+            </div>
           </td>
           <td>
-            <.tag :if={a.featured} variant={:success}>featured</.tag>
-            <.tag :if={a.archived_at} variant={:muted}>archived</.tag>
-            <.tag :if={a.audio_url} variant={:default}>audio</.tag>
+            <.user_link user={a.user} />
+          </td>
+          <td>
+            <.tag variant={visibility_variant(a.visibility)}>{a.visibility}</.tag>
           </td>
           <td class="num mono">{format_duration(a.duration)}</td>
           <td class="num mono">{format_bytes(a.compressed_size)}</td>
@@ -63,7 +75,7 @@
           </td>
         </tr>
         <tr :if={@recordings == []}>
-          <td colspan="10" class="muted">No recordings match.</td>
+          <td colspan="9" class="muted">No recordings match.</td>
         </tr>
       </tbody>
     </table>

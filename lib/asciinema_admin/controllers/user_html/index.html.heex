@@ -46,10 +46,7 @@
             <.link href={~p"/admin/users/#{u.id}"}>{u.id}</.link>
           </td>
           <td>
-            <.link href={~p"/admin/users/#{u.id}"} class="user-cell">
-              <img src={avatar_url(u)} class="avatar avatar-sm" alt="" />
-              {u.username || "—"}
-            </.link>
+            <.user_link user={u} />
           </td>
           <td class="muted">{u.email}</td>
           <td class="num mono">{u.recording_count || 0}</td>

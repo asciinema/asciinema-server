@@ -223,9 +223,11 @@ hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
 
 .page-title .avatar { width: 32px; height: 32px; }
 
-/* Small avatar inline with a username; sized under the row's line box so
-   it never grows table-row height. */
-.user-cell { display: inline-flex; align-items: center; gap: 0.4rem; }
+/* Inline so the username sits on the row's text baseline (inline-flex misaligns
+   it, visibly in Firefox); user_link/1 emits no whitespace — the avatar margin
+   is the gap. */
+.user-cell { display: inline; vertical-align: baseline; }
+.user-cell img.avatar { vertical-align: middle; margin-right: 0.4rem; }
 .avatar-sm { width: 18px; height: 18px; }
 
 /* Buttons */
@@ -315,7 +317,7 @@ th, td {
   text-align: left;
   padding: 0.5rem 0.75rem;
   border-bottom: 1px solid var(--border);
-  vertical-align: top;
+  vertical-align: middle;
 }
 
 th {
@@ -329,13 +331,61 @@ th {
 
 tbody tr:hover { background: var(--row-hover); }
 
-tbody tr:last-child td { border-bottom: 0; }
-
 td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 td.mono, th.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
 
+/* one font, one baseline — mono next to sans sits visibly off in Firefox */
+.list-table td.mono, .list-table th.mono,
+.recent td.mono, .recent th.mono { font-family: inherit; }
+
+/* single-line rows; .title-text caps long titles instead of grabbing the spare width */
+.list-table th, .list-table td { white-space: nowrap; }
+
+.list-table .col-title { min-width: 8rem; }
+
+.title-cell { display: flex; align-items: center; min-width: 0; }
+
+.title-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  max-width: 32rem;
+}
+
+/* quiet inline flag icons beside the title */
+.flag {
+  flex: none;
+  display: inline-flex;
+  margin-left: 0.3rem;
+  color: var(--muted);
+}
+
+.title-text + .flag { margin-left: 0.7rem; }
+
+.flag svg { display: block; width: 0.9rem; height: 0.9rem; }
+
 /* same top gap as .pagination */
 .see-all { margin-top: 0.75rem; }
+
+tbody tr.archived,
+tbody tr.revoked { opacity: 0.5; }
+
+.live-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--live);
+  font-weight: 500;
+}
+
+.live-indicator::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: currentColor;
+}
 
 /* Forms */
 
@@ -719,6 +769,11 @@ table.kv td {
 }
 
 table.kv tbody tr:hover { background: transparent; }
+
+table.kv tbody tr:last-child th,
+table.kv tbody tr:last-child td {
+  border-bottom: 0;
+}
 
 /* Two-column grid */
 

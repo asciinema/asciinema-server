@@ -45,6 +45,30 @@ defmodule AsciinemaAdmin.IndexQuery do
     }
   end
 
+  @doc """
+  An empty page for rendering an index whose query was invalid and not run.
+  The page number is recovered from the raw `page` param so pagination links
+  still point somewhere sensible.
+  """
+  def empty_page(page, page_size) do
+    %Scrivener.Page{
+      entries: [],
+      page_number: page_number(page),
+      page_size: page_size,
+      total_entries: 0,
+      total_pages: 0
+    }
+  end
+
+  defp page_number(page) when is_binary(page) do
+    case Integer.parse(page) do
+      {n, ""} when n > 0 -> n
+      _ -> 1
+    end
+  end
+
+  defp page_number(_), do: 1
+
   defp query_params("", sort), do: %{sort: sort}
   defp query_params(q, sort), do: %{q: q, sort: sort}
 

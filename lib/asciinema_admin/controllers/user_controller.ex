@@ -16,7 +16,7 @@ defmodule AsciinemaAdmin.UserController do
       if index.valid? do
         Accounts.paginate(index.query, params["page"], @page_size, with_counts: true)
       else
-        empty_page(params["page"])
+        IndexQuery.empty_page(params["page"], @page_size)
       end
 
     render(conn, :index,
@@ -171,25 +171,6 @@ defmodule AsciinemaAdmin.UserController do
         end
     end
   end
-
-  defp empty_page(page) do
-    %Scrivener.Page{
-      entries: [],
-      page_number: page_number(page),
-      page_size: @page_size,
-      total_entries: 0,
-      total_pages: 0
-    }
-  end
-
-  defp page_number(page) when is_binary(page) do
-    case Integer.parse(page) do
-      {n, ""} when n > 0 -> n
-      _ -> 1
-    end
-  end
-
-  defp page_number(_), do: 1
 
   defp user_recording_count(user_id) do
     Recordings.count(%RecordingQuery{scope: :admin, archived: :include, filters: [user: user_id]})

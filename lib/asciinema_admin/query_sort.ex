@@ -9,7 +9,7 @@ defmodule AsciinemaAdmin.QuerySort do
   @type entity :: :users | :recordings | :streams
   @type t :: %__MODULE__{}
 
-  @defaults %{users: "created.desc", recordings: "created.desc", streams: "last-started.desc"}
+  @defaults %{users: "created.desc", recordings: "created.desc", streams: "activity.desc"}
 
   def options(:users) do
     [
@@ -59,34 +59,16 @@ defmodule AsciinemaAdmin.QuerySort do
 
   def options(:streams) do
     [
+      sort(:streams, "activity.desc", "live first", {:activity, :desc}),
+      sort(:streams, "activity.asc", "least active", {:activity, :asc}),
       sort(:streams, "created.desc", "newest", {:created, :desc}),
       sort(:streams, "created.asc", "oldest", {:created, :asc}),
-      sort(
-        :streams,
-        "last-started.desc",
-        "recently started",
-        {:last_started, :desc}
-      ),
-      sort(
-        :streams,
-        "last-started.asc",
-        "least recently started",
-        {:last_started, :asc}
-      ),
-      sort(
-        :streams,
-        "current-viewers.desc",
-        "most viewers now",
-        {:current_viewers, :desc},
-        [:desc]
-      ),
-      sort(
-        :streams,
-        "peak-viewers.desc",
-        "highest peak viewers",
-        {:peak_viewers, :desc},
-        [:desc]
-      )
+      sort(:streams, "last-started.desc", "recently started", {:last_started, :desc}),
+      sort(:streams, "last-started.asc", "least recently started", {:last_started, :asc}),
+      sort(:streams, "current-viewers.desc", "most viewers now", {:current_viewers, :desc}),
+      sort(:streams, "current-viewers.asc", "fewest viewers now", {:current_viewers, :asc}),
+      sort(:streams, "peak-viewers.desc", "highest peak viewers", {:peak_viewers, :desc}),
+      sort(:streams, "peak-viewers.asc", "lowest peak viewers", {:peak_viewers, :asc})
     ]
   end
 
@@ -117,15 +99,23 @@ defmodule AsciinemaAdmin.QuerySort do
     end
   end
 
-  def sort_arrow(%__MODULE__{param: param}, param) do
-    case String.split(param, ".") do
-      [_field, "desc"] -> " ↓"
-      [_field, "asc"] -> " ↑"
-      _ -> ""
+  # the header always links via ".desc"; the arrow shows the actual current direction
+  def sort_arrow(%__MODULE__{param: current_param}, target_param) do
+    if sort_field(current_param) == sort_field(target_param) do
+      case sort_field_direction(current_param) do
+        "desc" -> " ↓"
+        "asc" -> " ↑"
+        _ -> ""
+      end
+    else
+      ""
     end
   end
 
   def sort_arrow(_current, _param), do: ""
+
+  defp sort_field(param), do: param |> String.split(".") |> List.first()
+  defp sort_field_direction(param), do: param |> String.split(".") |> List.last()
 
   def normalize_param(nil), do: nil
   def normalize_param(""), do: nil

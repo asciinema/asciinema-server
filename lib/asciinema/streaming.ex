@@ -185,6 +185,12 @@ defmodule Asciinema.Streaming do
       {:created, :asc} ->
         order_by(q, [s], asc: s.inserted_at, asc: s.id)
 
+      {:activity, :desc} ->
+        order_by(q, [s], desc: s.live, desc_nulls_last: s.last_started_at, desc: s.id)
+
+      {:activity, :asc} ->
+        order_by(q, [s], asc: s.live, asc_nulls_first: s.last_started_at, asc: s.id)
+
       {:last_started, :desc} ->
         order_by(q, [s], desc_nulls_last: s.last_started_at, desc: s.id)
 

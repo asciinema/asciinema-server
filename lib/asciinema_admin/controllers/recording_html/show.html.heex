@@ -15,13 +15,7 @@
           <tr>
             <th>user</th>
             <td>
-              <%= if @asciicast.user do %>
-                <.link href={~p"/admin/users/#{@asciicast.user.id}"}>
-                  {@asciicast.user.username || @asciicast.user.id}
-                </.link>
-              <% else %>
-                <span class="muted">—</span>
-              <% end %>
+              <.user_link user={@asciicast.user} />
             </td>
           </tr>
           <tr>

@@ -101,7 +101,11 @@
             </tr>
           </thead>
           <tbody>
-            <tr :for={cli <- @clis}>
+            <tr
+              :for={cli <- @clis}
+              class={cli.revoked_at && "revoked"}
+              title={cli.revoked_at && "Revoked"}
+            >
               <td class="mono">{cli.token}</td>
               <td><.time_ago time={cli.inserted_at} /></td>
               <td>

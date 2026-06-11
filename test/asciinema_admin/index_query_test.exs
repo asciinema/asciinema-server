@@ -17,6 +17,6 @@ defmodule AsciinemaAdmin.IndexQueryTest do
     index = IndexQuery.build(:streams, %{"sort" => "   "})
 
     assert index.valid?
-    assert index.sort_param == "last-started.desc"
+    assert index.sort_param == "activity.desc"
   end
 end

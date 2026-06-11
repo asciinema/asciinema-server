@@ -4,6 +4,11 @@ defmodule AsciinemaAdmin.CoreComponents do
   """
   use Phoenix.Component
 
+  use Phoenix.VerifiedRoutes,
+    endpoint: AsciinemaAdmin.Endpoint,
+    router: AsciinemaAdmin.Router,
+    statics: AsciinemaAdmin.static_paths()
+
   @doc "A page wrapper."
   attr :title, :string, required: true
   attr :avatar, :string, default: nil
@@ -128,6 +133,26 @@ defmodule AsciinemaAdmin.CoreComponents do
   def visibility_variant(:private), do: :muted
   def visibility_variant(_), do: :default
 
+  @doc """
+  Avatar + username link to the admin user page. No whitespace between the
+  avatar and the name — the gap is pure CSS margin.
+  """
+  attr :user, :any, required: true
+
+  def user_link(%{user: nil} = assigns) do
+    ~H"""
+    <span class="muted">—</span>
+    """
+  end
+
+  def user_link(assigns) do
+    ~H"""
+    <.link href={~p"/admin/users/#{@user.id}"} class="user-cell">
+      <img src={avatar_url(@user)} class="avatar avatar-sm" alt="" />{@user.username || @user.id}
+    </.link>
+    """
+  end
+
   @doc "Absolute avatar URL for admin pages."
   def avatar_url(user) do
     url = AsciinemaWeb.DefaultAvatar.url(user)
@@ -144,6 +169,20 @@ defmodule AsciinemaAdmin.CoreComponents do
   def format_bytes(b) when b < 1024, do: "#{b} B"
   def format_bytes(b) when b < 1024 * 1024, do: "#{Float.round(b / 1024, 1)} KB"
   def format_bytes(b), do: "#{Float.round(b / (1024 * 1024), 1)} MB"
+
+  @doc "Format duration as `HH:MM:SS` or `MM:SS`."
+  def format_duration(nil), do: "—"
+
+  def format_duration(seconds) when is_float(seconds) do
+    total = round(seconds)
+    h = div(total, 3600)
+    m = div(rem(total, 3600), 60)
+    s = rem(total, 60)
+
+    if h > 0,
+      do: :io_lib.format("~B:~2..0B:~2..0B", [h, m, s]) |> IO.iodata_to_binary(),
+      else: :io_lib.format("~B:~2..0B", [m, s]) |> IO.iodata_to_binary()
+  end
 
   @doc """
   Renders a compressed/uncompressed/ratio summary like

@@ -16,7 +16,7 @@ defmodule AsciinemaAdmin.StreamController do
       if index.valid? do
         Streaming.paginate(index.query, params["page"], @page_size, preload: [:user])
       else
-        empty_page(params["page"])
+        IndexQuery.empty_page(params["page"], @page_size)
       end
 
     render(conn, :index,
@@ -37,7 +37,11 @@ defmodule AsciinemaAdmin.StreamController do
       stream: stream,
       player_src: StreamHTML.player_src(stream),
       player_opts: StreamHTML.player_opts(stream),
-      recordings: Recordings.list(recordings_query, @recordings_limit, preload: [:user]),
+      recordings:
+        Recordings.list(recordings_query, @recordings_limit,
+          preload: [:user],
+          with_total_views: true
+        ),
       recording_count: Recordings.count(recordings_query)
     )
   end
@@ -103,23 +107,4 @@ defmodule AsciinemaAdmin.StreamController do
         |> redirect(to: ~p"/admin/streams/#{stream.id}")
     end
   end
-
-  defp empty_page(page) do
-    %Scrivener.Page{
-      entries: [],
-      page_number: page_number(page),
-      page_size: @page_size,
-      total_entries: 0,
-      total_pages: 0
-    }
-  end
-
-  defp page_number(page) when is_binary(page) do
-    case Integer.parse(page) do
-      {n, ""} when n > 0 -> n
-      _ -> 1
-    end
-  end
-
-  defp page_number(_), do: 1
 end
