@@ -18,6 +18,12 @@ defmodule Asciinema.Streaming do
     |> Repo.preload(:user)
   end
 
+  def get_stream!(id) do
+    Stream
+    |> Repo.get!(id)
+    |> Repo.preload(:user)
+  end
+
   def get_public_stream(id) do
     Stream
     |> Repo.get_by(id: id, visibility: :public)
@@ -513,11 +519,16 @@ defmodule Asciinema.Streaming do
   atomicity during concurrent updates.
   """
   def update_stream(stream, attrs) when is_map(attrs) do
-    stream
-    |> change_stream(attrs)
-    |> change_next_start_at()
+    # change_stream preloads :user into the changeset, so read the limit from
+    # there — callers may pass a stream without the user loaded.
+    changeset =
+      stream
+      |> change_stream(attrs)
+      |> change_next_start_at()
+
+    changeset
     |> Repo.update()
-    |> convert_live_limit_error(stream.user.live_stream_limit)
+    |> convert_live_limit_error(changeset.data.user.live_stream_limit)
   end
 
   defp validate_schedule(changeset) do

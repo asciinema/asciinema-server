@@ -5,6 +5,39 @@
   </:status>
   <:actions>
     <.button href={~p"/admin/streams/#{@stream.id}/edit"}>Edit</.button>
+    <.action_menu>
+      <div class="action-menu-label">visibility</div>
+      <.form
+        :for={vis <- [:public, :unlisted, :private]}
+        for={%{}}
+        action={~p"/admin/streams/#{@stream.id}/visibility"}
+        method="post"
+      >
+        <input type="hidden" name="visibility" value={vis} />
+        <button type="submit" disabled={@stream.visibility == vis}>
+          {if @stream.visibility == vis, do: "✓ "}{vis}
+        </button>
+      </.form>
+      <hr />
+      <.form
+        :if={@stream.live}
+        for={%{}}
+        action={~p"/admin/streams/#{@stream.id}/disconnect"}
+        method="post"
+        data-confirm="Force-disconnect this live stream?"
+      >
+        <button type="submit">Force-disconnect</button>
+      </.form>
+      <hr :if={@stream.live} />
+      <.form
+        for={%{}}
+        method="delete"
+        action={~p"/admin/streams/#{@stream.id}"}
+        data-confirm={"Delete stream ##{@stream.id}?"}
+      >
+        <button type="submit" class="danger">Delete</button>
+      </.form>
+    </.action_menu>
   </:actions>
 
   <div class="grid-2">
@@ -213,20 +246,6 @@
     </div>
   </div>
 
-  <section :if={@stream.live} class="card mt">
-    <h3>Quick actions</h3>
-    <div class="action-grid">
-      <.form
-        for={%{}}
-        action={~p"/admin/streams/#{@stream.id}/disconnect"}
-        method="post"
-        data-confirm="Force-disconnect this live stream?"
-      >
-        <button type="submit" class="btn">Force-disconnect</button>
-      </.form>
-    </div>
-  </section>
-
   <%= if @stream.visibility == :private do %>
     <p class="muted mt">
       Inline preview isn't available for private streams — the anonymous
@@ -307,18 +326,5 @@
         </.link>
       </div>
     <% end %>
-  </section>
-
-  <section class="card mt danger-zone">
-    <h3>Delete stream</h3>
-    <p class="muted">Permanently removes this stream. There is no undo.</p>
-    <.form
-      for={%{}}
-      method="delete"
-      action={~p"/admin/streams/#{@stream.id}"}
-      data-confirm={"Delete stream ##{@stream.id}?"}
-    >
-      <button type="submit" class="btn btn-danger">Delete</button>
-    </.form>
   </section>
 </.page>

@@ -936,17 +936,60 @@ table.kv th .truncate {
 .danger-zone { border-color: var(--danger); }
 .danger-zone h3 { color: var(--danger); }
 
-/* Action grid for quick-action toggles */
+/* a <details> popover; the menu rows are the calling template's POST/DELETE forms */
+.action-menu { position: relative; }
 
-.action-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem 1.25rem;
-  align-items: center;
+.action-menu > summary { list-style: none; cursor: pointer; }
+.action-menu > summary::-webkit-details-marker { display: none; }
+
+.action-menu-panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.25rem);
+  z-index: 20;
+  min-width: 11rem;
+  padding: 0.25rem 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
-.action-grid form { margin: 0; }
-.action-grid select, .action-grid input[type="text"] { width: auto; min-width: 9rem; }
+.action-menu-panel form { margin: 0; }
+
+.action-menu-panel button {
+  display: block;
+  width: 100%;
+  padding: 0.4rem 0.85rem;
+  font: inherit;
+  font-size: 0.875rem;
+  text-align: left;
+  background: none;
+  border: 0;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.action-menu-panel button:hover { background: var(--surface-2); }
+
+.action-menu-panel button:disabled {
+  color: var(--muted);
+  cursor: default;
+  background: none;
+}
+
+.action-menu-panel button.danger { color: var(--danger); }
+.action-menu-panel button.danger:hover { background: var(--danger-bg); }
+
+.action-menu-panel hr { margin: 0.25rem 0; }
+
+.action-menu-label {
+  padding: 0.25rem 0.85rem 0.1rem;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
 
 /* Asciinema player embed */
 

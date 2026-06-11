@@ -47,6 +47,20 @@ document.addEventListener("click", (event) => {
   if (outside) dialog.close();
 });
 
+document.addEventListener("click", (event) => {
+  for (const menu of document.querySelectorAll("details.action-menu[open]")) {
+    if (!menu.contains(event.target)) menu.removeAttribute("open");
+  }
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key !== "Escape") return;
+
+  for (const menu of document.querySelectorAll("details.action-menu[open]")) {
+    menu.removeAttribute("open");
+  }
+});
+
 // "/" focuses the index search box (GitHub-style).
 document.addEventListener("keydown", (event) => {
   if (event.key !== "/" || event.ctrlKey || event.metaKey || event.altKey) return;

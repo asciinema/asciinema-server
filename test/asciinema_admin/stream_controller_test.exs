@@ -57,7 +57,7 @@ defmodule AsciinemaAdmin.StreamControllerTest do
       assert body =~ "recorded-from-stream"
       refute body =~ "no-stream-link"
       assert body =~ "/admin/recordings/#{asciicast.id}"
-      assert body =~ "Delete stream"
+      assert body =~ "Delete stream ##{stream.id}?"
     end
 
     test "shows the configured theme in Terminal and session terminal facts in Last session",
@@ -88,6 +88,27 @@ defmodule AsciinemaAdmin.StreamControllerTest do
       assert body =~ "terminal original theme"
       # captured palette renders as a strip (palette color 0)
       assert body =~ "#000016"
+    end
+  end
+
+  describe "POST /admin/streams/:id/visibility" do
+    test "changes visibility", %{conn: conn} do
+      stream = insert(:stream, visibility: :unlisted)
+
+      post(conn, ~p"/admin/streams/#{stream.id}/visibility", %{"visibility" => "public"})
+
+      assert Repo.get!(Stream, stream.id).visibility == :public
+    end
+
+    test "flashes error and does not crash on invalid visibility value", %{conn: conn} do
+      stream = insert(:stream, visibility: :unlisted)
+
+      conn =
+        post(conn, ~p"/admin/streams/#{stream.id}/visibility", %{"visibility" => "bogus"})
+
+      assert redirected_to(conn) == ~p"/admin/streams/#{stream.id}"
+      assert flash(conn, :error) =~ "Could not"
+      assert Repo.get!(Stream, stream.id).visibility == :unlisted
     end
   end
 

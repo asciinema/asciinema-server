@@ -58,6 +58,20 @@ defmodule AsciinemaAdmin.CoreComponents do
     """
   end
 
+  @doc "Header dropdown for page actions; closes on outside click or Escape (admin.js)."
+  slot :inner_block, required: true
+
+  def action_menu(assigns) do
+    ~H"""
+    <details class="action-menu">
+      <summary class="btn">Actions ▾</summary>
+      <div class="action-menu-panel">
+        {render_slot(@inner_block)}
+      </div>
+    </details>
+    """
+  end
+
   @doc "A small label tag for visibility/state badges."
   attr :variant, :atom, default: :default, values: [:default, :muted, :danger, :success, :live]
   attr :class, :string, default: nil

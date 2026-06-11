@@ -67,11 +67,11 @@ defmodule AsciinemaAdmin.RecordingControllerTest do
       assert body =~ "Overview"
       assert body =~ "Settings"
       assert body =~ "Metadata"
-      assert body =~ "Quick actions"
+      assert body =~ "Actions ▾"
       assert body =~ ~s(id="player")
       assert body =~ "/admin/recordings/#{asciicast.id}/file"
       assert body =~ ~s(download="#{asciicast.user.username}-#{asciicast.id}.cast")
-      assert body =~ "Delete recording"
+      assert body =~ "Delete recording ##{asciicast.id}?"
     end
 
     test "lists the captured env vars in Metadata", %{conn: conn} do

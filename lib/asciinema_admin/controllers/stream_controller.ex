@@ -1,9 +1,8 @@
 defmodule AsciinemaAdmin.StreamController do
   use AsciinemaAdmin, :controller
 
-  alias Asciinema.{Recordings, Repo, Streaming}
+  alias Asciinema.{Recordings, Streaming}
   alias Asciinema.Recordings.Query, as: RecordingQuery
-  alias Asciinema.Streaming.Stream
   alias AsciinemaAdmin.{IndexQuery, StreamHTML}
 
   @page_size 50
@@ -29,7 +28,7 @@ defmodule AsciinemaAdmin.StreamController do
   end
 
   def show(conn, %{"id" => id}) do
-    stream = Repo.get!(Stream, id) |> Repo.preload(:user)
+    stream = Streaming.get_stream!(id)
     recordings_query = stream_recordings_query(stream.id)
 
     render(conn, :show,
@@ -56,7 +55,7 @@ defmodule AsciinemaAdmin.StreamController do
   end
 
   def edit(conn, %{"id" => id}) do
-    stream = Repo.get!(Stream, id) |> Repo.preload(:user)
+    stream = Streaming.get_stream!(id)
 
     render(conn, :edit,
       page_title: "Edit stream ##{stream.id}",
@@ -66,7 +65,7 @@ defmodule AsciinemaAdmin.StreamController do
   end
 
   def update(conn, %{"id" => id, "stream" => attrs}) do
-    stream = Repo.get!(Stream, id) |> Repo.preload(:user)
+    stream = Streaming.get_stream!(id)
 
     case Streaming.update_stream(stream, attrs) do
       {:ok, stream} ->
@@ -84,7 +83,7 @@ defmodule AsciinemaAdmin.StreamController do
   end
 
   def delete(conn, %{"id" => id}) do
-    stream = Repo.get!(Stream, id)
+    stream = Streaming.get_stream!(id)
     {:ok, _} = Streaming.delete_stream(stream)
 
     conn
@@ -92,8 +91,24 @@ defmodule AsciinemaAdmin.StreamController do
     |> redirect(to: ~p"/admin/streams")
   end
 
+  def set_visibility(conn, %{"id" => id, "visibility" => vis}) do
+    stream = Streaming.get_stream!(id)
+
+    case Streaming.update_stream(stream, %{visibility: vis}) do
+      {:ok, _} ->
+        conn
+        |> put_flash(:info, "Visibility set to #{vis}.")
+        |> redirect(to: ~p"/admin/streams/#{stream.id}")
+
+      {:error, _changeset} ->
+        conn
+        |> put_flash(:error, "Could not update visibility.")
+        |> redirect(to: ~p"/admin/streams/#{stream.id}")
+    end
+  end
+
   def disconnect(conn, %{"id" => id}) do
-    stream = Repo.get!(Stream, id)
+    stream = Streaming.get_stream!(id)
 
     case Streaming.disconnect_stream(stream) do
       :ok ->

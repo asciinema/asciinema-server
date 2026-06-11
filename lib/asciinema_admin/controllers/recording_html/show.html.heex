@@ -4,6 +4,55 @@
   </:status>
   <:actions>
     <.button href={~p"/admin/recordings/#{@asciicast.id}/edit"}>Edit</.button>
+    <.action_menu>
+      <div class="action-menu-label">visibility</div>
+      <.form
+        :for={vis <- [:public, :unlisted, :private]}
+        for={%{}}
+        action={~p"/admin/recordings/#{@asciicast.id}/visibility"}
+        method="post"
+      >
+        <input type="hidden" name="visibility" value={vis} />
+        <button type="submit" disabled={@asciicast.visibility == vis}>
+          {if @asciicast.visibility == vis, do: "✓ "}{vis}
+        </button>
+      </.form>
+      <hr />
+      <.form for={%{}} action={~p"/admin/recordings/#{@asciicast.id}/featured"} method="post">
+        <input
+          type="hidden"
+          name="featured"
+          value={if @asciicast.featured, do: "false", else: "true"}
+        />
+        <button type="submit">{if @asciicast.featured, do: "Unfeature", else: "Feature"}</button>
+      </.form>
+      <.form
+        :if={is_nil(@asciicast.archived_at)}
+        for={%{}}
+        action={~p"/admin/recordings/#{@asciicast.id}/archive_now"}
+        method="post"
+        data-confirm="Archive this recording now?"
+      >
+        <button type="submit">Archive</button>
+      </.form>
+      <.form
+        :if={@asciicast.archived_at}
+        for={%{}}
+        action={~p"/admin/recordings/#{@asciicast.id}/unarchive"}
+        method="post"
+      >
+        <button type="submit">Unarchive</button>
+      </.form>
+      <hr />
+      <.form
+        for={%{}}
+        method="delete"
+        action={~p"/admin/recordings/#{@asciicast.id}"}
+        data-confirm={"Delete recording ##{@asciicast.id}?"}
+      >
+        <button type="submit" class="danger">Delete</button>
+      </.form>
+    </.action_menu>
   </:actions>
 
   <div class="grid-2">
@@ -257,63 +306,6 @@
     </div>
   </div>
 
-  <section class="card mt">
-    <h3>Quick actions</h3>
-    <div class="action-grid">
-      <.form
-        for={%{}}
-        action={~p"/admin/recordings/#{@asciicast.id}/visibility"}
-        method="post"
-        class="row gap-2"
-      >
-        <label class="muted">visibility</label>
-        <select name="visibility">
-          <option value="public" selected={@asciicast.visibility == :public}>public</option>
-          <option value="unlisted" selected={@asciicast.visibility == :unlisted}>unlisted</option>
-          <option value="private" selected={@asciicast.visibility == :private}>private</option>
-        </select>
-        <button type="submit" class="btn">Set</button>
-      </.form>
-
-      <.form
-        for={%{}}
-        action={~p"/admin/recordings/#{@asciicast.id}/featured"}
-        method="post"
-        class="row gap-2"
-      >
-        <input
-          type="hidden"
-          name="featured"
-          value={if @asciicast.featured, do: "false", else: "true"}
-        />
-        <button type="submit" class="btn">
-          {if @asciicast.featured, do: "Unfeature", else: "Feature"}
-        </button>
-      </.form>
-
-      <.form
-        :if={is_nil(@asciicast.archived_at)}
-        for={%{}}
-        action={~p"/admin/recordings/#{@asciicast.id}/archive_now"}
-        method="post"
-        class="row gap-2"
-        data-confirm="Archive this recording now?"
-      >
-        <button type="submit" class="btn">Archive now</button>
-      </.form>
-
-      <.form
-        :if={@asciicast.archived_at}
-        for={%{}}
-        action={~p"/admin/recordings/#{@asciicast.id}/unarchive"}
-        method="post"
-        class="row gap-2"
-      >
-        <button type="submit" class="btn">Unarchive</button>
-      </.form>
-    </div>
-  </section>
-
   <.term_theme_style medium={@asciicast} />
 
   <div
@@ -327,17 +319,4 @@
   <%= if desc = render_markdown(@asciicast.description) do %>
     <section class="card mt description">{desc}</section>
   <% end %>
-
-  <section class="card mt danger-zone">
-    <h3>Delete recording</h3>
-    <p class="muted">Permanently removes this recording. There is no undo.</p>
-    <.form
-      for={%{}}
-      method="delete"
-      action={~p"/admin/recordings/#{@asciicast.id}"}
-      data-confirm={"Delete recording ##{@asciicast.id}?"}
-    >
-      <button type="submit" class="btn btn-danger">Delete</button>
-    </.form>
-  </section>
 </.page>

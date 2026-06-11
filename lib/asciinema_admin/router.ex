@@ -56,6 +56,7 @@ defmodule AsciinemaAdmin.Router do
     get "/streams/:id/edit", StreamController, :edit
     put "/streams/:id", StreamController, :update
     delete "/streams/:id", StreamController, :delete
+    post "/streams/:id/visibility", StreamController, :set_visibility
     post "/streams/:id/disconnect", StreamController, :disconnect
 
     live_dashboard "/system/dashboard", metrics: Asciinema.Telemetry
