@@ -65,6 +65,7 @@ defmodule AsciinemaAdmin do
     quote do
       import Phoenix.HTML
       import AsciinemaAdmin.CoreComponents
+      import AsciinemaAdmin.QueryUI
 
       alias Phoenix.LiveView.JS
 

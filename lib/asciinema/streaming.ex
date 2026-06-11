@@ -78,6 +78,9 @@ defmodule Asciinema.Streaming do
       {:id, {:not_eq, id}} ->
         where(q, [s], s.id != ^id)
 
+      {:id, id} when is_integer(id) ->
+        where(q, [s], s.id == ^id)
+
       {:user, %{id: user_id}} ->
         where(q, [s], s.user_id == ^user_id)
 
@@ -92,8 +95,17 @@ defmodule Asciinema.Streaming do
       :public ->
         where(q, [s], s.visibility == :public)
 
+      {:visibility, visibility} when visibility in [:public, :unlisted, :private] ->
+        where(q, [s], s.visibility == ^visibility)
+
       :live ->
         where(q, [s], s.live)
+
+      {:live, true} ->
+        where(q, [s], s.live == true)
+
+      {:live, false} ->
+        where(q, [s], s.live == false)
 
       {:title, {:search, text}} ->
         search_title(q, text)
@@ -112,6 +124,33 @@ defmodule Asciinema.Streaming do
       :reschedulable ->
         now = DateTime.utc_now()
         where(q, [s], s.next_start_at < ^now)
+
+      {:scheduled, true} ->
+        where(q, [s], not is_nil(s.schedule))
+
+      {:scheduled, false} ->
+        where(q, [s], is_nil(s.schedule))
+
+      {:audio, true} ->
+        where(q, [s], not is_nil(s.audio_url))
+
+      {:audio, false} ->
+        where(q, [s], is_nil(s.audio_url))
+
+      {:created_at, condition} ->
+        apply_field_condition(q, :inserted_at, condition)
+
+      {:last_started_at, :never} ->
+        where(q, [s], is_nil(s.last_started_at))
+
+      {:last_started_at, condition} ->
+        apply_field_condition(q, :last_started_at, condition)
+
+      {:current_viewer_count, condition} ->
+        apply_field_condition(q, :current_viewer_count, condition)
+
+      {:peak_viewer_count, condition} ->
+        apply_field_condition(q, :peak_viewer_count, condition)
     end
   end
 
@@ -131,8 +170,48 @@ defmodule Asciinema.Streaming do
 
       :id ->
         order_by(q, asc: :id)
+
+      {:created, :desc} ->
+        order_by(q, [s], desc: s.inserted_at, desc: s.id)
+
+      {:created, :asc} ->
+        order_by(q, [s], asc: s.inserted_at, asc: s.id)
+
+      {:last_started, :desc} ->
+        order_by(q, [s], desc_nulls_last: s.last_started_at, desc: s.id)
+
+      {:last_started, :asc} ->
+        order_by(q, [s], asc_nulls_last: s.last_started_at, asc: s.id)
+
+      {:current_viewers, :desc} ->
+        order_by(q, [s], desc_nulls_last: s.current_viewer_count, desc: s.id)
+
+      {:current_viewers, :asc} ->
+        order_by(q, [s], asc_nulls_last: s.current_viewer_count, asc: s.id)
+
+      {:peak_viewers, :desc} ->
+        order_by(q, [s], desc_nulls_last: s.peak_viewer_count, desc: s.id)
+
+      {:peak_viewers, :asc} ->
+        order_by(q, [s], asc_nulls_last: s.peak_viewer_count, asc: s.id)
     end
   end
+
+  defp apply_field_condition(q, field, {:eq, value}),
+    do: where(q, [s], field(s, ^field) == ^value)
+
+  defp apply_field_condition(q, field, {:gt, value}), do: where(q, [s], field(s, ^field) > ^value)
+
+  defp apply_field_condition(q, field, {:gte, value}),
+    do: where(q, [s], field(s, ^field) >= ^value)
+
+  defp apply_field_condition(q, field, {:lt, value}), do: where(q, [s], field(s, ^field) < ^value)
+
+  defp apply_field_condition(q, field, {:lte, value}),
+    do: where(q, [s], field(s, ^field) <= ^value)
+
+  defp apply_field_condition(q, field, {:between, from_value, to_value}),
+    do: where(q, [s], field(s, ^field) >= ^from_value and field(s, ^field) <= ^to_value)
 
   defp ensure_user_join(q) do
     if has_named_binding?(q, :user) do
@@ -268,75 +347,6 @@ defmodule Asciinema.Streaming do
 
   def count(%Query{} = spec), do: spec |> query() |> count()
   def count(q), do: Repo.count(q)
-
-  @doc """
-  Lists streams for the admin panel, as a `Scrivener.Page`. Sees every
-  visibility, live and offline.
-
-  Options:
-    * `:search`      – id (exact), title (ILIKE), or user identifier (ILIKE)
-    * `:visibility`  – `:public`, `:unlisted`, `:private`, or `nil`/`:all`
-    * `:live`        – `true`, `false`, or `nil`/`:all`
-    * `:sort_by`     – `:last_started_at` (default), `:current_viewer_count`,
-                       `:peak_viewer_count`, or `:inserted_at`
-    * `:sort_dir`    – `:desc` (default) or `:asc`
-    * `:page`        – page number (default `1`)
-    * `:page_size`   – rows per page (default `50`)
-  """
-  def list_streams_admin(opts \\ []) do
-    sort_by = opts[:sort_by] || :last_started_at
-    sort_dir = opts[:sort_dir] || :desc
-
-    Stream
-    |> admin_filter_visibility(opts[:visibility])
-    |> admin_filter_live(opts[:live])
-    |> admin_search(opts[:search])
-    |> admin_sort(sort_by, sort_dir)
-    |> preload(:user)
-    |> Repo.paginate(page: opts[:page] || 1, page_size: opts[:page_size] || 50)
-  end
-
-  defp admin_filter_visibility(query, nil), do: query
-  defp admin_filter_visibility(query, :all), do: query
-
-  defp admin_filter_visibility(query, vis) when vis in [:public, :unlisted, :private],
-    do: from(s in query, where: s.visibility == ^vis)
-
-  defp admin_filter_live(query, nil), do: query
-  defp admin_filter_live(query, :all), do: query
-  defp admin_filter_live(query, true), do: from(s in query, where: s.live == true)
-  defp admin_filter_live(query, false), do: from(s in query, where: s.live == false)
-
-  defp admin_search(query, nil), do: query
-  defp admin_search(query, ""), do: query
-
-  defp admin_search(query, search) do
-    case Integer.parse(search) do
-      {id, ""} ->
-        from(s in query, where: s.id == ^id)
-
-      _ ->
-        pattern = "%#{search}%"
-
-        from s in query,
-          left_join: u in assoc(s, :user),
-          where:
-            ilike(s.title, ^pattern) or
-              ilike(u.username, ^pattern) or
-              ilike(u.email, ^pattern)
-    end
-  end
-
-  defp admin_sort(query, :last_started_at, :desc),
-    do: order_by(query, [s], desc_nulls_last: s.last_started_at, desc: s.id)
-
-  defp admin_sort(query, :last_started_at, :asc),
-    do: order_by(query, [s], asc_nulls_last: s.last_started_at, asc: s.id)
-
-  defp admin_sort(query, sort_by, dir)
-       when sort_by in [:current_viewer_count, :peak_viewer_count, :inserted_at] and
-              dir in [:asc, :desc],
-       do: order_by(query, [s], [{^dir, field(s, ^sort_by)}, {^dir, s.id}])
 
   @doc """
   Creates a new stream for the given user.

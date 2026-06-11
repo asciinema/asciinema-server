@@ -122,33 +122,22 @@ defmodule AsciinemaAdmin.CoreComponents do
 
   defp page_href(page, params), do: "?" <> URI.encode_query(Map.put(params, :page, page))
 
-  @doc """
-  Returns URL params for a sort link, flipping the direction when the
-  current column is already sorted descending.
-  """
-  @spec sort_link_params(atom, :asc | :desc, atom, map) :: map
-  def sort_link_params(current_by, current_dir, target_by, base_params \\ %{}) do
-    dir =
-      if current_by == target_by and current_dir == :desc do
-        :asc
-      else
-        :desc
-      end
-
-    Map.merge(base_params, %{sort_by: target_by, sort_dir: dir})
-  end
-
-  @doc "Returns the sort indicator (↓/↑) for a column, or `\"\"`."
-  @spec sort_arrow(atom, :asc | :desc, atom) :: String.t()
-  def sort_arrow(by, :desc, by), do: " ↓"
-  def sort_arrow(by, :asc, by), do: " ↑"
-  def sort_arrow(_, _, _), do: ""
-
   @doc "Maps a recording/stream visibility to a `tag/1` variant."
   def visibility_variant(:public), do: :success
   def visibility_variant(:unlisted), do: :default
   def visibility_variant(:private), do: :muted
   def visibility_variant(_), do: :default
+
+  @doc "Absolute avatar URL for admin pages."
+  def avatar_url(user) do
+    url = AsciinemaWeb.DefaultAvatar.url(user)
+
+    if String.starts_with?(url, "/") and not String.starts_with?(url, "//") do
+      AsciinemaWeb.Endpoint.url() <> url
+    else
+      url
+    end
+  end
 
   @doc "Format byte count as B / KB / MB."
   def format_bytes(nil), do: "—"

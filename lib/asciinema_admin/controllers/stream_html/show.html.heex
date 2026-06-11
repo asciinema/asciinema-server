@@ -182,6 +182,11 @@
           </tbody>
         </table>
       </div>
+      <div :if={@recording_count > length(@recordings)} class="see-all">
+        <.link href={~p"/admin/recordings?#{%{q: "stream:#{@stream.id}"}}"}>
+          See all {@recording_count} recordings →
+        </.link>
+      </div>
     <% end %>
   </section>
 

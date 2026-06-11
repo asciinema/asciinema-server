@@ -3,6 +3,7 @@ defmodule Asciinema.AccountsTest do
   use Asciinema.DataCase, async: true
   use Oban.Testing, repo: Asciinema.Repo
   alias Asciinema.Accounts
+  alias Asciinema.Accounts.Query
 
   describe "create_user/1" do
     test "succeeds for valid attrs" do
@@ -197,18 +198,47 @@ defmodule Asciinema.AccountsTest do
     end
   end
 
-  describe "list_users/1" do
-    test "returns all users on one page by default" do
-      base = length(Accounts.list_users().entries)
-      insert_list(3, :user)
+  describe "user query API" do
+    test "supports admin and system scopes" do
+      user = insert(:user)
 
-      assert length(Accounts.list_users().entries) == base + 3
+      for scope <- [:admin, :system] do
+        ids =
+          %Query{scope: scope, filters: [{:id, user.id}]}
+          |> Accounts.list(10)
+          |> Enum.map(& &1.id)
+
+        assert ids == [user.id]
+      end
     end
 
-    test "respects the :page_size option" do
+    test "returns all users by default" do
+      base =
+        %Query{scope: :admin, sort: {:created, :desc}}
+        |> Accounts.list(50)
+        |> length()
+
+      insert_list(3, :user)
+
+      count =
+        %Query{scope: :admin, sort: {:created, :desc}}
+        |> Accounts.list(50)
+        |> length()
+
+      assert count == base + 3
+    end
+
+    test "paginates users" do
       insert_list(5, :user)
 
-      assert length(Accounts.list_users(page_size: 2).entries) == 2
+      page =
+        %Query{scope: :admin, sort: {:created, :desc}}
+        |> Accounts.paginate(1, 2)
+
+      assert length(page.entries) == 2
+      assert page.page_number == 1
+      assert page.page_size == 2
+      assert page.total_entries >= 5
     end
 
     test "orders by inserted_at desc, id desc by default" do
@@ -216,24 +246,98 @@ defmodule Asciinema.AccountsTest do
       second = insert(:user)
       third = insert(:user)
 
-      ids = Accounts.list_users(page_size: 3).entries |> Enum.map(& &1.id)
+      ids =
+        %Query{scope: :admin, sort: {:created, :desc}}
+        |> Accounts.list(3)
+        |> Enum.map(& &1.id)
 
       assert ids == [third.id, second.id, first.id]
     end
 
-    test "search by id" do
+    test "filters by id" do
       user = insert(:user)
       _other = insert(:user)
 
-      assert [%{id: id}] = Accounts.list_users(search: to_string(user.id)).entries
+      assert [%{id: id}] =
+               %Query{scope: :admin, filters: [{:id, user.id}], sort: {:created, :desc}}
+               |> Accounts.list(10)
+
       assert id == user.id
+    end
+
+    test "searches individual username, email, and name fields" do
+      user =
+        insert(:user,
+          username: "AlphaNeedle",
+          email: "beta-needle@example.com",
+          name: "Gamma Needle"
+        )
+
+      insert(:user, username: "unrelated", email: "other@example.com", name: "Other")
+
+      for filter <- [
+            {:username, {:search, "ALPHA"}},
+            {:email, {:search, "BETA-NEEDLE"}},
+            {:name, {:search, "GAMMA"}}
+          ] do
+        assert [%{id: id}] =
+                 %Query{scope: :system, filters: [filter]}
+                 |> Accounts.list(10)
+
+        assert id == user.id
+      end
+    end
+
+    test "filters by account dates and recording and stream counts" do
+      low =
+        insert(:user,
+          username: "query-coverage-low",
+          inserted_at: ~U[2025-01-01 00:00:00Z],
+          last_login_at: ~U[2025-01-02 00:00:00Z]
+        )
+
+      high =
+        insert(:user,
+          username: "query-coverage-high",
+          inserted_at: ~U[2025-02-01 00:00:00Z],
+          last_login_at: ~U[2025-02-02 00:00:00Z]
+        )
+
+      insert(:asciicast, user: low)
+      insert(:asciicast, user: high, visibility: :private)
+      insert(:asciicast, user: high, archived_at: ~U[2025-03-01 00:00:00Z])
+      insert(:stream, user: low)
+      insert_list(2, :stream, user: high)
+
+      assert_id = fn filter, expected ->
+        assert [%{id: id}] =
+                 %Query{
+                   scope: :system,
+                   filters: [{:username, {:search, "query-coverage-"}}, filter]
+                 }
+                 |> Accounts.list(10)
+
+        assert id == expected.id
+      end
+
+      assert_id.({:created_at, {:gte, ~U[2025-01-15 00:00:00Z]}}, high)
+      assert_id.({:last_login_at, {:lt, ~U[2025-01-15 00:00:00Z]}}, low)
+      assert_id.({:recording_count, {:gte, 2}}, high)
+      assert_id.({:stream_count, {:between, 2, 2}}, high)
     end
 
     test "search by username (case-insensitive substring)" do
       user = insert(:user, username: "AliceCool")
       _other = insert(:user, username: "bob")
 
-      assert [%{id: id}] = Accounts.list_users(search: "ali").entries
+      assert [%{id: id}] =
+               %Query{
+                 scope: :admin,
+                 filters: [{:identity, {:search, "ali"}}],
+                 sort: {:created, :desc}
+               }
+               |> Accounts.list(10)
+
       assert id == user.id
     end
 
@@ -241,38 +345,71 @@ defmodule Asciinema.AccountsTest do
       user = insert(:user, email: "alice@example.com")
       _other = insert(:user, email: "bob@example.com")
 
-      assert [%{id: id}] = Accounts.list_users(search: "ALICE@").entries
+      assert [%{id: id}] =
+               %Query{
+                 scope: :admin,
+                 filters: [{:identity, {:search, "ALICE@"}}],
+                 sort: {:created, :desc}
+               }
+               |> Accounts.list(10)
+
       assert id == user.id
     end
 
     test "search by unknown value returns empty" do
       insert(:user, username: "alice")
 
-      assert Accounts.list_users(search: "no-such-user").entries == []
+      results =
+        %Query{
+          scope: :admin,
+          filters: [{:identity, {:search, "no-such-user"}}],
+          sort: {:created, :desc}
+        }
+        |> Accounts.list(10)
+
+      assert results == []
     end
 
-    test "sort by :last_login_at desc with NULLs last" do
+    test "identity search treats LIKE wildcards literally" do
+      # "a_c" must match the literal underscore, not "_" as a single-char wildcard
+      literal = insert(:user, username: "a_c")
+      _decoy = insert(:user, username: "axc")
+
+      ids =
+        %Query{scope: :admin, filters: [{:identity, {:search, "a_c"}}], sort: {:created, :desc}}
+        |> Accounts.list(10)
+        |> Enum.map(& &1.id)
+
+      assert ids == [literal.id]
+    end
+
+    test "sorts by last login desc with NULLs last" do
       a = insert(:user, last_login_at: ~U[2025-01-01 00:00:00Z])
       b = insert(:user, last_login_at: ~U[2025-02-01 00:00:00Z])
       c = insert(:user, last_login_at: nil)
 
       ids =
-        Accounts.list_users(sort_by: :last_login_at, sort_dir: :desc).entries
+        %Query{scope: :admin, sort: {:last_login, :desc}}
+        |> Accounts.list(50)
         |> Enum.map(& &1.id)
         |> Enum.filter(&(&1 in [a.id, b.id, c.id]))
 
       assert ids == [b.id, a.id, c.id]
     end
 
-    test "offset pagination returns subsequent pages" do
-      insert_list(3, :user)
+    test "offset page 2 returns rows after page 1" do
+      first = insert(:user)
+      second = insert(:user)
+      third = insert(:user)
 
-      all = Accounts.list_users(page_size: 100).entries |> Enum.map(& &1.id)
-      page1 = Accounts.list_users(page: 1, page_size: 2).entries |> Enum.map(& &1.id)
-      page2 = Accounts.list_users(page: 2, page_size: 2).entries |> Enum.map(& &1.id)
+      page =
+        %Query{scope: :admin, sort: {:created, :desc}}
+        |> Accounts.paginate(2, 2)
 
-      assert page1 == Enum.take(all, 2)
-      assert page2 == all |> Enum.drop(2) |> Enum.take(2)
+      ids = Enum.map(page.entries, & &1.id)
+      assert first.id in ids
+      refute second.id in ids
+      refute third.id in ids
     end
   end
 end

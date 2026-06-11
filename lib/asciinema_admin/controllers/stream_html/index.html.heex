@@ -1,31 +1,5 @@
 <.page title="Streams">
-  <form class="filter-bar" method="get" action={~p"/admin/streams"}>
-    <input
-      type="search"
-      name="q"
-      value={@search}
-      placeholder="Search by title, id, or user"
-      autocomplete="off"
-    />
-
-    <select name="visibility">
-      <option value="all" selected={@visibility == :all}>any visibility</option>
-      <option value="public" selected={@visibility == :public}>public</option>
-      <option value="unlisted" selected={@visibility == :unlisted}>unlisted</option>
-      <option value="private" selected={@visibility == :private}>private</option>
-    </select>
-
-    <select name="live">
-      <option value="all" selected={@live == :all}>any state</option>
-      <option value="yes" selected={@live == true}>live now</option>
-      <option value="no" selected={@live == false}>offline</option>
-    </select>
-
-    <input type="hidden" name="sort_by" value={@sort_by} />
-    <input type="hidden" name="sort_dir" value={@sort_dir} />
-
-    <button type="submit" class="btn">Apply</button>
-  </form>
+  <.query_form index={@index} action={~p"/admin/streams"} placeholder="Search streams…" />
 
   <div class="table-wrap">
     <table>
@@ -35,26 +9,20 @@
           <th>title</th>
           <th>user</th>
           <th>visibility</th>
-          <th>live?</th>
+          <th>status</th>
           <th>
-            <.link href={
-              ~p"/admin/streams?#{sort_link_params(@sort_by, @sort_dir, :current_viewer_count, @filter_params)}"
-            }>
-              viewers{sort_arrow(@sort_by, @sort_dir, :current_viewer_count)}
+            <.link href={~p"/admin/streams?#{sort_params(@index, "current-viewers.desc")}"}>
+              viewers{sort_arrow(@index, "current-viewers.desc")}
             </.link>
           </th>
           <th>
-            <.link href={
-              ~p"/admin/streams?#{sort_link_params(@sort_by, @sort_dir, :peak_viewer_count, @filter_params)}"
-            }>
-              peak{sort_arrow(@sort_by, @sort_dir, :peak_viewer_count)}
+            <.link href={~p"/admin/streams?#{sort_params(@index, "last-started.desc")}"}>
+              last started{sort_arrow(@index, "last-started.desc")}
             </.link>
           </th>
           <th>
-            <.link href={
-              ~p"/admin/streams?#{sort_link_params(@sort_by, @sort_dir, :last_started_at, @filter_params)}"
-            }>
-              last started{sort_arrow(@sort_by, @sort_dir, :last_started_at)}
+            <.link href={~p"/admin/streams?#{sort_params(@index, "created.desc")}"}>
+              created{sort_arrow(@index, "created.desc")}
             </.link>
           </th>
           <th></th>
@@ -72,14 +40,15 @@
           </td>
           <td>
             <.tag :if={s.live} variant={:success}>live</.tag>
-            <span :if={!s.live} class="muted">offline</span>
+            <.tag :if={s.schedule} variant={:default}>scheduled</.tag>
+            <.tag :if={s.audio_url} variant={:default}>audio</.tag>
           </td>
-          <td class="num mono">{s.current_viewer_count || 0}</td>
-          <td class="num mono">{s.peak_viewer_count || 0}</td>
+          <td class="num mono">{s.current_viewer_count || 0}/{s.peak_viewer_count || 0}</td>
           <td>
             <.time_ago :if={s.last_started_at} time={s.last_started_at} />
             <span :if={!s.last_started_at} class="muted">never</span>
           </td>
+          <td><.time_ago time={s.inserted_at} /></td>
           <td class="row-actions">
             <.link href={~p"/admin/streams/#{s.id}"}>view</.link>
             <.link href={~p"/admin/streams/#{s.id}/edit"}>edit</.link>

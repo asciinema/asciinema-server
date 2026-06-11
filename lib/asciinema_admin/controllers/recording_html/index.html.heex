@@ -1,37 +1,5 @@
 <.page title="Recordings">
-  <form class="filter-bar" method="get" action={~p"/admin/recordings"}>
-    <input
-      type="search"
-      name="q"
-      value={@search}
-      placeholder="Search by title, id, or user"
-      autocomplete="off"
-    />
-
-    <select name="visibility">
-      <option value="all" selected={@visibility == :all}>any visibility</option>
-      <option value="public" selected={@visibility == :public}>public</option>
-      <option value="unlisted" selected={@visibility == :unlisted}>unlisted</option>
-      <option value="private" selected={@visibility == :private}>private</option>
-    </select>
-
-    <select name="archived">
-      <option value="all" selected={@archived == :all}>archived: any</option>
-      <option value="no" selected={@archived == false}>archived: no</option>
-      <option value="yes" selected={@archived == true}>archived: yes</option>
-    </select>
-
-    <select name="featured">
-      <option value="all" selected={@featured == :all}>featured: any</option>
-      <option value="no" selected={@featured == false}>featured: no</option>
-      <option value="yes" selected={@featured == true}>featured: yes</option>
-    </select>
-
-    <input type="hidden" name="sort_by" value={@sort_by} />
-    <input type="hidden" name="sort_dir" value={@sort_dir} />
-
-    <button type="submit" class="btn">Apply</button>
-  </form>
+  <.query_form index={@index} action={~p"/admin/recordings"} placeholder="Search recordings…" />
 
   <div class="table-wrap">
     <table>
@@ -41,25 +9,25 @@
           <th>title</th>
           <th>user</th>
           <th>visibility</th>
+          <th>status</th>
           <th>
-            <.link href={
-              ~p"/admin/recordings?#{sort_link_params(@sort_by, @sort_dir, :duration, @filter_params)}"
-            }>
-              duration{sort_arrow(@sort_by, @sort_dir, :duration)}
+            <.link href={~p"/admin/recordings?#{sort_params(@index, "duration.desc")}"}>
+              duration{sort_arrow(@index, "duration.desc")}
             </.link>
           </th>
           <th>
-            <.link href={
-              ~p"/admin/recordings?#{sort_link_params(@sort_by, @sort_dir, :compressed_size, @filter_params)}"
-            }>
-              size{sort_arrow(@sort_by, @sort_dir, :compressed_size)}
+            <.link href={~p"/admin/recordings?#{sort_params(@index, "size.desc")}"}>
+              size{sort_arrow(@index, "size.desc")}
             </.link>
           </th>
           <th>
-            <.link href={
-              ~p"/admin/recordings?#{sort_link_params(@sort_by, @sort_dir, :inserted_at, @filter_params)}"
-            }>
-              created{sort_arrow(@sort_by, @sort_dir, :inserted_at)}
+            <.link href={~p"/admin/recordings?#{sort_params(@index, "views.desc")}"}>
+              views{sort_arrow(@index, "views.desc")}
+            </.link>
+          </th>
+          <th>
+            <.link href={~p"/admin/recordings?#{sort_params(@index, "created.desc")}"}>
+              created{sort_arrow(@index, "created.desc")}
             </.link>
           </th>
           <th></th>
@@ -74,11 +42,15 @@
           <td>{a.user && (a.user.username || a.user.id)}</td>
           <td>
             <.tag variant={visibility_variant(a.visibility)}>{a.visibility}</.tag>
+          </td>
+          <td>
             <.tag :if={a.featured} variant={:success}>featured</.tag>
             <.tag :if={a.archived_at} variant={:muted}>archived</.tag>
+            <.tag :if={a.audio_url} variant={:default}>audio</.tag>
           </td>
           <td class="num mono">{format_duration(a.duration)}</td>
           <td class="num mono">{format_bytes(a.compressed_size)}</td>
+          <td class="num mono">{a.total_views || 0}</td>
           <td><.time_ago time={a.inserted_at} /></td>
           <td class="row-actions">
             <.link href={~p"/admin/recordings/#{a.id}"}>view</.link>
@@ -86,7 +58,7 @@
           </td>
         </tr>
         <tr :if={@recordings == []}>
-          <td colspan="8" class="muted">No recordings match.</td>
+          <td colspan="10" class="muted">No recordings match.</td>
         </tr>
       </tbody>
     </table>

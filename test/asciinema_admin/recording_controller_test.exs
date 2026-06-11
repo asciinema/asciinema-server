@@ -19,10 +19,41 @@ defmodule AsciinemaAdmin.RecordingControllerTest do
       insert(:asciicast, title: "private-one", visibility: :private)
       insert(:asciicast, title: "public-one", visibility: :public)
 
-      body = conn |> get(~p"/admin/recordings?visibility=private") |> html_response(200)
+      body =
+        conn |> get(~p"/admin/recordings?#{%{q: "visibility:private"}}") |> html_response(200)
 
       assert body =~ "private-one"
       refute body =~ "public-one"
+    end
+
+    test "filters by user", %{conn: conn} do
+      user = insert(:user)
+      mine = insert(:asciicast, user: user, title: "mine-only")
+      _theirs = insert(:asciicast, title: "someone-else")
+
+      body =
+        conn
+        |> get(~p"/admin/recordings?#{%{q: "user:#{user.id}"}}")
+        |> html_response(200)
+
+      assert body =~ "mine-only"
+      refute body =~ "someone-else"
+      assert body =~ ~s(/admin/recordings/#{mine.id})
+    end
+
+    test "reports invalid structured filters without running a partial query", %{conn: conn} do
+      insert(:asciicast, title: "row-a")
+      insert(:asciicast, title: "row-b")
+
+      body =
+        conn
+        |> get(~p"/admin/recordings?#{%{q: "user:not-a-number visibility:publik"}}")
+        |> html_response(200)
+
+      assert body =~ "Query not run."
+      assert body =~ "Invalid visibility"
+      refute body =~ "row-a"
+      refute body =~ "row-b"
     end
   end
 

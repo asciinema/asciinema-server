@@ -19,10 +19,25 @@ defmodule AsciinemaAdmin.StreamControllerTest do
       insert(:stream, title: "i-am-live", live: true)
       insert(:stream, title: "im-offline", live: false)
 
-      body = conn |> get(~p"/admin/streams?live=yes") |> html_response(200)
+      body = conn |> get(~p"/admin/streams?#{%{q: "live:yes"}}") |> html_response(200)
 
       assert body =~ "i-am-live"
       refute body =~ "im-offline"
+    end
+
+    test "filters by user", %{conn: conn} do
+      user = insert(:user)
+      mine = insert(:stream, user: user, title: "mine-stream")
+      _theirs = insert(:stream, title: "other-stream")
+
+      body =
+        conn
+        |> get(~p"/admin/streams?#{%{q: "user:#{user.id}"}}")
+        |> html_response(200)
+
+      assert body =~ "mine-stream"
+      refute body =~ "other-stream"
+      assert body =~ ~s(/admin/streams/#{mine.id})
     end
   end
 

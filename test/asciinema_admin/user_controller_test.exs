@@ -29,6 +29,22 @@ defmodule AsciinemaAdmin.UserControllerTest do
       refute body =~ ">bob<"
     end
 
+    test "sorts by recording count", %{conn: conn} do
+      few = insert(:user, username: "few-recordings")
+      many = insert(:user, username: "many-recordings")
+      insert(:asciicast, user: few)
+      insert_list(2, :asciicast, user: many)
+
+      body =
+        conn
+        |> get(~p"/admin/users?#{%{sort: "recordings.desc"}}")
+        |> html_response(200)
+
+      assert body =~ "many-recordings"
+      assert body =~ "few-recordings"
+      assert :binary.match(body, "many-recordings") < :binary.match(body, "few-recordings")
+    end
+
     test "page links move between previous and next pages",
          %{conn: conn} do
       # Page size is 50; insert 51 to force at least one row onto page 2.

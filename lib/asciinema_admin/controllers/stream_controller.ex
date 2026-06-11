@@ -4,45 +4,27 @@ defmodule AsciinemaAdmin.StreamController do
   alias Asciinema.{Recordings, Repo, Streaming}
   alias Asciinema.Recordings.Query, as: RecordingQuery
   alias Asciinema.Streaming.Stream
-  alias AsciinemaAdmin.StreamHTML
+  alias AsciinemaAdmin.{IndexQuery, StreamHTML}
 
   @page_size 50
   @recordings_limit 15
 
   def index(conn, params) do
-    search = params["q"] || ""
-    visibility = parse_visibility(params["visibility"])
-    live = parse_tristate(params["live"])
-    sort_by = parse_sort_by(params["sort_by"])
-    sort_dir = parse_sort_dir(params["sort_dir"])
+    index = IndexQuery.build(:streams, params)
 
     page =
-      Streaming.list_streams_admin(
-        search: search,
-        visibility: visibility,
-        live: live,
-        sort_by: sort_by,
-        sort_dir: sort_dir,
-        page: params["page"],
-        page_size: @page_size
-      )
-
-    filter_params =
-      Map.reject(
-        %{q: search, visibility: visibility, live: live, sort_by: sort_by, sort_dir: sort_dir},
-        fn {_k, v} -> v in ["", :all] end
-      )
+      if index.valid? do
+        Streaming.paginate(index.query, params["page"], @page_size, preload: [:user])
+      else
+        empty_page(params["page"])
+      end
 
     render(conn, :index,
       page_title: "Streams",
       streams: page.entries,
       page: page,
-      search: search,
-      visibility: visibility,
-      live: live,
-      filter_params: filter_params,
-      sort_by: sort_by,
-      sort_dir: sort_dir
+      index: index,
+      filter_params: index.query_params
     )
   end
 
@@ -122,22 +104,22 @@ defmodule AsciinemaAdmin.StreamController do
     end
   end
 
-  defp parse_visibility("public"), do: :public
-  defp parse_visibility("unlisted"), do: :unlisted
-  defp parse_visibility("private"), do: :private
-  defp parse_visibility(_), do: :all
+  defp empty_page(page) do
+    %Scrivener.Page{
+      entries: [],
+      page_number: page_number(page),
+      page_size: @page_size,
+      total_entries: 0,
+      total_pages: 0
+    }
+  end
 
-  defp parse_tristate("yes"), do: true
-  defp parse_tristate("true"), do: true
-  defp parse_tristate("no"), do: false
-  defp parse_tristate("false"), do: false
-  defp parse_tristate(_), do: :all
+  defp page_number(page) when is_binary(page) do
+    case Integer.parse(page) do
+      {n, ""} when n > 0 -> n
+      _ -> 1
+    end
+  end
 
-  defp parse_sort_by("current_viewer_count"), do: :current_viewer_count
-  defp parse_sort_by("peak_viewer_count"), do: :peak_viewer_count
-  defp parse_sort_by("inserted_at"), do: :inserted_at
-  defp parse_sort_by(_), do: :last_started_at
-
-  defp parse_sort_dir("asc"), do: :asc
-  defp parse_sort_dir(_), do: :desc
+  defp page_number(_), do: 1
 end

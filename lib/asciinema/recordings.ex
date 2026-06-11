@@ -153,6 +153,9 @@ defmodule Asciinema.Recordings do
       {:id, {:not_eq, id}} ->
         where(q, [a], a.id != ^id)
 
+      {:id, id} when is_integer(id) ->
+        where(q, [a], a.id == ^id)
+
       {:user, %{id: user_id}} ->
         where(q, [a], a.user_id == ^user_id)
 
@@ -204,6 +207,12 @@ defmodule Asciinema.Recordings do
       :featured ->
         where(q, [a], a.featured == true)
 
+      {:featured, true} ->
+        where(q, [a], a.featured == true)
+
+      {:featured, false} ->
+        where(q, [a], a.featured != true or is_nil(a.featured))
+
       :popular ->
         q
         |> ensure_stats_inner_join()
@@ -212,6 +221,29 @@ defmodule Asciinema.Recordings do
       :public ->
         where(q, [a], a.visibility == :public)
 
+      {:visibility, visibility} when visibility in [:public, :unlisted, :private] ->
+        where(q, [a], a.visibility == ^visibility)
+
+      {:created_at, condition} ->
+        apply_field_condition(q, :inserted_at, condition)
+
+      {:duration, condition} ->
+        apply_field_condition(q, :duration, condition)
+
+      {:compressed_size, condition} ->
+        apply_field_condition(q, :compressed_size, condition)
+
+      {:views, condition} ->
+        q
+        |> with_total_views()
+        |> apply_views_condition(condition)
+
+      {:audio, true} ->
+        where(q, [a], not is_nil(a.audio_url))
+
+      {:audio, false} ->
+        where(q, [a], is_nil(a.audio_url))
+
       :snapshotless ->
         where(q, [a], is_nil(a.snapshot))
     end
@@ -219,7 +251,26 @@ defmodule Asciinema.Recordings do
 
   defp sort(q, nil, _filters), do: q
   defp sort(q, :random, _filters), do: order_by(q, fragment("RANDOM()"))
-  defp sort(q, {:created, :desc}, _filters), do: order_by(q, desc: :id)
+  defp sort(q, {:created, :desc}, _filters), do: order_by(q, [a], desc: a.inserted_at, desc: a.id)
+  defp sort(q, {:created, :asc}, _filters), do: order_by(q, [a], asc: a.inserted_at, asc: a.id)
+
+  defp sort(q, {:duration, :desc}, _filters),
+    do: order_by(q, [a], desc_nulls_last: a.duration, desc: a.id)
+
+  defp sort(q, {:duration, :asc}, _filters),
+    do: order_by(q, [a], asc_nulls_last: a.duration, asc: a.id)
+
+  defp sort(q, {:size, :desc}, _filters),
+    do: order_by(q, [a], desc_nulls_last: a.compressed_size, desc: a.id)
+
+  defp sort(q, {:size, :asc}, _filters),
+    do: order_by(q, [a], asc_nulls_last: a.compressed_size, asc: a.id)
+
+  defp sort(q, {:views, dir}, _filters) when dir in [:asc, :desc] do
+    q
+    |> with_total_views()
+    |> order_by([a, stats_left: s], [{^dir, coalesce(s.total_views, 0)}, {^dir, a.id}])
+  end
 
   defp sort(q, {:popularity, :desc}, _filters) do
     q
@@ -268,22 +319,6 @@ defmodule Asciinema.Recordings do
     end
   end
 
-  defp ensure_fts_join(q) do
-    if has_named_binding?(q, :fts) do
-      q
-    else
-      join(q, :inner, [a], f in "asciicast_fts", on: f.asciicast_id == a.id, as: :fts)
-    end
-  end
-
-  defp ensure_user_join(q) do
-    if has_named_binding?(q, :user) do
-      q
-    else
-      join(q, :inner, [a], u in assoc(a, :user), as: :user)
-    end
-  end
-
   defp ensure_stats_left_join(q) do
     if has_named_binding?(q, :stats_left) do
       q
@@ -295,8 +330,11 @@ defmodule Asciinema.Recordings do
   defp with_total_views(q) do
     q
     |> ensure_stats_left_join()
-    |> select_merge([stats: s], %{total_views: coalesce(s.total_views, 0)})
+    |> select_merge([stats_left: s], %{total_views: coalesce(s.total_views, 0)})
   end
+
+  defp apply_field_condition(q, field, {:eq, value}),
+    do: where(q, [a], field(a, ^field) == ^value)
 
   defp apply_field_condition(q, field, {:gt, value}), do: where(q, [a], field(a, ^field) > ^value)
 
@@ -311,24 +349,43 @@ defmodule Asciinema.Recordings do
   defp apply_field_condition(q, field, {:between, from_value, to_value}),
     do: where(q, [a], field(a, ^field) >= ^from_value and field(a, ^field) <= ^to_value)
 
+  defp apply_views_condition(q, {:eq, value}),
+    do: where(q, [stats_left: s], coalesce(s.total_views, 0) == ^value)
+
   defp apply_views_condition(q, {:gt, value}),
-    do: where(q, [stats: s], coalesce(s.total_views, 0) > ^value)
+    do: where(q, [stats_left: s], coalesce(s.total_views, 0) > ^value)
 
   defp apply_views_condition(q, {:gte, value}),
-    do: where(q, [stats: s], coalesce(s.total_views, 0) >= ^value)
+    do: where(q, [stats_left: s], coalesce(s.total_views, 0) >= ^value)
 
   defp apply_views_condition(q, {:lt, value}),
-    do: where(q, [stats: s], coalesce(s.total_views, 0) < ^value)
+    do: where(q, [stats_left: s], coalesce(s.total_views, 0) < ^value)
 
   defp apply_views_condition(q, {:lte, value}),
-    do: where(q, [stats: s], coalesce(s.total_views, 0) <= ^value)
+    do: where(q, [stats_left: s], coalesce(s.total_views, 0) <= ^value)
 
   defp apply_views_condition(q, {:between, from_value, to_value}) do
     where(
       q,
-      [stats: s],
+      [stats_left: s],
       coalesce(s.total_views, 0) >= ^from_value and coalesce(s.total_views, 0) <= ^to_value
     )
+  end
+
+  defp ensure_fts_join(q) do
+    if has_named_binding?(q, :fts) do
+      q
+    else
+      join(q, :inner, [a], f in "asciicast_fts", on: f.asciicast_id == a.id, as: :fts)
+    end
+  end
+
+  defp ensure_user_join(q) do
+    if has_named_binding?(q, :user) do
+      q
+    else
+      join(q, :inner, [a], u in assoc(a, :user), as: :user)
+    end
   end
 
   defp search_filter(filters) do
@@ -352,6 +409,7 @@ defmodule Asciinema.Recordings do
       [page: page, page_size: page_size] ++ maybe_total_entries_opt(query, page_size, opts)
 
     query
+    |> maybe_with_total_views(Keyword.get(opts, :with_total_views, false))
     |> maybe_preload(Keyword.get(opts, :preload, [:user]))
     |> Repo.paginate(paginate_opts)
   end
@@ -410,10 +468,14 @@ defmodule Asciinema.Recordings do
 
   def list(q, limit, opts) do
     q
+    |> maybe_with_total_views(Keyword.get(opts, :with_total_views, false))
     |> limit(^limit)
     |> maybe_preload(Keyword.get(opts, :preload, [:user]))
     |> Repo.all()
   end
+
+  defp maybe_with_total_views(q, true), do: with_total_views(q)
+  defp maybe_with_total_views(q, false), do: q
 
   def stream(%Query{} = spec) do
     spec
@@ -803,84 +865,6 @@ defmodule Asciinema.Recordings do
     |> Changeset.change(%{archived_at: nil, archivable: false})
     |> Repo.update()
   end
-
-  @doc """
-  Lists asciicasts for the admin panel, as a `Scrivener.Page`. Sees every
-  visibility, including archived rows.
-
-  Options:
-    * `:search`      – id (exact), title (ILIKE), or user identifier (username/email ILIKE)
-    * `:visibility`  – `:public`, `:unlisted`, `:private`, or `nil`/`:all`
-    * `:archived`    – `true`, `false`, or `nil`/`:all`
-    * `:featured`    – `true`, `false`, or `nil`/`:all`
-    * `:sort_by`     – `:inserted_at` (default), `:duration`, or `:compressed_size`
-    * `:sort_dir`    – `:desc` (default) or `:asc`
-    * `:page`        – page number (default `1`)
-    * `:page_size`   – rows per page (default `50`)
-  """
-  def list_asciicasts_admin(opts \\ []) do
-    sort_by = opts[:sort_by] || :inserted_at
-    sort_dir = opts[:sort_dir] || :desc
-
-    Asciicast
-    |> admin_filter_visibility(opts[:visibility])
-    |> admin_filter_archived(opts[:archived])
-    |> admin_filter_featured(opts[:featured])
-    |> admin_search(opts[:search])
-    |> admin_sort(sort_by, sort_dir)
-    |> preload(:user)
-    |> Repo.paginate(page: opts[:page] || 1, page_size: opts[:page_size] || 50)
-  end
-
-  defp admin_filter_visibility(query, nil), do: query
-  defp admin_filter_visibility(query, :all), do: query
-
-  defp admin_filter_visibility(query, vis) when vis in [:public, :unlisted, :private],
-    do: from(a in query, where: a.visibility == ^vis)
-
-  defp admin_filter_archived(query, nil), do: query
-  defp admin_filter_archived(query, :all), do: query
-  defp admin_filter_archived(query, true), do: from(a in query, where: not is_nil(a.archived_at))
-  defp admin_filter_archived(query, false), do: from(a in query, where: is_nil(a.archived_at))
-
-  defp admin_filter_featured(query, nil), do: query
-  defp admin_filter_featured(query, :all), do: query
-  defp admin_filter_featured(query, true), do: from(a in query, where: a.featured == true)
-
-  defp admin_filter_featured(query, false),
-    do: from(a in query, where: a.featured != true or is_nil(a.featured))
-
-  defp admin_search(query, nil), do: query
-  defp admin_search(query, ""), do: query
-
-  defp admin_search(query, search) do
-    case Integer.parse(search) do
-      {id, ""} ->
-        from(a in query, where: a.id == ^id)
-
-      _ ->
-        pattern = "%#{search}%"
-
-        from a in query,
-          left_join: u in assoc(a, :user),
-          where:
-            ilike(a.title, ^pattern) or
-              ilike(u.username, ^pattern) or
-              ilike(u.email, ^pattern)
-    end
-  end
-
-  defp admin_sort(query, :inserted_at, :desc),
-    do: order_by(query, [a], desc: a.inserted_at, desc: a.id)
-
-  defp admin_sort(query, :inserted_at, :asc),
-    do: order_by(query, [a], asc: a.inserted_at, asc: a.id)
-
-  defp admin_sort(query, :duration, dir) when dir in [:asc, :desc],
-    do: order_by(query, [a], [{^dir, a.duration}, {^dir, a.id}])
-
-  defp admin_sort(query, :compressed_size, dir) when dir in [:asc, :desc],
-    do: order_by(query, [a], [{^dir, a.compressed_size}, {^dir, a.id}])
 
   def delete_asciicast(asciicast) do
     with {:ok, asciicast} <- Repo.delete(asciicast) do

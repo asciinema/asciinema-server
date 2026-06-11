@@ -43,6 +43,7 @@ defmodule Asciinema.Recordings.Asciicast do
     field :compressed, :boolean, default: false
     field :compressed_size, :integer
     field :uncompressed_size, :integer
+    field :total_views, :integer, virtual: true
 
     field :stream_id, :id
 

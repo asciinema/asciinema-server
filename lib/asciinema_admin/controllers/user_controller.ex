@@ -5,34 +5,26 @@ defmodule AsciinemaAdmin.UserController do
   alias Asciinema.Accounts.User
   alias Asciinema.Recordings.Query, as: RecordingQuery
   alias Asciinema.Streaming.Query, as: StreamQuery
+  alias AsciinemaAdmin.IndexQuery
 
   @page_size 50
 
   def index(conn, params) do
-    search = params["q"] || ""
-    sort_by = parse_sort_by(params["sort_by"])
-    sort_dir = parse_sort_dir(params["sort_dir"])
+    index = IndexQuery.build(:users, params)
 
     page =
-      Accounts.list_users(
-        search: search,
-        sort_by: sort_by,
-        sort_dir: sort_dir,
-        page: params["page"],
-        page_size: @page_size
-      )
-
-    filter_params =
-      Map.reject(%{q: search, sort_by: sort_by, sort_dir: sort_dir}, fn {_k, v} -> v == "" end)
+      if index.valid? do
+        Accounts.paginate(index.query, params["page"], @page_size, with_counts: true)
+      else
+        empty_page(params["page"])
+      end
 
     render(conn, :index,
       page_title: "Users",
       users: page.entries,
       page: page,
-      search: search,
-      filter_params: filter_params,
-      sort_by: sort_by,
-      sort_dir: sort_dir
+      index: index,
+      filter_params: index.query_params
     )
   end
 
@@ -180,11 +172,24 @@ defmodule AsciinemaAdmin.UserController do
     end
   end
 
-  defp parse_sort_by("last_login_at"), do: :last_login_at
-  defp parse_sort_by(_), do: :inserted_at
+  defp empty_page(page) do
+    %Scrivener.Page{
+      entries: [],
+      page_number: page_number(page),
+      page_size: @page_size,
+      total_entries: 0,
+      total_pages: 0
+    }
+  end
 
-  defp parse_sort_dir("asc"), do: :asc
-  defp parse_sort_dir(_), do: :desc
+  defp page_number(page) when is_binary(page) do
+    case Integer.parse(page) do
+      {n, ""} when n > 0 -> n
+      _ -> 1
+    end
+  end
+
+  defp page_number(_), do: 1
 
   defp user_recording_count(user_id) do
     Recordings.count(%RecordingQuery{scope: :admin, archived: :include, filters: [user: user_id]})

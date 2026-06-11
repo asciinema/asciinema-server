@@ -355,6 +355,11 @@ defmodule Asciinema.StreamingTest do
         |> Streaming.list(10)
         |> Enum.map(& &1.id)
 
+      anonymous_ids =
+        %Query{scope: {:listing_for, nil}}
+        |> Streaming.list(10)
+        |> Enum.map(& &1.id)
+
       owner_ids =
         %Query{scope: {:listing_for, owner}}
         |> Streaming.list(10)
@@ -365,6 +370,7 @@ defmodule Asciinema.StreamingTest do
       refute private.id in public_ids
 
       assert Enum.sort(public_ids) == Enum.sort(viewer_ids)
+      assert Enum.sort(public_ids) == Enum.sort(anonymous_ids)
       assert public.id in owner_ids
       assert unlisted.id in owner_ids
       assert private.id in owner_ids
@@ -482,6 +488,78 @@ defmodule Asciinema.StreamingTest do
       refute decoy.id in ids
     end
 
+    test "filters by id, public status, live false, schedule, and audio presence" do
+      user = insert(:user)
+
+      scheduled =
+        insert(:stream,
+          user: user,
+          visibility: :public,
+          live: false,
+          audio_url: "https://example.com/audio"
+        )
+
+      {:ok, scheduled} =
+        Streaming.update_stream(scheduled, %{schedule: "0 20 1 6 * 2050"})
+
+      private = insert(:stream, user: user, visibility: :private, live: true)
+      public_live = insert(:stream, user: user, visibility: :public, live: true)
+
+      assert_ids = fn filter, expected ->
+        ids =
+          %Query{scope: :system, filters: [{:user, user.id}, filter]}
+          |> Streaming.list(10)
+          |> Enum.map(& &1.id)
+          |> Enum.sort()
+
+        assert ids == Enum.sort(expected)
+      end
+
+      assert_ids.({:id, private.id}, [private.id])
+      assert_ids.(:public, [scheduled.id, public_live.id])
+      assert_ids.({:live, false}, [scheduled.id])
+      assert_ids.({:scheduled, true}, [scheduled.id])
+      assert_ids.({:scheduled, false}, [private.id, public_live.id])
+      assert_ids.({:audio, true}, [scheduled.id])
+      assert_ids.({:audio, false}, [private.id, public_live.id])
+    end
+
+    test "filters by created time, start time, and viewer counts" do
+      user = insert(:user)
+
+      never =
+        insert(:stream,
+          user: user,
+          inserted_at: ~U[2025-01-01 00:00:00Z],
+          last_started_at: nil,
+          current_viewer_count: 0,
+          peak_viewer_count: 0
+        )
+
+      recent =
+        insert(:stream,
+          user: user,
+          inserted_at: ~U[2025-02-01 00:00:00Z],
+          last_started_at: ~U[2025-02-02 00:00:00Z],
+          current_viewer_count: 10,
+          peak_viewer_count: 20
+        )
+
+      assert_id = fn filter, expected ->
+        assert [%{id: id}] =
+                 %Query{scope: :system, filters: [{:user, user.id}, filter]}
+                 |> Streaming.list(10)
+
+        assert id == expected.id
+      end
+
+      assert_id.({:created_at, {:gte, ~U[2025-01-15 00:00:00Z]}}, recent)
+      assert_id.({:last_started_at, :never}, never)
+      assert_id.({:last_started_at, {:gte, ~U[2025-02-01 00:00:00Z]}}, recent)
+      assert_id.({:current_viewer_count, {:between, 5, 15}}, recent)
+      assert_id.({:peak_viewer_count, {:gt, 10}}, recent)
+    end
+
     test "filters upcoming streams and sorts by soonest start" do
       soon =
         insert(:stream, live: false, next_start_at: DateTime.shift(DateTime.utc_now(), minute: 5))
@@ -551,50 +629,107 @@ defmodule Asciinema.StreamingTest do
 
   defp reload(stream), do: Streaming.get_stream(stream.id)
 
-  describe "list_streams_admin/1" do
+  describe "admin query execution" do
     test "returns all streams including private and offline" do
-      base = length(Streaming.list_streams_admin(page_size: 1000).entries)
       insert(:stream, visibility: :private, live: false)
       insert(:stream, visibility: :public, live: true)
 
-      assert length(Streaming.list_streams_admin(page_size: 1000).entries) == base + 2
+      assert length(Streaming.list(%Query{scope: :admin}, 1000)) == 2
     end
 
     test "filters by visibility" do
       insert(:stream, visibility: :private)
       insert(:stream, visibility: :public)
 
-      assert length(Streaming.list_streams_admin(visibility: :private, page_size: 1000).entries) ==
-               1
+      results =
+        %Query{scope: :admin, filters: [{:visibility, :private}]}
+        |> Streaming.list(1000)
+
+      assert length(results) == 1
     end
 
     test "filters by live" do
       insert(:stream, live: true)
       insert(:stream, live: false)
 
-      assert length(Streaming.list_streams_admin(live: true, page_size: 1000).entries) == 1
+      results =
+        %Query{scope: :admin, filters: [{:live, true}]}
+        |> Streaming.list(1000)
+
+      assert length(results) == 1
+    end
+
+    test "filters by user" do
+      u = insert(:user)
+      insert_list(2, :stream, user: u)
+      insert(:stream)
+
+      results =
+        %Query{scope: :admin, filters: [{:user, u.id}]}
+        |> Streaming.list(1000)
+
+      assert length(results) == 2
     end
 
     test "search by title" do
       target = insert(:stream, title: "My Live Demo")
       insert(:stream, title: "Other")
 
-      assert [%{id: id}] = Streaming.list_streams_admin(search: "demo").entries
+      assert [%{id: id}] =
+               %Query{scope: :admin, filters: [{:title, {:search, "demo"}}]}
+               |> Streaming.list(10)
+
       assert id == target.id
     end
 
-    test "search by user" do
+    test "filters by username" do
       u = insert(:user, username: "alicia")
       target = insert(:stream, user: u)
       insert(:stream)
 
-      assert [%{id: id}] = Streaming.list_streams_admin(search: "alic").entries
+      assert [%{id: id}] =
+               %Query{scope: :admin, filters: [{:user, "alicia"}]}
+               |> Streaming.list(10)
+
       assert id == target.id
     end
 
-    test "respects page_size" do
+    test "respects limit" do
       insert_list(5, :stream)
-      assert length(Streaming.list_streams_admin(page_size: 2).entries) == 2
+      assert length(Streaming.list(%Query{scope: :admin}, 2)) == 2
+    end
+
+    test "sorts nullable viewer counts after known counts" do
+      user = insert(:user)
+      unknown = insert(:stream, user: user, current_viewer_count: nil)
+      low = insert(:stream, user: user, current_viewer_count: 1)
+      high = insert(:stream, user: user, current_viewer_count: 2)
+
+      ids =
+        %Query{
+          scope: :admin,
+          filters: [{:user, user.id}],
+          sort: {:current_viewers, :desc}
+        }
+        |> Streaming.list(3)
+        |> Enum.map(& &1.id)
+
+      assert ids == [high.id, low.id, unknown.id]
+    end
+
+    test "paginates in display order" do
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+      first = insert(:stream, last_started_at: DateTime.add(now, -300))
+      second = insert(:stream, last_started_at: DateTime.add(now, -200))
+      third = insert(:stream, last_started_at: DateTime.add(now, -100))
+
+      page =
+        %Query{scope: :admin, sort: {:last_started, :desc}}
+        |> Streaming.paginate(1, 2)
+
+      ids = Enum.map(page.entries, & &1.id)
+      assert ids == [third.id, second.id]
+      refute first.id in ids
     end
   end
 

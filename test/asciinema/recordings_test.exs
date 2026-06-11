@@ -401,6 +401,11 @@ defmodule Asciinema.RecordingsTest do
         |> Recordings.list(10)
         |> Enum.map(& &1.id)
 
+      anonymous_ids =
+        %Query{scope: {:listing_for, nil}}
+        |> Recordings.list(10)
+        |> Enum.map(& &1.id)
+
       owner_ids =
         %Query{scope: {:listing_for, owner}}
         |> Recordings.list(10)
@@ -411,6 +416,7 @@ defmodule Asciinema.RecordingsTest do
       refute private.id in public_ids
 
       assert Enum.sort(public_ids) == Enum.sort(viewer_ids)
+      assert Enum.sort(public_ids) == Enum.sort(anonymous_ids)
       assert public.id in owner_ids
       assert unlisted.id in owner_ids
       assert private.id in owner_ids
@@ -505,6 +511,81 @@ defmodule Asciinema.RecordingsTest do
       assert_ids.({:stream, false}, [without_stream.id])
       assert_ids.({:stream, {:not_eq, other_stream.id}}, [target.id, without_stream.id])
       assert_ids.({:stream, {:in, [stream.id]}}, [target.id])
+    end
+
+    test "filters by id, public status, featured false, and audio presence" do
+      user = insert(:user)
+
+      public_audio =
+        insert(:asciicast,
+          user: user,
+          visibility: :public,
+          featured: false,
+          audio_url: "https://example.com/audio"
+        )
+
+      private = insert(:asciicast, user: user, visibility: :private, featured: nil)
+      public_featured = insert(:asciicast, user: user, visibility: :public, featured: true)
+
+      assert_ids = fn filter, expected ->
+        ids =
+          %Query{
+            scope: :system,
+            archived: :include,
+            filters: [{:user, user.id}, filter]
+          }
+          |> Recordings.list(10)
+          |> Enum.map(& &1.id)
+          |> Enum.sort()
+
+        assert ids == Enum.sort(expected)
+      end
+
+      assert_ids.({:id, private.id}, [private.id])
+      assert_ids.(:public, [public_audio.id, public_featured.id])
+      assert_ids.({:featured, false}, [public_audio.id, private.id])
+      assert_ids.({:audio, true}, [public_audio.id])
+      assert_ids.({:audio, false}, [private.id, public_featured.id])
+    end
+
+    test "filters by created time, duration, size, and views" do
+      user = insert(:user)
+
+      low =
+        insert(:asciicast,
+          user: user,
+          inserted_at: ~U[2025-01-01 00:00:00Z],
+          duration: 10,
+          compressed_size: 100
+        )
+
+      high =
+        insert(:asciicast,
+          user: user,
+          inserted_at: ~U[2025-02-01 00:00:00Z],
+          duration: 20,
+          compressed_size: 200
+        )
+
+      insert(:asciicast_stats, asciicast_id: low.id, total_views: 5)
+      insert(:asciicast_stats, asciicast_id: high.id, total_views: 15)
+
+      assert_id = fn filter, expected ->
+        assert [%{id: id}] =
+                 %Query{
+                   scope: :system,
+                   archived: :include,
+                   filters: [{:user, user.id}, filter]
+                 }
+                 |> Recordings.list(10)
+
+        assert id == expected.id
+      end
+
+      assert_id.({:created_at, {:gte, ~U[2025-01-15 00:00:00Z]}}, high)
+      assert_id.({:duration, {:between, 15, 25}}, high)
+      assert_id.({:compressed_size, {:lt, 150}}, low)
+      assert_id.({:views, {:gte, 10}}, high)
     end
 
     test "smoke-tests random sort" do
@@ -1002,29 +1083,36 @@ defmodule Asciinema.RecordingsTest do
     end
   end
 
-  describe "list_asciicasts_admin/1" do
+  describe "admin query execution" do
     test "includes recordings of every visibility, including archived" do
-      base = length(Recordings.list_asciicasts_admin(page_size: 1000).entries)
-      insert(:asciicast, visibility: :private)
-      insert(:asciicast, visibility: :unlisted)
-      insert(:asciicast, visibility: :public)
-      insert(:asciicast, archived_at: ~U[2025-01-01 00:00:00Z])
+      user = insert(:user)
+      insert(:asciicast, user: user, visibility: :private)
+      insert(:asciicast, user: user, visibility: :unlisted)
+      insert(:asciicast, user: user, visibility: :public)
+      insert(:asciicast, user: user, archived_at: ~U[2025-01-01 00:00:00Z])
 
-      assert length(Recordings.list_asciicasts_admin(page_size: 1000).entries) == base + 4
+      results =
+        %Query{scope: :admin, archived: :include, filters: [{:user, user}]}
+        |> Recordings.list(1000)
+
+      assert length(results) == 4
     end
 
     test "filters by visibility" do
-      base =
-        length(Recordings.list_asciicasts_admin(visibility: :public, page_size: 1000).entries)
+      user = insert(:user)
+      insert(:asciicast, user: user, visibility: :private)
+      insert(:asciicast, user: user, visibility: :public)
+      insert(:asciicast, user: user, visibility: :public)
 
-      insert(:asciicast, visibility: :private)
-      insert(:asciicast, visibility: :public)
-      insert(:asciicast, visibility: :public)
+      results =
+        %Query{
+          scope: :admin,
+          archived: :include,
+          filters: [{:user, user}, {:visibility, :public}]
+        }
+        |> Recordings.list(1000)
 
-      assert length(
-               Recordings.list_asciicasts_admin(visibility: :public, page_size: 1000).entries
-             ) ==
-               base + 2
+      assert length(results) == 2
     end
 
     test "filters by archived" do
@@ -1032,62 +1120,105 @@ defmodule Asciinema.RecordingsTest do
       insert(:asciicast, archived_at: nil)
       insert(:asciicast, archived_at: nil)
 
-      assert length(Recordings.list_asciicasts_admin(archived: true, page_size: 1000).entries) ==
-               1
+      assert length(Recordings.list(%Query{scope: :admin, archived: :only}, 1000)) == 1
     end
 
     test "filters by featured" do
       insert(:asciicast, featured: true)
       insert(:asciicast, featured: false)
 
-      assert length(Recordings.list_asciicasts_admin(featured: true, page_size: 1000).entries) ==
-               1
+      results =
+        %Query{scope: :admin, archived: :include, filters: [{:featured, true}]}
+        |> Recordings.list(1000)
+
+      assert length(results) == 1
     end
 
-    test "search by title (case-insensitive substring)" do
+    test "filters by user" do
+      u = insert(:user)
+      insert_list(2, :asciicast, user: u)
+      insert(:asciicast)
+
+      results =
+        %Query{scope: :admin, archived: :include, filters: [{:user, u.id}]}
+        |> Recordings.list(1000)
+
+      assert length(results) == 2
+    end
+
+    test "search by title" do
       target = insert(:asciicast, title: "My Demo Recording")
       insert(:asciicast, title: "Unrelated")
 
-      assert [%{id: id}] = Recordings.list_asciicasts_admin(search: "demo").entries
+      assert [%{id: id}] =
+               %Query{scope: :admin, archived: :include, filters: [{:title, {:search, "demo"}}]}
+               |> Recordings.list(10)
+
       assert id == target.id
     end
 
-    test "search by user" do
+    test "filters by username" do
       u = insert(:user, username: "alicia")
       target = insert(:asciicast, user: u)
       insert(:asciicast)
 
-      assert [%{id: id}] = Recordings.list_asciicasts_admin(search: "alic").entries
+      assert [%{id: id}] =
+               %Query{scope: :admin, archived: :include, filters: [{:user, "alicia"}]}
+               |> Recordings.list(10)
+
       assert id == target.id
     end
 
-    test "respects page_size" do
+    test "respects limit" do
       insert_list(5, :asciicast)
-      assert length(Recordings.list_asciicasts_admin(page_size: 2).entries) == 2
+      assert length(Recordings.list(%Query{scope: :admin, archived: :include}, 2)) == 2
     end
 
-    test "orders by inserted_at desc by default" do
+    test "orders by created desc" do
       first = insert(:asciicast)
       second = insert(:asciicast)
       third = insert(:asciicast)
 
       ids =
-        Recordings.list_asciicasts_admin(page_size: 3).entries
+        %Query{scope: :admin, archived: :include, sort: {:created, :desc}}
+        |> Recordings.list(3)
         |> Enum.map(& &1.id)
         |> Enum.filter(&(&1 in [first.id, second.id, third.id]))
 
       assert ids == [third.id, second.id, first.id]
     end
 
-    test "offset pagination returns subsequent pages" do
-      insert_list(3, :asciicast)
+    test "sorts nullable sizes after known sizes" do
+      user = insert(:user)
+      unknown = insert(:asciicast, user: user, compressed_size: nil)
+      small = insert(:asciicast, user: user, compressed_size: 100)
+      large = insert(:asciicast, user: user, compressed_size: 200)
 
-      all = Recordings.list_asciicasts_admin(page_size: 100).entries |> Enum.map(& &1.id)
-      page1 = Recordings.list_asciicasts_admin(page: 1, page_size: 2).entries |> Enum.map(& &1.id)
-      page2 = Recordings.list_asciicasts_admin(page: 2, page_size: 2).entries |> Enum.map(& &1.id)
+      ids =
+        %Query{
+          scope: :admin,
+          archived: :include,
+          filters: [{:user, user.id}],
+          sort: {:size, :desc}
+        }
+        |> Recordings.list(3)
+        |> Enum.map(& &1.id)
 
-      assert page1 == Enum.take(all, 2)
-      assert page2 == all |> Enum.drop(2) |> Enum.take(2)
+      assert ids == [large.id, small.id, unknown.id]
+    end
+
+    test "paginates in display order" do
+      first = insert(:asciicast)
+      second = insert(:asciicast)
+      third = insert(:asciicast)
+
+      page =
+        %Query{scope: :admin, archived: :include, sort: {:created, :desc}}
+        |> Recordings.paginate(1, 2)
+
+      ids = Enum.map(page.entries, & &1.id)
+      assert ids == [third.id, second.id]
+      refute first.id in ids
     end
   end
 
@@ -1107,6 +1238,18 @@ defmodule Asciinema.RecordingsTest do
 
       {:ok, archived} = Recordings.archive_now(a)
       assert %DateTime{} = archived.archived_at
+    end
+  end
+
+  describe "count/1" do
+    test "counts only recordings matching the spec (e.g. a user)" do
+      user = insert(:user)
+      other = insert(:user)
+      insert_list(2, :asciicast, user: user)
+      insert(:asciicast, user: other)
+
+      assert Recordings.count(%Query{scope: :admin, archived: :include, filters: [user: user.id]}) ==
+               2
     end
   end
 end

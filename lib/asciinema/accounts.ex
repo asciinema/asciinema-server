@@ -2,7 +2,7 @@ defmodule Asciinema.Accounts do
   use Asciinema.Config
   import Ecto.Query, warn: false
   import Ecto, only: [assoc: 2, build_assoc: 2]
-  alias Asciinema.Accounts.{Cli, User}
+  alias Asciinema.Accounts.{Cli, Query, User}
   alias Asciinema.{Fonts, Repo, Themes}
   alias Ecto.Changeset
   alias Phoenix.Token
@@ -54,52 +54,201 @@ defmodule Asciinema.Accounts do
     Repo.get_by(User, auth_token: auth_token)
   end
 
-  @doc """
-  Lists users for the admin panel, as a `Scrivener.Page`.
-
-  Options:
-    * `:search`    – free text matching id (exact), username (ILIKE) or email (ILIKE)
-    * `:sort_by`   – `:inserted_at` (default) or `:last_login_at`
-    * `:sort_dir`  – `:desc` (default) or `:asc`
-    * `:page`      – page number (default `1`)
-    * `:page_size` – rows per page (default `50`)
-  """
-  def list_users(opts \\ []) do
-    search = opts[:search]
-    sort_by = opts[:sort_by] || :inserted_at
-    sort_dir = opts[:sort_dir] || :desc
-
+  def query(%Query{} = spec) do
     User
-    |> list_users_search(search)
-    |> list_users_sort(sort_by, sort_dir)
-    |> Repo.paginate(page: opts[:page] || 1, page_size: opts[:page_size] || 50)
+    |> apply_scope(spec.scope)
+    |> apply_filters(spec.filters)
+    |> sort(spec.sort)
   end
 
-  defp list_users_search(query, nil), do: query
-  defp list_users_search(query, ""), do: query
+  defp apply_scope(query, :admin), do: query
+  defp apply_scope(query, :system), do: query
 
-  defp list_users_search(query, search) do
-    case Integer.parse(search) do
-      {id, ""} ->
-        from u in query, where: u.id == ^id
+  defp apply_filters(q, filters) when is_list(filters) do
+    filters
+    |> Enum.uniq()
+    |> Enum.reduce(q, &apply_filter/2)
+  end
 
-      _ ->
-        pattern = "%#{search}%"
-        from u in query, where: ilike(u.username, ^pattern) or ilike(u.email, ^pattern)
+  defp apply_filters(q, filter), do: apply_filters(q, List.wrap(filter))
+
+  defp apply_filter(filter, q) do
+    case filter do
+      {:id, id} ->
+        where(q, [u], u.id == ^id)
+
+      {:identity, {:search, text}} ->
+        search_identity(q, text)
+
+      {:username, {:search, text}} ->
+        where(q, [u], ilike(u.username, ^"%#{escape_like(text)}%"))
+
+      {:email, {:search, text}} ->
+        where(q, [u], ilike(u.email, ^"%#{escape_like(text)}%"))
+
+      {:name, {:search, text}} ->
+        where(q, [u], ilike(u.name, ^"%#{escape_like(text)}%"))
+
+      {:created_at, condition} ->
+        apply_field_condition(q, :inserted_at, condition)
+
+      {:last_login_at, condition} ->
+        apply_field_condition(q, :last_login_at, condition)
+
+      {:recording_count, condition} ->
+        q
+        |> with_counts()
+        |> apply_count_condition(:recording_count, condition)
+
+      {:stream_count, condition} ->
+        q
+        |> with_counts()
+        |> apply_count_condition(:stream_count, condition)
     end
   end
 
-  defp list_users_sort(query, :inserted_at, :desc),
-    do: order_by(query, [u], desc: u.inserted_at, desc: u.id)
+  defp search_identity(q, text) do
+    text
+    |> String.split()
+    |> Enum.reduce(q, fn term, q ->
+      pattern = "%#{escape_like(term)}%"
 
-  defp list_users_sort(query, :inserted_at, :asc),
-    do: order_by(query, [u], asc: u.inserted_at, asc: u.id)
+      where(
+        q,
+        [u],
+        ilike(u.username, ^pattern) or ilike(u.email, ^pattern) or ilike(u.name, ^pattern)
+      )
+    end)
+  end
 
-  defp list_users_sort(query, :last_login_at, :desc),
-    do: order_by(query, [u], desc_nulls_last: u.last_login_at, desc: u.id)
+  defp escape_like(term) do
+    term
+    |> String.replace("\\", "\\\\")
+    |> String.replace("%", "\\%")
+    |> String.replace("_", "\\_")
+  end
 
-  defp list_users_sort(query, :last_login_at, :asc),
-    do: order_by(query, [u], asc_nulls_last: u.last_login_at, asc: u.id)
+  defp apply_field_condition(q, field, {:gt, value}), do: where(q, [u], field(u, ^field) > ^value)
+
+  defp apply_field_condition(q, field, {:gte, value}),
+    do: where(q, [u], field(u, ^field) >= ^value)
+
+  defp apply_field_condition(q, field, {:lt, value}), do: where(q, [u], field(u, ^field) < ^value)
+
+  defp apply_field_condition(q, field, {:lte, value}),
+    do: where(q, [u], field(u, ^field) <= ^value)
+
+  defp apply_field_condition(q, field, {:between, from_value, to_value}),
+    do: where(q, [u], field(u, ^field) >= ^from_value and field(u, ^field) <= ^to_value)
+
+  defp apply_count_condition(q, :recording_count, condition) do
+    apply_count_condition(q, :recording_counts, condition)
+  end
+
+  defp apply_count_condition(q, :stream_count, condition) do
+    apply_count_condition(q, :stream_counts, condition)
+  end
+
+  defp apply_count_condition(q, binding, {:eq, value}),
+    do: where(q, [{^binding, c}], coalesce(c.count, 0) == ^value)
+
+  defp apply_count_condition(q, binding, {:gt, value}),
+    do: where(q, [{^binding, c}], coalesce(c.count, 0) > ^value)
+
+  defp apply_count_condition(q, binding, {:gte, value}),
+    do: where(q, [{^binding, c}], coalesce(c.count, 0) >= ^value)
+
+  defp apply_count_condition(q, binding, {:lt, value}),
+    do: where(q, [{^binding, c}], coalesce(c.count, 0) < ^value)
+
+  defp apply_count_condition(q, binding, {:lte, value}),
+    do: where(q, [{^binding, c}], coalesce(c.count, 0) <= ^value)
+
+  defp apply_count_condition(q, binding, {:between, from_value, to_value}) do
+    where(
+      q,
+      [{^binding, c}],
+      coalesce(c.count, 0) >= ^from_value and coalesce(c.count, 0) <= ^to_value
+    )
+  end
+
+  defp sort(q, nil), do: q
+  defp sort(q, {:created, :desc}), do: order_by(q, [u], desc: u.inserted_at, desc: u.id)
+  defp sort(q, {:created, :asc}), do: order_by(q, [u], asc: u.inserted_at, asc: u.id)
+
+  defp sort(q, {:last_login, :desc}),
+    do: order_by(q, [u], desc_nulls_last: u.last_login_at, desc: u.id)
+
+  defp sort(q, {:last_login, :asc}),
+    do: order_by(q, [u], asc_nulls_last: u.last_login_at, asc: u.id)
+
+  defp sort(q, {:recordings, dir}) when dir in [:asc, :desc] do
+    q
+    |> with_counts()
+    |> order_by([u, recording_counts: c], [{^dir, coalesce(c.count, 0)}, {^dir, u.id}])
+  end
+
+  defp sort(q, {:streams, dir}) when dir in [:asc, :desc] do
+    q
+    |> with_counts()
+    |> order_by([u, stream_counts: c], [{^dir, coalesce(c.count, 0)}, {^dir, u.id}])
+  end
+
+  def paginate(%Query{} = spec, page, page_size, opts \\ []) do
+    spec
+    |> query()
+    |> maybe_with_counts(Keyword.get(opts, :with_counts, false))
+    |> Repo.paginate(page: page, page_size: page_size)
+  end
+
+  def list(%Query{} = spec, limit, opts \\ []) do
+    spec
+    |> query()
+    |> maybe_with_counts(Keyword.get(opts, :with_counts, false))
+    |> limit(^limit)
+    |> Repo.all()
+  end
+
+  defp maybe_with_counts(q, true), do: with_counts(q)
+  defp maybe_with_counts(q, false), do: q
+
+  defp with_counts(q) do
+    q
+    |> ensure_recording_count_join()
+    |> ensure_stream_count_join()
+    |> select_merge([recording_counts: rc, stream_counts: sc], %{
+      recording_count: coalesce(rc.count, 0),
+      stream_count: coalesce(sc.count, 0)
+    })
+  end
+
+  defp ensure_recording_count_join(q) do
+    if has_named_binding?(q, :recording_counts) do
+      q
+    else
+      counts =
+        from(a in Asciinema.Recordings.Asciicast,
+          group_by: a.user_id,
+          select: %{user_id: a.user_id, count: count(a.id)}
+        )
+
+      join(q, :left, [u], c in subquery(counts), on: c.user_id == u.id, as: :recording_counts)
+    end
+  end
+
+  defp ensure_stream_count_join(q) do
+    if has_named_binding?(q, :stream_counts) do
+      q
+    else
+      counts =
+        from(s in Asciinema.Streaming.Stream,
+          group_by: s.user_id,
+          select: %{user_id: s.user_id, count: count(s.id)}
+        )
+
+      join(q, :left, [u], c in subquery(counts), on: c.user_id == u.id, as: :stream_counts)
+    end
+  end
 
   def build_user(attrs \\ %{}) do
     Changeset.change(

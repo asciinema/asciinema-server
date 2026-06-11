@@ -195,6 +195,8 @@ hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
   display: flex;
   align-items: center;
   gap: 0.6rem;
+  /* keeps the header height stable with or without a "New …" button */
+  min-height: 2.125rem;
 }
 
 /* Avatars */
@@ -319,6 +321,9 @@ tbody tr:last-child td { border-bottom: 0; }
 td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 td.mono, th.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
 
+/* same top gap as .pagination */
+.see-all { margin-top: 0.75rem; }
+
 /* Forms */
 
 .form {
@@ -424,6 +429,208 @@ abbr[title] {
 .filter-bar input[type="search"] {
   width: 100%;
   max-width: 32rem;
+}
+
+.query-filter {
+  flex-wrap: wrap;
+  /* match the page header's bottom margin */
+  margin-bottom: 1.25rem;
+}
+
+.query-get-form {
+  display: contents;
+}
+
+.query-input-wrap {
+  position: relative;
+  flex: 1 1 24rem;
+  max-width: 42rem;
+}
+
+.query-input-wrap input[type="search"] {
+  max-width: none;
+  padding-right: 2rem; /* room for the inline help icon */
+}
+
+/* hide the native WebKit/Blink clear button; .query-clear-btn replaces it */
+.query-input-wrap input[type="search"]::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.query-input-wrap:has(.query-clear-btn) input[type="search"] {
+  padding-right: 3.5rem;
+}
+
+/* docked inside the input, left of the help icon */
+.query-clear-btn {
+  position: absolute;
+  top: 50%;
+  right: 2.05rem;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.query-clear-btn:hover {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.query-clear-btn svg {
+  display: block;
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
+.query-help-btn {
+  position: absolute;
+  top: 50%;
+  right: 0.5rem;
+  transform: translateY(-50%);
+  display: inline-flex;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.query-help-btn:hover {
+  color: var(--text);
+}
+
+.query-help-btn svg {
+  display: block;
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
+/* overrides the global select width so the bar stays on one row */
+.query-filter select {
+  width: auto;
+}
+
+/* one explicit height so the input, select and buttons line up */
+.query-filter input[type="search"],
+.query-filter select,
+.query-filter .btn {
+  height: 2.125rem;
+}
+
+.query-suggestions {
+  position: absolute;
+  z-index: 5;
+  top: calc(100% + 2px);
+  left: 0;
+  min-width: 14rem;
+  max-width: 100%;
+  padding: 0.25rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 3px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.query-suggestions button {
+  display: block;
+  width: 100%;
+  padding: 0.3rem 0.45rem;
+  border: 0;
+  border-radius: 2px;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.query-suggestions button.active,
+.query-suggestions button:hover {
+  background: var(--surface-2);
+}
+
+.query-errors {
+  margin: 0 0 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--danger);
+  border-radius: 3px;
+  background: var(--danger-bg);
+  color: var(--danger-strong);
+}
+
+.query-errors ul {
+  margin: 0.25rem 0 0;
+  padding-left: 1.25rem;
+}
+
+.admin-dialog {
+  width: min(44rem, calc(100vw - 2rem));
+  padding: 1rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.admin-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.dialog-close {
+  float: right;
+}
+
+.dialog-close button {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.dialog-header h2 {
+  margin: 0;
+}
+
+.query-help-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin: 0.75rem 0;
+}
+
+.query-help kbd {
+  padding: 0.05rem 0.35rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 3px;
+  background: var(--surface-2);
+  font-family: inherit;
+  font-size: 0.85em;
+}
+
+.query-help pre {
+  overflow-x: auto;
+  padding: 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: var(--surface-2);
+  font-size: 0.8rem;
+}
+
+@media (max-width: 760px) {
+  .query-help-grid { grid-template-columns: 1fr; }
 }
 
 /* Row actions in tables */
