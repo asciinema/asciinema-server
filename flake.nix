@@ -94,7 +94,7 @@
             [
               beamPackages.elixir
               beamPackages.elixir-ls
-              nodejs_20
+              nodejs_24
               cargo
               rustc
               rustfmt
@@ -102,6 +102,7 @@
               rustPackages.clippy
               shellcheck
               imagemagick
+              playwright-driver.browsers
             ]
             ++ self.packages.${system}.default.buildInputs
             ++ lib.optional stdenv.isLinux [ inotify-tools ];
@@ -122,6 +123,9 @@
 
             alias serve='iex -S mix phx.server';
           '';
+
+          # Playwright browsers pinned via the flake — no manual `playwright install`.
+          PLAYWRIGHT_BROWSERS_PATH = pkgs.playwright-driver.browsers;
         };
 
         nixosModules.default =
