@@ -12,6 +12,15 @@ defmodule AsciinemaAdmin.RecordingHTML do
   end
 
   @doc """
+  Suggested filename for downloading the cast file: `username-id.ext`. The
+  admin file endpoint serves the file decompressed, so no .zst suffix.
+  """
+  def download_filename(asciicast) do
+    ext = if asciicast.version == 1, do: "json", else: "cast"
+    "#{asciicast.user.username || asciicast.user_id}-#{asciicast.id}.#{ext}"
+  end
+
+  @doc """
   Mirrors `AsciinemaWeb.RecordingHTML.player_opts/2` so the admin preview
   plays back like the public player.
   """

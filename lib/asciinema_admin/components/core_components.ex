@@ -186,6 +186,9 @@ defmodule AsciinemaAdmin.CoreComponents do
     end
   end
 
+  @doc "The medium's captured env vars sorted by name; names are validated upper-case."
+  def env_vars(medium), do: Enum.sort(medium.env || %{})
+
   @doc """
   Avatar + username link to the admin user page. No whitespace between the
   avatar and the name — the gap is pure CSS margin.
@@ -203,6 +206,27 @@ defmodule AsciinemaAdmin.CoreComponents do
     <.link href={~p"/admin/users/#{@user.id}"} class="user-cell">
       <img src={avatar_url(@user)} class="avatar avatar-sm" alt="" />{@user.username || @user.id}
     </.link>
+    """
+  end
+
+  @doc "Renders user Markdown to sanitized HTML with the public site's renderer."
+  defdelegate render_markdown(input), to: AsciinemaWeb.ApplicationView
+
+  @doc "Absolute URL of a recording or stream on the public site."
+  def public_url(%Asciinema.Recordings.Asciicast{} = asciicast),
+    do: AsciinemaWeb.Endpoint.url() <> "/a/" <> Phoenix.Param.to_param(asciicast)
+
+  def public_url(%Asciinema.Streaming.Stream{} = stream),
+    do: AsciinemaWeb.Endpoint.url() <> "/s/" <> Phoenix.Param.to_param(stream)
+
+  @doc "Links a recording/stream to its public page, with the URL as the link text."
+  attr :entity, :any, required: true
+
+  def public_link(assigns) do
+    assigns = assign(assigns, :url, public_url(assigns.entity))
+
+    ~H"""
+    <.link href={@url} target="_blank" rel="noopener">{@url}</.link>
     """
   end
 
@@ -334,6 +358,27 @@ defmodule AsciinemaAdmin.CoreComponents do
     """
   end
 
+  @doc "Terminal size value (cols × rows)."
+  attr :cols, :any, default: nil
+  attr :rows, :any, default: nil
+
+  def term_size(assigns) do
+    ~H"""
+    {@cols || "?"} × {@rows || "?"}
+    """
+  end
+
+  @doc "Terminal type and version value."
+  attr :type, :any, default: nil
+  attr :version, :any, default: nil
+
+  def term_type(assigns) do
+    ~H"""
+    <code :if={@type}>{@type}<span :if={@version} class="muted"><.sep />{@version}</span></code>
+    <.none :if={!@type} />
+    """
+  end
+
   @doc "An 8-colour palette as SVG bars; crispEdges keeps them gapless at any zoom."
   attr :colors, :list, required: true
 
@@ -373,6 +418,19 @@ defmodule AsciinemaAdmin.CoreComponents do
         <% end %>
       }
     </style>
+    """
+  end
+
+  @doc "Terminal font value (family, with line height when set)."
+  attr :family, :any, default: nil
+  attr :line_height, :any, default: nil
+
+  def term_font(assigns) do
+    ~H"""
+    {@family}<.none :if={!@family} />
+    <span :if={@line_height} class="muted">
+      <.sep />{@line_height} lh
+    </span>
     """
   end
 end

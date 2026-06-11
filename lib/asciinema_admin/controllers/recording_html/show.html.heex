@@ -4,106 +4,265 @@
   </:actions>
 
   <div class="grid-2">
-    <section class="card">
-      <h3>Metadata</h3>
-      <table class="kv">
-        <tbody>
-          <tr>
-            <th>id</th>
-            <td class="mono">{@asciicast.id}</td>
-          </tr>
-          <tr>
-            <th>user</th>
-            <td>
-              <.user_link user={@asciicast.user} />
-            </td>
-          </tr>
-          <tr>
-            <th>title</th>
-            <td>{@asciicast.title}<.none :if={!@asciicast.title} /></td>
-          </tr>
-          <tr>
-            <th>description</th>
-            <td>{@asciicast.description}<.none :if={!@asciicast.description} /></td>
-          </tr>
-          <tr>
-            <th>visibility</th>
-            <td>
-              <.tag variant={visibility_variant(@asciicast.visibility)}>
-                {@asciicast.visibility}
-              </.tag>
-            </td>
-          </tr>
-          <tr>
-            <th>featured</th>
-            <td>{if @asciicast.featured, do: "yes", else: "no"}</td>
-          </tr>
-          <tr>
-            <th>archivable</th>
-            <td>{if @asciicast.archivable, do: "yes", else: "no"}</td>
-          </tr>
-          <tr>
-            <th>archived</th>
-            <td>
-              <.time_ago :if={@asciicast.archived_at} time={@asciicast.archived_at} />
-              <span :if={!@asciicast.archived_at} class="muted">—</span>
-            </td>
-          </tr>
-          <tr>
-            <th>created</th>
-            <td><.time_ago time={@asciicast.inserted_at} /></td>
-          </tr>
-          <tr>
-            <th>recorded at</th>
-            <td>
-              <.time_ago :if={@asciicast.recorded_at} time={@asciicast.recorded_at} />
-              <span :if={!@asciicast.recorded_at} class="muted">—</span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
+    <div class="card-stack">
+      <section class="card">
+        <h3>Overview</h3>
+        <table class="kv">
+          <tbody>
+            <tr>
+              <th>id</th>
+              <td><code>{@asciicast.id}</code></td>
+            </tr>
+            <tr>
+              <th>URL</th>
+              <td><.public_link entity={@asciicast} /></td>
+            </tr>
+            <tr>
+              <th>user</th>
+              <td><.user_link user={@asciicast.user} /></td>
+            </tr>
+            <tr>
+              <th>title</th>
+              <td class="truncate" title={@asciicast.title}>
+                {@asciicast.title}<.none :if={!@asciicast.title} />
+              </td>
+            </tr>
+            <tr>
+              <th>visibility</th>
+              <td>
+                <.tag variant={visibility_variant(@asciicast.visibility)}>
+                  {@asciicast.visibility}
+                </.tag>
+              </td>
+            </tr>
+            <tr>
+              <th>source</th>
+              <td>
+                <.link
+                  :if={@asciicast.stream_id}
+                  href={~p"/admin/streams/#{@asciicast.stream_id}"}
+                >
+                  stream {@asciicast.stream_id}
+                </.link>
+                <span :if={!@asciicast.stream_id} class="muted">upload</span>
+              </td>
+            </tr>
+            <tr>
+              <th>secret token</th>
+              <td><code>{@asciicast.secret_token}</code></td>
+            </tr>
+            <tr>
+              <th>created</th>
+              <td><.time_ago time={@asciicast.inserted_at} /></td>
+            </tr>
+            <tr>
+              <th>updated</th>
+              <td><.time_ago time={@asciicast.updated_at} /></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
 
-    <section class="card">
-      <h3>Playback</h3>
-      <table class="kv">
-        <tbody>
-          <tr>
-            <th>version</th>
-            <td class="mono">{@asciicast.version}</td>
-          </tr>
-          <tr>
-            <th>cols × rows</th>
-            <td class="mono">{@asciicast.term_cols} × {@asciicast.term_rows}</td>
-          </tr>
-          <tr>
-            <th>term type</th>
-            <td class="mono">{@asciicast.term_type}<.none :if={!@asciicast.term_type} /></td>
-          </tr>
-          <tr>
-            <th>term version</th>
-            <td class="mono">
-              {@asciicast.term_version}<.none :if={!@asciicast.term_version} />
-            </td>
-          </tr>
-          <tr>
-            <th>duration</th>
-            <td class="mono">
-              {format_duration(@asciicast.duration)}<.none :if={!@asciicast.duration} />
-            </td>
-          </tr>
-          <tr>
-            <th>bytes uploaded</th>
-            <td class="mono">
-              <.bytes_summary
-                compressed={@asciicast.compressed_size}
-                uncompressed={@asciicast.uncompressed_size}
-              />
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
+      <section class="card">
+        <h3>Status</h3>
+        <table class="kv">
+          <tbody>
+            <tr>
+              <th>views</th>
+              <td>{(@asciicast.stats && @asciicast.stats.total_views) || 0}</td>
+            </tr>
+            <tr>
+              <th>archived</th>
+              <td>
+                <.time_ago :if={@asciicast.archived_at} time={@asciicast.archived_at} />
+                <.none :if={!@asciicast.archived_at} />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="card">
+        <h3 class="card-head">
+          File
+          <.link
+            href={~p"/admin/recordings/#{@asciicast.id}/file"}
+            download={download_filename(@asciicast)}
+            class="card-head-action"
+          >
+            Download
+          </.link>
+        </h3>
+        <table class="kv">
+          <tbody>
+            <tr>
+              <th>format</th>
+              <td>asciicast v{@asciicast.version}</td>
+            </tr>
+            <tr>
+              <th>size</th>
+              <td>
+                <.bytes_summary
+                  compressed={@asciicast.compressed_size}
+                  uncompressed={@asciicast.uncompressed_size}
+                />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+
+    <div class="card-stack">
+      <section class="card">
+        <h3>Settings</h3>
+        <table class="kv">
+          <tbody>
+            <tr>
+              <th>terminal theme</th>
+              <td class="truncate" title={theme_setting_label(@asciicast)}>
+                <%= if colors = theme_setting_colors(@asciicast) do %>
+                  <.palette_strip colors={colors} />
+                  <span class="muted">
+                    <.sep />{theme_setting_label(@asciicast)}
+                  </span>
+                <% else %>
+                  {theme_setting_label(@asciicast)}
+                <% end %>
+              </td>
+            </tr>
+            <tr>
+              <th>terminal font</th>
+              <td>
+                <.term_font
+                  family={@asciicast.term_font_family}
+                  line_height={@asciicast.term_line_height}
+                />
+              </td>
+            </tr>
+            <tr>
+              <th>terminal cols × rows override</th>
+              <td>
+                <.term_size
+                  :if={@asciicast.term_cols_override || @asciicast.term_rows_override}
+                  cols={@asciicast.term_cols_override || @asciicast.term_cols}
+                  rows={@asciicast.term_rows_override || @asciicast.term_rows}
+                />
+                <.none :if={!(@asciicast.term_cols_override || @asciicast.term_rows_override)} />
+              </td>
+            </tr>
+            <tr>
+              <th>featured</th>
+              <td>{if @asciicast.featured, do: "yes", else: "no"}</td>
+            </tr>
+            <tr>
+              <th>speed</th>
+              <td>
+                {@asciicast.speed && "#{@asciicast.speed}×"}<.none :if={!@asciicast.speed} />
+              </td>
+            </tr>
+            <tr>
+              <th>idle limit</th>
+              <td>
+                {@asciicast.idle_time_limit && "#{@asciicast.idle_time_limit}s"}<.none :if={
+                  !@asciicast.idle_time_limit
+                } />
+              </td>
+            </tr>
+            <tr>
+              <th>audio</th>
+              <td class="truncate" title={@asciicast.audio_url}>
+                <.link
+                  :if={@asciicast.audio_url}
+                  href={@asciicast.audio_url}
+                  target="_blank"
+                  rel="noopener"
+                >
+                  {@asciicast.audio_url}
+                </.link>
+                <.none :if={!@asciicast.audio_url} />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="card">
+        <h3>Metadata</h3>
+        <table class="kv">
+          <tbody>
+            <tr>
+              <th>recorded</th>
+              <td>
+                <.time_ago :if={@asciicast.recorded_at} time={@asciicast.recorded_at} />
+                <.none :if={!@asciicast.recorded_at} />
+              </td>
+            </tr>
+            <tr>
+              <th>duration</th>
+              <td>
+                {format_duration(@asciicast.duration)}<.none :if={!@asciicast.duration} />
+              </td>
+            </tr>
+            <tr>
+              <th>command</th>
+              <td class="truncate" title={@asciicast.command}>
+                <code :if={@asciicast.command}>{@asciicast.command}</code>
+                <.none :if={!@asciicast.command} />
+              </td>
+            </tr>
+            <tr>
+              <th>shell</th>
+              <td class="truncate" title={@asciicast.shell}>
+                <code :if={@asciicast.shell}>{@asciicast.shell}</code>
+                <.none :if={!@asciicast.shell} />
+              </td>
+            </tr>
+            <tr>
+              <th>terminal cols × rows</th>
+              <td>
+                <.term_size
+                  :if={@asciicast.term_cols && @asciicast.term_rows}
+                  cols={@asciicast.term_cols}
+                  rows={@asciicast.term_rows}
+                />
+                <.none :if={!(@asciicast.term_cols && @asciicast.term_rows)} />
+              </td>
+            </tr>
+            <tr>
+              <th>terminal type & version</th>
+              <td>
+                <.term_type type={@asciicast.term_type} version={@asciicast.term_version} />
+              </td>
+            </tr>
+            <tr>
+              <th>terminal original theme</th>
+              <td>
+                <%= if colors = original_theme_colors(@asciicast) do %>
+                  <.palette_strip colors={colors} />
+                <% else %>
+                  <.none />
+                <% end %>
+              </td>
+            </tr>
+            <tr>
+              <th>user agent</th>
+              <td class="truncate" title={@asciicast.user_agent}>
+                <code :if={@asciicast.user_agent}>{@asciicast.user_agent}</code>
+                <.none :if={!@asciicast.user_agent} />
+              </td>
+            </tr>
+            <tr :for={{name, value} <- env_vars(@asciicast)}>
+              <th><span class="truncate" title={name}>{name}</span></th>
+              <td class="truncate" title={value}>
+                <code :if={value != ""}>{value}</code>
+                <.none :if={value == ""} />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
   </div>
 
   <section class="card mt">
@@ -172,6 +331,10 @@
     class="admin-player mt"
   >
   </div>
+
+  <%= if desc = render_markdown(@asciicast.description) do %>
+    <section class="card mt description">{desc}</section>
+  <% end %>
 
   <section class="card mt danger-zone">
     <h3>Delete recording</h3>

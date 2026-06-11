@@ -64,11 +64,24 @@ defmodule AsciinemaAdmin.RecordingControllerTest do
       body = conn |> get(~p"/admin/recordings/#{asciicast.id}") |> html_response(200)
 
       assert body =~ "abc-rec"
+      assert body =~ "Overview"
+      assert body =~ "Settings"
       assert body =~ "Metadata"
       assert body =~ "Quick actions"
       assert body =~ ~s(id="player")
       assert body =~ "/admin/recordings/#{asciicast.id}/file"
+      assert body =~ ~s(download="#{asciicast.user.username}-#{asciicast.id}.cast")
       assert body =~ "Delete recording"
+    end
+
+    test "lists the captured env vars in Metadata", %{conn: conn} do
+      asciicast = insert(:asciicast, env: %{"SHELL" => "/bin/zsh", "TERM" => "xterm-256color"})
+
+      body = conn |> get(~p"/admin/recordings/#{asciicast.id}") |> html_response(200)
+
+      assert body =~ ~r{<th><span class="truncate" title="SHELL">\s*SHELL\s*</span></th>}
+      assert body =~ "/bin/zsh"
+      assert body =~ ~r{<th><span class="truncate" title="TERM">\s*TERM\s*</span></th>}
     end
 
     test "supplies the original theme colors to the player", %{conn: conn} do

@@ -20,11 +20,11 @@
           </tr>
           <tr>
             <th>title</th>
-            <td>{@stream.title}<.none :if={!@stream.title} /></td>
+            <td>{@stream.title || "—"}</td>
           </tr>
           <tr>
             <th>description</th>
-            <td>{@stream.description}<.none :if={!@stream.description} /></td>
+            <td>{@stream.description || "—"}</td>
           </tr>
           <tr>
             <th>visibility</th>
@@ -41,7 +41,7 @@
           </tr>
           <tr>
             <th>schedule</th>
-            <td class="mono">{@stream.schedule}<.none :if={!@stream.schedule} /></td>
+            <td class="mono">{@stream.schedule || "—"}</td>
           </tr>
           <tr>
             <th>created</th>
@@ -83,17 +83,15 @@
           </tr>
           <tr>
             <th>protocol</th>
-            <td class="mono">{@stream.protocol}<.none :if={!@stream.protocol} /></td>
+            <td class="mono">{@stream.protocol || "—"}</td>
           </tr>
           <tr>
             <th>buffer</th>
-            <td class="mono">{@stream.buffer_time}<.none :if={!@stream.buffer_time} /></td>
+            <td class="mono">{@stream.buffer_time || "—"}</td>
           </tr>
           <tr>
             <th>offline grace period</th>
-            <td class="mono">
-              {@stream.offline_grace_period}<.none :if={!@stream.offline_grace_period} />
-            </td>
+            <td class="mono">{@stream.offline_grace_period || "—"}</td>
           </tr>
         </tbody>
       </table>
@@ -171,7 +169,7 @@
               </td>
               <td class="col-title">
                 <div class="title-cell">
-                  <span class="title-text">{a.title}<.none :if={!a.title} /></span><span
+                  <span class="title-text">{a.title || "—"}</span><span
                     :if={a.featured}
                     class="flag"
                     title="Featured"
@@ -185,10 +183,8 @@
               <td>
                 <.tag variant={visibility_variant(a.visibility)}>{a.visibility}</.tag>
               </td>
-              <td class="num mono">{format_duration(a.duration)}<.none :if={!a.duration} /></td>
-              <td class="num mono">
-                {format_bytes(a.compressed_size)}<.none :if={!a.compressed_size} />
-              </td>
+              <td class="num mono">{format_duration(a.duration)}</td>
+              <td class="num mono">{format_bytes(a.compressed_size)}</td>
               <td class="num mono">{a.total_views || 0}</td>
               <td><.time_ago time={a.inserted_at} /></td>
               <td class="row-actions">
