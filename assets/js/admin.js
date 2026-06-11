@@ -9,12 +9,17 @@ document.addEventListener("submit", (event) => {
   }
 });
 
+// ws(s) sources play live via the websocket driver
 function mountPlayer() {
   const el = document.getElementById("player");
-  if (el && el.dataset.src && !el.dataset.mounted) {
-    el.dataset.mounted = "1";
-    createPlayer(el.dataset.src, el, { fit: "width" });
-  }
+  if (!el || !el.dataset.src || el.dataset.mounted) return;
+  el.dataset.mounted = "1";
+  const src = el.dataset.src;
+  const playerSrc =
+    src.startsWith("ws://") || src.startsWith("wss://")
+      ? { driver: "websocket", url: src }
+      : src;
+  createPlayer(playerSrc, el, { fit: "width" });
 }
 
 document.addEventListener("DOMContentLoaded", mountPlayer);

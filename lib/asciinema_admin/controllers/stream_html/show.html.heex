@@ -1,0 +1,192 @@
+<.page title={@stream.title || "Stream ##{@stream.id}"}>
+  <:actions>
+    <.button href={~p"/admin/streams/#{@stream.id}/edit"}>Edit</.button>
+  </:actions>
+
+  <div class="grid-2">
+    <section class="card">
+      <h3>Stream</h3>
+      <table class="kv">
+        <tbody>
+          <tr>
+            <th>id</th>
+            <td class="mono">{@stream.id}</td>
+          </tr>
+          <tr>
+            <th>user</th>
+            <td>
+              <%= if @stream.user do %>
+                <.link href={~p"/admin/users/#{@stream.user.id}"}>
+                  {@stream.user.username || @stream.user.id}
+                </.link>
+              <% else %>
+                <span class="muted">—</span>
+              <% end %>
+            </td>
+          </tr>
+          <tr>
+            <th>title</th>
+            <td>{@stream.title || "—"}</td>
+          </tr>
+          <tr>
+            <th>description</th>
+            <td>{@stream.description || "—"}</td>
+          </tr>
+          <tr>
+            <th>visibility</th>
+            <td>
+              <.tag variant={visibility_variant(@stream.visibility)}>{@stream.visibility}</.tag>
+            </td>
+          </tr>
+          <tr>
+            <th>live?</th>
+            <td>
+              <.tag :if={@stream.live} variant={:success}>live</.tag>
+              <span :if={!@stream.live} class="muted">offline</span>
+            </td>
+          </tr>
+          <tr>
+            <th>schedule</th>
+            <td class="mono">{@stream.schedule || "—"}</td>
+          </tr>
+          <tr>
+            <th>created</th>
+            <td><.time_ago time={@stream.inserted_at} /></td>
+          </tr>
+          <tr>
+            <th>last started</th>
+            <td>
+              <.time_ago :if={@stream.last_started_at} time={@stream.last_started_at} />
+              <span :if={!@stream.last_started_at} class="muted">never</span>
+            </td>
+          </tr>
+          <tr>
+            <th>last activity</th>
+            <td>
+              <.time_ago :if={@stream.last_activity_at} time={@stream.last_activity_at} />
+              <span :if={!@stream.last_activity_at} class="muted">—</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h3>Viewers & playback</h3>
+      <table class="kv">
+        <tbody>
+          <tr>
+            <th>current viewers</th>
+            <td class="mono">{@stream.current_viewer_count || 0}</td>
+          </tr>
+          <tr>
+            <th>peak viewers</th>
+            <td class="mono">{@stream.peak_viewer_count || 0}</td>
+          </tr>
+          <tr>
+            <th>cols × rows</th>
+            <td class="mono">{@stream.term_cols || "?"} × {@stream.term_rows || "?"}</td>
+          </tr>
+          <tr>
+            <th>protocol</th>
+            <td class="mono">{@stream.protocol || "—"}</td>
+          </tr>
+          <tr>
+            <th>buffer</th>
+            <td class="mono">{@stream.buffer_time || "—"}</td>
+          </tr>
+          <tr>
+            <th>offline grace period</th>
+            <td class="mono">{@stream.offline_grace_period || "—"}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="mt">Tokens</h3>
+      <table class="kv">
+        <tbody>
+          <tr>
+            <th>public token</th>
+            <td class="mono">{@stream.public_token}</td>
+          </tr>
+          <tr>
+            <th>producer token</th>
+            <td class="mono">{@stream.producer_token}</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+
+  <section :if={@stream.live} class="card mt">
+    <h3>Quick actions</h3>
+    <div class="action-grid">
+      <.form
+        for={%{}}
+        action={~p"/admin/streams/#{@stream.id}/disconnect"}
+        method="post"
+        data-confirm="Force-disconnect this live stream?"
+      >
+        <button type="submit" class="btn">Force-disconnect</button>
+      </.form>
+    </div>
+  </section>
+
+  <%= if @stream.visibility == :private do %>
+    <p class="muted mt">
+      Inline preview isn't available for private streams — the anonymous
+      WebSocket handshake the player uses isn't authorized for them.
+    </p>
+  <% else %>
+    <div id="player" data-src={@player_src} class="admin-player mt"></div>
+  <% end %>
+
+  <section class="card mt">
+    <h3>Recordings from this stream</h3>
+    <%= if @recordings == [] do %>
+      <p class="muted">None.</p>
+    <% else %>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th class="num">id</th>
+              <th>title</th>
+              <th>visibility</th>
+              <th>created</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr :for={a <- @recordings}>
+              <td class="num mono">
+                <.link href={~p"/admin/recordings/#{a.id}"}>{a.id}</.link>
+              </td>
+              <td>{a.title || "—"}</td>
+              <td>
+                <.tag variant={visibility_variant(a.visibility)}>{a.visibility}</.tag>
+              </td>
+              <td><.time_ago time={a.inserted_at} /></td>
+              <td class="row-actions">
+                <.link href={~p"/admin/recordings/#{a.id}"}>view</.link>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
+  </section>
+
+  <section class="card mt danger-zone">
+    <h3>Delete stream</h3>
+    <p class="muted">Permanently removes this stream. There is no undo.</p>
+    <.form
+      for={%{}}
+      method="delete"
+      action={~p"/admin/streams/#{@stream.id}"}
+      data-confirm={"Delete stream ##{@stream.id}?"}
+    >
+      <button type="submit" class="btn btn-danger">Delete</button>
+    </.form>
+  </section>
+</.page>

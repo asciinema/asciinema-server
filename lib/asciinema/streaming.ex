@@ -270,6 +270,75 @@ defmodule Asciinema.Streaming do
   def count(q), do: Repo.count(q)
 
   @doc """
+  Lists streams for the admin panel, as a `Scrivener.Page`. Sees every
+  visibility, live and offline.
+
+  Options:
+    * `:search`      – id (exact), title (ILIKE), or user identifier (ILIKE)
+    * `:visibility`  – `:public`, `:unlisted`, `:private`, or `nil`/`:all`
+    * `:live`        – `true`, `false`, or `nil`/`:all`
+    * `:sort_by`     – `:last_started_at` (default), `:current_viewer_count`,
+                       `:peak_viewer_count`, or `:inserted_at`
+    * `:sort_dir`    – `:desc` (default) or `:asc`
+    * `:page`        – page number (default `1`)
+    * `:page_size`   – rows per page (default `50`)
+  """
+  def list_streams_admin(opts \\ []) do
+    sort_by = opts[:sort_by] || :last_started_at
+    sort_dir = opts[:sort_dir] || :desc
+
+    Stream
+    |> admin_filter_visibility(opts[:visibility])
+    |> admin_filter_live(opts[:live])
+    |> admin_search(opts[:search])
+    |> admin_sort(sort_by, sort_dir)
+    |> preload(:user)
+    |> Repo.paginate(page: opts[:page] || 1, page_size: opts[:page_size] || 50)
+  end
+
+  defp admin_filter_visibility(query, nil), do: query
+  defp admin_filter_visibility(query, :all), do: query
+
+  defp admin_filter_visibility(query, vis) when vis in [:public, :unlisted, :private],
+    do: from(s in query, where: s.visibility == ^vis)
+
+  defp admin_filter_live(query, nil), do: query
+  defp admin_filter_live(query, :all), do: query
+  defp admin_filter_live(query, true), do: from(s in query, where: s.live == true)
+  defp admin_filter_live(query, false), do: from(s in query, where: s.live == false)
+
+  defp admin_search(query, nil), do: query
+  defp admin_search(query, ""), do: query
+
+  defp admin_search(query, search) do
+    case Integer.parse(search) do
+      {id, ""} ->
+        from(s in query, where: s.id == ^id)
+
+      _ ->
+        pattern = "%#{search}%"
+
+        from s in query,
+          left_join: u in assoc(s, :user),
+          where:
+            ilike(s.title, ^pattern) or
+              ilike(u.username, ^pattern) or
+              ilike(u.email, ^pattern)
+    end
+  end
+
+  defp admin_sort(query, :last_started_at, :desc),
+    do: order_by(query, [s], desc_nulls_last: s.last_started_at, desc: s.id)
+
+  defp admin_sort(query, :last_started_at, :asc),
+    do: order_by(query, [s], asc_nulls_last: s.last_started_at, asc: s.id)
+
+  defp admin_sort(query, sort_by, dir)
+       when sort_by in [:current_viewer_count, :peak_viewer_count, :inserted_at] and
+              dir in [:asc, :desc],
+       do: order_by(query, [s], [{^dir, field(s, ^sort_by)}, {^dir, s.id}])
+
+  @doc """
   Creates a new stream for the given user.
 
   Live stream limiting is enforced at the database level via a PostgreSQL trigger
@@ -477,6 +546,20 @@ defmodule Asciinema.Streaming do
   end
 
   def delete_stream(stream), do: Repo.delete(stream)
+
+  @doc """
+  Attempts to stop the GenServer driving a live stream. Returns `:ok` on
+  success, `{:error, :not_running}` if no server is registered for the stream.
+  """
+  def disconnect_stream(%Stream{id: id}) do
+    try do
+      StreamServer.stop(id, :shutdown)
+      :ok
+    catch
+      :exit, {:noproc, _} -> {:error, :not_running}
+      :exit, :noproc -> {:error, :not_running}
+    end
+  end
 
   def delete_streams(%{streams: _} = owner) do
     Repo.delete_all(Ecto.assoc(owner, :streams))

@@ -550,4 +550,59 @@ defmodule Asciinema.StreamingTest do
   end
 
   defp reload(stream), do: Streaming.get_stream(stream.id)
+
+  describe "list_streams_admin/1" do
+    test "returns all streams including private and offline" do
+      base = length(Streaming.list_streams_admin(page_size: 1000).entries)
+      insert(:stream, visibility: :private, live: false)
+      insert(:stream, visibility: :public, live: true)
+
+      assert length(Streaming.list_streams_admin(page_size: 1000).entries) == base + 2
+    end
+
+    test "filters by visibility" do
+      insert(:stream, visibility: :private)
+      insert(:stream, visibility: :public)
+
+      assert length(Streaming.list_streams_admin(visibility: :private, page_size: 1000).entries) ==
+               1
+    end
+
+    test "filters by live" do
+      insert(:stream, live: true)
+      insert(:stream, live: false)
+
+      assert length(Streaming.list_streams_admin(live: true, page_size: 1000).entries) == 1
+    end
+
+    test "search by title" do
+      target = insert(:stream, title: "My Live Demo")
+      insert(:stream, title: "Other")
+
+      assert [%{id: id}] = Streaming.list_streams_admin(search: "demo").entries
+      assert id == target.id
+    end
+
+    test "search by user" do
+      u = insert(:user, username: "alicia")
+      target = insert(:stream, user: u)
+      insert(:stream)
+
+      assert [%{id: id}] = Streaming.list_streams_admin(search: "alic").entries
+      assert id == target.id
+    end
+
+    test "respects page_size" do
+      insert_list(5, :stream)
+      assert length(Streaming.list_streams_admin(page_size: 2).entries) == 2
+    end
+  end
+
+  describe "disconnect_stream/1" do
+    test "returns {:error, :not_running} when the GenServer isn't started" do
+      stream = insert(:stream)
+
+      assert {:error, :not_running} = Streaming.disconnect_stream(stream)
+    end
+  end
 end

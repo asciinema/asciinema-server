@@ -46,6 +46,13 @@ defmodule AsciinemaAdmin.Router do
     post "/recordings/:id/archive_now", RecordingController, :archive_now
     post "/recordings/:id/unarchive", RecordingController, :unarchive
 
+    get "/streams", StreamController, :index
+    get "/streams/:id", StreamController, :show
+    get "/streams/:id/edit", StreamController, :edit
+    put "/streams/:id", StreamController, :update
+    delete "/streams/:id", StreamController, :delete
+    post "/streams/:id/disconnect", StreamController, :disconnect
+
     live_dashboard "/system/dashboard", metrics: Asciinema.Telemetry
     oban_dashboard("/system/oban")
   end
