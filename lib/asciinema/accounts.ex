@@ -209,6 +209,29 @@ defmodule Asciinema.Accounts do
     |> Repo.all()
   end
 
+  def count(%Query{} = spec), do: spec |> query() |> count()
+  def count(q), do: Repo.count(q)
+
+  @doc "List of `{Date, count}` of new users per day over the last `days` days, oldest first."
+  def signups_by_day(days) when is_integer(days) and days > 0 do
+    today = Date.utc_today()
+    start_date = Date.add(today, -(days - 1))
+    cutoff = DateTime.new!(start_date, ~T[00:00:00], "Etc/UTC")
+
+    rows =
+      from(u in User,
+        where: u.inserted_at >= ^cutoff,
+        group_by: fragment("date_trunc('day', ?)::date", u.inserted_at),
+        select: {fragment("date_trunc('day', ?)::date", u.inserted_at), count(u.id)}
+      )
+      |> Repo.all()
+      |> Map.new()
+
+    start_date
+    |> Date.range(today)
+    |> Enum.map(fn d -> {d, Map.get(rows, d, 0)} end)
+  end
+
   defp maybe_with_counts(q, true), do: with_counts(q)
   defp maybe_with_counts(q, false), do: q
 

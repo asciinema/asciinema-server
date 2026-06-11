@@ -506,18 +506,6 @@ defmodule Asciinema.Recordings do
   def count(%Query{} = spec), do: spec |> query() |> count()
   def count(q), do: Repo.count(q)
 
-  def count_by(%Query{} = spec, field), do: spec |> query() |> count_by(field)
-
-  def count_by(q, :stream) do
-    count_by(q, :stream_id)
-  end
-
-  def count_by(q, field) do
-    from(a in q, group_by: field(a, ^field), select: {field(a, ^field), count(a.id)})
-    |> Repo.all()
-    |> Enum.into(%{})
-  end
-
   @doc """
   Returns `{compressed_total, uncompressed_total}` bytes summed across the
   user's recordings. Either side is `nil` when no recording has that size set.
@@ -529,6 +517,38 @@ defmodule Asciinema.Recordings do
         select: {sum(a.compressed_size), sum(a.uncompressed_size)}
       )
     )
+  end
+
+  @doc "List of `{Date, count}` of new recordings per day over the last `days` days, oldest first."
+  def recordings_by_day(days) when is_integer(days) and days > 0 do
+    today = Date.utc_today()
+    start_date = Date.add(today, -(days - 1))
+    cutoff = DateTime.new!(start_date, ~T[00:00:00], "Etc/UTC")
+
+    rows =
+      from(a in Asciicast,
+        where: a.inserted_at >= ^cutoff,
+        group_by: fragment("date_trunc('day', ?)::date", a.inserted_at),
+        select: {fragment("date_trunc('day', ?)::date", a.inserted_at), count(a.id)}
+      )
+      |> Repo.all()
+      |> Map.new()
+
+    start_date
+    |> Date.range(today)
+    |> Enum.map(fn d -> {d, Map.get(rows, d, 0)} end)
+  end
+
+  def count_by(%Query{} = spec, field), do: spec |> query() |> count_by(field)
+
+  def count_by(q, :stream) do
+    count_by(q, :stream_id)
+  end
+
+  def count_by(q, field) do
+    from(a in q, group_by: field(a, ^field), select: {field(a, ^field), count(a.id)})
+    |> Repo.all()
+    |> Enum.into(%{})
   end
 
   def ensure_welcome_asciicast(user) do

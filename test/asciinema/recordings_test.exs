@@ -1263,4 +1263,34 @@ defmodule Asciinema.RecordingsTest do
                2
     end
   end
+
+  describe "byte_totals/1" do
+    test "sums compressed and uncompressed sizes across the user's recordings" do
+      u = insert(:user)
+      insert(:asciicast, user: u, compressed_size: 100, uncompressed_size: 1000)
+      insert(:asciicast, user: u, compressed_size: 250, uncompressed_size: 800)
+      # other user's recording is excluded
+      insert(:asciicast, compressed_size: 99_999, uncompressed_size: 99_999)
+
+      assert Recordings.byte_totals(u.id) == {350, 1800}
+    end
+
+    test "returns {nil, nil} when the user has no recordings" do
+      u = insert(:user)
+      assert Recordings.byte_totals(u.id) == {nil, nil}
+    end
+  end
+
+  describe "recordings_by_day/1" do
+    test "returns exactly N entries" do
+      assert length(Recordings.recordings_by_day(10)) == 10
+    end
+
+    test "buckets recordings into today" do
+      base = Recordings.recordings_by_day(2) |> List.last() |> elem(1)
+      insert_list(3, :asciicast)
+      [{_today_date, today_count}] = Enum.take(Recordings.recordings_by_day(2), -1)
+      assert today_count == base + 3
+    end
+  end
 end

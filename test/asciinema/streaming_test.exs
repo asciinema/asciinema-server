@@ -767,4 +767,15 @@ defmodule Asciinema.StreamingTest do
       assert {:error, :not_running} = Streaming.disconnect_stream(stream)
     end
   end
+
+  describe "count/1" do
+    test "counts only streams matching the spec (e.g. a user)" do
+      user = insert(:user)
+      other = insert(:user)
+      insert_list(3, :stream, user: user)
+      insert(:stream, user: other)
+
+      assert Streaming.count(%Query{scope: :admin, filters: [user: user.id]}) == 3
+    end
+  end
 end

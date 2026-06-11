@@ -164,6 +164,62 @@ defmodule AsciinemaAdmin.CoreComponents do
     end
   end
 
+  @doc "Inline SVG sparkline from integers or `{key, integer}` pairs; stroked with currentColor."
+  attr :values, :list, required: true
+  attr :width, :integer, default: 320
+  attr :height, :integer, default: 48
+  attr :class, :string, default: nil
+
+  def sparkline(assigns) do
+    counts =
+      Enum.map(assigns.values, fn
+        {_k, c} -> c
+        c when is_integer(c) -> c
+      end)
+
+    n = length(counts)
+    peak = counts |> Enum.max(fn -> 0 end) |> max(1)
+
+    points =
+      if n > 1 do
+        # pad top/bottom so the stroke doesn't clip
+        pad = 1.5
+        usable_h = assigns.height - pad * 2
+
+        counts
+        |> Enum.with_index()
+        |> Enum.map_join(" ", fn {c, i} ->
+          x = i / (n - 1) * assigns.width
+          y = pad + (1 - c / peak) * usable_h
+          "#{Float.round(x, 1)},#{Float.round(y, 1)}"
+        end)
+      end
+
+    assigns = assign(assigns, points: points, peak: peak, total: Enum.sum(counts))
+
+    ~H"""
+    <svg
+      class={["sparkline", @class]}
+      viewBox={"0 0 #{@width} #{@height}"}
+      width={@width}
+      height={@height}
+      preserveAspectRatio="none"
+      role="img"
+      aria-label={"sparkline, peak #{@peak}, total #{@total}"}
+    >
+      <polyline
+        :if={@points}
+        points={@points}
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linejoin="round"
+        stroke-linecap="round"
+      />
+    </svg>
+    """
+  end
+
   @doc "Format byte count as B / KB / MB."
   def format_bytes(nil), do: "—"
   def format_bytes(b) when b < 1024, do: "#{b} B"

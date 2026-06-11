@@ -1,3 +1,160 @@
 <.page title="Dashboard">
-  <p class="muted">Nothing here yet.</p>
+  <div class="dash-grid">
+    <div class="card dash-stat">
+      <div class="stat-label">Users</div>
+      <div class="stat-value">{fmt_int(@user_count)}</div>
+      <.delta_strip series={@signups_by_day} />
+      <div class="dash-trend">
+        <.sparkline values={@signups_by_day} class="dash-sparkline" />
+        <div class="dash-trend-label">Daily signups · last 30 days</div>
+      </div>
+    </div>
+
+    <section class="card recent">
+      <h3>Recent signups</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th class="num">id</th>
+              <th>username</th>
+              <th>email</th>
+              <th>signed up</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr :for={u <- @recent_signups}>
+              <td class="num mono">
+                <.link href={~p"/admin/users/#{u.id}"}>{u.id}</.link>
+              </td>
+              <td>
+                <.user_link user={u} />
+              </td>
+              <td class="muted">{u.email}</td>
+              <td><.time_ago time={u.inserted_at} /></td>
+            </tr>
+            <tr :if={@recent_signups == []}>
+              <td colspan="4" class="muted">None.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="card dash-stat">
+      <div class="stat-label">Recordings</div>
+      <div class="stat-value">{fmt_int(@recording_count)}</div>
+      <.delta_strip series={@recordings_by_day} />
+      <div class="dash-trend">
+        <.sparkline values={@recordings_by_day} class="dash-sparkline" />
+        <div class="dash-trend-label">Daily recordings · last 30 days</div>
+      </div>
+    </div>
+
+    <section class="card recent">
+      <h3>Recent recordings</h3>
+      <div class="table-wrap">
+        <table class="list-table">
+          <thead>
+            <tr>
+              <th class="num">id</th>
+              <th class="col-title">title</th>
+              <th>user</th>
+              <th>visibility</th>
+              <th>created</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr :for={r <- @recent_recordings}>
+              <td class="num mono">
+                <.link href={~p"/admin/recordings/#{r.id}"}>{r.id}</.link>
+              </td>
+              <td class="col-title">
+                <div class="title-cell">
+                  <span class="title-text">{r.title || "—"}</span><span
+                    :if={r.featured}
+                    class="flag"
+                    title="Featured"
+                  ><AsciinemaAdmin.Icons.star_icon /></span><span
+                    :if={r.audio_url}
+                    class="flag"
+                    title="Has audio"
+                  ><AsciinemaAdmin.Icons.speaker_wave_icon /></span>
+                </div>
+              </td>
+              <td>
+                <.user_link user={r.user} />
+              </td>
+              <td>
+                <.tag variant={visibility_variant(r.visibility)}>{r.visibility}</.tag>
+              </td>
+              <td><.time_ago time={r.inserted_at} /></td>
+            </tr>
+            <tr :if={@recent_recordings == []}>
+              <td colspan="5" class="muted">None.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="card dash-stat">
+      <div class="stat-label">Streams</div>
+      <div class="stat-value">{fmt_int(@live_stream_count)} / {fmt_int(@stream_count)}</div>
+      <div class="stat-delta">live / total</div>
+    </div>
+
+    <section class="card recent">
+      <h3>Stream activity</h3>
+      <div class="table-wrap">
+        <table class="list-table">
+          <thead>
+            <tr>
+              <th class="num">id</th>
+              <th class="col-title">title</th>
+              <th>user</th>
+              <th>visibility</th>
+              <th class="num">viewers</th>
+              <th>activity</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr :for={s <- @recent_streams}>
+              <td class="num mono">
+                <.link href={~p"/admin/streams/#{s.id}"}>{s.id}</.link>
+              </td>
+              <td class="col-title">
+                <div class="title-cell">
+                  <span class="title-text">{s.title || "—"}</span><span
+                    :if={s.schedule}
+                    class="flag"
+                    title="Scheduled"
+                  ><AsciinemaAdmin.Icons.calendar_icon /></span><span
+                    :if={s.audio_url}
+                    class="flag"
+                    title="Has audio"
+                  ><AsciinemaAdmin.Icons.speaker_wave_icon /></span>
+                </div>
+              </td>
+              <td>
+                <.user_link user={s.user} />
+              </td>
+              <td>
+                <.tag variant={visibility_variant(s.visibility)}>{s.visibility}</.tag>
+              </td>
+              <td class="num mono">{s.current_viewer_count || 0}/{s.peak_viewer_count || 0}</td>
+              <td>
+                <span :if={s.live} class="live-indicator">live</span>
+                <.time_ago :if={!s.live && s.last_started_at} time={s.last_started_at} />
+                <span :if={!s.live && !s.last_started_at} class="muted">never</span>
+              </td>
+            </tr>
+            <tr :if={@recent_streams == []}>
+              <td colspan="6" class="muted">No streams yet.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
 </.page>

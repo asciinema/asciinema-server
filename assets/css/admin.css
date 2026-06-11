@@ -480,6 +480,62 @@ abbr[title] {
   text-underline-offset: 2px;
 }
 
+/* Dashboard */
+
+.dash-grid {
+  display: grid;
+  grid-template-columns: 3fr 7fr;
+  gap: 1rem;
+}
+
+.dash-stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.dash-stat .stat-value { font-size: 1.9rem; margin-top: 0.15rem; }
+
+.dash-stat .stat-delta {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: 0.25rem;
+}
+
+.stat-delta .delta-item { color: var(--text); }
+.stat-delta .delta-period { color: var(--muted); }
+
+.stat-delta .delta-item + .delta-item::before {
+  content: "·";
+  margin: 0 0.4rem;
+  color: var(--border);
+}
+
+/* margin-top: auto pins the trend to the card bottom */
+.dash-stat .dash-trend { margin-top: auto; padding-top: 1rem; }
+
+.dash-trend-label {
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-top: 0.45rem;
+}
+
+@media (max-width: 760px) {
+  .dash-grid { grid-template-columns: 1fr; }
+}
+
+.recent { padding: 0; }
+.recent h3 { padding: 0.6rem 0.85rem; border-bottom: 1px solid var(--border); font-size: 0.92rem; }
+.recent .table-wrap { border: 0; }
+
+/* Sparkline */
+
+.sparkline {
+  display: block;
+  width: 100%;
+  height: 48px;
+  color: var(--accent-strong);
+}
+
 /* Filter bar (search box above index tables) */
 
 .filter-bar {

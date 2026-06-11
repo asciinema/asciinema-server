@@ -412,4 +412,31 @@ defmodule Asciinema.AccountsTest do
       refute third.id in ids
     end
   end
+
+  describe "signups_by_day/1" do
+    test "returns exactly N entries" do
+      assert length(Accounts.signups_by_day(7)) == 7
+    end
+
+    test "each entry is a {date, count} pair" do
+      for {date, count} <- Accounts.signups_by_day(3) do
+        assert %Date{} = date
+        assert is_integer(count) and count >= 0
+      end
+    end
+
+    test "is ordered oldest first, today last" do
+      result = Accounts.signups_by_day(5)
+      dates = Enum.map(result, fn {d, _} -> d end)
+      assert dates == Enum.sort(dates, Date)
+      assert List.last(dates) == Date.utc_today()
+    end
+
+    test "buckets users into today" do
+      base = Accounts.signups_by_day(3) |> List.last() |> elem(1)
+      insert_list(2, :user)
+      [{_today_date, today_count}] = Enum.take(Accounts.signups_by_day(3), -1)
+      assert today_count == base + 2
+    end
+  end
 end
