@@ -39,7 +39,7 @@
           </td>
           <td class="col-title">
             <div class="title-cell">
-              <span class="title-text">{s.title || "—"}</span><span
+              <span class="title-text">{s.title}<.none :if={!s.title} /></span><span
                 :if={s.schedule}
                 class="flag"
                 title="Scheduled"

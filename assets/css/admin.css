@@ -31,7 +31,16 @@ a { color: var(--link); text-decoration: none; }
 a:hover { text-decoration: underline; }
 
 code, pre, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
-code { font-size: 0.92em; }
+
+/* Inline code doubles as the chip for verbatim values on the show pages. */
+code {
+  font-size: 0.92em;
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  background: var(--surface-2);
+}
+
+pre code { padding: 0; border-radius: 0; background: none; }
 
 hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
 
@@ -443,6 +452,12 @@ textarea { min-height: 6rem; resize: vertical; }
   border-radius: 4px;
   padding: 0.85rem 1rem;
 }
+
+/* .recent opts out — its h3 is a bordered header bar */
+.card:not(.recent) > h3 { margin-bottom: 1rem; }
+
+/* descendant selector: also covers h4s nested in card sub-sections */
+.card:not(.recent) h4 { margin-bottom: 0.5rem; }
 
 .stat-label {
   font-size: 0.75rem;
@@ -875,6 +890,10 @@ table.kv tbody tr:last-child td {
 
 .muted { color: var(--muted); }
 .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+/* body font beats an enclosing .mono cell — one consistent em-dash width */
+.none { color: var(--muted); font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+/* margins, not text spaces — surrounding whitespace may collapse */
+.sep { color: var(--muted); margin: 0 0.35em; }
 .row { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
 .gap-1 { gap: 0.25rem; }
 .gap-2 { gap: 0.5rem; }

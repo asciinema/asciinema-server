@@ -20,11 +20,11 @@
           </tr>
           <tr>
             <th>title</th>
-            <td>{@asciicast.title || "—"}</td>
+            <td>{@asciicast.title}<.none :if={!@asciicast.title} /></td>
           </tr>
           <tr>
             <th>description</th>
-            <td>{@asciicast.description || "—"}</td>
+            <td>{@asciicast.description}<.none :if={!@asciicast.description} /></td>
           </tr>
           <tr>
             <th>visibility</th>
@@ -78,15 +78,19 @@
           </tr>
           <tr>
             <th>term type</th>
-            <td class="mono">{@asciicast.term_type || "—"}</td>
+            <td class="mono">{@asciicast.term_type}<.none :if={!@asciicast.term_type} /></td>
           </tr>
           <tr>
             <th>term version</th>
-            <td class="mono">{@asciicast.term_version || "—"}</td>
+            <td class="mono">
+              {@asciicast.term_version}<.none :if={!@asciicast.term_version} />
+            </td>
           </tr>
           <tr>
             <th>duration</th>
-            <td class="mono">{format_duration(@asciicast.duration)}</td>
+            <td class="mono">
+              {format_duration(@asciicast.duration)}<.none :if={!@asciicast.duration} />
+            </td>
           </tr>
           <tr>
             <th>bytes uploaded</th>

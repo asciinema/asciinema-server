@@ -71,7 +71,7 @@
               </td>
               <td class="col-title">
                 <div class="title-cell">
-                  <span class="title-text">{r.title || "—"}</span><span
+                  <span class="title-text">{r.title}<.none :if={!r.title} /></span><span
                     :if={r.featured}
                     class="flag"
                     title="Featured"
@@ -125,7 +125,7 @@
               </td>
               <td class="col-title">
                 <div class="title-cell">
-                  <span class="title-text">{s.title || "—"}</span><span
+                  <span class="title-text">{s.title}<.none :if={!s.title} /></span><span
                     :if={s.schedule}
                     class="flag"
                     title="Scheduled"

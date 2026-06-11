@@ -1,8 +1,8 @@
 <.page title="Confirm user merge">
   <div class="card mt">
     <p>
-      This will reassign all data owned by <strong class="mono">{@src.id}</strong>
-      ({@src.username || @src.email}) to <strong class="mono">{@dst.id}</strong>
+      This will reassign all data owned by <code>{@src.id}</code>
+      ({@src.username || @src.email}) to <code>{@dst.id}</code>
       ({@dst.username || @dst.email}), and then delete the source account.
       <strong>This cannot be undone.</strong>
     </p>
@@ -14,7 +14,7 @@
           <tbody>
             <tr>
               <th>id</th>
-              <td class="mono">{@src.id}</td>
+              <td><code>{@src.id}</code></td>
             </tr>
             <tr>
               <th>username</th>
@@ -22,7 +22,7 @@
             </tr>
             <tr>
               <th>name</th>
-              <td>{@src.name || "—"}</td>
+              <td>{@src.name}<.none :if={!@src.name} /></td>
             </tr>
             <tr>
               <th>email</th>
@@ -30,15 +30,15 @@
             </tr>
             <tr>
               <th>recordings</th>
-              <td class="mono">{@src_recording_count}</td>
+              <td>{@src_recording_count}</td>
             </tr>
             <tr>
               <th>streams</th>
-              <td class="mono">{@src_stream_count}</td>
+              <td>{@src_stream_count}</td>
             </tr>
             <tr>
               <th>CLIs</th>
-              <td class="mono">{@src_cli_count}</td>
+              <td>{@src_cli_count}</td>
             </tr>
           </tbody>
         </table>
@@ -49,7 +49,7 @@
           <tbody>
             <tr>
               <th>id</th>
-              <td class="mono">{@dst.id}</td>
+              <td><code>{@dst.id}</code></td>
             </tr>
             <tr>
               <th>username</th>
@@ -57,7 +57,7 @@
             </tr>
             <tr>
               <th>name</th>
-              <td>{@dst.name || "—"}</td>
+              <td>{@dst.name}<.none :if={!@dst.name} /></td>
             </tr>
             <tr>
               <th>email</th>
@@ -65,20 +65,20 @@
             </tr>
             <tr>
               <th>recordings</th>
-              <td class="mono">
+              <td>
                 {@dst_recording_count} →
                 <strong>{@dst_recording_count + @src_recording_count}</strong>
               </td>
             </tr>
             <tr>
               <th>streams</th>
-              <td class="mono">
+              <td>
                 {@dst_stream_count} → <strong>{@dst_stream_count + @src_stream_count}</strong>
               </td>
             </tr>
             <tr>
               <th>CLIs</th>
-              <td class="mono">
+              <td>
                 {@dst_cli_count} → <strong>{@dst_cli_count + @src_cli_count}</strong>
               </td>
             </tr>

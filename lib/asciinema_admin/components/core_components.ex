@@ -133,6 +133,18 @@ defmodule AsciinemaAdmin.CoreComponents do
   def visibility_variant(:private), do: :muted
   def visibility_variant(_), do: :default
 
+  @doc "Placeholder for an absent value: a muted em dash."
+  def none(assigns) do
+    ~H"""
+    <span class="none">—</span>
+    """
+  end
+
+  @doc "Muted middle-dot separator; spacing comes from CSS margins, not template whitespace."
+  def sep(assigns) do
+    ~H|<span class="sep">·</span>|
+  end
+
   @doc """
   Avatar + username link to the admin user page. No whitespace between the
   avatar and the name — the gap is pure CSS margin.
@@ -141,7 +153,7 @@ defmodule AsciinemaAdmin.CoreComponents do
 
   def user_link(%{user: nil} = assigns) do
     ~H"""
-    <span class="muted">—</span>
+    <.none />
     """
   end
 
@@ -221,13 +233,13 @@ defmodule AsciinemaAdmin.CoreComponents do
   end
 
   @doc "Format byte count as B / KB / MB."
-  def format_bytes(nil), do: "—"
+  def format_bytes(nil), do: nil
   def format_bytes(b) when b < 1024, do: "#{b} B"
   def format_bytes(b) when b < 1024 * 1024, do: "#{Float.round(b / 1024, 1)} KB"
   def format_bytes(b), do: "#{Float.round(b / (1024 * 1024), 1)} MB"
 
   @doc "Format duration as `HH:MM:SS` or `MM:SS`."
-  def format_duration(nil), do: "—"
+  def format_duration(nil), do: nil
 
   def format_duration(seconds) when is_float(seconds) do
     total = round(seconds)
@@ -240,12 +252,7 @@ defmodule AsciinemaAdmin.CoreComponents do
       else: :io_lib.format("~B:~2..0B", [m, s]) |> IO.iodata_to_binary()
   end
 
-  @doc """
-  Renders a compressed/uncompressed/ratio summary like
-  `2.3 MB (8.1 MB) [28%]`, with each number wrapped in `<abbr>` so the
-  browser shows a tooltip explaining what it is. Renders `"—"` when
-  either input is missing or the uncompressed size is zero.
-  """
+  @doc "Size summary like `2.3 MB (8.1 MB) [28%]`, with explanatory `<abbr>` tooltips."
   attr :compressed, :integer, default: nil
   attr :uncompressed, :integer, default: nil
 
@@ -256,7 +263,7 @@ defmodule AsciinemaAdmin.CoreComponents do
       (<abbr title="uncompressed size (original bytes)">{format_bytes(@uncompressed)}</abbr>)
       [<abbr title="compression ratio: compressed ÷ uncompressed">{round(@compressed / @uncompressed * 100)}%</abbr>]
     <% else %>
-      —
+      <.none />
     <% end %>
     """
   end
