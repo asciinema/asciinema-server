@@ -1001,4 +1001,112 @@ defmodule Asciinema.RecordingsTest do
       assert asciicast.path != old_path
     end
   end
+
+  describe "list_asciicasts_admin/1" do
+    test "includes recordings of every visibility, including archived" do
+      base = length(Recordings.list_asciicasts_admin(page_size: 1000).entries)
+      insert(:asciicast, visibility: :private)
+      insert(:asciicast, visibility: :unlisted)
+      insert(:asciicast, visibility: :public)
+      insert(:asciicast, archived_at: ~U[2025-01-01 00:00:00Z])
+
+      assert length(Recordings.list_asciicasts_admin(page_size: 1000).entries) == base + 4
+    end
+
+    test "filters by visibility" do
+      base =
+        length(Recordings.list_asciicasts_admin(visibility: :public, page_size: 1000).entries)
+
+      insert(:asciicast, visibility: :private)
+      insert(:asciicast, visibility: :public)
+      insert(:asciicast, visibility: :public)
+
+      assert length(
+               Recordings.list_asciicasts_admin(visibility: :public, page_size: 1000).entries
+             ) ==
+               base + 2
+    end
+
+    test "filters by archived" do
+      insert(:asciicast, archived_at: ~U[2024-12-01 00:00:00Z])
+      insert(:asciicast, archived_at: nil)
+      insert(:asciicast, archived_at: nil)
+
+      assert length(Recordings.list_asciicasts_admin(archived: true, page_size: 1000).entries) ==
+               1
+    end
+
+    test "filters by featured" do
+      insert(:asciicast, featured: true)
+      insert(:asciicast, featured: false)
+
+      assert length(Recordings.list_asciicasts_admin(featured: true, page_size: 1000).entries) ==
+               1
+    end
+
+    test "search by title (case-insensitive substring)" do
+      target = insert(:asciicast, title: "My Demo Recording")
+      insert(:asciicast, title: "Unrelated")
+
+      assert [%{id: id}] = Recordings.list_asciicasts_admin(search: "demo").entries
+      assert id == target.id
+    end
+
+    test "search by user" do
+      u = insert(:user, username: "alicia")
+      target = insert(:asciicast, user: u)
+      insert(:asciicast)
+
+      assert [%{id: id}] = Recordings.list_asciicasts_admin(search: "alic").entries
+      assert id == target.id
+    end
+
+    test "respects page_size" do
+      insert_list(5, :asciicast)
+      assert length(Recordings.list_asciicasts_admin(page_size: 2).entries) == 2
+    end
+
+    test "orders by inserted_at desc by default" do
+      first = insert(:asciicast)
+      second = insert(:asciicast)
+      third = insert(:asciicast)
+
+      ids =
+        Recordings.list_asciicasts_admin(page_size: 3).entries
+        |> Enum.map(& &1.id)
+        |> Enum.filter(&(&1 in [first.id, second.id, third.id]))
+
+      assert ids == [third.id, second.id, first.id]
+    end
+
+    test "offset pagination returns subsequent pages" do
+      insert_list(3, :asciicast)
+
+      all = Recordings.list_asciicasts_admin(page_size: 100).entries |> Enum.map(& &1.id)
+      page1 = Recordings.list_asciicasts_admin(page: 1, page_size: 2).entries |> Enum.map(& &1.id)
+      page2 = Recordings.list_asciicasts_admin(page: 2, page_size: 2).entries |> Enum.map(& &1.id)
+
+      assert page1 == Enum.take(all, 2)
+      assert page2 == all |> Enum.drop(2) |> Enum.take(2)
+    end
+  end
+
+  describe "unarchive/1" do
+    test "clears archived_at and marks not archivable" do
+      a = insert(:asciicast, archived_at: ~U[2020-01-01 00:00:00Z], archivable: true)
+
+      {:ok, updated} = Recordings.unarchive(a)
+      assert is_nil(updated.archived_at)
+      assert updated.archivable == false
+    end
+  end
+
+  describe "archive_now/1" do
+    test "stamps archived_at" do
+      a = insert(:asciicast, archived_at: nil)
+
+      {:ok, archived} = Recordings.archive_now(a)
+      assert %DateTime{} = archived.archived_at
+    end
+  end
 end

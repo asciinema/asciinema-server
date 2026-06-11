@@ -1,0 +1,136 @@
+defmodule AsciinemaAdmin.RecordingControllerTest do
+  use AsciinemaAdmin.ConnCase, async: true
+
+  alias Asciinema.Recordings.Asciicast
+  alias Asciinema.Repo
+
+  describe "GET /admin/recordings" do
+    test "lists recordings of every visibility", %{conn: conn} do
+      insert(:asciicast, title: "alpha-record", visibility: :private)
+      insert(:asciicast, title: "beta-record", visibility: :public)
+
+      body = conn |> get(~p"/admin/recordings") |> html_response(200)
+
+      assert body =~ "alpha-record"
+      assert body =~ "beta-record"
+    end
+
+    test "filters by visibility", %{conn: conn} do
+      insert(:asciicast, title: "private-one", visibility: :private)
+      insert(:asciicast, title: "public-one", visibility: :public)
+
+      body = conn |> get(~p"/admin/recordings?visibility=private") |> html_response(200)
+
+      assert body =~ "private-one"
+      refute body =~ "public-one"
+    end
+  end
+
+  describe "GET /admin/recordings/:id" do
+    test "renders the recording show page", %{conn: conn} do
+      asciicast = insert(:asciicast, title: "abc-rec")
+
+      body = conn |> get(~p"/admin/recordings/#{asciicast.id}") |> html_response(200)
+
+      assert body =~ "abc-rec"
+      assert body =~ "Metadata"
+      assert body =~ "Quick actions"
+      assert body =~ ~s(id="player")
+      assert body =~ "Delete recording"
+    end
+  end
+
+  describe "GET /admin/recordings/:id/edit and PUT" do
+    test "updates the recording", %{conn: conn} do
+      asciicast = insert(:asciicast, title: "Old")
+
+      conn =
+        put(conn, ~p"/admin/recordings/#{asciicast.id}", %{
+          "asciicast" => %{"title" => "New title", "visibility" => "public"}
+        })
+
+      assert redirected_to(conn) == ~p"/admin/recordings/#{asciicast.id}"
+      updated = Repo.get!(Asciicast, asciicast.id)
+      assert updated.title == "New title"
+      assert updated.visibility == :public
+    end
+
+    test "rerenders edit on validation failure (invalid visibility)", %{conn: conn} do
+      asciicast = insert(:asciicast, visibility: :unlisted)
+
+      conn =
+        put(conn, ~p"/admin/recordings/#{asciicast.id}", %{
+          "asciicast" => %{"visibility" => "nope"}
+        })
+
+      assert html_response(conn, 200) =~ "Edit recording"
+      assert Repo.get!(Asciicast, asciicast.id).visibility == :unlisted
+    end
+  end
+
+  describe "DELETE /admin/recordings/:id" do
+    test "deletes the recording", %{conn: conn} do
+      asciicast = insert(:asciicast)
+
+      conn = delete(conn, ~p"/admin/recordings/#{asciicast.id}")
+
+      assert redirected_to(conn) == ~p"/admin/recordings"
+      refute Repo.get(Asciicast, asciicast.id)
+    end
+  end
+
+  describe "POST /admin/recordings/:id/visibility" do
+    test "changes visibility", %{conn: conn} do
+      asciicast = insert(:asciicast, visibility: :unlisted)
+
+      post(conn, ~p"/admin/recordings/#{asciicast.id}/visibility", %{"visibility" => "public"})
+
+      assert Repo.get!(Asciicast, asciicast.id).visibility == :public
+    end
+
+    test "flashes error and does not crash on invalid visibility value", %{conn: conn} do
+      asciicast = insert(:asciicast, visibility: :unlisted)
+
+      conn =
+        post(conn, ~p"/admin/recordings/#{asciicast.id}/visibility", %{
+          "visibility" => "definitely-not-a-real-visibility"
+        })
+
+      assert redirected_to(conn) == ~p"/admin/recordings/#{asciicast.id}"
+      assert flash(conn, :error) =~ "Could not"
+      assert Repo.get!(Asciicast, asciicast.id).visibility == :unlisted
+    end
+  end
+
+  describe "POST /admin/recordings/:id/featured" do
+    test "toggles featured on", %{conn: conn} do
+      asciicast = insert(:asciicast, featured: false)
+
+      post(conn, ~p"/admin/recordings/#{asciicast.id}/featured", %{"featured" => "true"})
+
+      assert Repo.get!(Asciicast, asciicast.id).featured == true
+    end
+  end
+
+  describe "POST /admin/recordings/:id/unarchive" do
+    test "clears archived_at and marks not archivable", %{conn: conn} do
+      asciicast = insert(:asciicast, archived_at: ~U[2020-01-01 00:00:00Z], archivable: true)
+
+      post(conn, ~p"/admin/recordings/#{asciicast.id}/unarchive", %{})
+
+      updated = Repo.get!(Asciicast, asciicast.id)
+      assert is_nil(updated.archived_at)
+      assert updated.archivable == false
+    end
+  end
+
+  describe "POST /admin/recordings/:id/archive_now" do
+    test "stamps archived_at", %{conn: conn} do
+      asciicast = insert(:asciicast, archived_at: nil)
+
+      post(conn, ~p"/admin/recordings/#{asciicast.id}/archive_now", %{})
+
+      assert %DateTime{} = Repo.get!(Asciicast, asciicast.id).archived_at
+    end
+  end
+end

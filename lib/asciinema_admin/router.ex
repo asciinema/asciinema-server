@@ -36,6 +36,16 @@ defmodule AsciinemaAdmin.Router do
 
     post "/users/:user_id/clis", CliController, :create
 
+    get "/recordings", RecordingController, :index
+    get "/recordings/:id", RecordingController, :show
+    get "/recordings/:id/edit", RecordingController, :edit
+    put "/recordings/:id", RecordingController, :update
+    delete "/recordings/:id", RecordingController, :delete
+    post "/recordings/:id/visibility", RecordingController, :set_visibility
+    post "/recordings/:id/featured", RecordingController, :set_featured
+    post "/recordings/:id/archive_now", RecordingController, :archive_now
+    post "/recordings/:id/unarchive", RecordingController, :unarchive
+
     live_dashboard "/system/dashboard", metrics: Asciinema.Telemetry
     oban_dashboard("/system/oban")
   end

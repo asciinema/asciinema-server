@@ -1,3 +1,5 @@
+@import "../node_modules/asciinema-player/dist/bundle/asciinema-player.css";
+
 /* Reset & base typography */
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -479,6 +481,27 @@ table.kv tbody tr:hover { background: transparent; }
 
 .danger-zone { border-color: var(--danger); }
 .danger-zone h3 { color: var(--danger); }
+
+/* Action grid for quick-action toggles */
+
+.action-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  align-items: center;
+}
+
+.action-grid form { margin: 0; }
+.action-grid select, .action-grid input[type="text"] { width: auto; min-width: 9rem; }
+
+/* Asciinema player embed */
+
+.admin-player {
+  background: #1a1f24;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
 
 /* Utilities */
 

@@ -1,0 +1,96 @@
+<.page title="Recordings">
+  <form class="filter-bar" method="get" action={~p"/admin/recordings"}>
+    <input
+      type="search"
+      name="q"
+      value={@search}
+      placeholder="Search by title, id, or user"
+      autocomplete="off"
+    />
+
+    <select name="visibility">
+      <option value="all" selected={@visibility == :all}>any visibility</option>
+      <option value="public" selected={@visibility == :public}>public</option>
+      <option value="unlisted" selected={@visibility == :unlisted}>unlisted</option>
+      <option value="private" selected={@visibility == :private}>private</option>
+    </select>
+
+    <select name="archived">
+      <option value="all" selected={@archived == :all}>archived: any</option>
+      <option value="no" selected={@archived == false}>archived: no</option>
+      <option value="yes" selected={@archived == true}>archived: yes</option>
+    </select>
+
+    <select name="featured">
+      <option value="all" selected={@featured == :all}>featured: any</option>
+      <option value="no" selected={@featured == false}>featured: no</option>
+      <option value="yes" selected={@featured == true}>featured: yes</option>
+    </select>
+
+    <input type="hidden" name="sort_by" value={@sort_by} />
+    <input type="hidden" name="sort_dir" value={@sort_dir} />
+
+    <button type="submit" class="btn">Apply</button>
+  </form>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th class="num">id</th>
+          <th>title</th>
+          <th>user</th>
+          <th>visibility</th>
+          <th>
+            <.link href={
+              ~p"/admin/recordings?#{sort_link_params(@sort_by, @sort_dir, :duration, @filter_params)}"
+            }>
+              duration{sort_arrow(@sort_by, @sort_dir, :duration)}
+            </.link>
+          </th>
+          <th>
+            <.link href={
+              ~p"/admin/recordings?#{sort_link_params(@sort_by, @sort_dir, :compressed_size, @filter_params)}"
+            }>
+              size{sort_arrow(@sort_by, @sort_dir, :compressed_size)}
+            </.link>
+          </th>
+          <th>
+            <.link href={
+              ~p"/admin/recordings?#{sort_link_params(@sort_by, @sort_dir, :inserted_at, @filter_params)}"
+            }>
+              created{sort_arrow(@sort_by, @sort_dir, :inserted_at)}
+            </.link>
+          </th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr :for={a <- @recordings}>
+          <td class="num mono">
+            <.link href={~p"/admin/recordings/#{a.id}"}>{a.id}</.link>
+          </td>
+          <td>{a.title || "—"}</td>
+          <td>{a.user && (a.user.username || a.user.id)}</td>
+          <td>
+            <.tag variant={visibility_variant(a.visibility)}>{a.visibility}</.tag>
+            <.tag :if={a.featured} variant={:success}>featured</.tag>
+            <.tag :if={a.archived_at} variant={:muted}>archived</.tag>
+          </td>
+          <td class="num mono">{format_duration(a.duration)}</td>
+          <td class="num mono">{format_bytes(a.compressed_size)}</td>
+          <td><.time_ago time={a.inserted_at} /></td>
+          <td class="row-actions">
+            <.link href={~p"/admin/recordings/#{a.id}"}>view</.link>
+            <.link href={~p"/admin/recordings/#{a.id}/edit"}>edit</.link>
+          </td>
+        </tr>
+        <tr :if={@recordings == []}>
+          <td colspan="8" class="muted">No recordings match.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <.pagination page={@page} params={@filter_params} />
+</.page>

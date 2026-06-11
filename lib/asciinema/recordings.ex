@@ -785,8 +785,102 @@ defmodule Asciinema.Recordings do
   def set_featured(asciicast, featured \\ true) do
     asciicast
     |> Changeset.change(%{featured: featured})
-    |> Repo.update!()
+    |> Repo.update()
   end
+
+  def archive_now(asciicast) do
+    asciicast
+    |> Changeset.change(%{archived_at: DateTime.utc_now() |> DateTime.truncate(:second)})
+    |> Repo.update()
+  end
+
+  @doc """
+  Reverses an archive: clears `archived_at` and marks the recording not
+  archivable, so the auto-archiver won't immediately archive it again.
+  """
+  def unarchive(asciicast) do
+    asciicast
+    |> Changeset.change(%{archived_at: nil, archivable: false})
+    |> Repo.update()
+  end
+
+  @doc """
+  Lists asciicasts for the admin panel, as a `Scrivener.Page`. Sees every
+  visibility, including archived rows.
+
+  Options:
+    * `:search`      – id (exact), title (ILIKE), or user identifier (username/email ILIKE)
+    * `:visibility`  – `:public`, `:unlisted`, `:private`, or `nil`/`:all`
+    * `:archived`    – `true`, `false`, or `nil`/`:all`
+    * `:featured`    – `true`, `false`, or `nil`/`:all`
+    * `:sort_by`     – `:inserted_at` (default), `:duration`, or `:compressed_size`
+    * `:sort_dir`    – `:desc` (default) or `:asc`
+    * `:page`        – page number (default `1`)
+    * `:page_size`   – rows per page (default `50`)
+  """
+  def list_asciicasts_admin(opts \\ []) do
+    sort_by = opts[:sort_by] || :inserted_at
+    sort_dir = opts[:sort_dir] || :desc
+
+    Asciicast
+    |> admin_filter_visibility(opts[:visibility])
+    |> admin_filter_archived(opts[:archived])
+    |> admin_filter_featured(opts[:featured])
+    |> admin_search(opts[:search])
+    |> admin_sort(sort_by, sort_dir)
+    |> preload(:user)
+    |> Repo.paginate(page: opts[:page] || 1, page_size: opts[:page_size] || 50)
+  end
+
+  defp admin_filter_visibility(query, nil), do: query
+  defp admin_filter_visibility(query, :all), do: query
+
+  defp admin_filter_visibility(query, vis) when vis in [:public, :unlisted, :private],
+    do: from(a in query, where: a.visibility == ^vis)
+
+  defp admin_filter_archived(query, nil), do: query
+  defp admin_filter_archived(query, :all), do: query
+  defp admin_filter_archived(query, true), do: from(a in query, where: not is_nil(a.archived_at))
+  defp admin_filter_archived(query, false), do: from(a in query, where: is_nil(a.archived_at))
+
+  defp admin_filter_featured(query, nil), do: query
+  defp admin_filter_featured(query, :all), do: query
+  defp admin_filter_featured(query, true), do: from(a in query, where: a.featured == true)
+
+  defp admin_filter_featured(query, false),
+    do: from(a in query, where: a.featured != true or is_nil(a.featured))
+
+  defp admin_search(query, nil), do: query
+  defp admin_search(query, ""), do: query
+
+  defp admin_search(query, search) do
+    case Integer.parse(search) do
+      {id, ""} ->
+        from(a in query, where: a.id == ^id)
+
+      _ ->
+        pattern = "%#{search}%"
+
+        from a in query,
+          left_join: u in assoc(a, :user),
+          where:
+            ilike(a.title, ^pattern) or
+              ilike(u.username, ^pattern) or
+              ilike(u.email, ^pattern)
+    end
+  end
+
+  defp admin_sort(query, :inserted_at, :desc),
+    do: order_by(query, [a], desc: a.inserted_at, desc: a.id)
+
+  defp admin_sort(query, :inserted_at, :asc),
+    do: order_by(query, [a], asc: a.inserted_at, asc: a.id)
+
+  defp admin_sort(query, :duration, dir) when dir in [:asc, :desc],
+    do: order_by(query, [a], [{^dir, a.duration}, {^dir, a.id}])
+
+  defp admin_sort(query, :compressed_size, dir) when dir in [:asc, :desc],
+    do: order_by(query, [a], [{^dir, a.compressed_size}, {^dir, a.id}])
 
   def delete_asciicast(asciicast) do
     with {:ok, asciicast} <- Repo.delete(asciicast) do

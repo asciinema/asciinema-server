@@ -1,0 +1,182 @@
+<.page title={@asciicast.title || "Recording ##{@asciicast.id}"}>
+  <:actions>
+    <.button href={~p"/admin/recordings/#{@asciicast.id}/edit"}>Edit</.button>
+  </:actions>
+
+  <div class="grid-2">
+    <section class="card">
+      <h3>Metadata</h3>
+      <table class="kv">
+        <tbody>
+          <tr>
+            <th>id</th>
+            <td class="mono">{@asciicast.id}</td>
+          </tr>
+          <tr>
+            <th>user</th>
+            <td>
+              <%= if @asciicast.user do %>
+                <.link href={~p"/admin/users/#{@asciicast.user.id}"}>
+                  {@asciicast.user.username || @asciicast.user.id}
+                </.link>
+              <% else %>
+                <span class="muted">—</span>
+              <% end %>
+            </td>
+          </tr>
+          <tr>
+            <th>title</th>
+            <td>{@asciicast.title || "—"}</td>
+          </tr>
+          <tr>
+            <th>description</th>
+            <td>{@asciicast.description || "—"}</td>
+          </tr>
+          <tr>
+            <th>visibility</th>
+            <td>
+              <.tag variant={visibility_variant(@asciicast.visibility)}>
+                {@asciicast.visibility}
+              </.tag>
+            </td>
+          </tr>
+          <tr>
+            <th>featured</th>
+            <td>{if @asciicast.featured, do: "yes", else: "no"}</td>
+          </tr>
+          <tr>
+            <th>archivable</th>
+            <td>{if @asciicast.archivable, do: "yes", else: "no"}</td>
+          </tr>
+          <tr>
+            <th>archived</th>
+            <td>
+              <.time_ago :if={@asciicast.archived_at} time={@asciicast.archived_at} />
+              <span :if={!@asciicast.archived_at} class="muted">—</span>
+            </td>
+          </tr>
+          <tr>
+            <th>created</th>
+            <td><.time_ago time={@asciicast.inserted_at} /></td>
+          </tr>
+          <tr>
+            <th>recorded at</th>
+            <td>
+              <.time_ago :if={@asciicast.recorded_at} time={@asciicast.recorded_at} />
+              <span :if={!@asciicast.recorded_at} class="muted">—</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h3>Playback</h3>
+      <table class="kv">
+        <tbody>
+          <tr>
+            <th>version</th>
+            <td class="mono">{@asciicast.version}</td>
+          </tr>
+          <tr>
+            <th>cols × rows</th>
+            <td class="mono">{@asciicast.term_cols} × {@asciicast.term_rows}</td>
+          </tr>
+          <tr>
+            <th>term type</th>
+            <td class="mono">{@asciicast.term_type || "—"}</td>
+          </tr>
+          <tr>
+            <th>term version</th>
+            <td class="mono">{@asciicast.term_version || "—"}</td>
+          </tr>
+          <tr>
+            <th>duration</th>
+            <td class="mono">{format_duration(@asciicast.duration)}</td>
+          </tr>
+          <tr>
+            <th>bytes uploaded</th>
+            <td class="mono">
+              <.bytes_summary
+                compressed={@asciicast.compressed_size}
+                uncompressed={@asciicast.uncompressed_size}
+              />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+
+  <section class="card mt">
+    <h3>Quick actions</h3>
+    <div class="action-grid">
+      <.form
+        for={%{}}
+        action={~p"/admin/recordings/#{@asciicast.id}/visibility"}
+        method="post"
+        class="row gap-2"
+      >
+        <label class="muted">visibility</label>
+        <select name="visibility">
+          <option value="public" selected={@asciicast.visibility == :public}>public</option>
+          <option value="unlisted" selected={@asciicast.visibility == :unlisted}>unlisted</option>
+          <option value="private" selected={@asciicast.visibility == :private}>private</option>
+        </select>
+        <button type="submit" class="btn">Set</button>
+      </.form>
+
+      <.form
+        for={%{}}
+        action={~p"/admin/recordings/#{@asciicast.id}/featured"}
+        method="post"
+        class="row gap-2"
+      >
+        <input
+          type="hidden"
+          name="featured"
+          value={if @asciicast.featured, do: "false", else: "true"}
+        />
+        <button type="submit" class="btn">
+          {if @asciicast.featured, do: "Unfeature", else: "Feature"}
+        </button>
+      </.form>
+
+      <.form
+        :if={is_nil(@asciicast.archived_at)}
+        for={%{}}
+        action={~p"/admin/recordings/#{@asciicast.id}/archive_now"}
+        method="post"
+        class="row gap-2"
+        data-confirm="Archive this recording now?"
+      >
+        <button type="submit" class="btn">Archive now</button>
+      </.form>
+
+      <.form
+        :if={@asciicast.archived_at}
+        for={%{}}
+        action={~p"/admin/recordings/#{@asciicast.id}/unarchive"}
+        method="post"
+        class="row gap-2"
+      >
+        <button type="submit" class="btn">Unarchive</button>
+      </.form>
+    </div>
+  </section>
+
+  <div id="player" data-src={@player_src} class="admin-player mt"></div>
+
+  <section class="card mt danger-zone">
+    <h3>Delete recording</h3>
+    <p class="muted">Permanently removes this recording. There is no undo.</p>
+    <.form
+      for={%{}}
+      method="delete"
+      action={~p"/admin/recordings/#{@asciicast.id}"}
+      data-confirm={"Delete recording ##{@asciicast.id}?"}
+    >
+      <button type="submit" class="btn btn-danger">Delete</button>
+    </.form>
+  </section>
+</.page>
