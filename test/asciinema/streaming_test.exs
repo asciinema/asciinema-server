@@ -2,7 +2,7 @@ defmodule Asciinema.StreamingTest do
   use Asciinema.DataCase
   import Asciinema.Factory
   alias Asciinema.Streaming
-  alias Asciinema.Streaming.Stream
+  alias Asciinema.Streaming.{Query, Stream}
 
   describe "create_stream/2" do
     test "default params" do
@@ -330,14 +330,203 @@ defmodule Asciinema.StreamingTest do
     end
   end
 
+  describe "query/1" do
+    test "requires an explicit query scope" do
+      assert_raise ArgumentError, fn ->
+        struct!(Query, filters: [])
+      end
+    end
+
+    test "applies public and listing scopes" do
+      owner = insert(:user)
+      viewer = insert(:user)
+
+      public = insert(:stream, user: owner, visibility: :public)
+      unlisted = insert(:stream, user: owner, visibility: :unlisted)
+      private = insert(:stream, user: owner, visibility: :private)
+
+      public_ids =
+        %Query{scope: :public_listing}
+        |> Streaming.list(10)
+        |> Enum.map(& &1.id)
+
+      viewer_ids =
+        %Query{scope: {:listing_for, viewer}}
+        |> Streaming.list(10)
+        |> Enum.map(& &1.id)
+
+      owner_ids =
+        %Query{scope: {:listing_for, owner}}
+        |> Streaming.list(10)
+        |> Enum.map(& &1.id)
+
+      assert public.id in public_ids
+      refute unlisted.id in public_ids
+      refute private.id in public_ids
+
+      assert Enum.sort(public_ids) == Enum.sort(viewer_ids)
+      assert public.id in owner_ids
+      assert unlisted.id in owner_ids
+      assert private.id in owner_ids
+    end
+
+    test "filters by user, id exclusion, live, prefix, title search, and reschedulable" do
+      user = insert(:user)
+      other_user = insert(:user)
+      now = DateTime.utc_now()
+
+      target =
+        insert(:stream,
+          user: user,
+          title: "Deploy Demo",
+          public_token: "deploymatch12345",
+          live: true,
+          next_start_at: DateTime.add(now, -60)
+        )
+
+      excluded =
+        insert(:stream,
+          user: user,
+          title: "Deploy Demo",
+          public_token: "deploymatch54321",
+          live: true,
+          next_start_at: DateTime.add(now, -60)
+        )
+
+      insert(:stream,
+        user: other_user,
+        title: "Deploy Demo",
+        public_token: "deploymatch99999",
+        live: true,
+        next_start_at: DateTime.add(now, -60)
+      )
+
+      insert(:stream,
+        user: user,
+        title: "Other Demo",
+        public_token: "deploymatch88888",
+        live: true,
+        next_start_at: DateTime.add(now, -60)
+      )
+
+      insert(:stream,
+        user: user,
+        title: "Deploy Other",
+        public_token: "deploymatch11111",
+        live: true,
+        next_start_at: DateTime.add(now, -60)
+      )
+
+      insert(:stream,
+        user: user,
+        title: "Deploy Demo",
+        public_token: "othermatch12345",
+        live: true,
+        next_start_at: DateTime.add(now, -60)
+      )
+
+      insert(:stream,
+        user: user,
+        title: "Deploy Demo",
+        public_token: "deploymatch77777",
+        live: false,
+        next_start_at: DateTime.add(now, -60)
+      )
+
+      insert(:stream,
+        user: user,
+        title: "Deploy Demo",
+        public_token: "deploymatch66666",
+        live: true,
+        next_start_at: DateTime.add(now, 60)
+      )
+
+      results =
+        %Query{
+          scope: :system,
+          filters: [
+            {:user, user},
+            {:id, {:not_eq, excluded.id}},
+            :live,
+            {:prefix, "deploy"},
+            {:title, {:search, "deploy demo"}},
+            :reschedulable
+          ]
+        }
+        |> Streaming.list(10)
+
+      assert Enum.map(results, & &1.id) == [target.id]
+    end
+
+    test "nil prefix is ignored" do
+      stream = insert(:stream)
+
+      results =
+        %Query{scope: :system, filters: [{:prefix, nil}]}
+        |> Streaming.list(10)
+
+      assert stream.id in Enum.map(results, & &1.id)
+    end
+
+    test "title search treats LIKE wildcards literally" do
+      # "a_c" must match the literal underscore, not "_" as a single-char wildcard
+      literal = insert(:stream, title: "a_c")
+      decoy = insert(:stream, title: "axc")
+
+      results =
+        %Query{scope: :system, filters: [{:title, {:search, "a_c"}}]}
+        |> Streaming.list(10)
+
+      ids = Enum.map(results, & &1.id)
+      assert literal.id in ids
+      refute decoy.id in ids
+    end
+
+    test "filters upcoming streams and sorts by soonest start" do
+      soon =
+        insert(:stream, live: false, next_start_at: DateTime.shift(DateTime.utc_now(), minute: 5))
+
+      later =
+        insert(:stream,
+          live: false,
+          next_start_at: DateTime.shift(DateTime.utc_now(), minute: 10)
+        )
+
+      insert(:stream, live: true, next_start_at: DateTime.shift(DateTime.utc_now(), minute: 1))
+      insert(:stream, live: false, next_start_at: nil)
+
+      results =
+        %Query{scope: :system, filters: [:upcoming], sort: :soonest}
+        |> Streaming.list(10)
+
+      assert Enum.map(results, & &1.id) == [soon.id, later.id]
+    end
+
+    test "sorts by activity and recently started" do
+      older_live = insert(:stream, live: true, last_started_at: ~U[2026-01-01 00:00:00Z])
+      newer_live = insert(:stream, live: true, last_started_at: ~U[2026-01-02 00:00:00Z])
+      offline = insert(:stream, live: false, last_started_at: ~U[2026-01-03 00:00:00Z])
+
+      activity_results =
+        %Query{scope: :system, sort: :activity}
+        |> Streaming.list(10)
+
+      recent_results =
+        %Query{scope: :system, sort: :recently_started}
+        |> Streaming.list(10)
+
+      assert Enum.map(activity_results, & &1.id) == [newer_live.id, older_live.id, offline.id]
+      assert Enum.map(recent_results, & &1.id) == [offline.id, newer_live.id, older_live.id]
+    end
+  end
+
   describe "paginate/4" do
     test "caps total entries and pages when max_pages is set" do
       user = insert(:user)
       insert_list(21, :stream, user: user)
 
       page =
-        [user_id: user.id]
-        |> Streaming.query(:id)
+        %Query{scope: :system, filters: [{:user, user}], sort: :id}
         |> Streaming.paginate(11, 2, max_pages: 10)
 
       assert page.total_pages == 10
@@ -351,8 +540,7 @@ defmodule Asciinema.StreamingTest do
       insert_list(21, :stream, user: user)
 
       page =
-        [user_id: user.id]
-        |> Streaming.query(:id)
+        %Query{scope: :system, filters: [{:user, user}], sort: :id}
         |> Streaming.paginate(11, 2)
 
       assert page.total_pages > 10

@@ -3,7 +3,7 @@ defmodule Asciinema.RecordingsTest do
   import Asciinema.Factory
   import Asciinema.ZstdTestHelpers
   alias Asciinema.Recordings
-  alias Asciinema.Recordings.{Asciicast, AsciicastStats}
+  alias Asciinema.Recordings.{Asciicast, AsciicastStats, Query}
 
   describe "create_asciicast/3" do
     test "json file, v1 format" do
@@ -376,7 +376,191 @@ defmodule Asciinema.RecordingsTest do
     end
   end
 
-  describe "query/2" do
+  describe "query/1" do
+    test "requires an explicit scope" do
+      assert_raise ArgumentError, fn ->
+        struct!(Query, filters: [])
+      end
+    end
+
+    test "applies public and listing scopes" do
+      owner = insert(:user)
+      viewer = insert(:user)
+
+      public = insert(:asciicast, user: owner, visibility: :public)
+      unlisted = insert(:asciicast, user: owner, visibility: :unlisted)
+      private = insert(:asciicast, user: owner, visibility: :private)
+
+      public_ids =
+        %Query{scope: :public_listing}
+        |> Recordings.list(10)
+        |> Enum.map(& &1.id)
+
+      viewer_ids =
+        %Query{scope: {:listing_for, viewer}}
+        |> Recordings.list(10)
+        |> Enum.map(& &1.id)
+
+      owner_ids =
+        %Query{scope: {:listing_for, owner}}
+        |> Recordings.list(10)
+        |> Enum.map(& &1.id)
+
+      assert public.id in public_ids
+      refute unlisted.id in public_ids
+      refute private.id in public_ids
+
+      assert Enum.sort(public_ids) == Enum.sort(viewer_ids)
+      assert public.id in owner_ids
+      assert unlisted.id in owner_ids
+      assert private.id in owner_ids
+    end
+
+    test "applies archived mode" do
+      active = insert(:asciicast, archived_at: nil)
+      archived = insert(:asciicast, archived_at: ~U[2025-01-01 00:00:00Z])
+
+      exclude_ids =
+        %Query{scope: :system, archived: :exclude}
+        |> Recordings.list(10)
+        |> Enum.map(& &1.id)
+
+      include_ids =
+        %Query{scope: :system, archived: :include}
+        |> Recordings.list(10)
+        |> Enum.map(& &1.id)
+
+      only_ids =
+        %Query{scope: :system, archived: :only}
+        |> Recordings.list(10)
+        |> Enum.map(& &1.id)
+
+      assert active.id in exclude_ids
+      refute archived.id in exclude_ids
+
+      assert active.id in include_ids
+      assert archived.id in include_ids
+
+      refute active.id in only_ids
+      assert archived.id in only_ids
+    end
+
+    test "filters by user, id exclusion, featured, and snapshotless" do
+      user = insert(:user)
+      other_user = insert(:user)
+
+      target =
+        insert(:asciicast,
+          user: user,
+          featured: true,
+          snapshot: nil
+        )
+
+      excluded =
+        insert(:asciicast,
+          user: user,
+          featured: true,
+          snapshot: nil
+        )
+
+      insert(:asciicast, user: other_user, featured: true, snapshot: nil)
+      insert(:asciicast, user: user, featured: false, snapshot: nil)
+      insert(:asciicast, user: user, featured: true)
+
+      results =
+        %Query{
+          scope: :system,
+          filters: [
+            {:user, user},
+            {:id, {:not_eq, excluded.id}},
+            :featured,
+            :snapshotless
+          ]
+        }
+        |> Recordings.list(10)
+
+      assert Enum.map(results, & &1.id) == [target.id]
+    end
+
+    test "filters by stream relation" do
+      user = insert(:user)
+      stream = insert(:stream)
+      other_stream = insert(:stream)
+
+      target = insert(:asciicast, user: user, stream_id: stream.id)
+      excluded = insert(:asciicast, user: user, stream_id: other_stream.id)
+      without_stream = insert(:asciicast, user: user, stream_id: nil)
+
+      assert_ids = fn stream_filter, ids ->
+        results =
+          %Query{scope: :system, filters: [{:user, user}, stream_filter]}
+          |> Recordings.list(10)
+
+        assert Enum.map(results, & &1.id) |> Enum.sort() == Enum.sort(ids)
+      end
+
+      assert_ids.({:stream, stream}, [target.id])
+      assert_ids.({:stream, stream.id}, [target.id])
+      assert_ids.({:stream, true}, [target.id, excluded.id])
+      assert_ids.({:stream, false}, [without_stream.id])
+      assert_ids.({:stream, {:not_eq, other_stream.id}}, [target.id, without_stream.id])
+      assert_ids.({:stream, {:in, [stream.id]}}, [target.id])
+    end
+
+    test "smoke-tests random sort" do
+      user = insert(:user)
+
+      insert(:asciicast, user: user)
+      insert(:asciicast, user: user, stream_id: insert(:stream).id)
+
+      results =
+        %Query{scope: :system, filters: [{:user, user}], sort: :random}
+        |> Recordings.list(10)
+
+      assert length(results) == 2
+    end
+
+    test "searches title and full text" do
+      title_match = insert(:asciicast, title: "Deploy Demo", description: "nothing")
+      description_match = insert(:asciicast, title: "Other", description: "Deploy notes")
+
+      content_match =
+        insert(:asciicast_v3, title: "Other", description: "nothing")
+        |> with_file()
+
+      insert(:asciicast, title: "Other", description: "nothing")
+
+      assert Recordings.update_fts_content(content_match) == :ok
+
+      title_results =
+        %Query{scope: :system, filters: [{:title, {:search, "deploy"}}]}
+        |> Recordings.list(10)
+
+      title_description_results =
+        %Query{scope: :system, filters: [{:full_text, {:search, "deploy"}}]}
+        |> Recordings.list(10)
+
+      content_results =
+        %Query{scope: :system, filters: [{:full_text, {:search, "foo"}}]}
+        |> Recordings.list(10)
+
+      title_description_ids =
+        title_description_results
+        |> Enum.map(& &1.id)
+        |> Enum.sort()
+
+      assert Enum.map(title_results, & &1.id) == [title_match.id]
+      assert title_description_ids == Enum.sort([title_match.id, description_match.id])
+      assert Enum.map(content_results, & &1.id) == [content_match.id]
+    end
+
+    test "rank sort requires a search filter" do
+      assert_raise ArgumentError, fn ->
+        %Query{scope: :system, sort: {:rank, :desc}}
+        |> Recordings.list(10)
+      end
+    end
+
     test "filters popular recordings to public items with positive scores" do
       popular = insert(:asciicast, visibility: :public)
       insert(:asciicast_stats, asciicast_id: popular.id, popularity_score: 1.0)
@@ -391,8 +575,7 @@ defmodule Asciinema.RecordingsTest do
       insert(:asciicast_stats, asciicast_id: archived.id, popularity_score: 3.0)
 
       results =
-        :popular
-        |> Recordings.query()
+        %Query{scope: :public_listing, filters: [:popular]}
         |> Recordings.list(10)
 
       assert Enum.map(results, & &1.id) == [popular.id]
@@ -409,8 +592,7 @@ defmodule Asciinema.RecordingsTest do
       insert(:asciicast_stats, asciicast_id: high.id, popularity_score: 10.0)
 
       results =
-        []
-        |> Recordings.query(:popularity)
+        %Query{scope: :public_listing, filters: [:popular], sort: {:popularity, :desc}}
         |> Recordings.list(10)
 
       assert Enum.map(results, & &1.id) == [high.id, mid.id, low.id]
@@ -772,8 +954,7 @@ defmodule Asciinema.RecordingsTest do
       insert_list(21, :asciicast, visibility: :public, user: user)
 
       page =
-        [user_id: user.id]
-        |> Recordings.query(:date)
+        %Query{scope: :system, filters: [{:user, user}], sort: {:created, :desc}}
         |> Recordings.paginate(11, 2, max_pages: 10)
 
       assert page.total_pages == 10
@@ -787,8 +968,7 @@ defmodule Asciinema.RecordingsTest do
       insert_list(21, :asciicast, visibility: :public, user: user)
 
       page =
-        [user_id: user.id]
-        |> Recordings.query(:date)
+        %Query{scope: :system, filters: [{:user, user}], sort: {:created, :desc}}
         |> Recordings.paginate(11, 2)
 
       assert page.total_pages > 10

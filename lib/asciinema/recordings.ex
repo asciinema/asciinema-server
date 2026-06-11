@@ -13,6 +13,7 @@ defmodule Asciinema.Recordings do
     AsciicastStats,
     Markers,
     Paths,
+    Query,
     Text
   }
 
@@ -116,27 +117,33 @@ defmodule Asciinema.Recordings do
     String.match?(token, @secret_token_re) and byte_size(token) in @secret_token_lengths
   end
 
-  def query(filters \\ [], order \\ nil)
-
-  def query(filters, order) do
-    filters =
-      filters
-      |> List.wrap()
-      |> normalize_filters(order)
-
-    needs_stats_join = Enum.member?(filters, :popular)
-
-    from(Asciicast)
-    |> where([a], is_nil(a.archived_at))
-    |> maybe_join_stats(needs_stats_join)
-    |> apply_filters(filters)
-    |> sort(order)
+  def query(%Query{} = spec) do
+    Asciicast
+    |> apply_scope(spec.scope)
+    |> apply_archived(spec.archived)
+    |> apply_filters(spec.filters)
+    |> sort(spec.sort, spec.filters)
   end
 
-  defp apply_filters(q, filters) when is_list(filters) do
-    filters = Enum.uniq(filters)
+  defp apply_scope(query, :system), do: query
+  defp apply_scope(query, :admin), do: query
 
-    Enum.reduce(filters, q, &apply_filter/2)
+  defp apply_scope(query, :public_listing),
+    do: where(query, [a], a.visibility == :public)
+
+  defp apply_scope(query, {:listing_for, nil}), do: apply_scope(query, :public_listing)
+
+  defp apply_scope(query, {:listing_for, %{id: user_id}}),
+    do: where(query, [a], a.visibility == :public or a.user_id == ^user_id)
+
+  defp apply_archived(query, :exclude), do: where(query, [a], is_nil(a.archived_at))
+  defp apply_archived(query, :include), do: query
+  defp apply_archived(query, :only), do: where(query, [a], not is_nil(a.archived_at))
+
+  defp apply_filters(q, filters) when is_list(filters) do
+    filters
+    |> Enum.uniq()
+    |> Enum.reduce(q, &apply_filter/2)
   end
 
   defp apply_filters(q, filter), do: apply_filters(q, List.wrap(filter))
@@ -146,27 +153,61 @@ defmodule Asciinema.Recordings do
       {:id, {:not_eq, id}} ->
         where(q, [a], a.id != ^id)
 
-      {:user_id, user_id} ->
+      {:user, %{id: user_id}} ->
         where(q, [a], a.user_id == ^user_id)
 
-      {:stream_id, stream_id} when is_integer(stream_id) ->
+      {:user, user_id} when is_integer(user_id) ->
+        where(q, [a], a.user_id == ^user_id)
+
+      {:user, username} when is_binary(username) ->
+        q
+        |> ensure_user_join()
+        |> where([user: u], fragment("lower(?)", u.username) == ^String.downcase(username))
+
+      {:stream, %{id: stream_id}} ->
         where(q, [a], a.stream_id == ^stream_id)
 
-      {:stream_id, {:not_eq, stream_id}} ->
+      {:stream, stream_id} when is_integer(stream_id) ->
+        where(q, [a], a.stream_id == ^stream_id)
+
+      {:stream, true} ->
+        where(q, [a], not is_nil(a.stream_id))
+
+      {:stream, false} ->
+        where(q, [a], is_nil(a.stream_id))
+
+      {:stream, {:not_eq, stream_id}} ->
         where(q, [a], is_nil(a.stream_id) or a.stream_id != ^stream_id)
 
-      {:stream_id, {:in, stream_ids}} ->
+      {:stream, {:in, stream_ids}} ->
         where(q, [a], a.stream_id in ^stream_ids)
 
+      {:full_text, {:search, text}} ->
+        q
+        |> ensure_fts_join()
+        |> where(
+          [fts: f],
+          fragment(
+            "(? || ? || coalesce(?, ''::tsvector)) @@ websearch_to_tsquery('simple', ?)",
+            f.title_tsv,
+            f.description_tsv,
+            f.content_tsv,
+            ^text
+          )
+        )
+
+      {:title, {:search, text}} ->
+        q
+        |> ensure_fts_join()
+        |> where([fts: f], fragment("? @@ websearch_to_tsquery('simple', ?)", f.title_tsv, ^text))
+
       :featured ->
-        where(q, [a], a.featured == true and a.visibility == :public)
+        where(q, [a], a.featured == true)
 
       :popular ->
-        where(
-          q,
-          [a, stats: s],
-          a.visibility == :public and s.popularity_score > 0.0
-        )
+        q
+        |> ensure_stats_inner_join()
+        |> where([_a, stats_inner: s], s.popularity_score > 0.0)
 
       :public ->
         where(q, [a], a.visibility == :public)
@@ -176,67 +217,154 @@ defmodule Asciinema.Recordings do
     end
   end
 
-  defp sort(q, nil), do: q
+  defp sort(q, nil, _filters), do: q
+  defp sort(q, :random, _filters), do: order_by(q, fragment("RANDOM()"))
+  defp sort(q, {:created, :desc}, _filters), do: order_by(q, desc: :id)
 
-  defp sort(q, order) do
-    case order do
-      :date ->
-        order_by(q, desc: :id)
+  defp sort(q, {:popularity, :desc}, _filters) do
+    q
+    |> ensure_stats_inner_join()
+    |> order_by([a, stats_inner: s], desc: s.popularity_score, desc: s.asciicast_id)
+  end
 
-      :popularity ->
-        order_by(q, [a, stats: s],
-          desc: s.popularity_score,
-          desc: s.asciicast_id
+  defp sort(q, {:rank, :desc}, filters) do
+    case search_filter(filters) do
+      {:full_text, text} ->
+        q
+        |> ensure_fts_join()
+        |> order_by([fts: f],
+          desc:
+            fragment(
+              "ts_rank_cd(setweight(?, 'A') || setweight(?, 'B') || setweight(coalesce(?, ''::tsvector), 'C'), websearch_to_tsquery('simple', ?), 4)",
+              f.title_tsv,
+              f.description_tsv,
+              f.content_tsv,
+              ^text
+            )
         )
 
-      :random ->
-        order_by(q, fragment("RANDOM()"))
+      {:title, text} ->
+        q
+        |> ensure_fts_join()
+        |> order_by([fts: f],
+          desc:
+            fragment(
+              "ts_rank_cd(setweight(?, 'A'), websearch_to_tsquery('simple', ?), 4)",
+              f.title_tsv,
+              ^text
+            )
+        )
+
+      nil ->
+        raise ArgumentError, "rank sort requires a supported search filter"
     end
   end
 
-  defp maybe_join_stats(q, true) do
-    join(q, :inner, [a], s in assoc(a, :stats), as: :stats)
+  defp ensure_stats_inner_join(q) do
+    if has_named_binding?(q, :stats_inner) do
+      q
+    else
+      join(q, :inner, [a], s in assoc(a, :stats), as: :stats_inner)
+    end
   end
 
-  defp maybe_join_stats(q, false), do: q
+  defp ensure_fts_join(q) do
+    if has_named_binding?(q, :fts) do
+      q
+    else
+      join(q, :inner, [a], f in "asciicast_fts", on: f.asciicast_id == a.id, as: :fts)
+    end
+  end
 
-  defp normalize_filters(filters, :popularity), do: Enum.uniq([:popular | filters])
-  defp normalize_filters(filters, _order), do: filters
+  defp ensure_user_join(q) do
+    if has_named_binding?(q, :user) do
+      q
+    else
+      join(q, :inner, [a], u in assoc(a, :user), as: :user)
+    end
+  end
 
-  def search(%Ecto.Query{} = query, q) do
-    from(a in query,
-      join: f in "asciicast_fts",
-      on: f.asciicast_id == a.id,
-      where:
-        fragment(
-          "(? || ? || coalesce(?, ''::tsvector)) @@ websearch_to_tsquery('simple', ?)",
-          f.title_tsv,
-          f.description_tsv,
-          f.content_tsv,
-          ^q
-        ),
-      order_by:
-        {:desc,
-         fragment(
-           "ts_rank_cd(setweight(?, 'A') || setweight(?, 'B') || setweight(coalesce(?, ''::tsvector), 'C'), websearch_to_tsquery('simple', ?), 4)",
-           f.title_tsv,
-           f.description_tsv,
-           f.content_tsv,
-           ^q
-         )}
+  defp ensure_stats_left_join(q) do
+    if has_named_binding?(q, :stats_left) do
+      q
+    else
+      join(q, :left, [a], s in assoc(a, :stats), as: :stats_left)
+    end
+  end
+
+  defp with_total_views(q) do
+    q
+    |> ensure_stats_left_join()
+    |> select_merge([stats: s], %{total_views: coalesce(s.total_views, 0)})
+  end
+
+  defp apply_field_condition(q, field, {:gt, value}), do: where(q, [a], field(a, ^field) > ^value)
+
+  defp apply_field_condition(q, field, {:gte, value}),
+    do: where(q, [a], field(a, ^field) >= ^value)
+
+  defp apply_field_condition(q, field, {:lt, value}), do: where(q, [a], field(a, ^field) < ^value)
+
+  defp apply_field_condition(q, field, {:lte, value}),
+    do: where(q, [a], field(a, ^field) <= ^value)
+
+  defp apply_field_condition(q, field, {:between, from_value, to_value}),
+    do: where(q, [a], field(a, ^field) >= ^from_value and field(a, ^field) <= ^to_value)
+
+  defp apply_views_condition(q, {:gt, value}),
+    do: where(q, [stats: s], coalesce(s.total_views, 0) > ^value)
+
+  defp apply_views_condition(q, {:gte, value}),
+    do: where(q, [stats: s], coalesce(s.total_views, 0) >= ^value)
+
+  defp apply_views_condition(q, {:lt, value}),
+    do: where(q, [stats: s], coalesce(s.total_views, 0) < ^value)
+
+  defp apply_views_condition(q, {:lte, value}),
+    do: where(q, [stats: s], coalesce(s.total_views, 0) <= ^value)
+
+  defp apply_views_condition(q, {:between, from_value, to_value}) do
+    where(
+      q,
+      [stats: s],
+      coalesce(s.total_views, 0) >= ^from_value and coalesce(s.total_views, 0) <= ^to_value
     )
   end
 
-  def paginate(%Ecto.Query{} = query, page, page_size, opts \\ []) do
+  defp search_filter(filters) do
+    Enum.find_value(filters, fn
+      {:full_text, {:search, text}} -> {:full_text, text}
+      {:title, {:search, text}} -> {:title, text}
+      _ -> nil
+    end)
+  end
+
+  def paginate(query, page, page_size, opts \\ [])
+
+  def paginate(%Query{} = spec, page, page_size, opts) do
+    spec
+    |> query()
+    |> paginate(page, page_size, opts)
+  end
+
+  def paginate(%Ecto.Query{} = query, page, page_size, opts) do
     paginate_opts =
       [page: page, page_size: page_size] ++ maybe_total_entries_opt(query, page_size, opts)
 
     query
-    |> preload(:user)
+    |> maybe_preload(Keyword.get(opts, :preload, [:user]))
     |> Repo.paginate(paginate_opts)
   end
 
-  def search_paginate(%Ecto.Query{} = query, page, page_size, opts \\ []) do
+  def search_paginate(query, page, page_size, opts \\ [])
+
+  def search_paginate(%Query{} = spec, page, page_size, opts) do
+    spec
+    |> query()
+    |> search_paginate(page, page_size, opts)
+  end
+
+  def search_paginate(%Ecto.Query{} = query, page, page_size, opts) do
     search_work_mem = Application.get_env(:asciinema, :search_work_mem, @search_work_mem)
 
     Repo.with_work_mem(search_work_mem, fn ->
@@ -268,16 +396,34 @@ defmodule Asciinema.Recordings do
     end
   end
 
-  def list(q, limit) do
+  defp maybe_preload(query, []), do: query
+  defp maybe_preload(query, nil), do: query
+  defp maybe_preload(query, preloads), do: preload(query, ^preloads)
+
+  def list(q, limit, opts \\ [])
+
+  def list(%Query{} = spec, limit, opts) do
+    spec
+    |> query()
+    |> list(limit, opts)
+  end
+
+  def list(q, limit, opts) do
     q
     |> limit(^limit)
-    |> preload(:user)
+    |> maybe_preload(Keyword.get(opts, :preload, [:user]))
     |> Repo.all()
+  end
+
+  def stream(%Query{} = spec) do
+    spec
+    |> query()
+    |> stream()
   end
 
   def stream(%Ecto.Query{} = query) do
     query
-    |> preload(:user)
+    |> maybe_preload([:user])
     |> Repo.pages(100)
     |> Stream.flat_map(& &1)
   end
@@ -292,7 +438,14 @@ defmodule Asciinema.Recordings do
     |> Stream.map(& &1.id)
   end
 
+  def count(%Query{} = spec), do: spec |> query() |> count()
   def count(q), do: Repo.count(q)
+
+  def count_by(%Query{} = spec, field), do: spec |> query() |> count_by(field)
+
+  def count_by(q, :stream) do
+    count_by(q, :stream_id)
+  end
 
   def count_by(q, field) do
     from(a in q, group_by: field(a, ^field), select: {field(a, ^field), count(a.id)})

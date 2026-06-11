@@ -1,6 +1,7 @@
 defmodule AsciinemaWeb.Api.StreamController do
   use AsciinemaWeb, :controller
   alias Asciinema.{Accounts, Streaming}
+  alias Asciinema.Streaming.Query, as: StreamQuery
 
   plug :authenticate
   plug :check_streaming_enabled
@@ -22,8 +23,11 @@ defmodule AsciinemaWeb.Api.StreamController do
     limit = if limit, do: String.to_integer(limit), else: @default_index_limit
 
     result =
-      [user_id: conn.assigns.current_user.id, prefix: prefix]
-      |> Streaming.query(:id)
+      %StreamQuery{
+        scope: :system,
+        filters: [{:user, conn.assigns.current_user}, {:prefix, prefix}],
+        sort: :id
+      }
       |> Streaming.cursor_paginate(stream_id, limit)
 
     conn
