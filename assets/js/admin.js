@@ -3,9 +3,23 @@ import { LiveSocket } from "phoenix_live_view";
 import { createPlayer } from "./player";
 
 document.addEventListener("submit", (event) => {
-  const message = event.target?.getAttribute?.("data-confirm");
+  const form = event.target;
+
+  const message = form?.getAttribute?.("data-confirm");
   if (message && !window.confirm(message)) {
     event.preventDefault();
+    return;
+  }
+
+  const promptMessage = form?.getAttribute?.("data-prompt");
+  if (promptMessage) {
+    const field = form.querySelector("input[name='name']");
+    const next = window.prompt(promptMessage, field?.value || "");
+    if (next === null || next.trim() === "") {
+      event.preventDefault();
+      return;
+    }
+    field.value = next.trim();
   }
 });
 

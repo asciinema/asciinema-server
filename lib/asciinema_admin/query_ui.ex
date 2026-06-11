@@ -7,6 +7,7 @@ defmodule AsciinemaAdmin.QueryUI do
   attr :index, :map, required: true
   attr :action, :string, required: true
   attr :placeholder, :string, required: true
+  attr :return_to, :string, required: true
 
   def query_form(assigns) do
     assigns =
@@ -57,6 +58,43 @@ defmodule AsciinemaAdmin.QueryUI do
           </option>
         </select>
       </form>
+
+      <div :if={@index.active_saved_query} class="saved-query-match">
+        Saved query
+        <.form
+          for={%{}}
+          method="put"
+          action={"/admin/saved_queries/#{@index.active_saved_query.id}"}
+          data-prompt="Rename saved query"
+        >
+          <input type="hidden" name="name" value={@index.active_saved_query.name} />
+          <input type="hidden" name="return_to" value={@return_to} />
+          <button type="submit" class="link-button">Rename</button>
+        </.form>
+        <.form
+          for={%{}}
+          method="delete"
+          action={"/admin/saved_queries/#{@index.active_saved_query.id}"}
+          data-confirm={"Delete saved query \"#{@index.active_saved_query.name}\"?"}
+        >
+          <input type="hidden" name="return_to" value={@return_to} />
+          <button type="submit" class="link-button">Delete</button>
+        </.form>
+      </div>
+      <.form
+        :if={@index.q != "" and is_nil(@index.active_saved_query)}
+        for={%{}}
+        method="post"
+        action="/admin/saved_queries"
+        data-prompt="Save this search as"
+      >
+        <input type="hidden" name="entity" value={@index.entity} />
+        <input type="hidden" name="filter" value={@index.q} />
+        <input type="hidden" name="sort" value={@index.sort_param} />
+        <input type="hidden" name="return_to" value={@return_to} />
+        <input type="hidden" name="name" value="" />
+        <button type="submit" class="btn">Save query</button>
+      </.form>
     </div>
 
     <div :if={@index.errors != []} class="query-errors">

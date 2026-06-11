@@ -24,6 +24,10 @@ defmodule AsciinemaAdmin.Router do
 
     get "/", HomeController, :show
 
+    post "/saved_queries", SavedQueryController, :create
+    put "/saved_queries/:id", SavedQueryController, :update
+    delete "/saved_queries/:id", SavedQueryController, :delete
+
     get "/users", UserController, :index
     get "/users/new", UserController, :new
     post "/users", UserController, :create

@@ -3,7 +3,7 @@ defmodule AsciinemaAdmin.IndexQuery do
   Builds typed index query state from admin URL params.
   """
 
-  alias AsciinemaAdmin.{QueryParser, QuerySort}
+  alias AsciinemaAdmin.{QueryParser, QuerySort, SavedQueries}
 
   @entities [:users, :recordings, :streams]
 
@@ -21,18 +21,26 @@ defmodule AsciinemaAdmin.IndexQuery do
 
     errors = parser.errors ++ sort_errors
     query = if errors == [], do: QueryParser.to_query(parser, sort.sort)
+    normalized_filter = parser.normalized_filter
+
+    active_saved_query =
+      if errors == [] do
+        SavedQueries.matching(entity, normalized_filter, sort.param)
+      end
 
     %{
       entity: entity,
       q: q,
       parser: parser,
-      normalized_filter: parser.normalized_filter,
+      normalized_filter: normalized_filter,
       sort: sort,
       sort_param: sort_param,
       sort_options: QuerySort.options(entity),
       errors: errors,
       valid?: errors == [],
       query: query,
+      saved_queries: SavedQueries.list(entity),
+      active_saved_query: active_saved_query,
       query_params: query_params(q, sort_param)
     }
   end

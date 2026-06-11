@@ -13,6 +13,9 @@
   </head>
 
   <body>
+    <% saved_queries = AsciinemaAdmin.SavedQueries.grouped() %>
+    <% active_saved_id =
+      if assigns[:index] && @index.active_saved_query, do: @index.active_saved_query.id %>
     <header class="brand">
       <span class="brand-name mono">asciinema admin</span>
       <span class="brand-env">env: {AsciinemaAdmin.Layouts.env_name()}</span>
@@ -27,11 +30,35 @@
           <li class={nav_class(@current_path, ~p"/admin/users")}>
             <.link href={~p"/admin/users"}>Users</.link>
           </li>
+          <li
+            :for={query <- Map.get(saved_queries, :users, [])}
+            class={["nav-subitem", if(active_saved_id == query.id, do: "saved-active")]}
+          >
+            <.link href={~p"/admin/users?#{%{q: query.filter, sort: query.sort}}"}>
+              {query.name}
+            </.link>
+          </li>
           <li class={nav_class(@current_path, ~p"/admin/recordings")}>
             <.link href={~p"/admin/recordings"}>Recordings</.link>
           </li>
+          <li
+            :for={query <- Map.get(saved_queries, :recordings, [])}
+            class={["nav-subitem", if(active_saved_id == query.id, do: "saved-active")]}
+          >
+            <.link href={~p"/admin/recordings?#{%{q: query.filter, sort: query.sort}}"}>
+              {query.name}
+            </.link>
+          </li>
           <li class={nav_class(@current_path, ~p"/admin/streams")}>
             <.link href={~p"/admin/streams"}>Streams</.link>
+          </li>
+          <li
+            :for={query <- Map.get(saved_queries, :streams, [])}
+            class={["nav-subitem", if(active_saved_id == query.id, do: "saved-active")]}
+          >
+            <.link href={~p"/admin/streams?#{%{q: query.filter, sort: query.sort}}"}>
+              {query.name}
+            </.link>
           </li>
         </ul>
 

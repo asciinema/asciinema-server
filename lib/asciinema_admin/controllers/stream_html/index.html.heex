@@ -1,5 +1,10 @@
 <.page title="Streams">
-  <.query_form index={@index} action={~p"/admin/streams"} placeholder="Search streams…" />
+  <.query_form
+    index={@index}
+    action={~p"/admin/streams"}
+    placeholder="Search streams…"
+    return_to={~p"/admin/streams?#{@filter_params}"}
+  />
 
   <div class="table-wrap">
     <table>

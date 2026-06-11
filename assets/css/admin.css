@@ -162,6 +162,19 @@ hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
   background: var(--accent-strong);
 }
 
+.nav-list li.nav-subitem a {
+  margin-left: 0.75rem;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.nav-list li.nav-subitem.saved-active a {
+  background: var(--surface-2);
+  color: var(--text);
+  font-weight: 500;
+}
+
 .nav-group {
   margin: 1.5rem 0 0.25rem 0.75rem;
 }
@@ -437,8 +450,16 @@ abbr[title] {
   margin-bottom: 1.25rem;
 }
 
+/* flattened into the flex row so the trailing save/delete forms sit beside it
+   without nested forms */
 .query-get-form {
   display: contents;
+}
+
+/* gap before the trailing action (display: contents makes this a no-op when
+   the GET form is last) */
+.query-filter > :last-child {
+  margin-left: 0.5rem;
 }
 
 .query-input-wrap {
@@ -565,6 +586,32 @@ abbr[title] {
 .query-errors ul {
   margin: 0.25rem 0 0;
   padding-left: 1.25rem;
+}
+
+.saved-query-match {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.saved-query-match form {
+  margin: 0;
+}
+
+.link-button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--link);
+  font: inherit;
+  cursor: pointer;
+}
+
+.link-button:hover {
+  text-decoration: underline;
 }
 
 .admin-dialog {
