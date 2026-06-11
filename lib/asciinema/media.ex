@@ -15,8 +15,12 @@ defmodule Asciinema.Media do
 
   def theme(medium) do
     case term_theme_name(medium) do
-      "original" ->
+      "original" when not is_nil(medium.term_theme_palette) ->
         Themes.custom_theme(medium.term_theme_fg, medium.term_theme_bg, medium.term_theme_palette)
+
+      # "original" with nothing captured: fall back to the default named theme
+      "original" ->
+        Themes.named_theme(Accounts.default_term_theme_name(medium.user) || "asciinema")
 
       name ->
         Themes.named_theme(name)
