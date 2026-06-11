@@ -46,7 +46,7 @@ defmodule AsciinemaWeb.StreamHTML do
   def title(stream), do: stream.title || "#{author_username(stream)}'s stream"
 
   def default_theme_display_name(stream) do
-    "Account default (#{Themes.display_name(Accounts.default_term_theme_name(stream.user) || "asciinema")})"
+    "Account default (#{Themes.display_name(Accounts.default_term_theme_name(stream.user))})"
   end
 
   def default_font_display_name(user) do

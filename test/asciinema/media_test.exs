@@ -44,6 +44,46 @@ defmodule Asciinema.MediaTest do
     end
   end
 
+  describe "uses_original_theme?/1" do
+    test "true when selected explicitly or preferred, given a captured palette" do
+      assert Media.uses_original_theme?(stream(term_theme_name: "original"))
+      assert Media.uses_original_theme?(stream(term_theme_prefer_original: true))
+      refute Media.uses_original_theme?(stream(term_theme_name: "dracula"))
+    end
+
+    test "false without a captured palette, regardless of selection" do
+      refute Media.uses_original_theme?(
+               stream(term_theme_name: "original", term_theme_palette: nil)
+             )
+
+      refute Media.uses_original_theme?(
+               stream(term_theme_prefer_original: true, term_theme_palette: nil)
+             )
+    end
+
+    test "works for recordings, which have no prefer-original field" do
+      asciicast = %Asciinema.Recordings.Asciicast{
+        term_theme_name: "original",
+        term_theme_fg: "#aabbcc",
+        term_theme_bg: "#112233",
+        term_theme_palette: "#000000:#111111"
+      }
+
+      assert Media.uses_original_theme?(asciicast)
+    end
+  end
+
+  describe "original_theme/1" do
+    test "returns the captured theme whenever a palette exists, regardless of selection" do
+      assert %{name: "Custom", fg: "#aabbcc"} =
+               Media.original_theme(stream(term_theme_name: "dracula"))
+    end
+
+    test "nil when nothing was captured" do
+      refute Media.original_theme(stream(term_theme_palette: nil))
+    end
+  end
+
   defp stream(attrs) do
     struct!(
       %Asciinema.Streaming.Stream{

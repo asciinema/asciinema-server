@@ -152,6 +152,40 @@ defmodule AsciinemaAdmin.CoreComponents do
     |> Asciinema.Themes.preview_colors()
   end
 
+  @doc "Label for a medium's configured theme selection."
+  def theme_setting_label(medium) do
+    case theme_setting(medium) do
+      :original ->
+        "original"
+
+      {:named, name, inherited} ->
+        Asciinema.Themes.display_name(name) <> if(inherited, do: " (default)", else: "")
+    end
+  end
+
+  @doc "Palette colors for the configured theme, or nil when set to original."
+  def theme_setting_colors(medium) do
+    case theme_setting(medium) do
+      :original -> nil
+      {:named, name, _inherited} -> named_theme_colors(name)
+    end
+  end
+
+  defp theme_setting(medium) do
+    cond do
+      medium.term_theme_name == "original" -> :original
+      medium.term_theme_name -> {:named, medium.term_theme_name, false}
+      true -> {:named, Asciinema.Accounts.default_term_theme_name(medium.user), true}
+    end
+  end
+
+  @doc "Eight colors of the medium's captured original palette, or nil when never captured."
+  def original_theme_colors(medium) do
+    if theme = Asciinema.Media.original_theme(medium) do
+      Asciinema.Themes.preview_colors(theme)
+    end
+  end
+
   @doc """
   Avatar + username link to the admin user page. No whitespace between the
   avatar and the name — the gap is pure CSS margin.

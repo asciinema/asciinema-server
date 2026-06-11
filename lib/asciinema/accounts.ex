@@ -766,7 +766,7 @@ defmodule Asciinema.Accounts do
     :ok
   end
 
-  def default_term_theme_name(user), do: user.term_theme_name
+  def default_term_theme_name(user), do: user.term_theme_name || Themes.default_name()
 
   def default_font_family(user), do: user.term_font_family
 end

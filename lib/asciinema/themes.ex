@@ -194,6 +194,9 @@ defmodule Asciinema.Themes do
 
   def terminal_themes, do: Map.keys(@themes)
 
+  @doc "Name of the app-wide default theme, used when neither the medium nor its owner sets one."
+  def default_name, do: "asciinema"
+
   @doc "The theme's first eight ANSI colors, for compact palette previews."
   def preview_colors(theme) do
     Enum.map(0..7, &color(theme, &1))
