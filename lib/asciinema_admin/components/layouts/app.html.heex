@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="csrf-token" content={Plug.CSRFProtection.get_csrf_token()} />
+    <link rel="stylesheet" href={~p"/assets/admin.css"} />
+    <script defer type="module" src={~p"/assets/admin.js"}>
+    </script>
+    <title>{assigns[:page_title] || "Admin"} · asciinema</title>
+  </head>
+
+  <body>
+    <header class="brand">
+      <span class="brand-name mono">asciinema admin</span>
+      <span class="brand-env">env: {AsciinemaAdmin.Layouts.env_name()}</span>
+    </header>
+
+    <main class="shell">
+      <nav class="sidebar">
+        <ul class="nav-list">
+          <li class={nav_class(@current_path, ~p"/admin")}>
+            <.link href={~p"/admin"}>Dashboard</.link>
+          </li>
+        </ul>
+
+        <h6 class="nav-group">System</h6>
+        <ul class="nav-list">
+          <li class={nav_class(@current_path, ~p"/admin/system/dashboard")}>
+            <.link href={~p"/admin/system/dashboard"}>LiveDashboard</.link>
+          </li>
+          <li class={nav_class(@current_path, ~p"/admin/system/oban")}>
+            <.link href={~p"/admin/system/oban"}>Oban</.link>
+          </li>
+        </ul>
+
+        <div :if={version()} class="sidebar-footer mono">v{version()}</div>
+      </nav>
+
+      <section class="content">
+        <p :if={info = Phoenix.Flash.get(@flash, :info)} class="flash flash-info">{info}</p>
+        <p :if={err = Phoenix.Flash.get(@flash, :error)} class="flash flash-error">{err}</p>
+        {@inner_content}
+      </section>
+    </main>
+  </body>
+</html>

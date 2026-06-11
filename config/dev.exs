@@ -37,7 +37,10 @@ config :asciinema, AsciinemaAdmin.Endpoint,
   check_origin: false,
   code_reloader: true,
   debug_errors: true,
-  secret_key_base: secret_key_base
+  secret_key_base: secret_key_base,
+  watchers: [
+    esbuild_admin: {Esbuild, :install_and_run, [:admin, ~w(--sourcemap=inline --watch)]}
+  ]
 
 config :asciinema, Asciinema.Accounts, secret: secret_key_base
 
