@@ -854,6 +854,23 @@ table.kv tbody tr:last-child td {
   border-bottom: 0;
 }
 
+/* max-width: 0 lets the cell ellipsize instead of stretching the table */
+table.kv td.truncate {
+  max-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* clamp user-controlled labels (env var names) to one line */
+table.kv th .truncate {
+  display: inline-block;
+  max-width: 11rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: bottom;
+}
+
 /* hairline ring keeps a light final bar distinct from the card */
 .palette-strip {
   vertical-align: middle;

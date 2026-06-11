@@ -50,7 +50,7 @@ defmodule AsciinemaAdmin.StreamControllerTest do
       body = conn |> get(~p"/admin/streams/#{stream.id}") |> html_response(200)
 
       assert body =~ "demo-stream"
-      assert body =~ "Tokens"
+      assert body =~ "producer token"
       assert body =~ ~s(id="player")
       assert body =~ "/ws/s/#{stream.public_token}"
       assert body =~ "Recordings from this stream"
@@ -58,6 +58,36 @@ defmodule AsciinemaAdmin.StreamControllerTest do
       refute body =~ "no-stream-link"
       assert body =~ "/admin/recordings/#{asciicast.id}"
       assert body =~ "Delete stream"
+    end
+
+    test "shows the configured theme in Terminal and session terminal facts in Last session",
+         %{conn: conn} do
+      stream =
+        insert(:stream,
+          term_theme_name: "nord",
+          term_cols: 120,
+          term_rows: 40,
+          term_type: "xterm-256color",
+          term_theme_fg: "#aabbcc",
+          term_theme_bg: "#112233",
+          term_theme_palette: Enum.map_join(0..15, ":", fn i -> "#0000#{16 + i}" end),
+          env: %{"SHELL" => "/bin/fish"}
+        )
+
+      body = conn |> get(~p"/admin/streams/#{stream.id}") |> html_response(200)
+
+      # Settings card: the configured named theme
+      assert body =~ "Nord"
+      # Last session card: captured env vars
+      assert body =~ ~r{<th><span class="truncate" title="SHELL">\s*SHELL\s*</span></th>}
+      assert body =~ "/bin/fish"
+      # Last session card: captured session facts
+      assert body =~ "terminal cols × rows"
+      assert body =~ "120 × 40"
+      assert body =~ "xterm-256color"
+      assert body =~ "terminal original theme"
+      # captured palette renders as a strip (palette color 0)
+      assert body =~ "#000016"
     end
   end
 

@@ -156,16 +156,18 @@
           <tbody>
             <tr>
               <th>theme</th>
-              <td>
+              <td
+                class="truncate"
+                title={"#{theme_name(@user)}#{if @user.term_theme_prefer_original, do: " · original preferred"}"}
+              >
                 <.palette_strip colors={theme_colors(@user)} />
                 <span class="muted">
                   <.sep />{theme_name(@user)}
                 </span>
+                <span :if={@user.term_theme_prefer_original} class="muted">
+                  <.sep />original preferred
+                </span>
               </td>
-            </tr>
-            <tr>
-              <th>prefer original</th>
-              <td>{if @user.term_theme_prefer_original, do: "yes", else: "no"}</td>
             </tr>
             <tr>
               <th>font</th>
