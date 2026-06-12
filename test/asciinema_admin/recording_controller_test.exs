@@ -228,6 +228,20 @@ defmodule AsciinemaAdmin.RecordingControllerTest do
       assert get_resp_header(conn, "content-type") == ["application/x-asciicast"]
     end
 
+    test "serves zstd directly when the client accepts it", %{conn: conn} do
+      asciicast = insert(:asciicast_v2, visibility: :private, compressed: true)
+      zst_path = Asciinema.ZstdTestHelpers.zstd_fixture!("test/fixtures/welcome.cast")
+      :ok = Asciinema.FileStore.put_file(asciicast.path, zst_path, "application/x-asciicast")
+
+      conn =
+        conn
+        |> put_req_header("accept-encoding", "gzip, deflate, br, zstd")
+        |> get(~p"/admin/recordings/#{asciicast.id}/file")
+
+      assert response(conn, 200) == File.read!(zst_path)
+      assert get_resp_header(conn, "content-encoding") == ["zstd"]
+    end
+
     test "returns 404 for missing id", %{conn: conn} do
       assert_raise Ecto.NoResultsError, fn ->
         get(conn, ~p"/admin/recordings/9999999/file")

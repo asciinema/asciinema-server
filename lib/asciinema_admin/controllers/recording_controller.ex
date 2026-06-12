@@ -54,20 +54,33 @@ defmodule AsciinemaAdmin.RecordingController do
       |> put_resp_header("cache-control", "no-store")
 
     # remote/S3 files are cached without a .zst suffix, hence the schema flag
-    if asciicast.compressed do
-      conn = send_chunked(conn, 200)
+    cond do
+      not asciicast.compressed ->
+        send_file(conn, 200, path)
 
-      path
-      |> Zstd.stream!(@cast_chunk_size)
-      |> Enum.reduce_while(conn, fn data, conn ->
-        case chunk(conn, data) do
-          {:ok, conn} -> {:cont, conn}
-          {:error, _} -> {:halt, conn}
-        end
-      end)
-    else
-      send_file(conn, 200, path)
+      accepts_zstd?(conn) ->
+        conn
+        |> put_resp_header("content-encoding", "zstd")
+        |> send_file(200, path)
+
+      true ->
+        conn = send_chunked(conn, 200)
+
+        path
+        |> Zstd.stream!(@cast_chunk_size)
+        |> Enum.reduce_while(conn, fn data, conn ->
+          case chunk(conn, data) do
+            {:ok, conn} -> {:cont, conn}
+            {:error, _} -> {:halt, conn}
+          end
+        end)
     end
+  end
+
+  defp accepts_zstd?(conn) do
+    conn
+    |> get_req_header("accept-encoding")
+    |> Enum.any?(&String.contains?(&1, "zstd"))
   end
 
   def edit(conn, %{"id" => id}) do
