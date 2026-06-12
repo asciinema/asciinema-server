@@ -326,6 +326,54 @@ defmodule Asciinema.AccountsTest do
       assert_id.({:stream_count, {:between, 2, 2}}, high)
     end
 
+    test "paginate with_counts returns per-user counts" do
+      user = insert(:user)
+      insert_list(3, :asciicast, user: user)
+      insert(:stream, user: user)
+
+      handler_id = "with-counts-sql-#{System.unique_integer()}"
+      parent = self()
+
+      :telemetry.attach(
+        handler_id,
+        [:asciinema, :repo, :query],
+        fn _event, _measurements, %{query: sql}, _config ->
+          # queries emit in the calling process; ignore concurrent tests' traffic
+          if self() == parent and String.contains?(sql, "username") do
+            send(parent, {:entries_sql, sql})
+          end
+        end,
+        nil
+      )
+
+      on_exit(fn -> :telemetry.detach(handler_id) end)
+
+      page =
+        Accounts.paginate(%Query{scope: :system, filters: [{:id, user.id}]}, 1, 10,
+          with_counts: true
+        )
+
+      assert [%{recording_count: 3, stream_count: 1}] = page.entries
+      # without count filters, counts come from correlated subqueries
+      assert_receive {:entries_sql, sql}
+      assert sql =~ "(SELECT count(*)"
+      refute sql =~ "GROUP BY"
+
+      # with a count filter present, the display counts reuse the aggregate join
+      page =
+        Accounts.paginate(
+          %Query{scope: :system, filters: [{:id, user.id}, {:recording_count, {:gte, 1}}]},
+          1,
+          10,
+          with_counts: true
+        )
+
+      assert [%{recording_count: 3, stream_count: 1}] = page.entries
+      assert_receive {:entries_sql, sql}
+      assert sql =~ "GROUP BY"
+      refute sql =~ "(SELECT count(*)"
+    end
+
     test "search by username (case-insensitive substring)" do
       user = insert(:user, username: "AliceCool")
       _other = insert(:user, username: "bob")

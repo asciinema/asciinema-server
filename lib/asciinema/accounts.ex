@@ -55,7 +55,7 @@ defmodule Asciinema.Accounts do
   end
 
   def query(%Query{} = spec) do
-    User
+    from(u in User, as: :user)
     |> apply_scope(spec.scope)
     |> apply_filters(spec.filters)
     |> sort(spec.sort)
@@ -222,7 +222,7 @@ defmodule Asciinema.Accounts do
       from(u in User,
         where: u.inserted_at >= ^cutoff,
         group_by: fragment("date_trunc('day', ?)::date", u.inserted_at),
-        select: {fragment("date_trunc('day', ?)::date", u.inserted_at), count(u.id)}
+        select: {fragment("date_trunc('day', ?)::date", u.inserted_at), count()}
       )
       |> Repo.all()
       |> Map.new()
@@ -232,8 +232,24 @@ defmodule Asciinema.Accounts do
     |> Enum.map(fn d -> {d, Map.get(rows, d, 0)} end)
   end
 
-  defp maybe_with_counts(q, true), do: with_counts(q)
+  # When a count filter/sort already forced the aggregate joins, reuse them;
+  # otherwise correlated subqueries count only the rows on the returned page.
+  defp maybe_with_counts(q, true) do
+    if has_named_binding?(q, :recording_counts) or has_named_binding?(q, :stream_counts) do
+      with_counts(q)
+    else
+      select_merge(q, %{
+        recording_count: subquery(count_for_user(Asciinema.Recordings.Asciicast)),
+        stream_count: subquery(count_for_user(Asciinema.Streaming.Stream))
+      })
+    end
+  end
+
   defp maybe_with_counts(q, false), do: q
+
+  defp count_for_user(schema) do
+    from(r in schema, where: r.user_id == parent_as(:user).id, select: count())
+  end
 
   defp with_counts(q) do
     q

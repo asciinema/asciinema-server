@@ -257,11 +257,12 @@ defmodule Asciinema.Recordings do
   defp sort(q, {:created, :desc}, _filters), do: order_by(q, [a], desc: a.inserted_at, desc: a.id)
   defp sort(q, {:created, :asc}, _filters), do: order_by(q, [a], asc: a.inserted_at, asc: a.id)
 
+  # duration is NOT NULL, so plain asc/desc lets one btree serve both directions
   defp sort(q, {:duration, :desc}, _filters),
-    do: order_by(q, [a], desc_nulls_last: a.duration, desc: a.id)
+    do: order_by(q, [a], desc: a.duration, desc: a.id)
 
   defp sort(q, {:duration, :asc}, _filters),
-    do: order_by(q, [a], asc_nulls_last: a.duration, asc: a.id)
+    do: order_by(q, [a], asc: a.duration, asc: a.id)
 
   defp sort(q, {:size, :desc}, _filters),
     do: order_by(q, [a], desc_nulls_last: a.compressed_size, desc: a.id)
@@ -529,7 +530,7 @@ defmodule Asciinema.Recordings do
       from(a in Asciicast,
         where: a.inserted_at >= ^cutoff,
         group_by: fragment("date_trunc('day', ?)::date", a.inserted_at),
-        select: {fragment("date_trunc('day', ?)::date", a.inserted_at), count(a.id)}
+        select: {fragment("date_trunc('day', ?)::date", a.inserted_at), count()}
       )
       |> Repo.all()
       |> Map.new()

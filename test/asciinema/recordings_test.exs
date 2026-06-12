@@ -599,6 +599,25 @@ defmodule Asciinema.RecordingsTest do
       assert_id.({:views, {:gte, 10}}, high)
     end
 
+    test "views filters count recordings without stats as zero views" do
+      user = insert(:user)
+      unviewed = insert(:asciicast, user: user)
+      viewed = insert(:asciicast, user: user)
+      insert(:asciicast_stats, asciicast_id: viewed.id, total_views: 5)
+
+      list = fn filter ->
+        %Query{scope: :system, archived: :include, filters: [{:user, user.id}, filter]}
+        |> Recordings.list(10)
+        |> Enum.map(& &1.id)
+        |> Enum.sort()
+      end
+
+      assert list.({:views, {:eq, 0}}) == [unviewed.id]
+      assert list.({:views, {:lt, 3}}) == [unviewed.id]
+      assert list.({:views, {:gt, 0}}) == [viewed.id]
+      assert list.({:views, {:between, 1, 10}}) == [viewed.id]
+    end
+
     test "smoke-tests random sort" do
       user = insert(:user)
 
