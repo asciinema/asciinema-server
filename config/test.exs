@@ -25,6 +25,11 @@ config :asciinema, AsciinemaWeb.Endpoint,
   secret_key_base: "ssecretkeybasesecretkeybasesecretkeybasesecretkeybaseecretkeybase",
   server: false
 
+config :asciinema, AsciinemaAdmin.Endpoint,
+  http: [ip: {127, 0, 0, 1}, port: 4003],
+  secret_key_base: "ssecretkeybasesecretkeybasesecretkeybasesecretkeybaseecretkeybase",
+  server: false
+
 config :asciinema, Asciinema.Accounts,
   secret: "ssecretkeybasesecretkeybasesecretkeybasesecretkeybaseecretkeybase"
 

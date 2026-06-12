@@ -104,11 +104,12 @@ defmodule Asciinema.MixProject do
         "tailwind.install --if-missing --no-assets",
         "esbuild.install --if-missing"
       ],
-      "assets.build": ["tailwind default", "tailwind iframe", "esbuild default"],
+      "assets.build": ["tailwind default", "tailwind iframe", "esbuild default", "esbuild admin"],
       "assets.deploy": [
         "tailwind default --minify",
         "tailwind iframe --minify",
         "esbuild default --minify",
+        "esbuild admin --minify",
         "phx.digest"
       ],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"]

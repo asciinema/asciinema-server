@@ -2,7 +2,7 @@ defmodule Asciinema.Accounts do
   use Asciinema.Config
   import Ecto.Query, warn: false
   import Ecto, only: [assoc: 2, build_assoc: 2]
-  alias Asciinema.Accounts.{Cli, User}
+  alias Asciinema.Accounts.{Cli, Query, User}
   alias Asciinema.{Fonts, Repo, Themes}
   alias Ecto.Changeset
   alias Phoenix.Token
@@ -14,6 +14,8 @@ defmodule Asciinema.Accounts do
   def get_user([{_k, _v}] = kv), do: Repo.get_by(User, kv)
 
   def get_user(id), do: Repo.get(User, id)
+
+  def get_user!(id), do: Repo.get!(User, id)
 
   def fetch_user(id), do: OK.required(get_user(id), :not_found)
 
@@ -54,8 +56,239 @@ defmodule Asciinema.Accounts do
     Repo.get_by(User, auth_token: auth_token)
   end
 
-  def list_users(limit \\ 1000) do
-    Repo.all(from(u in User, order_by: [asc: :id], limit: ^limit))
+  def query(%Query{} = spec) do
+    from(u in User, as: :user)
+    |> apply_scope(spec.scope)
+    |> apply_filters(spec.filters)
+    |> sort(spec.sort)
+  end
+
+  defp apply_scope(query, :admin), do: query
+  defp apply_scope(query, :system), do: query
+
+  defp apply_filters(q, filters) when is_list(filters) do
+    filters
+    |> Enum.uniq()
+    |> Enum.reduce(q, &apply_filter/2)
+  end
+
+  defp apply_filters(q, filter), do: apply_filters(q, List.wrap(filter))
+
+  defp apply_filter(filter, q) do
+    case filter do
+      {:id, id} ->
+        where(q, [u], u.id == ^id)
+
+      {:identity, {:search, text}} ->
+        search_identity(q, text)
+
+      {:username, {:search, text}} ->
+        where(q, [u], ilike(u.username, ^"%#{escape_like(text)}%"))
+
+      {:email, {:search, text}} ->
+        where(q, [u], ilike(u.email, ^"%#{escape_like(text)}%"))
+
+      {:name, {:search, text}} ->
+        where(q, [u], ilike(u.name, ^"%#{escape_like(text)}%"))
+
+      {:created_at, condition} ->
+        apply_field_condition(q, :inserted_at, condition)
+
+      {:last_login_at, condition} ->
+        apply_field_condition(q, :last_login_at, condition)
+
+      {:recording_count, condition} ->
+        q
+        |> with_counts()
+        |> apply_count_condition(:recording_count, condition)
+
+      {:stream_count, condition} ->
+        q
+        |> with_counts()
+        |> apply_count_condition(:stream_count, condition)
+    end
+  end
+
+  defp search_identity(q, text) do
+    text
+    |> String.split()
+    |> Enum.reduce(q, fn term, q ->
+      pattern = "%#{escape_like(term)}%"
+
+      where(
+        q,
+        [u],
+        ilike(u.username, ^pattern) or ilike(u.email, ^pattern) or ilike(u.name, ^pattern)
+      )
+    end)
+  end
+
+  defp escape_like(term) do
+    term
+    |> String.replace("\\", "\\\\")
+    |> String.replace("%", "\\%")
+    |> String.replace("_", "\\_")
+  end
+
+  defp apply_field_condition(q, field, {:gt, value}), do: where(q, [u], field(u, ^field) > ^value)
+
+  defp apply_field_condition(q, field, {:gte, value}),
+    do: where(q, [u], field(u, ^field) >= ^value)
+
+  defp apply_field_condition(q, field, {:lt, value}), do: where(q, [u], field(u, ^field) < ^value)
+
+  defp apply_field_condition(q, field, {:lte, value}),
+    do: where(q, [u], field(u, ^field) <= ^value)
+
+  defp apply_field_condition(q, field, {:between, from_value, to_value}),
+    do: where(q, [u], field(u, ^field) >= ^from_value and field(u, ^field) <= ^to_value)
+
+  defp apply_count_condition(q, :recording_count, condition) do
+    apply_count_condition(q, :recording_counts, condition)
+  end
+
+  defp apply_count_condition(q, :stream_count, condition) do
+    apply_count_condition(q, :stream_counts, condition)
+  end
+
+  defp apply_count_condition(q, binding, {:eq, value}),
+    do: where(q, [{^binding, c}], coalesce(c.count, 0) == ^value)
+
+  defp apply_count_condition(q, binding, {:gt, value}),
+    do: where(q, [{^binding, c}], coalesce(c.count, 0) > ^value)
+
+  defp apply_count_condition(q, binding, {:gte, value}),
+    do: where(q, [{^binding, c}], coalesce(c.count, 0) >= ^value)
+
+  defp apply_count_condition(q, binding, {:lt, value}),
+    do: where(q, [{^binding, c}], coalesce(c.count, 0) < ^value)
+
+  defp apply_count_condition(q, binding, {:lte, value}),
+    do: where(q, [{^binding, c}], coalesce(c.count, 0) <= ^value)
+
+  defp apply_count_condition(q, binding, {:between, from_value, to_value}) do
+    where(
+      q,
+      [{^binding, c}],
+      coalesce(c.count, 0) >= ^from_value and coalesce(c.count, 0) <= ^to_value
+    )
+  end
+
+  defp sort(q, nil), do: q
+  defp sort(q, {:created, :desc}), do: order_by(q, [u], desc: u.inserted_at, desc: u.id)
+  defp sort(q, {:created, :asc}), do: order_by(q, [u], asc: u.inserted_at, asc: u.id)
+
+  defp sort(q, {:last_login, :desc}),
+    do: order_by(q, [u], desc_nulls_last: u.last_login_at, desc: u.id)
+
+  defp sort(q, {:last_login, :asc}),
+    do: order_by(q, [u], asc_nulls_last: u.last_login_at, asc: u.id)
+
+  defp sort(q, {:recordings, dir}) when dir in [:asc, :desc] do
+    q
+    |> with_counts()
+    |> order_by([u, recording_counts: c], [{^dir, coalesce(c.count, 0)}, {^dir, u.id}])
+  end
+
+  defp sort(q, {:streams, dir}) when dir in [:asc, :desc] do
+    q
+    |> with_counts()
+    |> order_by([u, stream_counts: c], [{^dir, coalesce(c.count, 0)}, {^dir, u.id}])
+  end
+
+  def paginate(%Query{} = spec, page, page_size, opts \\ []) do
+    spec
+    |> query()
+    |> maybe_with_counts(Keyword.get(opts, :with_counts, false))
+    |> Repo.paginate(page: page, page_size: page_size)
+  end
+
+  def list(%Query{} = spec, limit, opts \\ []) do
+    spec
+    |> query()
+    |> maybe_with_counts(Keyword.get(opts, :with_counts, false))
+    |> limit(^limit)
+    |> Repo.all()
+  end
+
+  def count(%Query{} = spec), do: spec |> query() |> count()
+  def count(q), do: Repo.count(q)
+
+  @doc "List of `{Date, count}` of new users per day over the last `days` days, oldest first."
+  def signups_by_day(days) when is_integer(days) and days > 0 do
+    today = Date.utc_today()
+    start_date = Date.add(today, -(days - 1))
+    cutoff = DateTime.new!(start_date, ~T[00:00:00], "Etc/UTC")
+
+    rows =
+      from(u in User,
+        where: u.inserted_at >= ^cutoff,
+        group_by: fragment("date_trunc('day', ?)::date", u.inserted_at),
+        select: {fragment("date_trunc('day', ?)::date", u.inserted_at), count()}
+      )
+      |> Repo.all()
+      |> Map.new()
+
+    start_date
+    |> Date.range(today)
+    |> Enum.map(fn d -> {d, Map.get(rows, d, 0)} end)
+  end
+
+  # When a count filter/sort already forced the aggregate joins, reuse them;
+  # otherwise correlated subqueries count only the rows on the returned page.
+  defp maybe_with_counts(q, true) do
+    if has_named_binding?(q, :recording_counts) or has_named_binding?(q, :stream_counts) do
+      with_counts(q)
+    else
+      select_merge(q, %{
+        recording_count: subquery(count_for_user(Asciinema.Recordings.Asciicast)),
+        stream_count: subquery(count_for_user(Asciinema.Streaming.Stream))
+      })
+    end
+  end
+
+  defp maybe_with_counts(q, false), do: q
+
+  defp count_for_user(schema) do
+    from(r in schema, where: r.user_id == parent_as(:user).id, select: count())
+  end
+
+  defp with_counts(q) do
+    q
+    |> ensure_recording_counts_join()
+    |> ensure_stream_counts_join()
+    |> select_merge([recording_counts: rc, stream_counts: sc], %{
+      recording_count: coalesce(rc.count, 0),
+      stream_count: coalesce(sc.count, 0)
+    })
+  end
+
+  defp ensure_recording_counts_join(q) do
+    if has_named_binding?(q, :recording_counts) do
+      q
+    else
+      counts =
+        from(a in Asciinema.Recordings.Asciicast,
+          group_by: a.user_id,
+          select: %{user_id: a.user_id, count: count(a.id)}
+        )
+
+      join(q, :left, [u], c in subquery(counts), on: c.user_id == u.id, as: :recording_counts)
+    end
+  end
+
+  defp ensure_stream_counts_join(q) do
+    if has_named_binding?(q, :stream_counts) do
+      q
+    else
+      counts =
+        from(s in Asciinema.Streaming.Stream,
+          group_by: s.user_id,
+          select: %{user_id: s.user_id, count: count(s.id)}
+        )
+
+      join(q, :left, [u], c in subquery(counts), on: c.user_id == u.id, as: :stream_counts)
+    end
   end
 
   def build_user(attrs \\ %{}) do
@@ -451,6 +684,7 @@ defmodule Asciinema.Accounts do
     user
     |> build_assoc(:clis)
     |> cast(attrs, [:token])
+    |> validate_required([:token])
     |> validate_format(:token, @uuid4)
     |> unique_constraint(:token, name: "clis_token_index")
   end
@@ -550,7 +784,7 @@ defmodule Asciinema.Accounts do
     :ok
   end
 
-  def default_term_theme_name(user), do: user.term_theme_name
+  def default_term_theme_name(user), do: user.term_theme_name || Themes.default_name()
 
   def default_font_family(user), do: user.term_font_family
 end

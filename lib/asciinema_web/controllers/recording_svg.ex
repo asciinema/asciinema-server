@@ -69,7 +69,7 @@ defmodule AsciinemaWeb.RecordingSVG do
   end
 
   # Bump when SVG rendering output can change without recording data changes.
-  @svg_renderer_salt 4
+  @svg_renderer_salt 5
 
   def svg_cache_key(asciicast) do
     key =
@@ -294,8 +294,10 @@ defmodule AsciinemaWeb.RecordingSVG do
   @sextants_last 0x1FB3B
   @braille_patterns_first 0x2800
   @braille_patterns_last 0x28FF
-  @powerline_triangles_first 0xE0B0
-  @powerline_triangles_last 0xE0B3
+  @powerline_first 0xE0B0
+  @powerline_last 0xE0BF
+  @powerline_nudge 0.02
+  @powerline_stroke_width 0.07
 
   defp positioning_split?(cp, char_width) do
     char_width > 1 ||
@@ -305,8 +307,10 @@ defmodule AsciinemaWeb.RecordingSVG do
       cp == @black_large_circle ||
       (cp >= @sextants_first and cp <= @sextants_last) ||
       (cp >= @braille_patterns_first and cp <= @braille_patterns_last) ||
-      (cp >= @powerline_triangles_first and cp <= @powerline_triangles_last)
+      powerline_symbol?(cp)
   end
+
+  defp powerline_symbol?(cp), do: cp >= @powerline_first and cp <= @powerline_last
 
   defp mosaic_block?(char) do
     cp = codepoint(char)
@@ -320,54 +324,60 @@ defmodule AsciinemaWeb.RecordingSVG do
       (cp >= 0x1FB00 and cp <= 0x1FB3B)
   end
 
-  defp vector_symbol?(char) do
-    cp = codepoint(char)
-
-    # powerline triangles
-    cp >= 0xE0B0 and cp <= 0xE0B3
-  end
+  defp vector_symbol?(char), do: powerline_symbol?(codepoint(char))
 
   def vector_symbol(assigns) do
-    case codepoint(assigns.char) do
-      # powerline right full triangle
-      0xE0B0 ->
-        ~H"""
-        <polygon
-          points={"#{x(@x)} #{y(@y)}, #{x(@x + 1)} #{y(@y + 0.5)}, #{x(@x)} #{y(@y + 1)}"}
-          fill={fg_color(@attrs, @theme, true)}
-        />
-        """
+    assigns =
+      assign(assigns,
+        path: powerline_path(codepoint(assigns.char)),
+        color: fg_color(assigns.attrs, assigns.theme, true),
+        nudge: @powerline_nudge,
+        stroke_width: @powerline_stroke_width
+      )
 
-      # powerline right outline triangle
-      0xE0B1 ->
-        ~H"""
-        <polyline
-          points={"#{x(@x)} #{y(@y)}, #{x(@x + 1)} #{y(@y + 0.5)}, #{x(@x)} #{y(@y + 1)}"}
-          fill="none"
-          stroke={fg_color(@attrs, @theme, true)}
-        />
-        """
-
-      # powerline left full triangle
-      0xE0B2 ->
-        ~H"""
-        <polygon
-          points={"#{x(@x + 1)} #{y(@y)}, #{x(@x)} #{y(@y + 0.5)}, #{x(@x + 1)} #{y(@y + 1)}"}
-          fill={fg_color(@attrs, @theme, true)}
-        />
-        """
-
-      # powerline left outline triangle
-      0xE0B3 ->
-        ~H"""
-        <polyline
-          points={"#{x(@x + 1)} #{y(@y)}, #{x(@x)} #{y(@y + 0.5)}, #{x(@x + 1)} #{y(@y + 1)}"}
-          fill="none"
-          stroke={fg_color(@attrs, @theme, true)}
-        />
-        """
-    end
+    ~H"""
+    <svg
+      x={x(@x - @nudge)}
+      y={y(@y)}
+      width={w(1 + @nudge * 2)}
+      height={h(1)}
+      viewBox="0 0 1 1"
+      preserveAspectRatio="none"
+      overflow="visible"
+    >
+      <path
+        d={@path.d}
+        fill={if @path[:fill], do: @color, else: "none"}
+        stroke={if @path[:stroke], do: @color}
+        stroke-width={if @path[:stroke], do: @stroke_width}
+        stroke-linejoin={@path[:stroke_linejoin]}
+      />
+    </svg>
+    """
   end
+
+  defp powerline_path(0xE0B0), do: %{d: "M0,0 L1,0.5 L0,1 Z", fill: true}
+
+  defp powerline_path(0xE0B1),
+    do: %{d: "M0,0 L1,0.5 L0,1", stroke: true, stroke_linejoin: "miter"}
+
+  defp powerline_path(0xE0B2), do: %{d: "M1,0 L0,0.5 L1,1 Z", fill: true}
+
+  defp powerline_path(0xE0B3),
+    do: %{d: "M1,0 L0,0.5 L1,1", stroke: true, stroke_linejoin: "miter"}
+
+  defp powerline_path(0xE0B4), do: %{d: "M0,0 A1,0.5 0 0 1 0,1 Z", fill: true}
+  defp powerline_path(0xE0B5), do: %{d: "M0,0 A1,0.5 0 0 1 0,1", stroke: true}
+  defp powerline_path(0xE0B6), do: %{d: "M1,0 A1,0.5 0 0 0 1,1 Z", fill: true}
+  defp powerline_path(0xE0B7), do: %{d: "M1,0 A1,0.5 0 0 0 1,1", stroke: true}
+  defp powerline_path(0xE0B8), do: %{d: "M0,1 L0,0 L1,1 Z", fill: true}
+  defp powerline_path(0xE0B9), do: %{d: "M0,0 L1,1", stroke: true}
+  defp powerline_path(0xE0BA), do: %{d: "M1,1 L1,0 L0,1 Z", fill: true}
+  defp powerline_path(0xE0BB), do: %{d: "M0,1 L1,0", stroke: true}
+  defp powerline_path(0xE0BC), do: %{d: "M0,0 L1,0 L0,1 Z", fill: true}
+  defp powerline_path(0xE0BD), do: %{d: "M0,1 L1,0", stroke: true}
+  defp powerline_path(0xE0BE), do: %{d: "M1,0 L1,1 L0,0 Z", fill: true}
+  defp powerline_path(0xE0BF), do: %{d: "M0,0 L1,1", stroke: true}
 
   @font_size 14
   @line_height 1.333333

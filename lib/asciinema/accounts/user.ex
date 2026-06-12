@@ -20,6 +20,8 @@ defmodule Asciinema.Accounts.User do
     field :live_stream_limit, :integer
     field :last_login_at, :utc_datetime
     field :is_admin, :boolean
+    field :recording_count, :integer, virtual: true
+    field :stream_count, :integer, virtual: true
 
     timestamps(type: :utc_datetime)
 

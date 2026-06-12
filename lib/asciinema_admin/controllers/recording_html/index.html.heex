@@ -1,0 +1,87 @@
+<.page title="Recordings">
+  <.query_form
+    index={@index}
+    action={~p"/admin/recordings"}
+    placeholder="Search recordings…"
+    return_to={~p"/admin/recordings?#{@filter_params}"}
+  />
+
+  <div class="table-wrap">
+    <table class="list-table">
+      <thead>
+        <tr>
+          <th class="num">id</th>
+          <th class="col-title">title</th>
+          <th>user</th>
+          <th>visibility</th>
+          <th class="num">
+            <.link href={~p"/admin/recordings?#{sort_params(@index, "duration.desc")}"}>
+              duration{sort_arrow(@index, "duration.desc")}
+            </.link>
+          </th>
+          <th class="num">
+            <.link href={~p"/admin/recordings?#{sort_params(@index, "size.desc")}"}>
+              size{sort_arrow(@index, "size.desc")}
+            </.link>
+          </th>
+          <th class="num">
+            <.link href={~p"/admin/recordings?#{sort_params(@index, "views.desc")}"}>
+              views{sort_arrow(@index, "views.desc")}
+            </.link>
+          </th>
+          <th>
+            <.link href={~p"/admin/recordings?#{sort_params(@index, "created.desc")}"}>
+              created{sort_arrow(@index, "created.desc")}
+            </.link>
+          </th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          :for={a <- @recordings}
+          class={a.archived_at && "archived"}
+          title={a.archived_at && "Archived"}
+        >
+          <td class="num mono">
+            <.link href={~p"/admin/recordings/#{a.id}"}>{a.id}</.link>
+          </td>
+          <td class="col-title">
+            <div class="title-cell">
+              <span class="title-text">{a.title}<.none :if={!a.title} /></span><span
+                :if={a.featured}
+                class="flag"
+                title="Featured"
+              ><AsciinemaAdmin.Icons.star_icon /></span><span
+                :if={a.audio_url}
+                class="flag"
+                title="Has audio"
+              ><AsciinemaAdmin.Icons.speaker_wave_icon /></span>
+            </div>
+          </td>
+          <td>
+            <.user_link user={a.user} />
+          </td>
+          <td>
+            <.tag variant={visibility_variant(a.visibility)}>{a.visibility}</.tag>
+          </td>
+          <td class="num mono">{format_duration(a.duration)}<.none :if={!a.duration} /></td>
+          <td class="num mono">
+            {format_bytes(a.compressed_size)}<.none :if={!a.compressed_size} />
+          </td>
+          <td class="num mono">{a.total_views || 0}</td>
+          <td><.time_ago time={a.inserted_at} /></td>
+          <td class="row-actions">
+            <.link href={~p"/admin/recordings/#{a.id}"}>view</.link>
+            <.link href={~p"/admin/recordings/#{a.id}/edit"}>edit</.link>
+          </td>
+        </tr>
+        <tr :if={@recordings == []}>
+          <td colspan="9" class="muted">No recordings match.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <.pagination page={@page} params={@filter_params} />
+</.page>

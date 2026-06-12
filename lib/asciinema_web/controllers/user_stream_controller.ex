@@ -1,7 +1,7 @@
 defmodule AsciinemaWeb.UserStreamController do
   use AsciinemaWeb, :controller
   alias Asciinema.{Accounts, Streaming}
-  alias AsciinemaWeb.Authorization
+  alias Asciinema.Streaming.Query, as: StreamQuery
   alias AsciinemaWeb.FallbackController
 
   plug :load_user
@@ -12,9 +12,11 @@ defmodule AsciinemaWeb.UserStreamController do
     self = !!(current_user && current_user.id == user.id)
 
     streams =
-      [:live, user_id: user.id]
-      |> Streaming.query(:recently_started)
-      |> Authorization.scope(:streams, current_user)
+      %StreamQuery{
+        scope: {:listing_for, current_user},
+        filters: [:live, {:user, user}],
+        sort: :recently_started
+      }
       |> Streaming.paginate(params["page"], 14, pagination_opts(conn, owner_id: user.id))
 
     render(
@@ -33,9 +35,11 @@ defmodule AsciinemaWeb.UserStreamController do
     self = !!(current_user && current_user.id == user.id)
 
     streams =
-      [{:user_id, user.id}, :upcoming]
-      |> Streaming.query(:soonest)
-      |> Authorization.scope(:streams, current_user)
+      %StreamQuery{
+        scope: {:listing_for, current_user},
+        filters: [{:user, user}, :upcoming],
+        sort: :soonest
+      }
       |> Streaming.paginate(params["page"], 14, pagination_opts(conn, owner_id: user.id))
 
     render(

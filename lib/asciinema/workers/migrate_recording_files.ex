@@ -7,6 +7,7 @@ defmodule Asciinema.Workers.MigrateRecordingFiles do
 
   require Logger
   alias Asciinema.Recordings
+  alias Asciinema.Recordings.Query, as: RecordingQuery
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"asciicast_id" => id}}) do
@@ -19,8 +20,7 @@ defmodule Asciinema.Workers.MigrateRecordingFiles do
 
   def perform(%Oban.Job{args: %{"user_id" => user_id}}) do
     asciicasts =
-      {:user_id, user_id}
-      |> Recordings.query()
+      %RecordingQuery{scope: :system, filters: [{:user, user_id}]}
       |> Recordings.stream()
       |> Recordings.migratable()
 
@@ -33,7 +33,7 @@ defmodule Asciinema.Workers.MigrateRecordingFiles do
 
   def perform(_job) do
     asciicasts =
-      Recordings.query()
+      %RecordingQuery{scope: :system}
       |> Recordings.stream()
       |> Recordings.migratable()
 

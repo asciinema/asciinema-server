@@ -1,7 +1,8 @@
 defmodule AsciinemaWeb.UserController do
   use AsciinemaWeb, :controller
   alias Asciinema.{Accounts, Streaming, Recordings}
-  alias AsciinemaWeb.Authorization
+  alias Asciinema.Recordings.Query, as: RecordingQuery
+  alias Asciinema.Streaming.Query, as: StreamQuery
   require Logger
 
   plug :require_current_user when action in [:edit, :update]
@@ -86,18 +87,22 @@ defmodule AsciinemaWeb.UserController do
   end
 
   defp fetch_live_streams(%{streaming_enabled: true} = user, current_user) do
-    [:live, user_id: user.id]
-    |> Streaming.query(:recently_started)
-    |> Authorization.scope(:streams, current_user)
+    %StreamQuery{
+      scope: {:listing_for, current_user},
+      filters: [:live, {:user, user}],
+      sort: :recently_started
+    }
     |> list_streams(2)
   end
 
   defp fetch_live_streams(%{streaming_enabled: false}, _current_user), do: :disabled
 
   defp fetch_upcoming_streams(%{streaming_enabled: true} = user, current_user) do
-    [:upcoming, user_id: user.id]
-    |> Streaming.query(:soonest)
-    |> Authorization.scope(:streams, current_user)
+    %StreamQuery{
+      scope: {:listing_for, current_user},
+      filters: [:upcoming, {:user, user}],
+      sort: :soonest
+    }
     |> list_streams(2)
   end
 
@@ -115,9 +120,11 @@ defmodule AsciinemaWeb.UserController do
 
     limit = (4 - used_rows) * 2
 
-    [user_id: user.id]
-    |> Recordings.query(:date)
-    |> Authorization.scope(:asciicasts, current_user)
+    %RecordingQuery{
+      scope: {:listing_for, current_user},
+      filters: [{:user, user}],
+      sort: {:created, :desc}
+    }
     |> list_asciicasts(limit)
   end
 

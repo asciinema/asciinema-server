@@ -1,45 +1,66 @@
-<h2><a href={~p"/admin/users"}>Users</a> &rsaquo; {@user.username || @user.id}</h2>
+<.page title={"Edit #{@user.username || "user ##{@user.id}"}"}>
+  <.form :let={f} for={@changeset} method="put" action={~p"/admin/users/#{@user.id}"} class="form">
+    <div class="field">
+      <label for={f[:username].id}>Username</label>
+      <input
+        type="text"
+        id={f[:username].id}
+        name={f[:username].name}
+        value={f[:username].value}
+        required
+      />
+      <p :if={msg = error_message(f[:username])} class="form-error">{msg}</p>
+    </div>
 
-<hr />
-<br />
+    <div class="field">
+      <label for={f[:email].id}>Email</label>
+      <input
+        type="email"
+        id={f[:email].id}
+        name={f[:email].name}
+        value={f[:email].value}
+        required
+      />
+      <p :if={msg = error_message(f[:email])} class="form-error">{msg}</p>
+    </div>
 
-<.form :let={f} for={@changeset} action={~p"/admin/users/#{@user.id}"} method="PUT">
-  <p>
-    <.label for={f[:username]}>Username</.label>
-    <.input field={f[:username]} required />
-    <.error field={f[:username]} />
-  </p>
+    <div class="field">
+      <label for={f[:name].id}>Display name</label>
+      <input type="text" id={f[:name].id} name={f[:name].name} value={f[:name].value} />
+      <p :if={msg = error_message(f[:name])} class="form-error">{msg}</p>
+    </div>
 
-  <p>
-    <.label for={f[:email]}>Email</.label>
-    <.input field={f[:email]} type="email" required />
-    <.error field={f[:email]} />
-  </p>
+    <h3 class="mt">Streaming</h3>
 
-  <p>
-    <.label for={f[:name]}>Display name</.label>
-    <.input field={f[:name]} />
-    <.error field={f[:name]} />
-  </p>
+    <div class="field">
+      <label class="row gap-2">
+        <input type="hidden" name={f[:streaming_enabled].name} value="false" />
+        <input
+          type="checkbox"
+          id={f[:streaming_enabled].id}
+          name={f[:streaming_enabled].name}
+          value="true"
+          checked={f[:streaming_enabled].value == true}
+        /> Enabled
+      </label>
+    </div>
 
-  <br />
+    <div class="field">
+      <label for={f[:live_stream_limit].id}>Live stream limit (blank = no limit)</label>
+      <input
+        type="number"
+        min="0"
+        id={f[:live_stream_limit].id}
+        name={f[:live_stream_limit].name}
+        value={f[:live_stream_limit].value}
+        placeholder="no limit"
+      />
+      <p :if={msg = error_message(f[:live_stream_limit])} class="form-error">{msg}</p>
+    </div>
 
-  <h3>Streaming</h3>
-
-  <p>
-    <.input field={f[:streaming_enabled]} type="checkbox" />
-    <.label for={f[:streaming_enabled]}>Enabled</.label>
-  </p>
-
-  <p>
-    <.label for={f[:live_stream_limit]}>Stream limit</.label>
-    <.input field={f[:live_stream_limit]} type="number" min="0" placeholder="no limit" />
-    <.error field={f[:live_stream_limit]} />
-  </p>
-
-  <br />
-
-  <p>
-    <button type="submit">Update</button>
-  </p>
-</.form>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Save</button>
+      <.link href={~p"/admin/users/#{@user.id}"} class="muted">Cancel</.link>
+    </div>
+  </.form>
+</.page>

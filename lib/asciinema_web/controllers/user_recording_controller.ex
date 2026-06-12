@@ -1,7 +1,7 @@
 defmodule AsciinemaWeb.UserRecordingController do
   use AsciinemaWeb, :controller
   alias Asciinema.{Accounts, Recordings}
-  alias AsciinemaWeb.Authorization
+  alias Asciinema.Recordings.Query, as: RecordingQuery
   alias AsciinemaWeb.FallbackController
 
   plug :load_user
@@ -12,9 +12,11 @@ defmodule AsciinemaWeb.UserRecordingController do
     self = !!(current_user && current_user.id == user.id)
 
     asciicasts =
-      [user_id: user.id]
-      |> Recordings.query(:date)
-      |> Authorization.scope(:asciicasts, current_user)
+      %RecordingQuery{
+        scope: {:listing_for, current_user},
+        filters: [{:user, user}],
+        sort: {:created, :desc}
+      }
       |> Recordings.paginate(params["page"], 14, pagination_opts(conn, owner_id: user.id))
 
     render(

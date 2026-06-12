@@ -11,8 +11,8 @@ on:
       - main
 
 env:
-  otp: '26.2.5.7'
-  elixir: '1.18.2'
+  otp: '28.5'
+  elixir: '1.19.5'
   node: '18.x'
   rust: '1.83.0'
 

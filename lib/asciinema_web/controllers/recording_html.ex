@@ -55,16 +55,6 @@ defmodule AsciinemaWeb.RecordingHTML do
     url(~p"/oembed?#{%{url: url(~p"/a/#{asciicast}"), format: format}}")
   end
 
-  def original_theme(asciicast) do
-    case Media.original_theme(asciicast) do
-      nil ->
-        []
-
-      theme ->
-        [%{fg: theme.fg, bg: theme.bg, palette: Enum.with_index(Tuple.to_list(theme.palette))}]
-    end
-  end
-
   def duration(asciicast), do: MediumHTML.format_duration(asciicast.duration)
 
   defp poster(nil), do: nil
@@ -87,7 +77,7 @@ defmodule AsciinemaWeb.RecordingHTML do
   def term_rows(asciicast), do: asciicast.term_rows_override || asciicast.term_rows
 
   def default_theme_display_name(asciicast) do
-    "Account default (#{Themes.display_name(Accounts.default_term_theme_name(asciicast.user) || "asciinema")})"
+    "Account default (#{Themes.display_name(Accounts.default_term_theme_name(asciicast.user))})"
   end
 
   def default_font_display_name(user) do

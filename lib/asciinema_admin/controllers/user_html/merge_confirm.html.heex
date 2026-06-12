@@ -1,0 +1,115 @@
+<.page title="Confirm user merge">
+  <div class="card mt">
+    <p>
+      This will reassign all data owned by <code>{@src.id}</code>
+      ({@src.username || @src.email}) to <code>{@dst.id}</code>
+      ({@dst.username || @dst.email}), and then delete the source account.
+      <strong>This cannot be undone.</strong>
+    </p>
+
+    <div class="grid-2 mt">
+      <section>
+        <h4 class="muted">Source (will be deleted)</h4>
+        <table class="kv">
+          <tbody>
+            <tr>
+              <th>id</th>
+              <td><code>{@src.id}</code></td>
+            </tr>
+            <tr>
+              <th>username</th>
+              <td><.user_link user={@src} /></td>
+            </tr>
+            <tr>
+              <th>name</th>
+              <td>{@src.name}<.none :if={!@src.name} /></td>
+            </tr>
+            <tr>
+              <th>email</th>
+              <td>{@src.email}</td>
+            </tr>
+            <tr>
+              <th>recordings</th>
+              <td>
+                <.link href={~p"/admin/recordings?#{%{q: "user:#{@src.id}"}}"}>
+                  {@src_recording_count}
+                </.link>
+              </td>
+            </tr>
+            <tr>
+              <th>streams</th>
+              <td>
+                <.link href={~p"/admin/streams?#{%{q: "user:#{@src.id}"}}"}>
+                  {@src_stream_count}
+                </.link>
+              </td>
+            </tr>
+            <tr>
+              <th>CLIs</th>
+              <td>{@src_cli_count}</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+      <section>
+        <h4 class="muted">Destination (will absorb)</h4>
+        <table class="kv">
+          <tbody>
+            <tr>
+              <th>id</th>
+              <td><code>{@dst.id}</code></td>
+            </tr>
+            <tr>
+              <th>username</th>
+              <td><.user_link user={@dst} /></td>
+            </tr>
+            <tr>
+              <th>name</th>
+              <td>{@dst.name}<.none :if={!@dst.name} /></td>
+            </tr>
+            <tr>
+              <th>email</th>
+              <td>{@dst.email}</td>
+            </tr>
+            <tr>
+              <th>recordings</th>
+              <td>
+                <.link href={~p"/admin/recordings?#{%{q: "user:#{@dst.id}"}}"}>
+                  {@dst_recording_count}
+                </.link>
+                → <strong>{@dst_recording_count + @src_recording_count}</strong>
+              </td>
+            </tr>
+            <tr>
+              <th>streams</th>
+              <td>
+                <.link href={~p"/admin/streams?#{%{q: "user:#{@dst.id}"}}"}>
+                  {@dst_stream_count}
+                </.link>
+                → <strong>{@dst_stream_count + @src_stream_count}</strong>
+              </td>
+            </tr>
+            <tr>
+              <th>CLIs</th>
+              <td>
+                {@dst_cli_count} → <strong>{@dst_cli_count + @src_cli_count}</strong>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+
+    <.form
+      for={%{}}
+      method="post"
+      action={~p"/admin/users/#{@src.id}/merge"}
+      class="row gap-2 mt"
+      data-confirm={"Really merge #{@src.username || @src.id} into #{@dst.username || @dst.id}? The source account will be deleted."}
+    >
+      <input type="hidden" name="target" value={to_string(@dst.id)} />
+      <button type="submit" class="btn btn-danger">Confirm merge</button>
+      <.link href={~p"/admin/users/#{@src.id}"} class="muted">Cancel</.link>
+    </.form>
+  </div>
+</.page>

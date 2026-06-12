@@ -18,10 +18,11 @@ defmodule AsciinemaWeb.Api.RecordingController do
   def create(conn, {upload, params}) do
     cli = conn.assigns.cli
     user_agent = get_user_agent(conn)
+    params = Map.put(params, "filename", upload.filename)
 
     case Recordings.create_asciicast(
            cli.user,
-           upload,
+           upload.path,
            %{cli_id: cli.id, user_agent: user_agent},
            params
          ) do

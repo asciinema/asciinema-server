@@ -2,6 +2,7 @@ defmodule AsciinemaWeb.RecordingController do
   use AsciinemaWeb, :controller
   alias Asciinema.{FileCache, Gzip, Recordings, Zstd}
   alias Asciinema.Recordings.Asciicast
+  alias Asciinema.Recordings.Query, as: RecordingQuery
   alias AsciinemaWeb.{Authorization, PlayerOpts, PngGenerator, RecordingSVG}
   alias AsciinemaWeb.FallbackController
 
@@ -419,9 +420,11 @@ defmodule AsciinemaWeb.RecordingController do
   end
 
   defp fetch_other_asciicasts(asciicast, current_user) do
-    [user_id: asciicast.user_id, id: {:not_eq, asciicast.id}]
-    |> Recordings.query(:random)
-    |> Authorization.scope(:asciicasts, current_user)
+    %RecordingQuery{
+      scope: {:listing_for, current_user},
+      filters: [{:user, asciicast.user_id}, {:id, {:not_eq, asciicast.id}}],
+      sort: :random
+    }
     |> list_asciicasts(4)
   end
 
