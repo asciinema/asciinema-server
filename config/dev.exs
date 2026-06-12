@@ -53,7 +53,8 @@ config :asciinema, AsciinemaWeb.Endpoint,
       ~r"priv/gettext/.*(po)$",
       ~r"lib/asciinema_web/views/.*(ex)$",
       ~r"lib/asciinema_web/templates/.*(eex|md)$",
-      ~r"lib/asciinema_web/(controllers|live|components)/.*(ex|heex)$"
+      ~r"lib/asciinema_web/(controllers|live|components)/.*(ex|heex)$",
+      ~r"lib/asciinema_admin/(controllers|live|components)/.*(ex|heex)$"
     ]
   ]
 

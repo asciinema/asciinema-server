@@ -43,5 +43,6 @@ defmodule AsciinemaWeb.Endpoint do
   plug Plug.Head
   plug Plug.Session, @session_opts
   plug AsciinemaWeb.PlugAttack
+  plug AsciinemaWeb.Plug.AdminGate
   plug AsciinemaWeb.Router
 end
