@@ -1,14 +1,15 @@
 defmodule AsciinemaWeb.HomeController do
   use AsciinemaWeb, :controller
   alias Asciinema.{Recordings, Streaming}
+  alias Asciinema.Recordings.Query, as: RecordingQuery
+  alias Asciinema.Streaming.Query, as: StreamQuery
 
   def show(conn, _params) do
     asciicast =
       if id = Application.get_env(:asciinema, :home_asciicast_id) do
         Recordings.get_asciicast(id, load_snapshot: true)
       else
-        :public
-        |> Recordings.query()
+        %RecordingQuery{scope: :public_listing}
         |> Recordings.list(1)
         |> List.first()
       end
@@ -28,14 +29,12 @@ defmodule AsciinemaWeb.HomeController do
   end
 
   defp fetch_live_streams do
-    [:public, :live]
-    |> Streaming.query(:recently_started)
+    %StreamQuery{scope: :public_listing, filters: [:live], sort: :recently_started}
     |> list_streams(2)
   end
 
   defp fetch_featured_asciicasts do
-    :featured
-    |> Recordings.query(:random)
+    %RecordingQuery{scope: :public_listing, filters: [:featured], sort: :random}
     |> list_asciicasts(2)
   end
 
@@ -46,8 +45,7 @@ defmodule AsciinemaWeb.HomeController do
     seed = Date.utc_today()
 
     asciicasts =
-      :popular
-      |> Recordings.query(:popularity)
+      %RecordingQuery{scope: :public_listing, filters: [:popular], sort: {:popularity, :desc}}
       |> Recordings.list(@popular_pool_size)
       |> Enum.sort_by(fn asciicast -> :erlang.phash2({asciicast.id, seed}) end)
 
