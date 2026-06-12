@@ -4,21 +4,24 @@ import { createPlayer } from "./player";
 
 document.addEventListener("submit", (event) => {
   const form = event.target;
-
   const message = form?.getAttribute?.("data-confirm");
+
   if (message && !window.confirm(message)) {
     event.preventDefault();
     return;
   }
 
   const promptMessage = form?.getAttribute?.("data-prompt");
+
   if (promptMessage) {
     const field = form.querySelector("input[name='name']");
     const next = window.prompt(promptMessage, field?.value || "");
+
     if (next === null || next.trim() === "") {
       event.preventDefault();
       return;
     }
+
     field.value = next.trim();
   }
 });
@@ -38,6 +41,7 @@ document.addEventListener("click", (event) => {
   if (!(dialog instanceof HTMLDialogElement) || !dialog.open) return;
 
   const rect = dialog.getBoundingClientRect();
+
   const outside =
     event.clientX < rect.left ||
     event.clientX > rect.right ||
@@ -67,6 +71,7 @@ document.addEventListener("keydown", (event) => {
 
   const el = event.target;
   const tag = el?.tagName;
+
   if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || el?.isContentEditable) return;
   if (document.querySelector("dialog[open]")) return;
 
@@ -91,6 +96,7 @@ function mountQueryAutocomplete() {
     wrap.dataset.mounted = "1";
 
     let data = { tokens: [], values: {} };
+
     try {
       data = JSON.parse(wrap.dataset.suggestions || "{}");
     } catch (_e) {}
@@ -107,6 +113,7 @@ function mountQueryAutocomplete() {
       const pos = input.selectionStart ?? input.value.length;
       const before = input.value.slice(0, pos);
       const start = before.search(/\S+$/);
+
       return {
         start: start === -1 ? pos : start,
         end: pos,
@@ -142,10 +149,12 @@ function mountQueryAutocomplete() {
         button.type = "button";
         button.textContent = frag.text.includes(":") ? item : `${item}:`;
         button.className = index === selected ? "active" : "";
+
         button.addEventListener("mousedown", (event) => {
           event.preventDefault();
           accept(index);
         });
+
         menu.appendChild(button);
       });
 
@@ -169,8 +178,10 @@ function mountQueryAutocomplete() {
       selected = -1;
       render();
     };
+
     input.addEventListener("input", refresh);
     input.addEventListener("click", refresh);
+
     input.addEventListener("keydown", (event) => {
       if (menu.classList.contains("hidden")) return;
 
@@ -212,6 +223,7 @@ async function mountPlayer() {
   const playerSrc = isLive ? { driver: "websocket", url: src } : src;
 
   let extraOpts = {};
+
   if (el.dataset.playerOpts) {
     try {
       extraOpts = JSON.parse(el.dataset.playerOpts);
