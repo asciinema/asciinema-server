@@ -1,8 +1,7 @@
 defmodule AsciinemaAdmin.UserController do
   use AsciinemaAdmin, :controller
 
-  alias Asciinema.{Accounts, Recordings, Repo, Streaming}
-  alias Asciinema.Accounts.User
+  alias Asciinema.{Accounts, Recordings, Streaming}
   alias Asciinema.Recordings.Query, as: RecordingQuery
   alias Asciinema.Streaming.Query, as: StreamQuery
   alias AsciinemaAdmin.IndexQuery
@@ -29,7 +28,7 @@ defmodule AsciinemaAdmin.UserController do
   end
 
   def show(conn, %{"id" => id}) do
-    user = Repo.get!(User, id)
+    user = Accounts.get_user!(id)
     clis = Accounts.list_clis(user)
     login_url = AsciinemaWeb.UrlProvider.login(Accounts.generate_login_token(user))
     {compressed, uncompressed} = Recordings.byte_totals(user.id)
@@ -67,7 +66,7 @@ defmodule AsciinemaAdmin.UserController do
   end
 
   def edit(conn, %{"id" => id}) do
-    user = Repo.get!(User, id)
+    user = Accounts.get_user!(id)
 
     render(conn, :edit,
       page_title: "Edit #{user.username || user.id}",
@@ -77,7 +76,7 @@ defmodule AsciinemaAdmin.UserController do
   end
 
   def update(conn, %{"id" => id, "user" => attrs}) do
-    user = Repo.get!(User, id)
+    user = Accounts.get_user!(id)
 
     case Asciinema.update_user(user, attrs, :admin) do
       {:ok, user} ->
@@ -95,7 +94,7 @@ defmodule AsciinemaAdmin.UserController do
   end
 
   def delete(conn, %{"id" => id}) do
-    user = Repo.get!(User, id)
+    user = Accounts.get_user!(id)
     :ok = Asciinema.delete_user!(user)
 
     conn
@@ -104,7 +103,7 @@ defmodule AsciinemaAdmin.UserController do
   end
 
   def merge_confirm(conn, %{"id" => id} = params) do
-    src = Repo.get!(User, id)
+    src = Accounts.get_user!(id)
 
     case resolve_target(params["target"], src) do
       {:ok, dst} ->
@@ -128,7 +127,7 @@ defmodule AsciinemaAdmin.UserController do
   end
 
   def merge(conn, %{"id" => id, "target" => target}) do
-    src = Repo.get!(User, id)
+    src = Accounts.get_user!(id)
 
     case resolve_target(target, src) do
       {:ok, dst} ->
@@ -153,22 +152,20 @@ defmodule AsciinemaAdmin.UserController do
   defp resolve_target(target, src) do
     target = String.trim(target)
 
-    cond do
-      target == "" ->
-        {:error, "Enter a target user (id, username, or email)."}
-
-      true ->
-        user =
-          case Integer.parse(target) do
-            {id, ""} -> Accounts.get_user(id)
-            _ -> Accounts.find_user(target)
-          end
-
-        cond do
-          is_nil(user) -> {:error, "Target user not found: #{target}"}
-          user.id == src.id -> {:error, "Source and destination must differ."}
-          true -> {:ok, user}
+    if target == "" do
+      {:error, "Enter a target user (id, username, or email)."}
+    else
+      user =
+        case Integer.parse(target) do
+          {id, ""} -> Accounts.get_user(id)
+          _ -> Accounts.find_user(target)
         end
+
+      cond do
+        is_nil(user) -> {:error, "Target user not found: #{target}"}
+        user.id == src.id -> {:error, "Source and destination must differ."}
+        true -> {:ok, user}
+      end
     end
   end
 

@@ -1,8 +1,7 @@
 defmodule AsciinemaAdmin.RecordingController do
   use AsciinemaAdmin, :controller
 
-  alias Asciinema.{Recordings, Repo, Zstd}
-  alias Asciinema.Recordings.Asciicast
+  alias Asciinema.{Recordings, Zstd}
   alias AsciinemaAdmin.{IndexQuery, RecordingHTML}
 
   @page_size 50
@@ -31,11 +30,7 @@ defmodule AsciinemaAdmin.RecordingController do
   end
 
   def show(conn, %{"id" => id}) do
-    asciicast =
-      case Recordings.get_asciicast(id, load_snapshot: true) do
-        nil -> raise Ecto.NoResultsError, queryable: Asciicast
-        a -> a
-      end
+    asciicast = Recordings.get_asciicast!(id, load_snapshot: true)
 
     render(conn, :show,
       page_title: asciicast.title || "Recording ##{asciicast.id}",
@@ -50,7 +45,7 @@ defmodule AsciinemaAdmin.RecordingController do
   visibility checks so the player reaches private recordings.
   """
   def cast_file(conn, %{"id" => id}) do
-    asciicast = Repo.get!(Asciicast, id)
+    asciicast = Recordings.get_asciicast!(id)
     {:ok, path} = Recordings.fetch_cast_path(asciicast)
 
     conn =
@@ -76,7 +71,7 @@ defmodule AsciinemaAdmin.RecordingController do
   end
 
   def edit(conn, %{"id" => id}) do
-    asciicast = Repo.get!(Asciicast, id) |> Repo.preload(:user)
+    asciicast = Recordings.get_asciicast!(id)
 
     render(conn, :edit,
       page_title: "Edit recording ##{asciicast.id}",
@@ -86,7 +81,7 @@ defmodule AsciinemaAdmin.RecordingController do
   end
 
   def update(conn, %{"id" => id, "asciicast" => attrs}) do
-    asciicast = Repo.get!(Asciicast, id) |> Repo.preload(:user)
+    asciicast = Recordings.get_asciicast!(id)
 
     case Recordings.update_asciicast(asciicast, attrs) do
       {:ok, asciicast} ->
@@ -104,7 +99,7 @@ defmodule AsciinemaAdmin.RecordingController do
   end
 
   def delete(conn, %{"id" => id}) do
-    asciicast = Repo.get!(Asciicast, id)
+    asciicast = Recordings.get_asciicast!(id)
     {:ok, _} = Recordings.delete_asciicast(asciicast)
 
     conn
@@ -113,7 +108,7 @@ defmodule AsciinemaAdmin.RecordingController do
   end
 
   def set_visibility(conn, %{"id" => id, "visibility" => vis}) do
-    asciicast = Repo.get!(Asciicast, id)
+    asciicast = Recordings.get_asciicast!(id)
 
     case Recordings.update_asciicast(asciicast, %{visibility: vis}) do
       {:ok, _} ->
@@ -129,7 +124,7 @@ defmodule AsciinemaAdmin.RecordingController do
   end
 
   def set_featured(conn, %{"id" => id, "featured" => featured}) do
-    asciicast = Repo.get!(Asciicast, id)
+    asciicast = Recordings.get_asciicast!(id)
     val = featured == "true"
 
     case Recordings.set_featured(asciicast, val) do
@@ -146,7 +141,7 @@ defmodule AsciinemaAdmin.RecordingController do
   end
 
   def unarchive(conn, %{"id" => id}) do
-    asciicast = Repo.get!(Asciicast, id)
+    asciicast = Recordings.get_asciicast!(id)
 
     case Recordings.unarchive(asciicast) do
       {:ok, _} ->
@@ -162,7 +157,7 @@ defmodule AsciinemaAdmin.RecordingController do
   end
 
   def archive_now(conn, %{"id" => id}) do
-    asciicast = Repo.get!(Asciicast, id)
+    asciicast = Recordings.get_asciicast!(id)
 
     case Recordings.archive_now(asciicast) do
       {:ok, _} ->

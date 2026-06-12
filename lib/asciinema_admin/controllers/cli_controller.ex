@@ -1,11 +1,10 @@
 defmodule AsciinemaAdmin.CliController do
   use AsciinemaAdmin, :controller
 
-  alias Asciinema.Accounts.User
-  alias Asciinema.Repo
+  alias Asciinema.Accounts
 
   def create(conn, %{"user_id" => user_id, "cli" => %{"token" => token}}) do
-    user = Repo.get!(User, user_id)
+    user = Accounts.get_user!(user_id)
     install_id = extract_install_id(token)
 
     case Asciinema.claim_cli(user, install_id) do

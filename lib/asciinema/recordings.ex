@@ -32,6 +32,13 @@ defmodule Asciinema.Recordings do
     |> Repo.preload([:user, :stats])
   end
 
+  def get_asciicast!(id, opts \\ []) do
+    Asciicast
+    |> maybe_load_snapshot(opts)
+    |> Repo.get!(id)
+    |> Repo.preload([:user, :stats])
+  end
+
   def get_public_asciicast(id, opts \\ []) do
     Asciicast
     |> maybe_load_snapshot(opts)

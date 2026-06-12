@@ -15,6 +15,8 @@ defmodule Asciinema.Accounts do
 
   def get_user(id), do: Repo.get(User, id)
 
+  def get_user!(id), do: Repo.get!(User, id)
+
   def fetch_user(id), do: OK.required(get_user(id), :not_found)
 
   def find_user(%User{} = user), do: user
