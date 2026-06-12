@@ -36,7 +36,7 @@ defmodule AsciinemaAdmin.Router do
     get "/recordings/:id/file", RecordingController, :cast_file
     post "/recordings/:id/visibility", RecordingController, :set_visibility
     post "/recordings/:id/featured", RecordingController, :set_featured
-    post "/recordings/:id/archive_now", RecordingController, :archive_now
+    post "/recordings/:id/archive", RecordingController, :archive
     post "/recordings/:id/unarchive", RecordingController, :unarchive
 
     resources "/streams", StreamController, only: [:index, :show, :edit, :update, :delete]

@@ -156,10 +156,10 @@ defmodule AsciinemaAdmin.RecordingController do
     end
   end
 
-  def archive_now(conn, %{"id" => id}) do
+  def archive(conn, %{"id" => id}) do
     asciicast = Recordings.get_asciicast!(id)
 
-    case Recordings.archive_now(asciicast) do
+    case Recordings.archive(asciicast) do
       {:ok, _} ->
         conn
         |> put_flash(:info, "Archived.")

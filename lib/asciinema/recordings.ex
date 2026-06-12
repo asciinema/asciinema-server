@@ -881,7 +881,7 @@ defmodule Asciinema.Recordings do
     |> Repo.update()
   end
 
-  def archive_now(asciicast) do
+  def archive(asciicast) do
     asciicast
     |> Changeset.change(%{archived_at: DateTime.utc_now() |> DateTime.truncate(:second)})
     |> Repo.update()

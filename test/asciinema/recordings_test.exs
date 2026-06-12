@@ -1262,11 +1262,11 @@ defmodule Asciinema.RecordingsTest do
     end
   end
 
-  describe "archive_now/1" do
+  describe "archive/1" do
     test "stamps archived_at" do
       a = insert(:asciicast, archived_at: nil)
 
-      {:ok, archived} = Recordings.archive_now(a)
+      {:ok, archived} = Recordings.archive(a)
       assert %DateTime{} = archived.archived_at
     end
   end

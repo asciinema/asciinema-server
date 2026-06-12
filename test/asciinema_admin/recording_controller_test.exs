@@ -235,11 +235,11 @@ defmodule AsciinemaAdmin.RecordingControllerTest do
     end
   end
 
-  describe "POST /admin/recordings/:id/archive_now" do
+  describe "POST /admin/recordings/:id/archive" do
     test "stamps archived_at", %{conn: conn} do
       asciicast = insert(:asciicast, archived_at: nil)
 
-      post(conn, ~p"/admin/recordings/#{asciicast.id}/archive_now", %{})
+      post(conn, ~p"/admin/recordings/#{asciicast.id}/archive", %{})
 
       assert %DateTime{} = Repo.get!(Asciicast, asciicast.id).archived_at
     end

@@ -29,7 +29,7 @@
       <.form
         :if={is_nil(@asciicast.archived_at)}
         for={%{}}
-        action={~p"/admin/recordings/#{@asciicast.id}/archive_now"}
+        action={~p"/admin/recordings/#{@asciicast.id}/archive"}
         method="post"
         data-confirm="Archive this recording now?"
       >
