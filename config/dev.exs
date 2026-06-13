@@ -42,6 +42,8 @@ config :asciinema, AsciinemaAdmin.Endpoint,
     esbuild_admin: {Esbuild, :install_and_run, [:admin, ~w(--sourcemap=inline --watch)]}
   ]
 
+config :asciinema, AsciinemaWeb.Plug.AdminGate, enabled: true
+
 config :asciinema, Asciinema.Accounts, secret: secret_key_base
 
 # Watch static and templates for browser reloading.

@@ -3,6 +3,9 @@ defmodule AsciinemaWeb.Plug.AdminGate do
   Serves the admin panel on the main endpoint: dispatches /admin requests to
   AsciinemaAdmin.Router for admins, sends anonymous users to the login page,
   and 404s non-admins so the panel's existence isn't advertised.
+
+  Opt-in via the ADMIN_PANEL_ON_MAIN_ENDPOINT env var; when disabled, /admin falls
+  through to the main router's regular 404.
   """
 
   import Plug.Conn
@@ -12,6 +15,16 @@ defmodule AsciinemaWeb.Plug.AdminGate do
   def init(opts), do: opts
 
   def call(%Plug.Conn{path_info: ["admin" | _]} = conn, _opts) do
+    if enabled?() do
+      dispatch(conn)
+    else
+      conn
+    end
+  end
+
+  def call(conn, _opts), do: conn
+
+  defp dispatch(conn) do
     conn =
       conn
       |> fetch_session()
@@ -33,5 +46,7 @@ defmodule AsciinemaWeb.Plug.AdminGate do
     end
   end
 
-  def call(conn, _opts), do: conn
+  defp enabled? do
+    Application.get_env(:asciinema, __MODULE__, [])[:enabled] == true
+  end
 end

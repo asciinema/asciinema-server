@@ -87,6 +87,10 @@ if config_env() in [:prod, :dev] do
     config :asciinema, AsciinemaAdmin.Endpoint, url: [port: String.to_integer(url_port)]
   end
 
+  if env.("ADMIN_PANEL_ON_MAIN_ENDPOINT") in ["1", "true"] do
+    config :asciinema, AsciinemaWeb.Plug.AdminGate, enabled: true
+  end
+
   if data_dir = env.("DATA_DIR") do
     config :asciinema, Asciinema.FileStore.Local, path: "#{data_dir}/uploads"
   end
