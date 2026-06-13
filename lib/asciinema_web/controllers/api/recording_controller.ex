@@ -5,6 +5,7 @@ defmodule AsciinemaWeb.Api.RecordingController do
 
   plug :assign_install_id
   plug :assign_cli
+  plug :enforce_upload_limit when action in [:create]
   plug :require_registered_cli when action in [:update, :delete]
   plug :load_asciicast when action in [:update, :delete]
   plug :authorize, :asciicast when action in [:update, :delete]
@@ -106,6 +107,26 @@ defmodule AsciinemaWeb.Api.RecordingController do
       :token_invalid -> "Invalid install ID"
       :token_not_found -> "Unregistered CLI"
       :cli_revoked -> "Revoked CLI"
+    end
+  end
+
+  defp enforce_upload_limit(conn, _opts) do
+    cli = conn.assigns.cli
+    limit = Accounts.unregistered_upload_count_limit()
+
+    if limit && !Accounts.cli_registered?(cli) &&
+         Recordings.count_user_asciicasts(cli.user) >= limit do
+      conn
+      |> put_status(:forbidden)
+      |> render(:error,
+        reason: :upload_limit,
+        message:
+          "Anonymous upload limit reached (#{limit} recordings). To upload more, " <>
+            "create an account and authenticate this CLI by running: asciinema auth"
+      )
+      |> halt()
+    else
+      conn
     end
   end
 

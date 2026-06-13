@@ -260,6 +260,11 @@ if config_env() in [:prod, :dev] do
     config :asciinema, Asciinema.Accounts, upload_auth_required: true
   end
 
+  if limit = env.("UNREGISTERED_UPLOAD_COUNT_LIMIT") do
+    config :asciinema, Asciinema.Accounts,
+      unregistered_upload_count_limit: String.to_integer(limit)
+  end
+
   if max_pages = env.("GUEST_PAGINATION_MAX_PAGES") do
     case Integer.parse(max_pages) do
       {max_pages, ""} when max_pages > 0 ->

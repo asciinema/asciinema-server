@@ -425,6 +425,14 @@ defmodule Asciinema.Accounts do
     from(u in q, where: is_nil(u.email))
   end
 
+  @doc """
+  Max number of recordings an unregistered (temporary) CLI may upload.
+
+  `nil` (the default) means unlimited. Configured via the
+  `UNREGISTERED_UPLOAD_COUNT_LIMIT` env var.
+  """
+  def unregistered_upload_count_limit, do: config(:unregistered_upload_count_limit)
+
   def sign_up_enabled?, do: config(:sign_up_enabled?, true)
 
   def initiate_login(identifier, opts \\ []) do
