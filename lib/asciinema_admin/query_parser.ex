@@ -94,7 +94,7 @@ defmodule AsciinemaAdmin.QueryParser do
   end
 
   defp canonical_token(:users, token)
-       when token in ~w[id username email name created login recordings streams],
+       when token in ~w[id username email name admin created login recordings streams],
        do: token
 
   defp canonical_token(:recordings, token)
@@ -120,6 +120,9 @@ defmodule AsciinemaAdmin.QueryParser do
 
       {:users, "name"} ->
         {:ok, {:name, {:search, value}}, value}
+
+      {:users, "admin"} ->
+        parse_bool(value, :admin)
 
       {:users, "created"} ->
         parse_datetime_condition("created", value, :created_at)

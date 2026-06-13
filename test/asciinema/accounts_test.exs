@@ -299,6 +299,7 @@ defmodule Asciinema.AccountsTest do
       high =
         insert(:user,
           username: "query-coverage-high",
+          is_admin: true,
           inserted_at: ~U[2025-02-01 00:00:00Z],
           last_login_at: ~U[2025-02-02 00:00:00Z]
         )
@@ -324,6 +325,8 @@ defmodule Asciinema.AccountsTest do
       assert_id.({:last_login_at, {:lt, ~U[2025-01-15 00:00:00Z]}}, low)
       assert_id.({:recording_count, {:gte, 2}}, high)
       assert_id.({:stream_count, {:between, 2, 2}}, high)
+      assert_id.({:admin, true}, high)
+      assert_id.({:admin, false}, low)
     end
 
     test "paginate with_counts returns per-user counts" do

@@ -91,6 +91,9 @@ defmodule Asciinema.Accounts do
       {:name, {:search, text}} ->
         where(q, [u], ilike(u.name, ^"%#{escape_like(text)}%"))
 
+      {:admin, bool} ->
+        where(q, [u], u.is_admin == ^bool)
+
       {:created_at, condition} ->
         apply_field_condition(q, :inserted_at, condition)
 

@@ -137,6 +137,7 @@ defmodule AsciinemaAdmin.QueryUI do
         <pre>alice
     id:123
     email:gmail.com
+    admin:yes
     created:30d
     login:&gt;=2026-01-01
     recordings:&gt;10
@@ -148,6 +149,7 @@ defmodule AsciinemaAdmin.QueryUI do
     username:&lt;text&gt;
     email:&lt;text&gt;
     name:&lt;text&gt;
+    admin:&lt;yes|no&gt;
     created:&lt;date&gt;
     login:&lt;date&gt;
     recordings:&lt;number&gt;
@@ -240,8 +242,9 @@ defmodule AsciinemaAdmin.QueryUI do
 
   defp suggestions(:users) do
     %{
-      tokens: ~w[id username email name created login recordings streams],
+      tokens: ~w[id username email name admin created login recordings streams],
       values: %{
+        admin: ~w[yes no],
         created: ["30d", "today", ">=2026-01-01"],
         login: ["30d", "today", ">=2026-01-01"],
         recordings: ["0", ">10", "0..2"],
