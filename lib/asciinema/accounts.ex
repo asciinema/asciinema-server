@@ -368,6 +368,7 @@ defmodule Asciinema.Accounts do
       :email,
       :name,
       :username,
+      :is_admin,
       :streaming_enabled,
       :live_stream_limit
     ])

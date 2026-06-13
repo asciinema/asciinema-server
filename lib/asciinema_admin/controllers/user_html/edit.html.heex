@@ -30,6 +30,19 @@
       <p :if={msg = error_message(f[:name])} class="form-error">{msg}</p>
     </div>
 
+    <div class="field">
+      <label class="row gap-2">
+        <input type="hidden" name={f[:is_admin].name} value="false" />
+        <input
+          type="checkbox"
+          id={f[:is_admin].id}
+          name={f[:is_admin].name}
+          value="true"
+          checked={f[:is_admin].value == true}
+        /> Admin
+      </label>
+    </div>
+
     <h3 class="mt">Streaming</h3>
 
     <div class="field">

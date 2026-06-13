@@ -197,6 +197,17 @@ defmodule AsciinemaAdmin.UserControllerTest do
       assert Repo.get!(User, user.id).name == "Alice Updated"
     end
 
+    test "grants and revokes admin", %{conn: conn} do
+      user = insert(:user, username: "alice")
+      attrs = %{"username" => "alice", "email" => user.email}
+
+      put(conn, ~p"/admin/users/#{user.id}", %{"user" => Map.put(attrs, "is_admin", "true")})
+      assert Repo.get!(User, user.id).is_admin
+
+      put(conn, ~p"/admin/users/#{user.id}", %{"user" => Map.put(attrs, "is_admin", "false")})
+      refute Repo.get!(User, user.id).is_admin
+    end
+
     test "rerenders edit form on validation failure (invalid email)", %{conn: conn} do
       user = insert(:user, username: "alice")
 
