@@ -193,6 +193,12 @@ defmodule AsciinemaAdmin.QueryUI do
       f("email", :text, "Email contains", "email:gmail.com"),
       f("name", :text, "Display name contains", "name:alice"),
       f("admin", :boolean, "Has admin access", "admin:yes"),
+      f(
+        "registered",
+        :boolean,
+        "Has an account (temporary users do not)",
+        "registered:no"
+      ),
       f("created", :date, "Signup date", "created:30d"),
       f("login", :date, "Last login", "login:>=2026-01-01"),
       f("recordings", :number, "Recording count", "recordings:>10"),

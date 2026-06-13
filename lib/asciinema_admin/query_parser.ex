@@ -11,7 +11,7 @@ defmodule AsciinemaAdmin.QueryParser do
   @visibility_values ~w[public unlisted private]
 
   @tokens %{
-    users: ~w[id username email name admin created login recordings streams],
+    users: ~w[id username email name admin registered created login recordings streams],
     recordings:
       ~w[id title user visibility featured archived created duration size views stream audio token],
     streams:
@@ -124,6 +124,9 @@ defmodule AsciinemaAdmin.QueryParser do
 
       {:users, "admin"} ->
         parse_bool(value, :admin)
+
+      {:users, "registered"} ->
+        parse_bool(value, :registered)
 
       {:users, "created"} ->
         parse_datetime_condition("created", value, :created_at)

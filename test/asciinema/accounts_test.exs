@@ -329,6 +329,24 @@ defmodule Asciinema.AccountsTest do
       assert_id.({:admin, false}, low)
     end
 
+    test "filters registered (has email) vs temporary users" do
+      registered = insert(:user)
+      temporary = insert(:temporary_user)
+
+      ids = fn filter ->
+        %Query{scope: :admin, filters: [filter]} |> Accounts.list(100) |> Enum.map(& &1.id)
+      end
+
+      registered_ids = ids.({:registered, true})
+      temporary_ids = ids.({:registered, false})
+
+      assert registered.id in registered_ids
+      refute temporary.id in registered_ids
+
+      assert temporary.id in temporary_ids
+      refute registered.id in temporary_ids
+    end
+
     test "paginate with_counts returns per-user counts" do
       user = insert(:user)
       insert_list(3, :asciicast, user: user)

@@ -48,6 +48,16 @@ defmodule AsciinemaAdmin.QueryParserTest do
     assert {:admin, false} in parsed.filters
   end
 
+  test "parses user registered bool filter" do
+    parsed = QueryParser.parse(:users, "registered:yes")
+    assert parsed.errors == []
+    assert {:registered, true} in parsed.filters
+    assert parsed.normalized_filter == "registered:yes"
+
+    parsed = QueryParser.parse(:users, "registered:no")
+    assert {:registered, false} in parsed.filters
+  end
+
   test "parses user identity search and count range" do
     parsed = QueryParser.parse(:users, "alice streams:0..2")
 

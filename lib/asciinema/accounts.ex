@@ -94,6 +94,13 @@ defmodule Asciinema.Accounts do
       {:admin, bool} ->
         where(q, [u], u.is_admin == ^bool)
 
+      # A user is "registered" once they have an account email; temporary users have none.
+      {:registered, true} ->
+        where(q, [u], not is_nil(u.email))
+
+      {:registered, false} ->
+        where(q, [u], is_nil(u.email))
+
       {:created_at, condition} ->
         apply_field_condition(q, :inserted_at, condition)
 
