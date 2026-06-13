@@ -35,6 +35,10 @@
               <td>{@user.name}<.none :if={!@user.name} /></td>
             </tr>
             <tr>
+              <th>admin</th>
+              <td>{if @user.is_admin, do: "yes", else: "no"}</td>
+            </tr>
+            <tr>
               <th>timezone</th>
               <td>
                 <code :if={@user.timezone}>{@user.timezone}</code> <.none :if={!@user.timezone} />

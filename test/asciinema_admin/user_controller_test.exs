@@ -133,6 +133,17 @@ defmodule AsciinemaAdmin.UserControllerTest do
       assert body =~ "temporary"
     end
 
+    test "shows the admin flag", %{conn: conn} do
+      admin = insert(:user, is_admin: true)
+      regular = insert(:user, is_admin: false)
+
+      assert conn |> get(~p"/admin/users/#{admin.id}") |> html_response(200) =~
+               ~r{<th>admin</th>\s*<td>yes</td>}
+
+      assert conn |> get(~p"/admin/users/#{regular.id}") |> html_response(200) =~
+               ~r{<th>admin</th>\s*<td>no</td>}
+    end
+
     test "returns 404 for missing user", %{conn: conn} do
       assert_raise Ecto.NoResultsError, fn ->
         get(conn, ~p"/admin/users/9999999")
