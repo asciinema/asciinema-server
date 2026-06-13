@@ -24,6 +24,11 @@ defmodule AsciinemaWeb.Plug.AdminGate do
 
   def call(conn, _opts), do: conn
 
+  @doc "Whether the admin panel is served on the main endpoint."
+  def enabled? do
+    Application.get_env(:asciinema, __MODULE__, [])[:enabled] == true
+  end
+
   defp dispatch(conn) do
     conn =
       conn
@@ -44,9 +49,5 @@ defmodule AsciinemaWeb.Plug.AdminGate do
         |> Phoenix.Controller.fetch_flash()
         |> Authentication.require_current_user([])
     end
-  end
-
-  defp enabled? do
-    Application.get_env(:asciinema, __MODULE__, [])[:enabled] == true
   end
 end

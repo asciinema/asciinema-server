@@ -119,4 +119,47 @@ defmodule AsciinemaWeb.AdminGateTest do
       assert Asciinema.Repo.get!(Asciinema.Accounts.User, target.id).name == "Original"
     end
   end
+
+  describe "admin panel link in the user dropdown" do
+    test "shown to admin user", %{conn: conn} do
+      user = insert(:user, is_admin: true)
+
+      html =
+        conn
+        |> log_in(user)
+        |> get(~p"/")
+        |> html_response(200)
+
+      assert html =~ "/admin"
+      assert html =~ "Admin panel"
+    end
+
+    test "hidden from non-admin user", %{conn: conn} do
+      user = insert(:user)
+
+      html =
+        conn
+        |> log_in(user)
+        |> get(~p"/")
+        |> html_response(200)
+
+      refute html =~ "Admin panel"
+    end
+
+    test "hidden when disabled", %{conn: conn} do
+      config = Application.get_env(:asciinema, AsciinemaWeb.Plug.AdminGate)
+      Application.put_env(:asciinema, AsciinemaWeb.Plug.AdminGate, enabled: false)
+      on_exit(fn -> Application.put_env(:asciinema, AsciinemaWeb.Plug.AdminGate, config) end)
+
+      user = insert(:user, is_admin: true)
+
+      html =
+        conn
+        |> log_in(user)
+        |> get(~p"/")
+        |> html_response(200)
+
+      refute html =~ "Admin panel"
+    end
+  end
 end
