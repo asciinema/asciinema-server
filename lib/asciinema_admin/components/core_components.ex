@@ -220,7 +220,8 @@ defmodule AsciinemaAdmin.CoreComponents do
   def user_link(assigns) do
     ~H"""
     <.link href={~p"/admin/users/#{@user.id}"} class="user-cell">
-      <img src={avatar_url(@user)} class="avatar avatar-sm" alt="" />{@user.username || @user.id}
+      <img src={avatar_url(@user)} class="avatar avatar-sm" alt="" />{@user.username ||
+        @user.temporary_username || @user.id}
     </.link>
     """
   end

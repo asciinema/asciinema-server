@@ -29,6 +29,14 @@ defmodule AsciinemaAdmin.UserControllerTest do
       refute body =~ ">bob<"
     end
 
+    test "links username-less users by their temporary username", %{conn: conn} do
+      insert(:user, username: nil, temporary_username: "temp-9999")
+
+      body = conn |> get(~p"/admin/users") |> html_response(200)
+
+      assert body =~ "temp-9999"
+    end
+
     test "sorts by recording count", %{conn: conn} do
       few = insert(:user, username: "few-recordings")
       many = insert(:user, username: "many-recordings")
