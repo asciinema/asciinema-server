@@ -25,6 +25,7 @@ defmodule AsciinemaAdmin.QueryUI do
             name="q"
             value={@index.q}
             placeholder={@placeholder}
+            title="Press / to focus"
             autocomplete="off"
             spellcheck="false"
           />
@@ -112,7 +113,6 @@ defmodule AsciinemaAdmin.QueryUI do
         </form>
       </header>
       {help_content(@index.entity)}
-      <p class="muted">Press <kbd>/</kbd> anywhere to focus the search box.</p>
     </dialog>
     """
   end
@@ -127,165 +127,176 @@ defmodule AsciinemaAdmin.QueryUI do
   defp help_title(:recordings), do: "Recording query syntax"
   defp help_title(:streams), do: "Stream query syntax"
 
-  defp help_content(:users) do
-    assigns = %{}
+  defp help_content(entity) do
+    assigns = %{
+      intro: intro(entity),
+      filters: filters(entity),
+      value_help: value_help_rows(entity)
+    }
 
     ~H"""
-    <div class="query-help-grid">
-      <section>
-        <h3>Basics</h3>
-        <pre>alice
-    id:123
-    email:gmail.com
-    admin:yes
-    created:30d
-    login:&gt;=2026-01-01
-    recordings:&gt;10
-    streams:0..2</pre>
-      </section>
-      <section>
-        <h3>Filters</h3>
-        <pre>id:&lt;int&gt;
-    username:&lt;text&gt;
-    email:&lt;text&gt;
-    name:&lt;text&gt;
-    admin:&lt;yes|no&gt;
-    created:&lt;date&gt;
-    login:&lt;date&gt;
-    recordings:&lt;number&gt;
-    streams:&lt;number&gt;</pre>
-      </section>
-    </div>
+    <p class="query-help-intro">{@intro}</p>
+
+    <table class="query-help-table">
+      <thead>
+        <tr>
+          <th>Filter</th>
+          <th>Meaning</th>
+          <th>Example</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr :for={f <- @filters}>
+          <td class="mono">{"#{f.token}:<#{f.placeholder}>"}</td>
+          <td>{f.meaning}</td>
+          <td class="mono">{f.example}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 class="query-help-subhead">Values &amp; operators</h3>
+
+    <table class="query-help-table">
+      <tbody>
+        <tr :for={{type, forms} <- @value_help}>
+          <td class="mono">{type}</td>
+          <td>{Phoenix.HTML.raw(forms)}</td>
+        </tr>
+      </tbody>
+    </table>
+
     <p class="muted">
-      Spaces separate terms. Quoted values are not supported. Numbers can be exact (e.g. 0), a
-      comparison (&gt;10), or a <code>..</code> range. Invalid filters block the search.
+      Comparison operators (&gt; &gt;= &lt; &lt;=) and ranges (low..high) work with date, number,
+      duration and size values.
     </p>
     """
   end
 
-  defp help_content(:recordings) do
-    assigns = %{}
-
-    ~H"""
-    <div class="query-help-grid">
-      <section>
-        <h3>Basics</h3>
-        <pre>deploy visibility:public
-    featured:yes views:&gt;1000
-    archived:no size:&gt;100mb
-    stream:true
-    stream:123
-    duration:10m..1h</pre>
-      </section>
-      <section>
-        <h3>Filters</h3>
-        <pre>id:&lt;int&gt;
-    title:&lt;text&gt;
-    user:&lt;username|id&gt;
-    visibility:&lt;public|unlisted|private&gt;
-    featured:&lt;yes|no&gt;
-    archived:&lt;yes|no&gt;
-    created:&lt;date&gt;
-    duration:&lt;duration&gt;
-    size:&lt;size&gt;
-    views:&lt;number&gt;
-    stream:&lt;yes|no|id&gt;
-    audio:&lt;yes|no&gt;
-    token:&lt;secret token&gt;</pre>
-      </section>
-    </div>
-    <p class="muted">
-      Dates: today, 2026-01-01, 30m, 30h, 30d. Numbers, durations and sizes can be exact (e.g.
-      views:0), a comparison (&gt;, &gt;=, &lt;, &lt;=), or a <code>..</code> range.
-    </p>
-    """
+  # Bare words search the identity (users) or title (recordings/streams).
+  defp intro(:users) do
+    "Bare words search username, email and name. Combine filters with spaces — all terms must match. Quotes aren't supported."
   end
 
-  defp help_content(:streams) do
-    assigns = %{}
-
-    ~H"""
-    <div class="query-help-grid">
-      <section>
-        <h3>Basics</h3>
-        <pre>deploy visibility:public
-    live:yes
-    scheduled:yes
-    started:never
-    peak-viewers:&gt;50
-    recordings:&gt;0
-    created:30d</pre>
-      </section>
-      <section>
-        <h3>Filters</h3>
-        <pre>id:&lt;int&gt;
-    title:&lt;text&gt;
-    user:&lt;username|id&gt;
-    visibility:&lt;public|unlisted|private&gt;
-    live:&lt;yes|no&gt;
-    scheduled:&lt;yes|no&gt;
-    audio:&lt;yes|no&gt;
-    created:&lt;date&gt;
-    started:&lt;date|never&gt;
-    current-viewers:&lt;number&gt;
-    peak-viewers:&lt;number&gt;
-    recordings:&lt;number&gt;
-    token:&lt;public token&gt;</pre>
-      </section>
-    </div>
-    <p class="muted">
-      Spaces separate terms. Quoted values are not supported. Numbers can be exact (e.g. 0), a
-      comparison (&gt;10), or a <code>..</code> range. Invalid filters block the search.
-    </p>
-    """
+  defp intro(_entity) do
+    "Bare words search the title. Combine filters with spaces — all terms must match. Quotes aren't supported."
   end
 
-  defp suggestions(:users) do
+  @doc """
+  Single source of truth for an entity's filter vocabulary. Drives both this
+  help table and the autocomplete suggestions; a test asserts the parser's
+  accepted token set equals these tokens.
+  """
+  def filters(:users) do
+    [
+      f("id", :id, "User ID", "id:123"),
+      f("username", :text, "Username contains", "username:alice"),
+      f("email", :text, "Email contains", "email:gmail.com"),
+      f("name", :text, "Display name contains", "name:alice"),
+      f("admin", :boolean, "Has admin access", "admin:yes"),
+      f("created", :date, "Signup date", "created:30d"),
+      f("login", :date, "Last login", "login:>=2026-01-01"),
+      f("recordings", :number, "Recording count", "recordings:>10"),
+      f("streams", :number, "Stream count", "streams:0..2")
+    ]
+  end
+
+  def filters(:recordings) do
+    [
+      f("id", :id, "Recording ID", "id:123"),
+      f("title", :text, "Title contains", "title:deploy"),
+      f("user", :user, "Owner", "user:alice", placeholder: "username|id"),
+      f("visibility", :enum, "Visibility", "visibility:public",
+        placeholder: "public|unlisted|private",
+        values: ~w[public unlisted private]
+      ),
+      f("featured", :boolean, "Featured", "featured:yes"),
+      f("archived", :boolean, "Archived", "archived:no"),
+      f("created", :date, "Creation date", "created:30d"),
+      f("duration", :duration, "Length", "duration:10m..1h"),
+      f("size", :size, "Compressed size", "size:>100mb"),
+      f("views", :number, "View count", "views:>1000"),
+      f("stream", :boolean, "Belongs to a stream", "stream:yes", placeholder: "yes|no|id"),
+      f("audio", :boolean, "Has audio", "audio:yes"),
+      f("token", :token, "Exact secret token", "token:abc123", placeholder: "token")
+    ]
+  end
+
+  def filters(:streams) do
+    [
+      f("id", :id, "Stream ID", "id:123"),
+      f("title", :text, "Title contains", "title:deploy"),
+      f("user", :user, "Owner", "user:alice", placeholder: "username|id"),
+      f("visibility", :enum, "Visibility", "visibility:public",
+        placeholder: "public|unlisted|private",
+        values: ~w[public unlisted private]
+      ),
+      f("live", :boolean, "Currently live", "live:yes"),
+      f("scheduled", :boolean, "Scheduled", "scheduled:yes"),
+      f("audio", :boolean, "Has audio", "audio:yes"),
+      f("created", :date, "Creation date", "created:30d"),
+      f("started", :date, "Last started", "started:never",
+        placeholder: "date|never",
+        values: ["never", "30d", ">=2026-01-01"]
+      ),
+      f("current-viewers", :number, "Current viewers", "current-viewers:>10"),
+      f("peak-viewers", :number, "Peak viewers", "peak-viewers:>50"),
+      f("recordings", :number, "Recording count", "recordings:>0"),
+      f("token", :token, "Exact public token", "token:abc123", placeholder: "token")
+    ]
+  end
+
+  defp f(token, type, meaning, example, opts \\ []) do
     %{
-      tokens: ~w[id username email name admin created login recordings streams],
-      values: %{
-        admin: ~w[yes no],
-        created: ["30d", "today", ">=2026-01-01"],
-        login: ["30d", "today", ">=2026-01-01"],
-        recordings: ["0", ">10", "0..2"],
-        streams: ["0", ">10", "0..2"]
-      }
+      token: token,
+      type: type,
+      meaning: meaning,
+      example: example,
+      placeholder: opts[:placeholder] || placeholder(type),
+      values: opts[:values] || type_values(type)
     }
   end
 
-  defp suggestions(:recordings) do
-    %{
-      tokens:
-        ~w[id title user visibility featured archived created duration size views stream audio token],
-      values: %{
-        visibility: ~w[public unlisted private],
-        featured: ~w[yes no],
-        archived: ~w[yes no],
-        created: ["30d", "today", ">=2026-01-01"],
-        duration: ["10m", ">10m", "10m..1h"],
-        size: ["100mb", ">100mb", "100mb..1gb"],
-        views: ["0", ">1000", "100..1000"],
-        stream: ["yes", "no"],
-        audio: ~w[yes no]
-      }
-    }
+  defp placeholder(:id), do: "number"
+  defp placeholder(:number), do: "number"
+  defp placeholder(:text), do: "text"
+  defp placeholder(:boolean), do: "yes|no"
+  defp placeholder(:date), do: "date"
+  defp placeholder(:duration), do: "duration"
+  defp placeholder(:size), do: "size"
+
+  defp type_values(:boolean), do: ~w[yes no]
+  defp type_values(:date), do: ["today", "30d", ">=2026-01-01"]
+  defp type_values(:number), do: ["0", ">10", "0..2"]
+  defp type_values(:duration), do: ["10m", ">10m", "10m..1h"]
+  defp type_values(:size), do: ["100mb", ">100mb", "100mb..1gb"]
+  defp type_values(_type), do: []
+
+  # The shared reference shows only the value types this entity actually uses,
+  # in a fixed order. Enums and one-off forms stay inline in the filter cell.
+  # The forms column is static, developer-authored HTML rendered verbatim.
+  @value_help [
+    {:text, {"text", "substring match, e.g. <code>gmail.com</code>"}},
+    {:boolean, {"yes | no", "also accepts <code>true</code> / <code>false</code>"}},
+    {:date,
+     {"date",
+      "<code>today</code>, <code>2026-01-01</code>, or a window like <code>30m</code> / <code>30h</code> / <code>30d</code>"}},
+    {:number, {"number", "e.g. <code>10</code>, <code>&gt;1000</code>, <code>100..1000</code>"}},
+    {:duration, {"duration", "e.g. <code>10s</code>, <code>10m</code>, <code>1h</code>"}},
+    {:size, {"size", "e.g. <code>100kb</code>, <code>10mb</code>, <code>1gb</code>"}}
+  ]
+
+  defp value_help_rows(entity) do
+    types = filters(entity) |> Enum.map(& &1.type) |> MapSet.new()
+
+    for {type, row} <- @value_help, MapSet.member?(types, type), do: row
   end
 
-  defp suggestions(:streams) do
+  defp suggestions(entity) do
+    specs = filters(entity)
+
     %{
-      tokens:
-        ~w[id title user visibility live scheduled audio created started current-viewers peak-viewers recordings token],
-      values: %{
-        visibility: ~w[public unlisted private],
-        live: ~w[yes no],
-        scheduled: ~w[yes no],
-        audio: ~w[yes no],
-        created: ["30d", "today", ">=2026-01-01"],
-        started: ["never", "30d", ">=2026-01-01"],
-        "current-viewers": ["0", ">10", "0..2"],
-        "peak-viewers": ["0", ">50", "10..100"],
-        recordings: ["0", ">0", "0..2"]
-      }
+      tokens: Enum.map(specs, & &1.token),
+      values: for(s <- specs, s.values != [], into: %{}, do: {s.token, s.values})
     }
   end
 end
