@@ -2,6 +2,7 @@ defmodule AsciinemaWeb.Api.RecordingController do
   use AsciinemaWeb, :controller
   use Asciinema.Config
   alias Asciinema.{Recordings, Accounts}
+  alias AsciinemaWeb.Api.AuthError
 
   plug :assign_install_id
   plug :assign_cli
@@ -77,10 +78,7 @@ defmodule AsciinemaWeb.Api.RecordingController do
         |> assign(:username, username)
 
       _otherwise ->
-        conn
-        |> put_status(:unauthorized)
-        |> render(:error, reason: :unauthenticated, message: "Missing install ID")
-        |> halt()
+        AuthError.render_error(conn, :missing)
     end
   end
 
@@ -93,22 +91,13 @@ defmodule AsciinemaWeb.Api.RecordingController do
       |> assign(:current_user, cli.user)
     else
       {:error, reason} ->
-        message = unauthenticated_message(reason)
-
-        conn
-        |> put_status(:unauthorized)
-        |> render(:error, reason: :unauthenticated, message: message)
-        |> halt()
+        AuthError.render_error(conn, cli_error_kind(reason))
     end
   end
 
-  defp unauthenticated_message(reason) do
-    case reason do
-      :token_invalid -> "Invalid install ID"
-      :token_not_found -> "Unregistered CLI"
-      :cli_revoked -> "Revoked CLI"
-    end
-  end
+  defp cli_error_kind(:token_invalid), do: :invalid
+  defp cli_error_kind(:token_not_found), do: :no_account
+  defp cli_error_kind(:cli_revoked), do: :revoked
 
   defp enforce_upload_limit(conn, _opts) do
     cli = conn.assigns.cli
@@ -121,8 +110,7 @@ defmodule AsciinemaWeb.Api.RecordingController do
       |> render(:error,
         reason: :upload_limit,
         message:
-          "Anonymous upload limit reached (#{limit} recordings). To upload more, " <>
-            "create an account and authenticate this CLI by running: asciinema auth"
+          "Unregistered upload limit reached (#{limit} #{if limit == 1, do: "recording", else: "recordings"})"
       )
       |> halt()
     else
@@ -134,10 +122,7 @@ defmodule AsciinemaWeb.Api.RecordingController do
     if Accounts.cli_registered?(conn.assigns.cli) do
       conn
     else
-      conn
-      |> put_status(:unauthorized)
-      |> render(:error, reason: :unauthenticated, message: "Unregistered CLI")
-      |> halt()
+      AuthError.render_error(conn, :no_account)
     end
   end
 

@@ -640,15 +640,11 @@ defmodule Asciinema.Accounts do
       {:ok, cli} ->
         preview_cli_ownership(user, cli)
 
-      {:error, :cli_revoked} = result ->
+      {:error, reason} = result when reason in [:cli_revoked, :token_invalid] ->
         result
 
       {:error, :token_not_found} ->
-        if valid_install_id?(install_id) do
-          {:ok, :new_cli}
-        else
-          {:error, :token_invalid}
-        end
+        {:ok, :new_cli}
     end
   end
 
@@ -657,7 +653,7 @@ defmodule Asciinema.Accounts do
       {:ok, cli} ->
         check_cli_ownership(user, cli)
 
-      {:error, :cli_revoked} = result ->
+      {:error, reason} = result when reason in [:cli_revoked, :token_invalid] ->
         result
 
       {:error, :token_not_found} ->
@@ -670,7 +666,7 @@ defmodule Asciinema.Accounts do
       {:ok, cli} ->
         {:ok, cli}
 
-      {:error, :cli_revoked} = result ->
+      {:error, reason} = result when reason in [:cli_revoked, :token_invalid] ->
         result
 
       {:error, :token_not_found} = result ->
@@ -735,15 +731,19 @@ defmodule Asciinema.Accounts do
   end
 
   def fetch_cli(token) do
-    cli =
-      Cli
-      |> Repo.get_by(token: token)
-      |> Repo.preload(:user)
+    if valid_install_id?(token) do
+      cli =
+        Cli
+        |> Repo.get_by(token: token)
+        |> Repo.preload(:user)
 
-    case cli do
-      nil -> {:error, :token_not_found}
-      %Cli{revoked_at: nil} -> {:ok, cli}
-      %Cli{} -> {:error, :cli_revoked}
+      case cli do
+        nil -> {:error, :token_not_found}
+        %Cli{revoked_at: nil} -> {:ok, cli}
+        %Cli{} -> {:error, :cli_revoked}
+      end
+    else
+      {:error, :token_invalid}
     end
   end
 

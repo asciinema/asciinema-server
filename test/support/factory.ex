@@ -22,14 +22,14 @@ defmodule Asciinema.Factory do
   def cli_factory do
     %Cli{
       user: build(:user),
-      token: sequence(:token, &"token-#{&1}")
+      token: sequence(:install_id, &install_id/1)
     }
   end
 
   def revoked_cli_factory do
     %Cli{
       user: build(:user),
-      token: sequence(:token, &"token-#{&1}"),
+      token: sequence(:install_id, &install_id/1),
       revoked_at: Timex.now()
     }
   end
@@ -111,6 +111,12 @@ defmodule Asciinema.Factory do
     |> Elixir.Stream.cycle()
     |> Elixir.Stream.take(16)
     |> Enum.join("")
+  end
+
+  defp install_id(n) do
+    hex = n |> Integer.to_string(16) |> String.downcase() |> String.pad_leading(32, "0")
+    <<a::binary-8, b::binary-4, c::binary-4, d::binary-4, e::binary-12>> = hex
+    "#{a}-#{b}-#{c}-#{d}-#{e}"
   end
 
   def with_file(asciicast, filename \\ nil)

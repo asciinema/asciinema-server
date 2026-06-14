@@ -42,6 +42,9 @@ defmodule AsciinemaWeb.Api.RecordingJSON do
 
       :upload_limit ->
         %{type: "upload_limit_reached", message: "Upload limit reached"}
+
+      :account_required ->
+        %{type: "account_required", message: "This action requires an account"}
     end
     |> Map.merge(Map.take(assigns, [:message]))
   end

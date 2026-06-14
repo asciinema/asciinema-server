@@ -18,7 +18,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = upload(conn, upload)
 
-      assert %{"type" => "unauthenticated", "message" => "Missing install ID"} =
+      assert %{"type" => "unauthenticated", "message" => "Missing installation ID"} =
                json_response(conn, 401)
     end
   end
@@ -32,7 +32,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = upload(conn, upload)
 
-      assert %{"type" => "unauthenticated", "message" => "Invalid install ID"} =
+      assert %{"type" => "unauthenticated", "message" => "Invalid installation ID"} =
                json_response(conn, 401)
     end
   end
@@ -45,7 +45,8 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = upload(conn, upload)
 
-      assert %{"type" => "unauthenticated", "message" => "Revoked CLI"} = json_response(conn, 401)
+      assert %{"type" => "unauthenticated", "message" => "This installation ID has been revoked"} =
+               json_response(conn, 401)
     end
   end
 
@@ -273,7 +274,17 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = upload(conn, upload)
 
-      assert %{"type" => "unauthenticated", "message" => "Unregistered CLI"} =
+      assert %{"type" => "account_required", "message" => "This action requires an account"} =
+               json_response(conn, 401)
+    end
+
+    @tag token: "not-a-uuid"
+    test "fails with 401 for a malformed install ID", %{conn: conn} do
+      upload = fixture(:upload, %{path: "2/minimal.cast"})
+
+      conn = upload(conn, upload)
+
+      assert %{"type" => "unauthenticated", "message" => "Invalid installation ID"} =
                json_response(conn, 401)
     end
   end
@@ -295,8 +306,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
       assert %{"type" => "upload_limit_reached", "message" => message} =
                json_response(conn3, 403)
 
-      assert message =~ "Anonymous upload limit reached (2 recordings)"
-      assert message =~ "asciinema auth"
+      assert message =~ "Unregistered upload limit reached (2 recordings)"
     end
 
     test "counts archived recordings toward the limit", %{conn: conn} do
@@ -360,7 +370,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = put(conn, ~p"/api/v1/recordings/#{asciicast.id}", %{"title" => "New Title"})
 
-      assert %{"type" => "unauthenticated", "message" => "Missing install ID"} =
+      assert %{"type" => "unauthenticated", "message" => "Missing installation ID"} =
                json_response(conn, 401)
     end
   end
@@ -373,7 +383,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = put(conn, ~p"/api/v1/recordings/#{asciicast.id}", %{"title" => "New Title"})
 
-      assert %{"type" => "unauthenticated", "message" => "Unregistered CLI"} =
+      assert %{"type" => "account_required", "message" => "This action requires an account"} =
                json_response(conn, 401)
     end
   end
@@ -387,7 +397,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = put(conn, ~p"/api/v1/recordings/#{asciicast.id}", %{"title" => "New Title"})
 
-      assert %{"type" => "unauthenticated", "message" => "Unregistered CLI"} =
+      assert %{"type" => "account_required", "message" => "This action requires an account"} =
                json_response(conn, 401)
     end
   end
@@ -400,7 +410,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = put(conn, ~p"/api/v1/recordings/#{asciicast.id}", %{"title" => "New Title"})
 
-      assert %{"type" => "unauthenticated", "message" => "Revoked CLI"} =
+      assert %{"type" => "unauthenticated", "message" => "This installation ID has been revoked"} =
                json_response(conn, 401)
     end
   end
@@ -497,7 +507,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = delete(conn, ~p"/api/v1/recordings/#{asciicast.id}")
 
-      assert %{"type" => "unauthenticated", "message" => "Missing install ID"} =
+      assert %{"type" => "unauthenticated", "message" => "Missing installation ID"} =
                json_response(conn, 401)
     end
   end
@@ -510,7 +520,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = delete(conn, ~p"/api/v1/recordings/#{asciicast.id}")
 
-      assert %{"type" => "unauthenticated", "message" => "Unregistered CLI"} =
+      assert %{"type" => "account_required", "message" => "This action requires an account"} =
                json_response(conn, 401)
     end
   end
@@ -524,7 +534,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = delete(conn, ~p"/api/v1/recordings/#{asciicast.id}")
 
-      assert %{"type" => "unauthenticated", "message" => "Unregistered CLI"} =
+      assert %{"type" => "account_required", "message" => "This action requires an account"} =
                json_response(conn, 401)
     end
   end
@@ -537,7 +547,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = delete(conn, ~p"/api/v1/recordings/#{asciicast.id}")
 
-      assert %{"type" => "unauthenticated", "message" => "Revoked CLI"} =
+      assert %{"type" => "unauthenticated", "message" => "This installation ID has been revoked"} =
                json_response(conn, 401)
     end
   end
