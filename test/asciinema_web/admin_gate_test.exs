@@ -94,6 +94,18 @@ defmodule AsciinemaWeb.AdminGateTest do
       assert Asciinema.Repo.get!(Asciinema.Accounts.User, target.id).name == "Renamed"
     end
 
+    test "won't let an admin remove their own admin role", %{conn: conn} do
+      admin = insert(:user, username: "alice", is_admin: true)
+
+      conn
+      |> log_in(admin)
+      |> put("/admin/users/#{admin.id}", %{
+        "user" => %{"username" => "alice", "email" => admin.email, "is_admin" => "false"}
+      })
+
+      assert Asciinema.Repo.get!(Asciinema.Accounts.User, admin.id).is_admin
+    end
+
     test "rejects an admin mutation from a non-admin", %{conn: conn} do
       target = insert(:user, name: "Original")
 
