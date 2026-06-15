@@ -9,6 +9,7 @@ defmodule AsciinemaWeb.Plug.AdminGate do
   """
 
   import Plug.Conn
+  alias Asciinema.AppEnv
   alias Asciinema.Accounts.User
   alias AsciinemaWeb.Authentication
 
@@ -26,7 +27,7 @@ defmodule AsciinemaWeb.Plug.AdminGate do
 
   @doc "Whether the admin panel is served on the main endpoint."
   def enabled? do
-    Application.get_env(:asciinema, __MODULE__, [])[:enabled] == true
+    AppEnv.get(__MODULE__, [])[:enabled] == true
   end
 
   defp dispatch(conn) do

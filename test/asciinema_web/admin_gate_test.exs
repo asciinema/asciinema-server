@@ -1,6 +1,7 @@
 defmodule AsciinemaWeb.AdminGateTest do
-  use AsciinemaWeb.ConnCase
+  use AsciinemaWeb.ConnCase, async: true
   import Asciinema.Factory
+  alias Asciinema.AppEnv
 
   describe "admin panel via the main endpoint" do
     test "redirects anonymous user to login", %{conn: conn} do
@@ -55,12 +56,7 @@ defmodule AsciinemaWeb.AdminGateTest do
     end
 
     test "404s for everyone when disabled", %{conn: conn} do
-      config = Application.get_env(:asciinema, AsciinemaWeb.Plug.AdminGate)
-      Application.put_env(:asciinema, AsciinemaWeb.Plug.AdminGate, enabled: false)
-
-      on_exit(fn ->
-        Application.put_env(:asciinema, AsciinemaWeb.Plug.AdminGate, config)
-      end)
+      AppEnv.put(AsciinemaWeb.Plug.AdminGate, enabled: false)
 
       user = insert(:user, is_admin: true)
 
@@ -147,9 +143,7 @@ defmodule AsciinemaWeb.AdminGateTest do
     end
 
     test "hidden when disabled", %{conn: conn} do
-      config = Application.get_env(:asciinema, AsciinemaWeb.Plug.AdminGate)
-      Application.put_env(:asciinema, AsciinemaWeb.Plug.AdminGate, enabled: false)
-      on_exit(fn -> Application.put_env(:asciinema, AsciinemaWeb.Plug.AdminGate, config) end)
+      AppEnv.put(AsciinemaWeb.Plug.AdminGate, enabled: false)
 
       user = insert(:user, is_admin: true)
 
