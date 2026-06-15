@@ -325,24 +325,6 @@ defmodule Asciinema.Accounts do
     |> Repo.insert()
   end
 
-  def ensure_asciinema_user do
-    case Repo.get_by(User, username: "asciinema") do
-      nil ->
-        attrs = %{
-          username: "asciinema",
-          name: "asciinema",
-          email: "admin@asciinema.org"
-        }
-
-        attrs
-        |> build_user()
-        |> Repo.insert!()
-
-      user ->
-        user
-    end
-  end
-
   def change_user(user, params \\ %{}, ctx \\ :user)
 
   def change_user(user, params, :user) do

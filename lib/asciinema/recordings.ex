@@ -564,22 +564,6 @@ defmodule Asciinema.Recordings do
     |> Enum.into(%{})
   end
 
-  def ensure_welcome_asciicast(user) do
-    if Repo.count(Ecto.assoc(user, :asciicasts)) == 0 do
-      cast_path = Path.join(:code.priv_dir(:asciinema), "welcome.cast")
-
-      {:ok, _} =
-        create_asciicast(
-          user,
-          cast_path,
-          %{visibility: :public, snapshot_at: 106.0},
-          %{"filename" => "ascii.cast"}
-        )
-    end
-
-    :ok
-  end
-
   def create_asciicast(user, local_path, attrs \\ %{}, params \\ %{})
       when is_binary(local_path) do
     with {:ok, metadata} <- extract_metadata(local_path),
