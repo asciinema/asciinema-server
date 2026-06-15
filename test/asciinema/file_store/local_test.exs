@@ -1,20 +1,13 @@
 defmodule Asciinema.FileStore.LocalTest do
-  use ExUnit.Case, async: false
+  use ExUnit.Case, async: true
+  alias Asciinema.AppEnv
   alias Asciinema.FileStore.Local
 
   setup :set_local_path
 
   defp set_local_path(%{tmp_dir: tmp_dir}) do
     store_root = Path.join(tmp_dir, "store")
-    previous = Application.get_env(:asciinema, Local)
-    Application.put_env(:asciinema, Local, path: store_root)
-
-    on_exit(fn ->
-      case previous do
-        nil -> Application.delete_env(:asciinema, Local)
-        _ -> Application.put_env(:asciinema, Local, previous)
-      end
-    end)
+    AppEnv.put(Local, path: store_root)
 
     {:ok, store_root: store_root}
   end

@@ -47,6 +47,9 @@ config :asciinema, AsciinemaAdmin.Endpoint,
   live_view: [signing_salt: "F3BMP7k9SZ-Y2SMJ"],
   pubsub_server: Asciinema.PubSub
 
+# Serving the admin panel at /admin on the main endpoint is opt-in
+config :asciinema, AsciinemaWeb.Plug.AdminGate, enabled: false
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",

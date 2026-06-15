@@ -39,6 +39,12 @@ defmodule AsciinemaWeb.Api.RecordingJSON do
 
       {:invalid_version, version} ->
         %{type: "validation_failed", message: "asciicast v#{version} is not supported"}
+
+      :upload_limit ->
+        %{type: "upload_limit_reached", message: "Upload limit reached"}
+
+      :account_required ->
+        %{type: "account_required", message: "This action requires an account"}
     end
     |> Map.merge(Map.take(assigns, [:message]))
   end

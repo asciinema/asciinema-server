@@ -30,6 +30,8 @@ config :asciinema, AsciinemaAdmin.Endpoint,
   secret_key_base: "ssecretkeybasesecretkeybasesecretkeybasesecretkeybaseecretkeybase",
   server: false
 
+config :asciinema, AsciinemaWeb.Plug.AdminGate, enabled: true
+
 config :asciinema, Asciinema.Accounts,
   secret: "ssecretkeybasesecretkeybasesecretkeybasesecretkeybaseecretkeybase"
 
@@ -40,6 +42,11 @@ config :asciinema, Asciinema.FileCache, path: "/tmp/asciinema/"
 config :asciinema, Oban, testing: :manual
 
 config :asciinema, Asciinema.Telemetry, enabled: false
+
+config :os_mon,
+  start_cpu_sup: false,
+  start_memsup: false,
+  start_disksup: false
 
 config :stream_data, max_runs: 1000
 

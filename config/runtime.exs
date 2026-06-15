@@ -87,6 +87,10 @@ if config_env() in [:prod, :dev] do
     config :asciinema, AsciinemaAdmin.Endpoint, url: [port: String.to_integer(url_port)]
   end
 
+  if env.("ADMIN_PANEL_ON_MAIN_ENDPOINT") in ["1", "true"] do
+    config :asciinema, AsciinemaWeb.Plug.AdminGate, enabled: true
+  end
+
   if data_dir = env.("DATA_DIR") do
     config :asciinema, Asciinema.FileStore.Local, path: "#{data_dir}/uploads"
   end
@@ -254,6 +258,11 @@ if config_env() in [:prod, :dev] do
 
   if env.("UPLOAD_AUTH_REQUIRED") in ["1", "true"] do
     config :asciinema, Asciinema.Accounts, upload_auth_required: true
+  end
+
+  if limit = env.("UNREGISTERED_UPLOAD_COUNT_LIMIT") do
+    config :asciinema, Asciinema.Accounts,
+      unregistered_upload_count_limit: String.to_integer(limit)
   end
 
   if max_pages = env.("GUEST_PAGINATION_MAX_PAGES") do

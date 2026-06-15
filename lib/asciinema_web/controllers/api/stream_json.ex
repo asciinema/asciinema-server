@@ -44,6 +44,9 @@ defmodule AsciinemaWeb.Api.StreamJSON do
 
       {:live_stream_limit_reached, limit} ->
         %{type: "live_stream_limit_reached", message: "Maximum #{limit} live streams reached"}
+
+      :account_required ->
+        %{type: "account_required", message: "This action requires an account"}
     end
     |> Map.merge(Map.take(assigns, [:message]))
   end

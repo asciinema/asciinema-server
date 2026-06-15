@@ -760,7 +760,7 @@ abbr[title] {
 }
 
 .admin-dialog {
-  width: min(44rem, calc(100vw - 2rem));
+  width: min(48rem, calc(100vw - 2rem));
   padding: 1rem;
   border: 1px solid var(--border-strong);
   border-radius: 4px;
@@ -796,33 +796,41 @@ abbr[title] {
   margin: 0;
 }
 
-.query-help-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin: 0.75rem 0;
+.query-help-intro {
+  margin: 0 0 1rem;
+  color: var(--muted);
 }
 
-.query-help kbd {
-  padding: 0.05rem 0.35rem;
-  border: 1px solid var(--border-strong);
-  border-radius: 3px;
-  background: var(--surface-2);
-  font-family: inherit;
-  font-size: 0.85em;
+.query-help-subhead {
+  margin: 1.5rem 0 0.5rem;
+  font-size: 0.9rem;
 }
 
-.query-help pre {
-  overflow-x: auto;
-  padding: 0.65rem;
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  background: var(--surface-2);
-  font-size: 0.8rem;
+.query-help-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
 }
 
-@media (max-width: 760px) {
-  .query-help-grid { grid-template-columns: 1fr; }
+.query-help-table th,
+.query-help-table td {
+  padding: 0.3rem 0.6rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--border);
+}
+
+.query-help-table th {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.query-help-table .mono {
+  white-space: nowrap;
+}
+
+.query-help .muted {
+  margin-top: 0.75rem;
 }
 
 /* Row actions in tables */

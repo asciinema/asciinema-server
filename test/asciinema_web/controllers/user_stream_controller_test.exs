@@ -1,5 +1,5 @@
 defmodule AsciinemaWeb.UserStreamControllerTest do
-  use AsciinemaWeb.ConnCase, async: false
+  use AsciinemaWeb.ConnCase, async: true
   import Asciinema.Factory
   import AsciinemaWeb.PaginationTestHelpers
 

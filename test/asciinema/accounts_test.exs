@@ -20,6 +20,27 @@ defmodule Asciinema.AccountsTest do
       assert {:error, %Ecto.Changeset{}} =
                Accounts.create_user(%{email: "test@example.com"})
     end
+
+    test "makes the first registered user an admin" do
+      assert {:ok, %{is_admin: true}} =
+               Accounts.create_user(%{email: "first@example.com", username: "first"})
+    end
+
+    test "does not make subsequent registered users admins" do
+      insert(:user, email: "existing@example.com")
+
+      assert {:ok, user} =
+               Accounts.create_user(%{email: "second@example.com", username: "second"})
+
+      refute user.is_admin
+    end
+
+    test "ignores temporary (email-less) users when bootstrapping the first admin" do
+      insert(:temporary_user)
+
+      assert {:ok, %{is_admin: true}} =
+               Accounts.create_user(%{email: "first@example.com", username: "first"})
+    end
   end
 
   describe "confirm_sign_up/3" do
@@ -27,6 +48,12 @@ defmodule Asciinema.AccountsTest do
       {:ok, {:sign_up, token, _email}} = Accounts.initiate_login("test@example.com")
 
       assert {:ok, %{username: "signupacct"}} = Accounts.confirm_sign_up(token, "signupacct")
+    end
+
+    test "makes the first user to sign up an admin" do
+      {:ok, {:sign_up, token, _email}} = Accounts.initiate_login("first@example.com")
+
+      assert {:ok, %{is_admin: true}} = Accounts.confirm_sign_up(token, "firstacct")
     end
 
     test "fails when invalid token" do
@@ -299,6 +326,7 @@ defmodule Asciinema.AccountsTest do
       high =
         insert(:user,
           username: "query-coverage-high",
+          is_admin: true,
           inserted_at: ~U[2025-02-01 00:00:00Z],
           last_login_at: ~U[2025-02-02 00:00:00Z]
         )
@@ -324,6 +352,26 @@ defmodule Asciinema.AccountsTest do
       assert_id.({:last_login_at, {:lt, ~U[2025-01-15 00:00:00Z]}}, low)
       assert_id.({:recording_count, {:gte, 2}}, high)
       assert_id.({:stream_count, {:between, 2, 2}}, high)
+      assert_id.({:admin, true}, high)
+      assert_id.({:admin, false}, low)
+    end
+
+    test "filters registered (has email) vs unregistered users" do
+      registered = insert(:user)
+      temporary = insert(:temporary_user)
+
+      ids = fn filter ->
+        %Query{scope: :admin, filters: [filter]} |> Accounts.list(100) |> Enum.map(& &1.id)
+      end
+
+      registered_ids = ids.({:registered, true})
+      temporary_ids = ids.({:registered, false})
+
+      assert registered.id in registered_ids
+      refute temporary.id in registered_ids
+
+      assert temporary.id in temporary_ids
+      refute registered.id in temporary_ids
     end
 
     test "paginate with_counts returns per-user counts" do

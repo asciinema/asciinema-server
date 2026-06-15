@@ -10,6 +10,14 @@ defmodule AsciinemaAdmin.QueryParser do
   @entities [:users, :recordings, :streams]
   @visibility_values ~w[public unlisted private]
 
+  @tokens %{
+    users: ~w[id username email name admin registered created login recordings streams],
+    recordings:
+      ~w[id title user visibility featured archived created duration size views stream audio token],
+    streams:
+      ~w[id title user visibility live scheduled audio created started current-viewers peak-viewers recordings token]
+  }
+
   defstruct entity: nil,
             raw: "",
             normalized_filter: "",
@@ -42,6 +50,9 @@ defmodule AsciinemaAdmin.QueryParser do
 
   def valid?(%__MODULE__{errors: []}), do: true
   def valid?(%__MODULE__{}), do: false
+
+  @doc "Canonical filter tokens accepted for an entity."
+  def tokens(entity) when entity in @entities, do: Map.fetch!(@tokens, entity)
 
   def to_query(%__MODULE__{entity: :users, filters: filters}, sort) do
     %UserQuery{scope: :admin, filters: filters, sort: sort}
@@ -93,19 +104,9 @@ defmodule AsciinemaAdmin.QueryParser do
     end
   end
 
-  defp canonical_token(:users, token)
-       when token in ~w[id username email name created login recordings streams],
-       do: token
-
-  defp canonical_token(:recordings, token)
-       when token in ~w[id title user visibility featured archived created duration size views stream audio token],
-       do: token
-
-  defp canonical_token(:streams, token)
-       when token in ~w[id title user visibility live scheduled audio created started current-viewers peak-viewers recordings token],
-       do: token
-
-  defp canonical_token(_entity, _token), do: nil
+  defp canonical_token(entity, token) do
+    if token in tokens(entity), do: token
+  end
 
   defp parse_value(entity, token, value) do
     case {entity, token} do
@@ -120,6 +121,12 @@ defmodule AsciinemaAdmin.QueryParser do
 
       {:users, "name"} ->
         {:ok, {:name, {:search, value}}, value}
+
+      {:users, "admin"} ->
+        parse_bool(value, :admin)
+
+      {:users, "registered"} ->
+        parse_bool(value, :registered)
 
       {:users, "created"} ->
         parse_datetime_condition("created", value, :created_at)

@@ -1,5 +1,5 @@
 defmodule AsciinemaWeb.SearchControllerTest do
-  use AsciinemaWeb.ConnCase, async: false
+  use AsciinemaWeb.ConnCase, async: true
   import Asciinema.Factory
   import AsciinemaWeb.PaginationTestHelpers
   alias Asciinema.Recordings

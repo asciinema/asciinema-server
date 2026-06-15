@@ -85,6 +85,14 @@
 
                 <a href={~p"/user/edit"} class="dropdown-item">Settings</a>
 
+                <a
+                  :if={@current_user.is_admin && admin_panel_enabled?()}
+                  href="/admin"
+                  class="dropdown-item"
+                >
+                  Admin panel
+                </a>
+
                 <div class="dropdown-divider"></div>
 
                 <.link href={~p"/session"} class="dropdown-item logout" method="delete">

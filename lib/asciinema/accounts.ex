@@ -6,6 +6,7 @@ defmodule Asciinema.Accounts do
   alias Asciinema.{Fonts, Repo, Themes}
   alias Ecto.Changeset
   alias Phoenix.Token
+  require Logger
 
   @valid_email_re ~r/^[A-Z0-9._%+-]+@([A-Z0-9-]+\.)+[A-Z]{2,}$/i
   @valid_username_re ~r/^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]$/
@@ -90,6 +91,16 @@ defmodule Asciinema.Accounts do
 
       {:name, {:search, text}} ->
         where(q, [u], ilike(u.name, ^"%#{escape_like(text)}%"))
+
+      {:admin, bool} ->
+        where(q, [u], u.is_admin == ^bool)
+
+      # A user is "registered" once they have an account email; unregistered users have none.
+      {:registered, true} ->
+        where(q, [u], not is_nil(u.email))
+
+      {:registered, false} ->
+        where(q, [u], is_nil(u.email))
 
       {:created_at, condition} ->
         apply_field_condition(q, :inserted_at, condition)
@@ -306,30 +317,33 @@ defmodule Asciinema.Accounts do
   def create_user(attrs) do
     import Ecto.Changeset
 
-    build_user()
-    |> cast(attrs, [:email, :username])
-    |> validate_required([:email, :username])
-    |> validate_email()
-    |> validate_username()
-    |> add_contraints()
-    |> Repo.insert()
+    result =
+      build_user()
+      |> cast(attrs, [:email, :username])
+      |> validate_required([:email, :username])
+      |> validate_email()
+      |> validate_username()
+      |> maybe_grant_first_admin()
+      |> add_contraints()
+      |> Repo.insert()
+
+    case result do
+      {:ok, %User{is_admin: true, id: id}} ->
+        Logger.info("granted admin to first registered user ##{id}")
+
+      _ ->
+        :ok
+    end
+
+    result
   end
 
-  def ensure_asciinema_user do
-    case Repo.get_by(User, username: "asciinema") do
-      nil ->
-        attrs = %{
-          username: "asciinema",
-          name: "asciinema",
-          email: "admin@asciinema.org"
-        }
-
-        attrs
-        |> build_user()
-        |> Repo.insert!()
-
-      user ->
-        user
+  # The very first registered user bootstraps a fresh instance as admin.
+  defp maybe_grant_first_admin(changeset) do
+    if Repo.exists?(from(u in User, where: not is_nil(u.email))) do
+      changeset
+    else
+      Changeset.put_change(changeset, :is_admin, true)
     end
   end
 
@@ -368,6 +382,7 @@ defmodule Asciinema.Accounts do
       :email,
       :name,
       :username,
+      :is_admin,
       :streaming_enabled,
       :live_stream_limit
     ])
@@ -410,9 +425,17 @@ defmodule Asciinema.Accounts do
 
   def cli_registered?(%Cli{} = cli), do: cli.user.email != nil
 
-  def temporary_users(q \\ User) do
+  def unregistered_users(q \\ User) do
     from(u in q, where: is_nil(u.email))
   end
+
+  @doc """
+  Max number of recordings an unregistered CLI may upload.
+
+  `nil` (the default) means unlimited. Configured via the
+  `UNREGISTERED_UPLOAD_COUNT_LIMIT` env var.
+  """
+  def unregistered_upload_count_limit, do: config(:unregistered_upload_count_limit)
 
   def sign_up_enabled?, do: config(:sign_up_enabled?, true)
 
@@ -621,15 +644,11 @@ defmodule Asciinema.Accounts do
       {:ok, cli} ->
         preview_cli_ownership(user, cli)
 
-      {:error, :cli_revoked} = result ->
+      {:error, reason} = result when reason in [:cli_revoked, :token_invalid] ->
         result
 
       {:error, :token_not_found} ->
-        if valid_install_id?(install_id) do
-          {:ok, :new_cli}
-        else
-          {:error, :token_invalid}
-        end
+        {:ok, :new_cli}
     end
   end
 
@@ -638,7 +657,7 @@ defmodule Asciinema.Accounts do
       {:ok, cli} ->
         check_cli_ownership(user, cli)
 
-      {:error, :cli_revoked} = result ->
+      {:error, reason} = result when reason in [:cli_revoked, :token_invalid] ->
         result
 
       {:error, :token_not_found} ->
@@ -651,7 +670,7 @@ defmodule Asciinema.Accounts do
       {:ok, cli} ->
         {:ok, cli}
 
-      {:error, :cli_revoked} = result ->
+      {:error, reason} = result when reason in [:cli_revoked, :token_invalid] ->
         result
 
       {:error, :token_not_found} = result ->
@@ -716,15 +735,19 @@ defmodule Asciinema.Accounts do
   end
 
   def fetch_cli(token) do
-    cli =
-      Cli
-      |> Repo.get_by(token: token)
-      |> Repo.preload(:user)
+    if valid_install_id?(token) do
+      cli =
+        Cli
+        |> Repo.get_by(token: token)
+        |> Repo.preload(:user)
 
-    case cli do
-      nil -> {:error, :token_not_found}
-      %Cli{revoked_at: nil} -> {:ok, cli}
-      %Cli{} -> {:error, :cli_revoked}
+      case cli do
+        nil -> {:error, :token_not_found}
+        %Cli{revoked_at: nil} -> {:ok, cli}
+        %Cli{} -> {:error, :cli_revoked}
+      end
+    else
+      {:error, :token_invalid}
     end
   end
 
@@ -765,16 +788,6 @@ defmodule Asciinema.Accounts do
     user
     |> Changeset.change(%{last_login_at: DateTime.utc_now(:second)})
     |> Repo.update!()
-  end
-
-  def add_admins(emails) do
-    from(u in User, where: u.email in ^emails)
-    |> Repo.update_all(set: [is_admin: true])
-  end
-
-  def remove_admins(emails) do
-    from(u in User, where: u.email in ^emails)
-    |> Repo.update_all(set: [is_admin: false])
   end
 
   def delete_user!(%User{} = user) do

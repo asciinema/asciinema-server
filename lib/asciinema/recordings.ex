@@ -519,6 +519,11 @@ defmodule Asciinema.Recordings do
   def count(q), do: Repo.count(q)
 
   @doc """
+  Total number of recordings owned by the user (including archived ones).
+  """
+  def count_user_asciicasts(user), do: Repo.count(Ecto.assoc(user, :asciicasts))
+
+  @doc """
   Returns `{compressed_total, uncompressed_total}` bytes summed across the
   user's recordings. Either side is `nil` when no recording has that size set.
   """
@@ -561,22 +566,6 @@ defmodule Asciinema.Recordings do
     from(a in q, group_by: field(a, ^field), select: {field(a, ^field), count(a.id)})
     |> Repo.all()
     |> Enum.into(%{})
-  end
-
-  def ensure_welcome_asciicast(user) do
-    if Repo.count(Ecto.assoc(user, :asciicasts)) == 0 do
-      cast_path = Path.join(:code.priv_dir(:asciinema), "welcome.cast")
-
-      {:ok, _} =
-        create_asciicast(
-          user,
-          cast_path,
-          %{visibility: :public, snapshot_at: 106.0},
-          %{"filename" => "ascii.cast"}
-        )
-    end
-
-    :ok
   end
 
   def create_asciicast(user, local_path, attrs \\ %{}, params \\ %{})

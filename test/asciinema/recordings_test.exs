@@ -368,14 +368,6 @@ defmodule Asciinema.RecordingsTest do
     end
   end
 
-  describe "ensure_welcome_asciicast/1" do
-    test "works" do
-      user = insert(:user)
-
-      assert Recordings.ensure_welcome_asciicast(user) == :ok
-    end
-  end
-
   describe "query/1" do
     test "requires an explicit scope" do
       assert_raise ArgumentError, fn ->

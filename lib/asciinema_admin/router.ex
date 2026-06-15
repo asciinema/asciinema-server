@@ -43,7 +43,10 @@ defmodule AsciinemaAdmin.Router do
     post "/streams/:id/visibility", StreamController, :set_visibility
     post "/streams/:id/disconnect", StreamController, :disconnect
 
-    live_dashboard "/system/dashboard", metrics: Asciinema.Telemetry
-    oban_dashboard("/system/oban")
+    live_dashboard "/system/dashboard",
+      metrics: Asciinema.Telemetry,
+      on_mount: [AsciinemaAdmin.EnsureAdmin]
+
+    oban_dashboard("/system/oban", on_mount: [AsciinemaAdmin.EnsureAdmin])
   end
 end

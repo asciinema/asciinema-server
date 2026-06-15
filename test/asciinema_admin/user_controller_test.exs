@@ -29,6 +29,14 @@ defmodule AsciinemaAdmin.UserControllerTest do
       refute body =~ ">bob<"
     end
 
+    test "links username-less users by their temporary username", %{conn: conn} do
+      insert(:user, username: nil, temporary_username: "temp-9999")
+
+      body = conn |> get(~p"/admin/users") |> html_response(200)
+
+      assert body =~ "temp-9999"
+    end
+
     test "sorts by recording count", %{conn: conn} do
       few = insert(:user, username: "few-recordings")
       many = insert(:user, username: "many-recordings")
@@ -130,7 +138,18 @@ defmodule AsciinemaAdmin.UserControllerTest do
       body = conn |> get(~p"/admin/users/#{user.id}") |> html_response(200)
 
       assert body =~ "temp-1234"
-      assert body =~ "temporary"
+      assert body =~ "unregistered"
+    end
+
+    test "shows the admin flag", %{conn: conn} do
+      admin = insert(:user, is_admin: true)
+      regular = insert(:user, is_admin: false)
+
+      assert conn |> get(~p"/admin/users/#{admin.id}") |> html_response(200) =~
+               ~r{<th>admin</th>\s*<td>yes</td>}
+
+      assert conn |> get(~p"/admin/users/#{regular.id}") |> html_response(200) =~
+               ~r{<th>admin</th>\s*<td>no</td>}
     end
 
     test "returns 404 for missing user", %{conn: conn} do
@@ -195,6 +214,17 @@ defmodule AsciinemaAdmin.UserControllerTest do
       assert redirected_to(conn) == ~p"/admin/users/#{user.id}"
       assert flash(conn, :info) =~ "updated"
       assert Repo.get!(User, user.id).name == "Alice Updated"
+    end
+
+    test "grants and revokes admin", %{conn: conn} do
+      user = insert(:user, username: "alice")
+      attrs = %{"username" => "alice", "email" => user.email}
+
+      put(conn, ~p"/admin/users/#{user.id}", %{"user" => Map.put(attrs, "is_admin", "true")})
+      assert Repo.get!(User, user.id).is_admin
+
+      put(conn, ~p"/admin/users/#{user.id}", %{"user" => Map.put(attrs, "is_admin", "false")})
+      refute Repo.get!(User, user.id).is_admin
     end
 
     test "rerenders edit form on validation failure (invalid email)", %{conn: conn} do

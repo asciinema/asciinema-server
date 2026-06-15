@@ -78,18 +78,47 @@ defmodule AsciinemaAdmin.UserController do
   def update(conn, %{"id" => id, "user" => attrs}) do
     user = Accounts.get_user!(id)
 
-    case Asciinema.update_user(user, attrs, :admin) do
-      {:ok, user} ->
+    with :ok <- check_admin_change(conn, user, attrs),
+         {:ok, user} <- Asciinema.update_user(user, attrs, :admin) do
+      conn
+      |> put_flash(:info, "User updated.")
+      |> redirect(to: ~p"/admin/users/#{user.id}")
+    else
+      {:error, message} when is_binary(message) ->
         conn
-        |> put_flash(:info, "User updated.")
-        |> redirect(to: ~p"/admin/users/#{user.id}")
+        |> put_flash(:error, message)
+        |> render_edit(user, Accounts.change_user(user, %{}, :admin))
 
       {:error, changeset} ->
-        render(conn, :edit,
-          page_title: "Edit #{user.username || user.id}",
-          user: user,
-          changeset: changeset
-        )
+        render_edit(conn, user, changeset)
+    end
+  end
+
+  defp render_edit(conn, user, changeset) do
+    render(conn, :edit,
+      page_title: "Edit #{user.username || user.id}",
+      user: user,
+      changeset: changeset
+    )
+  end
+
+  # An admin can't strip their own admin access and footgun themselves out of the
+  # panel. Only reachable on the main endpoint, where there's a current user.
+  defp check_admin_change(conn, user, attrs) do
+    cond do
+      not removing_admin?(user, attrs) -> :ok
+      own_account?(conn, user) -> {:error, "You can't remove your own admin access."}
+      true -> :ok
+    end
+  end
+
+  defp removing_admin?(%{is_admin: true}, %{"is_admin" => value}), do: value in [false, "false"]
+  defp removing_admin?(_user, _attrs), do: false
+
+  defp own_account?(conn, user) do
+    case conn.assigns[:current_user] do
+      %{id: id} -> id == user.id
+      _ -> false
     end
   end
 
