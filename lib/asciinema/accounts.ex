@@ -790,16 +790,6 @@ defmodule Asciinema.Accounts do
     |> Repo.update!()
   end
 
-  def add_admins(emails) do
-    from(u in User, where: u.email in ^emails)
-    |> Repo.update_all(set: [is_admin: true])
-  end
-
-  def remove_admins(emails) do
-    from(u in User, where: u.email in ^emails)
-    |> Repo.update_all(set: [is_admin: false])
-  end
-
   def delete_user!(%User{} = user) do
     Repo.delete_all(assoc(user, :clis))
     Repo.delete!(user)
