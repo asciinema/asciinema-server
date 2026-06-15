@@ -43,6 +43,11 @@ config :asciinema, Oban, testing: :manual
 
 config :asciinema, Asciinema.Telemetry, enabled: false
 
+config :os_mon,
+  start_cpu_sup: false,
+  start_memsup: false,
+  start_disksup: false
+
 config :stream_data, max_runs: 1000
 
 config :phoenix_test, :endpoint, AsciinemaWeb.Endpoint
