@@ -124,6 +124,9 @@ defmodule AsciinemaAdmin.UserControllerTest do
       # surfaced fields
       assert body =~ "Europe/Warsaw"
       assert body =~ "unlisted"
+      # public profile URL
+      assert body =~ "profile URL"
+      assert body =~ "/~alice"
       # theme slug renders via its friendly display name
       assert body =~ "Dracula"
       # operational sections
@@ -139,6 +142,8 @@ defmodule AsciinemaAdmin.UserControllerTest do
 
       assert body =~ "temp-1234"
       assert body =~ "unregistered"
+      # username-less users still get a profile URL via the user:ID form
+      assert body =~ "/~user:#{user.id}"
     end
 
     test "shows the admin flag", %{conn: conn} do

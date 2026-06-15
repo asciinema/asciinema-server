@@ -229,14 +229,17 @@ defmodule AsciinemaAdmin.CoreComponents do
   @doc "Renders user Markdown to sanitized HTML with the public site's renderer."
   defdelegate render_markdown(input), to: AsciinemaWeb.ApplicationView
 
-  @doc "Absolute URL of a recording or stream on the public site."
+  @doc "Absolute URL of a recording, stream, or user profile on the public site."
   def public_url(%Asciinema.Recordings.Asciicast{} = asciicast),
     do: AsciinemaWeb.Endpoint.url() <> "/a/" <> Phoenix.Param.to_param(asciicast)
 
   def public_url(%Asciinema.Streaming.Stream{} = stream),
     do: AsciinemaWeb.Endpoint.url() <> "/s/" <> Phoenix.Param.to_param(stream)
 
-  @doc "Links a recording/stream to its public page, with the URL as the link text."
+  def public_url(%Asciinema.Accounts.User{} = user),
+    do: AsciinemaWeb.Endpoint.url() <> "/~" <> Phoenix.Param.to_param(user)
+
+  @doc "Links a recording, stream, or user to its public page, with the URL as the link text."
   attr :entity, :any, required: true
 
   def public_link(assigns) do
