@@ -356,7 +356,7 @@ defmodule Asciinema.AccountsTest do
       assert_id.({:admin, false}, low)
     end
 
-    test "filters registered (has email) vs temporary users" do
+    test "filters registered (has email) vs unregistered users" do
       registered = insert(:user)
       temporary = insert(:temporary_user)
 

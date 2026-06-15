@@ -14,7 +14,7 @@
       <p>Authenticate this CLI with your account to finish <code>asciinema auth</code>.</p>
       <p>
         This will also add <strong>{recording_count_text(recording_count)}</strong>
-        from previous anonymous uploads made with this CLI.
+        from previous unregistered uploads made with this CLI.
       </p>
       <.form :let={_f} for={%{}} action={~p"/connect/#{@install_id}"} method="post">
         <button type="submit" class="btn btn-primary">Authenticate CLI</button>

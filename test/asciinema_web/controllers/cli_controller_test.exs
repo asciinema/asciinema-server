@@ -19,7 +19,7 @@ defmodule AsciinemaWeb.CliControllerTest do
                {:error, :token_not_found}
     end
 
-    test "with temporary user's install_id does not claim recordings", %{
+    test "with unregistered user's install_id does not claim recordings", %{
       conn: conn
     } do
       user = insert(:user)
@@ -46,7 +46,7 @@ defmodule AsciinemaWeb.CliControllerTest do
       assert cli.user.id == user.id
     end
 
-    test "with temporary user's install_id claims recordings", %{conn: conn} do
+    test "with unregistered user's install_id claims recordings", %{conn: conn} do
       user = insert(:user)
       tmp_user = insert(:temporary_user)
       cli = insert(:cli, user: tmp_user, token: "00000000-0000-0000-0000-000000000001")

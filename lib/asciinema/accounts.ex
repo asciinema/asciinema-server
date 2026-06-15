@@ -95,7 +95,7 @@ defmodule Asciinema.Accounts do
       {:admin, bool} ->
         where(q, [u], u.is_admin == ^bool)
 
-      # A user is "registered" once they have an account email; temporary users have none.
+      # A user is "registered" once they have an account email; unregistered users have none.
       {:registered, true} ->
         where(q, [u], not is_nil(u.email))
 
@@ -425,12 +425,12 @@ defmodule Asciinema.Accounts do
 
   def cli_registered?(%Cli{} = cli), do: cli.user.email != nil
 
-  def temporary_users(q \\ User) do
+  def unregistered_users(q \\ User) do
     from(u in q, where: is_nil(u.email))
   end
 
   @doc """
-  Max number of recordings an unregistered (temporary) CLI may upload.
+  Max number of recordings an unregistered CLI may upload.
 
   `nil` (the default) means unlimited. Configured via the
   `UNREGISTERED_UPLOAD_COUNT_LIMIT` env var.

@@ -98,14 +98,14 @@ defmodule AsciinemaWeb.Features.ClisTest do
       |> assert_has("main", text: "different user")
     end
 
-    test "CLI owned by a temporary user", %{conn: conn} do
+    test "CLI owned by an unregistered user", %{conn: conn} do
       user = insert(:user)
       cli = insert(:cli, user: insert(:temporary_user))
 
       conn
       |> log_in_user(user)
       |> visit("/connect/#{cli.token}")
-      |> assert_has("main", text: "add 0 recordings from previous anonymous uploads")
+      |> assert_has("main", text: "add 0 recordings from previous unregistered uploads")
       |> assert_has("main", text: "0 recordings")
       |> click_button("Authenticate CLI")
       |> assert_has(".flash", text: "successfully")

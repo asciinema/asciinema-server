@@ -196,7 +196,7 @@ defmodule AsciinemaAdmin.QueryUI do
       f(
         "registered",
         :boolean,
-        "Has an account (temporary users do not)",
+        "Has an account (unregistered users do not)",
         "registered:no"
       ),
       f("created", :date, "Signup date", "created:30d"),

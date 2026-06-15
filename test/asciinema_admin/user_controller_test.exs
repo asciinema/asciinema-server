@@ -138,7 +138,7 @@ defmodule AsciinemaAdmin.UserControllerTest do
       body = conn |> get(~p"/admin/users/#{user.id}") |> html_response(200)
 
       assert body =~ "temp-1234"
-      assert body =~ "temporary"
+      assert body =~ "unregistered"
     end
 
     test "shows the admin flag", %{conn: conn} do
