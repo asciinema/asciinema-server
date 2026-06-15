@@ -20,6 +20,27 @@ defmodule Asciinema.AccountsTest do
       assert {:error, %Ecto.Changeset{}} =
                Accounts.create_user(%{email: "test@example.com"})
     end
+
+    test "makes the first registered user an admin" do
+      assert {:ok, %{is_admin: true}} =
+               Accounts.create_user(%{email: "first@example.com", username: "first"})
+    end
+
+    test "does not make subsequent registered users admins" do
+      insert(:user, email: "existing@example.com")
+
+      assert {:ok, user} =
+               Accounts.create_user(%{email: "second@example.com", username: "second"})
+
+      refute user.is_admin
+    end
+
+    test "ignores temporary (email-less) users when bootstrapping the first admin" do
+      insert(:temporary_user)
+
+      assert {:ok, %{is_admin: true}} =
+               Accounts.create_user(%{email: "first@example.com", username: "first"})
+    end
   end
 
   describe "confirm_sign_up/3" do
@@ -27,6 +48,12 @@ defmodule Asciinema.AccountsTest do
       {:ok, {:sign_up, token, _email}} = Accounts.initiate_login("test@example.com")
 
       assert {:ok, %{username: "signupacct"}} = Accounts.confirm_sign_up(token, "signupacct")
+    end
+
+    test "makes the first user to sign up an admin" do
+      {:ok, {:sign_up, token, _email}} = Accounts.initiate_login("first@example.com")
+
+      assert {:ok, %{is_admin: true}} = Accounts.confirm_sign_up(token, "firstacct")
     end
 
     test "fails when invalid token" do

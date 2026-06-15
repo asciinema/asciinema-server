@@ -6,6 +6,7 @@ defmodule Asciinema.Accounts do
   alias Asciinema.{Fonts, Repo, Themes}
   alias Ecto.Changeset
   alias Phoenix.Token
+  require Logger
 
   @valid_email_re ~r/^[A-Z0-9._%+-]+@([A-Z0-9-]+\.)+[A-Z]{2,}$/i
   @valid_username_re ~r/^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]$/
@@ -316,13 +317,34 @@ defmodule Asciinema.Accounts do
   def create_user(attrs) do
     import Ecto.Changeset
 
-    build_user()
-    |> cast(attrs, [:email, :username])
-    |> validate_required([:email, :username])
-    |> validate_email()
-    |> validate_username()
-    |> add_contraints()
-    |> Repo.insert()
+    result =
+      build_user()
+      |> cast(attrs, [:email, :username])
+      |> validate_required([:email, :username])
+      |> validate_email()
+      |> validate_username()
+      |> maybe_grant_first_admin()
+      |> add_contraints()
+      |> Repo.insert()
+
+    case result do
+      {:ok, %User{is_admin: true, id: id}} ->
+        Logger.info("granted admin to first registered user ##{id}")
+
+      _ ->
+        :ok
+    end
+
+    result
+  end
+
+  # The very first registered user bootstraps a fresh instance as admin.
+  defp maybe_grant_first_admin(changeset) do
+    if Repo.exists?(from(u in User, where: not is_nil(u.email))) do
+      changeset
+    else
+      Changeset.put_change(changeset, :is_admin, true)
+    end
   end
 
   def change_user(user, params \\ %{}, ctx \\ :user)
