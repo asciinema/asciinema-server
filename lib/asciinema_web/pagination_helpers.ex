@@ -1,4 +1,6 @@
 defmodule AsciinemaWeb.PaginationHelpers do
+  alias Asciinema.AppEnv
+
   @guest_config_key :guest_pagination_max_pages
   @authenticated_config_key :authenticated_pagination_max_pages
 
@@ -17,7 +19,7 @@ defmodule AsciinemaWeb.PaginationHelpers do
   end
 
   defp config_opts(key) do
-    if max_pages = Application.get_env(:asciinema, key) do
+    if max_pages = AppEnv.get(key) do
       [max_pages: max_pages]
     else
       []
