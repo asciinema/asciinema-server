@@ -770,6 +770,7 @@ defmodule Asciinema.Accounts do
   def list_clis(%User{} = user) do
     user
     |> assoc(:clis)
+    |> order_by(desc: :inserted_at, desc: :id)
     |> Repo.all()
   end
 

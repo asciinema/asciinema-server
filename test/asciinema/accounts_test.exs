@@ -145,6 +145,16 @@ defmodule Asciinema.AccountsTest do
     end
   end
 
+  describe "list_clis/1" do
+    test "returns the user's CLIs newest first" do
+      user = insert(:user)
+      older = insert(:cli, user: user, inserted_at: ~U[2026-01-01 00:00:00Z])
+      newer = insert(:cli, user: user, inserted_at: ~U[2026-06-01 00:00:00Z])
+
+      assert Enum.map(Accounts.list_clis(user), & &1.id) == [newer.id, older.id]
+    end
+  end
+
   describe "initiate_email_change/2" do
     test "succeeds when email not taken" do
       user = insert(:user, email: "test@example.com")
