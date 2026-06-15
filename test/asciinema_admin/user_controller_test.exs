@@ -1,9 +1,10 @@
 defmodule AsciinemaAdmin.UserControllerTest do
   use AsciinemaAdmin.ConnCase, async: true
 
-  alias Asciinema.{Accounts, Repo}
+  alias Asciinema.{Accounts, AppEnv, Repo}
   alias Asciinema.Accounts.User
   alias Asciinema.Recordings.Asciicast
+  alias Asciinema.Streaming.StreamServer
 
   describe "GET /admin/users" do
     test "renders the users table", %{conn: conn} do
@@ -161,6 +162,39 @@ defmodule AsciinemaAdmin.UserControllerTest do
       assert_raise Ecto.NoResultsError, fn ->
         get(conn, ~p"/admin/users/9999999")
       end
+    end
+  end
+
+  describe "GET /admin/users/:id automatic recording status" do
+    test "reflects the per-user flag when recording is allowed site-wide", %{conn: conn} do
+      AppEnv.put(StreamServer, recording: :allowed)
+      enabled = insert(:user, stream_recording_enabled: true)
+      disabled = insert(:user, stream_recording_enabled: false)
+
+      assert show_body(conn, enabled) =~ ~r{automatic recording</th>\s*<td>\s*yes\b}
+      assert show_body(conn, disabled) =~ ~r{automatic recording</th>\s*<td>\s*no\b}
+    end
+
+    test "shows 'no' regardless of the flag when recording is disabled site-wide", %{conn: conn} do
+      AppEnv.put(StreamServer, recording: :disabled)
+      user = insert(:user, stream_recording_enabled: true)
+
+      body = show_body(conn, user)
+      assert body =~ ~r{automatic recording</th>\s*<td>\s*no\b}
+      assert body =~ "disabled site-wide"
+    end
+
+    test "shows 'yes' regardless of the flag when recording is forced site-wide", %{conn: conn} do
+      AppEnv.put(StreamServer, recording: :forced)
+      user = insert(:user, stream_recording_enabled: false)
+
+      body = show_body(conn, user)
+      assert body =~ ~r{automatic recording</th>\s*<td>\s*yes\b}
+      assert body =~ "forced site-wide"
+    end
+
+    defp show_body(conn, user) do
+      conn |> get(~p"/admin/users/#{user.id}") |> html_response(200)
     end
   end
 

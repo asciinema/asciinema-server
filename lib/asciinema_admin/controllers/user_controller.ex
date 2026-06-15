@@ -42,7 +42,8 @@ defmodule AsciinemaAdmin.UserController do
       stream_count: user_stream_count(user.id),
       bytes_compressed: compressed,
       bytes_uncompressed: uncompressed,
-      login_url: login_url
+      login_url: login_url,
+      stream_recording_mode: Streaming.recording_mode()
     )
   end
 

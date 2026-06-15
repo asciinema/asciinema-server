@@ -116,7 +116,16 @@
             </tr>
             <tr>
               <th>automatic recording</th>
-              <td>{if @user.stream_recording_enabled, do: "yes", else: "no"}</td>
+              <td>
+                <%= case @stream_recording_mode do %>
+                  <% :disabled -> %>
+                    no <span class="muted">(disabled site-wide)</span>
+                  <% :forced -> %>
+                    yes <span class="muted">(forced site-wide)</span>
+                  <% :allowed -> %>
+                    {if @user.stream_recording_enabled, do: "yes", else: "no"}
+                <% end %>
+              </td>
             </tr>
             <tr>
               <th>live stream limit</th>
