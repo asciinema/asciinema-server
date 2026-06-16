@@ -28,7 +28,10 @@ defmodule AsciinemaAdmin.Dashboard do
 
   @doc "The `limit` newest users, newest first."
   def recent_signups(limit) do
-    Accounts.list(%UserQuery{scope: :admin, sort: {:created, :desc}}, limit)
+    Accounts.list(
+      %UserQuery{scope: :admin, filters: [registered: true], sort: {:created, :desc}},
+      limit
+    )
   end
 
   @doc "The `limit` newest recordings (any visibility, archived included), newest first."

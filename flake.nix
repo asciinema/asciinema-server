@@ -105,7 +105,7 @@
               playwright-driver.browsers
             ]
             ++ self.packages.${system}.default.buildInputs
-            ++ lib.optional stdenv.isLinux [ inotify-tools ];
+            ++ lib.optionals stdenv.isLinux [ inotify-tools ];
 
           shellHook = ''
             # this allows mix to work on the local directory

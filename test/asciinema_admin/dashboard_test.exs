@@ -53,6 +53,14 @@ defmodule AsciinemaAdmin.DashboardTest do
       insert_list(3, :user)
       assert length(Dashboard.recent_signups(2)) == 2
     end
+
+    test "excludes unregistered (email-less) users" do
+      registered = insert(:user)
+      insert(:temporary_user)
+
+      ids = Dashboard.recent_signups(5) |> Enum.map(& &1.id)
+      assert ids == [registered.id]
+    end
   end
 
   describe "recent_recordings/1" do
