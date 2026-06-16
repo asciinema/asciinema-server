@@ -84,7 +84,7 @@ defmodule AsciinemaWeb.PlayerOpts do
       |> cast(attrs, fields)
       |> validate_number(:speed, greater_than: 0.0)
       |> validate_number(:startAt, greater_than: 0)
-      |> validate_number(:idleTimeLimit, greater_than_or_equal_to: 0.5)
+      |> validate_number(:idleTimeLimit, greater_than: 0.0)
       |> validate_number(:cols, greater_than: 0)
       |> validate_number(:rows, greater_than: 0)
 

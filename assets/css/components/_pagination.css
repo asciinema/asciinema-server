@@ -1,31 +1,20 @@
 /* ==========================================================================
- * Pagination styles used by Scrivener.HTML outputs.
+ * Pagination component
  * ========================================================================== */
 
 /* == Pagination container == */
 
 .pagination {
   display: flex;
-  list-style: none;
-  padding: 0;
-  margin: var(--space-5) 0;
+  margin: var(--space-6) 0;
   gap: 0;
   border-radius: var(--border-radius-sm);
 }
 
-/* == Page items == */
+/* == Page links & ellipsis == */
 
-.page-item {
-  display: inline-block;
-}
-
-.page-item:not(:first-child) .page-link {
-  margin-left: -1px;
-}
-
-/* == Page links == */
-
-.page-link {
+.pagination > a,
+.pagination > span {
   position: relative;
   display: block;
   padding: var(--space-2) var(--space-3);
@@ -39,14 +28,18 @@
               border-color var(--transition-fast);
 }
 
-.page-link:hover {
+.pagination > :not(:first-child) {
+  margin-left: -1px;
+}
+
+.pagination > a:hover {
   color: var(--color-primary-hover);
   background-color: #e9ecef;
   border-color: #dee2e6;
   text-decoration: none;
 }
 
-.page-link:focus {
+.pagination > a:focus {
   z-index: 2;
   outline: 0;
   box-shadow: 0 0 0 0.2rem var(--color-primary-alpha-soft);
@@ -54,19 +47,19 @@
 
 /* == Border radius for first/last items == */
 
-.page-item:first-child .page-link {
+.pagination > :first-child {
   border-top-left-radius: var(--border-radius-sm);
   border-bottom-left-radius: var(--border-radius-sm);
 }
 
-.page-item:last-child .page-link {
+.pagination > :last-child {
   border-top-right-radius: var(--border-radius-sm);
   border-bottom-right-radius: var(--border-radius-sm);
 }
 
 /* == Active state == */
 
-.page-item.active .page-link {
+.pagination > a.active {
   z-index: 1;
   color: #fff;
   background-color: var(--color-primary);
@@ -74,26 +67,18 @@
   font-weight: var(--font-weight-semibold);
 }
 
-.page-item.active .page-link:hover {
+.pagination > a.active:hover {
   background-color: var(--color-primary-hover);
   border-color: var(--color-primary-hover);
 }
 
-/* == Disabled state == */
+/* == Ellipsis (disabled) state == */
 
-.page-item.disabled .page-link {
+.pagination > span.ellipsis {
   color: #6c757d;
   pointer-events: none;
   cursor: not-allowed;
   background-color: #fff;
   border-color: #dee2e6;
   opacity: 0.6;
-}
-
-/* == Pagination wrapper (consistent spacing) == */
-
-.pagination-wrapper {
-  margin-top: var(--space-6);
-  margin-bottom: var(--space-6);
-  text-align: center;
 }

@@ -1,16 +1,18 @@
 defmodule AsciinemaWeb.SearchController do
   use AsciinemaWeb, :controller
   alias Asciinema.Recordings
-  alias AsciinemaWeb.Authorization
+  alias Asciinema.Recordings.Query, as: RecordingQuery
 
   def show(conn, params) do
     q = params["q"] || ""
 
     page =
-      Recordings.query()
-      |> Recordings.search(q)
-      |> Authorization.scope(:asciicasts, conn.assigns.current_user)
-      |> Recordings.paginate(params["page"], 24)
+      %RecordingQuery{
+        scope: {:listing_for, conn.assigns.current_user},
+        filters: [{:full_text, {:search, q}}],
+        sort: {:rank, :desc}
+      }
+      |> Recordings.search_paginate(params["page"], 24, pagination_opts(conn))
 
     render(conn, "show.html", q: q, page: page)
   end

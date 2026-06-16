@@ -40,26 +40,4 @@ defmodule Asciinema.Authorization do
   end
 
   def can?(user, action, resource), do: Policy.can?(user, action, resource)
-
-  defmodule Scope do
-    import Ecto.Query
-
-    def filter(query, :asciicasts, %User{id: user_id}) do
-      where(query, [a], a.visibility == :public or a.user_id == ^user_id)
-    end
-
-    def filter(query, :asciicasts, nil) do
-      where(query, [a], a.visibility == :public)
-    end
-
-    def filter(query, :streams, %User{id: user_id}) do
-      where(query, [s], s.visibility == :public or s.user_id == ^user_id)
-    end
-
-    def filter(query, :streams, nil) do
-      where(query, [s], s.visibility == :public)
-    end
-  end
-
-  def scope(query, relations, user), do: Scope.filter(query, relations, user)
 end

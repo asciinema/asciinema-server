@@ -1,7 +1,7 @@
 defmodule Asciinema.Recordings.Text do
   alias Asciinema.Recordings
-  alias Asciinema.Recordings.{Asciicast, Paths}
-  alias Asciinema.{FileCache, Vt}
+  alias Asciinema.Recordings.Asciicast
+  alias Asciinema.Vt
 
   def text(%Asciicast{term_cols: cols, term_rows: rows} = asciicast) do
     {:ok, vt} = Vt.new(cols, rows, nil)
@@ -23,13 +23,5 @@ defmodule Asciinema.Recordings.Text do
     end)
 
     Vt.text(vt)
-  end
-
-  def text_file_path(asciicast) do
-    FileCache.full_path(
-      :txt,
-      Paths.path(asciicast, "txt"),
-      fn -> text(asciicast) end
-    )
   end
 end

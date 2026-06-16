@@ -1,0 +1,151 @@
+defmodule Asciinema.GzipTest do
+  use ExUnit.Case, async: true
+  alias Asciinema.Gzip
+
+  test "stream!/2 validates chunk_size" do
+    assert_raise ArgumentError, fn -> Gzip.stream!("foo.gz", 0) end
+    assert_raise ArgumentError, fn -> Gzip.stream!("foo.gz", -1) end
+  end
+
+  test "stream!/2 accepts :line and rejects other non-integer modes" do
+    assert %Gzip.Stream{} = Gzip.stream!("foo.gz", :line)
+    assert_raise ArgumentError, fn -> Gzip.stream!("foo.gz", :foo) end
+  end
+
+  test "uncompressed_size/1 returns gzip footer size" do
+    plain = "footer size test\n"
+    path = Briefly.create!()
+    File.write!(path, :zlib.gzip(plain))
+
+    assert Gzip.uncompressed_size(path) == {:ok, byte_size(plain)}
+  end
+
+  test "stream!/2 reads and inflates gzip data in chunks" do
+    plain = String.duplicate("abc123\n", 200)
+    path = Briefly.create!()
+    File.write!(path, :zlib.gzip(plain))
+
+    inflated =
+      path
+      |> Gzip.stream!(17)
+      |> Enum.to_list()
+      |> IO.iodata_to_binary()
+
+    assert inflated == plain
+  end
+
+  test "stream!/2 supports tiny compressed read chunk sizes" do
+    plain = String.duplicate("chunked data\n", 100)
+    path = Briefly.create!()
+    File.write!(path, :zlib.gzip(plain))
+
+    inflated =
+      path
+      |> Gzip.stream!(1)
+      |> Enum.to_list()
+      |> IO.iodata_to_binary()
+
+    assert inflated == plain
+  end
+
+  test "stream!/2 reads and inflates gzip data as lines" do
+    plain = "alpha\nbeta\n\ngamma"
+    path = Briefly.create!()
+    File.write!(path, :zlib.gzip(plain))
+
+    inflated =
+      path
+      |> Gzip.stream!(:line)
+      |> Enum.to_list()
+
+    assert inflated == ["alpha\n", "beta\n", "\n", "gamma"]
+  end
+
+  test "stream!/2 line mode handles gzip headers larger than the read chunk" do
+    plain = "alpha\nbeta\n\ngamma"
+    path = Briefly.create!()
+    File.write!(path, gzip_with_comment(plain, String.duplicate("x", 70_000)))
+
+    inflated =
+      Task.async(fn ->
+        path
+        |> Gzip.stream!(:line)
+        |> Enum.to_list()
+      end)
+      |> Task.await(500)
+
+    assert inflated == ["alpha\n", "beta\n", "\n", "gamma"]
+  end
+
+  test "stream!/2 raises on invalid gzip content when consumed" do
+    path = Briefly.create!()
+    File.write!(path, "not gzip")
+
+    assert_raise RuntimeError, ~r/failed to inflate gzip stream/, fn ->
+      path
+      |> Gzip.stream!(8)
+      |> Enum.to_list()
+    end
+  end
+
+  test "stream!/2 raises File.Error for missing files when consumed" do
+    path = Path.join(System.tmp_dir!(), "missing-#{System.unique_integer([:positive])}.gz")
+
+    assert_raise File.Error, fn ->
+      path
+      |> Gzip.stream!(8)
+      |> Enum.to_list()
+    end
+  end
+
+  test "stream!/2 can be collectable for gzip writing and reading roundtrip" do
+    plain = IO.iodata_to_binary(["hello", " ", ["gzip", " stream"], "\n"])
+    path = Briefly.create!()
+
+    _result = Enum.into(["hello", " ", ["gzip", " stream"], "\n"], Gzip.stream!(path, 16))
+
+    assert :zlib.gunzip(File.read!(path)) == plain
+
+    inflated =
+      path
+      |> Gzip.stream!(5)
+      |> Enum.to_list()
+      |> IO.iodata_to_binary()
+
+    assert inflated == plain
+  end
+
+  test "collectable writes truncate existing gzip file" do
+    path = Briefly.create!()
+
+    Enum.into(["first payload"], Gzip.stream!(path, 8))
+    Enum.into(["second payload"], Gzip.stream!(path, 8))
+
+    assert :zlib.gunzip(File.read!(path)) == "second payload"
+  end
+
+  defp gzip_with_comment(data, comment) do
+    z = :zlib.open()
+
+    try do
+      :ok = :zlib.deflateInit(z, :default, :deflated, -15, 8, :default)
+      compressed = :zlib.deflate(z, data, :finish)
+
+      [
+        <<0x1F, 0x8B, 8, 0x10, 0::little-32, 0, 255>>,
+        comment,
+        <<0>>,
+        compressed,
+        <<:erlang.crc32(data)::little-32, byte_size(data)::little-32>>
+      ]
+    after
+      try do
+        :zlib.deflateEnd(z)
+      catch
+        _, _ -> :ok
+      end
+
+      :zlib.close(z)
+    end
+  end
+end

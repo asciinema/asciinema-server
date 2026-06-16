@@ -15,6 +15,7 @@ defmodule Asciinema.Streaming.Stream do
     field :term_theme_palette, :string
     field :term_theme_prefer_original, :boolean, default: true
     field :term_bold_is_bright, :boolean, default: false
+    field :term_adaptive_palette, :boolean, default: false
     field :term_line_height, :float
     field :term_font_family, :string
     field :live, :boolean, default: false

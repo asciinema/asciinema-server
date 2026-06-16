@@ -1,20 +1,13 @@
 defmodule Asciinema.FileStore.LocalTest do
-  use ExUnit.Case, async: false
+  use ExUnit.Case, async: true
+  alias Asciinema.AppEnv
   alias Asciinema.FileStore.Local
 
   setup :set_local_path
 
   defp set_local_path(%{tmp_dir: tmp_dir}) do
     store_root = Path.join(tmp_dir, "store")
-    previous = Application.get_env(:asciinema, Local)
-    Application.put_env(:asciinema, Local, path: store_root)
-
-    on_exit(fn ->
-      case previous do
-        nil -> Application.delete_env(:asciinema, Local)
-        _ -> Application.put_env(:asciinema, Local, previous)
-      end
-    end)
+    AppEnv.put(Local, path: store_root)
 
     {:ok, store_root: store_root}
   end
@@ -40,21 +33,6 @@ defmodule Asciinema.FileStore.LocalTest do
       assert :ok = Local.move_file("src.txt", "dst/moved.txt")
       refute File.exists?(src_path)
       assert File.read!(Path.join(store_root, "dst/moved.txt")) == "hello"
-    end
-  end
-
-  describe "open_file/1" do
-    @tag :tmp_dir
-    test "opens a file for reading", %{store_root: store_root} do
-      path = Path.join(store_root, "file.txt")
-      File.mkdir_p!(Path.dirname(path))
-      File.write!(path, "hello")
-
-      assert {:ok, io} = Local.open_file("file.txt")
-      assert IO.read(io, :eof) == "hello"
-      File.close(io)
-
-      assert {:ok, "hello"} = Local.open_file("file.txt", fn io -> IO.read(io, :eof) end)
     end
   end
 

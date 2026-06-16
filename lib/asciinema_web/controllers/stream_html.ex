@@ -1,7 +1,6 @@
 defmodule AsciinemaWeb.StreamHTML do
   use AsciinemaWeb, :html
   import AsciinemaWeb.ErrorHelpers
-  import Scrivener.HTML
   alias Asciinema.{Accounts, Fonts, Media, Streaming, Themes}
   alias Asciinema.Streaming.Stream
   alias AsciinemaWeb.{MediaView, MediumHTML, RecordingHTML, RecordingSVG}
@@ -29,22 +28,15 @@ defmodule AsciinemaWeb.StreamHTML do
       cols: term_cols(stream),
       rows: term_rows(stream),
       autoplay: stream.audio_url == nil,
-      theme: term_theme_name(stream),
+      theme: Media.player_theme_name(stream),
       boldIsBright: stream.term_bold_is_bright,
+      adaptivePalette: stream.term_adaptive_palette,
       terminalLineHeight: stream.term_line_height,
       customTerminalFontFamily: Media.font_family(stream),
       audioUrl: stream.audio_url
     ]
     |> Keyword.merge(opts)
     |> Enum.into(%{})
-  end
-
-  defp term_theme_name(stream) do
-    if stream.term_theme_prefer_original do
-      "auto/#{Media.term_theme_name(stream)}"
-    else
-      Media.term_theme_name(stream)
-    end
   end
 
   def cinema_height(stream) do
@@ -54,7 +46,7 @@ defmodule AsciinemaWeb.StreamHTML do
   def title(stream), do: stream.title || "#{author_username(stream)}'s stream"
 
   def default_theme_display_name(stream) do
-    "Account default (#{Themes.display_name(Accounts.default_term_theme_name(stream.user) || "asciinema")})"
+    "Account default (#{Themes.display_name(Accounts.default_term_theme_name(stream.user))})"
   end
 
   def default_font_display_name(user) do

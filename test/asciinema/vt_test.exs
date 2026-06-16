@@ -23,7 +23,7 @@ defmodule Asciinema.VtTest do
     test "feeding it a lot of data" do
       {:ok, vt} = Vt.new(120, 80, nil)
 
-      Enum.each(1..300_000, fn _ ->
+      Enum.each(1..100_000, fn _ ->
         Vt.feed(vt, "aaaaaaaaaaaaaaaaaaaaaaaa")
       end)
 

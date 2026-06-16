@@ -126,9 +126,9 @@ defmodule Asciinema.Streaming.Parser.AlisV1Test do
         new()
         |> parse!("ALiS\x01")
         |> parse!(<<0x01, encode_init(0, 0, 80, 24, nil, "")::binary>>)
-        |> parse(<<0x04, encode_eot(100_000)::binary>>)
+        |> parse(<<0x04, encode_eot(1, 100_000)::binary>>)
 
-      assert {:ok, [eot: {100_000, %{}}], _state} = result
+      assert {:ok, [eot: %{id: 1, time: 100_000}], _state} = result
     end
 
     test "invalid" do
@@ -220,8 +220,11 @@ defmodule Asciinema.Streaming.Parser.AlisV1Test do
     >>
   end
 
-  defp encode_eot(time) do
-    Leb128.encode(time)
+  defp encode_eot(id, time) do
+    <<
+      Leb128.encode(id)::binary,
+      Leb128.encode(time)::binary
+    >>
   end
 
   defp encode_string(string) do

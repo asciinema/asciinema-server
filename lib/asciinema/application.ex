@@ -9,6 +9,7 @@ defmodule Asciinema.Application do
   def start(_type, _args) do
     :ok = Oban.Telemetry.attach_default_logger()
     :ok = Asciinema.ObanErrorReporter.configure()
+    Logger.add_handlers(:asciinema)
 
     topologies = Application.get_env(:libcluster, :topologies, [])
 
@@ -26,8 +27,10 @@ defmodule Asciinema.Application do
       Asciinema.Telemetry,
       # Start the Ecto repository
       Asciinema.Repo,
-      # Start PNG generator poolboy pool
-      :poolboy.child_spec(:worker, Asciinema.PngGenerator.Rsvg.poolboy_config(), []),
+      # Start file cache
+      {Asciinema.FileCache, file_cache_opts()},
+      # Start PNG generator
+      AsciinemaWeb.PngGenerator,
       # Start Oban
       {Oban, oban_config()},
       # Start distributed registry
@@ -57,5 +60,9 @@ defmodule Asciinema.Application do
 
   defp oban_config do
     Application.fetch_env!(:asciinema, Oban)
+  end
+
+  defp file_cache_opts do
+    [name: Asciinema.FileCache] ++ Application.fetch_env!(:asciinema, Asciinema.FileCache)
   end
 end

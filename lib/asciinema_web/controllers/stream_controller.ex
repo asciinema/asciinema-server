@@ -2,6 +2,8 @@ defmodule AsciinemaWeb.StreamController do
   use AsciinemaWeb, :controller
   import AsciinemaWeb.Plug.ReturnTo
   alias Asciinema.{Recordings, Streaming}
+  alias Asciinema.Recordings.Query, as: RecordingQuery
+  alias Asciinema.Streaming.Query, as: StreamQuery
   alias AsciinemaWeb.{Authorization, FallbackController, StreamHTML, PlayerOpts}
   alias Ecto.Changeset
 
@@ -13,16 +15,17 @@ defmodule AsciinemaWeb.StreamController do
     current_user = conn.assigns.current_user
 
     streams =
-      [user_id: current_user.id]
-      |> Streaming.query(:activity)
+      %StreamQuery{scope: :system, filters: [{:user, current_user}], sort: :activity}
       |> Streaming.paginate(params["page"], 25)
 
     stream_ids = Enum.map(streams, & &1.id)
 
     rec_count_by_stream_id =
-      [user_id: current_user.id, stream_id: {:in, stream_ids}]
-      |> Recordings.query()
-      |> Recordings.count_by(:stream_id)
+      %RecordingQuery{
+        scope: :system,
+        filters: [{:user, current_user}, {:stream, {:in, stream_ids}}]
+      }
+      |> Recordings.count_by(:stream)
 
     render(conn, "index.html",
       streams: streams,
@@ -124,16 +127,20 @@ defmodule AsciinemaWeb.StreamController do
   end
 
   defp fetch_stream_asciicasts(stream, current_user) do
-    [user_id: stream.user_id, stream_id: stream.id]
-    |> Recordings.query(:date)
-    |> Authorization.scope(:asciicasts, current_user)
+    %RecordingQuery{
+      scope: {:listing_for, current_user},
+      filters: [{:user, stream.user_id}, {:stream, stream}],
+      sort: {:created, :desc}
+    }
     |> list_asciicasts(4)
   end
 
   defp fetch_other_asciicasts(stream, current_user) do
-    [user_id: stream.user_id, stream_id: {:not_eq, stream.id}]
-    |> Recordings.query(:random)
-    |> Authorization.scope(:asciicasts, current_user)
+    %RecordingQuery{
+      scope: {:listing_for, current_user},
+      filters: [{:user, stream.user_id}, {:stream, {:not_eq, stream.id}}],
+      sort: :random
+    }
     |> list_asciicasts(4)
   end
 

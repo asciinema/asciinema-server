@@ -24,6 +24,8 @@ defmodule Asciinema.Streaming.Parser.Raw do
     {:ok, [output: %{id: id, time: time, text: text}], state}
   end
 
+  def supported_commands, do: [:init, :output]
+
   defp size_from_resize_seq(text) do
     with [_, rows, cols] <- Regex.run(~r/\x1b\[8;(\d+);(\d+)t/, text) do
       {String.to_integer(cols), String.to_integer(rows)}

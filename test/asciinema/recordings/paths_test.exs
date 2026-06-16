@@ -15,6 +15,16 @@ defmodule Asciinema.Recordings.PathsTest do
       assert path == "recordings/foo/#{date}/123.json"
     end
 
+    test "returns path with json.zst ext for compressed asciicast v1" do
+      now = Timex.now()
+      date = Timex.format!(now, "{YYYY}/{0M}/{0D}")
+      asciicast = build_asciicast(version: 1, compressed: true, inserted_at: now)
+
+      path = Paths.path(asciicast)
+
+      assert path == "recordings/foo/#{date}/123.json.zst"
+    end
+
     test "returns path with cast ext for asciicast v2" do
       now = Timex.now()
       date = Timex.format!(now, "{YYYY}/{0M}/{0D}")
@@ -23,6 +33,16 @@ defmodule Asciinema.Recordings.PathsTest do
       path = Paths.path(asciicast)
 
       assert path == "recordings/foo/#{date}/123.cast"
+    end
+
+    test "returns path with cast.zst ext for compressed asciicast v2" do
+      now = Timex.now()
+      date = Timex.format!(now, "{YYYY}/{0M}/{0D}")
+      asciicast = build_asciicast(version: 2, compressed: true, inserted_at: now)
+
+      path = Paths.path(asciicast)
+
+      assert path == "recordings/foo/#{date}/123.cast.zst"
     end
 
     test "uses last 4 digits (reversed) for {shard} token - short id" do
@@ -53,18 +73,6 @@ defmodule Asciinema.Recordings.PathsTest do
       path = Paths.path(asciicast)
 
       assert path == "recordings/yes-nope-/123.cast"
-    end
-  end
-
-  describe "path/2" do
-    test "returns paths with overriden ext" do
-      now = Timex.now()
-      date = Timex.format!(now, "{YYYY}/{0M}/{0D}")
-      asciicast = build_asciicast(inserted_at: now)
-
-      path = Paths.path(asciicast, "txt")
-
-      assert path == "recordings/foo/#{date}/123.txt"
     end
   end
 

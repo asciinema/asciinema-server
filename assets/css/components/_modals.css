@@ -117,6 +117,7 @@ dialog.modal pre,
 .modal-body pre {
   background-color: var(--color-bg-code-block);
   margin-bottom: var(--space-4);
+  text-wrap: auto;
 }
 
 dialog.modal .modal-body h2:first-child {
@@ -140,14 +141,5 @@ dialog.modal .modal-body {
   h2, h3 {
     margin-top: 2rem;
     margin-bottom: 1rem;
-  }
-}
-
-/* == Responsive behavior == */
-
-@media (max-width: 576px) {
-  dialog.modal {
-    max-width: 95vw;
-    margin: var(--space-4);
   }
 }

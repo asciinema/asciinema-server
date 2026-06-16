@@ -8,3 +8,6 @@ test:
 
 format:
   mix format
+  cd native/vt && cargo fmt
+  cd native/fts && cargo fmt
+  cd native/svg_raster && cargo fmt

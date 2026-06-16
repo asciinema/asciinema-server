@@ -73,6 +73,7 @@ defmodule AsciinemaWeb.Authentication do
     user = Accounts.regenerate_auth_token(user)
 
     conn
+    |> configure_session(renew: true)
     |> put_session(@user_key, user.id)
     |> put_resp_cookie(@token_cookie_name, user.auth_token, @token_cookie_opts)
     |> assign(:current_user, user)

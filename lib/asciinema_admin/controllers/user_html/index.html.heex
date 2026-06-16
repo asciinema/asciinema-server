@@ -1,59 +1,72 @@
-<h2><a href={~p"/admin/users"}>Users</a></h2>
+<.page title="Users">
+  <:actions>
+    <.button href={~p"/admin/users/new"} variant={:primary}>New user</.button>
+  </:actions>
 
-<hr />
-<br />
+  <.query_form
+    index={@index}
+    action={~p"/admin/users"}
+    placeholder="Search users…"
+    return_to={~p"/admin/users?#{@filter_params}"}
+  />
 
-<.form :let={f} for={%{}} action={~p"/admin/users/lookup"} as={:q} method="GET" class="lookup">
-  <p>
-    <.label for={f[:id]}>Look up by ID</.label>
-    <.input field={f[:id]} required placeholder="e.g. 123" />
-    <button type="submit">Show</button>
-  </p>
-</.form>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th class="num">id</th>
+          <th>username</th>
+          <th>email</th>
+          <th class="num">
+            <.link href={~p"/admin/users?#{sort_params(@index, "recordings.desc")}"}>
+              recordings{sort_arrow(@index, "recordings.desc")}
+            </.link>
+          </th>
+          <th class="num">
+            <.link href={~p"/admin/users?#{sort_params(@index, "streams.desc")}"}>
+              streams{sort_arrow(@index, "streams.desc")}
+            </.link>
+          </th>
+          <th>
+            <.link href={~p"/admin/users?#{sort_params(@index, "created.desc")}"}>
+              created{sort_arrow(@index, "created.desc")}
+            </.link>
+          </th>
+          <th>
+            <.link href={~p"/admin/users?#{sort_params(@index, "last-login.desc")}"}>
+              last login{sort_arrow(@index, "last-login.desc")}
+            </.link>
+          </th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr :for={u <- @users}>
+          <td class="num mono">
+            <.link href={~p"/admin/users/#{u.id}"}>{u.id}</.link>
+          </td>
+          <td>
+            <.user_link user={u} />
+          </td>
+          <td class="muted">{u.email}</td>
+          <td class="num mono">{u.recording_count || 0}</td>
+          <td class="num mono">{u.stream_count || 0}</td>
+          <td><.time_ago time={u.inserted_at} /></td>
+          <td>
+            <.time_ago :if={u.last_login_at} time={u.last_login_at} />
+            <span :if={!u.last_login_at} class="muted">never</span>
+          </td>
+          <td class="row-actions">
+            <.link href={~p"/admin/users/#{u.id}"}>view</.link>
+            <.link href={~p"/admin/users/#{u.id}/edit"}>edit</.link>
+          </td>
+        </tr>
+        <tr :if={@users == []}>
+          <td colspan="8" class="muted">No users match.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-<.form :let={f} for={%{}} action={~p"/admin/users/lookup"} as={:q} method="GET" class="lookup">
-  <p>
-    <.label for={f[:username]}>Look up by username</.label>
-    <.input field={f[:username]} required placeholder="e.g. foobar" />
-    <button type="submit">Show</button>
-  </p>
-</.form>
-
-<.form :let={f} for={%{}} action={~p"/admin/users/lookup"} as={:q} method="GET" class="lookup">
-  <p>
-    <.label for={f[:email]}>Look up by email</.label>
-    <.input field={f[:email]} type="email" required placeholder="e.g. foobar@example.com" />
-    <button type="submit">Show</button>
-  </p>
-</.form>
-
-<br />
-<hr />
-<br />
-
-<h3>{length(@users)} users</h3>
-
-<table>
-  <thead>
-    <th>id</th>
-    <th>created at</th>
-    <th>email</th>
-    <th>username</th>
-    <th>last login at</th>
-    <th></th>
-  </thead>
-  <tbody>
-    <tr :for={user <- @users}>
-      <td><a href={~p"/admin/users/#{user.id}"}>{user.id}</a></td>
-      <td><.time_ago time={user.inserted_at} /></td>
-      <td>{user.email}</td>
-      <td>{user.username}</td>
-      <td><.time_ago :if={user.last_login_at} time={user.last_login_at} /></td>
-      <td><a href={~p"/admin/users/#{user.id}"}>Show</a></td>
-    </tr>
-  </tbody>
-</table>
-
-<p>
-  <a href={~p"/admin/users/new"}>Add new user</a>
-</p>
+  <.pagination page={@page} params={@filter_params} />
+</.page>

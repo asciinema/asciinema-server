@@ -17,8 +17,7 @@ defmodule AsciinemaWeb.FeatureCase do
       import Phoenix.ConnTest,
         only: [
           init_test_session: 2,
-          post: 2,
-          redirected_to: 1
+          post: 2
         ]
 
       import Asciinema.Fixtures
@@ -33,14 +32,6 @@ defmodule AsciinemaWeb.FeatureCase do
         [_, link] = Regex.run(~r{"(https?://[^"]+)"}, email.html_body)
 
         link
-      end
-
-      defp verify_magic_link(session) do
-        # Simulate the automatic JS submit by submitting a hidden form
-        [_, url] = Regex.run(~r{action="(/[^"]+)".+method="post"}, session.conn.resp_body)
-
-        conn = post(session.conn, url)
-        visit(conn, redirected_to(conn))
       end
     end
   end

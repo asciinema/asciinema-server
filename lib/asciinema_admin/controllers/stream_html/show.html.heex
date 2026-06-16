@@ -1,0 +1,330 @@
+<.page title={@stream.title || "Stream ##{@stream.id}"}>
+  <:status>
+    <.tag :if={@stream.live} variant={:live}>live</.tag>
+    <.tag :if={!@stream.live} variant={:muted}>offline</.tag>
+  </:status>
+  <:actions>
+    <.button href={~p"/admin/streams/#{@stream.id}/edit"}>Edit</.button>
+    <.action_menu>
+      <div class="action-menu-label">visibility</div>
+      <.form
+        :for={vis <- [:public, :unlisted, :private]}
+        for={%{}}
+        action={~p"/admin/streams/#{@stream.id}/visibility"}
+        method="post"
+      >
+        <input type="hidden" name="visibility" value={vis} />
+        <button type="submit" disabled={@stream.visibility == vis}>
+          {if @stream.visibility == vis, do: "✓ "}{vis}
+        </button>
+      </.form>
+      <hr />
+      <.form
+        :if={@stream.live}
+        for={%{}}
+        action={~p"/admin/streams/#{@stream.id}/disconnect"}
+        method="post"
+        data-confirm="Force-disconnect this live stream?"
+      >
+        <button type="submit">Force-disconnect</button>
+      </.form>
+      <hr :if={@stream.live} />
+      <.form
+        for={%{}}
+        method="delete"
+        action={~p"/admin/streams/#{@stream.id}"}
+        data-confirm={"Delete stream ##{@stream.id}?"}
+      >
+        <button type="submit" class="danger">Delete</button>
+      </.form>
+    </.action_menu>
+  </:actions>
+
+  <div class="grid-2">
+    <div class="card-stack">
+      <section class="card">
+        <h3>Overview</h3>
+        <table class="kv">
+          <tbody>
+            <tr>
+              <th>id</th>
+              <td><code>{@stream.id}</code></td>
+            </tr>
+            <tr>
+              <th>URL</th>
+              <td><.public_link entity={@stream} /></td>
+            </tr>
+            <tr>
+              <th>user</th>
+              <td><.user_link user={@stream.user} /></td>
+            </tr>
+            <tr>
+              <th>title</th>
+              <td class="truncate" title={@stream.title}>
+                {@stream.title}<.none :if={!@stream.title} />
+              </td>
+            </tr>
+            <tr>
+              <th>visibility</th>
+              <td>
+                <.tag variant={visibility_variant(@stream.visibility)}>{@stream.visibility}</.tag>
+              </td>
+            </tr>
+            <tr>
+              <th>public token</th>
+              <td><code>{@stream.public_token}</code></td>
+            </tr>
+            <tr>
+              <th>producer token</th>
+              <td><code>{@stream.producer_token}</code></td>
+            </tr>
+            <tr>
+              <th>created</th>
+              <td><.time_ago time={@stream.inserted_at} /></td>
+            </tr>
+            <tr>
+              <th>updated</th>
+              <td><.time_ago time={@stream.updated_at} /></td>
+            </tr>
+            <tr>
+              <th>viewers</th>
+              <td>
+                {@stream.current_viewer_count || 0} <span class="muted">now</span>
+                <.sep />{@stream.peak_viewer_count ||
+                  0} <span class="muted">peak</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+
+    <div class="card-stack">
+      <section class="card">
+        <h3>Settings</h3>
+        <table class="kv">
+          <tbody>
+            <tr>
+              <th>terminal theme</th>
+              <td
+                class="truncate"
+                title={"#{theme_setting_label(@stream)}#{if @stream.term_theme_prefer_original, do: " · original preferred"}"}
+              >
+                <%= if colors = theme_setting_colors(@stream) do %>
+                  <.palette_strip colors={colors} />
+                  <span class="muted">
+                    <.sep />{theme_setting_label(@stream)}
+                  </span>
+                  <span :if={@stream.term_theme_prefer_original} class="muted">
+                    <.sep />original preferred
+                  </span>
+                <% else %>
+                  {theme_setting_label(@stream)}
+                <% end %>
+              </td>
+            </tr>
+            <tr>
+              <th>terminal font</th>
+              <td>
+                <.term_font
+                  family={@stream.term_font_family}
+                  line_height={@stream.term_line_height}
+                />
+              </td>
+            </tr>
+            <tr>
+              <th>schedule</th>
+              <td>
+                <code :if={@stream.schedule}>{@stream.schedule}</code>
+                <span :if={@stream.schedule && @stream.next_start_at} class="muted">
+                  <.sep />next <.time_ago time={@stream.next_start_at} />
+                </span>
+                <.none :if={!@stream.schedule} />
+              </td>
+            </tr>
+            <tr>
+              <th>buffering</th>
+              <td>
+                {@stream.buffer_time && "#{@stream.buffer_time}s"}<.none :if={
+                  !@stream.buffer_time
+                } />
+              </td>
+            </tr>
+            <tr>
+              <th>audio</th>
+              <td class="truncate" title={@stream.audio_url}>
+                <.link
+                  :if={@stream.audio_url}
+                  href={@stream.audio_url}
+                  target="_blank"
+                  rel="noopener"
+                >
+                  {@stream.audio_url}
+                </.link>
+                <.none :if={!@stream.audio_url} />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="card">
+        <h3>Last session</h3>
+        <table class="kv">
+          <tbody>
+            <tr>
+              <th>started</th>
+              <td>
+                <.time_ago :if={@stream.last_started_at} time={@stream.last_started_at} />
+                <span :if={!@stream.last_started_at} class="muted">never</span>
+              </td>
+            </tr>
+            <tr>
+              <th>activity</th>
+              <td>
+                <.time_ago :if={@stream.last_activity_at} time={@stream.last_activity_at} />
+                <.none :if={!@stream.last_activity_at} />
+              </td>
+            </tr>
+            <tr>
+              <th>shell</th>
+              <td class="truncate" title={@stream.shell}>
+                <code :if={@stream.shell}>{@stream.shell}</code> <.none :if={!@stream.shell} />
+              </td>
+            </tr>
+            <tr>
+              <th>terminal cols × rows</th>
+              <td>
+                <.term_size
+                  :if={@stream.term_cols && @stream.term_rows}
+                  cols={@stream.term_cols}
+                  rows={@stream.term_rows}
+                />
+                <.none :if={!(@stream.term_cols && @stream.term_rows)} />
+              </td>
+            </tr>
+            <tr>
+              <th>terminal type & version</th>
+              <td>
+                <.term_type type={@stream.term_type} version={@stream.term_version} />
+              </td>
+            </tr>
+            <tr>
+              <th>terminal original theme</th>
+              <td>
+                <%= if colors = original_theme_colors(@stream) do %>
+                  <.palette_strip colors={colors} />
+                <% else %>
+                  <.none />
+                <% end %>
+              </td>
+            </tr>
+            <tr>
+              <th>user agent</th>
+              <td class="truncate" title={@stream.user_agent}>
+                <code :if={@stream.user_agent}>{@stream.user_agent}</code>
+                <.none :if={!@stream.user_agent} />
+              </td>
+            </tr>
+            <tr>
+              <th>protocol</th>
+              <td>
+                <code :if={@stream.protocol}>{@stream.protocol}</code>
+                <.none :if={!@stream.protocol} />
+              </td>
+            </tr>
+            <tr :for={{name, value} <- env_vars(@stream)}>
+              <th><span class="truncate" title={name}>{name}</span></th>
+              <td class="truncate" title={value}>
+                <code :if={value != ""}>{value}</code>
+                <.none :if={value == ""} />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </div>
+
+  <%= if @stream.visibility == :private do %>
+    <p class="muted mt">
+      Inline preview isn't available for private streams — the anonymous
+      WebSocket handshake the player uses isn't authorized for them.
+    </p>
+  <% else %>
+    <.term_theme_style medium={@stream} />
+
+    <div
+      id="player"
+      data-src={@player_src}
+      data-player-opts={Jason.encode!(@player_opts)}
+      class="admin-player mt"
+    >
+    </div>
+  <% end %>
+
+  <%= if desc = render_markdown(@stream.description) do %>
+    <section class="card mt description">{desc}</section>
+  <% end %>
+
+  <section class="card mt">
+    <h3>Recordings from this stream</h3>
+    <%= if @recordings == [] do %>
+      <p class="muted">None.</p>
+    <% else %>
+      <div class="table-wrap">
+        <table class="list-table">
+          <thead>
+            <tr>
+              <th class="num">id</th>
+              <th class="col-title">title</th>
+              <th>visibility</th>
+              <th class="num">duration</th>
+              <th class="num">size</th>
+              <th class="num">views</th>
+              <th>created</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr :for={a <- @recordings}>
+              <td class="num mono">
+                <.link href={~p"/admin/recordings/#{a.id}"}>{a.id}</.link>
+              </td>
+              <td class="col-title">
+                <div class="title-cell">
+                  <span class="title-text">{a.title}<.none :if={!a.title} /></span><span
+                    :if={a.featured}
+                    class="flag"
+                    title="Featured"
+                  ><AsciinemaAdmin.Icons.star_icon /></span><span
+                    :if={a.audio_url}
+                    class="flag"
+                    title="Has audio"
+                  ><AsciinemaAdmin.Icons.speaker_wave_icon /></span>
+                </div>
+              </td>
+              <td>
+                <.tag variant={visibility_variant(a.visibility)}>{a.visibility}</.tag>
+              </td>
+              <td class="num mono">{format_duration(a.duration)}<.none :if={!a.duration} /></td>
+              <td class="num mono">
+                {format_bytes(a.compressed_size)}<.none :if={!a.compressed_size} />
+              </td>
+              <td class="num mono">{a.total_views || 0}</td>
+              <td><.time_ago time={a.inserted_at} /></td>
+              <td class="row-actions">
+                <.link href={~p"/admin/recordings/#{a.id}"}>view</.link>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div :if={@recording_count > length(@recordings)} class="see-all">
+        <.link href={~p"/admin/recordings?#{%{q: "stream:#{@stream.id}"}}"}>
+          See all {@recording_count} recordings →
+        </.link>
+      </div>
+    <% end %>
+  </section>
+</.page>

@@ -1,10 +1,10 @@
 defmodule Asciinema.Streaming.StreamServer do
   use GenServer, restart: :temporary
   use Asciinema.Config
-  alias Asciinema.Recordings
-  alias Asciinema.Recordings.Asciicast.V3
+  alias Asciinema.Asciicast.V3
   alias Asciinema.Streaming.ViewerTracker
-  alias Asciinema.{Colors, PubSub, Streaming, Vt}
+  alias Asciinema.Workers.CreateStreamRecording
+  alias Asciinema.{Colors, FileStore, PubSub, Streaming, Vt}
   require Logger
 
   defmodule Update do
@@ -344,25 +344,49 @@ defmodule Asciinema.Streaming.StreamServer do
   defp end_recording(%{writer: nil} = state), do: state
 
   defp end_recording(%{writer: writer} = state) do
-    Logger.info("stream/#{state.stream_id}: creating recording")
+    Logger.info("stream/#{state.stream_id}: staging recording capture")
 
     :ok = V3.close(writer)
 
-    upload = %Plug.Upload{
-      path: state.path,
-      content_type: "application/x-asciicast",
-      filename: "stream.cast"
-    }
+    file_store_path = staging_path(state.stream_id)
 
-    fields = %{
-      stream_id: state.stream_id,
-      user_agent: state.user_agent
-    }
-
-    {:ok, _} = Recordings.create_asciicast(state.stream.user, upload, fields)
-    File.rm(state.path)
+    with :ok <-
+           FileStore.put_file(file_store_path, state.path, "application/x-asciicast") do
+      enqueue_finalization(state, file_store_path)
+      File.rm(state.path)
+      Logger.info("stream/#{state.stream_id}: capture staged at #{file_store_path}")
+    else
+      {:error, reason} ->
+        Logger.error(
+          "stream/#{state.stream_id}: failed to finalize capture (#{inspect(reason)}); " <>
+            "local=#{state.path}, staged=#{file_store_path}"
+        )
+    end
 
     %{state | path: nil, writer: nil}
+  end
+
+  defp enqueue_finalization(state, file_store_path) do
+    %{
+      user_id: state.stream.user_id,
+      stream_id: state.stream_id,
+      file_store_path: file_store_path,
+      user_agent: state.user_agent,
+      term_bold_is_bright: state.stream.term_bold_is_bright,
+      term_adaptive_palette: state.stream.term_adaptive_palette
+    }
+    |> CreateStreamRecording.new()
+    |> Oban.insert!()
+  end
+
+  defp staging_path(stream_id) do
+    today = Date.utc_today()
+    year = Integer.to_string(today.year)
+    month = today.month |> Integer.to_string() |> String.pad_leading(2, "0")
+    day = today.day |> Integer.to_string() |> String.pad_leading(2, "0")
+    random = Crypto.random_token(12)
+
+    "tmp/stream-recordings/#{year}/#{month}/#{day}/#{stream_id}-#{random}.cast"
   end
 
   defp create_asciicast_file(
@@ -409,7 +433,7 @@ defmodule Asciinema.Streaming.StreamServer do
       Process.cancel_timer(state.shutdown_timer)
     end
 
-    timer = Process.send_after(self(), :shutdown, 60 * 1000)
+    timer = Process.send_after(self(), :shutdown, state.stream.offline_grace_period * 1000)
 
     %{state | shutdown_timer: timer}
   end

@@ -21,16 +21,7 @@ config :asciinema,
 
 # Configures the public endpoint
 config :asciinema, AsciinemaWeb.Endpoint,
-  http: [
-    dispatch: [
-      {:_,
-       [
-         {"/ws/s/:public_token", AsciinemaWeb.StreamConsumerSocket, []},
-         {"/ws/S/:producer_token", AsciinemaWeb.StreamProducerSocket, []},
-         {:_, Plug.Cowboy.Handler, {AsciinemaWeb.Endpoint, []}}
-       ]}
-    ]
-  ],
+  adapter: Phoenix.Endpoint.Cowboy2Adapter,
   url: [host: "localhost"],
   render_errors: [
     formats: [
@@ -47,6 +38,7 @@ config :asciinema, AsciinemaWeb.Endpoint,
 
 # Configures the admin endpoint
 config :asciinema, AsciinemaAdmin.Endpoint,
+  adapter: Phoenix.Endpoint.Cowboy2Adapter,
   url: [host: "localhost"],
   render_errors: [
     formats: [html: AsciinemaAdmin.ErrorHTML],
@@ -55,18 +47,26 @@ config :asciinema, AsciinemaAdmin.Endpoint,
   live_view: [signing_salt: "F3BMP7k9SZ-Y2SMJ"],
   pubsub_server: Asciinema.PubSub
 
+# Serving the admin panel at /admin on the main endpoint is opt-in
+config :asciinema, AsciinemaWeb.Plug.AdminGate, enabled: false
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
 
-config :logger,
-  backends: [:console, Sentry.LoggerBackend]
+config :asciinema, :logger, [
+  {:handler, :sentry, Sentry.LoggerHandler,
+   %{
+     config: %{
+       metadata: [:file, :line],
+       rate_limiting: [max_events: 10, interval: _1_second = 1_000]
+     }
+   }}
+]
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
-
-config :phoenix, :template_engines, md: PhoenixMarkdown.Engine
 
 config :phoenix_template, :format_encoders,
   cast: Jason,
@@ -80,29 +80,38 @@ config :mime, :types, %{
 config :asciinema, Asciinema.Emails.Mailer, adapter: Swoosh.Adapters.Local
 
 config :sentry,
-  dsn: "https://public:secret@sentry.io/1",
   environment_name: config_env(),
+  client: Sentry.HackneyClient,
   enable_source_code_context: true,
-  root_source_code_path: File.cwd!(),
+  root_source_code_paths: [File.cwd!()],
   tags: %{env: config_env()},
   in_app_module_allow_list: [Asciinema]
 
 config :asciinema, Asciinema.FileStore, adapter: Asciinema.FileStore.Local
 config :asciinema, Asciinema.FileStore.Local, path: "uploads/"
 
-config :asciinema, Asciinema.FileCache, path: "cache/"
+config :asciinema, Asciinema.FileCache,
+  path: "cache/",
+  buckets: [
+    cast: 60 * 60 * 24 * 30,
+    cast_zst: 60 * 60 * 24 * 30,
+    cast_gz: 60 * 60 * 24 * 30,
+    txt: 60 * 60 * 24 * 30,
+    txt_zst: 60 * 60 * 24 * 30,
+    txt_gz: 60 * 60 * 24 * 30,
+    svg: 60 * 60 * 24 * 30,
+    svg_zst: 60 * 60 * 24 * 30,
+    svg_gz: 60 * 60 * 24 * 30,
+    png: 60 * 60 * 24 * 30
+  ]
 
-config :asciinema, Asciinema.PngGenerator, adapter: Asciinema.PngGenerator.Rsvg
-
-config :asciinema, Asciinema.PngGenerator.Rsvg,
-  pool_size: 2,
-  font_family: "monospace"
+config :asciinema, AsciinemaWeb.PngGenerator, font_family: "monospace"
 
 config :asciinema, AsciinemaWeb.DefaultAvatar, adapter: AsciinemaWeb.DefaultAvatar.Identicon
 
 config :asciinema, Oban,
   repo: Asciinema.Repo,
-  queues: [default: 5, emails: 5],
+  queues: [default: 5, emails: 5, maintenance: 5],
   plugins: [
     {Oban.Plugins.Pruner, max_age: 3600},
     {Oban.Plugins.Cron,
@@ -111,15 +120,11 @@ config :asciinema, Oban,
        {"* * * * *", Asciinema.Workers.MarkOfflineStreams},
        {"* * * * *", Asciinema.Workers.RescheduleStreams},
        {"0 3 * * *", Asciinema.Workers.RecomputePopularityScores},
-       {"*/5 * * * *", Asciinema.Workers.RecomputeDirtyPopularityScores},
-       {"@reboot", Asciinema.Workers.MigrateRecordingFiles}
+       {"*/5 * * * *", Asciinema.Workers.RecomputeDirtyPopularityScores}
      ]},
     Oban.Plugins.Lifeline,
     Oban.Plugins.Reindexer
   ]
-
-config :scrivener_html,
-  view_style: :bootstrap_v4
 
 config :tzdata, :autoupdate, :disabled
 
@@ -128,6 +133,12 @@ config :esbuild,
   default: [
     args:
       ~w(js/app.js js/iframe.js --bundle --target=es2022 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
+    cd: Path.expand("../assets", __DIR__),
+    env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
+  ],
+  admin: [
+    args:
+      ~w(js/admin.js css/admin.css --bundle --target=es2022 --outdir=../priv/static/assets --entry-names=[name] --external:/fonts/* --external:/images/*),
     cd: Path.expand("../assets", __DIR__),
     env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
   ]

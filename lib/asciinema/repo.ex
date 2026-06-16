@@ -5,6 +5,16 @@ defmodule Asciinema.Repo do
 
   use Scrivener, page_size: 10
 
+  def with_work_mem(work_mem, fun) when is_function(fun, 0) do
+    {:ok, result} =
+      transact(fn ->
+        query!("SELECT set_config('work_mem', $1, true)", [work_mem])
+        {:ok, fun.()}
+      end)
+
+    result
+  end
+
   def count(query) do
     aggregate(query, :count, :id)
   end

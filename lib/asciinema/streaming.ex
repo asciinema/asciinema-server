@@ -2,7 +2,7 @@ defmodule Asciinema.Streaming do
   import Ecto.Changeset
   import Ecto.Query
   alias Asciinema.{Fonts, Repo, Themes}
-  alias Asciinema.Streaming.{Stream, StreamServer}
+  alias Asciinema.Streaming.{Query, Stream, StreamServer}
   alias Ecto.Changeset
 
   defdelegate recording_mode, to: StreamServer
@@ -15,6 +15,12 @@ defmodule Asciinema.Streaming do
   def get_stream(id) do
     Stream
     |> Repo.get(id)
+    |> Repo.preload(:user)
+  end
+
+  def get_stream!(id) do
+    Stream
+    |> Repo.get!(id)
     |> Repo.preload(:user)
   end
 
@@ -47,11 +53,23 @@ defmodule Asciinema.Streaming do
     end
   end
 
-  def query(filters \\ [], order \\ nil) do
-    from(Stream)
-    |> apply_filters(filters)
-    |> sort(order)
+  def query(%Query{} = spec) do
+    Stream
+    |> apply_scope(spec.scope)
+    |> apply_filters(spec.filters)
+    |> sort(spec.sort)
   end
+
+  defp apply_scope(query, :system), do: query
+  defp apply_scope(query, :admin), do: query
+
+  defp apply_scope(query, :public_listing),
+    do: where(query, [s], s.visibility == :public)
+
+  defp apply_scope(query, {:listing_for, nil}), do: apply_scope(query, :public_listing)
+
+  defp apply_scope(query, {:listing_for, %{id: user_id}}),
+    do: where(query, [s], s.visibility == :public or s.user_id == ^user_id)
 
   defp apply_filters(q, filters) when is_list(filters) do
     filters = Enum.uniq(filters)
@@ -66,14 +84,40 @@ defmodule Asciinema.Streaming do
       {:id, {:not_eq, id}} ->
         where(q, [s], s.id != ^id)
 
-      {:user_id, user_id} ->
+      {:id, id} when is_integer(id) ->
+        where(q, [s], s.id == ^id)
+
+      {:user, %{id: user_id}} ->
         where(q, [s], s.user_id == ^user_id)
+
+      {:user, user_id} when is_integer(user_id) ->
+        where(q, [s], s.user_id == ^user_id)
+
+      {:user, username} when is_binary(username) ->
+        q
+        |> ensure_user_join()
+        |> where([user: u], fragment("lower(?)", u.username) == ^String.downcase(username))
 
       :public ->
         where(q, [s], s.visibility == :public)
 
+      {:visibility, visibility} when visibility in [:public, :unlisted, :private] ->
+        where(q, [s], s.visibility == ^visibility)
+
       :live ->
         where(q, [s], s.live)
+
+      {:live, true} ->
+        where(q, [s], s.live == true)
+
+      {:live, false} ->
+        where(q, [s], s.live == false)
+
+      {:title, {:search, text}} ->
+        search_title(q, text)
+
+      {:token, token} ->
+        where(q, [s], s.public_token == ^token)
 
       {:prefix, nil} ->
         q
@@ -89,6 +133,38 @@ defmodule Asciinema.Streaming do
       :reschedulable ->
         now = DateTime.utc_now()
         where(q, [s], s.next_start_at < ^now)
+
+      {:scheduled, true} ->
+        where(q, [s], not is_nil(s.schedule))
+
+      {:scheduled, false} ->
+        where(q, [s], is_nil(s.schedule))
+
+      {:audio, true} ->
+        where(q, [s], not is_nil(s.audio_url))
+
+      {:audio, false} ->
+        where(q, [s], is_nil(s.audio_url))
+
+      {:created_at, condition} ->
+        apply_field_condition(q, :inserted_at, condition)
+
+      {:last_started_at, :never} ->
+        where(q, [s], is_nil(s.last_started_at))
+
+      {:last_started_at, condition} ->
+        apply_field_condition(q, :last_started_at, condition)
+
+      {:current_viewer_count, condition} ->
+        apply_field_condition(q, :current_viewer_count, condition)
+
+      {:peak_viewer_count, condition} ->
+        apply_field_condition(q, :peak_viewer_count, condition)
+
+      {:recording_count, condition} ->
+        q
+        |> ensure_recording_counts_join()
+        |> apply_count_condition(condition)
     end
   end
 
@@ -108,16 +184,169 @@ defmodule Asciinema.Streaming do
 
       :id ->
         order_by(q, asc: :id)
+
+      {:created, :desc} ->
+        order_by(q, [s], desc: s.inserted_at, desc: s.id)
+
+      {:created, :asc} ->
+        order_by(q, [s], asc: s.inserted_at, asc: s.id)
+
+      {:activity, :desc} ->
+        order_by(q, [s], desc: s.live, desc_nulls_last: s.last_started_at, desc: s.id)
+
+      {:activity, :asc} ->
+        order_by(q, [s], asc: s.live, asc_nulls_first: s.last_started_at, asc: s.id)
+
+      {:last_started, :desc} ->
+        order_by(q, [s], desc_nulls_last: s.last_started_at, desc: s.id)
+
+      {:last_started, :asc} ->
+        order_by(q, [s], asc_nulls_last: s.last_started_at, asc: s.id)
+
+      {:current_viewers, :desc} ->
+        order_by(q, [s], desc_nulls_last: s.current_viewer_count, desc: s.id)
+
+      {:current_viewers, :asc} ->
+        order_by(q, [s], asc_nulls_last: s.current_viewer_count, asc: s.id)
+
+      {:peak_viewers, :desc} ->
+        order_by(q, [s], desc_nulls_last: s.peak_viewer_count, desc: s.id)
+
+      {:peak_viewers, :asc} ->
+        order_by(q, [s], asc_nulls_last: s.peak_viewer_count, asc: s.id)
     end
   end
 
-  def paginate(%Ecto.Query{} = query, page, page_size) do
-    query
-    |> preload(:user)
-    |> Repo.paginate(page: page, page_size: page_size)
+  defp apply_field_condition(q, field, {:eq, value}),
+    do: where(q, [s], field(s, ^field) == ^value)
+
+  defp apply_field_condition(q, field, {:gt, value}), do: where(q, [s], field(s, ^field) > ^value)
+
+  defp apply_field_condition(q, field, {:gte, value}),
+    do: where(q, [s], field(s, ^field) >= ^value)
+
+  defp apply_field_condition(q, field, {:lt, value}), do: where(q, [s], field(s, ^field) < ^value)
+
+  defp apply_field_condition(q, field, {:lte, value}),
+    do: where(q, [s], field(s, ^field) <= ^value)
+
+  defp apply_field_condition(q, field, {:between, from_value, to_value}),
+    do: where(q, [s], field(s, ^field) >= ^from_value and field(s, ^field) <= ^to_value)
+
+  defp ensure_user_join(q) do
+    if has_named_binding?(q, :user) do
+      q
+    else
+      join(q, :inner, [s], u in assoc(s, :user), as: :user)
+    end
   end
 
+  defp ensure_recording_counts_join(q) do
+    if has_named_binding?(q, :recording_counts) do
+      q
+    else
+      counts =
+        from(a in Asciinema.Recordings.Asciicast,
+          where: not is_nil(a.stream_id),
+          group_by: a.stream_id,
+          select: %{stream_id: a.stream_id, count: count(a.id)}
+        )
+
+      join(q, :left, [s], c in subquery(counts), on: c.stream_id == s.id, as: :recording_counts)
+    end
+  end
+
+  defp apply_count_condition(q, {:eq, value}),
+    do: where(q, [recording_counts: c], coalesce(c.count, 0) == ^value)
+
+  defp apply_count_condition(q, {:gt, value}),
+    do: where(q, [recording_counts: c], coalesce(c.count, 0) > ^value)
+
+  defp apply_count_condition(q, {:gte, value}),
+    do: where(q, [recording_counts: c], coalesce(c.count, 0) >= ^value)
+
+  defp apply_count_condition(q, {:lt, value}),
+    do: where(q, [recording_counts: c], coalesce(c.count, 0) < ^value)
+
+  defp apply_count_condition(q, {:lte, value}),
+    do: where(q, [recording_counts: c], coalesce(c.count, 0) <= ^value)
+
+  defp apply_count_condition(q, {:between, from_value, to_value}),
+    do:
+      where(
+        q,
+        [recording_counts: c],
+        coalesce(c.count, 0) >= ^from_value and coalesce(c.count, 0) <= ^to_value
+      )
+
+  defp search_title(q, text) do
+    text
+    |> String.split()
+    |> Enum.reduce(q, fn term, q ->
+      pattern = "%#{escape_like(term)}%"
+      where(q, [s], ilike(s.title, ^pattern))
+    end)
+  end
+
+  defp escape_like(term) do
+    term
+    |> String.replace("\\", "\\\\")
+    |> String.replace("%", "\\%")
+    |> String.replace("_", "\\_")
+  end
+
+  def paginate(query, page, page_size, opts \\ [])
+
+  def paginate(%Query{} = spec, page, page_size, opts) do
+    spec
+    |> query()
+    |> paginate(page, page_size, opts)
+  end
+
+  def paginate(%Ecto.Query{} = query, page, page_size, opts) do
+    paginate_opts =
+      [page: page, page_size: page_size] ++ maybe_total_entries_opt(query, page_size, opts)
+
+    query
+    |> maybe_preload(Keyword.get(opts, :preload, [:user]))
+    |> Repo.paginate(paginate_opts)
+  end
+
+  defp maybe_total_entries_opt(query, page_size, opts) do
+    case opts[:max_pages] do
+      nil ->
+        []
+
+      max_pages ->
+        max_entries = page_size * max_pages
+        limit = max_entries + 1
+
+        limited_count =
+          query
+          |> exclude(:preload)
+          |> exclude(:order_by)
+          |> exclude(:select)
+          |> select([stream], stream.id)
+          |> limit(^limit)
+          |> subquery()
+          |> select([entry], count(entry.id))
+          |> Repo.one()
+
+        [options: [total_entries: min(limited_count || 0, max_entries)]]
+    end
+  end
+
+  defp maybe_preload(query, []), do: query
+  defp maybe_preload(query, nil), do: query
+  defp maybe_preload(query, preloads), do: preload(query, ^preloads)
+
   def cursor_paginate(query, last_id \\ nil, limit \\ 10)
+
+  def cursor_paginate(%Query{} = spec, last_id, limit) do
+    spec
+    |> query()
+    |> cursor_paginate(last_id, limit)
+  end
 
   def cursor_paginate(%Ecto.Query{} = query, nil, limit) do
     do_cursor_paginate(query, limit)
@@ -135,7 +364,7 @@ defmodule Asciinema.Streaming do
     query =
       query
       |> limit(^(limit + 1))
-      |> preload(:user)
+      |> maybe_preload([:user])
 
     entries = Repo.all(query)
 
@@ -153,18 +382,29 @@ defmodule Asciinema.Streaming do
     end
   end
 
-  def list(q, nil) do
+  def list(q, limit, opts \\ [])
+
+  def list(%Query{} = spec, limit, opts) do
+    spec
+    |> query()
+    |> list(limit, opts)
+  end
+
+  def list(q, nil, opts) do
     q
-    |> preload(:user)
+    |> maybe_preload(Keyword.get(opts, :preload, [:user]))
     |> Repo.all()
   end
 
-  def list(q, limit) when is_integer(limit) do
+  def list(q, limit, opts) when is_integer(limit) do
     q
     |> limit(^limit)
-    |> preload(:user)
+    |> maybe_preload(Keyword.get(opts, :preload, [:user]))
     |> Repo.all()
   end
+
+  def count(%Query{} = spec), do: spec |> query() |> count()
+  def count(q), do: Repo.count(q)
 
   @doc """
   Creates a new stream for the given user.
@@ -180,7 +420,8 @@ defmodule Asciinema.Streaming do
       producer_token: generate_producer_token(),
       visibility: user.default_stream_visibility,
       term_theme_prefer_original: user.term_theme_prefer_original,
-      term_bold_is_bright: user.term_bold_is_bright
+      term_bold_is_bright: user.term_bold_is_bright,
+      term_adaptive_palette: user.term_adaptive_palette
     }
     |> change_stream(params)
     |> put_assoc(:user, user)
@@ -201,6 +442,14 @@ defmodule Asciinema.Streaming do
     end
   end
 
+  @max_title_len 128
+  @max_description_len 4096
+  @max_term_type_len 64
+  @max_term_version_len 255
+  @max_shell_len 255
+  @max_user_agent_len 255
+  @max_audio_url_len 255
+
   def change_stream(stream, attrs \\ %{})
 
   def change_stream(stream, attrs) when is_map(attrs) do
@@ -218,6 +467,7 @@ defmodule Asciinema.Streaming do
       :term_theme_name,
       :term_theme_prefer_original,
       :term_bold_is_bright,
+      :term_adaptive_palette,
       :term_type,
       :term_version,
       :title,
@@ -235,13 +485,26 @@ defmodule Asciinema.Streaming do
       less_than_or_equal_to: 2.0
     )
     |> validate_inclusion(:term_font_family, Fonts.terminal_font_families())
+    |> validate_length(:title, max: @max_title_len)
+    |> validate_length(:description, max: @max_description_len)
+    |> validate_length(:audio_url, max: @max_audio_url_len)
     |> validate_format(:audio_url, ~r|^https?://|)
+    |> truncate(:term_type, @max_term_type_len)
+    |> truncate(:term_version, @max_term_version_len)
+    |> truncate(:shell, @max_shell_len)
     |> check_constraint(:live, name: "live_stream_limit")
+  end
+
+  defp truncate(changeset, field, max_len) do
+    update_change(changeset, field, fn value ->
+      if value, do: String.slice(value, 0, max_len)
+    end)
   end
 
   def update_stream(stream, attrs) when is_list(attrs) do
     stream
     |> cast(Enum.into(attrs, %{}), Stream.__schema__(:fields))
+    |> truncate(:user_agent, @max_user_agent_len)
     |> change_peak_viewer_count()
     |> change_last_activity()
     |> Repo.update!(returning: true)
@@ -256,11 +519,16 @@ defmodule Asciinema.Streaming do
   atomicity during concurrent updates.
   """
   def update_stream(stream, attrs) when is_map(attrs) do
-    stream
-    |> change_stream(attrs)
-    |> change_next_start_at()
+    # change_stream preloads :user into the changeset, so read the limit from
+    # there — callers may pass a stream without the user loaded.
+    changeset =
+      stream
+      |> change_stream(attrs)
+      |> change_next_start_at()
+
+    changeset
     |> Repo.update()
-    |> convert_live_limit_error(stream.user.live_stream_limit)
+    |> convert_live_limit_error(changeset.data.user.live_stream_limit)
   end
 
   defp validate_schedule(changeset) do
@@ -328,7 +596,7 @@ defmodule Asciinema.Streaming do
   defp change_next_start_at(%Changeset{valid?: false} = changeset), do: changeset
 
   def reschedule_streams do
-    :reschedulable
+    %Query{scope: :system, filters: [:reschedulable]}
     |> query()
     |> preload(:user)
     |> Repo.pages(100)
@@ -352,6 +620,20 @@ defmodule Asciinema.Streaming do
 
   def delete_stream(stream), do: Repo.delete(stream)
 
+  @doc """
+  Attempts to stop the GenServer driving a live stream. Returns `:ok` on
+  success, `{:error, :not_running}` if no server is registered for the stream.
+  """
+  def disconnect_stream(%Stream{id: id}) do
+    try do
+      StreamServer.stop(id, :shutdown)
+      :ok
+    catch
+      :exit, {:noproc, _} -> {:error, :not_running}
+      :exit, :noproc -> {:error, :not_running}
+    end
+  end
+
   def delete_streams(%{streams: _} = owner) do
     Repo.delete_all(Ecto.assoc(owner, :streams))
 
@@ -364,12 +646,15 @@ defmodule Asciinema.Streaming do
   end
 
   def mark_inactive_streams_offline do
+    now = DateTime.utc_now()
+
     q =
       from(s in Stream,
         where:
           s.live and
             fragment(
-              "COALESCE(last_activity_at, inserted_at) < now() - make_interval(secs => offline_grace_period)"
+              "COALESCE(last_activity_at, inserted_at) < ?::timestamp - make_interval(secs => offline_grace_period)",
+              ^now
             )
       )
 

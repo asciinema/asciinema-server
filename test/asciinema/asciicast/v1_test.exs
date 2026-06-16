@@ -1,0 +1,105 @@
+defmodule Asciinema.Asciicast.V1Test do
+  use ExUnit.Case, async: true
+  import Asciinema.ZstdTestHelpers
+  alias Asciinema.Asciicast.V1
+
+  describe "fetch_metadata/1" do
+    test "minimal" do
+      {:ok, metadata} = V1.fetch_metadata("test/fixtures/1/minimal.json")
+
+      assert metadata == %{
+               version: 1,
+               term_cols: 96,
+               term_rows: 26,
+               term_type: nil,
+               command: nil,
+               duration: 8.456789,
+               title: nil,
+               env: %{},
+               shell: nil
+             }
+    end
+
+    test "supports zstd-compressed files" do
+      {:ok, metadata} = V1.fetch_metadata(zstd_fixture!("test/fixtures/1/full.json"))
+
+      assert metadata == %{
+               version: 1,
+               term_cols: 96,
+               term_rows: 26,
+               term_type: "screen-256color",
+               command: "/bin/bash",
+               duration: 10.370343,
+               title: "bashing :)",
+               env: %{
+                 "TERM" => "screen-256color",
+                 "SHELL" => "/bin/zsh"
+               },
+               shell: "/bin/zsh"
+             }
+    end
+
+    test "full" do
+      {:ok, metadata} = V1.fetch_metadata("test/fixtures/1/full.json")
+
+      assert metadata == %{
+               version: 1,
+               term_cols: 96,
+               term_rows: 26,
+               term_type: "screen-256color",
+               command: "/bin/bash",
+               duration: 10.370343,
+               title: "bashing :)",
+               env: %{
+                 "TERM" => "screen-256color",
+                 "SHELL" => "/bin/zsh"
+               },
+               shell: "/bin/zsh"
+             }
+    end
+
+    test "single event" do
+      {:ok, metadata} = V1.fetch_metadata("test/fixtures/1/single-event.json")
+
+      assert metadata == %{
+               version: 1,
+               term_cols: 96,
+               term_rows: 26,
+               term_type: nil,
+               command: nil,
+               duration: 1.234567,
+               title: nil,
+               env: %{},
+               shell: nil
+             }
+    end
+
+    test "invalid file" do
+      filenames = ~w[
+        invalid-time-1.json
+        invalid-time-2.json
+        invalid-data.json
+        wrong-event-length.json
+      ]
+
+      Enum.each(filenames, fn filename ->
+        assert V1.fetch_metadata("test/fixtures/1/#{filename}") == {:error, :invalid_format},
+               filename
+      end)
+    end
+  end
+
+  describe "event_stream/1" do
+    test "full" do
+      stream = V1.event_stream("test/fixtures/1/full.json")
+
+      assert Enum.take(stream, 2) == [{1.234567, "o", "foo bar"}, {6.913554, "o", "baz qux"}]
+    end
+
+    test "supports zstd-compressed files" do
+      stream = V1.event_stream(zstd_fixture!("test/fixtures/1/full.json"))
+
+      assert Enum.take(stream, 2) == [{1.234567, "o", "foo bar"}, {6.913554, "o", "baz qux"}]
+    end
+  end
+end

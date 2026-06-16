@@ -147,8 +147,8 @@ defmodule AsciinemaWeb.Features.StreamsTest do
       owner = insert(:user, streaming_enabled: true, username: "owner")
       stream = insert(:stream, visibility: :public, user: owner)
       other_stream = insert(:stream, visibility: :public, user: owner)
-      insert_list(2, :asciicast, visibility: :public, user: owner, stream: stream)
-      insert_list(6, :asciicast, visibility: :public, user: owner, stream: other_stream)
+      insert_list(2, :asciicast, visibility: :public, user: owner, stream_id: stream.id)
+      insert_list(6, :asciicast, visibility: :public, user: owner, stream_id: other_stream.id)
 
       conn
       |> visit(~p"/s/#{stream}")
@@ -163,8 +163,8 @@ defmodule AsciinemaWeb.Features.StreamsTest do
       owner = insert(:user, streaming_enabled: true, username: "owner")
       stream = insert(:stream, visibility: :public, user: owner)
       other_stream = insert(:stream, visibility: :public, user: owner)
-      insert_list(1, :asciicast, visibility: :public, user: owner, stream: stream)
-      insert_list(4, :asciicast, visibility: :public, user: owner, stream: other_stream)
+      insert_list(1, :asciicast, visibility: :public, user: owner, stream_id: stream.id)
+      insert_list(4, :asciicast, visibility: :public, user: owner, stream_id: other_stream.id)
 
       conn
       |> visit(~p"/s/#{stream}")
@@ -178,7 +178,7 @@ defmodule AsciinemaWeb.Features.StreamsTest do
     test "does not show browse all for past recordings section", %{conn: conn} do
       owner = insert(:user, streaming_enabled: true, username: "owner")
       stream = insert(:stream, visibility: :public, user: owner)
-      insert_list(5, :asciicast, visibility: :public, user: owner, stream: stream)
+      insert_list(5, :asciicast, visibility: :public, user: owner, stream_id: stream.id)
 
       conn
       |> visit(~p"/s/#{stream}")
@@ -208,8 +208,6 @@ defmodule AsciinemaWeb.Features.StreamsTest do
       |> assert_has("h1", text: "403 Forbidden")
     end
 
-    @tag :skip
-    # TODO try to re-enable after upgrade of phoenix_test
     test "complete flow", %{conn: conn} do
       user = insert(:user, streaming_enabled: true)
       stream = insert(:stream, user: user, title: "Test Stream", visibility: :private)

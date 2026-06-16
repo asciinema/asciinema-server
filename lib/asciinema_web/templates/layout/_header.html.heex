@@ -62,15 +62,25 @@
               </summary>
 
               <div class="dropdown-menu">
+                <a href={~p"/~#{@current_user}"} class="dropdown-item">Profile</a>
+                <a href={~p"/~#{@current_user}/recordings"} class="dropdown-item">Recordings</a>
+
                 <%= if @current_user.streaming_enabled do %>
-                  <a href={~p"/user/streams"} class="dropdown-item">
-                    <strong>Stream</strong>
-                  </a>
-                  <div class="dropdown-divider"></div>
+                  <a href={~p"/user/streams"} class="dropdown-item">Streams</a>
                 <% end %>
 
-                <a href={~p"/~#{@current_user}"} class="dropdown-item">Profile</a>
+                <div class="dropdown-divider"></div>
+
                 <a href={~p"/user/edit"} class="dropdown-item">Settings</a>
+
+                <a
+                  :if={@current_user.is_admin && admin_panel_enabled?()}
+                  href="/admin"
+                  class="dropdown-item"
+                >
+                  Admin panel
+                </a>
+
                 <div class="dropdown-divider"></div>
 
                 <.link href={~p"/session"} class="dropdown-item logout" method="delete">

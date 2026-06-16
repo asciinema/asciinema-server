@@ -3,6 +3,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
   import Asciinema.Factory
   alias Asciinema.Accounts
   alias Asciinema.AppEnv
+  alias Asciinema.Recordings
 
   setup(context) do
     [token: Map.get(context, :token, "9da34ff4-9bf7-45d4-aa88-98c933b15a3f")]
@@ -17,7 +18,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = upload(conn, upload)
 
-      assert %{"type" => "unauthenticated", "message" => "Missing install ID"} =
+      assert %{"type" => "unauthenticated", "message" => "Missing installation ID"} =
                json_response(conn, 401)
     end
   end
@@ -31,7 +32,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = upload(conn, upload)
 
-      assert %{"type" => "unauthenticated", "message" => "Invalid install ID"} =
+      assert %{"type" => "unauthenticated", "message" => "Invalid installation ID"} =
                json_response(conn, 401)
     end
   end
@@ -44,7 +45,8 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = upload(conn, upload)
 
-      assert %{"type" => "unauthenticated", "message" => "Revoked CLI"} = json_response(conn, 401)
+      assert %{"type" => "unauthenticated", "message" => "This installation ID has been revoked"} =
+               json_response(conn, 401)
     end
   end
 
@@ -52,12 +54,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
     setup [:authenticate]
 
     test "succeeds", %{conn: conn} do
-      upload = fixture(:upload, %{path: "2/minimal.cast"})
-
-      conn =
-        conn
-        |> put_resp_content_type("application/json")
-        |> post(~p"/api/asciicasts", %{"asciicast" => upload})
+      conn = legacy_upload(conn, minimal_upload())
 
       assert List.first(get_resp_header(conn, "location")) =~ @recording_url
       assert %{"url" => url, "message" => message} = json_response(conn, 201)
@@ -196,6 +193,47 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
       assert %{"url" => "http" <> _} = json_response(conn, 201)
       assert List.first(get_resp_header(conn, "location")) =~ @recording_url
     end
+
+    test "stores user agent from request header", %{conn: conn} do
+      upload = fixture(:upload, %{path: "2/minimal.cast"})
+      user_agent = "asciinema/3.0.0 target/x86_64-unknown-linux-gnu"
+
+      conn =
+        conn
+        |> put_req_header("user-agent", user_agent)
+        |> upload(upload)
+
+      assert %{"id" => id} = json_response(conn, 201)
+      assert Recordings.get_asciicast(id).user_agent == user_agent
+    end
+
+    test "accepts title, description, visibility and audio_url params", %{conn: conn} do
+      upload = fixture(:upload, %{path: "2/minimal.cast"})
+
+      params = %{
+        "title" => "Upload title",
+        "description" => "Upload description",
+        "visibility" => "private",
+        "audio_url" => "https://example.com/audio.opus"
+      }
+
+      conn = upload(conn, upload, params)
+
+      assert %{
+               "id" => id,
+               "title" => "Upload title",
+               "description" => "Upload description",
+               "visibility" => "private",
+               "audio_url" => "https://example.com/audio.opus"
+             } = json_response(conn, 201)
+
+      asciicast = Recordings.get_asciicast(id)
+
+      assert asciicast.title == "Upload title"
+      assert asciicast.description == "Upload description"
+      assert asciicast.visibility == :private
+      assert asciicast.audio_url == "https://example.com/audio.opus"
+    end
   end
 
   describe "create with registered cli when registration is not required" do
@@ -236,8 +274,93 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = upload(conn, upload)
 
-      assert %{"type" => "unauthenticated", "message" => "Unregistered CLI"} =
+      assert %{"type" => "account_required", "message" => "This action requires an account"} =
                json_response(conn, 401)
+    end
+
+    @tag token: "not-a-uuid"
+    test "fails with 401 for a malformed install ID", %{conn: conn} do
+      upload = fixture(:upload, %{path: "2/minimal.cast"})
+
+      conn = upload(conn, upload)
+
+      assert %{"type" => "unauthenticated", "message" => "Invalid installation ID"} =
+               json_response(conn, 401)
+    end
+  end
+
+  describe "create with unregistered upload count limit and unregistered cli" do
+    setup [:authenticate]
+
+    test "allows uploads up to the limit, then rejects with 403", %{conn: conn} do
+      AppEnv.put(Accounts, unregistered_upload_count_limit: 2)
+
+      conn1 = upload(conn, minimal_upload())
+      assert %{"url" => _} = json_response(conn1, 201)
+
+      conn2 = upload(recycle(conn1), minimal_upload())
+      assert %{"url" => _} = json_response(conn2, 201)
+
+      conn3 = upload(recycle(conn2), minimal_upload())
+
+      assert %{"type" => "upload_limit_reached", "message" => message} =
+               json_response(conn3, 403)
+
+      assert message =~ "Unregistered upload limit reached (2 recordings)"
+    end
+
+    test "counts archived recordings toward the limit", %{conn: conn} do
+      AppEnv.put(Accounts, unregistered_upload_count_limit: 1)
+
+      conn1 = upload(conn, minimal_upload())
+      assert %{"id" => id} = json_response(conn1, 201)
+
+      # hiding (archiving) the recording must not free up the quota
+      {:ok, _} = Recordings.archive(Recordings.get_asciicast(id))
+
+      conn2 = upload(recycle(conn1), minimal_upload())
+      assert %{"type" => "upload_limit_reached"} = json_response(conn2, 403)
+    end
+  end
+
+  describe "create with unregistered upload count limit and registered cli" do
+    setup [:register_cli, :authenticate]
+
+    test "is not subject to the limit", %{conn: conn} do
+      AppEnv.put(Accounts, unregistered_upload_count_limit: 1)
+
+      conn1 = upload(conn, minimal_upload())
+      assert %{"url" => _} = json_response(conn1, 201)
+
+      conn2 = upload(recycle(conn1), minimal_upload())
+      assert %{"url" => _} = json_response(conn2, 201)
+    end
+  end
+
+  describe "create without unregistered upload count limit" do
+    setup [:authenticate]
+
+    test "allows unregistered cli to upload past the would-be limit", %{conn: conn} do
+      conn1 = upload(conn, minimal_upload())
+      assert %{"url" => _} = json_response(conn1, 201)
+
+      conn2 = upload(recycle(conn1), minimal_upload())
+      assert %{"url" => _} = json_response(conn2, 201)
+    end
+  end
+
+  describe "create via legacy path with unregistered upload count limit" do
+    setup [:authenticate]
+
+    test "enforces the limit on the legacy /api/asciicasts path too", %{conn: conn} do
+      AppEnv.put(Accounts, unregistered_upload_count_limit: 1)
+
+      conn1 = legacy_upload(conn, minimal_upload())
+      assert %{"url" => _} = json_response(conn1, 201)
+
+      conn2 = legacy_upload(recycle(conn1), minimal_upload())
+
+      assert %{"type" => "upload_limit_reached"} = json_response(conn2, 403)
     end
   end
 
@@ -247,7 +370,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = put(conn, ~p"/api/v1/recordings/#{asciicast.id}", %{"title" => "New Title"})
 
-      assert %{"type" => "unauthenticated", "message" => "Missing install ID"} =
+      assert %{"type" => "unauthenticated", "message" => "Missing installation ID"} =
                json_response(conn, 401)
     end
   end
@@ -260,7 +383,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = put(conn, ~p"/api/v1/recordings/#{asciicast.id}", %{"title" => "New Title"})
 
-      assert %{"type" => "unauthenticated", "message" => "Unregistered CLI"} =
+      assert %{"type" => "account_required", "message" => "This action requires an account"} =
                json_response(conn, 401)
     end
   end
@@ -274,7 +397,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = put(conn, ~p"/api/v1/recordings/#{asciicast.id}", %{"title" => "New Title"})
 
-      assert %{"type" => "unauthenticated", "message" => "Unregistered CLI"} =
+      assert %{"type" => "account_required", "message" => "This action requires an account"} =
                json_response(conn, 401)
     end
   end
@@ -287,7 +410,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = put(conn, ~p"/api/v1/recordings/#{asciicast.id}", %{"title" => "New Title"})
 
-      assert %{"type" => "unauthenticated", "message" => "Revoked CLI"} =
+      assert %{"type" => "unauthenticated", "message" => "This installation ID has been revoked"} =
                json_response(conn, 401)
     end
   end
@@ -384,7 +507,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = delete(conn, ~p"/api/v1/recordings/#{asciicast.id}")
 
-      assert %{"type" => "unauthenticated", "message" => "Missing install ID"} =
+      assert %{"type" => "unauthenticated", "message" => "Missing installation ID"} =
                json_response(conn, 401)
     end
   end
@@ -397,7 +520,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = delete(conn, ~p"/api/v1/recordings/#{asciicast.id}")
 
-      assert %{"type" => "unauthenticated", "message" => "Unregistered CLI"} =
+      assert %{"type" => "account_required", "message" => "This action requires an account"} =
                json_response(conn, 401)
     end
   end
@@ -411,7 +534,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = delete(conn, ~p"/api/v1/recordings/#{asciicast.id}")
 
-      assert %{"type" => "unauthenticated", "message" => "Unregistered CLI"} =
+      assert %{"type" => "account_required", "message" => "This action requires an account"} =
                json_response(conn, 401)
     end
   end
@@ -424,7 +547,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = delete(conn, ~p"/api/v1/recordings/#{asciicast.id}")
 
-      assert %{"type" => "unauthenticated", "message" => "Revoked CLI"} =
+      assert %{"type" => "unauthenticated", "message" => "This installation ID has been revoked"} =
                json_response(conn, 401)
     end
   end
@@ -464,10 +587,18 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
     end
   end
 
-  defp upload(conn, upload) do
+  defp upload(conn, upload, params \\ %{}) do
     conn
     |> put_resp_content_type("application/json")
-    |> post(~p"/api/v1/recordings", %{"file" => upload})
+    |> post(~p"/api/v1/recordings", Map.put(params, "file", upload))
+  end
+
+  defp minimal_upload, do: fixture(:upload, %{path: "2/minimal.cast"})
+
+  defp legacy_upload(conn, upload) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> post(~p"/api/asciicasts", %{"asciicast" => upload})
   end
 
   defp require_registered_cli(_context) do

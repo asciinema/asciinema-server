@@ -1,6 +1,8 @@
 defmodule AsciinemaWeb.Api.StreamController do
   use AsciinemaWeb, :controller
   alias Asciinema.{Accounts, Streaming}
+  alias Asciinema.Streaming.Query, as: StreamQuery
+  alias AsciinemaWeb.Api.AuthError
 
   plug :authenticate
   plug :check_streaming_enabled
@@ -22,8 +24,11 @@ defmodule AsciinemaWeb.Api.StreamController do
     limit = if limit, do: String.to_integer(limit), else: @default_index_limit
 
     result =
-      [user_id: conn.assigns.current_user.id, prefix: prefix]
-      |> Streaming.query(:id)
+      %StreamQuery{
+        scope: :system,
+        filters: [{:user, conn.assigns.current_user}, {:prefix, prefix}],
+        sort: :id
+      }
       |> Streaming.cursor_paginate(stream_id, limit)
 
     conn
@@ -70,23 +75,15 @@ defmodule AsciinemaWeb.Api.StreamController do
       assign(conn, :current_user, cli.user)
     else
       result ->
-        message = unauthenticated_message(result)
-
-        conn
-        |> put_status(:unauthorized)
-        |> render(:error, reason: :unauthenticated, message: message)
-        |> halt()
+        AuthError.render_error(conn, auth_kind(result))
     end
   end
 
-  defp unauthenticated_message(result) do
-    case result do
-      nil -> "Missing install ID"
-      {:error, :token_not_found} -> "Unregistered CLI"
-      {:error, :cli_revoked} -> "Revoked CLI"
-      false -> "Unregistered CLI"
-    end
-  end
+  defp auth_kind(nil), do: :missing
+  defp auth_kind({:error, :token_invalid}), do: :invalid
+  defp auth_kind({:error, :token_not_found}), do: :no_account
+  defp auth_kind({:error, :cli_revoked}), do: :revoked
+  defp auth_kind(false), do: :no_account
 
   defp check_streaming_enabled(conn, _opts) do
     if conn.assigns.current_user.streaming_enabled do

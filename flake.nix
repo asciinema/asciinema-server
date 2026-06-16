@@ -18,9 +18,9 @@
         pname = "asciinema-server";
         pkgs = nixpkgs.legacyPackages.${system};
 
-        beamPackages = pkgs.beam.packages.erlang_26.extend (
+        beamPackages = pkgs.beam.packages.erlang_28.extend (
           _: prev: {
-            elixir = prev.elixir_1_18;
+            elixir = prev.elixir_1_19;
           }
         );
 
@@ -38,7 +38,7 @@
           pname = "${pname}-node-modules";
           version = "1.0.0";
           src = ./assets;
-          npmDepsHash = "sha256-ilzGzNsaEJw8/+/XpUOFQjnsvHGeOESTBW/ixlkUgV8=";
+          npmDepsHash = "sha256-n/eU3NCGgquKdPbXTViWIycBsjS/OcbGnv74eOvu5lE=";
           dontNpmBuild = true;
 
           installPhase = ''
@@ -56,13 +56,14 @@
           mixFodDeps = beamPackages.fetchMixDeps {
             pname = "${pname}-mix-deps";
             inherit src version;
-            hash = "sha256-Ehg4Twv7EOYp3XIdnhPX8suJ3a7uuaslmC5bVyxp6rM=";
+            hash = "sha256-h/m2E76u2rej2XT8E09aWl74rsvPz6gNeUKquLYw+IU=";
           };
 
           preConfigure = ''
             cat >>config/config.exs <<EOF
             config :asciinema, Asciinema.Vt, skip_compilation?: true
             config :asciinema, Asciinema.Fts, skip_compilation?: true
+            config :asciinema, Asciinema.SvgRaster, skip_compilation?: true
             config :esbuild, path: "${pkgs.esbuild}/bin/esbuild"
             config :tailwind, path: "${pkgs.tailwindcss_3}/bin/tailwindcss"
             EOF
@@ -70,6 +71,7 @@
             mkdir -p priv/native
             cp ${nifs}/lib/libvt.so priv/native/vt.so
             cp ${nifs}/lib/libfts.so priv/native/fts.so
+            cp ${nifs}/lib/libsvg_raster.so priv/native/svg_raster.so
           '';
 
           preInstall = ''
@@ -80,6 +82,7 @@
           buildInputs = with pkgs; [
             librsvg
             pngquant
+            fd
           ];
 
           removeCookie = false;
@@ -91,13 +94,15 @@
             [
               beamPackages.elixir
               beamPackages.elixir-ls
-              nodejs_20
+              nodejs_24
               cargo
               rustc
               rustfmt
               rust-analyzer
               rustPackages.clippy
               shellcheck
+              imagemagick
+              playwright-driver.browsers
             ]
             ++ self.packages.${system}.default.buildInputs
             ++ lib.optional stdenv.isLinux [ inotify-tools ];
@@ -118,6 +123,9 @@
 
             alias serve='iex -S mix phx.server';
           '';
+
+          # Playwright browsers pinned via the flake — no manual `playwright install`.
+          PLAYWRIGHT_BROWSERS_PATH = pkgs.playwright-driver.browsers;
         };
 
         nixosModules.default =

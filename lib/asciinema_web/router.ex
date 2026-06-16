@@ -82,12 +82,8 @@ defmodule AsciinemaWeb.Router do
       only: [:edit, :update, :delete],
       singleton: true do
       resources "/streams", StreamController, only: [:index, :create]
-
-      # new email format/availability validation
+      get "/email", EmailController, :edit
       put "/email", EmailController, :update
-
-      # new email ownership validation via email link
-      get "/email", EmailController, :update
     end
 
     get "/~:username", UserController, :show
@@ -102,11 +98,17 @@ defmodule AsciinemaWeb.Router do
 
     resources "/session", SessionController, only: [:new, :create, :delete], singleton: true
 
-    get "/connect/:install_id", CliController, :register, as: :connect
+    get "/connect/:install_id", CliController, :show
+    post "/connect/:install_id", CliController, :create
 
     resources "/clis", CliController, only: [:delete]
 
     get "/about", PageController, :about
+  end
+
+  scope "/", AsciinemaWeb do
+    get "/ws/s/:public_token", WebsocketUpgrade, AsciinemaWeb.StreamConsumerSocket
+    get "/ws/S/:producer_token", WebsocketUpgrade, AsciinemaWeb.StreamProducerSocket
   end
 
   scope "/api", AsciinemaWeb.Api, as: :api do

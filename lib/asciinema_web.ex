@@ -33,6 +33,7 @@ defmodule AsciinemaWeb do
       import AsciinemaWeb.Plug.ReturnTo
       import AsciinemaWeb.Plug.Authz
       import AsciinemaWeb.Caching
+      import AsciinemaWeb.PaginationHelpers
 
       unquote(verified_routes())
 
@@ -142,6 +143,7 @@ defmodule AsciinemaWeb do
       # Core UI components and translation
       import AsciinemaWeb.CoreComponents
       import AsciinemaWeb.Icons
+      import AsciinemaWeb.Pagination
 
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS

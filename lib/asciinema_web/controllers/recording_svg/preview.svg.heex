@@ -16,6 +16,7 @@
     .fa { fill-opacity: 0.5 }
     .it { font-style: italic }
     .un { text-decoration: underline }
+    .term-text tspan tspan { white-space: pre }
 
     <%= if @standalone do %>
     @font-face {
@@ -25,35 +26,28 @@
     <% end %>
   </style>
 
-  <rect
-    width="100%"
-    height="100%"
-    style={"fill: " <> @theme.bg}
-    rx={assigns[:rx] || 4}
-    ry={assigns[:ry] || 4}
-  />
+  <rect width="100%" height="100%" style={"fill: " <> @theme.bg} rx={@rx || 4} ry={@ry || 4} />
 
   <svg x={x(1)} y={y(0.5)} class="default-text-fill">
-    <g style="shape-rendering: optimizeSpeed">
-      <%= for %{y: y, segments: segments} <- @coords.bg do %>
-        <rect
-          :for={%{x: x, width: width, attrs: attrs} <- segments}
-          x={x(x)}
-          y={y(y)}
-          width={w(width)}
-          height={h(1)}
-          style={bg_style(attrs, @theme)}
-        />
-      <% end %>
+    <image
+      x="0"
+      y="0"
+      width={w(@cols)}
+      height={h(@rows)}
+      href={@image_href}
+      preserveAspectRatio="none"
+      style="image-rendering: pixelated; image-rendering: crisp-edges;"
+    />
 
-      <%= for %{y: y, segments: segments} <- @coords.special_chars do %>
+    <g style="shape-rendering: optimizeSpeed">
+      <%= for %{y: y, segments: segments} <- @coords.vector_symbols do %>
         <%= for %{x: x, text: char, attrs: attrs} <- segments do %>
-          <.special_char char={char} x={x} y={y} attrs={attrs} theme={@theme} />
+          <.vector_symbol char={char} x={x} y={y} attrs={attrs} theme={@theme} />
         <% end %>
       <% end %>
     </g>
 
-    <text style={"fill: " <> @theme.fg}>
+    <text xml:space="preserve" class="term-text" style={"fill: " <> @theme.fg}>
       <tspan :for={%{y: y, segments: segments} <- @coords.text} y={y(y)}>
         <tspan
           :for={{%{x: x, text: text, attrs: attrs}, i} <- Enum.with_index(segments)}
@@ -64,16 +58,13 @@
           }
           x={x(x)}
           {text_extra_attrs(attrs, @theme)}
-        >
-          {html_escape(text)}
-        </tspan>
+          phx-no-format
+        >{html_escape(text)}</tspan>
       </tspan>
     </text>
   </svg>
 
-  <g :if={@logo} transform="translate(-40 -40)">
-    <svg x="50%" y="50%" width="80" height="80">
-      <.logo />
-    </svg>
-  </g>
+  <svg :if={@logo} x={@logo.x} y={@logo.y} width={@logo.size} height={@logo.size}>
+    <.logo />
+  </svg>
 </svg>

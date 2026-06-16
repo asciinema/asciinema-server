@@ -59,7 +59,11 @@
       <div class={["form-field", error_class(f, :title)]}>
         <.label for={f[:title]}>Title</.label>
         <div>
-          <.input field={f[:title]} placeholder={"#{author_username(@stream)}'s stream"} />
+          <.input
+            field={f[:title]}
+            placeholder={"#{author_username(@stream)}'s stream"}
+            maxlength={128}
+          />
           <.error field={f[:title]} />
         </div>
       </div>
@@ -69,7 +73,7 @@
           Description
         </.label>
         <div>
-          <.input type="textarea" field={f[:description]} rows={10} />
+          <.input type="textarea" field={f[:description]} rows={10} maxlength={4096} />
           <.error field={f[:description]} />
           <small class="form-hint text-muted">Rendered as Markdown.</small>
         </div>
@@ -121,6 +125,20 @@
           </div>
           <small class="form-hint text-muted">
             Supported when streaming from terminal emulators that implement color querying via OSC 4, OSC 10, OSC 11.
+          </small>
+        </div>
+      </div>
+
+      <div class="form-field form-field-full">
+        <div class="form-option-offset">
+          <div class="form-option">
+            <.input type="checkbox" field={f[:term_adaptive_palette]} />
+            <.label for={f[:term_adaptive_palette]}>
+              Use adaptive terminal palette
+            </.label>
+          </div>
+          <small class="form-hint text-muted">
+            Adapts the 256-color palette to base 16 colors of the selected theme for consistent and aesthetic look.
           </small>
         </div>
       </div>
@@ -205,7 +223,7 @@
           Audio URL
         </.label>
         <div>
-          <.input field={f[:audio_url]} type="url" />
+          <.input field={f[:audio_url]} type="url" maxlength={255} />
           <.error field={f[:audio_url]} />
           <small class="form-hint text-muted">
             Use it when you want to add live audio to your stream. This should

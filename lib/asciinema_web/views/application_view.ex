@@ -30,6 +30,8 @@ defmodule AsciinemaWeb.ApplicationView do
 
   def sign_up_enabled?, do: Accounts.sign_up_enabled?()
 
+  def admin_panel_enabled?, do: AsciinemaWeb.Plug.AdminGate.enabled?()
+
   def safe_json(value) do
     json =
       value

@@ -50,6 +50,10 @@ if config_env() in [:prod, :dev] do
     end
   end
 
+  if env.("BIND_ALL") do
+    config :asciinema, AsciinemaWeb.Endpoint, http: [ip: {0, 0, 0, 0}]
+  end
+
   if url_host = env.("URL_HOST") do
     config :asciinema, AsciinemaWeb.Endpoint, url: [host: url_host]
   end
@@ -83,10 +87,8 @@ if config_env() in [:prod, :dev] do
     config :asciinema, AsciinemaAdmin.Endpoint, url: [port: String.to_integer(url_port)]
   end
 
-  if ip_limit = env.("IP_RATE_LIMIT") do
-    config :asciinema, AsciinemaWeb.PlugAttack,
-      ip_limit: String.to_integer(ip_limit),
-      ip_period: String.to_integer(env.("IP_RATE_PERIOD") || "1") * 1_000
+  if env.("ADMIN_PANEL_ON_MAIN_ENDPOINT") in ["1", "true"] do
+    config :asciinema, AsciinemaWeb.Plug.AdminGate, enabled: true
   end
 
   if data_dir = env.("DATA_DIR") do
@@ -113,19 +115,11 @@ if config_env() in [:prod, :dev] do
     ]
 
   if bucket = env.("S3_BUCKET") do
+    config :asciinema, Asciinema.FileStore, adapter: Asciinema.FileStore.S3
+
     config :asciinema, Asciinema.FileStore.S3,
       bucket: bucket,
-      path: "uploads/",
-      proxy_path_prefix: env.("S3_PROXY_PATH_PREFIX")
-
-    config :asciinema, Asciinema.FileStore, adapter: Asciinema.FileStore.Cached
-
-    config :asciinema, Asciinema.FileStore.Cached,
-      remote_store: Asciinema.FileStore.S3,
-      cache_store: Asciinema.FileStore.Local
-
-    config :asciinema, Asciinema.FileStore.Local,
-      path: Path.join(cache_path || "/var/cache/asciinema", "uploads")
+      path: "uploads/"
 
     if endpoint = env.("S3_ENDPOINT") do
       uri = URI.parse(endpoint)
@@ -139,6 +133,10 @@ if config_env() in [:prod, :dev] do
 
   if db_pool_size = env.("DB_POOL_SIZE") do
     config :asciinema, Asciinema.Repo, pool_size: String.to_integer(db_pool_size)
+  end
+
+  if search_work_mem = env.("SEARCH_WORK_MEM") do
+    config :asciinema, :search_work_mem, search_work_mem
   end
 
   if env.("ECTO_IPV6") in ~w(true 1) do
@@ -205,12 +203,8 @@ if config_env() in [:prod, :dev] do
     config :asciinema, Asciinema.Emails.Mailer, tls_options: tls_options
   end
 
-  if rsvg_pool_size = env.("RSVG_POOL_SIZE") do
-    config :asciinema, Asciinema.PngGenerator.Rsvg, pool_size: String.to_integer(rsvg_pool_size)
-  end
-
   if rsvg_font_family = env.("RSVG_FONT_FAMILY") do
-    config :asciinema, Asciinema.PngGenerator.Rsvg, font_family: rsvg_font_family
+    config :asciinema, AsciinemaWeb.PngGenerator, font_family: rsvg_font_family
   end
 
   if limit = env.("UPLOAD_SIZE_LIMIT") do
@@ -266,14 +260,37 @@ if config_env() in [:prod, :dev] do
     config :asciinema, Asciinema.Accounts, upload_auth_required: true
   end
 
+  if limit = env.("UNREGISTERED_UPLOAD_COUNT_LIMIT") do
+    config :asciinema, Asciinema.Accounts,
+      unregistered_upload_count_limit: String.to_integer(limit)
+  end
+
+  if max_pages = env.("GUEST_PAGINATION_MAX_PAGES") do
+    case Integer.parse(max_pages) do
+      {max_pages, ""} when max_pages > 0 ->
+        config :asciinema, guest_pagination_max_pages: max_pages
+
+      _ ->
+        raise "GUEST_PAGINATION_MAX_PAGES must be a positive integer"
+    end
+  end
+
+  if max_pages = env.("AUTHENTICATED_PAGINATION_MAX_PAGES") do
+    case Integer.parse(max_pages) do
+      {max_pages, ""} when max_pages > 0 ->
+        config :asciinema, authenticated_pagination_max_pages: max_pages
+
+      _ ->
+        raise "AUTHENTICATED_PAGINATION_MAX_PAGES must be a positive integer"
+    end
+  end
+
   if tpl = env.("UPLOAD_PATH_TPL") do
     config :asciinema, Asciinema.Recordings.Paths, recording: tpl
   end
 
   if dsn = env.("SENTRY_DSN") do
     config :sentry, dsn: dsn
-  else
-    config :sentry, included_environments: []
   end
 
   if email = env.("CONTACT_EMAIL_ADDRESS") do

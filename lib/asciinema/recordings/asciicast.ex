@@ -17,6 +17,7 @@ defmodule Asciinema.Recordings.Asciicast do
     field :term_theme_bg, :string
     field :term_theme_palette, :string
     field :term_bold_is_bright, :boolean, default: false
+    field :term_adaptive_palette, :boolean, default: false
     field :term_line_height, :float
     field :term_font_family, :string
     field :visibility, Ecto.Enum, values: ~w[private unlisted public]a, default: :unlisted
@@ -39,12 +40,17 @@ defmodule Asciinema.Recordings.Asciicast do
     field :markers, :string
     field :env, :map
     field :audio_url, :string
+    field :compressed, :boolean, default: false
+    field :compressed_size, :integer
+    field :uncompressed_size, :integer
+    field :total_views, :integer, virtual: true
+
+    field :stream_id, :id
 
     timestamps(type: :utc_datetime)
 
     belongs_to :user, Asciinema.Accounts.User
     belongs_to :cli, Asciinema.Accounts.Cli
-    belongs_to :stream, Asciinema.Streaming.Stream
     has_one :stats, Asciinema.Recordings.AsciicastStats, foreign_key: :asciicast_id
   end
 

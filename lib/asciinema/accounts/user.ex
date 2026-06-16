@@ -12,6 +12,7 @@ defmodule Asciinema.Accounts.User do
     field :term_theme_prefer_original, :boolean, default: true
     field :term_font_family, :string
     field :term_bold_is_bright, :boolean, default: false
+    field :term_adaptive_palette, :boolean, default: false
     field :streaming_enabled, :boolean, default: true
     field :stream_recording_enabled, :boolean, default: true
     field :default_recording_visibility, Ecto.Enum, values: ~w[private unlisted public]a
@@ -19,6 +20,8 @@ defmodule Asciinema.Accounts.User do
     field :live_stream_limit, :integer
     field :last_login_at, :utc_datetime
     field :is_admin, :boolean
+    field :recording_count, :integer, virtual: true
+    field :stream_count, :integer, virtual: true
 
     timestamps(type: :utc_datetime)
 

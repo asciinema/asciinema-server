@@ -1,28 +1,24 @@
 defmodule AsciinemaAdmin do
   @moduledoc """
-  The entrypoint for defining your web interface, such
-  as controllers, components, channels, and so on.
+  Entry point for the admin Phoenix application.
 
-  This can be used in your application as:
+  Use as:
 
       use AsciinemaAdmin, :controller
-      use AsciinemaAdmin, :view
+      use AsciinemaAdmin, :router
+      use AsciinemaAdmin, :live_view
+      use AsciinemaAdmin, :html
 
-  The definitions below will be executed for every view,
-  controller, etc, so keep them short and clean, focused
-  on imports, uses and aliases.
-
-  Do NOT define functions inside the quoted expressions
-  below. Instead, define any helper function in modules
-  and import those modules here.
+  Definitions below run for every controller/router/etc; keep them small.
+  Helper functions belong in their own modules.
   """
 
-  def static_paths, do: ~w(css fonts images js favicon.ico robots.txt)
+  def static_paths, do: ~w(assets fonts images favicon.ico robots.txt)
 
   def controller do
     quote do
       use Phoenix.Controller,
-        formats: [:html, :json],
+        formats: [:html],
         layouts: [html: AsciinemaAdmin.Layouts]
 
       import Plug.Conn
@@ -33,8 +29,7 @@ defmodule AsciinemaAdmin do
 
   def live_view do
     quote do
-      use Phoenix.LiveView,
-        layout: {AsciinemaAdmin.Layouts, :app}
+      use Phoenix.LiveView, layout: {AsciinemaAdmin.Layouts, :app}
 
       unquote(html_helpers())
     end
@@ -48,11 +43,11 @@ defmodule AsciinemaAdmin do
     end
   end
 
-  def component do
+  def html do
     quote do
       use Phoenix.Component
 
-      unquote(view_helpers())
+      unquote(html_helpers())
     end
   end
 
@@ -66,56 +61,14 @@ defmodule AsciinemaAdmin do
     end
   end
 
-  def channel do
-    quote do
-      use Phoenix.Channel
-    end
-  end
-
-  defp view_helpers do
-    quote do
-      # Use all HTML functionality (forms, tags, etc)
-      use Phoenix.HTML
-
-      # Import LiveView and .heex helpers (live_render, live_patch, <.form>, etc)
-      import Phoenix.LiveView.Helpers
-
-      # Import basic rendering functionality (render, render_layout, etc)
-      use Phoenix.Component
-      import Phoenix.View
-
-      # Core UI components and translation
-      import AsciinemaAdmin.CoreComponents
-
-      alias AsciinemaAdmin.Router.Helpers, as: Routes
-
-      # Routes generation with the ~p sigil
-      unquote(verified_routes())
-    end
-  end
-
-  def html do
-    quote do
-      use Phoenix.Component
-      import Phoenix.View
-
-      # Include general helpers for rendering HTML
-      unquote(html_helpers())
-    end
-  end
-
   defp html_helpers do
     quote do
-      # HTML escaping functionality
       import Phoenix.HTML
-
-      # Core UI components and translation
       import AsciinemaAdmin.CoreComponents
+      import AsciinemaAdmin.QueryUI
 
-      # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS
 
-      # Routes generation with the ~p sigil
       unquote(verified_routes())
     end
   end
@@ -129,9 +82,6 @@ defmodule AsciinemaAdmin do
     end
   end
 
-  @doc """
-  When used, dispatch to the appropriate controller/view/etc.
-  """
   defmacro __using__(which) when is_atom(which) do
     apply(__MODULE__, which, [])
   end

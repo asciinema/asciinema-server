@@ -37,7 +37,12 @@ config :asciinema, AsciinemaAdmin.Endpoint,
   check_origin: false,
   code_reloader: true,
   debug_errors: true,
-  secret_key_base: secret_key_base
+  secret_key_base: secret_key_base,
+  watchers: [
+    esbuild_admin: {Esbuild, :install_and_run, [:admin, ~w(--sourcemap=inline --watch)]}
+  ]
+
+config :asciinema, AsciinemaWeb.Plug.AdminGate, enabled: true
 
 config :asciinema, Asciinema.Accounts, secret: secret_key_base
 
@@ -50,7 +55,8 @@ config :asciinema, AsciinemaWeb.Endpoint,
       ~r"priv/gettext/.*(po)$",
       ~r"lib/asciinema_web/views/.*(ex)$",
       ~r"lib/asciinema_web/templates/.*(eex|md)$",
-      ~r"lib/asciinema_web/(controllers|live|components)/.*(ex|heex)$"
+      ~r"lib/asciinema_web/(controllers|live|components)/.*(ex|heex)$",
+      ~r"lib/asciinema_admin/(controllers|live|components)/.*(ex|heex)$"
     ]
   ]
 
@@ -75,6 +81,9 @@ config :phoenix, :stacktrace_depth, 20
 
 # Initialize plugs at runtime for faster development compilation
 config :phoenix, :plug_init_mode, :runtime
+
+# Disable memory monitoring - supresses :system_memory_high_watermark noise
+config :os_mon, start_memsup: false
 
 config :asciinema, Asciinema.Telemetry, enabled: false
 

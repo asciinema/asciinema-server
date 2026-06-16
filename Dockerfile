@@ -1,6 +1,6 @@
-ARG ALPINE_VERSION=3.21.2
-ARG ERLANG_OTP_VERSION=26.2.5.7
-ARG ELIXIR_VERSION=1.18.2
+ARG ALPINE_VERSION=3.23.4
+ARG ERLANG_OTP_VERSION=28.5
+ARG ELIXIR_VERSION=1.19.5
 
 ## Release building image
 
@@ -63,6 +63,7 @@ RUN apk add --no-cache \
   tini \
   bash \
   ca-certificates \
+  fd \
   rsvg-convert \
   ttf-dejavu \
   pngquant

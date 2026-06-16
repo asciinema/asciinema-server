@@ -3,13 +3,13 @@ defmodule Asciinema.Workers.GenerateSnapshots do
     unique: [period: :infinity, states: :incomplete]
 
   alias Asciinema.Recordings
+  alias Asciinema.Recordings.Query, as: RecordingQuery
   alias Asciinema.Workers.UpdateSnapshot
 
   @impl Oban.Worker
   def perform(_job) do
     asciicasts =
-      :snapshotless
-      |> Recordings.query()
+      %RecordingQuery{scope: :system, filters: [:snapshotless]}
       |> Recordings.stream()
 
     Enum.each(asciicasts, fn asciicast ->

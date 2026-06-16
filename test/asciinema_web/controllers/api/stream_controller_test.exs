@@ -13,7 +13,19 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
     test "fails", %{conn: conn} do
       conn = get(conn, ~p"/api/v1/user/streams")
 
-      assert %{"type" => "unauthenticated", "message" => "Missing install ID"} =
+      assert %{"type" => "unauthenticated", "message" => "Missing installation ID"} =
+               json_response(conn, 401)
+    end
+  end
+
+  describe "index with malformed install ID" do
+    setup [:authenticate]
+
+    @tag token: "not-a-uuid"
+    test "fails", %{conn: conn} do
+      conn = get(conn, ~p"/api/v1/user/streams")
+
+      assert %{"type" => "unauthenticated", "message" => "Invalid installation ID"} =
                json_response(conn, 401)
     end
   end
@@ -24,7 +36,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
     test "fails", %{conn: conn} do
       conn = get(conn, ~p"/api/v1/user/streams")
 
-      assert %{"type" => "unauthenticated", "message" => "Unregistered CLI"} =
+      assert %{"type" => "account_required", "message" => "This action requires an account"} =
                json_response(conn, 401)
     end
   end
@@ -36,7 +48,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
     test "fails", %{conn: conn} do
       conn = get(conn, ~p"/api/v1/user/streams")
 
-      assert %{"type" => "unauthenticated", "message" => "Unregistered CLI"} =
+      assert %{"type" => "account_required", "message" => "This action requires an account"} =
                json_response(conn, 401)
     end
   end
@@ -47,7 +59,8 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
     test "fails", %{conn: conn} do
       conn = get(conn, ~p"/api/v1/user/streams")
 
-      assert %{"type" => "unauthenticated", "message" => "Revoked CLI"} = json_response(conn, 401)
+      assert %{"type" => "unauthenticated", "message" => "This installation ID has been revoked"} =
+               json_response(conn, 401)
     end
   end
 
@@ -241,7 +254,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
     test "fails", %{conn: conn} do
       conn = post(conn, ~p"/api/v1/streams")
 
-      assert %{"type" => "unauthenticated", "message" => "Missing install ID"} =
+      assert %{"type" => "unauthenticated", "message" => "Missing installation ID"} =
                json_response(conn, 401)
     end
   end
@@ -252,7 +265,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
     test "fails", %{conn: conn} do
       conn = post(conn, ~p"/api/v1/streams")
 
-      assert %{"type" => "unauthenticated", "message" => "Unregistered CLI"} =
+      assert %{"type" => "account_required", "message" => "This action requires an account"} =
                json_response(conn, 401)
     end
   end
@@ -264,7 +277,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
     test "fails", %{conn: conn} do
       conn = post(conn, ~p"/api/v1/streams")
 
-      assert %{"type" => "unauthenticated", "message" => "Unregistered CLI"} =
+      assert %{"type" => "account_required", "message" => "This action requires an account"} =
                json_response(conn, 401)
     end
   end
@@ -275,7 +288,8 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
     test "fails", %{conn: conn} do
       conn = post(conn, ~p"/api/v1/streams")
 
-      assert %{"type" => "unauthenticated", "message" => "Revoked CLI"} = json_response(conn, 401)
+      assert %{"type" => "unauthenticated", "message" => "This installation ID has been revoked"} =
+               json_response(conn, 401)
     end
   end
 
@@ -359,7 +373,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
 
       conn = put(conn, ~p"/api/v1/streams/#{stream.id}", %{"title" => "New title"})
 
-      assert %{"type" => "unauthenticated", "message" => "Missing install ID"} =
+      assert %{"type" => "unauthenticated", "message" => "Missing installation ID"} =
                json_response(conn, 401)
     end
   end
@@ -372,7 +386,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
 
       conn = put(conn, ~p"/api/v1/streams/#{stream.id}", %{"title" => "New title"})
 
-      assert %{"type" => "unauthenticated", "message" => "Unregistered CLI"} =
+      assert %{"type" => "account_required", "message" => "This action requires an account"} =
                json_response(conn, 401)
     end
   end
@@ -386,7 +400,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
 
       conn = put(conn, ~p"/api/v1/streams/#{stream.id}", %{"title" => "New title"})
 
-      assert %{"type" => "unauthenticated", "message" => "Unregistered CLI"} =
+      assert %{"type" => "account_required", "message" => "This action requires an account"} =
                json_response(conn, 401)
     end
   end
@@ -399,7 +413,8 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
 
       conn = put(conn, ~p"/api/v1/streams/#{stream.id}", %{"title" => "New title"})
 
-      assert %{"type" => "unauthenticated", "message" => "Revoked CLI"} = json_response(conn, 401)
+      assert %{"type" => "unauthenticated", "message" => "This installation ID has been revoked"} =
+               json_response(conn, 401)
     end
   end
 
@@ -516,7 +531,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
 
       conn = delete(conn, ~p"/api/v1/streams/#{stream.id}")
 
-      assert %{"type" => "unauthenticated", "message" => "Missing install ID"} =
+      assert %{"type" => "unauthenticated", "message" => "Missing installation ID"} =
                json_response(conn, 401)
     end
   end
@@ -529,7 +544,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
 
       conn = delete(conn, ~p"/api/v1/streams/#{stream.id}")
 
-      assert %{"type" => "unauthenticated", "message" => "Unregistered CLI"} =
+      assert %{"type" => "account_required", "message" => "This action requires an account"} =
                json_response(conn, 401)
     end
   end
@@ -543,7 +558,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
 
       conn = delete(conn, ~p"/api/v1/streams/#{stream.id}")
 
-      assert %{"type" => "unauthenticated", "message" => "Unregistered CLI"} =
+      assert %{"type" => "account_required", "message" => "This action requires an account"} =
                json_response(conn, 401)
     end
   end
@@ -556,7 +571,8 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
 
       conn = delete(conn, ~p"/api/v1/streams/#{stream.id}")
 
-      assert %{"type" => "unauthenticated", "message" => "Revoked CLI"} = json_response(conn, 401)
+      assert %{"type" => "unauthenticated", "message" => "This installation ID has been revoked"} =
+               json_response(conn, 401)
     end
   end
 

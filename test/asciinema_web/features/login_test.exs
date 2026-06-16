@@ -14,8 +14,8 @@ defmodule AsciinemaWeb.Features.LoginTest do
       |> click_button("Log in")
       |> assert_has("h1", text: "Check your inbox")
       |> visit(link_from_email())
-      |> assert_has("h1", text: "Verifying link...")
-      |> verify_magic_link()
+      |> assert_has("h2", text: "Log in")
+      |> click_button("Log in")
       |> assert_path("/~foobar")
       |> assert_has(".flash", text: "Welcome back")
       |> assert_has("h1", text: "foobar")
@@ -31,8 +31,8 @@ defmodule AsciinemaWeb.Features.LoginTest do
       |> click_button("Log in")
       |> assert_has("h1", text: "Check your inbox")
       |> visit(link_from_email())
-      |> assert_has("h1", text: "Verifying link...")
-      |> verify_magic_link()
+      |> assert_has("h2", text: "Log in")
+      |> click_button("Log in")
       |> assert_path("/~foobar")
       |> assert_has(".flash", text: "Welcome back")
       |> assert_has("h1", text: "foobar")
@@ -47,7 +47,7 @@ defmodule AsciinemaWeb.Features.LoginTest do
       |> fill_in("E-mail or username", with: "test@example.com")
       |> click_button("Log in")
       |> visit(link_from_email())
-      |> verify_magic_link()
+      |> click_button("Log in")
       |> assert_has(".flash", text: "Welcome back")
       |> assert_has("h1", text: "Choose your username")
     end
@@ -61,8 +61,8 @@ defmodule AsciinemaWeb.Features.LoginTest do
       |> fill_in("E-mail or username", with: "test@example.com")
       |> click_button("Log in")
       |> visit(String.replace(link_from_email(), ~r{t=.+}, "t=nope"))
-      |> assert_has("h1", text: "Verifying link...")
-      |> verify_magic_link()
+      |> assert_has("h2", text: "Log in")
+      |> click_button("Log in")
       |> refute_has(".flash", text: "Welcome")
       |> assert_has(".flash", text: "Invalid login link")
     end
@@ -92,7 +92,7 @@ defmodule AsciinemaWeb.Features.LoginTest do
 
       session
       |> visit(link_from_email())
-      |> verify_magic_link()
+      |> click_button("Log in")
       |> assert_has(".flash", text: "This account has been removed")
     end
   end

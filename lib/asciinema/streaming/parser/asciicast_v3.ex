@@ -24,6 +24,8 @@ defmodule Asciinema.Streaming.Parser.AsciicastV3 do
     end
   end
 
+  def supported_commands, do: [:init, :output, :input, :resize, :marker, :exit]
+
   def handle_message(%{"term" => %{"cols" => cols, "rows" => rows}} = header, state)
       when is_integer(cols) and is_integer(rows) do
     commands = [

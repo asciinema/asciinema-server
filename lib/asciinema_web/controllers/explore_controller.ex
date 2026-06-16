@@ -1,6 +1,8 @@
 defmodule AsciinemaWeb.ExploreController do
   use AsciinemaWeb, :controller
   alias Asciinema.{Recordings, Streaming}
+  alias Asciinema.Recordings.Query, as: RecordingQuery
+  alias Asciinema.Streaming.Query, as: StreamQuery
 
   def show(conn, _params) do
     live_streams = fetch_live_streams()
@@ -29,20 +31,17 @@ defmodule AsciinemaWeb.ExploreController do
   end
 
   defp fetch_live_streams do
-    [:public, :live]
-    |> Streaming.query(:recently_started)
+    %StreamQuery{scope: :public_listing, filters: [:live], sort: :recently_started}
     |> list_streams(2)
   end
 
   defp fetch_upcoming_streams do
-    [:public, :upcoming]
-    |> Streaming.query(:soonest)
+    %StreamQuery{scope: :public_listing, filters: [:upcoming], sort: :soonest}
     |> list_streams(2)
   end
 
   defp fetch_featured_asciicasts do
-    :featured
-    |> Recordings.query(:random)
+    %RecordingQuery{scope: :public_listing, filters: [:featured], sort: :random}
     |> list_asciicasts(2)
   end
 
@@ -53,8 +52,7 @@ defmodule AsciinemaWeb.ExploreController do
     seed = div(DateTime.to_unix(DateTime.utc_now()), 60)
 
     asciicasts =
-      :popular
-      |> Recordings.query(:popularity)
+      %RecordingQuery{scope: :public_listing, filters: [:popular], sort: {:popularity, :desc}}
       |> Recordings.list(@popular_pool_size)
       |> Enum.sort_by(fn asciicast -> :erlang.phash2({asciicast.id, seed}) end)
 
@@ -75,16 +73,14 @@ defmodule AsciinemaWeb.ExploreController do
 
     limit = (5 - used_rows) * 2
 
-    :public
-    |> Recordings.query(:date)
+    %RecordingQuery{scope: :public_listing, sort: {:created, :desc}}
     |> list_asciicasts(limit)
   end
 
   def featured_recordings(conn, params) do
     asciicasts =
-      :featured
-      |> Recordings.query(:date)
-      |> Recordings.paginate(params["page"], 14)
+      %RecordingQuery{scope: :public_listing, filters: [:featured], sort: {:created, :desc}}
+      |> Recordings.paginate(params["page"], 14, pagination_opts(conn))
 
     assigns = [
       page_title: "Featured recordings",
@@ -96,9 +92,8 @@ defmodule AsciinemaWeb.ExploreController do
 
   def popular_recordings(conn, params) do
     asciicasts =
-      :popular
-      |> Recordings.query(:popularity)
-      |> Recordings.paginate(params["page"], 14)
+      %RecordingQuery{scope: :public_listing, filters: [:popular], sort: {:popularity, :desc}}
+      |> Recordings.paginate(params["page"], 14, pagination_opts(conn))
 
     assigns = [
       page_title: "Popular recordings",
@@ -110,9 +105,8 @@ defmodule AsciinemaWeb.ExploreController do
 
   def recent_recordings(conn, params) do
     asciicasts =
-      :public
-      |> Recordings.query(:date)
-      |> Recordings.paginate(params["page"], 14)
+      %RecordingQuery{scope: :public_listing, sort: {:created, :desc}}
+      |> Recordings.paginate(params["page"], 14, pagination_opts(conn))
 
     assigns = [
       page_title: "Recent recordings",
@@ -124,9 +118,8 @@ defmodule AsciinemaWeb.ExploreController do
 
   def live_streams(conn, params) do
     streams =
-      [:public, :live]
-      |> Streaming.query(:recently_started)
-      |> Streaming.paginate(params["page"], 14)
+      %StreamQuery{scope: :public_listing, filters: [:live], sort: :recently_started}
+      |> Streaming.paginate(params["page"], 14, pagination_opts(conn))
 
     assigns = [
       page_title: "Live streams",
@@ -138,9 +131,8 @@ defmodule AsciinemaWeb.ExploreController do
 
   def upcoming_streams(conn, params) do
     streams =
-      [:public, :upcoming]
-      |> Streaming.query(:soonest)
-      |> Streaming.paginate(params["page"], 14)
+      %StreamQuery{scope: :public_listing, filters: [:upcoming], sort: :soonest}
+      |> Streaming.paginate(params["page"], 14, pagination_opts(conn))
 
     assigns = [
       page_title: "Upcoming streams",

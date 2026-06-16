@@ -3,6 +3,34 @@ defmodule AsciinemaWeb.EmailController do
 
   plug :require_current_user
 
+  def edit(conn, %{"t" => token}) do
+    case Asciinema.verify_email_change(conn.assigns.current_user, token) do
+      {:ok, email} ->
+        render(conn, "edit.html", token: token, email: email)
+
+      {:error, :invalid_token} ->
+        conn
+        |> put_flash(:error, "Invalid or expired link")
+        |> redirect(to: ~p"/user/edit")
+
+      {:error, :user_mismatch} ->
+        conn
+        |> put_flash(:error, "Email not updated - the link was generated for another account")
+        |> redirect(to: ~p"/user/edit")
+
+      {:error, :email_changed} ->
+        conn
+        |> put_flash(:error, "Email not updated - the link is no longer valid")
+        |> redirect(to: ~p"/user/edit")
+    end
+  end
+
+  def edit(conn, _params) do
+    conn
+    |> put_flash(:error, "Invalid or expired link")
+    |> redirect(to: ~p"/user/edit")
+  end
+
   def update(conn, %{"user" => %{"email" => email}}) do
     case Asciinema.initiate_email_change(
            conn.assigns.current_user,
@@ -40,6 +68,11 @@ defmodule AsciinemaWeb.EmailController do
       {:error, :user_mismatch} ->
         conn
         |> put_flash(:error, "Email not updated - the link was generated for another account")
+        |> redirect(to: ~p"/user/edit")
+
+      {:error, :email_changed} ->
+        conn
+        |> put_flash(:error, "Email not updated - the link is no longer valid")
         |> redirect(to: ~p"/user/edit")
     end
   end

@@ -1,6 +1,5 @@
 defmodule AsciinemaWeb.ExploreHTML do
   use AsciinemaWeb, :html
-  import Scrivener.HTML
   alias AsciinemaWeb.RecordingHTML
 
   embed_templates "explore_html/*"

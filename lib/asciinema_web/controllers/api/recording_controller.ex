@@ -2,21 +2,32 @@ defmodule AsciinemaWeb.Api.RecordingController do
   use AsciinemaWeb, :controller
   use Asciinema.Config
   alias Asciinema.{Recordings, Accounts}
+  alias AsciinemaWeb.Api.AuthError
 
   plug :assign_install_id
   plug :assign_cli
+  plug :enforce_upload_limit when action in [:create]
   plug :require_registered_cli when action in [:update, :delete]
   plug :load_asciicast when action in [:update, :delete]
   plug :authorize, :asciicast when action in [:update, :delete]
 
-  def create(conn, %{"asciicast" => %Plug.Upload{} = upload}), do: create(conn, upload)
-  def create(conn, %{"file" => %Plug.Upload{} = upload}), do: create(conn, upload)
+  def create(conn, %{"asciicast" => %Plug.Upload{}} = params),
+    do: create(conn, Map.pop(params, "asciicast"))
 
-  def create(conn, upload) do
+  def create(conn, %{"file" => %Plug.Upload{}} = params),
+    do: create(conn, Map.pop(params, "file"))
+
+  def create(conn, {upload, params}) do
     cli = conn.assigns.cli
     user_agent = get_user_agent(conn)
+    params = Map.put(params, "filename", upload.filename)
 
-    case Recordings.create_asciicast(cli.user, upload, %{cli_id: cli.id, user_agent: user_agent}) do
+    case Recordings.create_asciicast(
+           cli.user,
+           upload.path,
+           %{cli_id: cli.id, user_agent: user_agent},
+           params
+         ) do
       {:ok, asciicast} ->
         conn
         |> put_status(:created)
@@ -67,36 +78,43 @@ defmodule AsciinemaWeb.Api.RecordingController do
         |> assign(:username, username)
 
       _otherwise ->
-        conn
-        |> put_status(:unauthorized)
-        |> render(:error, reason: :unauthenticated, message: "Missing install ID")
-        |> halt()
+        AuthError.render_error(conn, :missing)
     end
   end
 
   defp assign_cli(conn, _opts) do
     %{install_id: install_id, username: username} = conn.assigns
 
-    with {:ok, cli} <- Accounts.register_cli(username, install_id) do
+    with {:ok, cli} <- Accounts.get_or_create_upload_cli(username, install_id) do
       conn
       |> assign(:cli, cli)
       |> assign(:current_user, cli.user)
     else
       {:error, reason} ->
-        message = unauthenticated_message(reason)
-
-        conn
-        |> put_status(:unauthorized)
-        |> render(:error, reason: :unauthenticated, message: message)
-        |> halt()
+        AuthError.render_error(conn, cli_error_kind(reason))
     end
   end
 
-  defp unauthenticated_message(reason) do
-    case reason do
-      :token_invalid -> "Invalid install ID"
-      :token_not_found -> "Unregistered CLI"
-      :cli_revoked -> "Revoked CLI"
+  defp cli_error_kind(:token_invalid), do: :invalid
+  defp cli_error_kind(:token_not_found), do: :no_account
+  defp cli_error_kind(:cli_revoked), do: :revoked
+
+  defp enforce_upload_limit(conn, _opts) do
+    cli = conn.assigns.cli
+    limit = Accounts.unregistered_upload_count_limit()
+
+    if limit && !Accounts.cli_registered?(cli) &&
+         Recordings.count_user_asciicasts(cli.user) >= limit do
+      conn
+      |> put_status(:forbidden)
+      |> render(:error,
+        reason: :upload_limit,
+        message:
+          "Unregistered upload limit reached (#{limit} #{if limit == 1, do: "recording", else: "recordings"})"
+      )
+      |> halt()
+    else
+      conn
     end
   end
 
@@ -104,10 +122,7 @@ defmodule AsciinemaWeb.Api.RecordingController do
     if Accounts.cli_registered?(conn.assigns.cli) do
       conn
     else
-      conn
-      |> put_status(:unauthorized)
-      |> render(:error, reason: :unauthenticated, message: "Unregistered CLI")
-      |> halt()
+      AuthError.render_error(conn, :no_account)
     end
   end
 
