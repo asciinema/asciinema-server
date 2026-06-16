@@ -5,7 +5,7 @@ defmodule AsciinemaAdmin.HomeController do
   alias AsciinemaAdmin.Dashboard
 
   @sparkline_days 30
-  @recent_limit 5
+  @recent_limit 6
 
   def show(conn, _params) do
     render(conn, :show,
