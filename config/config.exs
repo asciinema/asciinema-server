@@ -128,17 +128,24 @@ config :asciinema, Oban,
 
 config :tzdata, :autoupdate, :disabled
 
+librejs_license =
+  "/* @license magnet:?xt=urn:btih:8e4f440f4c65981c5bf93c76d35135ba5064d8b7&dn=apache-2.0.txt Apache-2.0 */"
+
+librejs_license_end = "/* @license-end */"
+
 config :esbuild,
   version: "0.21.5",
   default: [
     args:
-      ~w(js/app.js js/iframe.js --bundle --target=es2022 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
+      ~w(js/app.js js/iframe.js --bundle --target=es2022 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*) ++
+        ["--banner:js=#{librejs_license}", "--footer:js=#{librejs_license_end}"],
     cd: Path.expand("../assets", __DIR__),
     env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
   ],
   admin: [
     args:
-      ~w(js/admin.js css/admin.css --bundle --target=es2022 --outdir=../priv/static/assets --entry-names=[name] --external:/fonts/* --external:/images/*),
+      ~w(js/admin.js css/admin.css --bundle --target=es2022 --outdir=../priv/static/assets --entry-names=[name] --external:/fonts/* --external:/images/*) ++
+        ["--banner:js=#{librejs_license}", "--footer:js=#{librejs_license_end}"],
     cd: Path.expand("../assets", __DIR__),
     env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
   ]
