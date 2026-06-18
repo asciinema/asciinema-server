@@ -373,7 +373,8 @@ defmodule Asciinema.Streaming.StreamServer do
       file_store_path: file_store_path,
       user_agent: state.user_agent,
       term_bold_is_bright: state.stream.term_bold_is_bright,
-      term_adaptive_palette: state.stream.term_adaptive_palette
+      term_adaptive_palette: state.stream.term_adaptive_palette,
+      keystroke_overlay: state.stream.keystroke_overlay
     }
     |> CreateStreamRecording.new()
     |> Oban.insert!()

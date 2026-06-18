@@ -10,7 +10,9 @@
 </div>
 
 <script>
+  // @license magnet:?xt=urn:btih:8e4f440f4c65981c5bf93c76d35135ba5064d8b7&dn=apache-2.0.txt Apache-2.0
   const form = document.forms.namedItem("login");
   const timezoneInput = form.querySelector('input[name="timezone"]');
   timezoneInput.value = Intl?.DateTimeFormat?.()?.resolvedOptions?.()?.timeZone || '';
+  // @license-end
 </script>

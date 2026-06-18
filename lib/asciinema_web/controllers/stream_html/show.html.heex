@@ -159,6 +159,7 @@
 <.share_modal stream={@stream} />
 
 <script>
+  // @license magnet:?xt=urn:btih:8e4f440f4c65981c5bf93c76d35135ba5064d8b7&dn=apache-2.0.txt Apache-2.0
   window.addEventListener('load', async function() {
     const container = document.getElementById('cinema');
     const opts = <%= safe_json(player_opts(@stream, @player_opts)) %>;
@@ -182,4 +183,5 @@
       }
     });
   });
+  // @license-end
 </script>

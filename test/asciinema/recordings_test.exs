@@ -309,6 +309,18 @@ defmodule Asciinema.RecordingsTest do
     end
   end
 
+  describe "update_asciicast/2" do
+    test "updates the keystroke overlay setting" do
+      asciicast = insert(:asciicast, keystroke_overlay: false)
+
+      assert {:ok, %Asciicast{keystroke_overlay: true}} =
+               Recordings.update_asciicast(asciicast, %{"keystroke_overlay" => "true"})
+
+      assert {:ok, %Asciicast{keystroke_overlay: false}} =
+               Recordings.update_asciicast(asciicast, %{"keystroke_overlay" => "false"})
+    end
+  end
+
   describe "lookup_asciicast/1" do
     test "accepts numerical ID for public recordings" do
       asciicast = insert(:asciicast, visibility: :public)

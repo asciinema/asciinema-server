@@ -468,6 +468,7 @@ defmodule Asciinema.Streaming do
       :term_theme_prefer_original,
       :term_bold_is_bright,
       :term_adaptive_palette,
+      :keystroke_overlay,
       :term_type,
       :term_version,
       :title,

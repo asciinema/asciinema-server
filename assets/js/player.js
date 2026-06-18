@@ -8,7 +8,7 @@ export async function createPlayer(src, container, opts) {
       if (await isFamilyLoaded(opts.customTerminalFontFamily)) {
         console.info(`loaded font ${opts.customTerminalFontFamily}`);
 
-        return create(src, container, {
+        return createPlayerWithDefaults(src, container, {
           ...opts,
           terminalFontFamily: `'${opts.customTerminalFontFamily}',${DEFAULT_FONT_FAMILY}`
         });
@@ -22,10 +22,24 @@ export async function createPlayer(src, container, opts) {
     console.info('falling back to default font family');
   }
 
-  return create(src, container, {
+  return createPlayerWithDefaults(src, container, {
     ...opts,
     terminalFontFamily: DEFAULT_FONT_FAMILY
   });
+}
+
+function createPlayerWithDefaults(src, container, opts) {
+  if (opts.markers === null) {
+    delete opts.markers;
+  }
+
+  const player = create(src, container, opts);
+
+  player.addEventListener('error', error => {
+    console.error('failed to load recording:', error);
+  });
+
+  return player;
 }
 
 function normalizedFamily(s) {

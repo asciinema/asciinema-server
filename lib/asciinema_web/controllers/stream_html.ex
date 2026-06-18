@@ -33,6 +33,7 @@ defmodule AsciinemaWeb.StreamHTML do
       adaptivePalette: stream.term_adaptive_palette,
       terminalLineHeight: stream.term_line_height,
       customTerminalFontFamily: Media.font_family(stream),
+      keystrokeOverlay: stream.keystroke_overlay,
       audioUrl: stream.audio_url
     ]
     |> Keyword.merge(opts)

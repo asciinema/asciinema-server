@@ -821,6 +821,7 @@ defmodule Asciinema.Recordings do
       :term_adaptive_palette,
       :term_line_height,
       :term_font_family,
+      :keystroke_overlay,
       :idle_time_limit,
       :speed,
       :snapshot_at,

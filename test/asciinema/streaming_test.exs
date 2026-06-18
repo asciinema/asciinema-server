@@ -167,7 +167,8 @@ defmodule Asciinema.StreamingTest do
           term_type: nil,
           term_version: nil,
           shell: nil,
-          env: nil
+          env: nil,
+          keystroke_overlay: false
         )
 
       assert {:ok, stream} =
@@ -176,7 +177,8 @@ defmodule Asciinema.StreamingTest do
                  term_type: "xterm-256color",
                  term_version: "VTE(123)",
                  shell: "/usr/bin/fish",
-                 env: %{"USER" => "foobar", "HOSTNAME" => "ceres"}
+                 env: %{"USER" => "foobar", "HOSTNAME" => "ceres"},
+                 keystroke_overlay: true
                })
 
       assert %Stream{
@@ -184,7 +186,8 @@ defmodule Asciinema.StreamingTest do
                term_type: "xterm-256color",
                term_version: "VTE(123)",
                shell: "/usr/bin/fish",
-               env: %{"USER" => "foobar", "HOSTNAME" => "ceres"}
+               env: %{"USER" => "foobar", "HOSTNAME" => "ceres"},
+               keystroke_overlay: true
              } = stream
     end
 

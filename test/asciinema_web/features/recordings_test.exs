@@ -15,6 +15,15 @@ defmodule AsciinemaWeb.Features.RecordingsTest do
       |> refute_has(".dropdown-item", text: "Delete")
     end
 
+    test "passes the keystroke overlay option to the player when enabled", %{conn: conn} do
+      owner = insert(:user)
+      asciicast = insert(:asciicast, visibility: :public, user: owner, keystroke_overlay: true)
+
+      session = visit(conn, ~p"/a/#{asciicast.id}")
+
+      assert session.conn.resp_body =~ ~s("keystrokeOverlay":true)
+    end
+
     test "public recording via token as guest", %{conn: conn} do
       owner = insert(:user)
       asciicast = insert(:asciicast, visibility: :public, user: owner, title: "Public Recording")

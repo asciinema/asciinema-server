@@ -218,6 +218,23 @@
         </div>
       </div>
 
+      <div class="form-field form-field-full">
+        <.label for={f[:keystroke_overlay]}>
+          Keystroke overlay
+        </.label>
+        <div class="form-option-offset">
+          <div class="form-option form-option-box">
+            <.input type="checkbox" field={f[:keystroke_overlay]} />
+            <.label for={f[:keystroke_overlay]}>
+              Show pressed keys during playback
+            </.label>
+          </div>
+          <small class="form-hint text-muted">
+            Only visible when the stream includes captured input events.
+          </small>
+        </div>
+      </div>
+
       <div class={["form-field", error_class(f, :audio_url)]}>
         <.label for={f[:audio_url]}>
           Audio URL
