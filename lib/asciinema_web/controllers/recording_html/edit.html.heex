@@ -99,6 +99,23 @@
         </div>
       </div>
 
+      <div class="form-field form-field-full">
+        <.label for={f[:keystroke_overlay]}>
+          Keystroke overlay
+        </.label>
+        <div class="form-option-offset">
+          <div class="form-option form-option-box">
+            <.input type="checkbox" field={f[:keystroke_overlay]} />
+            <.label for={f[:keystroke_overlay]}>
+              Show pressed keys during playback
+            </.label>
+          </div>
+          <small class="form-hint text-muted">
+            Only visible when the recording includes captured input events.
+          </small>
+        </div>
+      </div>
+
       <div class={["form-field", error_class(f, :term_cols_override)]}>
         <.label for={f[:term_cols_override]}>
           Terminal columns

@@ -29,6 +29,7 @@ defmodule AsciinemaWeb.RecordingHTML do
       adaptivePalette: asciicast.term_adaptive_palette,
       terminalLineHeight: asciicast.term_line_height,
       customTerminalFontFamily: Media.font_family(asciicast),
+      keystrokeOverlay: asciicast.keystroke_overlay,
       poster: poster(asciicast.snapshot),
       markers: markers(asciicast.markers),
       idleTimeLimit: asciicast.idle_time_limit,

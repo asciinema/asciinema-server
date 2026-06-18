@@ -18,7 +18,8 @@ defmodule Asciinema.Workers.CreateStreamRecording do
     base_attrs = %{
       user_agent: args["user_agent"],
       term_bold_is_bright: args["term_bold_is_bright"],
-      term_adaptive_palette: args["term_adaptive_palette"]
+      term_adaptive_palette: args["term_adaptive_palette"],
+      keystroke_overlay: args["keystroke_overlay"]
     }
 
     case Accounts.fetch_user(user_id) do

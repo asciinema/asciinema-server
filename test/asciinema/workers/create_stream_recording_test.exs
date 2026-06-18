@@ -23,7 +23,8 @@ defmodule Asciinema.Workers.CreateStreamRecordingTest do
         "file_store_path" => staging_path,
         "user_agent" => "test/agent",
         "term_bold_is_bright" => true,
-        "term_adaptive_palette" => false
+        "term_adaptive_palette" => false,
+        "keystroke_overlay" => true
       }
 
       assert :ok = perform_job(CreateStreamRecording, args)
@@ -34,6 +35,7 @@ defmodule Asciinema.Workers.CreateStreamRecordingTest do
                  user_agent: "test/agent",
                  term_bold_is_bright: true,
                  term_adaptive_palette: false,
+                 keystroke_overlay: true,
                  filename: "stream.cast"
                } = asciicast
              ] = asciicasts_for(user)
@@ -54,7 +56,8 @@ defmodule Asciinema.Workers.CreateStreamRecordingTest do
         "file_store_path" => staging_path,
         "user_agent" => "test/agent",
         "term_bold_is_bright" => false,
-        "term_adaptive_palette" => false
+        "term_adaptive_palette" => false,
+        "keystroke_overlay" => false
       }
 
       assert :ok = perform_job(CreateStreamRecording, args)
