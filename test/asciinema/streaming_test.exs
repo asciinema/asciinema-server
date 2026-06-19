@@ -168,7 +168,8 @@ defmodule Asciinema.StreamingTest do
           term_version: nil,
           shell: nil,
           env: nil,
-          keystroke_overlay: false
+          keystroke_overlay: false,
+          term_cursor_mode: "blinking"
         )
 
       assert {:ok, stream} =
@@ -178,7 +179,8 @@ defmodule Asciinema.StreamingTest do
                  term_version: "VTE(123)",
                  shell: "/usr/bin/fish",
                  env: %{"USER" => "foobar", "HOSTNAME" => "ceres"},
-                 keystroke_overlay: true
+                 keystroke_overlay: true,
+                 term_cursor_mode: "steady"
                })
 
       assert %Stream{
@@ -187,7 +189,8 @@ defmodule Asciinema.StreamingTest do
                term_version: "VTE(123)",
                shell: "/usr/bin/fish",
                env: %{"USER" => "foobar", "HOSTNAME" => "ceres"},
-               keystroke_overlay: true
+               keystroke_overlay: true,
+               term_cursor_mode: "steady"
              } = stream
     end
 

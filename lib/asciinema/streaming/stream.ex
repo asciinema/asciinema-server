@@ -18,6 +18,7 @@ defmodule Asciinema.Streaming.Stream do
     field :term_adaptive_palette, :boolean, default: false
     field :term_line_height, :float
     field :term_font_family, :string
+    field :term_cursor_mode, :string, default: "blinking"
     field :keystroke_overlay, :boolean, default: false
     field :live, :boolean, default: false
     field :last_activity_at, :utc_datetime

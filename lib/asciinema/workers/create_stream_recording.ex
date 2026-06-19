@@ -19,6 +19,7 @@ defmodule Asciinema.Workers.CreateStreamRecording do
       user_agent: args["user_agent"],
       term_bold_is_bright: args["term_bold_is_bright"],
       term_adaptive_palette: args["term_adaptive_palette"],
+      term_cursor_mode: args["term_cursor_mode"],
       keystroke_overlay: args["keystroke_overlay"]
     }
 

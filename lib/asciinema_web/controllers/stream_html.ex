@@ -32,6 +32,7 @@ defmodule AsciinemaWeb.StreamHTML do
       boldIsBright: stream.term_bold_is_bright,
       adaptivePalette: stream.term_adaptive_palette,
       terminalLineHeight: stream.term_line_height,
+      cursorMode: stream.term_cursor_mode,
       customTerminalFontFamily: Media.font_family(stream),
       keystrokeOverlay: stream.keystroke_overlay,
       audioUrl: stream.audio_url

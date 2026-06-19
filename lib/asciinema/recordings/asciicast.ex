@@ -20,6 +20,7 @@ defmodule Asciinema.Recordings.Asciicast do
     field :term_adaptive_palette, :boolean, default: false
     field :term_line_height, :float
     field :term_font_family, :string
+    field :term_cursor_mode, :string, default: "blinking"
     field :keystroke_overlay, :boolean, default: false
     field :visibility, Ecto.Enum, values: ~w[private unlisted public]a, default: :unlisted
     field :featured, :boolean

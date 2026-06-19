@@ -817,6 +817,7 @@ defmodule Asciinema.Recordings do
       :term_adaptive_palette,
       :term_line_height,
       :term_font_family,
+      :term_cursor_mode,
       :keystroke_overlay,
       :idle_time_limit,
       :speed,
@@ -843,6 +844,7 @@ defmodule Asciinema.Recordings do
       less_than_or_equal_to: 2.0
     )
     |> validate_inclusion(:term_font_family, Fonts.terminal_font_families())
+    |> validate_inclusion(:term_cursor_mode, ~w[blinking steady hidden])
     |> validate_number(:snapshot_at, greater_than: 0)
     |> validate_change(:markers, &Markers.validate/2)
   end

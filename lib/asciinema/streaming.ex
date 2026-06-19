@@ -468,6 +468,7 @@ defmodule Asciinema.Streaming do
       :term_theme_prefer_original,
       :term_bold_is_bright,
       :term_adaptive_palette,
+      :term_cursor_mode,
       :keystroke_overlay,
       :term_type,
       :term_version,
@@ -486,6 +487,7 @@ defmodule Asciinema.Streaming do
       less_than_or_equal_to: 2.0
     )
     |> validate_inclusion(:term_font_family, Fonts.terminal_font_families())
+    |> validate_inclusion(:term_cursor_mode, ~w[blinking steady hidden])
     |> validate_length(:title, max: @max_title_len)
     |> validate_length(:description, max: @max_description_len)
     |> validate_length(:audio_url, max: @max_audio_url_len)

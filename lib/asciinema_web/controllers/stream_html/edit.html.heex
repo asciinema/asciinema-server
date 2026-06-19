@@ -194,6 +194,24 @@
         </div>
       </div>
 
+      <div class={["form-field", error_class(f, :term_cursor_mode)]}>
+        <.label for={f[:term_cursor_mode]}>
+          Terminal cursor
+        </.label>
+        <div class="radios-inline">
+          <div :for={mode <- ~w[blinking steady hidden]} class="form-option">
+            <input
+              type="radio"
+              name="stream[term_cursor_mode]"
+              id={"stream_term_cursor_mode_#{mode}"}
+              value={mode}
+              checked={f[:term_cursor_mode].value == mode}
+            />
+            <label for={"stream_term_cursor_mode_#{mode}"}>{String.capitalize(mode)}</label>
+          </div>
+        </div>
+      </div>
+
       <div class={["form-field", error_class(f, :buffer_time)]}>
         <.label for={f[:buffer_time]}>
           Buffer time

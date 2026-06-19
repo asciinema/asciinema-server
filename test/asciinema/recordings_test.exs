@@ -319,6 +319,18 @@ defmodule Asciinema.RecordingsTest do
       assert {:ok, %Asciicast{keystroke_overlay: false}} =
                Recordings.update_asciicast(asciicast, %{"keystroke_overlay" => "false"})
     end
+
+    test "updates the cursor mode setting" do
+      asciicast = insert(:asciicast, term_cursor_mode: "blinking")
+
+      assert {:ok, %Asciicast{term_cursor_mode: "hidden"}} =
+               Recordings.update_asciicast(asciicast, %{"term_cursor_mode" => "hidden"})
+
+      assert {:error, changeset} =
+               Recordings.update_asciicast(asciicast, %{"term_cursor_mode" => "bogus"})
+
+      assert %{term_cursor_mode: _} = errors_on(changeset)
+    end
   end
 
   describe "lookup_asciicast/1" do
