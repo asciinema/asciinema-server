@@ -228,8 +228,26 @@
           />
           <.error field={f[:term_line_height]} />
           <small class="form-hint text-muted">
-            Relative to the font size. Lowering it to ~1.1 helps with vertical alignment of ascii drawing characters such as └ | ┐
+            Relative to the font size.
           </small>
+        </div>
+      </div>
+
+      <div class={["form-field", error_class(f, :term_cursor_mode)]}>
+        <.label for={f[:term_cursor_mode]}>
+          Terminal cursor
+        </.label>
+        <div class="radios-inline">
+          <div :for={mode <- ~w[blinking steady hidden]} class="form-option">
+            <input
+              type="radio"
+              name="asciicast[term_cursor_mode]"
+              id={"asciicast_term_cursor_mode_#{mode}"}
+              value={mode}
+              checked={f[:term_cursor_mode].value == mode}
+            />
+            <label for={"asciicast_term_cursor_mode_#{mode}"}>{String.capitalize(mode)}</label>
+          </div>
         </div>
       </div>
 

@@ -24,6 +24,15 @@ defmodule AsciinemaWeb.Features.RecordingsTest do
       assert session.conn.resp_body =~ ~s("keystrokeOverlay":true)
     end
 
+    test "passes the cursor mode option to the player", %{conn: conn} do
+      owner = insert(:user)
+      asciicast = insert(:asciicast, visibility: :public, user: owner, term_cursor_mode: "hidden")
+
+      session = visit(conn, ~p"/a/#{asciicast.id}")
+
+      assert session.conn.resp_body =~ ~s("cursorMode":"hidden")
+    end
+
     test "public recording via token as guest", %{conn: conn} do
       owner = insert(:user)
       asciicast = insert(:asciicast, visibility: :public, user: owner, title: "Public Recording")
