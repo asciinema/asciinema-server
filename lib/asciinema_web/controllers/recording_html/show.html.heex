@@ -167,13 +167,7 @@
         if (counted) return;
 
         counted = true;
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-        fetch(viewCountUrl, {
-          method: 'POST',
-          credentials: 'same-origin',
-          headers: { 'x-csrf-token': csrfToken }
-        });
+        navigator.sendBeacon(viewCountUrl);
       });
     }
   });

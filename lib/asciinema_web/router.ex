@@ -16,6 +16,10 @@ defmodule AsciinemaWeb.Router do
     plug :accepts, ~w(json)
   end
 
+  pipeline :beacon do
+    plug :fetch_cookies
+  end
+
   pipeline :asciicast do
     plug TrailingFormat
     plug :accepts, ~w(html js json cast txt svg png gif)
@@ -36,6 +40,12 @@ defmodule AsciinemaWeb.Router do
     pipe_through :asciicast
 
     resources "/a", RecordingController, only: [:show, :edit, :update, :delete]
+  end
+
+  scope "/", AsciinemaWeb do
+    pipe_through :beacon
+
+    post "/a/:recording_id/views", RecordingViewController, :create
   end
 
   scope "/", AsciinemaWeb do
@@ -70,7 +80,6 @@ defmodule AsciinemaWeb.Router do
 
     get "/a/:id/iframe", RecordingController, :iframe
     get "/a/:id/example", RecordingController, :example
-    post "/a/:recording_id/views", RecordingViewController, :create
 
     resources "/s", StreamController, only: [:show, :edit, :update, :delete]
 
