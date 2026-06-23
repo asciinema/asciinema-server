@@ -1,6 +1,6 @@
 defmodule AsciinemaWeb.Authentication do
   import Plug.Conn
-  import Phoenix.Controller, only: [put_flash: 3, redirect: 2]
+  import Phoenix.Controller, only: [get_format: 1, put_flash: 3, redirect: 2]
   import AsciinemaWeb.Plug.ReturnTo
   alias Plug.Conn
   alias Asciinema.Accounts
@@ -43,13 +43,19 @@ defmodule AsciinemaWeb.Authentication do
   end
 
   def require_current_user(conn, opts) do
-    msg = Keyword.get(opts, :flash, "Please log in first.")
+    if get_format(conn) == "html" do
+      msg = Keyword.get(opts, :flash, "Please log in first.")
 
-    conn
-    |> save_return_path()
-    |> put_flash(:info, msg)
-    |> redirect(to: Routes.login_path(conn, :new))
-    |> halt()
+      conn
+      |> save_return_path()
+      |> put_flash(:info, msg)
+      |> redirect(to: Routes.login_path(conn, :new))
+      |> halt()
+    else
+      conn
+      |> send_resp(401, "")
+      |> halt()
+    end
   end
 
   def require_admin(%Conn{assigns: %{current_user: %User{is_admin: true}}} = conn, _) do
