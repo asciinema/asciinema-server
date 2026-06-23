@@ -14,6 +14,7 @@ defmodule Asciinema.Asciicast.V1Test do
                term_type: nil,
                command: nil,
                duration: 8.456789,
+               event_count: 3,
                title: nil,
                env: %{},
                shell: nil
@@ -30,6 +31,7 @@ defmodule Asciinema.Asciicast.V1Test do
                term_type: "screen-256color",
                command: "/bin/bash",
                duration: 10.370343,
+               event_count: 3,
                title: "bashing :)",
                env: %{
                  "TERM" => "screen-256color",
@@ -49,6 +51,7 @@ defmodule Asciinema.Asciicast.V1Test do
                term_type: "screen-256color",
                command: "/bin/bash",
                duration: 10.370343,
+               event_count: 3,
                title: "bashing :)",
                env: %{
                  "TERM" => "screen-256color",
@@ -68,6 +71,7 @@ defmodule Asciinema.Asciicast.V1Test do
                term_type: nil,
                command: nil,
                duration: 1.234567,
+               event_count: 1,
                title: nil,
                env: %{},
                shell: nil

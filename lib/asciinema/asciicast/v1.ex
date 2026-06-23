@@ -21,14 +21,15 @@ defmodule Asciinema.Asciicast.V1 do
 
   def fetch_metadata(path, opts \\ []) when is_binary(path) and is_list(opts) do
     with {:ok, attrs} <- parse_file(path, opts),
-         {:ok, duration} <- get_duration(path, opts) do
+         {:ok, stats} <- get_event_stats(path, opts) do
       metadata = %{
         version: 1,
         term_cols: attrs["width"],
         term_rows: attrs["height"],
         term_type: get_in(attrs, ["env", "TERM"]),
         command: attrs["command"],
-        duration: duration,
+        duration: stats.duration,
+        event_count: stats.event_count,
         title: attrs["title"],
         shell: get_in(attrs, ["env", "SHELL"]),
         env: attrs["env"] || %{}
@@ -52,15 +53,8 @@ defmodule Asciinema.Asciicast.V1 do
     end
   end
 
-  defp get_duration(path, opts) do
-    duration =
-      path
-      |> event_stream(opts)
-      |> Enum.reduce(0, fn {t, _, _}, _prev_t -> t end)
-
-    # ensure a float: event times may be integers, and a recording with no
-    # events reduces to the integer accumulator
-    {:ok, duration / 1}
+  defp get_event_stats(path, opts) do
+    {:ok, path |> event_stream(opts) |> EventStream.stats()}
   rescue
     FunctionClauseError ->
       {:error, :invalid_format}

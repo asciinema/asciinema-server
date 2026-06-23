@@ -45,7 +45,7 @@ defmodule Asciinema.Asciicast.V2 do
 
   def fetch_metadata(path, opts \\ []) when is_binary(path) and is_list(opts) do
     with {:ok, header} <- parse_header(path, opts),
-         {:ok, duration} <- get_duration(path, opts) do
+         {:ok, stats} <- get_event_stats(path, opts) do
       metadata = %{
         version: 2,
         term_cols: header["width"],
@@ -55,7 +55,8 @@ defmodule Asciinema.Asciicast.V2 do
         term_theme_bg: get_in(header, ["theme", "bg"]),
         term_theme_palette: get_in(header, ["theme", "palette"]),
         command: header["command"],
-        duration: duration,
+        duration: stats.duration,
+        event_count: stats.event_count,
         recorded_at: header["timestamp"] && Timex.from_unix(header["timestamp"]),
         title: header["title"],
         env: header["env"] || %{},
@@ -97,15 +98,8 @@ defmodule Asciinema.Asciicast.V2 do
 
   defp validate_theme(_theme), do: {:error, :invalid_theme}
 
-  defp get_duration(path, opts) do
-    duration =
-      path
-      |> event_stream(opts)
-      |> Enum.reduce(0, fn {t, _, _}, _prev_t -> t end)
-
-    # ensure a float: event times may be integers, and a recording with no
-    # events reduces to the integer accumulator
-    {:ok, duration / 1}
+  defp get_event_stats(path, opts) do
+    {:ok, path |> event_stream(opts) |> EventStream.stats()}
   rescue
     Jason.DecodeError ->
       {:error, :invalid_format}

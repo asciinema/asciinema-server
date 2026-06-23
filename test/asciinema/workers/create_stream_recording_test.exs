@@ -10,6 +10,7 @@ defmodule Asciinema.Workers.CreateStreamRecordingTest do
   alias Asciinema.Workers.CreateStreamRecording
 
   @cast_fixture "test/fixtures/3/full.cast"
+  @empty_cast_fixture "test/fixtures/3/no-events.cast"
 
   describe "perform/1" do
     test "creates a recording from a staged capture and deletes the staged file" do
@@ -85,15 +86,36 @@ defmodule Asciinema.Workers.CreateStreamRecordingTest do
       assert :discard = perform_job(CreateStreamRecording, args)
       assert file_in_store?(staging_path)
     end
+
+    test "discards an empty staged capture and deletes the staged file" do
+      user = insert(:user)
+      stream = insert(:stream, user: user)
+      staging_path = stage_cast(stream.id, @empty_cast_fixture)
+
+      args = %{
+        "user_id" => user.id,
+        "stream_id" => stream.id,
+        "file_store_path" => staging_path,
+        "user_agent" => "test/agent",
+        "term_bold_is_bright" => false,
+        "term_adaptive_palette" => false,
+        "keystroke_overlay" => false,
+        "term_cursor_mode" => "blinking"
+      }
+
+      assert :discard = perform_job(CreateStreamRecording, args)
+      assert [] = asciicasts_for(user)
+      refute file_in_store?(staging_path)
+    end
   end
 
   defp asciicasts_for(user) do
     Repo.all(from a in Asciicast, where: a.user_id == ^user.id)
   end
 
-  defp stage_cast(stream_id) do
+  defp stage_cast(stream_id, fixture \\ @cast_fixture) do
     path = "tmp/stream-recordings/test/#{stream_id}-#{System.unique_integer([:positive])}.cast"
-    :ok = FileStore.put_file(path, @cast_fixture, "application/x-asciicast")
+    :ok = FileStore.put_file(path, fixture, "application/x-asciicast")
     path
   end
 

@@ -17,6 +17,7 @@ defmodule Asciinema.Asciicast.V2Test do
                term_theme_palette: nil,
                command: nil,
                duration: 8.456789,
+               event_count: 3,
                recorded_at: nil,
                title: nil,
                env: %{},
@@ -39,6 +40,7 @@ defmodule Asciinema.Asciicast.V2Test do
                  "#151515:#ac4142:#7e8e50:#e5b567:#6c99bb:#9f4e85:#7dd6cf:#d0d0d0:#505050:#ac4142:#7e8e50:#e5b567:#6c99bb:#9f4e85:#7dd6cf:#f5f5f5",
                command: "/bin/bash -l",
                duration: 7.34567,
+               event_count: 5,
                recorded_at: ~U[2017-09-26 07:20:22Z],
                title: "bashing :)",
                env: %{
@@ -64,6 +66,7 @@ defmodule Asciinema.Asciicast.V2Test do
                  "#151515:#ac4142:#7e8e50:#e5b567:#6c99bb:#9f4e85:#7dd6cf:#d0d0d0:#505050:#ac4142:#7e8e50:#e5b567:#6c99bb:#9f4e85:#7dd6cf:#f5f5f5",
                command: "/bin/bash -l",
                duration: 7.34567,
+               event_count: 5,
                recorded_at: ~U[2017-09-26 07:20:22Z],
                title: "bashing :)",
                env: %{
@@ -88,6 +91,7 @@ defmodule Asciinema.Asciicast.V2Test do
                term_theme_palette: nil,
                command: nil,
                duration: 1.234567,
+               event_count: 1,
                recorded_at: nil,
                title: nil,
                env: %{},
@@ -100,12 +104,14 @@ defmodule Asciinema.Asciicast.V2Test do
       {:ok, metadata} = V2.fetch_metadata("test/fixtures/2/no-events.cast")
 
       assert metadata.duration === 0.0
+      assert metadata.event_count == 0
     end
 
     test "recording with integer event times has a float duration" do
       {:ok, metadata} = V2.fetch_metadata("test/fixtures/2/int-time.cast")
 
       assert metadata.duration === 2.0
+      assert metadata.event_count == 2
     end
 
     test "invalid file" do

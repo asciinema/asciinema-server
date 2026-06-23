@@ -37,6 +37,9 @@ defmodule AsciinemaWeb.Api.RecordingJSON do
       :invalid_format ->
         %{type: "validation_failed", message: "This doesn't look like a valid asciicast file"}
 
+      :empty_recording ->
+        %{type: "validation_failed", message: "This recording has no events"}
+
       {:invalid_version, version} ->
         %{type: "validation_failed", message: "asciicast v#{version} is not supported"}
 
