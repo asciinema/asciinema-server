@@ -1,0 +1,3 @@
+{"version": 3, "term": {"cols": 96, "rows": 26}}
+[1, "o", "foo bar"]
+[1, "o", "baz qux"]

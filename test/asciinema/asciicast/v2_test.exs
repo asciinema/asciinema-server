@@ -96,6 +96,18 @@ defmodule Asciinema.Asciicast.V2Test do
              }
     end
 
+    test "recording with no events has a float duration" do
+      {:ok, metadata} = V2.fetch_metadata("test/fixtures/2/no-events.cast")
+
+      assert metadata.duration === 0.0
+    end
+
+    test "recording with integer event times has a float duration" do
+      {:ok, metadata} = V2.fetch_metadata("test/fixtures/2/int-time.cast")
+
+      assert metadata.duration === 2.0
+    end
+
     test "invalid file" do
       filenames = ~w[
         empty-theme.cast

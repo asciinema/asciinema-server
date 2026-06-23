@@ -104,7 +104,9 @@ defmodule Asciinema.Asciicast.V3 do
       |> event_stream(opts)
       |> Enum.reduce(0, fn {t, _, _}, _prev_t -> t end)
 
-    {:ok, duration}
+    # ensure a float: event times may be integers, and a recording with no
+    # events reduces to the integer accumulator
+    {:ok, duration / 1}
   rescue
     Jason.DecodeError ->
       {:error, :invalid_format}
