@@ -838,6 +838,31 @@ defmodule AsciinemaWeb.RecordingControllerTest do
     end
   end
 
+  describe "unauthenticated write" do
+    test "HTML request redirects to login", %{conn: conn} do
+      asciicast = insert(:asciicast)
+
+      conn = delete(conn, ~p"/a/#{asciicast}")
+
+      assert redirected_to(conn, 302) == "/login/new"
+    end
+
+    # Non-HTML formats can't fetch flash in the asciicast pipeline, and a login
+    # redirect makes no sense for them; require_current_user responds with 401
+    # rather than crashing.
+    test "PUT with non-HTML format responds with 401", %{conn: conn} do
+      conn = put(conn, "/a/testing-put.txt")
+
+      assert response(conn, 401)
+    end
+
+    test "DELETE with non-HTML format responds with 401", %{conn: conn} do
+      conn = delete(conn, "/a/testing-delete.json")
+
+      assert response(conn, 401)
+    end
+  end
+
   describe "SVG cache-control" do
     setup [:insert_public_recording]
 

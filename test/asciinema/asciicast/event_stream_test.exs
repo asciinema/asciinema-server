@@ -40,4 +40,16 @@ defmodule Asciinema.Asciicast.EventStreamTest do
       assert stream == [{0.0, "o", "a"}, {1.0, "o", "b"}, {2.0, "o", "c"}, {0.5, "o", "d"}]
     end
   end
+
+  describe "stats/1" do
+    test "returns the last event time as float duration and counts events" do
+      stream = [{0, "o", "a"}, {1, "o", "b"}, {2, "o", "c"}]
+
+      assert EventStream.stats(stream) == %{duration: 2.0, event_count: 3}
+    end
+
+    test "returns zero duration and count for an empty stream" do
+      assert EventStream.stats([]) == %{duration: 0.0, event_count: 0}
+    end
+  end
 end

@@ -46,7 +46,11 @@ defmodule AsciinemaWeb.Plug.AdminGate do
         raise Phoenix.Router.NoRouteError, conn: conn, router: AsciinemaWeb.Router
 
       nil ->
+        # Anonymous admin-panel access is a browser flow: reconstruct the
+        # browser context this endpoint plug bypasses (HTML format + flash) so
+        # require_current_user redirects to the login page (rather than 401).
         conn
+        |> Phoenix.Controller.put_format("html")
         |> Phoenix.Controller.fetch_flash()
         |> Authentication.require_current_user([])
     end

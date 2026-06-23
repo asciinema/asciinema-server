@@ -18,6 +18,7 @@ defmodule Asciinema.Asciicast.V3Test do
                term_theme_palette: nil,
                command: nil,
                duration: 8.456789,
+               event_count: 3,
                recorded_at: nil,
                title: nil,
                env: %{},
@@ -41,6 +42,7 @@ defmodule Asciinema.Asciicast.V3Test do
                  "#151515:#ac4142:#7e8e50:#e5b567:#6c99bb:#9f4e85:#7dd6cf:#d0d0d0:#505050:#ac4142:#7e8e50:#e5b567:#6c99bb:#9f4e85:#7dd6cf:#f5f5f5",
                command: "/bin/bash -l",
                duration: 8.191356,
+               event_count: 5,
                recorded_at: ~U[2025-04-10 16:20:22Z],
                title: "bashing :)",
                env: %{
@@ -67,6 +69,7 @@ defmodule Asciinema.Asciicast.V3Test do
                  "#151515:#ac4142:#7e8e50:#e5b567:#6c99bb:#9f4e85:#7dd6cf:#d0d0d0:#505050:#ac4142:#7e8e50:#e5b567:#6c99bb:#9f4e85:#7dd6cf:#f5f5f5",
                command: "/bin/bash -l",
                duration: 8.191356,
+               event_count: 5,
                recorded_at: ~U[2025-04-10 16:20:22Z],
                title: "bashing :)",
                env: %{
@@ -92,12 +95,27 @@ defmodule Asciinema.Asciicast.V3Test do
                term_theme_palette: nil,
                command: nil,
                duration: 1.234567,
+               event_count: 1,
                recorded_at: nil,
                title: nil,
                env: %{},
                idle_time_limit: nil,
                shell: nil
              }
+    end
+
+    test "recording with no events has a float duration" do
+      {:ok, metadata} = V3.fetch_metadata("test/fixtures/3/no-events.cast")
+
+      assert metadata.duration === 0.0
+      assert metadata.event_count == 0
+    end
+
+    test "recording with integer event times has a float duration" do
+      {:ok, metadata} = V3.fetch_metadata("test/fixtures/3/int-time.cast")
+
+      assert metadata.duration === 2.0
+      assert metadata.event_count == 2
     end
 
     test "invalid file" do

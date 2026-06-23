@@ -43,6 +43,14 @@ defmodule Asciinema.Workers.CreateStreamRecording do
           _ = FileStore.delete_file(file_store_path)
           :ok
 
+        {:error, :empty_recording} ->
+          Logger.info(
+            "CreateStreamRecording: stream #{inspect(stream_id)} produced an empty recording, discarding staged capture #{file_store_path}"
+          )
+
+          _ = FileStore.delete_file(file_store_path)
+          :discard
+
         {:error, reason} = err ->
           Logger.error(
             "CreateStreamRecording failed for stream #{inspect(stream_id)}: #{inspect(reason)}"

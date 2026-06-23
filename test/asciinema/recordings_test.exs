@@ -50,6 +50,21 @@ defmodule Asciinema.RecordingsTest do
       assert {:error, {:invalid_version, 5}} = Recordings.create_asciicast(user, upload.path)
     end
 
+    test "rejects a recording with no events" do
+      user = insert(:user)
+      upload = fixture(:upload, %{path: "2/no-events.cast"})
+
+      assert {:error, :empty_recording} = Recordings.create_asciicast(user, upload.path)
+    end
+
+    test "accepts a recording whose only event is at time zero" do
+      user = insert(:user)
+      upload = fixture(:upload, %{path: "2/zero-time.cast"})
+
+      assert {:ok, asciicast} = Recordings.create_asciicast(user, upload.path)
+      assert asciicast.duration === 0.0
+    end
+
     test "cast file, v2 format, minimal" do
       user = insert(:user)
       cli = insert(:cli, user: user)

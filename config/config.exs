@@ -85,7 +85,8 @@ config :sentry,
   enable_source_code_context: true,
   root_source_code_paths: [File.cwd!()],
   tags: %{env: config_env()},
-  in_app_module_allow_list: [Asciinema]
+  in_app_module_allow_list: [Asciinema],
+  before_send: {Asciinema.SentryFilter, :before_send}
 
 config :asciinema, Asciinema.FileStore, adapter: Asciinema.FileStore.Local
 config :asciinema, Asciinema.FileStore.Local, path: "uploads/"

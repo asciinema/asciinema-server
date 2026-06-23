@@ -571,6 +571,7 @@ defmodule Asciinema.Recordings do
   def create_asciicast(user, local_path, attrs \\ %{}, params \\ %{})
       when is_binary(local_path) do
     with {:ok, metadata} <- extract_metadata(local_path),
+         :ok <- validate_not_empty(metadata),
          metadata = Map.put(metadata, :filename, normalize_filename(params)),
          changeset = build_asciicast(user, attrs, metadata, params),
          :ok <- validate_asciicast(changeset),
@@ -595,6 +596,7 @@ defmodule Asciinema.Recordings do
     {version, metadata} = Map.pop!(metadata, :version)
     {filename, metadata} = Map.pop!(metadata, :filename)
     {duration, metadata} = Map.pop!(metadata, :duration)
+    metadata = Map.delete(metadata, :event_count)
 
     attrs =
       Map.merge(attrs, %{
@@ -710,6 +712,9 @@ defmodule Asciinema.Recordings do
       end
     end
   end
+
+  defp validate_not_empty(%{event_count: count}) when count > 0, do: :ok
+  defp validate_not_empty(%{event_count: 0}), do: {:error, :empty_recording}
 
   @max_filename_len 255
 
