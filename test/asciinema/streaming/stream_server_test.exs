@@ -5,6 +5,7 @@ defmodule Asciinema.Streaming.StreamServerTest do
   import Asciinema.Factory
 
   alias Asciinema.FileStore
+  alias Asciinema.Streaming
   alias Asciinema.Streaming.{StreamServer, StreamSupervisor}
   alias Asciinema.Workers.CreateStreamRecording
 
@@ -46,6 +47,20 @@ defmodule Asciinema.Streaming.StreamServerTest do
                ~r"^tmp/stream-recordings/\d{4}/\d{2}/\d{2}/#{stream_id}-.+\.cast$"
 
       assert file_in_store?(file_store_path)
+    end
+  end
+
+  describe "terminate/2" do
+    test "terminates cleanly when the stream row was deleted while running" do
+      stream = insert(:stream)
+
+      {:ok, pid} = StreamSupervisor.start_child(stream.id)
+      ref = Process.monitor(pid)
+
+      Streaming.delete_stream(stream)
+
+      assert :ok = StreamServer.stop(stream.id, :normal)
+      assert_receive {:DOWN, ^ref, :process, ^pid, :normal}, 2_000
     end
   end
 

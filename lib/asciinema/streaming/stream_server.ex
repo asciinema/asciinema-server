@@ -287,6 +287,9 @@ defmodule Asciinema.Streaming.StreamServer do
     stream = Streaming.update_stream(state.stream, fields)
 
     %{state | stream: stream}
+  rescue
+    # The stream row have been deleted
+    Ecto.StaleEntryError -> state
   end
 
   defp publish(stream_id, event, data) do
