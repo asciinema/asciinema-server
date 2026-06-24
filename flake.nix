@@ -168,6 +168,29 @@
               type = lib.types.path;
               default = "/var/lib/asciinema";
             };
+
+            extraEnvironment = lib.mkOption {
+              type = lib.types.attrsOf lib.types.str;
+              default = { };
+
+              example = {
+                URL_HOST = "asciinema.example.com";
+                URL_SCHEME = "https";
+                PORT = "4000";
+                BIND_ALL = "1";
+              };
+
+              description = ''
+                Extra non-secret environment variables for the service, merged
+                into the unit environment. Use this to set any of the runtime
+                configuration the release reads (URL_HOST, URL_SCHEME, PORT,
+                BIND_ALL, S3_*, SMTP_*, RSVG_FONT_FAMILY, ...). The canonical
+                URL in particular defaults to localhost, so a public deployment
+                should set at least URL_HOST/URL_SCHEME. Keep secrets in
+                `environmentFile` instead. The module-managed HOME, DATA_DIR and
+                CACHE_PATH take precedence over keys set here.
+              '';
+            };
           };
 
           config = lib.mkIf cfg.enable {
@@ -203,7 +226,7 @@
                 ${pkg}/bin/server
               '';
 
-              environment = {
+              environment = cfg.extraEnvironment // {
                 HOME = cfg.dataDir;
                 DATA_DIR = cfg.dataDir;
                 CACHE_PATH = "/var/cache/asciinema";
