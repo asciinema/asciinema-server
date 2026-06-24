@@ -189,6 +189,7 @@
 
               environment = {
                 HOME = cfg.dataDir;
+                DATA_DIR = cfg.dataDir;
               };
 
               serviceConfig = {
