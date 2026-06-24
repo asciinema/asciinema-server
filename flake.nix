@@ -210,6 +210,23 @@
                 HOME, DATA_DIR, CACHE_PATH and RELEASE_TMP take precedence.
               '';
             };
+
+            database.createLocally = lib.mkOption {
+              type = lib.types.bool;
+              default = true;
+
+              description = ''
+                Whether to provision a local PostgreSQL server for
+                asciinema-server. Enabled by default: the module turns on
+                services.postgresql, creates the ${user} role and database,
+                and points the app at them over the /run/postgresql socket with
+                peer authentication, managing DATABASE_URL for you. If
+                PostgreSQL is already enabled on the host, asciinema-server's
+                role and database are simply added to it. Set to false to bring
+                your own database instead and provide DATABASE_URL yourself (via
+                environmentFile).
+              '';
+            };
           };
 
           config = lib.mkIf cfg.enable {
@@ -224,6 +241,7 @@
             systemd.services.asciinema-server = {
               wantedBy = [ "multi-user.target" ];
               wants = [ "network-online.target" ];
+              requires = lib.optional cfg.database.createLocally "postgresql.service";
               after = [
                 "network-online.target"
                 "postgresql.service"
@@ -252,6 +270,11 @@
                 ERL_EPMD_ADDRESS = "127.0.0.1";
               }
               // renderedEnvironment
+              // lib.optionalAttrs cfg.database.createLocally {
+                # Local PostgreSQL over its unix socket with peer auth;
+                # socket_dir makes Postgrex use the socket and ignore the host.
+                DATABASE_URL = "ecto://${user}@localhost/${user}?socket_dir=/run/postgresql";
+              }
               // {
                 HOME = cfg.dataDir;
                 DATA_DIR = cfg.dataDir;
@@ -298,6 +321,18 @@
             systemd.tmpfiles.rules = [
               "d ${cfg.dataDir} 0750 ${user} ${user} - -"
             ];
+
+            services.postgresql = lib.mkIf cfg.database.createLocally {
+              enable = true;
+              ensureDatabases = [ user ];
+
+              ensureUsers = [
+                {
+                  name = user;
+                  ensureDBOwnership = true;
+                }
+              ];
+            };
           };
         };
     };
