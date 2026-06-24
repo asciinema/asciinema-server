@@ -206,6 +206,7 @@
               environment = {
                 HOME = cfg.dataDir;
                 DATA_DIR = cfg.dataDir;
+                CACHE_PATH = "/var/cache/asciinema";
               };
 
               serviceConfig = {
@@ -213,6 +214,7 @@
                 Group = user;
                 Restart = "on-failure";
                 RestartSec = 5;
+                CacheDirectory = "asciinema";
                 EnvironmentFile = lib.mkIf (cfg.environmentFile != null) cfg.environmentFile;
 
                 # Persist a SECRET_KEY_BASE across restarts (so sessions and tokens
