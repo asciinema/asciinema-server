@@ -84,8 +84,6 @@
             pngquant
             fd
           ];
-
-          removeCookie = false;
         };
 
         devShells.default = pkgs.mkShell {
@@ -243,10 +241,18 @@
 
               script = ''
                 [ -n "$SECRET_KEY_BASE" ] || export SECRET_KEY_BASE="$(cat "$HOME/secret_key_base")"
+                [ -n "$RELEASE_COOKIE" ] || export RELEASE_COOKIE="$(cat "$HOME/release_cookie")"
                 ${pkg}/bin/server
               '';
 
-              environment = renderedEnvironment // {
+              environment = {
+                # Bind epmd to loopback so distributed Erlang isn't exposed on
+                # the network; override via `environment` for multi-host
+                # clustering.
+                ERL_EPMD_ADDRESS = "127.0.0.1";
+              }
+              // renderedEnvironment
+              // {
                 HOME = cfg.dataDir;
                 DATA_DIR = cfg.dataDir;
                 CACHE_PATH = "/var/cache/asciinema";
@@ -275,13 +281,16 @@
                 PrivateTmp = true;
                 NoNewPrivileges = true;
 
-                # Persist a SECRET_KEY_BASE across restarts (so sessions and tokens
-                # survive), unless one is already provided via environmentFile.
-                ExecStartPre = pkgs.writeShellScript "asciinema-server-secret-key-base" ''
-                  test -n "$SECRET_KEY_BASE" || test -s "$HOME/secret_key_base" || {
-                    umask 077
+                # Generate and persist SECRET_KEY_BASE and the Erlang
+                # distribution cookie in the data dir (unless given via
+                # environmentFile) so they survive restarts and stay out of
+                # the store.
+                ExecStartPre = pkgs.writeShellScript "asciinema-server-secrets" ''
+                  umask 077
+                  test -n "$SECRET_KEY_BASE" || test -s "$HOME/secret_key_base" ||
                     tr -dc A-Za-z0-9 </dev/urandom | head -c 64 >"$HOME/secret_key_base"
-                  }
+                  test -n "$RELEASE_COOKIE" || test -s "$HOME/release_cookie" ||
+                    tr -dc A-Za-z0-9 </dev/urandom | head -c 32 >"$HOME/release_cookie"
                 '';
               };
             };
