@@ -143,6 +143,11 @@
           cfg = config.services.asciinema-server;
           user = "asciinema-server";
           pkg = self.packages.${pkgs.stdenv.hostPlatform.system}.default;
+          # Render the env-var bag: bools -> "true"/"false", ints -> decimal;
+          # a null value drops the variable.
+          renderedEnvironment = lib.mapAttrs (_: v: if lib.isBool v then lib.boolToString v else toString v) (
+            lib.filterAttrs (_: v: v != null) cfg.environment
+          );
         in
         {
           options.services.asciinema-server = {
@@ -154,8 +159,8 @@
               example = "/run/secrets/asciinema-server.env";
 
               description = ''
-                Path to an environment file, kept outside the Nix store, holding
-                secrets and runtime configuration as `KEY=value` lines, e.g.
+                Path to an environment file, kept outside the Nix store,
+                holding secrets as `KEY=value` lines, e.g.
                 `DATABASE_URL=ecto://user:pass@host/db`. Passed to the unit as
                 systemd `EnvironmentFile=`. Use it for anything sensitive
                 (DATABASE_URL, SECRET_KEY_BASE, SMTP_PASSWORD, S3 keys) so it is
@@ -175,26 +180,36 @@
               '';
             };
 
-            extraEnvironment = lib.mkOption {
-              type = lib.types.attrsOf lib.types.str;
+            environment = lib.mkOption {
+              type =
+                with lib.types;
+                attrsOf (
+                  nullOr (oneOf [
+                    bool
+                    int
+                    str
+                  ])
+                );
               default = { };
 
               example = {
                 URL_HOST = "asciinema.example.com";
                 URL_SCHEME = "https";
-                PORT = "4000";
-                BIND_ALL = "1";
+                PORT = 4000;
+                BIND_ALL = true;
               };
 
               description = ''
-                Extra non-secret environment variables for the service, merged
-                into the unit environment. Use this to set any of the runtime
-                configuration the release reads (URL_HOST, URL_SCHEME, PORT,
-                BIND_ALL, S3_*, SMTP_*, RSVG_FONT_FAMILY, ...). The canonical
-                URL in particular defaults to localhost, so a public deployment
-                should set at least URL_HOST/URL_SCHEME. Keep secrets in
-                `environmentFile` instead. The module-managed HOME, DATA_DIR and
-                CACHE_PATH take precedence over keys set here.
+                Non-secret environment variables for the server, merged into
+                the systemd unit. The release reads its runtime configuration
+                from the environment (see `config/runtime.exs`), e.g. URL_HOST,
+                URL_SCHEME, PORT, BIND_ALL, S3_* and SMTP_*.
+
+                Values may be strings, integers or booleans; integers and
+                booleans become strings, and a `null` value drops the variable.
+
+                Put secrets in `environmentFile` instead. The module-managed
+                HOME, DATA_DIR, CACHE_PATH and RELEASE_TMP take precedence.
               '';
             };
           };
@@ -231,7 +246,7 @@
                 ${pkg}/bin/server
               '';
 
-              environment = cfg.extraEnvironment // {
+              environment = renderedEnvironment // {
                 HOME = cfg.dataDir;
                 DATA_DIR = cfg.dataDir;
                 CACHE_PATH = "/var/cache/asciinema";
