@@ -283,13 +283,18 @@
 
             systemd.services.asciinema-server = {
               wantedBy = [ "multi-user.target" ];
+
               wants = [ "network-online.target" ];
-              requires = lib.optional cfg.database.createLocally "postgresql.service";
+              # When provisioning locally, order after postgresql-setup.service
+              # — the oneshot that runs ensureDatabases/ensureUsers — so the
+              # role and database exist before migrations run. It already orders
+              # after postgresql.service itself.
+              requires = lib.optional cfg.database.createLocally "postgresql-setup.service";
 
               after = [
                 "network-online.target"
-                "postgresql.service"
-              ];
+              ]
+              ++ lib.optional cfg.database.createLocally "postgresql-setup.service";
 
               # Runtime tools the app shells out to by bare name: rsvg-convert
               # (librsvg) and pngquant for SVG->PNG rendering, fd for file cache
@@ -324,6 +329,7 @@
                 HOME = cfg.dataDir;
                 DATA_DIR = cfg.dataDir;
                 CACHE_PATH = "/var/cache/asciinema";
+
                 # The release writes its evaluated runtime config (and a
                 # pipe/log) here; the default $RELEASE_ROOT/tmp is in the
                 # read-only Nix store, so point it at a writable tmpfs dir.
