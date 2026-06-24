@@ -179,6 +179,11 @@
                 HOME = cfg.dataDir;
                 DATABASE_URL = cfg.databaseUrl;
               };
+
+              serviceConfig = {
+                User = user;
+                Group = user;
+              };
             };
 
             systemd.tmpfiles.rules = [
