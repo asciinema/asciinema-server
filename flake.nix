@@ -199,6 +199,10 @@
                 (DATABASE_URL, SECRET_KEY_BASE, SMTP_PASSWORD, S3 keys) so it is
                 never written to the world-readable store. Typically provided by
                 sops-nix/agenix or a hand-managed root-owned 0400 file.
+
+                systemd applies this after the inline `environment`, so a
+                variable set in both places takes its value from here. If you
+                set DATABASE_URL here, also set `database.createLocally = false`.
               '';
             };
 
@@ -243,8 +247,9 @@
                 Values may be strings, integers or booleans; integers and
                 booleans become strings, and a `null` value drops the variable.
 
-                Put secrets in `environmentFile` instead. The module-managed
-                HOME, DATA_DIR, CACHE_PATH and RELEASE_TMP take precedence.
+                Put secrets in `environmentFile` instead; systemd applies it
+                after this, so a variable set in both places takes its value
+                from `environmentFile`.
               '';
             };
 
@@ -259,9 +264,10 @@
                 and points the app at them over the /run/postgresql socket with
                 peer authentication, managing DATABASE_URL for you. If
                 PostgreSQL is already enabled on the host, asciinema-server's
-                role and database are simply added to it. Set to false to bring
-                your own database instead and provide DATABASE_URL yourself (via
-                environmentFile).
+                role and database are simply added to it. While enabled the
+                module owns DATABASE_URL, so don't set your own. Set to false to
+                bring your own database instead and provide DATABASE_URL
+                yourself (via environmentFile).
               '';
             };
           };
@@ -287,7 +293,8 @@
 
               # Runtime tools the app shells out to by bare name: rsvg-convert
               # (librsvg) and pngquant for SVG->PNG rendering, fd for file cache
-              # cleanup, which is used by svg2png.sh to detect timeout/pngquant.
+              # cleanup, and `which`, which svg2png.sh uses to probe for
+              # timeout/pngquant.
               path = [
                 pkgs.librsvg
                 pkgs.pngquant
