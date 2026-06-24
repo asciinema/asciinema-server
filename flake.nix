@@ -182,6 +182,11 @@
 
             systemd.services.asciinema-server = {
               wantedBy = [ "multi-user.target" ];
+              wants = [ "network-online.target" ];
+              after = [
+                "network-online.target"
+                "postgresql.service"
+              ];
 
               script = ''
                 [ -n "$SECRET_KEY_BASE" ] || export SECRET_KEY_BASE="$(cat "$HOME/secret_key_base")"
@@ -196,6 +201,8 @@
               serviceConfig = {
                 User = user;
                 Group = user;
+                Restart = "on-failure";
+                RestartSec = 5;
                 EnvironmentFile = lib.mkIf (cfg.environmentFile != null) cfg.environmentFile;
 
                 # Persist a SECRET_KEY_BASE across restarts (so sessions and tokens
