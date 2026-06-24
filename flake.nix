@@ -188,6 +188,16 @@
                 "postgresql.service"
               ];
 
+              # Runtime tools the app shells out to by bare name: rsvg-convert
+              # (librsvg) and pngquant for SVG->PNG rendering, fd for file cache
+              # cleanup, which is used by svg2png.sh to detect timeout/pngquant.
+              path = [
+                pkgs.librsvg
+                pkgs.pngquant
+                pkgs.fd
+                pkgs.which
+              ];
+
               script = ''
                 [ -n "$SECRET_KEY_BASE" ] || export SECRET_KEY_BASE="$(cat "$HOME/secret_key_base")"
                 ${pkg}/bin/server
