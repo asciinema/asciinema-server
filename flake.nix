@@ -128,62 +128,63 @@
           PLAYWRIGHT_BROWSERS_PATH = pkgs.playwright-driver.browsers;
         };
 
-        nixosModules.default =
-          {
-            config,
-            lib,
-            pkgs,
-            ...
-          }:
-          let
-            cfg = config.services.asciinema-server;
-            user = "asciinema-server";
-            pkg = self.packages.${system}.default;
-          in
-          {
-            options.services.asciinema-server = {
-              enable = lib.mkEnableOption "asciinema-server";
+        formatter = pkgs.nixfmt-tree;
+      }
+    )
+    // {
+      nixosModules.default =
+        {
+          config,
+          lib,
+          pkgs,
+          ...
+        }:
+        let
+          cfg = config.services.asciinema-server;
+          user = "asciinema-server";
+          pkg = self.packages.${pkgs.stdenv.hostPlatform.system}.default;
+        in
+        {
+          options.services.asciinema-server = {
+            enable = lib.mkEnableOption "asciinema-server";
 
-              databaseUrl = lib.mkOption {
-                type = lib.types.str;
-              };
-
-              dataDir = lib.mkOption {
-                type = lib.types.path;
-                default = "/var/lib/asciinema";
-              };
+            databaseUrl = lib.mkOption {
+              type = lib.types.str;
             };
 
-            config = lib.mkIf cfg.enable {
-              users.users.${user} = {
-                isSystemUser = true;
-                group = user;
-                home = cfg.dataDir;
-                createHome = true;
-              };
-
-              users.groups.${user} = { };
-
-              systemd.services.asciinema-server = {
-                wantedBy = [ "multi-user.target" ];
-
-                script = ''
-                  ${pkg}/bin/server
-                '';
-
-                environment = {
-                  HOME = cfg.dataDir;
-                  DATABASE_URL = cfg.databaseUrl;
-                };
-              };
-
-              systemd.tmpfiles.rules = [
-                "d ${cfg.dataDir} 0750 ${user} ${user} - -"
-              ];
+            dataDir = lib.mkOption {
+              type = lib.types.path;
+              default = "/var/lib/asciinema";
             };
           };
 
-        formatter = pkgs.nixfmt-tree;
-      }
-    );
+          config = lib.mkIf cfg.enable {
+            users.users.${user} = {
+              isSystemUser = true;
+              group = user;
+              home = cfg.dataDir;
+              createHome = true;
+            };
+
+            users.groups.${user} = { };
+
+            systemd.services.asciinema-server = {
+              wantedBy = [ "multi-user.target" ];
+
+              script = ''
+                ${pkg}/bin/server
+              '';
+
+              environment = {
+                HOME = cfg.dataDir;
+                DATABASE_URL = cfg.databaseUrl;
+              };
+            };
+
+            systemd.tmpfiles.rules = [
+              "d ${cfg.dataDir} 0750 ${user} ${user} - -"
+            ];
+          };
+        };
+    };
 }
