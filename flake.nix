@@ -167,6 +167,12 @@
             dataDir = lib.mkOption {
               type = lib.types.path;
               default = "/var/lib/asciinema";
+              description = ''
+                Directory for the service's local state, created and owned by the
+                asciinema-server user. Uploads are stored under
+                `<dataDir>/uploads` when the local file store is used, and the
+                generated SECRET_KEY_BASE is kept here.
+              '';
             };
 
             extraEnvironment = lib.mkOption {
@@ -198,7 +204,6 @@
               isSystemUser = true;
               group = user;
               home = cfg.dataDir;
-              createHome = true;
             };
 
             users.groups.${user} = { };
@@ -244,6 +249,16 @@
                 RuntimeDirectory = "asciinema";
                 CacheDirectory = "asciinema";
                 EnvironmentFile = lib.mkIf (cfg.environmentFile != null) cfg.environmentFile;
+
+                # Light sandboxing. The data dir is the only extra writable path;
+                # the Runtime/Cache dirs are made writable by systemd already.
+                # Deliberately no MemoryDenyWriteExecute or SystemCallFilter, which
+                # break the Erlang JIT and schedulers.
+                ProtectSystem = "strict";
+                ReadWritePaths = [ cfg.dataDir ];
+                ProtectHome = true;
+                PrivateTmp = true;
+                NoNewPrivileges = true;
 
                 # Persist a SECRET_KEY_BASE across restarts (so sessions and tokens
                 # survive), unless one is already provided via environmentFile.
