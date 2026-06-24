@@ -175,6 +175,7 @@
           cfg = config.services.asciinema-server;
           user = "asciinema-server";
           pkg = self.packages.${pkgs.stdenv.hostPlatform.system}.default;
+
           # Render the env-var bag: bools -> "true"/"false", ints -> decimal;
           # a null value drops the variable.
           renderedEnvironment = lib.mapAttrs (_: v: if lib.isBool v then lib.boolToString v else toString v) (
@@ -204,6 +205,7 @@
             dataDir = lib.mkOption {
               type = lib.types.path;
               default = "/var/lib/asciinema";
+
               description = ''
                 Directory for the service's local state, created and owned by the
                 asciinema-server user. Uploads are stored under
@@ -222,6 +224,7 @@
                     str
                   ])
                 );
+
               default = { };
 
               example = {
@@ -276,6 +279,7 @@
               wantedBy = [ "multi-user.target" ];
               wants = [ "network-online.target" ];
               requires = lib.optional cfg.database.createLocally "postgresql.service";
+
               after = [
                 "network-online.target"
                 "postgresql.service"
