@@ -148,8 +148,20 @@
           options.services.asciinema-server = {
             enable = lib.mkEnableOption "asciinema-server";
 
-            databaseUrl = lib.mkOption {
-              type = lib.types.str;
+            environmentFile = lib.mkOption {
+              type = lib.types.nullOr lib.types.path;
+              default = null;
+              example = "/run/secrets/asciinema-server.env";
+
+              description = ''
+                Path to an environment file, kept outside the Nix store, holding
+                secrets and runtime configuration as `KEY=value` lines, e.g.
+                `DATABASE_URL=ecto://user:pass@host/db`. Passed to the unit as
+                systemd `EnvironmentFile=`. Use it for anything sensitive
+                (DATABASE_URL, SECRET_KEY_BASE, SMTP_PASSWORD, S3 keys) so it is
+                never written to the world-readable store. Typically provided by
+                sops-nix/agenix or a hand-managed root-owned 0400 file.
+              '';
             };
 
             dataDir = lib.mkOption {
@@ -177,12 +189,12 @@
 
               environment = {
                 HOME = cfg.dataDir;
-                DATABASE_URL = cfg.databaseUrl;
               };
 
               serviceConfig = {
                 User = user;
                 Group = user;
+                EnvironmentFile = lib.mkIf (cfg.environmentFile != null) cfg.environmentFile;
               };
             };
 
