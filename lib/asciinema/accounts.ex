@@ -39,12 +39,14 @@ defmodule Asciinema.Accounts do
     user
   end
 
-  def find_user_by_username(username) do
-    Repo.one(
-      from(u in User,
-        where: fragment("lower(?)", u.username) == ^String.downcase(username)
+  def find_user_by_username(username) when is_binary(username) do
+    if String.valid?(username) do
+      Repo.one(
+        from(u in User,
+          where: fragment("lower(?)", u.username) == ^String.downcase(username)
+        )
       )
-    )
+    end
   end
 
   def find_user_by_profile_id("user:" <> id) do

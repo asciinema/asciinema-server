@@ -43,6 +43,24 @@ defmodule Asciinema.AccountsTest do
     end
   end
 
+  describe "find_user_by_profile_id/1" do
+    test "finds a user by username, case-insensitively" do
+      user = insert(:user, username: "Nick")
+
+      assert %{id: id} = Accounts.find_user_by_profile_id("nick")
+      assert id == user.id
+    end
+
+    test "returns nil for an invalid UTF-8 username" do
+      # A path like /~ник<lone surrogate> decodes to a binary that isn't valid
+      # UTF-8; it can never match a username and must not reach the database.
+      invalid = <<0xD0, 0xBD, 0xD0, 0xB8, 0xD0, 0xBA, 0xED, 0xB3, 0x90>>
+      refute String.valid?(invalid)
+
+      assert Accounts.find_user_by_profile_id(invalid) == nil
+    end
+  end
+
   describe "confirm_sign_up/3" do
     test "succeeds when token valid and email not taken" do
       {:ok, {:sign_up, token, _email}} = Accounts.initiate_login("test@example.com")
