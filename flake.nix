@@ -127,6 +127,40 @@
         };
 
         formatter = pkgs.nixfmt-tree;
+
+        checks = pkgs.lib.optionalAttrs pkgs.stdenv.isLinux {
+          # Boots a VM with the module (local PostgreSQL on by default),
+          # building the release, running migrations and serving a request.
+          nixos-module = pkgs.testers.runNixOSTest {
+            name = "asciinema-server-module";
+
+            nodes.machine =
+              { pkgs, ... }:
+              {
+                imports = [ self.nixosModules.default ];
+
+                services.asciinema-server = {
+                  enable = true;
+
+                  environment = {
+                    URL_HOST = "localhost";
+                    PORT = 4000;
+                    BIND_ALL = true;
+                  };
+                };
+
+                environment.systemPackages = [ pkgs.curl ];
+                virtualisation.memorySize = 2048;
+              };
+
+            testScript = ''
+              machine.wait_for_unit("postgresql.service")
+              machine.wait_for_unit("asciinema-server.service")
+              machine.wait_for_open_port(4000)
+              machine.succeed("curl -sfL http://127.0.0.1:4000/ | grep -qi asciinema")
+            '';
+          };
+        };
       }
     )
     // {
