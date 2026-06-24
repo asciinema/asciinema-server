@@ -184,6 +184,7 @@
               wantedBy = [ "multi-user.target" ];
 
               script = ''
+                [ -n "$SECRET_KEY_BASE" ] || export SECRET_KEY_BASE="$(cat "$HOME/secret_key_base")"
                 ${pkg}/bin/server
               '';
 
@@ -196,6 +197,15 @@
                 User = user;
                 Group = user;
                 EnvironmentFile = lib.mkIf (cfg.environmentFile != null) cfg.environmentFile;
+
+                # Persist a SECRET_KEY_BASE across restarts (so sessions and tokens
+                # survive), unless one is already provided via environmentFile.
+                ExecStartPre = pkgs.writeShellScript "asciinema-server-secret-key-base" ''
+                  test -n "$SECRET_KEY_BASE" || test -s "$HOME/secret_key_base" || {
+                    umask 077
+                    tr -dc A-Za-z0-9 </dev/urandom | head -c 64 >"$HOME/secret_key_base"
+                  }
+                '';
               };
             };
 
