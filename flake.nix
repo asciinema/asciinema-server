@@ -139,7 +139,7 @@
               {
                 imports = [ self.nixosModules.default ];
 
-                services.asciinema-server = {
+                services.asciinema = {
                   enable = true;
 
                   environment = {
@@ -172,8 +172,8 @@
           ...
         }:
         let
-          cfg = config.services.asciinema-server;
-          user = "asciinema-server";
+          cfg = config.services.asciinema;
+          user = "asciinema";
           pkg = self.packages.${pkgs.stdenv.hostPlatform.system}.default;
 
           # Render the env-var bag: bools -> "true"/"false", ints -> decimal;
@@ -183,13 +183,13 @@
           );
         in
         {
-          options.services.asciinema-server = {
-            enable = lib.mkEnableOption "asciinema-server";
+          options.services.asciinema = {
+            enable = lib.mkEnableOption "asciinema server";
 
             environmentFile = lib.mkOption {
               type = lib.types.nullOr lib.types.path;
               default = null;
-              example = "/run/secrets/asciinema-server.env";
+              example = "/run/secrets/asciinema.env";
 
               description = ''
                 Path to an environment file, kept outside the Nix store,
@@ -212,9 +212,9 @@
 
               description = ''
                 Directory for the service's local state, created and owned by the
-                asciinema-server user. Uploads are stored under
-                `<dataDir>/uploads` when the local file store is used, and the
-                generated SECRET_KEY_BASE is kept here.
+                asciinema user. Uploads are stored under `<dataDir>/uploads`
+                when the local file store is used, and the generated
+                SECRET_KEY_BASE is kept here.
               '';
             };
 
@@ -258,13 +258,13 @@
               default = true;
 
               description = ''
-                Whether to provision a local PostgreSQL server for
-                asciinema-server. Enabled by default: the module turns on
+                Whether to provision a local PostgreSQL server for the
+                asciinema server. Enabled by default: the module turns on
                 services.postgresql, creates the ${user} role and database,
                 and points the app at them over the /run/postgresql socket with
                 peer authentication, managing DATABASE_URL for you. If
-                PostgreSQL is already enabled on the host, asciinema-server's
-                role and database are simply added to it. While enabled the
+                PostgreSQL is already enabled on the host, the ${user} role and
+                database are simply added to it. While enabled the
                 module owns DATABASE_URL, so don't set your own. Set to false to
                 bring your own database instead and provide DATABASE_URL
                 yourself (via environmentFile).
