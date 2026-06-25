@@ -342,9 +342,9 @@
                 DATA_DIR = cfg.dataDir;
                 CACHE_PATH = "/var/cache/asciinema";
 
-                # The release writes its evaluated runtime config (and a
-                # pipe/log) here; the default $RELEASE_ROOT/tmp is in the
-                # read-only Nix store, so point it at a writable tmpfs dir.
+                # The release may write runtime files here; the default
+                # $RELEASE_ROOT/tmp is in the read-only Nix store, so point it
+                # at a writable tmpfs dir.
                 RELEASE_TMP = "/run/asciinema";
               };
 
@@ -354,6 +354,7 @@
                 Restart = "on-failure";
                 RestartSec = 5;
                 RuntimeDirectory = "asciinema";
+                RuntimeDirectoryMode = "0700";
                 CacheDirectory = "asciinema";
                 EnvironmentFile = lib.mkIf (cfg.environmentFile != null) cfg.environmentFile;
 
