@@ -174,7 +174,7 @@
         let
           cfg = config.services.asciinema;
           user = "asciinema";
-          pkg = self.packages.${pkgs.stdenv.hostPlatform.system}.default;
+          pkg = cfg.package;
 
           # Render the env-var bag: bools -> "true"/"false", ints -> decimal;
           # a null value drops the variable.
@@ -185,6 +185,18 @@
         {
           options.services.asciinema = {
             enable = lib.mkEnableOption "asciinema server";
+
+            package = lib.mkOption {
+              type = lib.types.package;
+              default = self.packages.${pkgs.stdenv.hostPlatform.system}.default;
+              defaultText = lib.literalExpression "asciinema-server.packages.\${pkgs.stdenv.hostPlatform.system}.default";
+
+              description = ''
+                Package providing the asciinema server release. The package must
+                expose `bin/server`, which runs migrations and starts the
+                Phoenix server.
+              '';
+            };
 
             environmentFile = lib.mkOption {
               type = lib.types.nullOr lib.types.path;
