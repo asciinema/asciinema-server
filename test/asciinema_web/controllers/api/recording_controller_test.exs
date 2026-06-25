@@ -489,8 +489,8 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
       asciicast = insert(:asciicast)
       conn = put(conn, ~p"/api/v1/recordings/#{asciicast.id}", %{"title" => "New Title"})
 
-      assert %{"type" => "access_denied", "message" => "You don't have access to this resource"} =
-               json_response(conn, 403)
+      assert %{"type" => "not_found", "message" => "Recording not found"} =
+               json_response(conn, 404)
     end
 
     test "fails when recording is not found", %{conn: conn} do
@@ -575,8 +575,8 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
       asciicast = insert(:asciicast)
       conn = delete(conn, ~p"/api/v1/recordings/#{asciicast.id}")
 
-      assert %{"type" => "access_denied", "message" => "You don't have access to this resource"} =
-               json_response(conn, 403)
+      assert %{"type" => "not_found", "message" => "Recording not found"} =
+               json_response(conn, 404)
     end
 
     test "fails when recording is not found", %{conn: conn} do
