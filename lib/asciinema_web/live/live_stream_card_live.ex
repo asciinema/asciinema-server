@@ -4,6 +4,12 @@ defmodule AsciinemaWeb.LiveStreamCardLive do
   alias Asciinema.Streaming.StreamServer
 
   @impl true
+  # The stream may be gone by the time the LiveView mounts over the websocket.
+  # Render nothing rather than crash building its URL.
+  def render(%{stream: nil} = assigns) do
+    ~H""
+  end
+
   def render(assigns) do
     ~H"""
     <AsciinemaWeb.StreamHTML.live_stream_card

@@ -18,6 +18,15 @@ defmodule Asciinema.Accounts do
 
   def get_user!(id), do: Repo.get!(User, id)
 
+  # Row-locks the user (FOR UPDATE) so concurrent inserts referencing it block
+  # until the surrounding transaction ends.
+  def lock_user(id) do
+    User
+    |> where(id: ^id)
+    |> lock("FOR UPDATE")
+    |> Repo.one()
+  end
+
   def fetch_user(id), do: OK.required(get_user(id), :not_found)
 
   def find_user(%User{} = user), do: user
@@ -30,12 +39,14 @@ defmodule Asciinema.Accounts do
     user
   end
 
-  def find_user_by_username(username) do
-    Repo.one(
-      from(u in User,
-        where: fragment("lower(?)", u.username) == ^String.downcase(username)
+  def find_user_by_username(username) when is_binary(username) do
+    if String.valid?(username) do
+      Repo.one(
+        from(u in User,
+          where: fragment("lower(?)", u.username) == ^String.downcase(username)
+        )
       )
-    )
+    end
   end
 
   def find_user_by_profile_id("user:" <> id) do

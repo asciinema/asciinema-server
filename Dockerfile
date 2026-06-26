@@ -66,6 +66,7 @@ RUN apk add --no-cache \
   fd \
   rsvg-convert \
   ttf-dejavu \
+  tzdata \
   pngquant
 
 WORKDIR /opt/app

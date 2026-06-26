@@ -8,7 +8,23 @@ import Config
 
 env = &System.get_env/1
 
-if env.("PHX_SERVER") do
+# Parse a boolean env var: 1/true/yes/on -> true, 0/false/no/off -> false
+# (case-insensitive). Unset or unrecognised values use the default.
+bool_env = fn name, default ->
+  case env.(name) do
+    nil ->
+      default
+
+    value ->
+      case value |> String.trim() |> String.downcase() do
+        v when v in ~w(1 true yes on) -> true
+        v when v in ~w(0 false no off) -> false
+        _ -> default
+      end
+  end
+end
+
+if bool_env.("PHX_SERVER", false) do
   config :asciinema, AsciinemaWeb.Endpoint, server: true
   config :asciinema, AsciinemaAdmin.Endpoint, server: true
 end
@@ -50,7 +66,7 @@ if config_env() in [:prod, :dev] do
     end
   end
 
-  if env.("BIND_ALL") do
+  if bool_env.("BIND_ALL", false) do
     config :asciinema, AsciinemaWeb.Endpoint, http: [ip: {0, 0, 0, 0}]
   end
 
@@ -67,7 +83,7 @@ if config_env() in [:prod, :dev] do
     config :asciinema, AsciinemaWeb.Endpoint, url: [port: String.to_integer(url_port)]
   end
 
-  if env.("ADMIN_BIND_ALL") do
+  if bool_env.("ADMIN_BIND_ALL", false) do
     config :asciinema, AsciinemaAdmin.Endpoint, http: [ip: {0, 0, 0, 0}]
   end
 
@@ -87,7 +103,7 @@ if config_env() in [:prod, :dev] do
     config :asciinema, AsciinemaAdmin.Endpoint, url: [port: String.to_integer(url_port)]
   end
 
-  if env.("ADMIN_PANEL_ON_MAIN_ENDPOINT") in ["1", "true"] do
+  if bool_env.("ADMIN_PANEL_ON_MAIN_ENDPOINT", false) do
     config :asciinema, AsciinemaWeb.Plug.AdminGate, enabled: true
   end
 
@@ -139,7 +155,7 @@ if config_env() in [:prod, :dev] do
     config :asciinema, :search_work_mem, search_work_mem
   end
 
-  if env.("ECTO_IPV6") in ~w(true 1) do
+  if bool_env.("ECTO_IPV6", false) do
     config :asciinema, Asciinema.Repo, socket_options: [:inet6]
   end
 
@@ -187,17 +203,17 @@ if config_env() in [:prod, :dev] do
     ]
 
     tls_options =
-      if env.("SMTP_TLS_VERIFY_HOST") in ["false", "0"] do
-        Keyword.put(tls_options, :verify, :verify_none)
-      else
+      if bool_env.("SMTP_TLS_VERIFY_HOST", true) do
         Keyword.put(tls_options, :server_name_indication, String.to_charlist(smtp_host))
+      else
+        Keyword.put(tls_options, :verify, :verify_none)
       end
 
     tls_options =
-      if env.("SMTP_TLS_VERIFY_CERT") in ["false", "0"] do
-        Keyword.put(tls_options, :verify, :verify_none)
-      else
+      if bool_env.("SMTP_TLS_VERIFY_CERT", true) do
         tls_options
+      else
+        Keyword.put(tls_options, :verify, :verify_none)
       end
 
     config :asciinema, Asciinema.Emails.Mailer, tls_options: tls_options
@@ -227,7 +243,7 @@ if config_env() in [:prod, :dev] do
     config :asciinema, :unclaimed_recording_ttl, ttls
   end
 
-  if env.("SIGN_UP_DISABLED") in ["1", "true"] do
+  if bool_env.("SIGN_UP_DISABLED", false) do
     config :asciinema, Asciinema.Accounts, sign_up_enabled?: false
   end
 
@@ -246,7 +262,7 @@ if config_env() in [:prod, :dev] do
     config :asciinema, Asciinema.Accounts, default_live_stream_limit: String.to_integer(limit)
   end
 
-  if env.("DEFAULT_STREAMING_ENABLED") in ["0", "false", "no"] do
+  unless bool_env.("DEFAULT_STREAMING_ENABLED", true) do
     config :asciinema, Asciinema.Accounts, default_streaming_enabled: false
   end
 
@@ -256,7 +272,7 @@ if config_env() in [:prod, :dev] do
     config :asciinema, Asciinema.Streaming.StreamServer, recording: String.to_atom(mode)
   end
 
-  if env.("UPLOAD_AUTH_REQUIRED") in ["1", "true"] do
+  if bool_env.("UPLOAD_AUTH_REQUIRED", false) do
     config :asciinema, Asciinema.Accounts, upload_auth_required: true
   end
 

@@ -567,6 +567,7 @@ defmodule Asciinema.Recordings do
   def create_asciicast(user, local_path, attrs \\ %{}, params \\ %{})
       when is_binary(local_path) do
     with {:ok, metadata} <- extract_metadata(local_path),
+         :ok <- validate_not_empty(metadata),
          metadata = Map.put(metadata, :filename, normalize_filename(params)),
          changeset = build_asciicast(user, attrs, metadata, params),
          :ok <- validate_asciicast(changeset),
@@ -591,6 +592,7 @@ defmodule Asciinema.Recordings do
     {version, metadata} = Map.pop!(metadata, :version)
     {filename, metadata} = Map.pop!(metadata, :filename)
     {duration, metadata} = Map.pop!(metadata, :duration)
+    metadata = Map.delete(metadata, :event_count)
 
     attrs =
       Map.merge(attrs, %{
@@ -707,6 +709,9 @@ defmodule Asciinema.Recordings do
     end
   end
 
+  defp validate_not_empty(%{event_count: count}) when count > 0, do: :ok
+  defp validate_not_empty(%{event_count: 0}), do: {:error, :empty_recording}
+
   @max_filename_len 255
 
   defp normalize_filename(params) do
@@ -817,6 +822,8 @@ defmodule Asciinema.Recordings do
       :term_adaptive_palette,
       :term_line_height,
       :term_font_family,
+      :term_cursor_mode,
+      :keystroke_overlay,
       :idle_time_limit,
       :speed,
       :snapshot_at,
@@ -842,6 +849,7 @@ defmodule Asciinema.Recordings do
       less_than_or_equal_to: 2.0
     )
     |> validate_inclusion(:term_font_family, Fonts.terminal_font_families())
+    |> validate_inclusion(:term_cursor_mode, ~w[blinking steady hidden])
     |> validate_number(:snapshot_at, greater_than: 0)
     |> validate_change(:markers, &Markers.validate/2)
   end

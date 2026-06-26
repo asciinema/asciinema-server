@@ -7,6 +7,7 @@
 </p>
 
 <script>
+  // @license magnet:?xt=urn:btih:8e4f440f4c65981c5bf93c76d35135ba5064d8b7&dn=apache-2.0.txt Apache-2.0
   window.addEventListener('load', async function() {
     const opts = <%= safe_json(player_opts(@asciicast, @player_opts)) %>;
 
@@ -36,4 +37,5 @@
       document.body.style.fontSize = e.data.payload.fontSize;
     }
   }, false);
+  // @license-end
 </script>

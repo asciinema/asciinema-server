@@ -26,4 +26,13 @@ defmodule Asciinema.Asciicast.EventStream do
   def cap_relative_time(stream, time_limit) do
     Stream.map(stream, &cap_relative_time(&1, time_limit))
   end
+
+  def stats(stream) do
+    {duration, event_count} =
+      Enum.reduce(stream, {0, 0}, fn {time, _, _}, {_prev_time, count} ->
+        {time, count + 1}
+      end)
+
+    %{duration: duration / 1, event_count: event_count}
+  end
 end

@@ -54,17 +54,22 @@ defmodule AsciinemaTest do
   end
 
   describe "merge_accounts/1" do
-    test "succeeds" do
-      [user1, user2] = insert_pair(:user)
-      id2 = user2.id
-      insert(:asciicast, user: user1)
-      insert(:asciicast, user: user2)
-      insert(:cli, user: user1)
-      insert(:cli, user: user2)
-      insert(:stream, user: user1)
-      insert(:stream, user: user2)
+    test "moves the source account's records to the destination and deletes it" do
+      [src, dst] = insert_pair(:user)
+      dst_id = dst.id
+      insert(:asciicast, user: src)
+      insert(:asciicast, user: dst)
+      insert(:cli, user: src)
+      insert(:cli, user: dst)
+      insert(:stream, user: src)
+      insert(:stream, user: dst)
 
-      assert {:ok, %{id: ^id2}} = Asciinema.merge_accounts(user1, user2)
+      assert {:ok, %{id: ^dst_id}} = Asciinema.merge_accounts(src, dst)
+
+      assert Asciinema.Accounts.get_user(src.id) == nil
+      assert Repo.count(assoc(dst, :asciicasts)) == 2
+      assert Repo.count(assoc(dst, :streams)) == 2
+      assert Repo.count(assoc(dst, :clis)) == 2
     end
   end
 

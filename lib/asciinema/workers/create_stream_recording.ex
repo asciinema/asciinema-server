@@ -18,7 +18,9 @@ defmodule Asciinema.Workers.CreateStreamRecording do
     base_attrs = %{
       user_agent: args["user_agent"],
       term_bold_is_bright: args["term_bold_is_bright"],
-      term_adaptive_palette: args["term_adaptive_palette"]
+      term_adaptive_palette: args["term_adaptive_palette"],
+      term_cursor_mode: args["term_cursor_mode"],
+      keystroke_overlay: args["keystroke_overlay"]
     }
 
     case Accounts.fetch_user(user_id) do
@@ -40,6 +42,14 @@ defmodule Asciinema.Workers.CreateStreamRecording do
         {:ok, _asciicast} ->
           _ = FileStore.delete_file(file_store_path)
           :ok
+
+        {:error, :empty_recording} ->
+          Logger.info(
+            "CreateStreamRecording: stream #{inspect(stream_id)} produced an empty recording, discarding staged capture #{file_store_path}"
+          )
+
+          _ = FileStore.delete_file(file_store_path)
+          :discard
 
         {:error, reason} = err ->
           Logger.error(

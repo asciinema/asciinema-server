@@ -50,6 +50,21 @@ defmodule Asciinema.RecordingsTest do
       assert {:error, {:invalid_version, 5}} = Recordings.create_asciicast(user, upload.path)
     end
 
+    test "rejects a recording with no events" do
+      user = insert(:user)
+      upload = fixture(:upload, %{path: "2/no-events.cast"})
+
+      assert {:error, :empty_recording} = Recordings.create_asciicast(user, upload.path)
+    end
+
+    test "accepts a recording whose only event is at time zero" do
+      user = insert(:user)
+      upload = fixture(:upload, %{path: "2/zero-time.cast"})
+
+      assert {:ok, asciicast} = Recordings.create_asciicast(user, upload.path)
+      assert asciicast.duration === 0.0
+    end
+
     test "cast file, v2 format, minimal" do
       user = insert(:user)
       cli = insert(:cli, user: user)
@@ -306,6 +321,30 @@ defmodule Asciinema.RecordingsTest do
         Recordings.create_asciicast(user, upload.path, %{}, %{"filename" => 123})
 
       assert asciicast.filename == "asciicast.cast"
+    end
+  end
+
+  describe "update_asciicast/2" do
+    test "updates the keystroke overlay setting" do
+      asciicast = insert(:asciicast, keystroke_overlay: false)
+
+      assert {:ok, %Asciicast{keystroke_overlay: true}} =
+               Recordings.update_asciicast(asciicast, %{"keystroke_overlay" => "true"})
+
+      assert {:ok, %Asciicast{keystroke_overlay: false}} =
+               Recordings.update_asciicast(asciicast, %{"keystroke_overlay" => "false"})
+    end
+
+    test "updates the cursor mode setting" do
+      asciicast = insert(:asciicast, term_cursor_mode: "blinking")
+
+      assert {:ok, %Asciicast{term_cursor_mode: "hidden"}} =
+               Recordings.update_asciicast(asciicast, %{"term_cursor_mode" => "hidden"})
+
+      assert {:error, changeset} =
+               Recordings.update_asciicast(asciicast, %{"term_cursor_mode" => "bogus"})
+
+      assert %{term_cursor_mode: _} = errors_on(changeset)
     end
   end
 

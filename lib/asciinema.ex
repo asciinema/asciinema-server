@@ -69,6 +69,9 @@ defmodule Asciinema do
     dst_user = Accounts.find_user(dst_user)
 
     Repo.transact(fn ->
+      # Lock the source user so a concurrent upload can't attach a new recording
+      # (or stream) before we delete it.
+      Accounts.lock_user(src_user.id)
       Recordings.reassign_asciicasts(src_user.id, dst_user.id)
       Streaming.reassign_streams(src_user.id, dst_user.id)
       Accounts.reassign_clis(src_user.id, dst_user.id)

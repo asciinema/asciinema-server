@@ -189,8 +189,26 @@
           />
           <.error field={f[:term_line_height]} />
           <small class="form-hint text-muted">
-            Relative to the font size. Lowering it to ~1.1 helps with vertical alignment of ascii drawing characters such as └ | ┐
+            Relative to the font size.
           </small>
+        </div>
+      </div>
+
+      <div class={["form-field", error_class(f, :term_cursor_mode)]}>
+        <.label for={f[:term_cursor_mode]}>
+          Terminal cursor
+        </.label>
+        <div class="radios-inline">
+          <div :for={mode <- ~w[blinking steady hidden]} class="form-option">
+            <input
+              type="radio"
+              name="stream[term_cursor_mode]"
+              id={"stream_term_cursor_mode_#{mode}"}
+              value={mode}
+              checked={f[:term_cursor_mode].value == mode}
+            />
+            <label for={"stream_term_cursor_mode_#{mode}"}>{String.capitalize(mode)}</label>
+          </div>
         </div>
       </div>
 
@@ -214,6 +232,23 @@
             data to ensure smooth, jitter free playback. For a fixed buffer,
             set this to the number of seconds the buffer should use. Setting it
             to 0 turns the buffering off.
+          </small>
+        </div>
+      </div>
+
+      <div class="form-field form-field-full">
+        <.label for={f[:keystroke_overlay]}>
+          Keystroke overlay
+        </.label>
+        <div class="form-option-offset">
+          <div class="form-option form-option-box">
+            <.input type="checkbox" field={f[:keystroke_overlay]} />
+            <.label for={f[:keystroke_overlay]}>
+              Show pressed keys during playback
+            </.label>
+          </div>
+          <small class="form-hint text-muted">
+            Only visible when the stream includes captured input events.
           </small>
         </div>
       </div>

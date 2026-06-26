@@ -45,7 +45,7 @@ defmodule Asciinema.Asciicast.V3 do
 
   def fetch_metadata(path, opts \\ []) when is_binary(path) and is_list(opts) do
     with {:ok, header} <- parse_header(path, opts),
-         {:ok, duration} <- get_duration(path, opts) do
+         {:ok, stats} <- get_event_stats(path, opts) do
       metadata = %{
         version: 3,
         term_cols: get_in(header, ["term", "cols"]),
@@ -56,7 +56,8 @@ defmodule Asciinema.Asciicast.V3 do
         term_theme_bg: get_in(header, ["term", "theme", "bg"]),
         term_theme_palette: get_in(header, ["term", "theme", "palette"]),
         command: header["command"],
-        duration: duration,
+        duration: stats.duration,
+        event_count: stats.event_count,
         recorded_at: header["timestamp"] && Timex.from_unix(header["timestamp"]),
         title: header["title"],
         env: header["env"] || %{},
@@ -98,13 +99,8 @@ defmodule Asciinema.Asciicast.V3 do
 
   defp validate_theme(_theme), do: {:error, :invalid_theme}
 
-  defp get_duration(path, opts) do
-    duration =
-      path
-      |> event_stream(opts)
-      |> Enum.reduce(0, fn {t, _, _}, _prev_t -> t end)
-
-    {:ok, duration}
+  defp get_event_stats(path, opts) do
+    {:ok, path |> event_stream(opts) |> EventStream.stats()}
   rescue
     Jason.DecodeError ->
       {:error, :invalid_format}

@@ -17,7 +17,6 @@ defmodule AsciinemaWeb.RecordingViewControllerTest do
 
       token = Recordings.generate_view_count_token(asciicast.id)
 
-      conn = with_csrf(conn)
       conn = post(conn, ~p"/a/#{asciicast}/views?token=#{token}")
 
       assert response(conn, 204)
@@ -35,7 +34,6 @@ defmodule AsciinemaWeb.RecordingViewControllerTest do
 
       token = Recordings.generate_view_count_token(asciicast.id)
 
-      conn = with_csrf(conn)
       conn = post(conn, ~p"/a/#{asciicast}/views?token=#{token}")
 
       assert response(conn, 204)
@@ -55,7 +53,6 @@ defmodule AsciinemaWeb.RecordingViewControllerTest do
 
       conn =
         conn
-        |> with_csrf()
         |> put_req_cookie("a#{asciicast.id}", "1")
         |> post(~p"/a/#{asciicast}/views?token=#{token}")
 
@@ -63,7 +60,7 @@ defmodule AsciinemaWeb.RecordingViewControllerTest do
       assert total_views(asciicast.id) == 5
     end
 
-    test "returns 400 for invalid token", %{conn: conn} do
+    test "ignores invalid token", %{conn: conn} do
       asciicast = insert(:asciicast)
 
       insert(:asciicast_stats,
@@ -72,14 +69,13 @@ defmodule AsciinemaWeb.RecordingViewControllerTest do
         popularity_dirty: false
       )
 
-      conn = with_csrf(conn)
       conn = post(conn, ~p"/a/#{asciicast}/views?token=invalid")
 
-      assert response(conn, 400)
+      assert response(conn, 204)
       assert total_views(asciicast.id) == 5
     end
 
-    test "returns 400 when token ID doesn't match URL ID", %{conn: conn} do
+    test "ignores token whose ID doesn't match the URL ID", %{conn: conn} do
       asciicast = insert(:asciicast)
 
       insert(:asciicast_stats,
@@ -91,58 +87,18 @@ defmodule AsciinemaWeb.RecordingViewControllerTest do
       other_asciicast = insert(:asciicast)
       token = Recordings.generate_view_count_token(other_asciicast.id)
 
-      conn = with_csrf(conn)
       conn = post(conn, ~p"/a/#{asciicast}/views?token=#{token}")
 
-      assert response(conn, 400)
+      assert response(conn, 204)
       assert total_views(asciicast.id) == 5
     end
 
-    test "returns 400 when asciicast doesn't exist", %{conn: conn} do
+    test "ignores token for a non-existent asciicast", %{conn: conn} do
       token = Recordings.generate_view_count_token(999_999)
 
-      conn = with_csrf(conn)
       conn = post(conn, ~p"/a/999999/views?token=#{token}")
 
-      assert response(conn, 400)
-    end
-
-    test "returns 400 when token is missing", %{conn: conn} do
-      asciicast = insert(:asciicast)
-
-      insert(:asciicast_stats,
-        asciicast_id: asciicast.id,
-        total_views: 5,
-        popularity_dirty: false
-      )
-
-      assert_error_sent 400, fn ->
-        conn
-        |> with_csrf()
-        |> post(~p"/a/#{asciicast}/views")
-      end
-
-      assert total_views(asciicast.id) == 5
-    end
-
-    test "returns 403 when CSRF token is missing", %{conn: conn} do
-      asciicast = insert(:asciicast)
-
-      insert(:asciicast_stats,
-        asciicast_id: asciicast.id,
-        total_views: 5,
-        popularity_dirty: false
-      )
-
-      token = Recordings.generate_view_count_token(asciicast.id)
-
-      conn = require_csrf(conn)
-
-      assert_error_sent 403, fn ->
-        post(conn, ~p"/a/#{asciicast}/views?token=#{token}")
-      end
-
-      assert total_views(asciicast.id) == 5
+      assert response(conn, 204)
     end
   end
 
@@ -153,21 +109,5 @@ defmodule AsciinemaWeb.RecordingViewControllerTest do
         select: s.total_views
       )
     )
-  end
-
-  defp with_csrf(conn) do
-    token = Plug.CSRFProtection.get_csrf_token()
-    state = Plug.CSRFProtection.dump_state()
-
-    conn
-    |> require_csrf()
-    |> put_session("_csrf_token", state)
-    |> put_req_header("x-csrf-token", token)
-  end
-
-  defp require_csrf(conn) do
-    conn
-    |> Plug.Conn.put_private(:plug_skip_csrf_protection, false)
-    |> Plug.Test.init_test_session(%{})
   end
 end
