@@ -375,9 +375,9 @@
                 ExecStartPre = pkgs.writeShellScript "asciinema-server-secrets" ''
                   umask 077
                   test -n "$SECRET_KEY_BASE" || test -s "$HOME/secret_key_base" ||
-                    tr -dc A-Za-z0-9 </dev/urandom | head -c 64 >"$HOME/secret_key_base"
+                    tr -dc A-Za-z0-9 </dev/urandom 2>/dev/null | head -c 64 >"$HOME/secret_key_base"
                   test -n "$RELEASE_COOKIE" || test -s "$HOME/release_cookie" ||
-                    tr -dc A-Za-z0-9 </dev/urandom | head -c 32 >"$HOME/release_cookie"
+                    tr -dc A-Za-z0-9 </dev/urandom 2>/dev/null | head -c 32 >"$HOME/release_cookie"
                 '';
               };
             };
