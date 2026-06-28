@@ -63,9 +63,7 @@ defmodule AsciinemaWeb.Api.StreamController do
   def delete(conn, _params) do
     {:ok, _} = Streaming.delete_stream(conn.assigns.stream)
 
-    conn
-    |> put_status(:no_content)
-    |> render(:deleted)
+    send_resp(conn, :no_content, "")
   end
 
   defp authenticate(conn, _opts) do

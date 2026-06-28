@@ -560,7 +560,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = delete(conn, ~p"/api/v1/recordings/#{asciicast.id}")
 
-      assert response(conn, 204)
+      assert response(conn, 204) == ""
     end
 
     test "succeeds when deleting own recording using secret token", %{conn: conn, cli: cli} do
@@ -568,7 +568,7 @@ defmodule AsciinemaWeb.Api.RecordingControllerTest do
 
       conn = delete(conn, ~p"/api/v1/recordings/abcdefghijklmnop")
 
-      assert response(conn, 204)
+      assert response(conn, 204) == ""
     end
 
     test "fails when recording belongs to another user", %{conn: conn} do

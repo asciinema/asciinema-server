@@ -59,9 +59,7 @@ defmodule AsciinemaWeb.Api.RecordingController do
     asciicast = conn.assigns.asciicast
     {:ok, _} = Recordings.delete_asciicast(asciicast)
 
-    conn
-    |> put_status(:no_content)
-    |> render(:deleted)
+    send_resp(conn, :no_content, "")
   end
 
   defp get_user_agent(conn) do
