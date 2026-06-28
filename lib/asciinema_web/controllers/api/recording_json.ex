@@ -20,8 +20,6 @@ defmodule AsciinemaWeb.Api.RecordingJSON do
     }
   end
 
-  def deleted(_assigns), do: %{}
-
   def error(%{reason: reason} = assigns) do
     case reason do
       :unauthenticated ->

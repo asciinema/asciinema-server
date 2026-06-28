@@ -584,7 +584,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
 
       conn = delete(conn, ~p"/api/v1/streams/#{stream.id}")
 
-      assert json_response(conn, 204)
+      assert response(conn, 204) == ""
     end
 
     test "succeeds when deleting own stream using public token", %{conn: conn, cli: cli} do
@@ -592,7 +592,7 @@ defmodule AsciinemaWeb.Api.StreamControllerTest do
 
       conn = delete(conn, ~p"/api/v1/streams/foobar1234567890")
 
-      assert json_response(conn, 204)
+      assert response(conn, 204) == ""
     end
 
     test "fails when stream belongs to another user", %{conn: conn} do

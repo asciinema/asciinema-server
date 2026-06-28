@@ -84,8 +84,6 @@
             pngquant
             fd
           ];
-
-          removeCookie = false;
         };
 
         devShells.default = pkgs.mkShell {
@@ -128,62 +126,278 @@
           PLAYWRIGHT_BROWSERS_PATH = pkgs.playwright-driver.browsers;
         };
 
-        nixosModules.default =
-          {
-            config,
-            lib,
-            pkgs,
-            ...
-          }:
-          let
-            cfg = config.services.asciinema-server;
-            user = "asciinema-server";
-            pkg = self.packages.${system}.default;
-          in
-          {
-            options.services.asciinema-server = {
-              enable = lib.mkEnableOption "asciinema-server";
+        formatter = pkgs.nixfmt-tree;
 
-              databaseUrl = lib.mkOption {
-                type = lib.types.str;
+        checks = pkgs.lib.optionalAttrs pkgs.stdenv.isLinux {
+          # Boots a VM with the module (local PostgreSQL on by default),
+          # building the release, running migrations and serving a request.
+          nixos-module = pkgs.testers.runNixOSTest {
+            name = "asciinema-server-module";
+
+            nodes.machine =
+              { pkgs, ... }:
+              {
+                imports = [ self.nixosModules.default ];
+
+                services.asciinema = {
+                  enable = true;
+
+                  environment = {
+                    URL_HOST = "localhost";
+                    PORT = 4000;
+                    BIND_ALL = true;
+                  };
+                };
+
+                environment.systemPackages = [ pkgs.curl ];
+                virtualisation.memorySize = 2048;
               };
 
-              dataDir = lib.mkOption {
-                type = lib.types.path;
-                default = "/var/lib/asciinema";
-              };
+            testScript = ''
+              machine.wait_for_unit("postgresql.service")
+              machine.wait_for_unit("asciinema-server.service")
+              machine.wait_for_open_port(4000)
+              machine.succeed("curl -sfL http://127.0.0.1:4000/ | grep -qi asciinema")
+            '';
+          };
+        };
+      }
+    )
+    // {
+      nixosModules.default =
+        {
+          config,
+          lib,
+          pkgs,
+          ...
+        }:
+        let
+          cfg = config.services.asciinema;
+          user = "asciinema";
+          pkg = cfg.package;
+
+          # Render the env-var bag: bools -> "true"/"false", ints -> decimal;
+          # a null value drops the variable.
+          renderedEnvironment = lib.mapAttrs (_: v: if lib.isBool v then lib.boolToString v else toString v) (
+            lib.filterAttrs (_: v: v != null) cfg.environment
+          );
+        in
+        {
+          options.services.asciinema = {
+            enable = lib.mkEnableOption "asciinema server";
+
+            package = lib.mkOption {
+              type = lib.types.package;
+              default = self.packages.${pkgs.stdenv.hostPlatform.system}.default;
+              defaultText = lib.literalExpression "asciinema-server.packages.\${pkgs.stdenv.hostPlatform.system}.default";
+
+              description = ''
+                Package providing the asciinema server release. The package must
+                expose `bin/server`, which runs migrations and starts the
+                Phoenix server.
+              '';
             };
 
-            config = lib.mkIf cfg.enable {
-              users.users.${user} = {
-                isSystemUser = true;
-                group = user;
-                home = cfg.dataDir;
-                createHome = true;
+            environmentFile = lib.mkOption {
+              type = lib.types.nullOr lib.types.path;
+              default = null;
+              example = "/run/secrets/asciinema.env";
+
+              description = ''
+                Path to an environment file, kept outside the Nix store,
+                holding secrets as `KEY=value` lines, e.g.
+                `DATABASE_URL=ecto://user:pass@host/db`. Passed to the unit as
+                systemd `EnvironmentFile=`. Use it for anything sensitive
+                (DATABASE_URL, SECRET_KEY_BASE, SMTP_PASSWORD, S3 keys) so it is
+                never written to the world-readable store. Typically provided by
+                sops-nix/agenix or a hand-managed root-owned 0400 file.
+
+                systemd applies this after the inline `environment`, so a
+                variable set in both places takes its value from here. If you
+                set DATABASE_URL here, also set `database.createLocally = false`.
+              '';
+            };
+
+            dataDir = lib.mkOption {
+              type = lib.types.path;
+              default = "/var/lib/asciinema";
+
+              description = ''
+                Directory for the service's local state, created and owned by the
+                asciinema user. Uploads are stored under `<dataDir>/uploads`
+                when the local file store is used, and the generated
+                SECRET_KEY_BASE is kept here.
+              '';
+            };
+
+            environment = lib.mkOption {
+              type =
+                with lib.types;
+                attrsOf (
+                  nullOr (oneOf [
+                    bool
+                    int
+                    str
+                  ])
+                );
+
+              default = { };
+
+              example = {
+                URL_HOST = "asciinema.example.com";
+                URL_SCHEME = "https";
+                PORT = 4000;
+                BIND_ALL = true;
               };
 
-              users.groups.${user} = { };
+              description = ''
+                Non-secret environment variables for the server, merged into
+                the systemd unit. The release reads its runtime configuration
+                from the environment (see `config/runtime.exs`), e.g. URL_HOST,
+                URL_SCHEME, PORT, BIND_ALL, S3_* and SMTP_*.
 
-              systemd.services.asciinema-server = {
-                wantedBy = [ "multi-user.target" ];
+                Values may be strings, integers or booleans; integers and
+                booleans become strings, and a `null` value drops the variable.
 
-                script = ''
-                  ${pkg}/bin/server
-                '';
+                Put secrets in `environmentFile` instead; systemd applies it
+                after this, so a variable set in both places takes its value
+                from `environmentFile`.
+              '';
+            };
 
-                environment = {
-                  HOME = cfg.dataDir;
-                  DATABASE_URL = cfg.databaseUrl;
-                };
-              };
+            database.createLocally = lib.mkOption {
+              type = lib.types.bool;
+              default = true;
 
-              systemd.tmpfiles.rules = [
-                "d ${cfg.dataDir} 0750 ${user} ${user} - -"
-              ];
+              description = ''
+                Whether to provision a local PostgreSQL server for the
+                asciinema server. Enabled by default: the module turns on
+                services.postgresql, creates the ${user} role and database,
+                and points the app at them over the /run/postgresql socket with
+                peer authentication, managing DATABASE_URL for you. If
+                PostgreSQL is already enabled on the host, the ${user} role and
+                database are simply added to it. While enabled the
+                module owns DATABASE_URL, so don't set your own. Set to false to
+                bring your own database instead and provide DATABASE_URL
+                yourself (via environmentFile).
+              '';
             };
           };
 
-        formatter = pkgs.nixfmt-tree;
-      }
-    );
+          config = lib.mkIf cfg.enable {
+            users.users.${user} = {
+              isSystemUser = true;
+              group = user;
+              home = cfg.dataDir;
+            };
+
+            users.groups.${user} = { };
+
+            systemd.services.asciinema-server = {
+              wantedBy = [ "multi-user.target" ];
+
+              wants = [ "network-online.target" ];
+              # When provisioning locally, order after postgresql-setup.service
+              # — the oneshot that runs ensureDatabases/ensureUsers — so the
+              # role and database exist before migrations run. It already orders
+              # after postgresql.service itself.
+              requires = lib.optional cfg.database.createLocally "postgresql-setup.service";
+
+              after = [
+                "network-online.target"
+              ]
+              ++ lib.optional cfg.database.createLocally "postgresql-setup.service";
+
+              # Runtime tools the app shells out to by bare name: rsvg-convert
+              # (librsvg) and pngquant for SVG->PNG rendering, fd for file cache
+              # cleanup, and `which`, which svg2png.sh uses to probe for
+              # timeout/pngquant.
+              path = [
+                pkgs.librsvg
+                pkgs.pngquant
+                pkgs.fd
+                pkgs.which
+              ];
+
+              script = ''
+                [ -n "$SECRET_KEY_BASE" ] || export SECRET_KEY_BASE="$(cat "$HOME/secret_key_base")"
+                [ -n "$RELEASE_COOKIE" ] || export RELEASE_COOKIE="$(cat "$HOME/release_cookie")"
+                ${pkg}/bin/server
+              '';
+
+              environment = {
+                # Bind epmd to loopback so distributed Erlang isn't exposed on
+                # the network; override via `environment` for multi-host
+                # clustering.
+                ERL_EPMD_ADDRESS = "127.0.0.1";
+              }
+              // renderedEnvironment
+              // lib.optionalAttrs cfg.database.createLocally {
+                # Local PostgreSQL over its unix socket with peer auth;
+                # socket_dir makes Postgrex use the socket and ignore the host.
+                DATABASE_URL = "ecto://${user}@localhost/${user}?socket_dir=/run/postgresql";
+              }
+              // {
+                HOME = cfg.dataDir;
+                DATA_DIR = cfg.dataDir;
+                CACHE_PATH = "/var/cache/asciinema";
+
+                # The release may write runtime files here; the default
+                # $RELEASE_ROOT/tmp is in the read-only Nix store, so point it
+                # at a writable tmpfs dir.
+                RELEASE_TMP = "/run/asciinema";
+              };
+
+              serviceConfig = {
+                User = user;
+                Group = user;
+                Restart = "on-failure";
+                RestartSec = 5;
+                RuntimeDirectory = "asciinema";
+                RuntimeDirectoryMode = "0700";
+                CacheDirectory = "asciinema";
+                EnvironmentFile = lib.mkIf (cfg.environmentFile != null) cfg.environmentFile;
+
+                # Light sandboxing. The data dir is the only extra writable path;
+                # the Runtime/Cache dirs are made writable by systemd already.
+                # Deliberately no MemoryDenyWriteExecute or SystemCallFilter, which
+                # break the Erlang JIT and schedulers.
+                ProtectSystem = "strict";
+                ReadWritePaths = [ cfg.dataDir ];
+                ProtectHome = true;
+                PrivateTmp = true;
+                NoNewPrivileges = true;
+
+                # Generate and persist SECRET_KEY_BASE and the Erlang
+                # distribution cookie in the data dir (unless given via
+                # environmentFile) so they survive restarts and stay out of
+                # the store.
+                ExecStartPre = pkgs.writeShellScript "asciinema-server-secrets" ''
+                  umask 077
+                  test -n "$SECRET_KEY_BASE" || test -s "$HOME/secret_key_base" ||
+                    tr -dc A-Za-z0-9 </dev/urandom 2>/dev/null | head -c 64 >"$HOME/secret_key_base"
+                  test -n "$RELEASE_COOKIE" || test -s "$HOME/release_cookie" ||
+                    tr -dc A-Za-z0-9 </dev/urandom 2>/dev/null | head -c 32 >"$HOME/release_cookie"
+                '';
+              };
+            };
+
+            systemd.tmpfiles.rules = [
+              "d ${cfg.dataDir} 0750 ${user} ${user} - -"
+            ];
+
+            services.postgresql = lib.mkIf cfg.database.createLocally {
+              enable = true;
+              ensureDatabases = [ user ];
+
+              ensureUsers = [
+                {
+                  name = user;
+                  ensureDBOwnership = true;
+                }
+              ];
+            };
+          };
+        };
+    };
 }

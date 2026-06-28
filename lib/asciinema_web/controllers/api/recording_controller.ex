@@ -3,13 +3,13 @@ defmodule AsciinemaWeb.Api.RecordingController do
   use Asciinema.Config
   alias Asciinema.{Recordings, Accounts}
   alias AsciinemaWeb.Api.AuthError
+  alias AsciinemaWeb.Plug.Authz
 
   plug :assign_install_id
   plug :assign_cli
   plug :enforce_upload_limit when action in [:create]
   plug :require_registered_cli when action in [:update, :delete]
   plug :load_asciicast when action in [:update, :delete]
-  plug :authorize, :asciicast when action in [:update, :delete]
 
   def create(conn, %{"asciicast" => %Plug.Upload{}} = params),
     do: create(conn, Map.pop(params, "asciicast"))
@@ -59,9 +59,7 @@ defmodule AsciinemaWeb.Api.RecordingController do
     asciicast = conn.assigns.asciicast
     {:ok, _} = Recordings.delete_asciicast(asciicast)
 
-    conn
-    |> put_status(:no_content)
-    |> render(:deleted)
+    send_resp(conn, :no_content, "")
   end
 
   defp get_user_agent(conn) do
@@ -129,15 +127,16 @@ defmodule AsciinemaWeb.Api.RecordingController do
   defp load_asciicast(conn, _) do
     id = String.trim(conn.params["id"])
 
-    case Recordings.lookup_asciicast(id, allow_non_public_id: true) do
-      nil ->
+    with asciicast when not is_nil(asciicast) <-
+           Recordings.lookup_asciicast(id, allow_non_public_id: true),
+         true <- Authz.authorized?(conn, asciicast) do
+      assign(conn, :asciicast, asciicast)
+    else
+      _ ->
         conn
         |> put_status(:not_found)
         |> render(:error, reason: :not_found)
         |> halt()
-
-      asciicast ->
-        assign(conn, :asciicast, asciicast)
     end
   end
 end
