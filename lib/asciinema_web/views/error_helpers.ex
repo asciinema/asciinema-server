@@ -3,8 +3,6 @@ defmodule AsciinemaWeb.ErrorHelpers do
   Conveniences for translating and building error messages.
   """
 
-  use Phoenix.HTML
-
   def error_class(form, field) do
     if form.errors[field] do
       "has-error"

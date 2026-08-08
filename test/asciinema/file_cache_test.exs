@@ -213,6 +213,6 @@ defmodule Asciinema.FileCacheTest do
   end
 
   defp unique_cache_path do
-    Briefly.create!(directory: true)
+    Briefly.create!(type: :directory)
   end
 end

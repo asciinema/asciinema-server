@@ -10,15 +10,11 @@ on:
       - develop
       - main
 
-env:
-  otp: '28.5'
-  elixir: '1.19.5'
-  node: '18.x'
-  rust: '1.83.0'
-
 jobs:
   test:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
 
     services:
       postgres:
@@ -35,81 +31,48 @@ jobs:
 
     env:
       MIX_ENV: test
-      CARGO_REGISTRIES_CRATES_IO_PROTOCOL: sparse
 
     steps:
-      - uses: actions/checkout@v3
-      - name: Install Erlang & Elixir
-        uses: erlef/setup-beam@v1
+      - uses: actions/checkout@v7
+      - uses: nixbuild/nix-quick-install-action@v35
+      - uses: nix-community/cache-nix-action@v7
         with:
-          otp-version: ${{ env.otp }}
-          elixir-version: ${{ env.elixir }}
-      - name: Install Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ env.node }}
-      - name: Install Rust toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: ${{ env.rust }}
-          override: true
-      - name: Install system packages
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y imagemagick librsvg2-bin
-      - name: Install fd
-        run: |
-          mkdir -p "$HOME/.local/bin"
-          curl -fsSL -o /tmp/fd.tar.gz \
-            https://github.com/sharkdp/fd/releases/download/v10.2.0/fd-v10.2.0-x86_64-unknown-linux-gnu.tar.gz
-          tar -xzf /tmp/fd.tar.gz -C /tmp
-          install -m 0755 /tmp/fd-v10.2.0-x86_64-unknown-linux-gnu/fd "$HOME/.local/bin/fd"
-          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
-      - name: Verify system tools
-        run: |
-          which fd
-          fd --version
-          which convert
-          convert --version
-          which rsvg-convert
-          rsvg-convert --version
+          primary-key: nix-test-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/*.nix', '**/flake.lock') }}
+          restore-prefixes-first-match: nix-test-${{ runner.os }}-${{ runner.arch }}
       - name: Cache Mix
-        uses: actions/cache@v3
+        uses: actions/cache@v6
         with:
           path: deps
-          key: ${{ runner.os }}-mix-${{ env.elixir }}-${{ env.otp }}-${{ env.rust }}-${{ hashFiles('**/mix.lock') }}
+          key: ${{ runner.os }}-mix-${{ hashFiles('flake.lock') }}-${{ hashFiles('**/mix.lock') }}
           restore-keys: |
-            ${{ runner.os }}-mix-${{ env.elixir }}-${{ env.otp }}-${{ env.rust }}-
+            ${{ runner.os }}-mix-${{ hashFiles('flake.lock') }}-
       - name: Cache npm dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v6
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-node-${{ env.node }}-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-node-${{ hashFiles('flake.lock', '**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
       - name: Cache Rust dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v6
         with:
-          path: |
-            ~/.rustup
-            ~/.cargo
-          key: ${{ runner.os }}-rust-${{ env.rust }}-${{ hashFiles('**/Cargo.lock') }}
+          path: ~/.cargo
+          key: ${{ runner.os }}-rust-${{ hashFiles('flake.lock', '**/Cargo.lock') }}
           restore-keys: |
-            ${{ runner.os }}-rust-${{ env.rust }}-
+            ${{ runner.os }}-rust-
       - name: Install mix dependencies
-        run: mix deps.get
+        run: nix develop .#ci --command mix deps.get
       - name: Check formatting
-        run: mix format --check-formatted
+        run: nix develop .#ci --command mix format --check-formatted
       - name: Compile
-        run: mix compile
+        run: nix develop .#ci --command mix compile
+      - name: Lint NIF crates
+        run: nix develop .#ci --command cargo clippy --manifest-path native/Cargo.toml --workspace -- -D warnings
       - name: Install npm dependencies
-        run: npm ci --prefix assets
+        run: nix develop .#ci --command npm ci --prefix assets
       - name: Setup assets pipeline deps
-        run: mix assets.setup
+        run: nix develop .#ci --command mix assets.setup
       - name: Build assets
-        run: mix assets.build
-      - name: Setup database
-        run: mix ecto.setup
+        run: nix develop .#ci --command mix assets.build
       - name: Run tests
-        run: mix test --include vt
+        run: nix develop .#ci --command mix test --include vt

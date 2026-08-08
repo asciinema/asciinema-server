@@ -133,14 +133,39 @@ defmodule Asciinema.Streaming.Parser.AsciicastV2Test do
       assert {:ok, [{_, %{id: 4, time: 400_000}}], _state} = result
     end
 
+    test "malformed resize geometry errors instead of raising" do
+      result =
+        new()
+        |> parse!(~s|{"version": 2, "width": 80, "height": 24}|)
+        |> parse(~s|[0.1, "r", "bad"]|)
+
+      assert result == {:error, :message_invalid}
+    end
+
+    test "malformed header theme errors instead of raising" do
+      assert parse(new(), ~s|{"version": 2, "width": 80, "height": 24, "theme": "garbage"}|) ==
+               {:error, :message_invalid}
+    end
+
+    test "malformed theme color errors instead of raising" do
+      # Colors.parse returns a 2-tuple for this without raising; the shape
+      # validation must catch it before it can reach the stream server
+      palette = Enum.map_join(1..8, ":", fn _ -> "#000000" end)
+
+      header =
+        ~s|{"version": 2, "width": 80, "height": 24, "theme": {"fg": "rgb(1,2)", "bg": "#000000", "palette": "#{palette}"}}|
+
+      assert parse(new(), header) == {:error, :message_invalid}
+    end
+
     defp new, do: AsciicastV2.init()
 
     defp parse(state, binary) do
-      AsciicastV2.parse({:text, binary}, state)
+      AsciicastV2.parse({:text, binary}, state, 0)
     end
 
     defp parse!(state, binary) do
-      {:ok, _actions, state} = AsciicastV2.parse({:text, binary}, state)
+      {:ok, _actions, state} = AsciicastV2.parse({:text, binary}, state, 0)
 
       state
     end

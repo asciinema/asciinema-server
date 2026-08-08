@@ -4,7 +4,7 @@ defmodule AsciinemaWeb.StreamController do
   alias Asciinema.{Recordings, Streaming}
   alias Asciinema.Recordings.Query, as: RecordingQuery
   alias Asciinema.Streaming.Query, as: StreamQuery
-  alias AsciinemaWeb.{Authorization, FallbackController, StreamHTML, PlayerOpts}
+  alias AsciinemaWeb.{Authorization, FallbackController, PlayerOpts, StreamHTML}
   alias Ecto.Changeset
 
   plug :require_current_user when action in [:index, :create, :edit, :update, :delete]

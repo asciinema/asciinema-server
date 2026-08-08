@@ -22,7 +22,8 @@ defmodule AsciinemaWeb do
   def controller do
     quote do
       use Phoenix.Controller,
-        formats: [:html, :json, :svg, :xml, :text]
+        formats: [:html, :json, :svg, :xml, :text],
+        layouts: [html: {AsciinemaWeb.LayoutView, :app}]
 
       import Plug.Conn
       import AsciinemaWeb.UrlHelpers
@@ -98,8 +99,8 @@ defmodule AsciinemaWeb do
 
   defp view_helpers do
     quote do
-      # Use all HTML functionality (forms, tags, etc)
-      use Phoenix.HTML
+      # HTML escaping functionality
+      import Phoenix.HTML
 
       # Import LiveView and .heex helpers (live_render, live_patch, <.form>, etc)
       import Phoenix.LiveView.Helpers
@@ -113,7 +114,6 @@ defmodule AsciinemaWeb do
       import AsciinemaWeb.Icons
 
       import AsciinemaWeb.ErrorHelpers
-      alias AsciinemaWeb.Router.Helpers, as: Routes
 
       import AsciinemaWeb.UrlHelpers
       import AsciinemaWeb.ApplicationView

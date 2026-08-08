@@ -121,6 +121,7 @@ defmodule Asciinema.Asciicast.V3Test do
     test "invalid file" do
       filenames = ~w[
         empty-theme.cast
+        no-header.cast
         invalid-time-1.cast
         invalid-time-2.cast
         invalid-code.cast
@@ -257,7 +258,7 @@ defmodule Asciinema.Asciicast.V3Test do
     end
 
     test "resize", %{path: path, writer: writer} do
-      {:ok, writer} = V3.write_event(writer, 10000, "r", {81, 25})
+      {:ok, writer} = V3.write_event(writer, 10_000, "r", {81, 25})
       :ok = V3.close(writer)
       content = File.read!(path)
 

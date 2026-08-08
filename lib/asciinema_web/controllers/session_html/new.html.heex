@@ -2,7 +2,7 @@
   <h2>Log in</h2>
   <p>Confirm to finish logging in to {@conn.host}.</p>
 
-  <.form for={@conn} action={~p"/session"} id="login">
+  <.form for={%{}} action={~p"/session"} id="login">
     <input type="hidden" name="t" value={@login_token} />
     <input type="hidden" name="timezone" value="" />
     <button type="submit" class="btn btn-primary">Log in</button>

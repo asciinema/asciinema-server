@@ -2,11 +2,12 @@ defmodule AsciinemaWeb.Authentication do
   import Plug.Conn
   import Phoenix.Controller, only: [get_format: 1, put_flash: 3, redirect: 2]
   import AsciinemaWeb.Plug.ReturnTo
-  alias Plug.Conn
   alias Asciinema.Accounts
   alias Asciinema.Accounts.User
   alias AsciinemaWeb.Endpoint
-  alias AsciinemaWeb.Router.Helpers, as: Routes
+  alias Plug.Conn
+
+  use AsciinemaWeb, :verified_routes
 
   @user_key "user_id"
   @token_cookie_name "auth_token"
@@ -49,7 +50,7 @@ defmodule AsciinemaWeb.Authentication do
       conn
       |> save_return_path()
       |> put_flash(:info, msg)
-      |> redirect(to: Routes.login_path(conn, :new))
+      |> redirect(to: ~p"/login/new")
       |> halt()
     else
       conn

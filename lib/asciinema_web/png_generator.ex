@@ -9,7 +9,7 @@ defmodule AsciinemaWeb.PngGenerator do
   @symbols_font_name "Symbols Nerd Font"
 
   # Bump when PNG output bytes can change without SVG cache key changing
-  @png_renderer_salt 2
+  @png_renderer_salt 3
 
   defmodule Error do
     defexception [:type, :reason, retryable: false]
@@ -119,7 +119,7 @@ defmodule AsciinemaWeb.PngGenerator do
     <?xml version="1.0"?>
     <!DOCTYPE fontconfig SYSTEM "fonts.dtd">
     <fontconfig>
-      <include ignore_missing="yes">fonts.conf</include>
+      <include ignore_missing="yes">#{base_fontconfig()}</include>
       <dir>#{fonts_dir()}</dir>
       <selectfont>
         <rejectfont>
@@ -132,6 +132,13 @@ defmodule AsciinemaWeb.PngGenerator do
 
   defp fonts_dir do
     Application.app_dir(:asciinema, "priv/static/fonts")
+  end
+
+  # Chain to the ambient fontconfig setup when one is configured via
+  # FONTCONFIG_FILE (e.g. the nix package points it at its bundled fonts).
+  # A relative "fonts.conf" resolves to the system default configuration.
+  defp base_fontconfig do
+    System.get_env("FONTCONFIG_FILE", "fonts.conf")
   end
 
   defp font_family do

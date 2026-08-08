@@ -30,7 +30,7 @@ defmodule Asciinema.Factory do
     %Cli{
       user: build(:user),
       token: sequence(:install_id, &install_id/1),
-      revoked_at: Timex.now()
+      revoked_at: DateTime.utc_now()
     }
   end
 

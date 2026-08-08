@@ -3,7 +3,7 @@ defmodule AsciinemaWeb.OembedController do
   alias Asciinema.Recordings
   alias AsciinemaWeb.Authorization
 
-  plug :put_layout, nil
+  plug :put_layout, html: false
 
   def show(conn, params) do
     with {:ok, path} <- parse_url(params["url"] || ""),

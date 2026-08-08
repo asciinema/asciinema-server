@@ -4,10 +4,14 @@ on:
   push:
     tags:
       - "v20*"
-
-permissions:
-  contents: write
-  packages: write
+  # manual dispatch builds both architectures without publishing anything,
+  # warming the arm nix cache for later tag runs
+  workflow_dispatch:
+    inputs:
+      push_canary:
+        description: "Push the built image to ghcr.io as :canary"
+        type: boolean
+        default: false
 
 env:
   IMAGE_NAME: asciinema-server
@@ -16,64 +20,76 @@ jobs:
   build:
     name: Build (${{ matrix.platform }})
     runs-on: ${{ matrix.runner }}
+    permissions:
+      contents: read
+      packages: write
     strategy:
       matrix:
         include:
           - platform: linux/amd64
             runner: ubuntu-24.04
+            arch: amd64
           - platform: linux/arm64
             runner: ubuntu-24.04-arm
+            arch: arm64
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+
+      - uses: nixbuild/nix-quick-install-action@v35
+
+      # restores the nix cache saved by the CI runs on develop
+      - uses: nix-community/cache-nix-action@v7
+        with:
+          primary-key: nix-build-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/*.nix', '**/flake.lock') }}
+          restore-prefixes-first-match: nix-build-${{ runner.os }}-${{ runner.arch }}
 
       - name: Set up outputs
         id: vars
         run: |
-          VERSION=$(echo "${{ github.ref_name }}" | sed -e 's/^v//')
-          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
-          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-          IMAGE_TAG=$VERSION
-          echo VERSION=$VERSION >> $GITHUB_OUTPUT
-          echo IMAGE_ID=$IMAGE_ID >> $GITHUB_OUTPUT
-          echo IMAGE_TAG=$IMAGE_TAG >> $GITHUB_OUTPUT
-          platform=${{ matrix.platform }}
-          echo "PLATFORM_PAIR=${platform//\//-}" >> $GITHUB_ENV
+          if [ "${{ github.ref_type }}" = "tag" ]; then
+            VERSION=$(echo "${{ github.ref_name }}" | sed -e 's/^v//')
+            TAG=$VERSION
+          else
+            VERSION=canary-$(echo "${{ github.sha }}" | cut -c1-7)
+            TAG=canary
+          fi
+          IMAGE_ID=$(echo "ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME" | tr '[:upper:]' '[:lower:]')
+          {
+            echo "VERSION=$VERSION"
+            echo "TAG=$TAG"
+            echo "IMAGE_ID=$IMAGE_ID"
+          } >> "$GITHUB_OUTPUT"
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - name: Build image
+        run: VERSION="${{ steps.vars.outputs.VERSION }}" nix build --impure .#image
+
+      - name: Load image
+        run: ./result | docker load
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
+        if: github.ref_type == 'tag' || inputs.push_canary
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build image
-        id: build
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-          labels: runnumber=${{ github.run_id }}
-          cache-from: type=gha,scope=build-${{ env.PLATFORM_PAIR }}
-          cache-to: type=gha,mode=max,scope=build-${{ env.PLATFORM_PAIR }}
-          platforms: ${{ matrix.platform }}
-          build-args: |
-            VERSION=${{ steps.vars.outputs.VERSION }}
-          outputs: type=image,name=${{ steps.vars.outputs.IMAGE_ID }},push-by-digest=true,name-canonical=true,push=true
-
-      - name: Export digest
+      - name: Push the arch image
+        if: github.ref_type == 'tag' || inputs.push_canary
         run: |
+          arch_tag="${{ steps.vars.outputs.IMAGE_ID }}:${{ steps.vars.outputs.TAG }}-${{ matrix.arch }}"
+          docker tag asciinema-server:latest "$arch_tag"
+          docker push "$arch_tag"
+          digest=$(docker inspect --format '{{index .RepoDigests 0}}' "$arch_tag" | cut -d@ -f2)
           mkdir -p ${{ runner.temp }}/digests
-          digest="${{ steps.build.outputs.digest }}"
           touch "${{ runner.temp }}/digests/${digest#sha256:}"
 
       - name: Upload digest
-        uses: actions/upload-artifact@v4
+        if: github.ref_type == 'tag' || inputs.push_canary
+        uses: actions/upload-artifact@v7
         with:
-          name: digests-${{ env.PLATFORM_PAIR }}
+          name: digests-${{ matrix.arch }}
           path: ${{ runner.temp }}/digests/*
           if-no-files-found: error
           retention-days: 1
@@ -81,12 +97,14 @@ jobs:
   publish:
     runs-on: ubuntu-24.04
     needs: build
+    if: github.ref_type == 'tag' || inputs.push_canary
+    permissions:
+      contents: write
+      packages: write
 
     steps:
-      - uses: actions/checkout@v4
-
       - name: Download digests
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: ${{ runner.temp }}/digests
           pattern: digests-*
@@ -95,19 +113,22 @@ jobs:
       - name: Set up outputs
         id: vars
         run: |
-          VERSION=$(echo "${{ github.ref_name }}" | sed -e 's/^v//')
-          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
-          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-          IMAGE_TAG=$VERSION
-          echo VERSION=$VERSION >> $GITHUB_OUTPUT
-          echo IMAGE_ID=$IMAGE_ID >> $GITHUB_OUTPUT
-          echo IMAGE_TAG=$IMAGE_TAG >> $GITHUB_OUTPUT
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+          if [ "${{ github.ref_type }}" = "tag" ]; then
+            VERSION=$(echo "${{ github.ref_name }}" | sed -e 's/^v//')
+            TAG=$VERSION
+          else
+            VERSION=canary-$(echo "${{ github.sha }}" | cut -c1-7)
+            TAG=canary
+          fi
+          IMAGE_ID=$(echo "ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME" | tr '[:upper:]' '[:lower:]')
+          {
+            echo "VERSION=$VERSION"
+            echo "TAG=$TAG"
+            echo "IMAGE_ID=$IMAGE_ID"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -116,13 +137,18 @@ jobs:
       - name: Create multi-arch manifests
         working-directory: ${{ runner.temp }}/digests
         run: |
-          docker buildx imagetools create \
-            -t ${{ steps.vars.outputs.IMAGE_ID }}:${{ steps.vars.outputs.IMAGE_TAG }} \
-            -t ${{ steps.vars.outputs.IMAGE_ID }}:latest \
+          tags="-t ${{ steps.vars.outputs.IMAGE_ID }}:${{ steps.vars.outputs.TAG }}"
+          if [ "${{ github.ref_type }}" = "tag" ]; then
+            tags="$tags -t ${{ steps.vars.outputs.IMAGE_ID }}:latest"
+          fi
+          # shellcheck disable=SC2086,SC2046 # splitting builds the arg lists
+          docker buildx imagetools create $tags \
             $(printf '${{ steps.vars.outputs.IMAGE_ID }}@sha256:%s ' *)
 
       - name: Create the release
+        if: github.ref_type == 'tag'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
         run: |
           gh release create ${{ github.ref_name }} --draft --verify-tag --title ${{ steps.vars.outputs.VERSION }}

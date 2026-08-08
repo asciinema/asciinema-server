@@ -1,6 +1,7 @@
 defmodule Asciinema.FileStore.S3 do
   use Asciinema.Config
-  alias ExAws.{S3, Config}
+  alias Asciinema.AppEnv
+  alias ExAws.{Config, S3}
 
   @behaviour Asciinema.FileStore
 
@@ -40,6 +41,9 @@ defmodule Asciinema.FileStore.S3 do
 
       {:error, {:http_error, 404, _}} ->
         {:error, :enoent}
+
+      {:error, _} = error ->
+        error
     end
   end
 
@@ -53,7 +57,7 @@ defmodule Asciinema.FileStore.S3 do
   end
 
   defp make_request(request) do
-    ExAws.request(request)
+    AppEnv.get(:s3_request_fn, &ExAws.request/1).(request)
   end
 
   defp bucket, do: config(:bucket)

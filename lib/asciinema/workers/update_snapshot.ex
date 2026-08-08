@@ -2,7 +2,7 @@ defmodule Asciinema.Workers.UpdateSnapshot do
   use Oban.Worker,
     unique: [
       period: :infinity,
-      states: [:available, :retryable]
+      states: :incomplete
     ]
 
   alias Asciinema.Recordings

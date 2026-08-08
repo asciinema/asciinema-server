@@ -2,7 +2,7 @@
   <h2>Finish signing up</h2>
   <p>Choose your username and create your {@conn.host} account.</p>
 
-  <.form for={@conn} action={~p"/users"} id="sign-up" class="username-form">
+  <.form for={%{}} action={~p"/users"} id="sign-up" class="username-form">
     <input type="hidden" name="t" value={@sign_up_token} />
     <input type="hidden" name="timezone" value="" />
 

@@ -4,92 +4,78 @@ defmodule AsciinemaWeb.StreamConsumerSocketTest do
   import Plug.Conn
   import Plug.Test
 
+  alias Asciinema.Streaming.Alis
+  alias Asciinema.Streaming.StreamServer
   alias AsciinemaWeb.StreamConsumerSocket
 
   @headers %{"sec-websocket-protocol" => "v1.alis"}
 
   describe "connection" do
-    test "successful protocol negotiation, public stream found" do
-      stream = insert(:stream, visibility: :public)
-
-      assert {:push, {:binary, "ALiS\x01"}, _} = connect(stream.public_token, @headers)
-    end
-
-    test "successful protocol negotiation, unlisted stream found" do
-      stream = insert(:stream)
-
-      assert {:push, {:binary, "ALiS\x01"}, _} = connect(stream.public_token, @headers)
-    end
-
-    test "successful protocol negotiation, stream not found" do
-      assert {:stop, :stream_not_found, {4040, "stream not found"}, %{stream_id: "?"}} =
-               connect("nope1234567890ab", @headers)
-    end
-
-    test "private stream, guest user, forbidden" do
-      stream = insert(:stream, visibility: :private)
-
-      assert {:stop, :forbidden, {4030, "unauthorized"}, %{stream_id: token}} =
-               connect(stream.public_token, @headers)
-
-      assert token == stream.public_token
-    end
-
-    test "private stream, owner user, allowed" do
-      owner = insert(:user)
-      stream = insert(:stream, visibility: :private, user: owner)
-
-      assert {:push, {:binary, "ALiS\x01"}, _} = connect(stream.public_token, @headers, owner.id)
-    end
-
-    test "no protocol header, negotiation fails" do
-      conn =
-        "nope1234567890ab"
-        |> build_upgrade_request()
-        |> upgrade()
-
-      {Plug.Adapters.Test.Conn, %{ref: ref}} = conn.adapter
+    test "negotiates the ALiS protocol" do
+      conn = "token" |> build_upgrade_request(@headers) |> upgrade()
 
       assert conn.state == :upgraded
-      assert_received {^ref, :upgrade, {:websocket, {StreamConsumerSocket, params, opts}}}
-      assert Keyword.get(opts, :compress) == false
-
-      assert {:stop, :protocol_negotiation_failed, {1002, "protocol negotiation failed"}, _} =
-               StreamConsumerSocket.init(params)
+      assert get_resp_header(conn, "sec-websocket-protocol") == ["v1.alis"]
     end
 
-    test "unsupported protocol header, negotiation fails" do
+    test "does not negotiate without a protocol header" do
+      conn = "token" |> build_upgrade_request() |> upgrade()
+
+      assert conn.state == :upgraded
+      assert get_resp_header(conn, "sec-websocket-protocol") == []
+    end
+
+    test "does not negotiate an unsupported protocol" do
       conn =
-        "nope1234567890ab"
+        "token"
         |> build_upgrade_request(%{"sec-websocket-protocol" => "nope"})
         |> upgrade()
 
-      {Plug.Adapters.Test.Conn, %{ref: ref}} = conn.adapter
-
       assert conn.state == :upgraded
-      assert_received {^ref, :upgrade, {:websocket, {StreamConsumerSocket, params, _opts}}}
+      assert get_resp_header(conn, "sec-websocket-protocol") == []
+    end
 
+    test "closes after protocol negotiation fails" do
       assert {:stop, :protocol_negotiation_failed, {1002, "protocol negotiation failed"}, _} =
-               StreamConsumerSocket.init(params)
+               StreamConsumerSocket.init(%{protocol: nil})
+    end
+
+    test "allows a public stream" do
+      stream = insert(:stream, visibility: :public)
+
+      assert {:push, {:binary, "ALiS\x01"}, _} =
+               StreamConsumerSocket.init(socket_params(stream.public_token))
+    end
+
+    test "allows an unlisted stream" do
+      stream = insert(:stream)
+
+      assert {:push, {:binary, "ALiS\x01"}, _} =
+               StreamConsumerSocket.init(socket_params(stream.public_token))
+    end
+
+    test "closes when the stream is not found" do
+      assert {:stop, :stream_not_found, {4040, "stream not found"}, _} =
+               StreamConsumerSocket.init(socket_params("nope1234567890ab"))
+    end
+
+    test "rejects a guest from a private stream" do
+      stream = insert(:stream, visibility: :private)
+
+      assert {:stop, :forbidden, {4030, "unauthorized"}, _} =
+               StreamConsumerSocket.init(socket_params(stream.public_token))
+    end
+
+    test "allows the owner of a private stream" do
+      owner = insert(:user)
+      stream = insert(:stream, visibility: :private, user: owner)
+
+      assert {:push, {:binary, "ALiS\x01"}, _} =
+               StreamConsumerSocket.init(socket_params(stream.public_token, owner.id))
     end
   end
 
-  defp connect(public_token, headers, user_id \\ nil) do
-    conn =
-      public_token
-      |> build_upgrade_request(headers, user_id)
-      |> upgrade()
-
-    {Plug.Adapters.Test.Conn, %{ref: ref}} = conn.adapter
-
-    assert conn.state == :upgraded
-    assert_received {^ref, :upgrade, {:websocket, {StreamConsumerSocket, params, opts}}}
-    assert Keyword.get(opts, :compress) == true
-
-    StreamConsumerSocket.init(params)
-  end
-
-  defp build_upgrade_request(public_token, headers \\ %{}, user_id \\ nil) do
+  defp build_upgrade_request(public_token, headers \\ %{}) do
     host = "localhost"
 
     required_headers = %{
@@ -106,8 +92,7 @@ defmodule AsciinemaWeb.StreamConsumerSocketTest do
         put_req_header(conn, name, value)
       end)
 
-    session = if user_id, do: %{user_id: user_id}, else: %{}
-    conn = init_test_session(conn, session)
+    conn = init_test_session(conn, %{})
 
     %{conn | host: host, req_headers: [{"host", host} | conn.req_headers]}
   end
@@ -116,5 +101,40 @@ defmodule AsciinemaWeb.StreamConsumerSocketTest do
     path_params = Map.put_new(conn.path_params, "public_token", List.last(conn.path_info))
 
     StreamConsumerSocket.upgrade(conn, path_params)
+  end
+
+  defp socket_params(token, user_id \\ nil) do
+    %{token: token, user_id: user_id, protocol: "v1.alis"}
+  end
+
+  describe "handle_info/2 with stream updates" do
+    test "forwards stream updates as ALiS frames" do
+      stream = insert(:stream, visibility: :public)
+
+      assert {:push, {:binary, "ALiS\x01"}, state} =
+               StreamConsumerSocket.init(socket_params(stream.public_token))
+
+      info =
+        stream_update(stream.id, :info, %{
+          last_id: 0,
+          time: 100,
+          term_size: {80, 24},
+          term_theme: nil,
+          term_init: ""
+        })
+
+      assert {:push, {:binary, <<1, _rest::binary>>}, state} =
+               StreamConsumerSocket.handle_info(info, state)
+
+      output = stream_update(stream.id, :output, %{id: 2, time: 350, text: "x"})
+      assert {:push, {:binary, frame}, _state} = StreamConsumerSocket.handle_info(output, state)
+
+      # The delta proves the state returned for the init update was retained.
+      assert frame == Alis.V1.encode_frame({:output, %{id: 2, rel_time: 250, text: "x"}})
+    end
+  end
+
+  defp stream_update(stream_id, event, data) do
+    %StreamServer.Update{stream_id: stream_id, event: event, data: data}
   end
 end

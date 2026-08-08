@@ -2,7 +2,7 @@ defmodule Asciinema.Workers.MarkOfflineStreams do
   use Oban.Worker,
     unique: [period: :infinity, states: :incomplete]
 
-  alias Asciinema.Streaming
+  alias Asciinema.{AppEnv, Streaming}
   require Logger
 
   @impl Oban.Worker
@@ -27,10 +27,6 @@ defmodule Asciinema.Workers.MarkOfflineStreams do
   @five_minutes_in_sec 5 * 60
 
   defp grace_period do
-    Keyword.get(
-      Application.get_env(:asciinema, __MODULE__, []),
-      :grace_period,
-      @five_minutes_in_sec
-    )
+    Keyword.get(AppEnv.get(__MODULE__, []), :grace_period, @five_minutes_in_sec)
   end
 end

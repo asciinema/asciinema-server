@@ -36,6 +36,7 @@ npm-debug.log
 /assets/node_modules/
 
 .*
+!/.credo.exs
 !/.github/
 
 /cache/
@@ -43,4 +44,4 @@ npm-debug.log
 /priv/native/
 /uploads/
 /volumes/
-/result
+/result*

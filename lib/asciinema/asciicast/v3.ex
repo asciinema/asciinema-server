@@ -1,7 +1,7 @@
 defmodule Asciinema.Asciicast.V3 do
+  alias Asciinema.Asciicast.{EventStream, Reader}
   alias Asciinema.Colors
   alias Asciinema.Quantizer
-  alias Asciinema.Asciicast.{EventStream, Reader}
 
   defmodule Writer do
     @enforce_keys [:file, :prev_time, :time_quantizer]
@@ -58,7 +58,7 @@ defmodule Asciinema.Asciicast.V3 do
         command: header["command"],
         duration: stats.duration,
         event_count: stats.event_count,
-        recorded_at: header["timestamp"] && Timex.from_unix(header["timestamp"]),
+        recorded_at: from_unix(header["timestamp"]),
         title: header["title"],
         env: header["env"] || %{},
         idle_time_limit: header["idle_time_limit"],
@@ -84,6 +84,9 @@ defmodule Asciinema.Asciicast.V3 do
 
       {:ok, %{"version" => version}} ->
         {:error, {:invalid_version, version}}
+
+      {:ok, _} ->
+        {:error, :invalid_format}
 
       {:error, %Jason.DecodeError{}} ->
         {:error, :invalid_format}
@@ -212,4 +215,13 @@ defmodule Asciinema.Asciicast.V3 do
   end
 
   def close(%Writer{file: file}), do: File.close(file)
+
+  defp from_unix(ts) when is_integer(ts) do
+    case DateTime.from_unix(ts) do
+      {:ok, time} -> time
+      {:error, _} -> nil
+    end
+  end
+
+  defp from_unix(_), do: nil
 end

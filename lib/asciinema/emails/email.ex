@@ -112,7 +112,7 @@ defmodule Asciinema.Emails.Email do
   defp base_email do
     new()
     |> from({"asciinema", from_address()})
-    |> header("Date", Timex.format!(Timex.now(), "{RFC1123}"))
+    |> header("Date", Calendar.strftime(DateTime.utc_now(), "%a, %d %b %Y %H:%M:%S +0000"))
     |> header("Message-ID", message_id())
     |> header("Auto-Submitted", "auto-generated")
     |> header("X-Auto-Response-Suppress", "All")

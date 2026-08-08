@@ -63,7 +63,7 @@
 
         <div class="asciicast-list">
           <div :for={stream <- live_streams}>
-            {live_render(@conn, AsciinemaWeb.LiveStreamCardLive,
+            {live_render(@conn, AsciinemaWeb.StreamCardLive,
               session: %{"stream_id" => stream.id, "show_visibility_badge" => @self}
             )}
           </div>
@@ -82,7 +82,7 @@
 
         <div class="asciicast-list">
           <div :for={stream <- upcoming_streams}>
-            {live_render(@conn, AsciinemaWeb.UpcomingStreamCardLive,
+            {live_render(@conn, AsciinemaWeb.StreamCardLive,
               session: %{"stream_id" => stream.id, "show_visibility_badge" => @self}
             )}
           </div>
@@ -141,13 +141,13 @@
           then associate it with your account by running
           <a href="https://docs.asciinema.org/manual/cli/usage/#asciinema-auth">
             <code>asciinema
-              auth</code>
+            auth</code>
           </a>
           in your terminal <em>on the same machine you used to record it</em>.
         </p>
 
         <p>See <a href="https://docs.asciinema.org/manual/cli/quick-start/">asciinema
-            CLI quick-start guide</a> for more examples.</p>
+          CLI quick-start guide</a> for more examples.</p>
       <% else %>
         <p :if={!@self}><strong>{username(@user)} has no public recordings.</strong></p>
       <% end %>

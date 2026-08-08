@@ -30,26 +30,28 @@ defmodule Asciinema.Gzip do
 
   @spec uncompressed_size(Path.t()) :: {:ok, non_neg_integer()} | {:error, :invalid_gzip}
   def uncompressed_size(path) do
-    case File.open(path, [:read, :binary], fn file ->
-           case :file.position(file, {:eof, -4}) do
-             {:ok, _position} ->
-               case IO.binread(file, 4) do
-                 <<size::little-32>> -> {:ok, size}
-                 _ -> {:error, :invalid_gzip}
-               end
-
-             {:error, :einval} ->
-               {:error, :invalid_gzip}
-
-             {:error, reason} ->
-               raise File.Error, reason: reason, action: "read file"
-           end
-         end) do
+    case File.open(path, [:read, :binary], &read_isize/1) do
       {:ok, result} ->
         result
 
       {:error, reason} ->
         raise File.Error, reason: reason, action: "open file", path: path
+    end
+  end
+
+  defp read_isize(file) do
+    case :file.position(file, {:eof, -4}) do
+      {:ok, _position} ->
+        case IO.binread(file, 4) do
+          <<size::little-32>> -> {:ok, size}
+          _ -> {:error, :invalid_gzip}
+        end
+
+      {:error, :einval} ->
+        {:error, :invalid_gzip}
+
+      {:error, reason} ->
+        raise File.Error, reason: reason, action: "read file"
     end
   end
 
@@ -278,9 +280,10 @@ defmodule Asciinema.Gzip do
   def compress_file(input_path, output_path \\ nil) do
     output_path = output_path || Briefly.create!()
 
-    input_path
-    |> File.stream!(@read_chunk_size)
-    |> Enum.into(stream!(output_path, @read_chunk_size))
+    _ =
+      input_path
+      |> File.stream!(@read_chunk_size)
+      |> Enum.into(stream!(output_path, @read_chunk_size))
 
     output_path
   end

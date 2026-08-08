@@ -128,6 +128,6 @@ defmodule AsciinemaWeb.PlugAttackTest do
 
   defp unique_ip do
     n = System.unique_integer([:positive])
-    {10, rem(n, 256), rem(div(n, 256), 256), rem(div(n, 65536), 256)}
+    {10, rem(n, 256), rem(div(n, 256), 256), rem(div(n, 65_536), 256)}
   end
 end

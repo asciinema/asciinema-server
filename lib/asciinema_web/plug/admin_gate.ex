@@ -9,8 +9,8 @@ defmodule AsciinemaWeb.Plug.AdminGate do
   """
 
   import Plug.Conn
-  alias Asciinema.AppEnv
   alias Asciinema.Accounts.User
+  alias Asciinema.AppEnv
   alias AsciinemaWeb.Authentication
 
   def init(opts), do: opts

@@ -209,7 +209,7 @@ defmodule AsciinemaWeb.RecordingController do
       send_resp(conn, 410, "")
     else
       conn
-      |> put_layout("simple.html")
+      |> put_layout(html: {AsciinemaWeb.LayoutView, :simple})
       |> render("gif.html",
         file_url: asciicast_file_url(asciicast),
         asciicast_id: asciicast.id
@@ -292,9 +292,10 @@ defmodule AsciinemaWeb.RecordingController do
       fn tmp_dir ->
         gz_path = Path.join(tmp_dir, Path.basename(source_path)) <> ".gz"
 
-        source_path
-        |> stream_path!(source_encoding)
-        |> Enum.into(Gzip.stream!(gz_path, @encoding_chunk_size))
+        _ =
+          source_path
+          |> stream_path!(source_encoding)
+          |> Enum.into(Gzip.stream!(gz_path, @encoding_chunk_size))
 
         gz_path
       end,
@@ -309,9 +310,10 @@ defmodule AsciinemaWeb.RecordingController do
       fn tmp_dir ->
         zst_path = Path.join(tmp_dir, Path.basename(source_path)) <> ".zst"
 
-        source_path
-        |> File.stream!([], @encoding_chunk_size)
-        |> Enum.into(Zstd.stream!(zst_path, @encoding_chunk_size))
+        _ =
+          source_path
+          |> File.stream!([], @encoding_chunk_size)
+          |> Enum.into(Zstd.stream!(zst_path, @encoding_chunk_size))
 
         zst_path
       end,
@@ -326,9 +328,10 @@ defmodule AsciinemaWeb.RecordingController do
       fn tmp_dir ->
         path = Path.join(tmp_dir, Path.rootname(Path.basename(source_path), ".zst"))
 
-        source_path
-        |> stream_path!(source_encoding)
-        |> Enum.into(File.stream!(path, [:write, :binary], @encoding_chunk_size))
+        _ =
+          source_path
+          |> stream_path!(source_encoding)
+          |> Enum.into(File.stream!(path, [:write, :binary], @encoding_chunk_size))
 
         path
       end,
@@ -479,8 +482,9 @@ defmodule AsciinemaWeb.RecordingController do
   def iframe(conn, params) do
     conn =
       conn
-      |> put_layout("iframe.html")
+      |> put_layout(html: {AsciinemaWeb.LayoutView, :iframe})
       |> delete_resp_header("x-frame-options")
+      |> put_resp_header("content-security-policy", "base-uri 'self'")
 
     if conn.assigns.asciicast.archived_at do
       conn

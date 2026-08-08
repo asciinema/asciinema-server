@@ -2,10 +2,11 @@ defmodule AsciinemaWeb.RecordingSVG do
   use Phoenix.Component
   import Phoenix.HTML
   alias Asciinema.{Colors, Media, Themes}
-  alias Asciinema.SvgRaster
   alias Asciinema.Recordings.Snapshot
-  alias AsciinemaWeb.Router.Helpers, as: Routes
+  alias Asciinema.SvgRaster
   alias Phoenix.HTML
+
+  use AsciinemaWeb, :verified_routes
 
   embed_templates "recording_svg/*"
 
@@ -69,7 +70,7 @@ defmodule AsciinemaWeb.RecordingSVG do
   end
 
   # Bump when SVG rendering output can change without recording data changes.
-  @svg_renderer_salt 5
+  @svg_renderer_salt 6
 
   def svg_cache_key(asciicast) do
     key =

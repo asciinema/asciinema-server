@@ -69,11 +69,11 @@ defmodule Asciinema.Streaming.Parser.RawTest do
   defp new, do: Raw.init()
 
   defp parse(state, message) do
-    Raw.parse(message, state)
+    Raw.parse(message, state, 1_000_000)
   end
 
   defp parse!(state, message) do
-    {:ok, _actions, state} = Raw.parse(message, state)
+    {:ok, _actions, state} = Raw.parse(message, state, 1_000_000)
 
     state
   end

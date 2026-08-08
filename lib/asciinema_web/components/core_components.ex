@@ -95,11 +95,11 @@ defmodule AsciinemaWeb.CoreComponents do
   def time_ago(assigns) do
     ~H"""
     <time
-      datetime={Timex.format!(@time, "{ISO:Extended:Z}")}
-      title={Timex.format!(@time, "{RFC1123z}")}
+      datetime={DateTime.to_iso8601(@time)}
+      title={AsciinemaWeb.ApplicationView.rfc_1123(@time)}
       {@rest}
     >
-      {Timex.from_now(@time)}
+      {AsciinemaWeb.ApplicationView.relative_time(@time)}
     </time>
     """
   end

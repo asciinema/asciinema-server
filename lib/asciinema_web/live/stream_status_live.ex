@@ -85,31 +85,49 @@ defmodule AsciinemaWeb.StreamStatusLive do
 
   @impl true
   def mount(_params, %{"stream_id" => stream_id}, socket) do
-    if connected?(socket) do
-      StreamServer.subscribe(stream_id, [:reset, :end, :metadata])
-      StreamServer.request_info(stream_id)
-      ViewerTracker.subscribe(stream_id)
-      Process.send_after(self(), :info_timeout, @info_timeout)
-      Process.send_after(self(), :update, @update_interval)
-      Process.send_after(self(), :reload_schedule, @schedule_reload_interval)
+    case Streaming.get_stream(stream_id) do
+      nil ->
+        # the stream was deleted while its page was still open in a browser
+        socket =
+          assign(socket,
+            stream_id: stream_id,
+            live: false,
+            confirmed: false,
+            last_started_at: nil,
+            last_ended_at: nil,
+            next_start_at: nil,
+            now: DateTime.utc_now(),
+            viewer_count: 0,
+            env_info_attrs: %{}
+          )
+
+        {:ok, socket}
+
+      stream ->
+        if connected?(socket) do
+          StreamServer.subscribe(stream_id, [:reset, :end, :metadata])
+          StreamServer.request_info(stream_id)
+          ViewerTracker.subscribe(stream_id)
+          Process.send_after(self(), :info_timeout, @info_timeout)
+          Process.send_after(self(), :update, @update_interval)
+          Process.send_after(self(), :reload_schedule, @schedule_reload_interval)
+        end
+
+        socket =
+          assign(socket,
+            stream_id: stream.id,
+            live: stream.live,
+            confirmed: false,
+            last_started_at: stream.last_started_at,
+            last_ended_at: if(!stream.live, do: stream.last_activity_at),
+            next_start_at: stream.next_start_at,
+            now: DateTime.utc_now(),
+            viewer_count: stream.current_viewer_count,
+            env_info_attrs: env_info_attrs(stream)
+          )
+
+        {:ok, socket}
     end
-
-    stream = Streaming.get_stream(stream_id)
-
-    socket =
-      assign(socket,
-        stream_id: stream.id,
-        live: stream.live,
-        confirmed: false,
-        last_started_at: stream.last_started_at,
-        last_ended_at: if(!stream.live, do: stream.last_activity_at),
-        next_start_at: stream.next_start_at,
-        now: DateTime.utc_now(),
-        viewer_count: stream.current_viewer_count,
-        env_info_attrs: env_info_attrs(stream)
-      )
-
-    {:ok, socket}
   end
 
   @impl true
@@ -124,7 +142,7 @@ defmodule AsciinemaWeb.StreamStatusLive do
   def handle_info(%StreamServer.Update{event: e} = update, socket)
       when e in [:info, :reset] do
     %{time: time} = update.data
-    last_started_at = Timex.shift(Timex.now(), microseconds: -time)
+    last_started_at = DateTime.add(DateTime.utc_now(), -time, :microsecond)
     socket = assign(socket, live: true, last_started_at: last_started_at, confirmed: true)
 
     {:noreply, socket}
@@ -164,12 +182,17 @@ defmodule AsciinemaWeb.StreamStatusLive do
     if duration < 60 do
       nil
     else
-      (div(duration, 60) * 60)
-      |> Timex.Duration.from_seconds()
-      |> Timex.format_duration(:humanized)
-      |> String.split(", ")
+      [
+        {div(duration, 86_400), "day"},
+        {div(rem(duration, 86_400), 3_600), "hour"},
+        {div(rem(duration, 3_600), 60), "minute"}
+      ]
+      |> Enum.filter(fn {n, _unit} -> n > 0 end)
       |> Enum.take(2)
-      |> Enum.join(", ")
+      |> Enum.map_join(", ", fn
+        {1, unit} -> "1 #{unit}"
+        {n, unit} -> "#{n} #{unit}s"
+      end)
     end
   end
 end

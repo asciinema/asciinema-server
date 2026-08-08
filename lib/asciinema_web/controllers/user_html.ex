@@ -25,18 +25,18 @@ defmodule AsciinemaWeb.UserHTML do
   end
 
   def joined_at(user) do
-    Timex.format!(user.inserted_at, "{Mfull} {D}, {YYYY}")
+    Calendar.strftime(user.inserted_at, "%B %-d, %Y")
   end
 
   def active_clis(clis) do
     clis
     |> Enum.reject(& &1.revoked_at)
-    |> Enum.sort_by(&(-Timex.to_unix(&1.inserted_at)))
+    |> Enum.sort_by(&(-DateTime.to_unix(&1.inserted_at)))
   end
 
   def revoked_clis(clis) do
     clis
     |> Enum.filter(& &1.revoked_at)
-    |> Enum.sort_by(&(-Timex.to_unix(&1.inserted_at)))
+    |> Enum.sort_by(&(-DateTime.to_unix(&1.inserted_at)))
   end
 end

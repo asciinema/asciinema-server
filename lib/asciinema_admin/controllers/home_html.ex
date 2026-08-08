@@ -39,8 +39,7 @@ defmodule AsciinemaAdmin.HomeHTML do
     |> String.reverse()
     |> String.graphemes()
     |> Enum.chunk_every(3)
-    |> Enum.map(&Enum.join/1)
-    |> Enum.join(",")
+    |> Enum.map_join(",", &Enum.join/1)
     |> String.reverse()
   end
 end

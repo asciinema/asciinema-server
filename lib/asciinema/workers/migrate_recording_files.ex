@@ -2,7 +2,7 @@ defmodule Asciinema.Workers.MigrateRecordingFiles do
   use Oban.Worker,
     unique: [
       period: :infinity,
-      states: [:available, :retryable]
+      states: :incomplete
     ]
 
   require Logger

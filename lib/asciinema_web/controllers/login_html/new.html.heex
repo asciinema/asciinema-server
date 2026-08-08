@@ -4,7 +4,12 @@
       <h1><.user_circle_outline_icon /> Log in</h1>
       <br />
 
-      <.form :let={f} for={@conn} action={~p"/login"} as={:login} class="login-form">
+      <.form
+        :let={f}
+        for={to_form(@conn.params["login"] || %{}, as: :login)}
+        action={~p"/login"}
+        class="login-form"
+      >
         <.label for={f[:email]} style="display: none">E-mail or username</.label>
 
         <.input

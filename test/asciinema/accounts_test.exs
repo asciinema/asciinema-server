@@ -130,6 +130,9 @@ defmodule Asciinema.AccountsTest do
     test "non-existing user, by email, when email is invalid" do
       assert Accounts.initiate_login("foo@") == {:error, :email_invalid}
       assert Accounts.initiate_login("foo@ex.ample..com") == {:error, :email_invalid}
+      assert Accounts.initiate_login("foo.@example.com") == {:error, :email_invalid}
+      assert Accounts.initiate_login(".foo@example.com") == {:error, :email_invalid}
+      assert Accounts.initiate_login("fo..o@example.com") == {:error, :email_invalid}
     end
 
     test "non-existing user, by username" do

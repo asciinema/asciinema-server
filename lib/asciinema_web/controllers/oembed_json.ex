@@ -1,7 +1,7 @@
 defmodule AsciinemaWeb.OembedJSON do
   use AsciinemaWeb, :json
+  import Phoenix.Component, only: [sigil_H: 2]
   alias AsciinemaWeb.UserHTML
-  alias Phoenix.HTML.Tag
 
   def show(%{asciicast: asciicast, max_width: mw, max_height: mh}) do
     attrs(asciicast, mw, mh)
@@ -55,12 +55,11 @@ defmodule AsciinemaWeb.OembedJSON do
   end
 
   defp html(recording_url, thumbnail_url, title, width) do
-    safe =
-      Tag.content_tag :a, href: recording_url, target: "_blank" do
-        Tag.img_tag(thumbnail_url, alt: title, width: width)
-      end
+    assigns = %{url: recording_url, src: thumbnail_url, title: title, width: width}
 
-    Phoenix.HTML.safe_to_string(safe)
+    ~H|<a href={@url} target="_blank"><img src={@src} alt={@title} width={@width} /></a>|
+    |> Phoenix.HTML.Safe.to_iodata()
+    |> IO.iodata_to_binary()
   end
 
   defp size_smaller_than(width, height, max_width, max_height) do

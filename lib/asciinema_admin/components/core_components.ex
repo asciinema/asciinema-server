@@ -44,15 +44,15 @@ defmodule AsciinemaAdmin.CoreComponents do
 
   def button(assigns) do
     tag = if Map.get(assigns.rest, :href), do: :a, else: :button
-    assigns = assign(assigns, :tag, tag)
+    rest = if tag == :button, do: Map.put(assigns.rest, :type, assigns.type), else: assigns.rest
+
+    assigns =
+      assigns
+      |> assign(:tag, tag)
+      |> assign(:rest, rest)
 
     ~H"""
-    <.dynamic_tag
-      tag_name={"#{@tag}"}
-      class={["btn", "btn-#{@variant}", @class]}
-      type={if @tag == :button, do: @type}
-      {@rest}
-    >
+    <.dynamic_tag tag_name={"#{@tag}"} class={["btn", "btn-#{@variant}", @class]} {@rest}>
       {render_slot(@inner_block)}
     </.dynamic_tag>
     """
@@ -369,11 +369,11 @@ defmodule AsciinemaAdmin.CoreComponents do
   def time_ago(assigns) do
     ~H"""
     <time
-      datetime={Timex.format!(@time, "{ISO:Extended:Z}")}
-      title={Timex.format!(@time, "{RFC1123z}")}
+      datetime={DateTime.to_iso8601(@time)}
+      title={AsciinemaWeb.ApplicationView.rfc_1123(@time)}
       {@rest}
     >
-      {Timex.from_now(@time)}
+      {AsciinemaWeb.ApplicationView.relative_time(@time)}
     </time>
     """
   end

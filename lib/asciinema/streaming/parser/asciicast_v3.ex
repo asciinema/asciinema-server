@@ -11,13 +11,19 @@ defmodule Asciinema.Streaming.Parser.AsciicastV3 do
 
   def init, do: %{first: true, last_event_id: 0, time_offset: 0}
 
-  def parse({:text, "\n"}, state), do: {:ok, [], state}
-  def parse({:text, "#" <> _}, state), do: {:ok, [], state}
+  def parse({:text, "\n"}, state, _now_us), do: {:ok, [], state}
+  def parse({:text, "#" <> _}, state, _now_us), do: {:ok, [], state}
 
-  def parse({:text, payload}, state) do
+  def parse({:text, payload}, state, _now_us) do
     case Jason.decode(payload) do
       {:ok, message} ->
-        handle_message(message, state)
+        # a malformed payload inside valid JSON must close the connection,
+        # not crash the socket process
+        try do
+          handle_message(message, state)
+        rescue
+          _ -> {:error, :message_invalid}
+        end
 
       {:error, %Jason.DecodeError{} = reason} ->
         {:error, "JSON decode error: #{Jason.DecodeError.message(reason)}"}
@@ -100,15 +106,21 @@ defmodule Asciinema.Streaming.Parser.AsciicastV3 do
     palette =
       palette
       |> String.split(":")
-      |> Enum.map(&Colors.parse/1)
+      |> Enum.map(&parse_color/1)
 
     true = length(palette) in [8, 16]
 
     %{
-      fg: Colors.parse(fg),
-      bg: Colors.parse(bg),
+      fg: parse_color(fg),
+      bg: parse_color(bg),
       palette: palette
     }
+  end
+
+  # Colors.parse can return a malformed tuple (e.g. for rgb() with two
+  # components); checking the shape here turns that into a protocol error
+  defp parse_color(color) do
+    {_r, _g, _b} = Colors.parse(color)
   end
 
   defp get_next_id(state) do

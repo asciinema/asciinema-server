@@ -1,7 +1,7 @@
 defmodule Asciinema.Streaming.Parser.AlisV1Test do
   use ExUnit.Case, async: true
-  alias Asciinema.Streaming.Parser.AlisV1
   alias Asciinema.Leb128
+  alias Asciinema.Streaming.Parser.AlisV1
 
   describe "parse/2" do
     test "non-magic-string as the first message" do
@@ -122,13 +122,17 @@ defmodule Asciinema.Streaming.Parser.AlisV1Test do
     end
 
     test "eot" do
-      result =
-        new()
-        |> parse!("ALiS\x01")
-        |> parse!(<<0x01, encode_init(0, 0, 80, 24, nil, "")::binary>>)
-        |> parse(<<0x04, encode_eot(1, 100_000)::binary>>)
+      # bare form and the CLI's legacy id + time payload are both accepted
+      for eot_frame <- [<<0x04>>, <<0x04, encode_eot(1, 100_000)::binary>>] do
+        result =
+          new()
+          |> parse!("ALiS\x01")
+          |> parse!(<<0x01, encode_init(0, 0, 80, 24, nil, "")::binary>>)
+          |> parse(eot_frame)
 
-      assert {:ok, [eot: %{id: 1, time: 100_000}], _state} = result
+        assert {:ok, [eot: data], _state} = result
+        assert data == %{}
+      end
     end
 
     test "invalid" do
@@ -158,11 +162,11 @@ defmodule Asciinema.Streaming.Parser.AlisV1Test do
   defp new, do: AlisV1.init()
 
   defp parse(state, binary) do
-    AlisV1.parse({:binary, binary}, state)
+    AlisV1.parse({:binary, binary}, state, 0)
   end
 
   defp parse!(state, binary) do
-    {:ok, _actions, state} = AlisV1.parse({:binary, binary}, state)
+    {:ok, _actions, state} = AlisV1.parse({:binary, binary}, state, 0)
     state
   end
 

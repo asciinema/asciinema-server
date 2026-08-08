@@ -21,7 +21,7 @@
     <%= if @standalone do %>
     @font-face {
       font-family: "Symbols Nerd Font";
-      src: url("<%= Routes.static_url(AsciinemaWeb.Endpoint, "/fonts/SymbolsNerdFont-Regular.woff2") %>") format("woff2");
+      src: url("<%= url(~p"/fonts/SymbolsNerdFont-Regular.woff2") %>") format("woff2");
     }
     <% end %>
   </style>
@@ -39,13 +39,11 @@
       style="image-rendering: pixelated; image-rendering: crisp-edges;"
     />
 
-    <g style="shape-rendering: optimizeSpeed">
-      <%= for %{y: y, segments: segments} <- @coords.vector_symbols do %>
-        <%= for %{x: x, text: char, attrs: attrs} <- segments do %>
-          <.vector_symbol char={char} x={x} y={y} attrs={attrs} theme={@theme} />
-        <% end %>
+    <%= for %{y: y, segments: segments} <- @coords.vector_symbols do %>
+      <%= for %{x: x, text: char, attrs: attrs} <- segments do %>
+        <.vector_symbol char={char} x={x} y={y} attrs={attrs} theme={@theme} />
       <% end %>
-    </g>
+    <% end %>
 
     <text xml:space="preserve" class="term-text" style={"fill: " <> @theme.fg}>
       <tspan :for={%{y: y, segments: segments} <- @coords.text} y={y(y)}>

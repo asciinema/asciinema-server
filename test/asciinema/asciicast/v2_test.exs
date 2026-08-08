@@ -117,6 +117,7 @@ defmodule Asciinema.Asciicast.V2Test do
     test "invalid file" do
       filenames = ~w[
         empty-theme.cast
+        no-header.cast
         invalid-time-1.cast
         invalid-time-2.cast
         invalid-code.cast

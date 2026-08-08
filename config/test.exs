@@ -37,6 +37,11 @@ config :asciinema, Asciinema.Accounts,
 
 config :asciinema, Asciinema.FileStore.Local, path: "uploads/test/"
 
+# fake credentials for local presigned URL signing in the S3 file store tests
+config :ex_aws,
+  access_key_id: "test-key-id",
+  secret_access_key: "test-secret-key"
+
 config :asciinema, Asciinema.FileCache, path: "/tmp/asciinema/"
 
 config :asciinema, Oban, testing: :manual

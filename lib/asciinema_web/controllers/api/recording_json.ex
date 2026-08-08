@@ -1,7 +1,7 @@
 defmodule AsciinemaWeb.Api.RecordingJSON do
   use AsciinemaWeb, :json
-  alias AsciinemaWeb.UrlHelpers
   alias Asciinema.Accounts
+  alias AsciinemaWeb.UrlHelpers
   alias Ecto.Changeset
 
   def show(%{asciicast: asciicast, cli: cli}) do

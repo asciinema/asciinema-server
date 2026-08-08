@@ -1,6 +1,6 @@
 defmodule AsciinemaWeb.UserController do
   use AsciinemaWeb, :controller
-  alias Asciinema.{Accounts, Streaming, Recordings}
+  alias Asciinema.{Accounts, Recordings, Streaming}
   alias Asciinema.Recordings.Query, as: RecordingQuery
   alias Asciinema.Streaming.Query, as: StreamQuery
   require Logger

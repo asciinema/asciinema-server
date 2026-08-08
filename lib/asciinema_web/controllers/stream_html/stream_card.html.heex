@@ -5,18 +5,23 @@
   author_profile_url={author_profile_path(@stream)}
   author_username={author_username(@stream)}
   author_avatar_url={author_avatar_url(@stream)}
-  no_play_overlay={true}
+  no_play_overlay={@status != :live}
 >
   <:preview>
-    <.countdown status={@status} />
+    <%= if @status == :live do %>
+      <RecordingSVG.thumbnail asciicast={@stream} />
+    <% else %>
+      <.countdown status={@status} />
+    <% end %>
   </:preview>
 
   <:duration>
     <%= case @status do %>
       <% :live -> %>
         <.live_icon />
-      <% _ -> %>
+      <% {:waiting, _} -> %>
         Scheduled for {format_start_time(@stream)}
+      <% :ended -> %>
     <% end %>
   </:duration>
 

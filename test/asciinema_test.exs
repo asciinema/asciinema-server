@@ -91,19 +91,19 @@ defmodule AsciinemaTest do
       asciicast_1 =
         insert(:asciicast,
           user: tmp_user,
-          inserted_at: Timex.shift(Timex.now(), days: -2)
+          inserted_at: DateTime.add(DateTime.utc_now(), -2 * 86_400)
         )
 
       asciicast_2 =
         insert(:asciicast,
           user: tmp_user,
-          inserted_at: Timex.shift(Timex.now(), days: -4)
+          inserted_at: DateTime.add(DateTime.utc_now(), -4 * 86_400)
         )
 
       asciicast_3 =
         insert(:asciicast,
           user: tmp_user,
-          inserted_at: Timex.shift(Timex.now(), days: -10),
+          inserted_at: DateTime.add(DateTime.utc_now(), -10 * 86_400),
           archivable: false
         )
 
@@ -121,19 +121,19 @@ defmodule AsciinemaTest do
       asciicast_1 =
         insert(:asciicast,
           user: tmp_user,
-          inserted_at: Timex.shift(Timex.now(), days: -2)
+          inserted_at: DateTime.add(DateTime.utc_now(), -2 * 86_400)
         )
 
       asciicast_2 =
         insert(:asciicast,
           user: tmp_user,
-          inserted_at: Timex.shift(Timex.now(), days: -4)
+          inserted_at: DateTime.add(DateTime.utc_now(), -4 * 86_400)
         )
 
       asciicast_3 =
         insert(:asciicast,
           user: tmp_user,
-          inserted_at: Timex.shift(Timex.now(), days: -10),
+          inserted_at: DateTime.add(DateTime.utc_now(), -10 * 86_400),
           archivable: false
         )
 

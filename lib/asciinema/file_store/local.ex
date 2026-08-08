@@ -23,9 +23,8 @@ defmodule Asciinema.FileStore.Local do
 
     with :ok <- File.mkdir_p(parent_dir) do
       try do
-        with {:ok, _} <- File.copy(src_local_path, tmp_path),
-             :ok <- File.rename(tmp_path, full_dst_path) do
-          :ok
+        with {:ok, _} <- File.copy(src_local_path, tmp_path) do
+          File.rename(tmp_path, full_dst_path)
         end
       after
         # Clean up temp file if it still exists

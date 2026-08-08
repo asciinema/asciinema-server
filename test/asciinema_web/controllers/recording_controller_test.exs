@@ -1337,6 +1337,11 @@ defmodule AsciinemaWeb.RecordingControllerTest do
 
     assert html_response(conn_2, 200) =~ "createPlayer"
 
+    # the iframe must stay embeddable on third-party sites: no x-frame-options
+    # and no frame-ancestors directive in the CSP
+    assert get_resp_header(conn_2, "x-frame-options") == []
+    assert get_resp_header(conn_2, "content-security-policy") == ["base-uri 'self'"]
+
     conn_2 =
       conn
       |> put_req_header("accept", "text/html")

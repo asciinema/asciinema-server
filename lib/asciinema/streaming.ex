@@ -645,7 +645,7 @@ defmodule Asciinema.Streaming do
 
   def reassign_streams(src_user_id, dst_user_id) do
     from(s in Stream, where: s.user_id == ^src_user_id)
-    |> Repo.update_all(set: [user_id: dst_user_id, updated_at: Timex.now()])
+    |> Repo.update_all(set: [user_id: dst_user_id, updated_at: DateTime.utc_now()])
   end
 
   def mark_inactive_streams_offline do

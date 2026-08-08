@@ -1,7 +1,7 @@
 defmodule AsciinemaWeb.Api.RecordingController do
   use AsciinemaWeb, :controller
   use Asciinema.Config
-  alias Asciinema.{Recordings, Accounts}
+  alias Asciinema.{Accounts, Recordings}
   alias AsciinemaWeb.Api.AuthError
   alias AsciinemaWeb.Plug.Authz
 

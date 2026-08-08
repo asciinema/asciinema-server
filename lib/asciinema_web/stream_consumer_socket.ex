@@ -1,8 +1,9 @@
 defmodule AsciinemaWeb.StreamConsumerSocket do
   import Plug.Conn
 
-  alias Asciinema.{Accounts, Leb128, Streaming}
-  alias Asciinema.Streaming.{StreamServer, ViewerTracker}
+  alias Asciinema.{Accounts, Streaming}
+  alias Asciinema.Streaming.Alis
+  alias Asciinema.Streaming.{ConsumerSession, StreamServer, ViewerTracker}
   alias AsciinemaWeb.Authorization
   require Logger
 
@@ -47,13 +48,13 @@ defmodule AsciinemaWeb.StreamConsumerSocket do
     with {:ok, stream} <- fetch_stream(token),
          :ok <- authorize(stream, user_id) do
       Logger.info("consumer/#{stream.id}: connected")
-      state = %{stream_id: stream.id, init: false, last_event_time: 0.0}
+      state = %{stream_id: stream.id, session: ConsumerSession.new()}
       StreamServer.subscribe(stream.id, [:output, :input, :resize, :marker, :end, :reset])
       StreamServer.request_info(stream.id)
       ViewerTracker.track(stream.id)
       Process.send_after(self(), :client_ping, @client_ping_interval)
 
-      {:push, magic_string(), state}
+      {:push, {:binary, Alis.V1.magic()}, state}
     else
       {:error, :stream_not_found} ->
         Logger.info("consumer: stream not found for public token #{token}")
@@ -74,85 +75,16 @@ defmodule AsciinemaWeb.StreamConsumerSocket do
   @impl true
   def handle_info(message, state)
 
-  def handle_info(%StreamServer.Update{event: :reset} = update, state) do
-    %{term_size: {cols, rows}} = update.data
-    Logger.debug("consumer/#{state.stream_id}: init (#{cols}x#{rows})")
+  def handle_info(%StreamServer.Update{event: event, data: data}, state) do
+    log_update(event, data, state)
 
-    {:push,
-     serialize_init(
-       update.data.last_id,
-       update.data.time,
-       update.data.term_size,
-       update.data[:term_init],
-       update.data[:term_theme]
-     ), %{state | init: true, last_event_time: update.data.time}}
-  end
+    case ConsumerSession.handle_event(state.session, event, data) do
+      {nil, session} ->
+        {:ok, %{state | session: session}}
 
-  def handle_info(%StreamServer.Update{event: :info} = update, %{init: false} = state) do
-    %{term_size: {cols, rows}} = update.data
-    Logger.debug("consumer/#{state.stream_id}: info (#{cols}x#{rows})")
-
-    {:push,
-     serialize_init(
-       update.data.last_id,
-       update.data.time,
-       update.data.term_size,
-       update.data.term_init,
-       update.data.term_theme
-     ), %{state | init: true, last_event_time: update.data.time}}
-  end
-
-  def handle_info(%StreamServer.Update{event: :info}, state) do
-    {:ok, state}
-  end
-
-  def handle_info(%StreamServer.Update{}, %{init: false} = state) do
-    {:ok, state}
-  end
-
-  def handle_info(%StreamServer.Update{event: :output} = update, state) do
-    %{id: id, time: time, text: text} = update.data
-    rel_time = time - state.last_event_time
-    msg = serialize_output(id, rel_time, text)
-    state = %{state | last_event_time: time}
-
-    {:push, msg, state}
-  end
-
-  def handle_info(%StreamServer.Update{event: :input} = update, state) do
-    %{id: id, time: time, text: text} = update.data
-    rel_time = time - state.last_event_time
-    msg = serialize_input(id, rel_time, text)
-    state = %{state | last_event_time: time}
-
-    {:push, msg, state}
-  end
-
-  def handle_info(%StreamServer.Update{event: :resize} = update, state) do
-    %{id: id, time: time, term_size: term_size} = update.data
-    rel_time = time - state.last_event_time
-    msg = serialize_resize(id, rel_time, term_size)
-    state = %{state | last_event_time: time}
-
-    {:push, msg, state}
-  end
-
-  def handle_info(%StreamServer.Update{event: :marker} = update, state) do
-    %{id: id, time: time, label: label} = update.data
-    rel_time = time - state.last_event_time
-    msg = serialize_marker(id, rel_time, label)
-    state = %{state | last_event_time: time}
-
-    {:push, msg, state}
-  end
-
-  def handle_info(%StreamServer.Update{event: :end} = update, state) do
-    %{time: time} = update.data
-    rel_time = time - state.last_event_time
-    msg = serialize_eot(rel_time)
-    state = %{state | last_event_time: time}
-
-    {:push, msg, state}
+      {frame, session} ->
+        {:push, {:binary, frame}, %{state | session: session}}
+    end
   end
 
   def handle_info(:client_ping, state) do
@@ -208,74 +140,13 @@ defmodule AsciinemaWeb.StreamConsumerSocket do
     if Enum.member?(requested_protocols(conn), @protocol), do: @protocol
   end
 
-  defp magic_string, do: {:binary, "ALiS\x01"}
-
-  defp serialize_init(id, time, term_size, term_init, theme) do
-    {cols, rows} = term_size
-    term_init = term_init || ""
-
-    msg =
-      <<1::8>> <>
-        encode_varint(id) <>
-        encode_varint(time) <>
-        encode_varint(cols) <>
-        encode_varint(rows) <>
-        serialize_theme(theme) <>
-        serialize_string(term_init)
-
-    {:binary, msg}
+  defp log_update(:reset, %{term_size: {cols, rows}}, state) do
+    Logger.debug("consumer/#{state.stream_id}: init (#{cols}x#{rows})")
   end
 
-  defp serialize_output(id, time, text) do
-    msg = <<?o>> <> encode_varint(id) <> encode_varint(time) <> serialize_string(text)
-
-    {:binary, msg}
+  defp log_update(:info, %{term_size: {cols, rows}}, %{session: %{init: false}} = state) do
+    Logger.debug("consumer/#{state.stream_id}: info (#{cols}x#{rows})")
   end
 
-  defp serialize_input(id, time, text) do
-    msg = <<?i>> <> encode_varint(id) <> encode_varint(time) <> serialize_string(text)
-
-    {:binary, msg}
-  end
-
-  defp serialize_resize(id, time, term_size) do
-    {cols, rows} = term_size
-
-    msg =
-      <<?r>> <>
-        encode_varint(id) <> encode_varint(time) <> encode_varint(cols) <> encode_varint(rows)
-
-    {:binary, msg}
-  end
-
-  defp serialize_marker(id, time, label) do
-    msg = <<?m>> <> encode_varint(id) <> encode_varint(time) <> serialize_string(label)
-
-    {:binary, msg}
-  end
-
-  defp serialize_eot(time) do
-    msg = <<0x04::8>> <> encode_varint(time)
-
-    {:binary, msg}
-  end
-
-  defp encode_varint(value), do: Leb128.encode(value)
-
-  defp serialize_string(text), do: encode_varint(byte_size(text)) <> text
-
-  defp serialize_theme(nil), do: <<0::8>>
-
-  defp serialize_theme(theme) do
-    format = length(theme.palette)
-    true = format in [8, 16]
-
-    <<format::8>> <> do_serialize_theme(theme)
-  end
-
-  defp do_serialize_theme(%{fg: fg, bg: bg, palette: palette}) do
-    for {r, g, b} <- [fg, bg | palette], into: <<>> do
-      <<r::8, g::8, b::8>>
-    end
-  end
+  defp log_update(_event, _data, _state), do: :ok
 end

@@ -8,7 +8,7 @@
       <%= if @streams.total_entries > 0 do %>
         <div class="asciicast-list">
           <div :for={stream <- @streams}>
-            {live_render(@conn, AsciinemaWeb.UpcomingStreamCardLive,
+            {live_render(@conn, AsciinemaWeb.StreamCardLive,
               session: %{"stream_id" => stream.id, "show_visibility_badge" => false}
             )}
           </div>

@@ -281,7 +281,7 @@ defmodule Asciinema.StreamingTest do
       recent_stream =
         insert(:stream,
           live: true,
-          last_activity_at: Timex.shift(Timex.now(), seconds: -30),
+          last_activity_at: DateTime.add(DateTime.utc_now(), -30),
           offline_grace_period: 60
         )
 
@@ -289,7 +289,7 @@ defmodule Asciinema.StreamingTest do
       old_stream =
         insert(:stream,
           live: true,
-          last_activity_at: Timex.shift(Timex.now(), seconds: -128),
+          last_activity_at: DateTime.add(DateTime.utc_now(), -128),
           offline_grace_period: 120
         )
 
@@ -298,7 +298,7 @@ defmodule Asciinema.StreamingTest do
         insert(:stream,
           live: true,
           last_activity_at: nil,
-          inserted_at: Timex.shift(Timex.now(), seconds: -30),
+          inserted_at: DateTime.add(DateTime.utc_now(), -30),
           offline_grace_period: 60
         )
 
@@ -307,14 +307,14 @@ defmodule Asciinema.StreamingTest do
         insert(:stream,
           live: true,
           last_activity_at: nil,
-          inserted_at: Timex.shift(Timex.now(), minutes: -2),
+          inserted_at: DateTime.add(DateTime.utc_now(), -2 * 60),
           offline_grace_period: 60
         )
 
       # Already offline stream - should remain unchanged
       insert(:stream,
         live: false,
-        last_activity_at: Timex.shift(Timex.now(), minutes: -10),
+        last_activity_at: DateTime.add(DateTime.utc_now(), -10 * 60),
         offline_grace_period: 300
       )
 

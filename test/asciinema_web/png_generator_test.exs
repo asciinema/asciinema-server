@@ -30,7 +30,7 @@ defmodule AsciinemaWeb.PngGeneratorTest do
 
   @tag :rsvg
   test "renders ASCII text into PNG output" do
-    tmp_dir = Briefly.create!(directory: true)
+    tmp_dir = Briefly.create!(type: :directory)
 
     image =
       cells_asciicast(10, ["H"], 20, 8)
@@ -46,7 +46,7 @@ defmodule AsciinemaWeb.PngGeneratorTest do
 
   @tag :rsvg
   test "renders Nerd Font symbols into PNG output" do
-    tmp_dir = Briefly.create!(directory: true)
+    tmp_dir = Briefly.create!(type: :directory)
 
     image =
       cells_asciicast(1, [<<0xF43A::utf8>>], 20, 8)
@@ -64,7 +64,7 @@ defmodule AsciinemaWeb.PngGeneratorTest do
 
   @tag :rsvg
   test "renders mosaic symbols into PNG output" do
-    tmp_dir = Briefly.create!(directory: true)
+    tmp_dir = Briefly.create!(type: :directory)
 
     image =
       cells_asciicast(11, ["▀", "▖", <<0x1FB00::utf8>>], 20, 8)
@@ -85,7 +85,7 @@ defmodule AsciinemaWeb.PngGeneratorTest do
 
   @tag :rsvg
   test "renders filled vector symbols into PNG output" do
-    tmp_dir = Briefly.create!(directory: true)
+    tmp_dir = Briefly.create!(type: :directory)
 
     image =
       cells_asciicast(
@@ -120,7 +120,7 @@ defmodule AsciinemaWeb.PngGeneratorTest do
 
   @tag :rsvg
   test "renders rounded Powerline caps into PNG output" do
-    tmp_dir = Briefly.create!(directory: true)
+    tmp_dir = Briefly.create!(type: :directory)
 
     image =
       cells_asciicast(
@@ -159,7 +159,7 @@ defmodule AsciinemaWeb.PngGeneratorTest do
 
   @tag :rsvg
   test "renders Powerline separators, outlines, and quadrant triangles into PNG output" do
-    tmp_dir = Briefly.create!(directory: true)
+    tmp_dir = Briefly.create!(type: :directory)
 
     image =
       cells_asciicast(
@@ -225,7 +225,7 @@ defmodule AsciinemaWeb.PngGeneratorTest do
 
   @tag :rsvg
   test "preserves leading and repeated spaces in PNG output" do
-    tmp_dir = Briefly.create!(directory: true)
+    tmp_dir = Briefly.create!(type: :directory)
     cols = 20
     rows = 8
 

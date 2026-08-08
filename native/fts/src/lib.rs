@@ -184,7 +184,7 @@ impl Fts {
         // flush alternate screen buffer
 
         let mut lines: Vec<(usize, Vec<String>)> = self.alt_screen_lines.drain().collect();
-        lines.sort_by(|(n1, _), (n2, _)| n1.cmp(n2));
+        lines.sort_by_key(|(n1, _)| *n1);
 
         for (_, words) in lines {
             self.alt_screen_words.extend(words);

@@ -139,8 +139,7 @@ defmodule Asciinema.Recordings.Snapshot do
   def seq(snapshot) do
     seq =
       snapshot
-      |> Enum.map(&line_seq/1)
-      |> Enum.join("\r\n")
+      |> Enum.map_join("\r\n", &line_seq/1)
       |> String.trim_trailing("\r\n")
 
     seq <> @csi_init <> "?25l"

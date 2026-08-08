@@ -6,8 +6,8 @@ defmodule Asciinema.Recordings.PathsTest do
 
   describe "path/1" do
     test "returns path with json ext for asciicast v1" do
-      now = Timex.now()
-      date = Timex.format!(now, "{YYYY}/{0M}/{0D}")
+      now = DateTime.utc_now()
+      date = Calendar.strftime(now, "%Y/%m/%d")
       asciicast = build_asciicast(version: 1, inserted_at: now)
 
       path = Paths.path(asciicast)
@@ -16,8 +16,8 @@ defmodule Asciinema.Recordings.PathsTest do
     end
 
     test "returns path with json.zst ext for compressed asciicast v1" do
-      now = Timex.now()
-      date = Timex.format!(now, "{YYYY}/{0M}/{0D}")
+      now = DateTime.utc_now()
+      date = Calendar.strftime(now, "%Y/%m/%d")
       asciicast = build_asciicast(version: 1, compressed: true, inserted_at: now)
 
       path = Paths.path(asciicast)
@@ -26,8 +26,8 @@ defmodule Asciinema.Recordings.PathsTest do
     end
 
     test "returns path with cast ext for asciicast v2" do
-      now = Timex.now()
-      date = Timex.format!(now, "{YYYY}/{0M}/{0D}")
+      now = DateTime.utc_now()
+      date = Calendar.strftime(now, "%Y/%m/%d")
       asciicast = build_asciicast(version: 2, inserted_at: now)
 
       path = Paths.path(asciicast)
@@ -36,8 +36,8 @@ defmodule Asciinema.Recordings.PathsTest do
     end
 
     test "returns path with cast.zst ext for compressed asciicast v2" do
-      now = Timex.now()
-      date = Timex.format!(now, "{YYYY}/{0M}/{0D}")
+      now = DateTime.utc_now()
+      date = Calendar.strftime(now, "%Y/%m/%d")
       asciicast = build_asciicast(version: 2, compressed: true, inserted_at: now)
 
       path = Paths.path(asciicast)
@@ -56,7 +56,7 @@ defmodule Asciinema.Recordings.PathsTest do
 
     test "uses last 4 digits (reversed) for {shard} token - long id" do
       AppEnv.put(Paths, recording: "asciicasts/{shard}/{id}.{ext}")
-      asciicast = build_asciicast(id: 12345)
+      asciicast = build_asciicast(id: 12_345)
 
       path = Paths.path(asciicast)
 
@@ -79,7 +79,12 @@ defmodule Asciinema.Recordings.PathsTest do
   defp build_asciicast(overrides) do
     attrs =
       Keyword.merge(
-        [id: 123, version: 2, inserted_at: Timex.now(), user: build(:user, username: "foo")],
+        [
+          id: 123,
+          version: 2,
+          inserted_at: DateTime.utc_now(),
+          user: build(:user, username: "foo")
+        ],
         overrides
       )
 

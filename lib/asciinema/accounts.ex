@@ -8,7 +8,7 @@ defmodule Asciinema.Accounts do
   alias Phoenix.Token
   require Logger
 
-  @valid_email_re ~r/^[A-Z0-9._%+-]+@([A-Z0-9-]+\.)+[A-Z]{2,}$/i
+  @valid_email_re ~r/^[A-Z0-9_%+-]+(\.[A-Z0-9_%+-]+)*@([A-Z0-9-]+\.)+[A-Z]{2,}$/i
   @valid_username_re ~r/^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]$/
   @email_hash_bytes 8
 
@@ -492,7 +492,7 @@ defmodule Asciinema.Accounts do
   end
 
   def generate_login_token(%User{id: id, last_login_at: last_login_at}) do
-    last_login_at = last_login_at && Timex.to_unix(last_login_at)
+    last_login_at = last_login_at && DateTime.to_unix(last_login_at)
     Token.sign(config(:secret), "login", {id, last_login_at})
   end
 
@@ -517,7 +517,7 @@ defmodule Asciinema.Accounts do
   def confirm_login(token, timezone \\ nil) do
     with {:ok, {user_id, last_login_at}} <- verify_login_token(token),
          %User{} = user <- Repo.get(User, user_id),
-         ^last_login_at <- user.last_login_at && Timex.to_unix(user.last_login_at) do
+         ^last_login_at <- user.last_login_at && DateTime.to_unix(user.last_login_at) do
       {:ok, set_timezone(user, timezone)}
     else
       {:error, :invalid} ->
@@ -787,7 +787,7 @@ defmodule Asciinema.Accounts do
 
   def reassign_clis(src_user_id, dst_user_id) do
     q = from(at in Cli, where: at.user_id == ^src_user_id)
-    Repo.update_all(q, set: [user_id: dst_user_id, updated_at: Timex.now()])
+    Repo.update_all(q, set: [user_id: dst_user_id, updated_at: DateTime.utc_now()])
   end
 
   def regenerate_auth_token(user) do

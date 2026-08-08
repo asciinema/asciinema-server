@@ -262,9 +262,10 @@ defmodule Asciinema.Zstd do
       when (is_binary(output_path) or is_nil(output_path)) and is_list(opts) do
     output_path = output_path || Briefly.create!()
 
-    input_path
-    |> File.stream!(@read_chunk_size)
-    |> Enum.into(stream!(output_path, @read_chunk_size, opts))
+    _ =
+      input_path
+      |> File.stream!(@read_chunk_size)
+      |> Enum.into(stream!(output_path, @read_chunk_size, opts))
 
     output_path
   end

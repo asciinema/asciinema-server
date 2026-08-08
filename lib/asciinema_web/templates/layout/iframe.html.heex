@@ -4,12 +4,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light dark" />
-    <link rel="stylesheet" href={Routes.static_path(@conn, "/assets/iframe.css")} />
+    <link rel="stylesheet" href={~p"/assets/iframe.css"} />
   </head>
 
   <body class="iframe">
     {@inner_content}
-    <script src={Routes.static_path(@conn, "/assets/iframe.js")}>
+    <script src={~p"/assets/iframe.js"}>
     </script>
   </body>
 </html>

@@ -3,7 +3,9 @@ defmodule Asciinema.Streaming.Parser.AlisV1 do
   asciinema live stream protocol v1 parser.
   """
 
-  alias Asciinema.Leb128
+  # Owns the ALIS frame grammar; byte layout is the Alis.V1 codec's job.
+
+  alias Asciinema.Streaming.Alis
 
   @behaviour Asciinema.Streaming.Parser
 
@@ -11,170 +13,47 @@ defmodule Asciinema.Streaming.Parser.AlisV1 do
 
   def init, do: %{status: :new, time_offset: 0}
 
-  def parse({:binary, "ALiS\x01"}, %{status: :new} = state) do
+  def parse({:binary, "ALiS\x01"}, %{status: :new} = state, _now_us) do
     {:ok, [], %{state | status: :init}}
   end
 
-  def parse({:binary, "ALiS" <> rest}, %{status: :new}) do
+  def parse({:binary, "ALiS" <> rest}, %{status: :new}, _now_us) do
     {:error, "unsupported ALiS version/configuration: #{inspect(rest)}"}
   end
 
-  def parse({:binary, <<0x01::8, rest::binary>>}, %{status: status} = state)
+  def parse({:binary, <<0x01::8, _::binary>> = frame}, %{status: status} = state, _now_us)
       when status in [:init, :eot] do
-    init = parse_init(rest)
-
-    {:ok, [init: init], %{state | status: :online, time_offset: init.time}}
+    with {:ok, {:init, init}} <- Alis.V1.decode_frame(frame) do
+      {:ok, [init: init], %{state | status: :online, time_offset: init.time}}
+    end
   end
 
-  def parse({:binary, <<?o, rest::binary>>}, %{status: :online} = state) do
-    data = parse_output(rest)
-    time = state.time_offset + data.time
-    data = %{data | time: time}
+  def parse({:binary, <<type::8, _::binary>> = frame}, %{status: :online} = state, _now_us)
+      when type in [?o, ?i, ?r, ?m, ?x] do
+    with {:ok, {event, data}} <- Alis.V1.decode_frame(frame) do
+      {time, data} = absolutize(data, state.time_offset)
 
-    {:ok, [output: data], %{state | time_offset: time}}
+      {:ok, [{event, data}], %{state | time_offset: time}}
+    end
   end
 
-  def parse({:binary, <<?i, rest::binary>>}, %{status: :online} = state) do
-    data = parse_input(rest)
-    time = state.time_offset + data.time
-    data = %{data | time: time}
-
-    {:ok, [input: data], %{state | time_offset: time}}
-  end
-
-  def parse({:binary, <<?r, rest::binary>>}, %{status: :online} = state) do
-    data = parse_resize(rest)
-    time = state.time_offset + data.time
-    data = %{data | time: time}
-
-    {:ok, [resize: data], %{state | time_offset: time}}
-  end
-
-  def parse({:binary, <<?m, rest::binary>>}, %{status: :online} = state) do
-    data = parse_marker(rest)
-    time = state.time_offset + data.time
-    data = %{data | time: time}
-
-    {:ok, [marker: data], %{state | time_offset: time}}
-  end
-
-  def parse({:binary, <<?x, rest::binary>>}, %{status: :online} = state) do
-    data = parse_exit(rest)
-    time = state.time_offset + data.time
-    data = %{data | time: time}
-
-    {:ok, [exit: data], %{state | time_offset: time}}
-  end
-
-  def parse({:binary, <<0x04, rest::binary>>}, %{status: status} = state)
+  def parse({:binary, <<0x04::8, _::binary>> = frame}, %{status: status} = state, _now_us)
       when status in [:init, :online] do
-    data = parse_eot(rest)
-    time = state.time_offset + data.time
-    data = %{data | time: time}
-
-    {:ok, [eot: data], %{state | status: :eot}}
+    with {:ok, {:eot, data}} <- Alis.V1.decode_frame(frame) do
+      {:ok, [eot: data], %{state | status: :eot}}
+    end
   end
 
-  def parse({_type, _payload}, _state) do
+  def parse({_type, _payload}, _state, _now_us) do
     {:error, :message_invalid}
   end
 
   def supported_commands, do: [:init, :output, :input, :resize, :marker, :exit, :eot]
 
-  defp parse_init(bytes) do
-    {last_id, bytes} = decode_varint(bytes)
-    {time, bytes} = decode_varint(bytes)
-    {cols, bytes} = decode_varint(bytes)
-    {rows, bytes} = decode_varint(bytes)
-    {theme, bytes} = parse_theme(bytes)
-    {term_init, ""} = parse_string(bytes)
+  defp absolutize(%{rel_time: rel} = data, offset) do
+    time = offset + rel
+    data = data |> Map.delete(:rel_time) |> Map.put(:time, time)
 
-    %{
-      last_id: last_id,
-      time: time,
-      term_size: {cols, rows},
-      term_init: term_init,
-      term_theme: theme
-    }
-  end
-
-  defp parse_output(bytes) do
-    {id, bytes} = decode_varint(bytes)
-    {time, bytes} = decode_varint(bytes)
-    {text, ""} = parse_string(bytes)
-
-    %{id: id, time: time, text: text}
-  end
-
-  defp parse_input(bytes) do
-    {id, bytes} = decode_varint(bytes)
-    {time, bytes} = decode_varint(bytes)
-    {text, ""} = parse_string(bytes)
-
-    %{id: id, time: time, text: text}
-  end
-
-  defp parse_resize(bytes) do
-    {id, bytes} = decode_varint(bytes)
-    {time, bytes} = decode_varint(bytes)
-    {cols, bytes} = decode_varint(bytes)
-    {rows, ""} = decode_varint(bytes)
-
-    %{id: id, time: time, term_size: {cols, rows}}
-  end
-
-  defp parse_marker(bytes) do
-    {id, bytes} = decode_varint(bytes)
-    {time, bytes} = decode_varint(bytes)
-    {label, ""} = parse_string(bytes)
-
-    %{id: id, time: time, label: label}
-  end
-
-  defp parse_exit(bytes) do
-    {id, bytes} = decode_varint(bytes)
-    {time, bytes} = decode_varint(bytes)
-    {status, ""} = decode_varint(bytes)
-
-    %{id: id, time: time, status: status}
-  end
-
-  defp parse_eot(bytes) do
-    {id, bytes} = decode_varint(bytes)
-    {time, ""} = decode_varint(bytes)
-
-    %{id: id, time: time}
-  end
-
-  defp decode_varint(bytes), do: Leb128.decode(bytes)
-
-  defp parse_string(bytes) do
-    {len, bytes} = decode_varint(bytes)
-    <<text::binary-size(len), rest::binary>> = bytes
-
-    {text, rest}
-  end
-
-  defp parse_theme(bytes) do
-    case bytes do
-      <<0::8, rest::binary>> ->
-        {nil, rest}
-
-      <<8::8, theme::binary-size((2 + 8) * 3), rest::binary>> ->
-        {do_parse_theme(theme), rest}
-
-      <<16::8, theme::binary-size((2 + 16) * 3), rest::binary>> ->
-        {do_parse_theme(theme), rest}
-    end
-  end
-
-  defp do_parse_theme(theme) do
-    colors = for <<r::8, g::8, b::8 <- theme>>, do: {r, g, b}
-
-    %{
-      fg: Enum.at(colors, 0),
-      bg: Enum.at(colors, 1),
-      palette: Enum.drop(colors, 2)
-    }
+    {time, data}
   end
 end

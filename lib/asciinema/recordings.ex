@@ -1261,7 +1261,7 @@ defmodule Asciinema.Recordings do
         on: a.user_id == u.id,
         where: a.archivable and is_nil(a.archived_at) and a.inserted_at < ^t
 
-    {count, _} = Repo.update_all(query, set: [archived_at: Timex.now()])
+    {count, _} = Repo.update_all(query, set: [archived_at: DateTime.utc_now()])
 
     count
   end
@@ -1278,7 +1278,7 @@ defmodule Asciinema.Recordings do
 
   def reassign_asciicasts(src_user_id, dst_user_id) do
     q = from(a in Asciicast, where: a.user_id == ^src_user_id)
-    Repo.update_all(q, set: [user_id: dst_user_id, updated_at: Timex.now()])
+    Repo.update_all(q, set: [user_id: dst_user_id, updated_at: DateTime.utc_now()])
   end
 
   defp generate_secret_token, do: Crypto.random_token(@secret_token_length)

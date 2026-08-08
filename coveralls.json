@@ -1,0 +1,12 @@
+{
+  "skip_files": [
+    "lib/asciinema/vt.ex",
+    "lib/asciinema/fts.ex",
+    "lib/asciinema/svg_raster.ex",
+    "lib/asciinema/release.ex",
+    "test/support"
+  ],
+  "coverage_options": {
+    "minimum_coverage": 0
+  }
+}

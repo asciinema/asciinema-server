@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
     <meta name="csrf-token" content={Plug.CSRFProtection.get_csrf_token()} />
     <title>{page_title(@conn)}</title>
-    <link phx-track-static rel="stylesheet" href={Routes.static_path(@conn, "/assets/app.css")} />
-    <link rel="shortcut icon" href={Routes.static_path(@conn, "/images/favicon.png")} />
+    <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
+    <link rel="shortcut icon" href={~p"/images/favicon.png"} />
 
     <%= if function_exported?(view_module(@conn), :head, 2) do %>
       {view_module(@conn).head(view_template(@conn), assigns)}
@@ -23,7 +23,7 @@
     </main>
 
     {render("_footer.html", conn: @conn)}
-    <script phx-track-static src={Routes.static_path(@conn, "/assets/app.js")}>
+    <script phx-track-static src={~p"/assets/app.js"}>
     </script>
   </body>
 </html>

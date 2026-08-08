@@ -11,7 +11,7 @@ defmodule AsciinemaWeb.Plug.Parsers.MULTIPART do
   def parse(conn, _type, _subtype, _headers, _opts), do: {:next, conn}
 
   def length_limit do
-    {_, limit, _, _} = build_opts([])
+    {_m2p, limit, _opts} = build_opts([])
 
     limit
   end

@@ -27,7 +27,7 @@ defmodule Asciinema.Repo do
       {last && last.id, items}
     end)
     |> Stream.map(&elem(&1, 1))
-    |> Stream.take_while(&(length(&1) > 0))
+    |> Stream.take_while(&(&1 != []))
   end
 
   defp page(query, last_id, page_size) do
