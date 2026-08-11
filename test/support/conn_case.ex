@@ -28,8 +28,6 @@ defmodule AsciinemaWeb.ConnCase do
 
       import Asciinema.Fixtures
 
-      alias AsciinemaWeb.Router.Helpers, as: Routes
-
       defp flash(conn, key) do
         Phoenix.Flash.get(conn.assigns.flash, key)
       end
