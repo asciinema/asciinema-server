@@ -11,7 +11,13 @@ defmodule Asciinema.HttpUtil do
           connect_timeout: @default_connect_timeout,
           timeout: @default_timeout,
           autoredirect: true,
-          ssl: [verify: :verify_peer, cacerts: :public_key.cacerts_get()]
+          ssl: [
+            verify: :verify_peer,
+            cacerts: :public_key.cacerts_get(),
+            customize_hostname_check: [
+              match_fun: :public_key.pkix_verify_hostname_match_fun(:https)
+            ]
+          ]
         ],
         http_options
       )
