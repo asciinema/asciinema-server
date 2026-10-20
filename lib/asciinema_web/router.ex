@@ -81,6 +81,7 @@ defmodule AsciinemaWeb.Router do
     get "/a/:id/iframe", RecordingController, :iframe
     get "/a/:id/example", RecordingController, :example
 
+    get "/s/:id/iframe", StreamController, :iframe
     resources "/s", StreamController, only: [:show, :edit, :update, :delete]
 
     resources "/login", LoginController, only: [:new, :create], singleton: true

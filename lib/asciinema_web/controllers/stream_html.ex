@@ -81,4 +81,8 @@ defmodule AsciinemaWeb.StreamHTML do
 
   def head("show.html", assigns), do: head_for_show(assigns)
   def head(_, _), do: nil
+
+  defp stream_oembed_url(stream, format) do
+    url(~p"/oembed?#{%{url: url(~p"/s/#{stream}"), format: format}}")
+  end
 end

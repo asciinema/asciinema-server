@@ -6,10 +6,12 @@
   <author-url>{@author_url}</author-url>
   <provider-name>asciinema</provider-name>
   <provider-url>{@provider_url}</provider-url>
-  <thumbnail-url>{@thumbnail_url}</thumbnail-url>
-  <thumbnail-width type="integer">{@thumbnail_width}</thumbnail-width>
-  <thumbnail-height type="integer">{@thumbnail_height}</thumbnail-height>
+  <%= if assigns[:thumbnail_url] do %>
+    <thumbnail-url>{@thumbnail_url}</thumbnail-url>
+    <thumbnail-width type="integer">{@thumbnail_width}</thumbnail-width>
+    <thumbnail-height type="integer">{@thumbnail_height}</thumbnail-height>
+  <% end %>
   <html>{@html}</html>
-  <width type="integer">{@thumbnail_width}</width>
-  <height type="integer">{@thumbnail_height}</height>
+  <width type="integer">{@width}</width>
+  <height type="integer">{@height}</height>
 </oembed>
