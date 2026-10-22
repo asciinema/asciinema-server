@@ -1,11 +1,10 @@
-use std::collections::HashMap;
+use std::collections::{BTreeSet, HashMap};
+use std::ops::Range;
 use std::str;
 use std::sync::RwLock;
 
-use avt::parser::{DecMode, Function};
-use avt::terminal::Terminal;
-use avt::util::TextUnwrapper;
-use avt::{parser::Parser, terminal::BufferType};
+use avt::observer::Transcript;
+use avt::{Line, Observation, Observer, Operation, ScreenKind, Terminal};
 use indexmap::IndexSet;
 use rustler::{Atom, Binary, Env, Error, NifResult, Resource, ResourceArc, Term};
 
@@ -25,9 +24,13 @@ mod atoms {
 }
 
 struct Fts {
-    parser: Parser,
     terminal: Terminal,
-    unwrapper: TextUnwrapper,
+    index: TextIndex,
+}
+
+struct TextIndex {
+    transcript: Transcript,
+    dirty_rows: BTreeSet<usize>,
     content: CappedString,
     alt_screen_lines: HashMap<usize, Vec<String>>,
     alt_screen_words: CappedIndexSet,
@@ -42,151 +45,91 @@ impl Fts {
             Err(_) => &String::from_utf8_lossy(&input),
         };
 
-        // process input
-
-        for ch in input.chars() {
-            if let Some(fun) = self.parser.feed(ch) {
-                self.terminal.execute(fun);
-            }
-        }
-
-        // collect scrollback of the primary screen buffer
-
-        let words = self
-            .terminal
-            .gc()
-            .filter_map(|line| self.unwrapper.push(&line))
-            .flat_map(|line| split_words(&line));
-
-        self.content.extend(words);
-
-        // collect text of changed lines in the alternate screen buffer
-
-        if self.terminal.active_buffer_type() == BufferType::Alternate {
-            for line_no in self.terminal.changes() {
-                // get current words for the line
-                let cur_words = split_words(&self.terminal.line(line_no).text());
-
-                // get previous words for the line
-                let old_words = self
-                    .alt_screen_lines
-                    .entry(line_no)
-                    .or_insert_with(|| cur_words.clone());
-
-                // find common prefix length
-
-                let mut old_iter = old_words.iter();
-                let mut cur_iter = cur_words.iter();
-                let mut old_word = old_iter.next();
-                let mut cur_word = cur_iter.next();
-                let mut prefix_len = 0;
-
-                while let (Some(old), Some(cur)) = (old_word, cur_word) {
-                    if old != cur {
-                        break;
-                    }
-
-                    prefix_len += 1;
-                    old_word = old_iter.next();
-                    cur_word = cur_iter.next();
-                }
-
-                // find common suffix length
-
-                let mut old_iter = old_words.iter().rev();
-                let mut cur_iter = cur_words.iter().rev();
-                let mut old_word = old_iter.next();
-                let mut cur_word = cur_iter.next();
-                let mut suffix_len = 0;
-
-                while let (Some(old), Some(cur)) = (old_word, cur_word) {
-                    if old != cur {
-                        break;
-                    }
-
-                    suffix_len += 1;
-                    old_word = old_iter.next();
-                    cur_word = cur_iter.next();
-                }
-
-                // build new word list for the line
-
-                // initialize with common prefix
-                let mut new_words: Vec<String> = old_words[0..prefix_len].to_vec();
-
-                let old_suffix_start = prefix_len.max(old_words.len() - suffix_len);
-                let cur_suffix_start = prefix_len.max(cur_words.len() - suffix_len);
-                let old_middle = &old_words[prefix_len..old_suffix_start];
-                let cur_middle = &cur_words[prefix_len..cur_suffix_start];
-
-                for (old, cur) in old_middle.iter().zip(cur_middle.iter()) {
-                    let word = if cur.starts_with(old) {
-                        // characters appended - replace
-                        cur
-                    } else if old.starts_with(cur) {
-                        // characters removed on the right side - keep old
-                        old
-                    } else if cur.ends_with(old) {
-                        // characters prepended - replace
-                        cur
-                    } else if old.ends_with(cur) {
-                        // characters removed on the left side - keep old
-                        old
-                    } else {
-                        // likely a different word - save old, replace with cur
-                        self.alt_screen_words.insert(old.clone());
-                        cur
-                    };
-
-                    new_words.push(word.clone());
-                }
-
-                if old_middle.len() > cur_middle.len() {
-                    // save removed words
-                    self.alt_screen_words
-                        .extend(&old_middle[cur_middle.len()..]);
-                } else if cur_middle.len() > old_middle.len() {
-                    // append newly appeared words to the current line
-                    new_words.extend_from_slice(&cur_middle[old_middle.len()..]);
-                }
-
-                // append common suffix
-                new_words.extend_from_slice(&old_words[old_suffix_start..]);
-
-                // replace words for the line
-                self.alt_screen_lines.insert(line_no, new_words);
-            }
-        }
+        self.terminal.feed_with(input, &mut self.index);
+        self.index.collect_alternate(&self.terminal);
     }
 
     fn resize(&mut self, cols: usize, rows: usize) {
-        self.terminal.resize(cols, rows);
+        self.terminal.resize_with(cols, rows, &mut self.index);
     }
 
     fn dump(&mut self) -> String {
-        // ensure primary screen buffer is active
+        self.index.finish(&self.terminal)
+    }
+}
 
-        self.terminal
-            .execute(Function::Decrst(vec![DecMode::AltScreenBuffer]));
+impl TextIndex {
+    fn new() -> Self {
+        Self {
+            transcript: Transcript::new(),
+            dirty_rows: BTreeSet::new(),
+            content: CappedString::new(MAX_TEXT_LEN),
+            alt_screen_lines: HashMap::new(),
+            alt_screen_words: CappedIndexSet::new(MAX_TEXT_LEN),
+        }
+    }
 
-        // flush primary screen buffer
+    fn collect_alternate(&mut self, terminal: &Terminal) {
+        // Compare word edits once per output event. Dirty rows include changes
+        // from any intervening resize events.
+        let dirty_rows = std::mem::take(&mut self.dirty_rows);
 
-        let mut unwrapper = std::mem::take(&mut self.unwrapper);
+        if terminal.active_screen_kind() == ScreenKind::Alternate {
+            for line_no in dirty_rows {
+                // get current words for the line
+                let mut cur_words: Vec<_> =
+                    split_words(&terminal.screen().line(line_no).unwrap().text()).collect();
 
-        let words = self
-            .terminal
-            .lines()
-            .filter_map(|line| unwrapper.push(line))
-            .flat_map(|line| split_words(&line));
+                // get previous words for the line
+                let old_words = self.alt_screen_lines.entry(line_no).or_default();
 
-        self.content.extend(words);
+                // find common prefix length
 
-        let words = unwrapper
-            .flush()
-            .into_iter()
-            .flat_map(|line| split_words(&line));
+                let prefix_len = old_words
+                    .iter()
+                    .zip(&cur_words)
+                    .take_while(|(old, cur)| old == cur)
+                    .count();
 
-        self.content.extend(words);
+                // find common suffix length
+
+                let suffix_len = old_words[prefix_len..]
+                    .iter()
+                    .rev()
+                    .zip(cur_words[prefix_len..].iter().rev())
+                    .take_while(|(old, cur)| old == cur)
+                    .count();
+
+                let old_suffix_start = old_words.len() - suffix_len;
+                let cur_suffix_start = cur_words.len() - suffix_len;
+                let old_middle = &old_words[prefix_len..old_suffix_start];
+                let cur_middle = &mut cur_words[prefix_len..cur_suffix_start];
+
+                for (old, cur) in old_middle.iter().zip(cur_middle.iter_mut()) {
+                    if old.starts_with(cur.as_str()) || old.ends_with(cur.as_str()) {
+                        // Keep the longer word when characters are removed at either end.
+                        cur.clone_from(old);
+                    } else if !cur.starts_with(old) && !cur.ends_with(old) {
+                        // A different word replaces the old one; preserve both.
+                        self.alt_screen_words.insert(old.clone());
+                    }
+                }
+
+                // Save removed words; added words and unchanged ends are already in cur_words.
+                self.alt_screen_words
+                    .extend(old_middle.iter().skip(cur_middle.len()).cloned());
+
+                *old_words = cur_words;
+            }
+        }
+    }
+
+    fn finish(&mut self, terminal: &Terminal) -> String {
+        // Flush primary history and visible text, even when alternate is active.
+        let lines = std::mem::take(&mut self.transcript).finish(terminal);
+
+        self.content
+            .extend(lines.iter().flat_map(|line| split_words(line)));
 
         // flush alternate screen buffer
 
@@ -203,12 +146,37 @@ impl Fts {
     }
 }
 
-fn split_words(line: &str) -> Vec<String> {
-    line.replace(|c: char| !c.is_alphanumeric(), " ")
-        .split_whitespace()
+impl Observer for TextIndex {
+    type Output = ();
+
+    fn before(&mut self, context: &mut Observation<'_>, operation: &Operation) {
+        self.transcript.before(context, operation);
+    }
+
+    fn resized(&mut self, _: usize, rows: usize) {
+        self.dirty_rows.retain(|row| *row < rows);
+    }
+
+    fn dirty(&mut self, rows: Range<usize>) {
+        self.dirty_rows.extend(rows);
+    }
+
+    fn evicted(&mut self, context: &mut Observation<'_>, line: &Line) {
+        self.transcript.evicted(context, line);
+    }
+
+    fn end(&mut self, context: &mut Observation<'_>) {
+        let lines = self.transcript.end(context);
+
+        self.content
+            .extend(lines.iter().flat_map(|line| split_words(line)));
+    }
+}
+
+fn split_words(line: &str) -> impl Iterator<Item = String> + '_ {
+    line.split(|c: char| !c.is_alphanumeric())
         .filter(|s| s.len() > 1)
         .map(|s| s.chars().take(32).collect::<String>().to_lowercase())
-        .collect()
 }
 
 struct CappedString(String, usize);
@@ -259,9 +227,9 @@ impl CappedIndexSet {
         }
     }
 
-    fn extend<S: ToString, I: IntoIterator<Item = S>>(&mut self, items: I) {
-        for item in items.into_iter() {
-            self.insert(item.to_string());
+    fn extend(&mut self, items: impl IntoIterator<Item = String>) {
+        for item in items {
+            self.insert(item);
         }
     }
 
@@ -282,22 +250,21 @@ fn load(env: Env, _term: Term) -> bool {
 
 #[rustler::nif]
 fn new(cols: usize, rows: usize) -> NifResult<(Atom, ResourceArc<FtsResource>)> {
-    if valid_size(cols, rows) {
-        let resource = ResourceArc::new(FtsResource {
-            fts: RwLock::new(Fts {
-                parser: Parser::new(),
-                terminal: Terminal::new((cols, rows), Some(1000)),
-                unwrapper: TextUnwrapper::new(),
-                content: CappedString::new(MAX_TEXT_LEN),
-                alt_screen_lines: HashMap::new(),
-                alt_screen_words: CappedIndexSet::new(MAX_TEXT_LEN),
-            }),
-        });
-
-        Ok((atoms::ok(), resource))
-    } else {
-        Err(Error::Term(Box::new(atoms::invalid_size())))
+    if !valid_size(cols, rows) {
+        return Err(Error::Term(Box::new(atoms::invalid_size())));
     }
+
+    let terminal = Terminal::with_scrollback(cols, rows, Some(1000))
+        .map_err(|_| Error::Term(Box::new(atoms::invalid_size())))?;
+
+    let resource = ResourceArc::new(FtsResource {
+        fts: RwLock::new(Fts {
+            terminal,
+            index: TextIndex::new(),
+        }),
+    });
+
+    Ok((atoms::ok(), resource))
 }
 
 #[rustler::nif]

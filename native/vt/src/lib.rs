@@ -1,4 +1,4 @@
-use avt::Vt;
+use avt::Terminal;
 use rustler::{Atom, Binary, Encoder, Env, Error, NifResult, Resource, ResourceArc, Term};
 use std::str;
 use std::sync::RwLock;
@@ -18,14 +18,14 @@ mod atoms {
     }
 }
 
-pub struct VtResource {
-    vt: RwLock<Vt>,
+pub struct TerminalResource {
+    terminal: RwLock<Terminal>,
 }
 
-impl Resource for VtResource {}
+impl Resource for TerminalResource {}
 
 fn load(env: Env, _term: Term) -> bool {
-    env.register::<VtResource>().is_ok()
+    env.register::<TerminalResource>().is_ok()
 }
 
 #[rustler::nif]
@@ -33,38 +33,32 @@ fn new(
     cols: usize,
     rows: usize,
     scrollback_limit: Option<usize>,
-) -> NifResult<(Atom, ResourceArc<VtResource>)> {
-    if valid_size(cols, rows) {
-        let mut builder = Vt::builder();
-        builder.size(cols, rows);
-
-        if let Some(limit) = scrollback_limit {
-            builder.scrollback_limit(limit);
-        }
-
-        let vt = builder.build();
-
-        let resource = ResourceArc::new(VtResource {
-            vt: RwLock::new(vt),
-        });
-
-        Ok((atoms::ok(), resource))
-    } else {
-        Err(Error::Term(Box::new(atoms::invalid_size())))
+) -> NifResult<(Atom, ResourceArc<TerminalResource>)> {
+    if !valid_size(cols, rows) {
+        return Err(Error::Term(Box::new(atoms::invalid_size())));
     }
+
+    let terminal = Terminal::with_scrollback(cols, rows, scrollback_limit)
+        .map_err(|_| Error::Term(Box::new(atoms::invalid_size())))?;
+
+    let resource = ResourceArc::new(TerminalResource {
+        terminal: RwLock::new(terminal),
+    });
+
+    Ok((atoms::ok(), resource))
 }
 
 #[rustler::nif]
-fn feed(resource: ResourceArc<VtResource>, input: Binary) -> NifResult<Atom> {
-    let mut vt = convert_err(resource.vt.write(), "rw_lock")?;
+fn feed(resource: ResourceArc<TerminalResource>, input: Binary) -> NifResult<Atom> {
+    let mut terminal = convert_err(resource.terminal.write(), "rw_lock")?;
 
     match str::from_utf8(&input) {
         Ok(s) => {
-            vt.feed_str(s);
+            terminal.feed(s);
         }
 
         Err(_) => {
-            vt.feed_str(&String::from_utf8_lossy(&input));
+            terminal.feed(String::from_utf8_lossy(&input).as_ref());
         }
     };
 
@@ -72,34 +66,35 @@ fn feed(resource: ResourceArc<VtResource>, input: Binary) -> NifResult<Atom> {
 }
 
 #[rustler::nif]
-fn resize(resource: ResourceArc<VtResource>, cols: usize, rows: usize) -> NifResult<Atom> {
+fn resize(resource: ResourceArc<TerminalResource>, cols: usize, rows: usize) -> NifResult<Atom> {
     if !valid_size(cols, rows) {
         return Err(Error::Term(Box::new(atoms::invalid_size())));
     }
 
-    let mut vt = convert_err(resource.vt.write(), "rw_lock")?;
-    vt.resize(cols, rows);
+    let mut terminal = convert_err(resource.terminal.write(), "rw_lock")?;
+    terminal.resize(cols, rows);
 
     Ok(atoms::ok())
 }
 
 #[rustler::nif]
-fn dump(resource: ResourceArc<VtResource>) -> NifResult<String> {
-    let vt = convert_err(resource.vt.read(), "rw_lock")?;
+fn dump(resource: ResourceArc<TerminalResource>) -> NifResult<String> {
+    let terminal = convert_err(resource.terminal.read(), "rw_lock")?;
 
-    Ok(vt.dump())
+    Ok(terminal.dump())
 }
 
 #[rustler::nif]
-fn dump_screen(env: Env, resource: ResourceArc<VtResource>) -> NifResult<Term> {
-    let vt = convert_err(resource.vt.read(), "rw_lock")?;
+fn dump_screen(env: Env, resource: ResourceArc<TerminalResource>) -> NifResult<Term> {
+    let terminal = convert_err(resource.terminal.read(), "rw_lock")?;
 
-    let lines = vt
-        .view()
+    let lines = terminal
+        .screen()
+        .visible_lines()
         .map(|line| line_to_terms(line, env))
         .collect::<Vec<_>>();
 
-    let cursor: Option<(usize, usize)> = vt.cursor().into();
+    let cursor = terminal.cursor().position();
 
     Ok((lines, cursor).encode(env))
 }
@@ -111,9 +106,9 @@ fn line_to_terms<'a>(line: &avt::Line, env: Env<'a>) -> Vec<Term<'a>> {
 }
 
 #[rustler::nif]
-fn text(resource: ResourceArc<VtResource>) -> NifResult<String> {
-    let vt = convert_err(resource.vt.read(), "rw_lock")?;
-    let mut text = vt.text();
+fn text(resource: ResourceArc<TerminalResource>) -> NifResult<String> {
+    let terminal = convert_err(resource.terminal.read(), "rw_lock")?;
+    let mut text = terminal.primary_screen().text();
 
     while !text.is_empty() && text[text.len() - 1].is_empty() {
         text.truncate(text.len() - 1);
