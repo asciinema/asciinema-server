@@ -1,5 +1,7 @@
 # asciinema server
 
+[![Deploy to Railyard](https://app.railyard.run/deploy/badge)](https://app.railyard.run/deploy?repo=https://github.com/asciinema/asciinema-server)
+
 __asciinema server__ is a server-side component of the asciinema ecosystem.
 
 It implements a hosting platform for terminal session recordings and live
