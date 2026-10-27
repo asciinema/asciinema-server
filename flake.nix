@@ -21,7 +21,7 @@
         # beam_minimal = no wx GUI apps and no systemd linkage in epmd; the
         # latter would otherwise pull the full systemd closure (~120 MB) into
         # every release via a single libsystemd reference.
-        beamPackages = pkgs.beam_minimal.packages.erlang_28.extend (
+        beamPackages = pkgs.beam_minimal.packages.erlang_28.overrideScope (
           _: prev: {
             elixir = prev.elixir_1_19;
           }
@@ -173,7 +173,7 @@
         packages = {
           default = server;
         }
-        // pkgs.lib.optionalAttrs pkgs.stdenv.isLinux {
+        // pkgs.lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
           # OCI image, a drop-in replacement for the Dockerfile-built one
           image = pkgs.dockerTools.streamLayeredImage {
             name = "asciinema-server";
@@ -248,7 +248,7 @@
               playwright-driver.browsers
             ]
             ++ runtimeTools
-            ++ lib.optionals stdenv.isLinux [ inotify-tools ];
+            ++ lib.optionals stdenv.hostPlatform.isLinux [ inotify-tools ];
 
           shellHook = ''
             ${mixShellHook}
@@ -283,7 +283,7 @@
 
         formatter = pkgs.nixfmt-tree;
 
-        checks = pkgs.lib.optionalAttrs pkgs.stdenv.isLinux {
+        checks = pkgs.lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
           # Boots a VM with the module (local PostgreSQL on by default),
           # building the release, running migrations and serving a request.
           nixos-module = pkgs.testers.runNixOSTest {

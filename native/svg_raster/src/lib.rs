@@ -511,7 +511,10 @@ fn fill_rect(
     let first_row_start = (y0 * img_w + x0) * 3;
     let first_row_end = first_row_start + row_byte_len;
 
-    for px in pixels[first_row_start..first_row_end].chunks_exact_mut(3) {
+    for px in pixels[first_row_start..first_row_end]
+        .as_chunks_mut::<3>()
+        .0
+    {
         px[0] = r;
         px[1] = g;
         px[2] = b;
