@@ -234,7 +234,6 @@
 
               Env = [
                 "PORT=4000"
-                "ADMIN_BIND_ALL=1"
                 "DATABASE_URL=postgresql://postgres@postgres/postgres"
                 "CACHE_PATH=/var/cache/asciinema"
                 # static Env so docker exec'd commands see it too
