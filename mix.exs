@@ -59,13 +59,13 @@ defmodule Asciinema.MixProject do
       {:ecto_psql_extras, "~> 0.8.8"},
       {:ecto_sql, "~> 3.6"},
       {:esbuild, "~> 0.10", runtime: Mix.env() == :dev},
-      {:ex_aws, "~> 2.2"},
+      {:ex_aws, "~> 2.7"},
       {:ex_aws_s3, "~> 2.1"},
       {:ex_machina, "~> 2.4", only: :test},
       {:excoveralls, "~> 0.18", only: :test},
       {:gen_smtp, "~> 1.3"},
       {:gettext, "~> 1.0"},
-      {:hackney, "~> 1.18"},
+      {:hackney, "~> 4.9.1"},
       {:horde, "~> 0.10.0"},
       {:html_sanitize_ex, "~> 1.5.6"},
       {:identicon_svg, "~> 1.0"},
@@ -97,7 +97,7 @@ defmodule Asciinema.MixProject do
       {:swoosh, "~> 1.16"},
       {:telemetry_metrics, "~> 1.1"},
       {:telemetry_poller, "~> 1.0"},
-      {:tzdata, "~> 1.1"},
+      {:tzdata, "~> 1.2.2"},
       {:uuid, "~> 1.1"}
     ]
   end
