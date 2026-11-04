@@ -71,7 +71,15 @@ defmodule AsciinemaWeb.ApplicationView do
     input = String.trim("#{input}")
 
     if present?(input) do
-      {:safe, HtmlSanitizeEx.basic_html(Earmark.as_html!(input))}
+      html =
+        MDEx.to_html!(input,
+          extension: [autolink: true, strikethrough: true, table: true],
+          parse: [smart: true],
+          render: [unsafe: true]
+        )
+
+      # Preserve embedded HTML, then apply our existing allowlist before marking it safe.
+      {:safe, HtmlSanitizeEx.basic_html(html)}
     end
   end
 end
