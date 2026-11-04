@@ -83,26 +83,37 @@ if config_env() in [:prod, :dev] do
     config :asciinema, AsciinemaWeb.Endpoint, url: [port: String.to_integer(url_port)]
   end
 
-  if bool_env.("ADMIN_BIND_ALL", false) do
-    config :asciinema, AsciinemaAdmin.Endpoint, http: [ip: {0, 0, 0, 0}]
-  end
+  # ADMIN_BIND_ADDR accepts IPv4/IPv6 and overrides ADMIN_BIND_ALL.
+  # Default to loopback in dev; production requires an explicit bind address.
+  address =
+    env.("ADMIN_BIND_ADDR") ||
+      cond do
+        bool_env.("ADMIN_BIND_ALL", false) -> "0.0.0.0"
+        config_env() == :dev -> "127.0.0.1"
+        true -> nil
+      end
 
-  # ADMIN_BIND_ADDR accepts IPv4/IPv6 and overrides ADMIN_BIND_ALL (default: loopback).
-  if address = env.("ADMIN_BIND_ADDR") do
-    case :inet.parse_address(String.to_charlist(address)) do
-      {:ok, ip} ->
-        config :asciinema, AsciinemaAdmin.Endpoint, http: [ip: ip]
+  http =
+    if address do
+      ip =
+        case :inet.parse_address(String.to_charlist(address)) do
+          {:ok, ip} ->
+            ip
 
-      {:error, _} ->
-        raise ArgumentError,
-              "ADMIN_BIND_ADDR must be a valid IPv4 or IPv6 address, got: #{inspect(address)}"
+          {:error, _} ->
+            raise ArgumentError,
+                  "ADMIN_BIND_ADDR must be a valid IPv4 or IPv6 address, got: #{inspect(address)}"
+        end
+
+      # ADMIN_BIND_PORT overrides ADMIN_PORT (default: 4002).
+      port = env.("ADMIN_BIND_PORT") || env.("ADMIN_PORT") || "4002"
+
+      [ip: ip, port: String.to_integer(port)]
+    else
+      false
     end
-  end
 
-  # ADMIN_BIND_PORT overrides ADMIN_PORT (default: 4002).
-  if port = env.("ADMIN_BIND_PORT") || env.("ADMIN_PORT") do
-    config :asciinema, AsciinemaAdmin.Endpoint, http: [port: String.to_integer(port)]
-  end
+  config :asciinema, AsciinemaAdmin.Endpoint, http: http
 
   if url_scheme = env.("ADMIN_URL_SCHEME") do
     config :asciinema, AsciinemaAdmin.Endpoint, url: [scheme: url_scheme]
