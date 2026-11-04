@@ -87,7 +87,20 @@ if config_env() in [:prod, :dev] do
     config :asciinema, AsciinemaAdmin.Endpoint, http: [ip: {0, 0, 0, 0}]
   end
 
-  if port = env.("ADMIN_PORT") do
+  # ADMIN_BIND_ADDR accepts IPv4/IPv6 and overrides ADMIN_BIND_ALL (default: loopback).
+  if address = env.("ADMIN_BIND_ADDR") do
+    case :inet.parse_address(String.to_charlist(address)) do
+      {:ok, ip} ->
+        config :asciinema, AsciinemaAdmin.Endpoint, http: [ip: ip]
+
+      {:error, _} ->
+        raise ArgumentError,
+              "ADMIN_BIND_ADDR must be a valid IPv4 or IPv6 address, got: #{inspect(address)}"
+    end
+  end
+
+  # ADMIN_BIND_PORT overrides ADMIN_PORT (default: 4002).
+  if port = env.("ADMIN_BIND_PORT") || env.("ADMIN_PORT") do
     config :asciinema, AsciinemaAdmin.Endpoint, http: [port: String.to_integer(port)]
   end
 
