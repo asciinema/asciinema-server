@@ -6,6 +6,34 @@ defmodule Asciinema.RecordingsTest do
   alias Asciinema.Recordings.{Asciicast, AsciicastStats, Query}
 
   describe "create_asciicast/3" do
+    for version <- [2, 3] do
+      test "processes oversized v#{version} resizes safely for text and FTS" do
+        version = unquote(version)
+
+        header =
+          case version do
+            2 -> %{version: 2, width: 80, height: 24}
+            3 -> %{version: 3, term: %{cols: 80, rows: 24}}
+          end
+
+        path = Briefly.create!()
+
+        File.write!(path, """
+        #{Jason.encode!(header)}
+        [0.5,"o","before "]
+        [0.6,"r","4294967296x4294967296"]
+        [0.7,"o","after"]
+        """)
+
+        assert {:ok, recording} = Recordings.create_asciicast(insert(:user), path)
+        assert Recordings.text(recording) == "before after\n"
+
+        assert recording
+               |> Recordings.event_stream()
+               |> Recordings.generate_fts_content(80, 24) == "before after "
+      end
+    end
+
     test "json file, v1 format" do
       user = insert(:user)
       cli = insert(:cli, user: user)

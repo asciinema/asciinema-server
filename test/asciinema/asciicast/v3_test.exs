@@ -136,6 +136,33 @@ defmodule Asciinema.Asciicast.V3Test do
   end
 
   describe "event_stream/1" do
+    test "clamps oversized resizes while preserving timing and metadata" do
+      for {size, expected} <- [
+            {"720x200", {720, 200}},
+            {"721x24", {720, 24}},
+            {"80x201", {80, 200}},
+            {"4294967296x4294967296", {720, 200}},
+            {"18446744073709551616x18446744073709551616", {720, 200}}
+          ] do
+        path = Briefly.create!()
+
+        File.write!(path, """
+        {"version":3,"term":{"cols":80,"rows":24},"idle_time_limit":2}
+        [1,"o","before"]
+        [3,"r","#{size}"]
+        [1,"o","after"]
+        """)
+
+        assert Enum.to_list(V3.event_stream(path)) == [
+                 {1, "o", "before"},
+                 {3, "r", expected},
+                 {4, "o", "after"}
+               ]
+
+        assert {:ok, %{duration: 4.0, event_count: 3}} = V3.fetch_metadata(path)
+      end
+    end
+
     test "minimal" do
       stream = V3.event_stream("test/fixtures/3/minimal.cast")
 

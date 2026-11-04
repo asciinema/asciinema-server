@@ -9,7 +9,7 @@ defmodule Asciinema.Fts do
   @spec feed(reference, binary) :: :ok
   def feed(_fts, _str), do: :erlang.nif_error(:nif_not_loaded)
 
-  @spec resize(reference, integer, integer) :: :ok
+  @spec resize(reference, integer, integer) :: :ok | {:error, :invalid_size}
   def resize(_fts, _cols, _rows), do: :erlang.nif_error(:nif_not_loaded)
 
   @spec dump(reference) :: binary

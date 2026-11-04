@@ -3,6 +3,13 @@ use rustler::{Atom, Binary, Encoder, Env, Error, NifResult, Resource, ResourceAr
 use std::str;
 use std::sync::RwLock;
 
+const MAX_TERM_COLS: usize = 720;
+const MAX_TERM_ROWS: usize = 200;
+
+fn valid_size(cols: usize, rows: usize) -> bool {
+    (1..=MAX_TERM_COLS).contains(&cols) && (1..=MAX_TERM_ROWS).contains(&rows)
+}
+
 mod atoms {
     rustler::atoms! {
         ok,
@@ -27,7 +34,7 @@ fn new(
     rows: usize,
     scrollback_limit: Option<usize>,
 ) -> NifResult<(Atom, ResourceArc<VtResource>)> {
-    if cols > 0 && rows > 0 {
+    if valid_size(cols, rows) {
         let mut builder = Vt::builder();
         builder.size(cols, rows);
 
@@ -66,6 +73,10 @@ fn feed(resource: ResourceArc<VtResource>, input: Binary) -> NifResult<Atom> {
 
 #[rustler::nif]
 fn resize(resource: ResourceArc<VtResource>, cols: usize, rows: usize) -> NifResult<Atom> {
+    if !valid_size(cols, rows) {
+        return Err(Error::Term(Box::new(atoms::invalid_size())));
+    }
+
     let mut vt = convert_err(resource.vt.write(), "rw_lock")?;
     vt.resize(cols, rows);
 

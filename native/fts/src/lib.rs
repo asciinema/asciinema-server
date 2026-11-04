@@ -9,6 +9,13 @@ use avt::{parser::Parser, terminal::BufferType};
 use indexmap::IndexSet;
 use rustler::{Atom, Binary, Env, Error, NifResult, Resource, ResourceArc, Term};
 
+const MAX_TERM_COLS: usize = 720;
+const MAX_TERM_ROWS: usize = 200;
+
+fn valid_size(cols: usize, rows: usize) -> bool {
+    (1..=MAX_TERM_COLS).contains(&cols) && (1..=MAX_TERM_ROWS).contains(&rows)
+}
+
 mod atoms {
     rustler::atoms! {
         ok,
@@ -275,7 +282,7 @@ fn load(env: Env, _term: Term) -> bool {
 
 #[rustler::nif]
 fn new(cols: usize, rows: usize) -> NifResult<(Atom, ResourceArc<FtsResource>)> {
-    if cols > 0 && rows > 0 {
+    if valid_size(cols, rows) {
         let resource = ResourceArc::new(FtsResource {
             fts: RwLock::new(Fts {
                 parser: Parser::new(),
@@ -302,6 +309,10 @@ fn feed(resource: ResourceArc<FtsResource>, input: Binary) -> NifResult<Atom> {
 
 #[rustler::nif]
 fn resize(resource: ResourceArc<FtsResource>, cols: usize, rows: usize) -> NifResult<Atom> {
+    if !valid_size(cols, rows) {
+        return Err(Error::Term(Box::new(atoms::invalid_size())));
+    }
+
     convert_err(resource.fts.write(), "rw_lock")?.resize(cols, rows);
 
     Ok(atoms::ok())
