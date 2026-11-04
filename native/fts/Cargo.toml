@@ -6,8 +6,10 @@ edition = "2021"
 
 [lib]
 crate-type = ["cdylib"]
+# NIF tests run through ExUnit inside the BEAM.
+test = false
 
 [dependencies]
-rustler = "0.38.0"
+rustler = "0.39.0"
 avt = "0.19.0"
 indexmap = "2.12.0"
