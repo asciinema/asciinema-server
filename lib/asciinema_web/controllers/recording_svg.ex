@@ -70,7 +70,7 @@ defmodule AsciinemaWeb.RecordingSVG do
   end
 
   # Bump when SVG rendering output can change without recording data changes.
-  @svg_renderer_salt 6
+  @svg_renderer_salt 7
 
   def svg_cache_key(asciicast) do
     key =
@@ -291,6 +291,7 @@ defmodule AsciinemaWeb.RecordingSVG do
   @block_elements_last 0x259F
   @black_square 0x25A0
   @black_large_circle 0x2B24
+  @sextile 0x26B9
   @sextants_first 0x1FB00
   @sextants_last 0x1FB3B
   @braille_patterns_first 0x2800
@@ -306,6 +307,7 @@ defmodule AsciinemaWeb.RecordingSVG do
       (cp >= @block_elements_first and cp <= @block_elements_last) ||
       cp == @black_square ||
       cp == @black_large_circle ||
+      cp == @sextile ||
       (cp >= @sextants_first and cp <= @sextants_last) ||
       (cp >= @braille_patterns_first and cp <= @braille_patterns_last) ||
       powerline_symbol?(cp)
