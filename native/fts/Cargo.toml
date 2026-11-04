@@ -11,5 +11,5 @@ test = false
 
 [dependencies]
 rustler = "0.39.0"
-avt = "0.19.0"
+avt = "0.20.0"
 indexmap = "2.12.0"
