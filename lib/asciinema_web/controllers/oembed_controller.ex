@@ -7,8 +7,9 @@ defmodule AsciinemaWeb.OembedController do
 
   def show(conn, params) do
     with {:ok, path} <- parse_url(params["url"] || ""),
-         {:ok, assigns} <- load_and_authorize(path) do
-      {mw, mh} = get_size(params)
+         {:ok, assigns} <- load_and_authorize(path),
+         {:ok, mw} <- parse_dimension(params["maxwidth"]),
+         {:ok, mh} <- parse_dimension(params["maxheight"]) do
       format = get_embed_format(conn)
 
       render(
@@ -65,12 +66,16 @@ defmodule AsciinemaWeb.OembedController do
     end
   end
 
-  defp get_size(params) do
-    mw = if params["maxwidth"], do: String.to_integer(params["maxwidth"])
-    mh = if params["maxheight"], do: String.to_integer(params["maxheight"])
+  defp parse_dimension(nil), do: {:ok, nil}
 
-    {mw, mh}
+  defp parse_dimension(value) when is_binary(value) do
+    case Integer.parse(value) do
+      {n, ""} when n > 0 -> {:ok, n}
+      _ -> {:error, :bad_request}
+    end
   end
+
+  defp parse_dimension(_), do: {:error, :bad_request}
 
   defp get_embed_format(conn) do
     case conn.params["format"] || get_format(conn) do

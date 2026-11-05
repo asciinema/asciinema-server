@@ -99,14 +99,10 @@ defmodule AsciinemaWeb.OembedJSON do
   end
 
   defp size_smaller_than(width, height, max_width, max_height) do
-    fw = max_width / width
-    fh = max_height / height
+    fw = min(max_width, width) / width
+    fh = min(max_height, height) / height
 
-    if fw > 1 && fh > 1 do
-      {width, height}
-    else
-      f = min(fw, fh)
-      {round(width * f), round(height * f)}
-    end
+    f = min(fw, fh)
+    {max(1, round(width * f)), max(1, round(height * f))}
   end
 end
