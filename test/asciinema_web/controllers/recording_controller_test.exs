@@ -2,6 +2,14 @@ defmodule AsciinemaWeb.RecordingControllerTest do
   use AsciinemaWeb.ConnCase, async: true
   import Asciinema.Factory
 
+  test "HTML responses vary by Accept", %{conn: conn} do
+    asciicast = insert(:asciicast)
+    conn = conn |> put_req_header("accept", "text/html") |> get(~p"/a/#{asciicast}")
+
+    assert html_response(conn, 200)
+    assert get_resp_header(conn, "vary") == ["accept"]
+  end
+
   describe "show public recording as owner" do
     setup [:insert_public_recording, :authenticate_as_owner]
 
@@ -866,6 +874,22 @@ defmodule AsciinemaWeb.RecordingControllerTest do
   describe "SVG cache-control" do
     setup [:insert_public_recording]
 
+    test "304 responses vary by Accept and Accept-Encoding", %{conn: conn, asciicast: asciicast} do
+      path = ~p"/a/#{asciicast.id}"
+      conn = conn |> put_req_header("accept", "image/svg+xml") |> get(path)
+      assert response(conn, 200)
+      [etag] = get_resp_header(conn, "etag")
+
+      conn =
+        build_conn()
+        |> put_req_header("accept", "image/svg+xml")
+        |> put_req_header("if-none-match", etag)
+        |> get(path)
+
+      assert response(conn, 304) == ""
+      assert get_resp_header(conn, "vary") == ["accept-encoding", "accept"]
+    end
+
     test "uses 1 year max-age only for matching v param", %{conn: conn, asciicast: asciicast} do
       cache_key = AsciinemaWeb.RecordingSVG.svg_cache_key(asciicast)
 
@@ -916,14 +940,14 @@ defmodule AsciinemaWeb.RecordingControllerTest do
       conn_1 = get(conn, ~p"/a/#{asciicast.id}" <> ".cast")
       body_1 = asciicast_response(conn_1, 200)
 
-      assert ["accept-encoding"] = get_resp_header(conn_1, "vary")
+      assert ["accept-encoding", "accept"] = get_resp_header(conn_1, "vary")
       assert [] == get_resp_header(conn_1, "content-encoding")
       assert ~s({"version": 2) <> _ = body_1
 
       conn_2 = get(conn, ~p"/a/#{asciicast.id}" <> ".json")
       body_2 = asciicast_response(conn_2, 200)
 
-      assert ["accept-encoding"] = get_resp_header(conn_2, "vary")
+      assert ["accept-encoding", "accept"] = get_resp_header(conn_2, "vary")
       assert [] == get_resp_header(conn_2, "content-encoding")
       assert ~s({"version": 2) <> _ = body_2
     end
@@ -940,7 +964,7 @@ defmodule AsciinemaWeb.RecordingControllerTest do
 
       gzip_body_1 = asciicast_response(conn_1, 200)
 
-      assert ["accept-encoding"] = get_resp_header(conn_1, "vary")
+      assert ["accept-encoding", "accept"] = get_resp_header(conn_1, "vary")
       assert ["gzip"] = get_resp_header(conn_1, "content-encoding")
       assert ~s({"version": 2) <> _ = :zlib.gunzip(gzip_body_1)
 
@@ -951,7 +975,7 @@ defmodule AsciinemaWeb.RecordingControllerTest do
 
       gzip_body_2 = asciicast_response(conn_2, 200)
 
-      assert ["accept-encoding"] = get_resp_header(conn_2, "vary")
+      assert ["accept-encoding", "accept"] = get_resp_header(conn_2, "vary")
       assert ["gzip"] = get_resp_header(conn_2, "content-encoding")
       assert ~s({"version": 2) <> _ = :zlib.gunzip(gzip_body_2)
     end
@@ -968,7 +992,7 @@ defmodule AsciinemaWeb.RecordingControllerTest do
 
       zstd_body_1 = asciicast_response(conn_1, 200)
 
-      assert ["accept-encoding"] = get_resp_header(conn_1, "vary")
+      assert ["accept-encoding", "accept"] = get_resp_header(conn_1, "vary")
       assert ["zstd"] = get_resp_header(conn_1, "content-encoding")
       assert ~s({"version": 2) <> _ = zstd_decompress(zstd_body_1)
 
@@ -979,7 +1003,7 @@ defmodule AsciinemaWeb.RecordingControllerTest do
 
       zstd_body_2 = asciicast_response(conn_2, 200)
 
-      assert ["accept-encoding"] = get_resp_header(conn_2, "vary")
+      assert ["accept-encoding", "accept"] = get_resp_header(conn_2, "vary")
       assert ["zstd"] = get_resp_header(conn_2, "content-encoding")
       assert ~s({"version": 2) <> _ = zstd_decompress(zstd_body_2)
     end
@@ -1032,14 +1056,14 @@ defmodule AsciinemaWeb.RecordingControllerTest do
       conn_1 = get(conn, ~p"/a/#{asciicast.id}" <> ".cast")
       body_1 = asciicast_response(conn_1, 200)
 
-      assert ["accept-encoding"] = get_resp_header(conn_1, "vary")
+      assert ["accept-encoding", "accept"] = get_resp_header(conn_1, "vary")
       assert [] == get_resp_header(conn_1, "content-encoding")
       assert ~s({"version": 2) <> _ = body_1
 
       conn_2 = get(conn, ~p"/a/#{asciicast.id}" <> ".json")
       body_2 = asciicast_response(conn_2, 200)
 
-      assert ["accept-encoding"] = get_resp_header(conn_2, "vary")
+      assert ["accept-encoding", "accept"] = get_resp_header(conn_2, "vary")
       assert [] == get_resp_header(conn_2, "content-encoding")
       assert ~s({"version": 2) <> _ = body_2
     end
@@ -1054,7 +1078,7 @@ defmodule AsciinemaWeb.RecordingControllerTest do
 
       gzip_body_1 = asciicast_response(conn_1, 200)
 
-      assert ["accept-encoding"] = get_resp_header(conn_1, "vary")
+      assert ["accept-encoding", "accept"] = get_resp_header(conn_1, "vary")
       assert ["gzip"] = get_resp_header(conn_1, "content-encoding")
       assert ~s({"version": 2) <> _ = :zlib.gunzip(gzip_body_1)
 
@@ -1065,7 +1089,7 @@ defmodule AsciinemaWeb.RecordingControllerTest do
 
       gzip_body_2 = asciicast_response(conn_2, 200)
 
-      assert ["accept-encoding"] = get_resp_header(conn_2, "vary")
+      assert ["accept-encoding", "accept"] = get_resp_header(conn_2, "vary")
       assert ["gzip"] = get_resp_header(conn_2, "content-encoding")
       assert ~s({"version": 2) <> _ = :zlib.gunzip(gzip_body_2)
     end
@@ -1085,7 +1109,7 @@ defmodule AsciinemaWeb.RecordingControllerTest do
 
       zstd_body = asciicast_response(conn, 200)
 
-      assert ["accept-encoding"] = get_resp_header(conn, "vary")
+      assert ["accept-encoding", "accept"] = get_resp_header(conn, "vary")
       assert ["zstd"] = get_resp_header(conn, "content-encoding")
       assert zstd_body == stored_body
       assert ~s({"version": 2) <> _ = zstd_decompress(zstd_body)
@@ -1100,7 +1124,7 @@ defmodule AsciinemaWeb.RecordingControllerTest do
       conn = get(conn, ~p"/a/#{asciicast.id}" <> ".txt")
       plain_body = response(conn, 200)
 
-      assert ["accept-encoding"] = get_resp_header(conn, "vary")
+      assert ["accept-encoding", "accept"] = get_resp_header(conn, "vary")
       assert [] == get_resp_header(conn, "content-encoding")
       assert List.first(get_resp_header(conn, "content-type")) == "text/plain"
 
@@ -1125,7 +1149,7 @@ defmodule AsciinemaWeb.RecordingControllerTest do
 
       gzip_body = response(gzip_conn, 200)
 
-      assert ["accept-encoding"] = get_resp_header(gzip_conn, "vary")
+      assert ["accept-encoding", "accept"] = get_resp_header(gzip_conn, "vary")
       assert ["gzip"] = get_resp_header(gzip_conn, "content-encoding")
       assert List.first(get_resp_header(gzip_conn, "content-type")) == "text/plain"
 
@@ -1150,7 +1174,7 @@ defmodule AsciinemaWeb.RecordingControllerTest do
 
       zstd_body = response(zstd_conn, 200)
 
-      assert ["accept-encoding"] = get_resp_header(zstd_conn, "vary")
+      assert ["accept-encoding", "accept"] = get_resp_header(zstd_conn, "vary")
       assert ["zstd"] = get_resp_header(zstd_conn, "content-encoding")
       assert List.first(get_resp_header(zstd_conn, "content-type")) == "text/plain"
 
@@ -1188,7 +1212,7 @@ defmodule AsciinemaWeb.RecordingControllerTest do
       conn = get(conn, ~p"/a/#{asciicast.id}" <> ".svg")
       plain_body = response(conn, 200)
 
-      assert ["accept-encoding"] = get_resp_header(conn, "vary")
+      assert ["accept-encoding", "accept"] = get_resp_header(conn, "vary")
       assert [] == get_resp_header(conn, "content-encoding")
       assert response_content_type(conn, :svg)
       assert plain_body =~ "foo"
@@ -1209,7 +1233,7 @@ defmodule AsciinemaWeb.RecordingControllerTest do
 
       gzip_body = response(gzip_conn, 200)
 
-      assert ["accept-encoding"] = get_resp_header(gzip_conn, "vary")
+      assert ["accept-encoding", "accept"] = get_resp_header(gzip_conn, "vary")
       assert ["gzip"] = get_resp_header(gzip_conn, "content-encoding")
       assert response_content_type(gzip_conn, :svg)
       assert :zlib.gunzip(gzip_body) == plain_body
@@ -1229,7 +1253,7 @@ defmodule AsciinemaWeb.RecordingControllerTest do
 
       zstd_body = response(zstd_conn, 200)
 
-      assert ["accept-encoding"] = get_resp_header(zstd_conn, "vary")
+      assert ["accept-encoding", "accept"] = get_resp_header(zstd_conn, "vary")
       assert ["zstd"] = get_resp_header(zstd_conn, "content-encoding")
       assert response_content_type(zstd_conn, :svg)
       assert zstd_decompress(zstd_body) == plain_body
@@ -1306,6 +1330,7 @@ defmodule AsciinemaWeb.RecordingControllerTest do
 
     assert response(conn_2, 200)
     assert response_content_type(conn_2, :js)
+    assert get_resp_header(conn_2, "vary") == ["accept"]
 
     conn_2 =
       conn
@@ -1314,6 +1339,7 @@ defmodule AsciinemaWeb.RecordingControllerTest do
 
     assert response(conn_2, 200)
     assert response_content_type(conn_2, :js)
+    assert get_resp_header(conn_2, "vary") == ["accept"]
   end
 
   defp test_js_response(conn, url, status) when status >= 400 do

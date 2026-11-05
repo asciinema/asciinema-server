@@ -17,6 +17,7 @@ defmodule AsciinemaWeb.StreamControllerTest do
         assert response(conn, 200) == script
         assert response_content_type(conn, :js)
         assert get_resp_header(conn, "cache-control") == ["public, max-age=60"]
+        assert get_resp_header(conn, "vary") == ["accept"]
         refute script =~ stream.producer_token
       end
     end
@@ -27,6 +28,7 @@ defmodule AsciinemaWeb.StreamControllerTest do
 
       assert response(conn, 200)
       assert response_content_type(conn, :js)
+      assert get_resp_header(conn, "vary") == ["accept"]
     end
 
     test "requires authorization for private streams", %{conn: conn} do
@@ -131,6 +133,14 @@ defmodule AsciinemaWeb.StreamControllerTest do
   end
 
   describe "show" do
+    test "HTML responses vary by Accept", %{conn: conn} do
+      stream = insert(:stream)
+      conn = conn |> put_req_header("accept", "text/html") |> get(~p"/s/#{stream}")
+
+      assert html_response(conn, 200)
+      assert get_resp_header(conn, "vary") == ["accept"]
+    end
+
     test "advertises oEmbed without allowing framing of the normal page", %{conn: conn} do
       stream = insert(:stream)
       conn = get(conn, ~p"/s/#{stream}")

@@ -49,7 +49,7 @@ defmodule AsciinemaWeb.RecordingController do
           conn
           |> put_resp_header("content-type", "application/x-asciicast")
           |> put_resp_header("access-control-allow-origin", "*")
-          |> put_resp_header("vary", "accept-encoding")
+          |> prepend_resp_headers([{"vary", "accept-encoding"}])
           |> maybe_put_content_encoding(encoding)
           |> put_content_disposition(filename)
           |> send_file(200, path)
@@ -79,7 +79,7 @@ defmodule AsciinemaWeb.RecordingController do
         {:ok, path} ->
           conn
           |> put_resp_header("content-type", "text/plain")
-          |> put_resp_header("vary", "accept-encoding")
+          |> prepend_resp_headers([{"vary", "accept-encoding"}])
           |> maybe_put_content_encoding(encoding)
           |> put_resp_header("content-disposition", "attachment; filename=#{asciicast.id}.txt")
           |> send_file(200, path)
@@ -113,7 +113,7 @@ defmodule AsciinemaWeb.RecordingController do
         |> put_resp_header("cache-control", "public, max-age=#{max_age}, must-revalidate")
         |> put_etag(cache_key)
         |> put_resp_header("access-control-allow-origin", "*")
-        |> put_resp_header("vary", "accept-encoding")
+        |> prepend_resp_headers([{"vary", "accept-encoding"}])
         |> maybe_put_content_encoding(encoding)
         |> put_resp_content_type("image/svg+xml; charset=utf-8")
 

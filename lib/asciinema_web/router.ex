@@ -159,6 +159,7 @@ defmodule AsciinemaWeb.Router do
 
   defp format_specific_plugs(conn, []) do
     conn
+    |> put_resp_header("vary", "accept")
     |> fetch_session([])
     |> Authn.call([])
     |> format_specific_plugs(get_format(conn))
