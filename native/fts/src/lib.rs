@@ -1,4 +1,4 @@
-use std::collections::{BTreeSet, HashMap};
+use std::collections::{BTreeMap, BTreeSet};
 use std::ops::Range;
 use std::sync::RwLock;
 
@@ -31,7 +31,7 @@ struct TextIndex {
     transcript: Transcript,
     dirty_rows: BTreeSet<usize>,
     content: CappedString,
-    alt_screen_lines: HashMap<usize, Vec<String>>,
+    alt_screen_lines: BTreeMap<usize, Vec<String>>,
     alt_screen_words: CappedIndexSet,
 }
 
@@ -60,7 +60,7 @@ impl TextIndex {
             transcript: Transcript::new(),
             dirty_rows: BTreeSet::new(),
             content: CappedString::new(MAX_TEXT_LEN),
-            alt_screen_lines: HashMap::new(),
+            alt_screen_lines: BTreeMap::new(),
             alt_screen_words: CappedIndexSet::new(MAX_TEXT_LEN),
         }
     }
@@ -129,10 +129,7 @@ impl TextIndex {
 
         // flush alternate screen buffer
 
-        let mut lines: Vec<(usize, Vec<String>)> = self.alt_screen_lines.drain().collect();
-        lines.sort_by_key(|(n1, _)| *n1);
-
-        for (_, words) in lines {
+        for words in std::mem::take(&mut self.alt_screen_lines).into_values() {
             self.alt_screen_words.extend(words);
         }
 
