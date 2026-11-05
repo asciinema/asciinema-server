@@ -2,6 +2,82 @@ defmodule AsciinemaWeb.StreamControllerTest do
   use AsciinemaWeb.ConnCase, async: true
   import Asciinema.Factory
 
+  describe "embed script" do
+    test "serves the recording embed script for public and unlisted streams, live or offline", %{
+      conn: conn
+    } do
+      recording = insert(:asciicast)
+      recording_conn = get(conn, ~p"/a/#{recording}" <> ".js")
+      script = response(recording_conn, 200)
+
+      for visibility <- [:public, :unlisted], live <- [true, false] do
+        stream = insert(:stream, visibility: visibility, live: live)
+        conn = get(conn, ~p"/s/#{stream}" <> ".js")
+
+        assert response(conn, 200) == script
+        assert response_content_type(conn, :js)
+        assert get_resp_header(conn, "cache-control") == ["public, max-age=60"]
+        refute script =~ stream.producer_token
+      end
+    end
+
+    test "supports JavaScript content negotiation", %{conn: conn} do
+      stream = insert(:stream)
+      conn = conn |> put_req_header("accept", "application/javascript") |> get(~p"/s/#{stream}")
+
+      assert response(conn, 200)
+      assert response_content_type(conn, :js)
+    end
+
+    test "requires authorization for private streams", %{conn: conn} do
+      stream = insert(:stream, visibility: :private)
+      path = ~p"/s/#{stream}" <> ".js"
+
+      assert conn |> get(path) |> text_response(403)
+      assert conn |> log_in(insert(:user)) |> get(path) |> text_response(403)
+
+      for user <- [stream.user, insert(:user, is_admin: true)] do
+        conn = conn |> log_in(user) |> get(path)
+        assert response(conn, 200)
+        assert response_content_type(conn, :js)
+      end
+    end
+
+    test "rejects missing streams", %{conn: conn} do
+      assert conn |> get(~p"/s/0123456789abcdef.js") |> text_response(404)
+    end
+
+    test "rejects streams with streaming disabled", %{conn: conn} do
+      stream = insert(:stream, user: build(:user, streaming_enabled: false))
+      assert conn |> get(~p"/s/#{stream}" <> ".js") |> text_response(404)
+    end
+
+    test "rejects unsupported formats", %{conn: conn} do
+      stream = insert(:stream)
+
+      assert_error_sent 406, fn ->
+        get(conn, ~p"/s/#{stream}" <> ".json")
+      end
+    end
+
+    test "does not enable JavaScript for management routes", %{conn: conn} do
+      stream = insert(:stream)
+      conn = conn |> log_in(stream.user) |> put_req_header("accept", "application/javascript")
+
+      for {method, path} <- [
+            {:get, ~p"/s/#{stream}/edit"},
+            {:patch, ~p"/s/#{stream}"},
+            {:delete, ~p"/s/#{stream}"}
+          ] do
+        assert_error_sent 406, fn ->
+          dispatch(conn, @endpoint, method, path)
+        end
+      end
+
+      assert Asciinema.Streaming.get_stream(stream.id)
+    end
+  end
+
   describe "iframe" do
     test "embeds public and unlisted streams whether live or offline", %{conn: conn} do
       for visibility <- [:public, :unlisted], live <- [true, false] do

@@ -3,7 +3,7 @@ defmodule AsciinemaWeb.RecordingController do
   alias Asciinema.{FileCache, Gzip, Recordings, Zstd}
   alias Asciinema.Recordings.Asciicast
   alias Asciinema.Recordings.Query, as: RecordingQuery
-  alias AsciinemaWeb.{Authorization, PlayerOpts, PngGenerator, RecordingSVG}
+  alias AsciinemaWeb.{Authorization, EmbedScript, PlayerOpts, PngGenerator, RecordingSVG}
   alias AsciinemaWeb.FallbackController
 
   plug :require_current_user when action in [:edit, :update, :delete]
@@ -65,16 +65,7 @@ defmodule AsciinemaWeb.RecordingController do
     end
   end
 
-  @js_max_age 60
-
-  def do_show(conn, "js", _asciicast) do
-    path = Application.app_dir(:asciinema, "priv/static/js/embed.js")
-
-    conn
-    |> put_resp_content_type("application/javascript")
-    |> put_resp_header("cache-control", "public, max-age=#{@js_max_age}")
-    |> send_file(200, path)
-  end
+  def do_show(conn, "js", _asciicast), do: EmbedScript.send(conn)
 
   def do_show(conn, "txt", asciicast) do
     if asciicast.archived_at do

@@ -51,11 +51,14 @@
     }
 
     const apiHost = apiHostFromScript(script);
-    const asciicastId = script.id.split('-')[1];
+    const isStream = script.id.startsWith('asciinema-stream-');
+    const prefix = isStream ? 'asciinema-stream' : 'asciicast';
+    const id = script.id.slice(prefix.length + 1);
+    const path = isStream ? '/s/' : '/a/';
     const container = document.createElement('div');
 
-    container.id = "asciicast-container-" + asciicastId;
-    container.className = 'asciicast';
+    container.id = prefix + '-container-' + id;
+    container.className = prefix;
     container.style.display = 'block';
     container.style.float = 'none';
     container.style.overflow = 'hidden';
@@ -66,10 +69,11 @@
     insertAfter(script, container);
 
     const iframe = document.createElement('iframe');
-    iframe.src = apiHost + "/a/" + asciicastId + '/iframe?fit=width&' + params(container, script);
-    iframe.id = "asciicast-iframe-" + asciicastId;
-    iframe.name = "asciicast-iframe-" + asciicastId;
+    iframe.src = apiHost + path + id + '/iframe?fit=width&' + params(container, script);
+    iframe.id = prefix + '-iframe-' + id;
+    iframe.name = prefix + '-iframe-' + id;
     iframe.scrolling = "no";
+    iframe.allow = 'autoplay; fullscreen';
     iframe.setAttribute('allowFullScreen', 'true');
     iframe.style.overflow = "hidden";
     iframe.style.margin = 0;
@@ -78,7 +82,7 @@
     iframe.style.width = "100%";
     iframe.style.float = "none";
     iframe.style.visibility = "hidden";
-    iframe.title = "Terminal session recording"
+    iframe.title = isStream ? "Live terminal stream" : "Terminal session recording";
 
     function syncTextStyle() {
       const style = window.getComputedStyle(container);
@@ -112,7 +116,7 @@
   }
 
   [].forEach.call(
-    document.querySelectorAll("script[id^='asciicast-']"),
+    document.querySelectorAll("script[id^='asciicast-'], script[id^='asciinema-stream-']"),
     insertPlayer
   );
 })();

@@ -4,7 +4,7 @@ defmodule AsciinemaWeb.StreamController do
   alias Asciinema.{Recordings, Streaming}
   alias Asciinema.Recordings.Query, as: RecordingQuery
   alias Asciinema.Streaming.Query, as: StreamQuery
-  alias AsciinemaWeb.{Authorization, FallbackController, PlayerOpts, StreamHTML}
+  alias AsciinemaWeb.{Authorization, EmbedScript, FallbackController, PlayerOpts, StreamHTML}
   alias Ecto.Changeset
 
   plug :require_current_user when action in [:index, :create, :edit, :update, :delete]
@@ -45,6 +45,12 @@ defmodule AsciinemaWeb.StreamController do
   end
 
   def show(conn, params) do
+    do_show(conn, get_format(conn), params)
+  end
+
+  defp do_show(conn, "js", _params), do: EmbedScript.send(conn)
+
+  defp do_show(conn, "html", params) do
     stream = conn.assigns.stream
     current_user = conn.assigns.current_user
     user_is_self = match?({%{id: id}, %{id: id}}, {current_user, stream.user})
