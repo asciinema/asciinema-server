@@ -66,7 +66,7 @@
     insertAfter(script, container);
 
     const iframe = document.createElement('iframe');
-    iframe.src = apiHost + "/a/" + asciicastId + '/iframe?' + params(container, script);
+    iframe.src = apiHost + "/a/" + asciicastId + '/iframe?fit=width&' + params(container, script);
     iframe.id = "asciicast-iframe-" + asciicastId;
     iframe.name = "asciicast-iframe-" + asciicastId;
     iframe.scrolling = "no";

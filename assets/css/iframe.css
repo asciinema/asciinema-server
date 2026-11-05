@@ -19,6 +19,25 @@ body.iframe {
   margin: 0;
   font-family: sans-serif;
 
+  #player {
+    width: 100%;
+  }
+
+  &.fit-both {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+
+    #player {
+      flex: 1;
+      min-height: 0;
+    }
+
+    .powered {
+      flex-shrink: 0;
+    }
+  }
+
   .powered {
     margin: 8px 0 0 0;
     text-align: right;

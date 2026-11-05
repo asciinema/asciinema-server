@@ -9,11 +9,10 @@ defmodule AsciinemaWeb.StreamControllerTest do
         conn = get(conn, ~p"/s/#{stream}/iframe")
         html = html_response(conn, 200)
 
-        assert html =~ "createPlayer"
+        assert html =~ "createIframePlayer"
         assert html =~ "/ws/s/#{stream.public_token}"
         assert html =~ "/assets/iframe.js"
         assert html =~ "/assets/iframe.css"
-        assert html =~ "fit: 'both'"
         assert html =~ ~s("autoplay":true)
         refute html =~ stream.producer_token
         assert get_resp_header(conn, "x-frame-options") == []

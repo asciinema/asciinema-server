@@ -1335,7 +1335,7 @@ defmodule AsciinemaWeb.RecordingControllerTest do
       |> put_req_header("accept", "*/*")
       |> get(url)
 
-    assert html_response(conn_2, 200) =~ "createPlayer"
+    assert html_response(conn_2, 200) =~ "createIframePlayer"
 
     # the iframe must stay embeddable on third-party sites: no x-frame-options
     # and no frame-ancestors directive in the CSP
@@ -1347,7 +1347,7 @@ defmodule AsciinemaWeb.RecordingControllerTest do
       |> put_req_header("accept", "text/html")
       |> get(url)
 
-    assert html_response(conn_2, 200) =~ "createPlayer"
+    assert html_response(conn_2, 200) =~ "createIframePlayer"
   end
 
   defp test_iframe_response(conn, url, status) when status >= 400 do
