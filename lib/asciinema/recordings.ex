@@ -843,6 +843,7 @@ defmodule Asciinema.Recordings do
       less_than_or_equal_to: @max_term_rows
     )
     |> validate_number(:idle_time_limit, greater_than: 0.0)
+    |> validate_number(:speed, greater_than: 0.0)
     |> validate_inclusion(:term_theme_name, Themes.terminal_themes() ++ ["original"])
     |> validate_number(:term_line_height,
       greater_than_or_equal_to: 1.0,

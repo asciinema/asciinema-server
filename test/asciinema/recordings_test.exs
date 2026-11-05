@@ -353,6 +353,29 @@ defmodule Asciinema.RecordingsTest do
   end
 
   describe "update_asciicast/2" do
+    test "accepts positive playback speeds and clearing the override" do
+      asciicast = insert(:asciicast)
+
+      for {speed, expected} <- [{"0.5", 0.5}, {"1", 1.0}, {"2", 2.0}] do
+        assert {:ok, updated} = Recordings.update_asciicast(asciicast, %{"speed" => speed})
+        assert updated.speed == expected
+      end
+
+      asciicast = insert(:asciicast, speed: 2.0)
+
+      assert {:ok, %Asciicast{speed: nil}} =
+               Recordings.update_asciicast(asciicast, %{"speed" => ""})
+    end
+
+    test "rejects non-positive playback speeds" do
+      asciicast = insert(:asciicast)
+
+      for speed <- ["0", "-1"] do
+        assert {:error, changeset} = Recordings.update_asciicast(asciicast, %{"speed" => speed})
+        assert %{speed: ["must be greater than 0.0"]} = errors_on(changeset)
+      end
+    end
+
     test "updates the keystroke overlay setting" do
       asciicast = insert(:asciicast, keystroke_overlay: false)
 

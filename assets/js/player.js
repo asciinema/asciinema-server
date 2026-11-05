@@ -29,10 +29,6 @@ export async function createPlayer(src, container, opts) {
 }
 
 function createPlayerWithDefaults(src, container, opts) {
-  if (opts.markers === null) {
-    delete opts.markers;
-  }
-
   const player = create(src, container, opts);
 
   player.addEventListener('error', error => {
