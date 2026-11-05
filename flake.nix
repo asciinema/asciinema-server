@@ -101,7 +101,7 @@
           version = "1.0.0";
           src = ./.;
 
-          VERSION = appVersion;
+          env.VERSION = appVersion;
 
           mixFodDeps = beamPackages.fetchMixDeps {
             pname = "${pname}-mix-deps";
@@ -407,6 +407,10 @@
               machine.wait_for_unit("podman-asciinema.service")
               machine.wait_for_open_port(4000)
               machine.succeed("curl -sfL http://127.0.0.1:4000/ | grep -qi asciinema")
+
+              expected_version = ${builtins.toJSON appVersion}
+              about = machine.succeed("curl -sf http://127.0.0.1:4000/about")
+              assert f"({expected_version})" in about, f"missing build version {expected_version} on /about"
 
               # Markdown rendering exercises the packaged MDEx NIF.
               machine.succeed("podman exec asciinema /opt/app/bin/asciinema rpc 'AsciinemaWeb.ApplicationView.render_markdown(~s(**markdown**)) |> elem(1) |> IO.puts()' | grep -Fx '<p><strong>markdown</strong></p>'")
