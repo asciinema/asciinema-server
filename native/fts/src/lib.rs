@@ -1,6 +1,6 @@
 use std::collections::{BTreeMap, BTreeSet};
 use std::ops::Range;
-use std::sync::RwLock;
+use std::sync::Mutex;
 
 use avt::observer::Transcript;
 use avt::{Line, Observation, Observer, Operation, ScreenKind, Terminal};
@@ -232,7 +232,7 @@ impl CappedIndexSet {
 }
 
 pub struct FtsResource {
-    fts: RwLock<Fts>,
+    fts: Mutex<Fts>,
 }
 
 impl Resource for FtsResource {}
@@ -251,7 +251,7 @@ fn new(cols: usize, rows: usize) -> NifResult<(Atom, ResourceArc<FtsResource>)> 
         .map_err(|_| Error::Term(Box::new(atoms::invalid_size())))?;
 
     let resource = ResourceArc::new(FtsResource {
-        fts: RwLock::new(Fts {
+        fts: Mutex::new(Fts {
             terminal,
             index: TextIndex::new(),
         }),
@@ -262,7 +262,7 @@ fn new(cols: usize, rows: usize) -> NifResult<(Atom, ResourceArc<FtsResource>)> 
 
 #[rustler::nif]
 fn feed(resource: ResourceArc<FtsResource>, input: Binary) -> NifResult<Atom> {
-    convert_err(resource.fts.write(), "rw_lock")?.feed(input);
+    convert_err(resource.fts.lock(), "rw_lock")?.feed(input);
 
     Ok(atoms::ok())
 }
@@ -273,14 +273,14 @@ fn resize(resource: ResourceArc<FtsResource>, cols: usize, rows: usize) -> NifRe
         return Err(Error::Term(Box::new(atoms::invalid_size())));
     }
 
-    convert_err(resource.fts.write(), "rw_lock")?.resize(cols, rows);
+    convert_err(resource.fts.lock(), "rw_lock")?.resize(cols, rows);
 
     Ok(atoms::ok())
 }
 
 #[rustler::nif]
 fn dump(resource: ResourceArc<FtsResource>) -> NifResult<String> {
-    Ok(convert_err(resource.fts.write(), "rw_lock")?.dump())
+    Ok(convert_err(resource.fts.lock(), "rw_lock")?.dump())
 }
 
 fn convert_err<T, E>(result: Result<T, E>, error: &'static str) -> Result<T, Error> {
