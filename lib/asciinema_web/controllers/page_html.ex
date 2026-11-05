@@ -3,10 +3,10 @@ defmodule AsciinemaWeb.PageHTML do
 
   embed_templates "page_html/*"
 
-  @tos_html Path.join(__DIR__, "page_html/_tos.md") |> File.read!() |> Earmark.as_html!()
+  @tos_html Path.join(__DIR__, "page_html/_tos.md") |> File.read!() |> MDEx.to_html!()
   def tos, do: @tos_html
 
-  @privacy_html Path.join(__DIR__, "page_html/_privacy.md") |> File.read!() |> Earmark.as_html!()
+  @privacy_html Path.join(__DIR__, "page_html/_privacy.md") |> File.read!() |> MDEx.to_html!()
   def privacy, do: @privacy_html
 
   def obfuscated_email(assigns) do
