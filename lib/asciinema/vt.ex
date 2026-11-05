@@ -9,7 +9,7 @@ defmodule Asciinema.Vt do
   @spec feed(reference, binary) :: :ok
   def feed(_vt, _str), do: :erlang.nif_error(:nif_not_loaded)
 
-  @spec resize(reference, integer, integer) :: :ok
+  @spec resize(reference, integer, integer) :: :ok | {:error, :invalid_size}
   def resize(_vt, _cols, _rows), do: :erlang.nif_error(:nif_not_loaded)
 
   @spec dump(reference) :: binary

@@ -50,6 +50,34 @@ Notable features:
 Refer to [asciinema server docs](https://docs.asciinema.org/manual/server/) for
 further details.
 
+## Development
+
+To work on the server, first download the source code:
+
+```sh
+git clone https://github.com/asciinema/asciinema-server
+cd asciinema-server
+```
+
+The recommended way to get the toolchain is the Nix dev shell, which provides
+everything needed (Elixir, Node.js, Rust, and supporting tools) and just works:
+
+```sh
+nix develop
+```
+
+If you don't use Nix, you need Elixir (1.19 or later), Erlang/OTP (28 or
+later), Node.js, and the Rust toolchain (used for the native NIFs).
+
+Either way, a running PostgreSQL server is required.
+
+Then run `mix setup` to install dependencies, set up the database and build
+assets, `just serve` (or `iex -S mix phx.server`) to start the server, and
+`mix test` to run the tests.
+
+If you'd like to propose or submit any changes, please read the
+[contribution guidelines](CONTRIBUTING.md) first.
+
 ## Donations
 
 Sustainability of asciinema development relies on donations and sponsorships.

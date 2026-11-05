@@ -32,7 +32,6 @@ config :asciinema, AsciinemaWeb.Endpoint,
   ]
 
 config :asciinema, AsciinemaAdmin.Endpoint,
-  http: [ip: {127, 0, 0, 1}, port: 4002],
   check_origin: false,
   code_reloader: true,
   debug_errors: true,

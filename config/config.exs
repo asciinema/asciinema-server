@@ -113,19 +113,18 @@ config :asciinema, AsciinemaWeb.DefaultAvatar, adapter: AsciinemaWeb.DefaultAvat
 config :asciinema, Oban,
   repo: Asciinema.Repo,
   queues: [default: 5, emails: 5, maintenance: 5],
-  plugins: [
-    {Oban.Plugins.Pruner, max_age: 3600},
-    {Oban.Plugins.Cron,
-     crontab: [
-       {"0 * * * *", Asciinema.Workers.DeleteUnclaimedRecordings},
-       {"* * * * *", Asciinema.Workers.MarkOfflineStreams},
-       {"* * * * *", Asciinema.Workers.RescheduleStreams},
-       {"0 3 * * *", Asciinema.Workers.RecomputePopularityScores},
-       {"*/5 * * * *", Asciinema.Workers.RecomputeDirtyPopularityScores}
-     ]},
-    Oban.Plugins.Lifeline,
-    Oban.Plugins.Reindexer
-  ]
+  pruner: [max_age: {1, :hour}],
+  cron: [
+    crontab: [
+      {"0 * * * *", Asciinema.Workers.DeleteUnclaimedRecordings},
+      {"* * * * *", Asciinema.Workers.MarkOfflineStreams},
+      {"* * * * *", Asciinema.Workers.RescheduleStreams},
+      {"0 3 * * *", Asciinema.Workers.RecomputePopularityScores},
+      {"*/5 * * * *", Asciinema.Workers.RecomputeDirtyPopularityScores}
+    ]
+  ],
+  lifeline: Oban.Lifeline,
+  reindexer: Oban.Reindexer
 
 config :tzdata, :autoupdate, :disabled
 

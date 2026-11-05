@@ -1,10 +1,28 @@
 defmodule AsciinemaWeb.OembedJSON do
   use AsciinemaWeb, :json
   import Phoenix.Component, only: [sigil_H: 2]
-  alias AsciinemaWeb.UserHTML
+  alias AsciinemaWeb.{StreamHTML, UserHTML}
 
   def show(%{asciicast: asciicast, max_width: mw, max_height: mh}) do
     attrs(asciicast, mw, mh)
+  end
+
+  def show(%{stream: stream, max_width: mw, max_height: mh}) do
+    {width, height} = size_smaller_than(640, 400, mw || 640, mh || 400)
+    title = StreamHTML.title(stream)
+
+    %{
+      type: "rich",
+      version: 1.0,
+      title: title,
+      author_name: UserHTML.username(stream.user),
+      author_url: url(~p"/~#{stream.user}"),
+      provider_name: "asciinema",
+      provider_url: url(~p"/"),
+      html: stream_html(stream, title, width, height),
+      width: width,
+      height: height
+    }
   end
 
   @cell_width 7.22
@@ -62,15 +80,29 @@ defmodule AsciinemaWeb.OembedJSON do
     |> IO.iodata_to_binary()
   end
 
-  defp size_smaller_than(width, height, max_width, max_height) do
-    fw = max_width / width
-    fh = max_height / height
+  defp stream_html(stream, title, width, height) do
+    assigns = %{src: url(~p"/s/#{stream}/iframe"), title: title, width: width, height: height}
 
-    if fw > 1 && fh > 1 do
-      {width, height}
-    else
-      f = min(fw, fh)
-      {round(width * f), round(height * f)}
-    end
+    ~H"""
+    <iframe
+      src={@src}
+      title={@title}
+      width={@width}
+      height={@height}
+      style="border: 0"
+      allow="autoplay; fullscreen"
+      allowfullscreen
+    ></iframe>
+    """
+    |> Phoenix.HTML.Safe.to_iodata()
+    |> IO.iodata_to_binary()
+  end
+
+  defp size_smaller_than(width, height, max_width, max_height) do
+    fw = min(max_width, width) / width
+    fh = min(max_height, height) / height
+
+    f = min(fw, fh)
+    {max(1, round(width * f)), max(1, round(height * f))}
   end
 end

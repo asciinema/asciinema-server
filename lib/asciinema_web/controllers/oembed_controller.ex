@@ -1,23 +1,21 @@
 defmodule AsciinemaWeb.OembedController do
   use AsciinemaWeb, :controller
-  alias Asciinema.Recordings
+  alias Asciinema.{Recordings, Streaming}
   alias AsciinemaWeb.Authorization
 
   plug :put_layout, html: false
 
   def show(conn, params) do
     with {:ok, path} <- parse_url(params["url"] || ""),
-         {:ok, id} <- extract_id(path),
-         {:ok, asciicast} <- load_and_authorize_asciicast(id) do
-      {mw, mh} = get_size(params)
+         {:ok, assigns} <- load_and_authorize(path),
+         {:ok, mw} <- parse_dimension(params["maxwidth"]),
+         {:ok, mh} <- parse_dimension(params["maxheight"]) do
       format = get_embed_format(conn)
 
       render(
         conn,
         "show.#{format}",
-        asciicast: asciicast,
-        max_width: mw,
-        max_height: mh
+        Keyword.merge(assigns, max_width: mw, max_height: mh)
       )
     else
       {:error, reason} ->
@@ -32,10 +30,24 @@ defmodule AsciinemaWeb.OembedController do
 
       asciicast ->
         if Authorization.can?(nil, :show, asciicast) do
-          {:ok, asciicast}
+          {:ok, asciicast: asciicast}
         else
           if Recordings.secret_token?(id), do: {:error, :forbidden}, else: {:error, :not_found}
         end
+    end
+  end
+
+  defp load_and_authorize_stream(token) do
+    case Streaming.find_stream_by_public_token(token) do
+      %{user: %{streaming_enabled: true}} = stream ->
+        if Authorization.can?(nil, :show, stream) do
+          {:ok, stream: stream}
+        else
+          {:error, :forbidden}
+        end
+
+      _ ->
+        {:error, :not_found}
     end
   end
 
@@ -46,19 +58,24 @@ defmodule AsciinemaWeb.OembedController do
     end
   end
 
-  defp extract_id(path) do
-    case Regex.run(~r|^/a/([^/]+)$|, path) do
-      [_, id] -> {:ok, id}
+  defp load_and_authorize(path) do
+    case Regex.run(~r"^/(a|s)/([^/]+)$", path) do
+      [_, "a", id] -> load_and_authorize_asciicast(id)
+      [_, "s", token] -> load_and_authorize_stream(token)
       _ -> {:error, :bad_request}
     end
   end
 
-  defp get_size(params) do
-    mw = if params["maxwidth"], do: String.to_integer(params["maxwidth"])
-    mh = if params["maxheight"], do: String.to_integer(params["maxheight"])
+  defp parse_dimension(nil), do: {:ok, nil}
 
-    {mw, mh}
+  defp parse_dimension(value) when is_binary(value) do
+    case Integer.parse(value) do
+      {n, ""} when n > 0 -> {:ok, n}
+      _ -> {:error, :bad_request}
+    end
   end
+
+  defp parse_dimension(_), do: {:error, :bad_request}
 
   defp get_embed_format(conn) do
     case conn.params["format"] || get_format(conn) do

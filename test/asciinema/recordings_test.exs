@@ -6,6 +6,34 @@ defmodule Asciinema.RecordingsTest do
   alias Asciinema.Recordings.{Asciicast, AsciicastStats, Query}
 
   describe "create_asciicast/3" do
+    for version <- [2, 3] do
+      test "processes oversized v#{version} resizes safely for text and FTS" do
+        version = unquote(version)
+
+        header =
+          case version do
+            2 -> %{version: 2, width: 80, height: 24}
+            3 -> %{version: 3, term: %{cols: 80, rows: 24}}
+          end
+
+        path = Briefly.create!()
+
+        File.write!(path, """
+        #{Jason.encode!(header)}
+        [0.5,"o","before "]
+        [0.6,"r","4294967296x4294967296"]
+        [0.7,"o","after"]
+        """)
+
+        assert {:ok, recording} = Recordings.create_asciicast(insert(:user), path)
+        assert Recordings.text(recording) == "before after\n"
+
+        assert recording
+               |> Recordings.event_stream()
+               |> Recordings.generate_fts_content(80, 24) == "before after "
+      end
+    end
+
     test "json file, v1 format" do
       user = insert(:user)
       cli = insert(:cli, user: user)
@@ -325,6 +353,29 @@ defmodule Asciinema.RecordingsTest do
   end
 
   describe "update_asciicast/2" do
+    test "accepts positive playback speeds and clearing the override" do
+      asciicast = insert(:asciicast)
+
+      for {speed, expected} <- [{"0.5", 0.5}, {"1", 1.0}, {"2", 2.0}] do
+        assert {:ok, updated} = Recordings.update_asciicast(asciicast, %{"speed" => speed})
+        assert updated.speed == expected
+      end
+
+      asciicast = insert(:asciicast, speed: 2.0)
+
+      assert {:ok, %Asciicast{speed: nil}} =
+               Recordings.update_asciicast(asciicast, %{"speed" => ""})
+    end
+
+    test "rejects non-positive playback speeds" do
+      asciicast = insert(:asciicast)
+
+      for speed <- ["0", "-1"] do
+        assert {:error, changeset} = Recordings.update_asciicast(asciicast, %{"speed" => speed})
+        assert %{speed: ["must be greater than 0.0"]} = errors_on(changeset)
+      end
+    end
+
     test "updates the keystroke overlay setting" do
       asciicast = insert(:asciicast, keystroke_overlay: false)
 

@@ -4,11 +4,11 @@ defmodule AsciinemaWeb.StreamController do
   alias Asciinema.{Recordings, Streaming}
   alias Asciinema.Recordings.Query, as: RecordingQuery
   alias Asciinema.Streaming.Query, as: StreamQuery
-  alias AsciinemaWeb.{Authorization, FallbackController, PlayerOpts, StreamHTML}
+  alias AsciinemaWeb.{Authorization, EmbedScript, FallbackController, PlayerOpts, StreamHTML}
   alias Ecto.Changeset
 
   plug :require_current_user when action in [:index, :create, :edit, :update, :delete]
-  plug :load_and_authorize_stream when action in [:show, :edit, :update, :delete]
+  plug :load_and_authorize_stream when action in [:show, :edit, :update, :delete, :iframe]
   plug :check_streaming_enabled when action in [:index, :edit, :update, :start]
 
   def index(conn, params) do
@@ -45,6 +45,12 @@ defmodule AsciinemaWeb.StreamController do
   end
 
   def show(conn, params) do
+    do_show(conn, get_format(conn), params)
+  end
+
+  defp do_show(conn, "js", _params), do: EmbedScript.send(conn)
+
+  defp do_show(conn, "html", params) do
     stream = conn.assigns.stream
     current_user = conn.assigns.current_user
     user_is_self = match?({%{id: id}, %{id: id}}, {current_user, stream.user})
@@ -59,6 +65,14 @@ defmodule AsciinemaWeb.StreamController do
       stream_asciicasts: stream_asciicasts,
       other_asciicasts: other_asciicasts
     )
+  end
+
+  def iframe(conn, params) do
+    conn
+    |> put_layout(html: {AsciinemaWeb.LayoutView, :iframe})
+    |> delete_resp_header("x-frame-options")
+    |> put_resp_header("content-security-policy", "base-uri 'self'")
+    |> render(:iframe, player_opts: player_opts(params))
   end
 
   def edit(conn, params) do

@@ -1,3 +1,10 @@
+<link
+  rel="alternate"
+  type="application/json+oembed"
+  href={stream_oembed_url(@stream, :json)}
+/>
+<link rel="alternate" type="text/xml+oembed" href={stream_oembed_url(@stream, :xml)} />
+
 <%= if @stream.visibility != :public do %>
   <meta name="robots" content="noindex, nofollow" />
   <meta name="referrer" content="origin" />

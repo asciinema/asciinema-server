@@ -21,7 +21,7 @@
         # beam_minimal = no wx GUI apps and no systemd linkage in epmd; the
         # latter would otherwise pull the full systemd closure (~120 MB) into
         # every release via a single libsystemd reference.
-        beamPackages = pkgs.beam_minimal.packages.erlang_28.extend (
+        beamPackages = pkgs.beam_minimal.packages.erlang_28.overrideScope (
           _: prev: {
             elixir = prev.elixir_1_19;
           }
@@ -35,6 +35,16 @@
           cargoLock = {
             lockFile = ./native/Cargo.lock;
           };
+        };
+
+        # Build the locked MDEx NIF without the optional syntax highlighters.
+        mdexNative = pkgs.rustPlatform.buildRustPackage {
+          pname = "mdex-native";
+          version = "0.3.1";
+          src = "${server.mixFodDeps}/mdex_native/native/mdex_native_nif";
+          cargoHash = "sha256-oCTNstM214IHsqPEaLllP8VZrzGotqyudMJdXtuK2/I=";
+          buildNoDefaultFeatures = true;
+          buildFeatures = [ "nif_version_2_15" ];
         };
 
         mixShellHook = ''
@@ -57,7 +67,7 @@
           pname = "${pname}-node-modules";
           version = "1.0.0";
           src = ./assets;
-          npmDepsHash = "sha256-cUan/gu8VCOjb8Ghg0+Cwp2BdKmWg8S4tZOQ8woZ75g=";
+          npmDepsHash = "sha256-t2TufYSIiO2U+FKKm7xs0tkonZ9dndoeUSr71VN1N24=";
           dontNpmBuild = true;
 
           installPhase = ''
@@ -81,8 +91,10 @@
         # App version shown on /about; deploy pipelines override it with:
         # VERSION=... nix build --impure .#image
         appVersion =
-          let v = builtins.getEnv "VERSION";
-          in if v != "" then v else (self.shortRev or self.dirtyShortRev or "dev");
+          let
+            v = builtins.getEnv "VERSION";
+          in
+          if v != "" then v else (self.shortRev or self.dirtyShortRev or "dev");
 
         server = beamPackages.mixRelease rec {
           inherit pname;
@@ -94,14 +106,16 @@
           mixFodDeps = beamPackages.fetchMixDeps {
             pname = "${pname}-mix-deps";
             inherit src version;
-            hash = "sha256-LHCM4d6OEeB6ywNdVyb1Z3qTLQbX2Eh5kI/0v/fbAys=";
+            hash = "sha256-8phafYQEOOTbYImVnxMomVDTb/XZJfgrJh/m9VBHTNk=";
           };
 
           preConfigure = ''
+            export MDEX_NATIVE_BUILD=1
             cat >>config/config.exs <<EOF
             config :asciinema, Asciinema.Vt, skip_compilation?: true
             config :asciinema, Asciinema.Fts, skip_compilation?: true
             config :asciinema, Asciinema.SvgRaster, skip_compilation?: true
+            config :mdex_native, MDExNative.Native, skip_compilation?: true
             config :esbuild, path: "${pkgs.esbuild}/bin/esbuild"
             EOF
 
@@ -109,6 +123,9 @@
             cp ${nifs}/lib/libvt.so priv/native/vt.so
             cp ${nifs}/lib/libfts.so priv/native/fts.so
             cp ${nifs}/lib/libsvg_raster.so priv/native/svg_raster.so
+
+            mkdir -p "$MIX_DEPS_PATH/mdex_native/priv/native"
+            cp ${mdexNative}/lib/libmdex_native_nif.so "$MIX_DEPS_PATH/mdex_native/priv/native/mdex_native_nif.so"
           '';
 
           preInstall = ''
@@ -173,7 +190,7 @@
         packages = {
           default = server;
         }
-        // pkgs.lib.optionalAttrs pkgs.stdenv.isLinux {
+        // pkgs.lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
           # OCI image, a drop-in replacement for the Dockerfile-built one
           image = pkgs.dockerTools.streamLayeredImage {
             name = "asciinema-server";
@@ -217,7 +234,6 @@
 
               Env = [
                 "PORT=4000"
-                "ADMIN_BIND_ALL=1"
                 "DATABASE_URL=postgresql://postgres@postgres/postgres"
                 "CACHE_PATH=/var/cache/asciinema"
                 # static Env so docker exec'd commands see it too
@@ -248,7 +264,7 @@
               playwright-driver.browsers
             ]
             ++ runtimeTools
-            ++ lib.optionals stdenv.isLinux [ inotify-tools ];
+            ++ lib.optionals stdenv.hostPlatform.isLinux [ inotify-tools ];
 
           shellHook = ''
             ${mixShellHook}
@@ -283,7 +299,7 @@
 
         formatter = pkgs.nixfmt-tree;
 
-        checks = pkgs.lib.optionalAttrs pkgs.stdenv.isLinux {
+        checks = pkgs.lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
           # Boots a VM with the module (local PostgreSQL on by default),
           # building the release, running migrations and serving a request.
           nixos-module = pkgs.testers.runNixOSTest {
@@ -313,6 +329,9 @@
               machine.wait_for_unit("asciinema-server.service")
               machine.wait_for_open_port(4000)
               machine.succeed("curl -sfL http://127.0.0.1:4000/ | grep -qi asciinema")
+
+              # Markdown rendering exercises the packaged MDEx NIF.
+              machine.succeed("${server}/bin/asciinema rpc 'AsciinemaWeb.ApplicationView.render_markdown(~s(**markdown**)) |> elem(1) |> IO.puts()' | grep -Fx '<p><strong>markdown</strong></p>'")
 
               # attach commands work with zero cookie config: env.sh reads
               # the cookie ExecStartPre persisted in the data dir
@@ -388,6 +407,9 @@
               machine.wait_for_unit("podman-asciinema.service")
               machine.wait_for_open_port(4000)
               machine.succeed("curl -sfL http://127.0.0.1:4000/ | grep -qi asciinema")
+
+              # Markdown rendering exercises the packaged MDEx NIF.
+              machine.succeed("podman exec asciinema /opt/app/bin/asciinema rpc 'AsciinemaWeb.ApplicationView.render_markdown(~s(**markdown**)) |> elem(1) |> IO.puts()' | grep -Fx '<p><strong>markdown</strong></p>'")
 
               # attach commands prove the entrypoint/env.sh cookie contract
               machine.succeed("podman exec asciinema /opt/app/bin/asciinema rpc 'IO.puts(:rpc_ok)' | grep -q rpc_ok")

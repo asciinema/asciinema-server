@@ -2,6 +2,9 @@ defmodule Asciinema.Asciicast.V2 do
   alias Asciinema.Asciicast.{EventStream, Reader}
   alias Asciinema.Colors
 
+  @max_cols 720
+  @max_rows 200
+
   defmodule Writer do
     @enforce_keys [:file]
     defstruct [:file]
@@ -32,7 +35,7 @@ defmodule Asciinema.Asciicast.V2 do
     with [cols, rows] <- String.split(data, "x"),
          {cols, ""} when cols > 0 <- Integer.parse(cols),
          {rows, ""} when rows > 0 <- Integer.parse(rows) do
-      [{time, "r", {cols, rows}}]
+      [{time, "r", {min(cols, @max_cols), min(rows, @max_rows)}}]
     else
       _ -> []
     end

@@ -47,6 +47,13 @@ defmodule AsciinemaWeb.StreamHTML do
 
   def title(stream), do: stream.title || "#{author_username(stream)}'s stream"
 
+  def embed_script(stream) do
+    src = url(~p"/s/#{stream}") <> ".js"
+    id = "asciinema-stream-#{Phoenix.Param.to_param(stream)}"
+
+    {:safe, "<script src=\"#{src}\" id=\"#{id}\" async=\"true\"></script>"}
+  end
+
   def default_theme_display_name(stream) do
     "Account default (#{Themes.display_name(Accounts.default_term_theme_name(stream.user))})"
   end
@@ -81,4 +88,8 @@ defmodule AsciinemaWeb.StreamHTML do
 
   def head("show.html", assigns), do: head_for_show(assigns)
   def head(_, _), do: nil
+
+  defp stream_oembed_url(stream, format) do
+    url(~p"/oembed?#{%{url: url(~p"/s/#{stream}"), format: format}}")
+  end
 end

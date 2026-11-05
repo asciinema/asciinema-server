@@ -32,6 +32,13 @@ defmodule AsciinemaWeb.Router do
     plug :put_secure_browser_headers
   end
 
+  pipeline :stream do
+    plug TrailingFormat
+    plug :accepts, ~w(html js)
+    plug :format_specific_plugs
+    plug :put_secure_browser_headers
+  end
+
   pipeline :webfinger do
     plug :put_format, :json
   end
@@ -46,6 +53,12 @@ defmodule AsciinemaWeb.Router do
     pipe_through :beacon
 
     post "/a/:recording_id/views", RecordingViewController, :create
+  end
+
+  scope "/", AsciinemaWeb do
+    pipe_through :stream
+
+    get "/s/:id", StreamController, :show
   end
 
   scope "/", AsciinemaWeb do
@@ -81,7 +94,8 @@ defmodule AsciinemaWeb.Router do
     get "/a/:id/iframe", RecordingController, :iframe
     get "/a/:id/example", RecordingController, :example
 
-    resources "/s", StreamController, only: [:show, :edit, :update, :delete]
+    get "/s/:id/iframe", StreamController, :iframe
+    resources "/s", StreamController, only: [:edit, :update, :delete]
 
     resources "/login", LoginController, only: [:new, :create], singleton: true
     get "/login/sent", LoginController, :sent, as: :login
@@ -147,6 +161,7 @@ defmodule AsciinemaWeb.Router do
 
   defp format_specific_plugs(conn, []) do
     conn
+    |> put_resp_header("vary", "accept")
     |> fetch_session([])
     |> Authn.call([])
     |> format_specific_plugs(get_format(conn))
