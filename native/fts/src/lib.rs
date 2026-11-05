@@ -1,6 +1,5 @@
 use std::collections::{BTreeSet, HashMap};
 use std::ops::Range;
-use std::str;
 use std::sync::RwLock;
 
 use avt::observer::Transcript;
@@ -40,12 +39,9 @@ const MAX_TEXT_LEN: usize = (1024 * 1024) - 1; // PostgreSQL's default size limi
 
 impl Fts {
     fn feed(&mut self, input: Binary) {
-        let input = match str::from_utf8(&input) {
-            Ok(s) => s,
-            Err(_) => &String::from_utf8_lossy(&input),
-        };
+        let text = String::from_utf8_lossy(&input);
 
-        self.terminal.feed_with(input, &mut self.index);
+        self.terminal.feed_with(text.as_ref(), &mut self.index);
         self.index.collect_alternate(&self.terminal);
     }
 
