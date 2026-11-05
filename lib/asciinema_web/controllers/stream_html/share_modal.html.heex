@@ -9,6 +9,21 @@
 
     <div class="modal-body">
       <.code_with_copy>{url(~p"/s/#{@stream}")}</.code_with_copy>
+
+      <h2>Embed the player</h2>
+
+      <p>If you're embedding on your own page or on a site which permits script tags,
+        you can use the full player widget:</p>
+
+      <.code_with_copy>{safe_to_string(embed_script(@stream))}</.code_with_copy>
+
+      <p>Paste the above script tag where you want the player to be displayed on your page.</p>
+
+      <p>
+        See
+        <a href="https://docs.asciinema.org/manual/server/embedding/#live-streams">embedding docs</a>
+        for more player customization options.
+      </p>
     </div>
   </div>
 </dialog>
