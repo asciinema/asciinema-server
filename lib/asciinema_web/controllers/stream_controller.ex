@@ -8,7 +8,7 @@ defmodule AsciinemaWeb.StreamController do
   alias Ecto.Changeset
 
   plug :require_current_user when action in [:index, :create, :edit, :update, :delete]
-  plug :load_and_authorize_stream when action in [:show, :edit, :update, :delete]
+  plug :load_and_authorize_stream when action in [:show, :edit, :update, :delete, :iframe]
   plug :check_streaming_enabled when action in [:index, :edit, :update, :start]
 
   def index(conn, params) do
@@ -59,6 +59,14 @@ defmodule AsciinemaWeb.StreamController do
       stream_asciicasts: stream_asciicasts,
       other_asciicasts: other_asciicasts
     )
+  end
+
+  def iframe(conn, params) do
+    conn
+    |> put_layout(html: {AsciinemaWeb.LayoutView, :iframe})
+    |> delete_resp_header("x-frame-options")
+    |> put_resp_header("content-security-policy", "base-uri 'self'")
+    |> render(:iframe, player_opts: player_opts(params))
   end
 
   def edit(conn, params) do
