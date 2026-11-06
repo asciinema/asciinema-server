@@ -21,6 +21,11 @@ form textarea {
   border-radius: var(--border-radius-sm);
 }
 
+form input:not([type="checkbox"], [type="radio"]),
+form select {
+  height: calc(1.5em + 0.75rem + 2px);
+}
+
 form input:not([type="checkbox"], [type="radio"]):focus,
 form select:focus,
 form textarea:focus {
