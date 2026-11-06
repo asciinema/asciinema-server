@@ -92,8 +92,12 @@
     <.form :let={f} for={@changeset} action={~p"/user"} id="ui-form" novalidate="novalidate">
       <h2 class="form-heading">UI</h2>
 
-      <fieldset class={["form-field", error_class(f, :ui_color_scheme)]}>
-        <legend>Color scheme</legend>
+      <div
+        class={["form-field", error_class(f, :ui_color_scheme)]}
+        role="group"
+        aria-labelledby="ui-color-scheme-label"
+      >
+        <span id="ui-color-scheme-label" class="form-field-label">Color scheme</span>
 
         <div>
           <div class="radios">
@@ -121,7 +125,7 @@
           </div>
           <.error field={f[:ui_color_scheme]} />
         </div>
-      </fieldset>
+      </div>
       <div class="form-actions">
         <div class="form-actions-buttons">
           <.button type="submit" class="btn btn-primary">Update</.button>
