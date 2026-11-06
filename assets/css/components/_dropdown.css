@@ -52,12 +52,12 @@
   padding: 0.5rem 0;
   margin: 0.125rem 0 0;
   font-size: var(--font-size-md);
-  color: var(--color-text-primary);
+  color: var(--color-text-default);
   text-align: left;
   list-style: none;
-  background-color: #fff;
+  background-color: var(--color-bg-overlay);
   background-clip: padding-box;
-  border: 1px solid rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--color-border);
   border-radius: var(--border-radius-md);
   box-shadow: var(--box-shadow-md);
   opacity: 0;
@@ -76,7 +76,7 @@
   padding: 0.25rem 1.5rem;
   clear: both;
   font-weight: var(--font-weight-normal);
-  color: var(--color-text-primary);
+  color: var(--color-text-default);
   text-align: inherit;
   text-decoration: none;
   white-space: nowrap;
@@ -86,13 +86,15 @@
 
 .dropdown-item:hover,
 .dropdown-item:focus {
-  color: #16181b;
+  color: var(--color-text-hl);
   text-decoration: none;
-  background-color: var(--color-light-hover);
+  /* the menu already sits on the overlay surface, so a hover needs the next step
+     up to register against it */
+  background-color: var(--color-bg-active);
 }
 
 .dropdown-item.active {
-  color: #fff;
+  color: var(--color-primary-contrast);
   text-decoration: none;
   background-color: var(--color-primary);
 }
@@ -103,13 +105,13 @@
 
 .dropdown-item.text-danger:hover,
 .dropdown-item.text-danger:focus {
-  color: #fff;
+  color: var(--color-danger-contrast);
   background-color: var(--color-danger);
 }
 
 .dropdown-item:disabled,
 .dropdown-item.disabled {
-  color: #6c757d;
+  color: var(--color-text-muted);
   pointer-events: none;
   background-color: transparent;
 }
@@ -118,7 +120,7 @@
   height: 0;
   margin: 0.5rem 0;
   overflow: hidden;
-  border-top: 1px solid #e9ecef;
+  border-top: 1px solid var(--color-border-subtle);
 }
 
 .dropdown-header {
@@ -126,7 +128,7 @@
   padding: 0.5rem 1.5rem;
   margin-bottom: 0;
   font-size: var(--font-size-sm);
-  color: #6c757d;
+  color: var(--color-text-muted);
   white-space: nowrap;
 }
 

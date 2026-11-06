@@ -5,58 +5,65 @@
 
 :root {
   /* == Colors: brand == */
-  --color-primary: #06989a;
-  --color-primary-hover: #055759;
-  --color-primary-active: #044f51;
-  --color-primary-light: #7dd3d4;
-  --color-primary-alpha: rgba(6, 152, 154, 0.5);
-  --color-primary-alpha-soft: rgba(6, 152, 154, 0.25);
+  --color-primary: light-dark(#15803d, #3fd07a);
+  --color-primary-hover: light-dark(#166534, #63e295);
+  --color-primary-active: light-dark(#14532d, #7ce8a0);
+  --color-primary-contrast: light-dark(#ffffff, #04240f);  /* text/icon on a primary fill */
+  --color-primary-light: light-dark(#5fbf7f, #2f7d4e);     /* input focus border */
+  --color-primary-alpha: light-dark(
+    color-mix(in srgb, var(--color-primary) 50%, transparent),
+    color-mix(in srgb, var(--color-primary) 45%, transparent)
+  );
+  --color-primary-alpha-soft: light-dark(
+    color-mix(in srgb, var(--color-primary) 25%, transparent),
+    color-mix(in srgb, var(--color-primary) 22%, transparent)
+  );
+  --color-focus: var(--color-primary-hover);
 
   /* -- Link colors -- */
-  --color-link: #06989a;
-  --color-link-hover: #055759;
+  --color-link: var(--color-primary);
+  --color-link-hover: var(--color-primary-hover);
 
-  /* == Colors: background == */
-  --color-bg-body: #f7f7f7;           /* Main body background */
-  --color-bg-white: #ffffff;          /* White sections */
-  --color-bg-dark: #222222;           /* Dark sections */
-  --color-bg-dark-alt: #222230;       /* Alternate dark */
-  --color-bg-black: #000000;          /* Header background */
-  --color-bg-code-inline: #eee;       /* Inline code background */
-  --color-bg-code-block: #eee;        /* Code block background */
+  /* == Colors: background (elevation ladder) == */
+  --color-bg-primary: light-dark(#ffffff, #101216);     /* page / content base */
+  --color-bg-secondary: light-dark(#f7f7f7, #191c22);  /* raised: cards, inputs */
+  --color-bg-overlay: light-dark(#ffffff, #22252b);     /* floating: dropdown, modal */
+  --color-bg-inset: light-dark(#f0f0f0, #0a0c0f);      /* sunken: code blocks, wells */
+  --color-bg-hover: light-dark(#ececec, #25282e);       /* neutral surface, hovered */
+  --color-bg-active: light-dark(#e2e2e2, #2d3138);     /* neutral surface, pressed */
+  --color-bg-chrome: light-dark(#f7f7f7, #000000);      /* header + footer bars */
+
+  /* Translucent inline-code surfaces. */
+  --color-bg-contrast-subtle: light-dark(rgb(0 0 0 / 0.06), rgb(255 255 255 / 0.08));
+  --color-border-contrast: light-dark(rgb(0 0 0 / 0.10), rgb(255 255 255 / 0.16));
 
   /* == Colors: borders == */
-  --color-border-light: #eeeeee;      /* Lightest borders */
-  --color-border-medium: #e0e0e0;     /* Medium borders */
-  --color-border-gray: #dddddd;       /* Gray borders */
-  --color-border-muted: #d3d9df;      /* Muted borders */
-  --color-border-dark: #cccccc;       /* Darker borders */
-  --color-border-darkest: #bbbbbb;    /* Darkest borders */
+  --color-border: light-dark(#dddddd, #363b44);                /* default */
+  --color-border-subtle: light-dark(#eeeeee, #292d34);         /* hairline */
+  --color-border-control: light-dark(#767676, #6d727a);
+  --color-card-ring: light-dark(transparent, rgba(255, 255, 255, 0.06));  /* card edge, dark only - drop shadows don't read there */
+  --color-border-chrome: light-dark(#dddddd, transparent);             /* header/footer bar edge */
 
   /* == Colors: text == */
-  --color-text-primary: #333333;      /* Primary text */
-  --color-text-secondary: #959fa7;    /* Secondary/placeholder */
-  --color-text-dark: #212529;         /* Darker text */
-  --color-text-muted: #6c757d;        /* Muted text */
-  --color-text-white: #ffffff;        /* White text */
+  --color-text-default: light-dark(#18181a, #dee0e4);   /* body text */
+  --color-text-hl: light-dark(#0a0a0a, #f4f4f5);        /* headings / emphasis (softened off-black/off-white) */
+  --color-text-muted: light-dark(#6c757d, #92979f);     /* meta / secondary */
+  --color-text-subtle: light-dark(#5f6368, #a1a6ae);    /* placeholders / disabled */
 
   /* == Colors: functional == */
-  --color-success: #06989a;           /* Success (using brand teal) */
-  --color-warning: #c4a000;           /* Warning/alert */
-  --color-danger: #dc3545;            /* Error/danger */
-  --color-danger-hover: #c82333;
-  --color-danger-active: #bd2130;
-  --color-info: #17a2b8;              /* Info */
-  --color-info-hover: #138496;
-  --color-info-active: #117a8b;
-  --color-secondary: #6c757d;         /* Secondary button */
-  --color-secondary-hover: #5a6268;
-  --color-secondary-active: #545b62;
-  --color-light: #f8f9fa;
-  --color-light-hover: #e2e6ea;
-  --color-light-active: #dae0e5;
-  --color-live: #d40000;              /* Live indicator */
-  --color-offline: #666666;           /* Offline status */
+  --color-success: var(--color-primary);
+  --color-warning: light-dark(#c4a000, #d8b53a);        /* Warning/alert */
+  --color-warning-text: light-dark(#6b5800, #e4c64f);
+  --color-danger: light-dark(#dc3545, #e5484d);         /* Error/danger */
+  --color-danger-hover: light-dark(#c82333, #ec5a60);
+  --color-danger-active: light-dark(#bd2130, #d83a44);
+  --color-danger-contrast: light-dark(#ffffff, #000000);
+  --color-info: light-dark(#08778c, #48c2d8);           /* Info */
+  --color-info-hover: light-dark(#066b7e, #65d1e3);
+  --color-info-active: light-dark(#055f70, #7bd8e7);
+  --color-info-contrast: light-dark(#ffffff, #062128);
+  --color-live: light-dark(#d40000, #ff5a5a);           /* Live indicator */
+  --color-live-contrast: light-dark(#ffffff, #000000);
 
   /* == Spacing scale (8px base) == */
   --space-0: 0;
@@ -127,6 +134,8 @@
   --box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   --box-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.15);
   --box-shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.2);
+  --box-shadow-card: 0 2px 4px light-dark(rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.3)),
+    0 6px 16px light-dark(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.3));
   --box-shadow-focus: 0 0 0 0.15rem var(--color-primary-alpha-soft);
 
   /* == Transition timing == */

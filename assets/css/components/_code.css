@@ -21,7 +21,7 @@
   width: 1.75rem;
   height: 1.75rem;
   line-height: 1;
-  color: var(--color-text-primary);
+  color: var(--color-text-default);
   text-decoration: none;
   border-radius: var(--border-radius-sm);
 
@@ -41,7 +41,7 @@
 }
 
 .code-with-copy a:hover {
-  background-color: #ddd;
+  background-color: var(--color-bg-inset);
 }
 
 .code-with-copy .copy-notice {

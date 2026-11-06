@@ -111,12 +111,12 @@
 
 /* Colors */
 .text-primary { color: var(--color-primary); }
-.text-secondary { color: var(--color-text-secondary); }
+.text-secondary { color: var(--color-text-subtle); }
 .text-muted { color: var(--color-text-muted); }
 .text-danger { color: var(--color-danger); }
 .text-success { color: var(--color-success); }
-.text-warning { color: var(--color-warning); }
-.text-white { color: var(--color-text-white); }
+.text-warning { color: var(--color-warning-text); }
+.text-white { color: #fff; }
 
 /* Transforms */
 .text-uppercase { text-transform: uppercase; }

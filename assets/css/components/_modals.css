@@ -59,7 +59,7 @@ dialog.modal[open] {
   display: flex;
   flex-direction: column;
   width: 100%;
-  background-color: #fff;
+  background-color: var(--color-bg-secondary);
   background-clip: padding-box;
   border-radius: var(--border-radius-md, 0.375rem);
 }
@@ -69,7 +69,7 @@ dialog.modal[open] {
   align-items: center;
   justify-content: space-between;
   padding: var(--space-4);
-  border-bottom: 1px solid #dee2e6;
+  border-bottom: 1px solid var(--color-border);
   border-top-left-radius: var(--border-radius-md, 0.375rem);
   border-top-right-radius: var(--border-radius-md, 0.375rem);
 }
@@ -95,7 +95,7 @@ dialog.modal .modal-close,
   border: none;
   font-size: 1.5rem;
   line-height: 1;
-  color: #000;
+  color: var(--color-text-hl);
   opacity: 0.5;
   cursor: pointer;
   padding: var(--space-4);
@@ -115,7 +115,6 @@ dialog.modal .modal-close:hover,
 
 dialog.modal pre,
 .modal-body pre {
-  background-color: var(--color-bg-code-block);
   margin-bottom: var(--space-4);
   text-wrap: auto;
 }
@@ -129,10 +128,10 @@ dialog.modal input[type=text],
   width: 100%;
   font-family: var(--font-family-mono);
   font-size: 14px;
-  color: #212529;
-  background-color: #f7f7f7;
+  color: var(--color-text-default);
+  background-color: var(--color-bg-inset);
   border-radius: 3px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--color-border);
   margin-bottom: 8px;
   padding: 9px;
 }

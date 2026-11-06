@@ -3,6 +3,10 @@
  * Only loads fonts/player CSS needed by the embed.
  * ========================================================================== */
 
+/* == Foundation == */
+
+@import "./foundation/_variables.css";
+
 /* == Font/player imports == */
 
 @import "../node_modules/asciinema-player/dist/bundle/asciinema-player.css";
@@ -13,7 +17,7 @@
 /* == Embed body == */
 
 body.iframe {
-  color: #333;
+  color: var(--color-text-default);
   background-color: transparent;
   padding: 0;
   margin: 0;

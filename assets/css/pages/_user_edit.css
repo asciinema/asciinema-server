@@ -24,7 +24,10 @@
   }
 
   a.delete:hover {
-    background-color: #dc354520; /* --color-danger with 0x20 alpha */
+    background-color: light-dark(
+      color-mix(in srgb, var(--color-danger) 12.5%, transparent),
+      color-mix(in srgb, var(--color-danger) 22%, transparent)
+    );
     text-decoration: none;
   }
 
