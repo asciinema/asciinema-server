@@ -36,12 +36,8 @@ form textarea::placeholder {
 
 form input:not([type="checkbox"], [type="radio"]):disabled,
 form select:disabled,
-form textarea:disabled,
-form input[readonly],
-form textarea[readonly],
-form select[readonly] {
-  background-color: var(--color-bg-inset);
-  opacity: 1;
+form textarea:disabled {
+  opacity: 0.65;
 }
 
 /* == Textarea tweaks == */
