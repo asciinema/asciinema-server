@@ -1,7 +1,7 @@
 <div class="container">
   <div class="form-container">
     <.form :let={f} for={@changeset} action={~p"/a/#{@changeset.data}"}>
-      <legend>Recording settings</legend>
+      <h2 class="form-heading">Recording settings</h2>
 
       <div class="form-field">
         <.label for={f[:visibility]}>

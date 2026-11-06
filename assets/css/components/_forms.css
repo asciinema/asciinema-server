@@ -220,18 +220,24 @@ input[type="url"]:invalid {
   color: var(--color-text-muted);
 }
 
-legend {
+.form-heading {
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-normal);
   border-bottom: 1px solid var(--color-border-gray);
   padding: 0 0 var(--space-3) 0;
-  margin-bottom: var(--space-5);
+  margin: 0 0 2rem;
+  width: 100%;
 }
 
-form legend {
-  border-bottom: 1px solid #ddd;
-  margin-bottom: 2rem;
-  width: 100%;
+form fieldset.form-field {
+  min-width: 0;
+  padding: 0;
+  border: 0;
+}
+
+form fieldset.form-field > legend {
+  padding: 0;
+  font-weight: var(--font-weight-semibold);
 }
 
 /* == Vertical form groups == */

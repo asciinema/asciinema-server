@@ -1,7 +1,7 @@
 <div class="container">
   <div class="form-container">
     <.form :let={f} for={@changeset} action={~p"/s/#{@changeset.data}"}>
-      <legend>Stream settings</legend>
+      <h2 class="form-heading">Stream settings</h2>
 
       <div class="form-field">
         <.label for={f[:visibility]}>

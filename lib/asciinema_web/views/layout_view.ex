@@ -8,6 +8,16 @@ defmodule AsciinemaWeb.LayoutView do
     "#{title} - #{conn.host}"
   end
 
+  def color_scheme(%{assigns: %{current_user: %{ui_color_scheme: scheme}}}) do
+    case scheme do
+      :auto -> "dark light"
+      :light -> "light"
+      :dark -> "dark"
+    end
+  end
+
+  def color_scheme(_conn), do: "dark light"
+
   def body_class(conn) do
     action = Phoenix.Controller.action_name(conn)
 

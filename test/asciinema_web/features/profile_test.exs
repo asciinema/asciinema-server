@@ -223,12 +223,21 @@ defmodule AsciinemaWeb.Features.ProfileTest do
         conn |> click_button("Update")
       end)
       |> assert_has(".flash", text: "updated")
+      |> choose("#user_ui_color_scheme_dark", "Dark")
+      |> within("#ui-form", fn conn ->
+        conn |> click_button("Update")
+      end)
+      |> assert_has(".flash", text: "updated")
+      |> assert_has("meta[name='color-scheme'][content='dark']")
+      |> assert_has("#user_ui_color_scheme_dark[checked]")
       |> choose("#user_default_recording_visibility_unlisted", "Unlisted")
       |> select("Terminal theme", option: "Solarized Dark")
       |> within("#defaults-form", fn conn ->
         conn |> click_button("Update")
       end)
       |> assert_has(".flash", text: "updated")
+      |> assert_has("meta[name='color-scheme'][content='dark']")
+      |> assert_has("#user_ui_color_scheme_dark[checked]")
     end
   end
 end

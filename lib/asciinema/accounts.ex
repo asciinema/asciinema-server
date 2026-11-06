@@ -368,6 +368,7 @@ defmodule Asciinema.Accounts do
       :name,
       :username,
       :timezone,
+      :ui_color_scheme,
       :term_theme_name,
       :term_theme_prefer_original,
       :term_bold_is_bright,
@@ -377,7 +378,7 @@ defmodule Asciinema.Accounts do
       :default_stream_visibility,
       :stream_recording_enabled
     ])
-    |> validate_required([:username])
+    |> validate_required([:username, :ui_color_scheme])
     |> validate_username()
     |> validate_inclusion(:timezone, Tzdata.canonical_zone_list())
     |> validate_inclusion(:term_theme_name, Themes.terminal_themes())

@@ -17,6 +17,7 @@ defmodule Asciinema.Accounts.User do
     field :stream_recording_enabled, :boolean, default: true
     field :default_recording_visibility, Ecto.Enum, values: ~w[private unlisted public]a
     field :default_stream_visibility, Ecto.Enum, values: ~w[private unlisted public]a
+    field :ui_color_scheme, Ecto.Enum, values: ~w[auto light dark]a, default: :auto
     field :live_stream_limit, :integer
     field :last_login_at, :utc_datetime
     field :is_admin, :boolean

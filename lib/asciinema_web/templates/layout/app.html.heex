@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content={Plug.CSRFProtection.get_csrf_token()} />
+    <meta name="color-scheme" content={color_scheme(@conn)} />
     <title>{page_title(@conn)}</title>
     <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
     <link rel="shortcut icon" href={~p"/images/favicon.png"} />
