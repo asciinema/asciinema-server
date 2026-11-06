@@ -1,6 +1,11 @@
+<% colors = card_colors(@theme) %>
 <div
   class="asciicast-card"
-  style={"--term-color-foreground: #{@theme.fg}; --term-color-background: #{@theme.bg}"}
+  style={
+    "--term-color-foreground: #{@theme.fg}; --term-color-background: #{@theme.bg}; " <>
+      "--info-fg: #{colors.foreground}; --info-fg-muted: #{colors.muted}; " <>
+      "--info-badge-fg: #{colors.badge_foreground}; --info-badge-bg: #{colors.badge_background}"
+  }
 >
   <.link href={@url} class="thumbnail-link">
     <div :if={!@no_play_overlay} class="play-button">
