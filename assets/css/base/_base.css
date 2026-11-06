@@ -137,16 +137,6 @@ section.cinema {
   padding: min(4vh, 4vw) 0;
 }
 
-section.odd, section.even {
-  padding: 1.4rem 0;
-}
-
-section.odd {
-  background-color: var(--color-bg-primary);
-  border-top: 1px solid var(--color-border);
-  border-bottom: 1px solid var(--color-border);
-}
-
 section h1 {
   margin-top: 1rem;
 }

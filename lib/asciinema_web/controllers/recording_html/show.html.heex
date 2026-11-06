@@ -5,8 +5,8 @@
 >
 </section>
 
-<section class="even info">
-  <div class="container">
+<div class="container medium-content">
+  <div class="medium-header">
     <div class="content-sidebar-layout">
       <div>
         <span class="author-avatar">
@@ -91,10 +91,8 @@
       </div>
     </div>
   </div>
-</section>
 
-<section class="odd meta">
-  <div class="container">
+  <div class="medium-metadata">
     <div class="status-line">
       <span class="status-line-item">
         <.terminal_solid_icon /> <.env_info attrs={env_info_attrs(@asciicast)} />
@@ -104,16 +102,13 @@
         <.eye_solid_icon /> {views_count(@asciicast)} views
       </span>
     </div>
-
-    <%= if desc = render_markdown(@asciicast.description) do %>
-      <hr />
-      <div class="description">{desc}</div>
-    <% end %>
   </div>
-</section>
 
-<section :if={length(@other_asciicasts.items) > 0} class="even more-by">
-  <div class="container">
+  <%= if desc = render_markdown(@asciicast.description) do %>
+    <div class="medium-description">{desc}</div>
+  <% end %>
+
+  <div :if={length(@other_asciicasts.items) > 0} class="related-recordings">
     <div class="heading">
       <h2>
         More recordings by
@@ -130,7 +125,7 @@
       </div>
     </div>
   </div>
-</section>
+</div>
 
 <.share_modal asciicast={@asciicast} />
 <.download_modal asciicast={@asciicast} />

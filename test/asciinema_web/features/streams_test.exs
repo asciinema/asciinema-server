@@ -152,9 +152,9 @@ defmodule AsciinemaWeb.Features.StreamsTest do
 
       conn
       |> visit(~p"/s/#{stream}")
-      |> assert_has("section.more-by h2", text: "Past recordings of this stream")
+      |> assert_has(".related-recordings h2", text: "Past recordings of this stream")
       |> assert_has(
-        "section.more-by a[href='#{~p"/~owner/recordings"}']",
+        ".related-recordings a[href='#{~p"/~owner/recordings"}']",
         text: "Browse all"
       )
     end
@@ -168,9 +168,9 @@ defmodule AsciinemaWeb.Features.StreamsTest do
 
       conn
       |> visit(~p"/s/#{stream}")
-      |> assert_has("section.more-by h2", text: "Past recordings of this stream")
+      |> assert_has(".related-recordings h2", text: "Past recordings of this stream")
       |> refute_has(
-        "section.more-by a[href='#{~p"/~owner/recordings"}']",
+        ".related-recordings a[href='#{~p"/~owner/recordings"}']",
         text: "Browse all"
       )
     end
@@ -182,8 +182,8 @@ defmodule AsciinemaWeb.Features.StreamsTest do
 
       conn
       |> visit(~p"/s/#{stream}")
-      |> assert_has("section.more-by h2", text: "Past recordings of this stream")
-      |> refute_has("section.more-by a", text: "Browse all")
+      |> assert_has(".related-recordings h2", text: "Past recordings of this stream")
+      |> refute_has(".related-recordings a", text: "Browse all")
     end
   end
 
