@@ -5,15 +5,15 @@
 
 :root {
   /* == Colors: brand == */
-  --color-primary: light-dark(#15803d, #3fd07a);
-  --color-primary-hover: light-dark(#166534, #63e295);
-  --color-primary-active: light-dark(#14532d, #7ce8a0);
+  --color-primary: light-dark(#15803d, #35b86b);
+  --color-primary-hover: light-dark(#166534, #49c57c);
+  --color-primary-active: light-dark(#14532d, #60d18e);
   --color-primary-contrast: light-dark(#ffffff, #04240f);  /* text/icon on a primary fill */
   --color-primary-alpha: light-dark(
     color-mix(in srgb, var(--color-primary) 50%, transparent),
     color-mix(in srgb, var(--color-primary) 45%, transparent)
   );
-  --color-focus: var(--color-primary-hover);
+  --color-focus: #388e55;
 
   /* -- Link colors -- */
   --color-link: var(--color-primary);
