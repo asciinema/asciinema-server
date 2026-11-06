@@ -27,6 +27,12 @@
   text-decoration: none;
 }
 
+.btn-link,
+.btn-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.1em;
+}
+
 .btn:disabled,
 .btn.disabled {
   opacity: 0.65;
