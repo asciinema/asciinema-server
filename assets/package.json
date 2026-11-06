@@ -2,9 +2,6 @@
   "repository": {},
   "description": " ",
   "license": "MIT",
-  "browserslist": [
-    "defaults"
-  ],
   "dependencies": {
     "asciinema-player": "3.18.0",
     "phoenix": "1.8.16",
