@@ -2,6 +2,10 @@ defmodule AsciinemaWeb.LayoutView do
   use AsciinemaWeb, :view
   import AsciinemaWeb.UserHTML, only: [avatar_url: 1]
 
+  @shade_divider String.duplicate("▒░ ░▒  ░▒░  ▒░ ░  ", 20)
+
+  def shade_divider, do: @shade_divider
+
   def page_title(conn) do
     title = conn.assigns[:page_title] || "Record and share your terminal sessions, the simple way"
 

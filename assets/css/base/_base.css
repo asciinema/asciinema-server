@@ -9,16 +9,18 @@
   background-color: var(--color-bg-primary);
 }
 
-html {
-  height: 100%;
-}
-
 body {
   font-family: var(--font-family-base);
-  position: relative;
   margin: 0;
-  padding-bottom: 11rem;
-  min-height: 100%;
+}
+
+body.l-app {
+  display: flex;
+  flex-direction: column;
+}
+
+body.l-app > main {
+  flex: 1;
 }
 
 button, input, select, textarea, dialog {

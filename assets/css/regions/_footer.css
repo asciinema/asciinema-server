@@ -5,15 +5,36 @@
 /* == Footer layout == */
 
 footer {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-
+  position: relative;
   background-color: var(--color-bg-chrome);
   padding: 2rem 0;
-  margin-top: 2rem;
+  margin-top: 6rem;
   border-top: 2px solid var(--color-border-chrome);
+
+  /* dithered band bridging page and footer: shade glyphs in the footer's color
+     on the page background */
+  .shade-divider {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    right: 0;
+    height: 1em;
+    overflow: hidden;
+    font-family: var(--font-family-mono);
+    font-size: 2.5rem;
+    line-height: 1;
+    white-space: nowrap;
+    color: var(--color-bg-chrome);
+    background-color: var(--color-bg-primary);
+    user-select: none;
+    pointer-events: none;
+
+    span {
+      display: block;
+      /* sink the glyphs so only their tops clear the footer edge */
+      transform: translateY(50%);
+    }
+  }
 
   .grid-cols-2 {
     align-items: center;
