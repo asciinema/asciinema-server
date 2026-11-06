@@ -61,6 +61,10 @@ p {
   line-height: var(--line-height-normal);
 }
 
+main :is(ul, ol) > li + li {
+  margin-top: var(--space-2);
+}
+
 small {
   font-size: var(--font-size-base);
   line-height: var(--line-height-normal);
