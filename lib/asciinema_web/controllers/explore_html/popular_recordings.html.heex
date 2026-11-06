@@ -8,7 +8,7 @@
       <%= if @asciicasts.total_entries > 0 do %>
         <div class="asciicast-list">
           <div :for={asciicast <- @asciicasts}>
-            <RecordingHTML.card asciicast={asciicast} />
+            <RecordingHTML.card asciicast={asciicast} no_created_at={true} />
           </div>
         </div>
 
