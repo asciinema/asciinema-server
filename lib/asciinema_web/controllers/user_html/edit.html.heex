@@ -416,7 +416,7 @@
         <table class="table install-ids">
           <thead>
             <th>Installation ID</th>
-            <th>Registered at</th>
+            <th>Registered</th>
             <th></th>
           </thead>
           <tbody>
@@ -425,7 +425,7 @@
                 <code>{t.token}</code>
               </td>
               <td>
-                {time_tag(t.inserted_at)}
+                {time_ago_tag(t.inserted_at)}
               </td>
               <td>
                 <.link
@@ -444,7 +444,7 @@
                 <code>{t.token}</code>
               </td>
               <td>
-                {time_tag(t.inserted_at)}
+                {time_ago_tag(t.inserted_at)}
               </td>
               <td>
                 Revoked {time_ago_tag(t.revoked_at)}
