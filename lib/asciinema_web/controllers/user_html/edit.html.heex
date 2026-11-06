@@ -146,7 +146,7 @@
         <.label for={f[:default_recording_visibility]}>
           Recording visibility
         </.label>
-        <div class="radios visibility-radios">
+        <div class="radios">
           <div class="form-option">
             <input
               type="radio"
@@ -202,7 +202,7 @@
         <.label for={f[:default_stream_visibility]}>
           Stream visibility
         </.label>
-        <div class="radios visibility-radios">
+        <div class="radios">
           <div class="form-option">
             <input
               type="radio"
@@ -367,7 +367,7 @@
           Recording
         </.label>
         <div class="form-option-offset">
-          <div class="form-option form-option-box">
+          <div class="form-option">
             <.input
               :if={@stream_recording_mode == :allowed}
               type="checkbox"
