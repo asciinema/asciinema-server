@@ -28,14 +28,14 @@
   --color-bg-active: light-dark(#e2e2e2, #2d3138);     /* neutral surface, pressed */
   --color-bg-chrome: light-dark(#f7f7f7, #000000);      /* header + footer bars */
 
-  /* Translucent inline-code surfaces. */
-  --color-bg-contrast-subtle: light-dark(rgb(0 0 0 / 0.06), rgb(255 255 255 / 0.08));
-  --color-border-contrast: light-dark(rgb(0 0 0 / 0.10), rgb(255 255 255 / 0.16));
+  /* Translucent code surfaces. */
+  --color-bg-contrast-subtle: light-dark(rgb(0 0 0 / 0.06), rgb(106 118 142 / 0.10));
+  --color-border-contrast: light-dark(rgb(0 0 0 / 0.08), rgb(255 255 255 / 0.13));
 
   /* == Colors: borders == */
   --color-border: light-dark(#dddddd, #363b44);                /* default */
   --color-border-subtle: light-dark(#eeeeee, #292d34);         /* hairline */
-  --color-border-control: light-dark(#767676, #6d727a);
+  --color-border-control: light-dark(#c4c4c4, #464c56);
   --color-card-ring: light-dark(transparent, rgba(255, 255, 255, 0.06));  /* card edge, dark only - drop shadows don't read there */
   --color-border-chrome: light-dark(#dddddd, transparent);             /* header/footer bar edge */
 

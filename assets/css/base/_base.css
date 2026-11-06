@@ -107,7 +107,7 @@ code {
 }
 
 pre code {
-  background-color: inherit;
+  background-color: transparent;
   border: none;
   padding: 0;
   font-size: inherit;
@@ -128,8 +128,8 @@ kbd {
 }
 
 pre {
-  background-color: var(--color-bg-inset);
-  border: 1px solid var(--color-border);
+  background-color: var(--color-bg-contrast-subtle);
+  border: 1px solid var(--color-border-contrast);
   border-radius: 3px;
   padding: 9.5px;
   margin: 0 0 10px;
