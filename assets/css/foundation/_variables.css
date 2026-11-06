@@ -9,14 +9,9 @@
   --color-primary-hover: light-dark(#166534, #63e295);
   --color-primary-active: light-dark(#14532d, #7ce8a0);
   --color-primary-contrast: light-dark(#ffffff, #04240f);  /* text/icon on a primary fill */
-  --color-primary-light: light-dark(#5fbf7f, #2f7d4e);     /* input focus border */
   --color-primary-alpha: light-dark(
     color-mix(in srgb, var(--color-primary) 50%, transparent),
     color-mix(in srgb, var(--color-primary) 45%, transparent)
-  );
-  --color-primary-alpha-soft: light-dark(
-    color-mix(in srgb, var(--color-primary) 25%, transparent),
-    color-mix(in srgb, var(--color-primary) 22%, transparent)
   );
   --color-focus: var(--color-primary-hover);
 
@@ -136,7 +131,6 @@
   --box-shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.2);
   --box-shadow-card: 0 2px 4px light-dark(rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.3)),
     0 6px 16px light-dark(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.3));
-  --box-shadow-focus: 0 0 0 0.15rem var(--color-primary-alpha-soft);
 
   /* == Transition timing == */
   --transition-fast: 75ms ease-in-out;

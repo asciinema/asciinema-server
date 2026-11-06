@@ -129,7 +129,6 @@ header nav > .container {
 .search-form input.q:focus {
   color: var(--color-text-hl);
   background-color: var(--color-bg-primary);
-  border-color: light-dark(var(--color-primary-light), var(--color-primary-alpha));
 }
 
 header .search-form input {
