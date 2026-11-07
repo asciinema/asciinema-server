@@ -70,7 +70,7 @@
   border-color: var(--color-primary-hover);
 }
 
-/* == Ellipsis (disabled) state == */
+/* == Ellipsis == */
 
 .pagination > span.ellipsis {
   color: var(--color-text-muted);
@@ -78,5 +78,4 @@
   cursor: not-allowed;
   background-color: var(--color-bg-secondary);
   border-color: var(--color-border);
-  opacity: 0.6;
 }

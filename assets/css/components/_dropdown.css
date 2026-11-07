@@ -98,7 +98,7 @@
 }
 
 .dropdown-item.text-danger {
-  color: var(--color-danger);
+  color: var(--color-danger-text);
 }
 
 .dropdown-item.text-danger:hover,

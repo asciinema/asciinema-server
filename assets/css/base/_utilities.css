@@ -113,8 +113,8 @@
 .text-primary { color: var(--color-primary); }
 .text-secondary { color: var(--color-text-subtle); }
 .text-muted { color: var(--color-text-muted); }
-.text-danger { color: var(--color-danger); }
-.text-success { color: var(--color-success); }
+.text-danger { color: var(--color-danger-text); }
+.text-success { color: var(--color-success-text); }
 .text-warning { color: var(--color-warning-text); }
 .text-white { color: #fff; }
 

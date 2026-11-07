@@ -42,14 +42,17 @@
   /* == Colors: text == */
   --color-text-default: light-dark(#18181a, #dee0e4);   /* body text */
   --color-text-hl: light-dark(#0a0a0a, #f4f4f5);        /* headings / emphasis (softened off-black/off-white) */
-  --color-text-muted: light-dark(#6c757d, #92979f);     /* meta / secondary */
+  --color-text-muted: light-dark(#606970, #92979f);     /* meta / secondary */
   --color-text-subtle: light-dark(#5f6368, #a1a6ae);    /* placeholders / disabled */
 
   /* == Colors: functional == */
   --color-success: var(--color-primary);
+  /* Text colors also need contrast on tinted code and action surfaces. */
+  --color-success-text: light-dark(#147538, var(--color-success));
   --color-warning: light-dark(#c4a000, #d8b53a);        /* Warning/alert */
   --color-warning-text: light-dark(#6b5800, #e4c64f);
   --color-danger: light-dark(#dc3545, #e5484d);         /* Error/danger */
+  --color-danger-text: light-dark(#c82333, #ef666b);
   --color-danger-hover: light-dark(#c82333, #ec5a60);
   --color-danger-active: light-dark(#bd2130, #d83a44);
   --color-danger-contrast: light-dark(#ffffff, #000000);
