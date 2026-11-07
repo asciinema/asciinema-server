@@ -24,8 +24,9 @@
   --color-bg-secondary: light-dark(#f7f7f7, #191c22);  /* raised: cards, inputs */
   --color-bg-overlay: light-dark(#ffffff, #22252b);     /* floating: dropdown, modal */
   --color-bg-inset: light-dark(#f0f0f0, #0a0c0f);      /* sunken: code blocks, wells */
-  --color-bg-hover: light-dark(#ececec, #25282e);       /* neutral surface, hovered */
-  --color-bg-active: light-dark(#e2e2e2, #2d3138);     /* neutral surface, pressed */
+  --color-bg-button: light-dark(#ececec, #22252b);
+  --color-bg-hover: light-dark(#e2e2e2, #2d3138);       /* neutral surface, hovered */
+  --color-bg-active: light-dark(#d6d6d6, #383e47);     /* neutral surface, pressed */
   --color-bg-chrome: light-dark(#f7f7f7, #000000);      /* header + footer bars */
 
   /* Translucent code surfaces. */

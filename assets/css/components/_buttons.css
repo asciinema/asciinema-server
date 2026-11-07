@@ -73,7 +73,7 @@
 
 .btn-secondary {
   color: var(--color-text-default);
-  background-color: light-dark(var(--color-bg-secondary), var(--color-bg-overlay));
+  background-color: var(--color-bg-button);
   border-color: var(--color-border);
 }
 

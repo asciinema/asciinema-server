@@ -88,9 +88,7 @@
 .dropdown-item:focus {
   color: var(--color-text-hl);
   text-decoration: none;
-  /* the menu already sits on the overlay surface, so a hover needs the next step
-     up to register against it */
-  background-color: var(--color-bg-active);
+  background-color: var(--color-bg-hover);
 }
 
 .dropdown-item.active {
