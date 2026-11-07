@@ -18,10 +18,7 @@
         <h2>{title(@asciicast)}</h2>
 
         <small>
-          by
-          <.link href={author_profile_path(@asciicast)}>
-            {author_username(@asciicast)}
-          </.link>
+          by <.link href={author_profile_path(@asciicast)}>{author_username(@asciicast)}</.link>
           <.time_ago time={@asciicast.inserted_at} />
           <.visibility_badge
             :if={owned_by_current_user?(@asciicast, @conn)}
