@@ -19,7 +19,7 @@ span.icon-live {
   color: var(--color-live-contrast);
   background-color: var(--color-live);
   padding: 0.1em 0.3em;
-  border-radius: 3px;
+  border-radius: var(--border-radius-sm);
 }
 
 span.icon-offline {
@@ -28,5 +28,5 @@ span.icon-offline {
   background-color: transparent;
   border: 1px solid var(--color-border);
   padding: 0.1em 0.3em;
-  border-radius: 3px;
+  border-radius: var(--border-radius-sm);
 }

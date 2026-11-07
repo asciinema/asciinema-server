@@ -121,15 +121,6 @@
   border-top: 1px solid var(--color-border);
 }
 
-.dropdown-header {
-  display: block;
-  padding: 0.5rem 1.5rem;
-  margin-bottom: 0;
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
-  white-space: nowrap;
-}
-
 /* Safari-only overrides to avoid <details> repaint bug */
 @supports (font: -apple-system-body) {
   .dropdown-menu {

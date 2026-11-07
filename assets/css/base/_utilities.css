@@ -111,7 +111,7 @@
 
 /* Colors */
 .text-primary { color: var(--color-primary); }
-.text-secondary { color: var(--color-text-subtle); }
+.text-secondary { color: var(--color-text-secondary); }
 .text-muted { color: var(--color-text-muted); }
 .text-danger { color: var(--color-danger-text); }
 .text-success { color: var(--color-success-text); }
@@ -124,7 +124,6 @@
 .text-capitalize { text-transform: capitalize; }
 
 /* Weight */
-.font-weight-light { font-weight: var(--font-weight-light); }
 .font-weight-normal { font-weight: var(--font-weight-normal); }
 .font-weight-semibold { font-weight: var(--font-weight-semibold); }
 .font-weight-bold { font-weight: var(--font-weight-bold); }

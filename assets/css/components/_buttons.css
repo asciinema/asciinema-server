@@ -107,26 +107,6 @@
   border-color: var(--color-danger-active);
 }
 
-/* == Variant: info == */
-
-.btn-info {
-  color: var(--color-info-contrast);
-  background-color: var(--color-info);
-  border-color: var(--color-info);
-}
-
-.btn-info:hover {
-  color: var(--color-info-contrast);
-  background-color: var(--color-info-hover);
-  border-color: var(--color-info-hover);
-}
-
-.btn-info:active,
-.btn-info.active {
-  background-color: var(--color-info-active);
-  border-color: var(--color-info-active);
-}
-
 /* == Button sizes == */
 
 .btn-sm {

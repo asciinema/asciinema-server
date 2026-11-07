@@ -68,7 +68,7 @@ div.asciicast-card {
     padding: 0;
     background-color: var(--term-color-background);
     border-right: 1ch solid var(--term-color-background);
-    border-radius: 3px 3px 0 0;
+    border-radius: var(--border-radius-sm) var(--border-radius-sm) 0 0;
     box-shadow: var(--box-shadow-card), 0 0 0 1px var(--color-card-ring);
   }
 
@@ -115,7 +115,7 @@ div.asciicast-card {
     background: var(--term-color-background);
     color: var(--info-fg-muted);
     padding: 10px;
-    border-radius: 0 0 3px 3px;
+    border-radius: 0 0 var(--border-radius-sm) var(--border-radius-sm);
     box-shadow: var(--box-shadow-card), 0 0 0 1px var(--color-card-ring);
 
     a:hover {

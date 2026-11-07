@@ -69,7 +69,7 @@
       img {
         width: 100%;
         height: 100%;
-        border-radius: 3px;
+        border-radius: var(--border-radius-sm);
       }
     }
 
@@ -83,7 +83,7 @@
       .btn-group {
         display: flex;
         justify-content: flex-end;
-        gap: var(--space-3, 1rem);
+        gap: var(--space-3);
         flex-wrap: nowrap;
       }
 

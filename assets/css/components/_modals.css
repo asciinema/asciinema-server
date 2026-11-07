@@ -9,7 +9,7 @@ dialog.modal {
   max-width: 600px;
   width: 100%;
   border: none;
-  border-radius: var(--border-radius-md, 0.375rem);
+  border-radius: var(--border-radius-md);
   padding: 0;
   box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5);
 
@@ -61,7 +61,7 @@ dialog.modal[open] {
   width: 100%;
   background-color: var(--color-bg-overlay);
   background-clip: padding-box;
-  border-radius: var(--border-radius-md, 0.375rem);
+  border-radius: var(--border-radius-md);
 }
 
 .modal-header {
@@ -70,13 +70,13 @@ dialog.modal[open] {
   justify-content: space-between;
   padding: var(--space-4);
   border-bottom: 1px solid var(--color-border);
-  border-top-left-radius: var(--border-radius-md, 0.375rem);
-  border-top-right-radius: var(--border-radius-md, 0.375rem);
+  border-top-left-radius: var(--border-radius-md);
+  border-top-right-radius: var(--border-radius-md);
 }
 
 .modal-title {
   margin: 0;
-  font-size: 1.25rem;
+  font-size: var(--font-size-xl);
   font-weight: 500;
   line-height: 1.5;
 }
@@ -93,7 +93,7 @@ dialog.modal .modal-close,
 .modal-header button.modal-close {
   background: none;
   border: none;
-  font-size: 1.5rem;
+  font-size: var(--font-size-2xl);
   line-height: 1;
   color: var(--color-text-muted);
   cursor: pointer;
@@ -121,19 +121,6 @@ dialog.modal pre,
 
 dialog.modal .modal-body h2:first-child {
   margin-top: 0;
-}
-
-dialog.modal input[type=text],
-.modal-body input[type=text] {
-  width: 100%;
-  font-family: var(--font-family-mono);
-  font-size: 14px;
-  color: var(--color-text-default);
-  background-color: var(--color-bg-inset);
-  border-radius: 3px;
-  border: 1px solid var(--color-border);
-  margin-bottom: 8px;
-  padding: 9px;
 }
 
 dialog.modal .modal-body {

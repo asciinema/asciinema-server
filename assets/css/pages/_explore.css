@@ -39,7 +39,7 @@
       font-size: 0.875rem;
       text-transform: uppercase;
       letter-spacing: 0.04em;
-      color: var(--color-text-subtle);
+      color: var(--color-text-secondary);
     }
 
     .sidebar .nav-link {

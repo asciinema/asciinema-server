@@ -35,7 +35,7 @@ form textarea:focus {
 
 form input:not([type="checkbox"], [type="radio"])::placeholder,
 form textarea::placeholder {
-  color: var(--color-text-subtle);
+  color: var(--color-text-secondary);
   opacity: 1;
 }
 

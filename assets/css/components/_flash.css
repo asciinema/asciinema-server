@@ -56,7 +56,7 @@ section.flash {
     background-color: transparent;
     color: inherit;
     line-height: 1;
-    font-size: 1.5rem;
+    font-size: var(--font-size-2xl);
     transition: background-color var(--transition-base), color var(--transition-base);
 
     &:hover {

@@ -83,7 +83,7 @@ h1 {
 }
 
 h2 {
-  font-size: 1.5rem;
+  font-size: var(--font-size-2xl);
   margin: 2em 0 1em 0;
 }
 
@@ -97,7 +97,7 @@ code {
   background-color: var(--color-bg-code);
   border: 1px solid var(--color-border-contrast);
   padding: 2px 4px;
-  border-radius: 4px;
+  border-radius: var(--border-radius-md);
   font-size: 87.5%;
 }
 
@@ -116,7 +116,7 @@ kbd {
   background-color: var(--color-bg-secondary);
   color: var(--color-text-default);
   border: 1px solid var(--color-border);
-  border-radius: 4px;
+  border-radius: var(--border-radius-md);
   padding: 0.1rem 0.2rem;
   margin-left: 0.1rem;
   margin-right: 0.1rem;
@@ -125,7 +125,7 @@ kbd {
 pre {
   background-color: var(--color-bg-code);
   border: 1px solid var(--color-border-contrast);
-  border-radius: 3px;
+  border-radius: var(--border-radius-sm);
   padding: 9.5px;
   margin: 0 0 10px;
   font-size: 87.5%;
@@ -156,7 +156,7 @@ main {
   color: light-dark(#665000, #e3c466);
   margin-left: 6px;
   padding: 2px 5px;
-  border-radius: 4px;
+  border-radius: var(--border-radius-md);
   vertical-align: middle;
   cursor: help;
 }
