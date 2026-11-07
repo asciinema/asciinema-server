@@ -94,7 +94,7 @@ h3 {
 /* == Inline code, code blocks, keyboard shortcuts == */
 
 code {
-  background-color: var(--color-bg-contrast-subtle);
+  background-color: var(--color-bg-code);
   border: 1px solid var(--color-border-contrast);
   padding: 2px 4px;
   border-radius: 4px;
@@ -123,7 +123,7 @@ kbd {
 }
 
 pre {
-  background-color: var(--color-bg-contrast-subtle);
+  background-color: var(--color-bg-code);
   border: 1px solid var(--color-border-contrast);
   border-radius: 3px;
   padding: 9.5px;

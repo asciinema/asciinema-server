@@ -29,7 +29,8 @@
   --color-bg-active: light-dark(#d6d6d6, #383e47);     /* neutral surface, pressed */
   --color-bg-chrome: light-dark(#f7f7f7, #000000);      /* header + footer bars */
 
-  /* Surface-relative backgrounds for code, search, and quiet hover states. */
+  /* Surface-relative backgrounds and borders. */
+  --color-bg-code: light-dark(rgb(0 0 0 / 0.06), rgb(255 255 255 / 0.06));
   --color-bg-contrast-subtle: light-dark(rgb(0 0 0 / 0.06), rgb(106 118 142 / 0.10));
   --color-border-contrast: light-dark(rgb(0 0 0 / 0.08), rgb(255 255 255 / 0.13));
 
@@ -42,7 +43,7 @@
   /* == Colors: text == */
   --color-text-default: light-dark(#18181a, #dee0e4);   /* body text */
   --color-text-hl: light-dark(#0a0a0a, #f4f4f5);        /* headings / emphasis (softened off-black/off-white) */
-  --color-text-muted: light-dark(#606970, #92979f);     /* meta / secondary */
+  --color-text-muted: light-dark(#606970, #979ca4);     /* meta / secondary */
   --color-text-subtle: light-dark(#5f6368, #a1a6ae);    /* placeholders / disabled */
 
   /* == Colors: functional == */
