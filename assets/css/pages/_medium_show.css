@@ -29,8 +29,10 @@
     padding-top: 3rem;
   }
 
+  .medium-metadata,
+  .medium-description,
   .medium-description + .stream-instructions,
-  .medium-description + .related-recordings {
+  .related-recordings {
     border-top: 1px solid var(--color-border-subtle);
   }
 
@@ -97,9 +99,7 @@
 
   .medium-metadata {
     margin-top: 1.4rem;
-    padding: var(--space-3) var(--space-4);
-    background-color: var(--color-bg-secondary);
-    border-radius: var(--border-radius-sm);
+    padding: var(--space-3) 0;
 
     .status-line-item {
       white-space: nowrap;
