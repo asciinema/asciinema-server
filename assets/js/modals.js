@@ -21,22 +21,6 @@ function openModal(modalId, triggerElement = null) {
   }
 }
 
-function closeModal(modalId) {
-  const modal = document.getElementById(modalId);
-  if (!modal) {
-    console.warn(`Modal with id "${modalId}" not found`);
-    return;
-  }
-
-  if (modal && modal.open) {
-    try {
-      modal.close();
-    } catch (error) {
-      console.error(`Failed to close modal "${modalId}":`, error);
-    }
-  }
-}
-
 document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('click', (e) => {
     const trigger = e.target.closest('[data-modal]');
@@ -92,5 +76,3 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
-
-export { openModal, closeModal };

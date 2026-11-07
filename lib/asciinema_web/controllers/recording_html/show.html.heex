@@ -32,62 +32,64 @@
       </div>
 
       <div class="text-right actions">
-        <div class="btn-group">
-          <div :if={@asciicast.visibility != :private}>
-            <.link
-              href="#"
-              class="btn btn-sm btn-secondary"
-              id="share-link"
-              data-modal="share-modal"
+        <button
+          :if={@asciicast.visibility != :private}
+          type="button"
+          class="btn btn-sm btn-secondary"
+          id="share-link"
+          data-modal="share-modal"
+        >
+          <.share_mini_icon /> Share
+        </button>
+
+        <details class="dropdown">
+          <summary class="btn btn-sm btn-secondary">
+            <.download_mini_icon /> Download
+          </summary>
+
+          <div class="dropdown-menu">
+            <button
+              type="button"
+              class="dropdown-item"
+              id="download-link"
+              data-modal="download-modal"
             >
-              <.share_mini_icon /> Share
+              <strong>.{filename_ext(@asciicast)}</strong> - original recording
+            </button>
+            <.link href="#" class="dropdown-item" rel="nofollow" id="download-txt">
+              <strong>.txt</strong> - plain text version
+            </.link>
+            <button type="button" class="dropdown-item" data-modal="gif-modal">
+              <strong>.gif</strong> - animated GIF
+            </button>
+          </div>
+        </details>
+
+        <details :if={length(@actions) > 0} class="dropdown">
+          <summary class="btn btn-sm btn-secondary">
+            <.cog_8_tooth_mini_icon />
+          </summary>
+
+          <div class="dropdown-menu">
+            <.link
+              :if={:edit in @actions}
+              href={~p"/a/#{@asciicast}/edit"}
+              class="dropdown-item"
+            >
+              Settings
+            </.link>
+
+            <.link
+              :if={:delete in @actions}
+              href={~p"/a/#{@asciicast}"}
+              class="dropdown-item text-danger"
+              method="delete"
+              data-confirm="Are you sure you want to delete this recording?"
+            >
+              Delete
             </.link>
           </div>
-
-          <details class="dropdown actions-dropdown">
-            <summary class="btn btn-sm btn-secondary">
-              <.download_mini_icon /> Download
-            </summary>
-
-            <div class="dropdown-menu">
-              <.link href="#" class="dropdown-item" id="download-link" data-modal="download-modal">
-                <strong>.{filename_ext(@asciicast)}</strong> - original recording
-              </.link>
-              <.link href="#" class="dropdown-item" rel="nofollow" id="download-txt">
-                <strong>.txt</strong> - plain text version
-              </.link>
-              <.link href="#" class="dropdown-item" data-modal="gif-modal">
-                <strong>.gif</strong> - animated GIF
-              </.link>
-            </div>
-          </details>
-
-          <details :if={length(@actions) > 0} class="dropdown actions-dropdown">
-            <summary class="btn btn-sm btn-secondary">
-              <.cog_8_tooth_mini_icon />
-            </summary>
-
-            <div class="dropdown-menu">
-              <.link
-                :if={:edit in @actions}
-                href={~p"/a/#{@asciicast}/edit"}
-                class="dropdown-item"
-              >
-                Settings
-              </.link>
-
-              <.link
-                :if={:delete in @actions}
-                href={~p"/a/#{@asciicast}"}
-                class="dropdown-item text-danger"
-                method="delete"
-                data-confirm="Are you sure you want to delete this recording?"
-              >
-                Delete
-              </.link>
-            </div>
-          </details>
-        </div>
+        </details>
       </div>
     </div>
   </div>

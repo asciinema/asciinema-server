@@ -80,20 +80,16 @@
     }
 
     .actions {
-      .btn-group {
-        display: flex;
-        justify-content: flex-end;
-        gap: var(--space-3);
-        flex-wrap: nowrap;
-      }
+      display: flex;
+      justify-content: flex-end;
+      align-items: flex-start;
+      gap: var(--space-3);
 
       @media (max-width: 575px) {
-        .btn-group {
-          flex-wrap: wrap;
-        }
+        flex-wrap: wrap;
       }
 
-      .btn-group > * {
+      > * {
         flex: 0 0 auto;
       }
     }
