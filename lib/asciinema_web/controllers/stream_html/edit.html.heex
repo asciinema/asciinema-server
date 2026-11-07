@@ -84,9 +84,9 @@
         <div>
           <div class="schedule-input">
             <.input field={f[:schedule]} placeholder="none" autocomplete="off" />
-            <.link href="#" data-modal="schedule-modal">
+            <button type="button" class="btn btn-sm btn-quiet" data-modal="schedule-modal">
               <.info_outline_icon /> Syntax & examples
-            </.link>
+            </button>
           </div>
 
           {live_render(@conn, AsciinemaWeb.SchedulePreviewLive,

@@ -33,6 +33,16 @@
   text-underline-offset: 0.1em;
 }
 
+.btn-quiet {
+  color: var(--color-link);
+  background-color: transparent;
+}
+
+.btn-quiet:hover {
+  color: var(--color-link-hover);
+  background-color: var(--color-bg-contrast-subtle);
+}
+
 .btn:disabled,
 .btn.disabled {
   opacity: 0.65;

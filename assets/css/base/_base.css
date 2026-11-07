@@ -41,18 +41,13 @@ input[type="radio"] {
 
 a {
   color: var(--color-link);
-  text-decoration: none;
+  text-decoration: underline;
+  text-underline-offset: 0.1em;
 }
 
 a:hover {
   color: var(--color-link-hover);
   text-decoration: underline;
-}
-
-main p a,
-.medium-description a {
-  text-decoration: underline;
-  text-underline-offset: 0.1em;
 }
 
 p {

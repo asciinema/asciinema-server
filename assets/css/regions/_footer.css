@@ -11,6 +11,14 @@ footer {
   margin-top: 6rem;
   border-top: 2px solid var(--color-border-chrome);
 
+  a {
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+
   /* dithered band bridging page and footer: shade glyphs in the footer's color
      on the page background */
   .shade-divider {

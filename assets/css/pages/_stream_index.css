@@ -16,6 +16,11 @@
     }
 
     .stream-list {
+      .status-link,
+      .status-link:hover {
+        text-decoration: none;
+      }
+
       table {
         margin-top: 3rem;
         table-layout: fixed;
@@ -41,10 +46,6 @@
           visibility: hidden;
           margin-left: 1em;
         }
-      }
-
-      a:hover {
-        text-decoration: none;
       }
     }
 

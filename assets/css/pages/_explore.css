@@ -1,5 +1,13 @@
 .c-explore {
   main {
+    .heading h2 a {
+      text-decoration: none;
+    }
+
+    .heading h2 a:hover {
+      text-decoration: underline;
+    }
+
     .recording-index-layout {
       display: grid;
       grid-template-columns: auto minmax(0, 1fr);

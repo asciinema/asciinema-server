@@ -6,7 +6,7 @@
   .schedule-input {
     position: relative;
 
-    a {
+    button {
       position: absolute;
       top: 50%;
       right: 1rem;

@@ -19,6 +19,7 @@
 
   a.delete {
     color: var(--color-danger);
+    text-decoration: none;
     padding: 6px;
     margin-left: -6px;
     border-radius: 3px;
