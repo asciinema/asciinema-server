@@ -16,12 +16,13 @@
   --color-link-hover: var(--color-primary-hover);
 
   /* == Colors: background (elevation ladder) == */
+  /* Dark neutral surfaces and borders share a 220deg HSL hue (~264deg OKLCH). */
   --color-bg-primary: light-dark(#ffffff, #101216);     /* page / content base */
   --color-bg-secondary: light-dark(#f7f7f7, #191c22);  /* inputs, keycaps, pagination */
   --color-bg-overlay: light-dark(#ffffff, #22252b);     /* floating: dropdown, modal */
   --color-bg-button: light-dark(#ececec, #22252b);
-  --color-bg-hover: light-dark(#e2e2e2, #2d3138);       /* neutral surface, hovered */
-  --color-bg-active: light-dark(#d6d6d6, #383e47);     /* neutral surface, pressed */
+  --color-bg-hover: light-dark(#e2e2e2, #2d3139);       /* neutral surface, hovered */
+  --color-bg-active: light-dark(#d6d6d6, #393e48);     /* neutral surface, pressed */
   --color-bg-chrome: light-dark(#f7f7f7, #000000);      /* header + footer bars */
 
   /* Surface-relative backgrounds and borders. */
@@ -30,8 +31,8 @@
   --color-border-contrast: light-dark(rgb(0 0 0 / 0.08), rgb(255 255 255 / 0.13));
 
   /* == Colors: borders == */
-  --color-border: light-dark(#dddddd, #363b44);                /* default */
-  --color-border-control: light-dark(#c4c4c4, #464c56);
+  --color-border: light-dark(#dddddd, #363b45);                /* default */
+  --color-border-control: light-dark(#c4c4c4, #474c56);
   --color-card-ring: light-dark(transparent, rgba(255, 255, 255, 0.06));  /* card edge, dark only - drop shadows don't read there */
   --color-border-chrome: light-dark(#dddddd, transparent);             /* header/footer bar edge */
 
