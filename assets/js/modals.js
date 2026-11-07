@@ -66,7 +66,12 @@ document.addEventListener('DOMContentLoaded', () => {
         // Small delay to ensure modal is fully closed before focus shift
         setTimeout(() => {
           try {
-            triggerElement.focus();
+            // Menu launchers are hidden after activation; focus the visible summary.
+            const dropdown = triggerElement.closest('details.dropdown');
+            const focusTarget = dropdown && !dropdown.open
+              ? dropdown.querySelector('summary')
+              : triggerElement;
+            focusTarget?.focus();
           } catch (error) {
             // Element may have been removed from DOM
             console.warn('Could not restore focus to trigger element:', error);
