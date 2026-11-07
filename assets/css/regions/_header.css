@@ -163,7 +163,7 @@ header .dropdown summary:focus {
 
 header a.nav-link:hover,
 header a.nav-link:focus {
-  background-color: var(--color-bg-inset);
+  background-color: var(--color-bg-contrast-subtle);
   border-radius: 6px;
 }
 

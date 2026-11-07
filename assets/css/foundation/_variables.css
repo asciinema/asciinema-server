@@ -29,7 +29,7 @@
   --color-bg-active: light-dark(#d6d6d6, #383e47);     /* neutral surface, pressed */
   --color-bg-chrome: light-dark(#f7f7f7, #000000);      /* header + footer bars */
 
-  /* Translucent code surfaces. */
+  /* Surface-relative backgrounds for code, search, and quiet hover states. */
   --color-bg-contrast-subtle: light-dark(rgb(0 0 0 / 0.06), rgb(106 118 142 / 0.10));
   --color-border-contrast: light-dark(rgb(0 0 0 / 0.08), rgb(255 255 255 / 0.13));
 

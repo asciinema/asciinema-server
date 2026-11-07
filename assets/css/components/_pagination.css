@@ -34,7 +34,7 @@
 
 .pagination > a:hover {
   color: var(--color-primary-hover);
-  background-color: var(--color-bg-inset);
+  background-color: var(--color-bg-hover);
   border-color: var(--color-border);
   text-decoration: none;
 }

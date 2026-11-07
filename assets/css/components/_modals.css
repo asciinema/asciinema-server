@@ -59,7 +59,7 @@ dialog.modal[open] {
   display: flex;
   flex-direction: column;
   width: 100%;
-  background-color: var(--color-bg-secondary);
+  background-color: var(--color-bg-overlay);
   background-clip: padding-box;
   border-radius: var(--border-radius-md, 0.375rem);
 }
@@ -95,8 +95,7 @@ dialog.modal .modal-close,
   border: none;
   font-size: 1.5rem;
   line-height: 1;
-  color: var(--color-text-hl);
-  opacity: 0.5;
+  color: var(--color-text-muted);
   cursor: pointer;
   padding: var(--space-4);
   margin: calc(var(--space-4) * -1) calc(var(--space-4) * -1) calc(var(--space-4) * -1) auto;
@@ -108,7 +107,8 @@ dialog.modal .modal-close,
 
 dialog.modal .modal-close:hover,
 .modal-header button.modal-close:hover {
-  opacity: 0.75;
+  color: var(--color-text-hl);
+  background-color: var(--color-bg-contrast-subtle);
 }
 
 /* == Content helpers == */

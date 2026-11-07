@@ -50,7 +50,7 @@
     }
 
     tr:hover {
-      background-color: var(--color-bg-inset);
+      background-color: var(--color-bg-contrast-subtle);
 
       .action > * {
         visibility: visible;

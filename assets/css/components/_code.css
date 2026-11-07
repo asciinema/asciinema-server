@@ -41,7 +41,7 @@
 }
 
 .code-with-copy a:hover {
-  background-color: var(--color-bg-inset);
+  background-color: var(--color-bg-contrast-subtle);
 }
 
 .code-with-copy .copy-notice {
