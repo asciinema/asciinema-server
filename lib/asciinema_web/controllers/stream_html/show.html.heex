@@ -5,8 +5,8 @@
 >
 </section>
 
-<section class="even info">
-  <div class="container">
+<div class="container medium-content">
+  <div class="medium-header">
     <div class="content-sidebar-layout">
       <div>
         <span class="author-avatar">
@@ -27,65 +27,54 @@
       </div>
 
       <div class="text-right actions">
-        <div class="btn-group">
-          <div :if={@stream.visibility != :private}>
+        <button
+          :if={@stream.visibility != :private}
+          type="button"
+          class="btn btn-sm btn-secondary"
+          id="share-link"
+          data-modal="share-modal"
+        >
+          <.share_mini_icon /> Share
+        </button>
+
+        <details :if={length(@actions) > 0} class="dropdown">
+          <summary class="btn btn-sm btn-secondary">
+            <.cog_8_tooth_mini_icon />
+          </summary>
+
+          <div class="dropdown-menu">
             <.link
-              href="#"
-              class="btn btn-sm btn-secondary"
-              id="share-link"
-              data-modal="share-modal"
+              :if={:edit in @actions}
+              navigate={~p"/s/#{@stream}/edit"}
+              class="dropdown-item"
             >
-              <.share_mini_icon /> Share
+              Settings
+            </.link>
+
+            <.link
+              :if={:delete in @actions}
+              href={~p"/s/#{@stream}?ret=/s/#{@stream}"}
+              class="dropdown-item text-danger"
+              method="delete"
+              data-confirm="Are you sure you want to delete this stream?"
+            >
+              Delete
             </.link>
           </div>
-
-          <details :if={length(@actions) > 0} class="dropdown actions-dropdown">
-            <summary class="btn btn-sm btn-secondary">
-              <.cog_8_tooth_mini_icon />
-            </summary>
-
-            <div class="dropdown-menu">
-              <.link
-                :if={:edit in @actions}
-                navigate={~p"/s/#{@stream}/edit"}
-                class="dropdown-item"
-              >
-                Settings
-              </.link>
-
-              <.link
-                :if={:delete in @actions}
-                href={~p"/s/#{@stream}?ret=/s/#{@stream}"}
-                class="dropdown-item text-danger"
-                method="delete"
-                data-confirm="Are you sure you want to delete this stream?"
-              >
-                Delete
-              </.link>
-            </div>
-          </details>
-        </div>
+        </details>
       </div>
     </div>
   </div>
-</section>
 
-<section class="odd meta">
-  <div class="container">
+  <div class="medium-metadata">
     {live_render(@conn, AsciinemaWeb.StreamStatusLive, session: %{"stream_id" => @stream.id})}
-
-    <%= if desc = render_markdown(@stream.description) do %>
-      <hr />
-
-      <div class="description">
-        {desc}
-      </div>
-    <% end %>
   </div>
-</section>
 
-<section :if={@user_is_self} class="even instructions">
-  <div class="container">
+  <%= if desc = render_markdown(@stream.description) do %>
+    <div class="medium-description">{desc}</div>
+  <% end %>
+
+  <div :if={@user_is_self} class="stream-instructions">
     <h2>How to stream</h2>
 
     <.code_with_copy class="w-100 w-md-75 w-lg-50">
@@ -107,16 +96,14 @@
     <small class="text-muted">This is your unique stream URL. Share this
     freely with your viewers.</small>
   </div>
-</section>
 
-<section
-  :if={
-    length(@stream_asciicasts.items) > 0 or
-      (!@user_is_self && length(@other_asciicasts.items) > 0)
-  }
-  class="even more-by"
->
-  <div class="container">
+  <div
+    :if={
+      length(@stream_asciicasts.items) > 0 or
+        (!@user_is_self && length(@other_asciicasts.items) > 0)
+    }
+    class="related-recordings"
+  >
     <%= if length(@stream_asciicasts.items) > 0 do %>
       <div class="heading">
         <h2>
@@ -154,7 +141,7 @@
       </div>
     <% end %>
   </div>
-</section>
+</div>
 
 <.share_modal stream={@stream} />
 

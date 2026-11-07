@@ -14,22 +14,23 @@ form textarea {
   font-size: var(--font-size-md);
   font-weight: var(--font-weight-normal);
   line-height: 1.5;
-  color: var(--color-text-dark);
-  background-color: #fff;
+  color: var(--color-text-default);
+  background-color: var(--color-bg-secondary);
   background-clip: padding-box;
-  border: 1px solid #ced4da;
+  border: 1px solid var(--color-border-control);
   border-radius: var(--border-radius-sm);
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+form input:not([type="checkbox"], [type="radio"]),
+form select {
+  height: calc(1.5em + 0.75rem + 2px);
 }
 
 form input:not([type="checkbox"], [type="radio"]):focus,
 form select:focus,
 form textarea:focus {
-  color: var(--color-text-dark);
-  background-color: #fff;
-  border-color: var(--color-primary-light);
-  outline: 0;
-  box-shadow: var(--box-shadow-focus);
+  outline: 2px solid var(--color-focus);
+  outline-offset: -1px;
 }
 
 form input:not([type="checkbox"], [type="radio"])::placeholder,
@@ -40,32 +41,15 @@ form textarea::placeholder {
 
 form input:not([type="checkbox"], [type="radio"]):disabled,
 form select:disabled,
-form textarea:disabled,
-form input[readonly],
-form textarea[readonly],
-form select[readonly] {
-  background-color: #e9ecef;
-  opacity: 1;
+form textarea:disabled {
+  opacity: 0.65;
 }
 
-/* == Textarea & select tweaks == */
+/* == Textarea tweaks == */
 
 form textarea {
   resize: vertical;
   min-height: calc(1.5em + 0.75rem + 2px);
-}
-
-form select {
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
-  background-repeat: no-repeat;
-  background-position: right 0.75rem center;
-  background-size: 16px 12px;
-  padding-right: 2.25rem;
-}
-
-form select:focus {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2306989a' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
 }
 
 /* == Form field layout (CSS grid) == */
@@ -74,14 +58,14 @@ form select:focus {
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--space-2);
-  align-items: start;
-  margin-bottom: var(--space-5);
+  align-items: first baseline;
+  margin-bottom: var(--space-6);
 }
 
-.form-field > label {
+.form-field > label,
+.form-field > .form-field-label {
   font-weight: var(--font-weight-semibold);
   margin-bottom: 0;
-  padding-top: 0;
 }
 
 .form-field small.status {
@@ -97,10 +81,6 @@ form select:focus {
   .form-field {
     grid-template-columns: minmax(150px, 25%) 1fr;
     gap: var(--space-4);
-  }
-
-  .form-field > label {
-    padding-top: calc(0.375rem + 1px);
   }
 }
 
@@ -150,20 +130,6 @@ form select:focus {
   margin-bottom: 0;
 }
 
-.form-option-box {
-  padding-top: 0.375rem;
-}
-
-form .visibility-radios {
-  padding-top: 0.375rem;
-}
-
-form .visibility-radios .form-option small {
-  display: block;
-  margin-top: var(--space-1);
-  margin-left: 0;
-}
-
 .radios .form-option {
   margin-bottom: var(--space-3);
 }
@@ -176,7 +142,6 @@ form .visibility-radios .form-option small {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-4);
-  padding-top: 0.375rem;
 }
 
 .radios-inline .form-option {
@@ -192,19 +157,7 @@ form .visibility-radios .form-option small {
 .has-error select,
 .has-error textarea {
   border-color: var(--color-danger);
-  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-}
-
-.form-field.has-error input:not([type="checkbox"], [type="radio"]):focus,
-.form-field.has-error select:focus,
-.form-field.has-error textarea:focus,
-.has-error input:not([type="checkbox"], [type="radio"]):focus,
-.has-error select:focus,
-.has-error textarea:focus {
-  border-color: var(--color-danger);
-  box-shadow:
-    inset 0 1px 1px rgba(0, 0, 0, 0.075),
-    0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+  outline-color: var(--color-danger);
 }
 
 input[type="url"]:invalid {
@@ -220,17 +173,12 @@ input[type="url"]:invalid {
   color: var(--color-text-muted);
 }
 
-legend {
+.form-heading {
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-normal);
-  border-bottom: 1px solid var(--color-border-gray);
+  border-bottom: 1px solid var(--color-border);
   padding: 0 0 var(--space-3) 0;
-  margin-bottom: var(--space-5);
-}
-
-form legend {
-  border-bottom: 1px solid #ddd;
-  margin-bottom: 2rem;
+  margin: 0 0 2rem;
   width: 100%;
 }
 

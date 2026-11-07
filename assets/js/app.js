@@ -33,13 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
     focusInput.select();
   }
 
-  // Auto-select inputs on click with data-behavior="auto-select"
-  document.querySelectorAll("input[data-behavior=auto-select]").forEach(input => {
-    input.addEventListener('click', () => {
-      input.select();
-    });
-  });
-
   // Add noreferrer to external links when origin referrer policy is set
   if (document.querySelector('meta[name=referrer][content=origin]')) {
     document.querySelectorAll('a[href*=http]').forEach(link => {

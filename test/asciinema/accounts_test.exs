@@ -146,6 +146,7 @@ defmodule Asciinema.AccountsTest do
 
       assert success(user, %{username: "newone"}).username == "newone"
       assert success(user, %{name: "New One"}).name == "New One"
+      assert success(user, %{ui_color_scheme: :dark}).ui_color_scheme == :dark
     end
 
     test "validation failures" do
@@ -153,6 +154,8 @@ defmodule Asciinema.AccountsTest do
 
       assert_validation_error(user, %{username: ""})
       assert_validation_error(user, %{term_theme_name: "lol"})
+      assert_validation_error(user, %{ui_color_scheme: nil})
+      assert_validation_error(user, %{ui_color_scheme: "lol"})
     end
 
     defp success(user, attrs) do

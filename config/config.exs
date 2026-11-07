@@ -154,11 +154,10 @@ config :esbuild,
     cd: Path.expand("../assets", __DIR__),
     env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
   ],
-  # browser targets make esbuild lower CSS nesting for browsers without
-  # native support
+  # Browser targets support light-dark(); esbuild lowers newer CSS syntax as needed.
   css: [
     args:
-      ~w(css/app.css css/iframe.css --bundle --target=chrome111,firefox117,safari16.5 --outdir=../priv/static/assets --entry-names=[name] --external:/fonts/* --external:/images/*),
+      ~w(css/app.css css/iframe.css --bundle --target=chrome123,firefox120,safari17.5 --outdir=../priv/static/assets --entry-names=[name] --external:/fonts/* --external:/images/*),
     cd: Path.expand("../assets", __DIR__)
   ]
 

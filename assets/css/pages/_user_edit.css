@@ -18,18 +18,23 @@
   }
 
   a.delete {
-    color: var(--color-danger);
+    color: var(--color-danger-text);
+    text-decoration: none;
     padding: 6px;
-    border-radius: 3px;
+    margin-left: -6px;
+    border-radius: var(--border-radius-sm);
   }
 
   a.delete:hover {
-    background-color: #dc354520; /* --color-danger with 0x20 alpha */
+    background-color: light-dark(
+      color-mix(in srgb, var(--color-danger) 12.5%, transparent),
+      color-mix(in srgb, var(--color-danger) 22%, transparent)
+    );
     text-decoration: none;
   }
 
   .danger-zone {
-    margin-top: 2em;
+    margin-top: 4rem;
   }
 }
 

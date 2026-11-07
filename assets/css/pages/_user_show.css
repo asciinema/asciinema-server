@@ -5,9 +5,10 @@
 /* == Profile hero == */
 
 .profile-page {
-  .cinema {
-    background-color: #222230;
+  .profile-hero {
+    background-color: var(--color-bg-primary);
     padding: 3em 0;
+    border-bottom: 1px solid var(--color-border);
 
     .user-avatar {
       float: left;
@@ -17,7 +18,7 @@
       img {
         width: 100%;
         height: 100%;
-        border-radius: 3px;
+        border-radius: var(--border-radius-sm);
       }
     }
 
@@ -31,7 +32,7 @@
         display: block;
         font-size: 16px;
         margin-top: 6px;
-        color: #999999;
+        color: var(--color-text-muted);
       }
     }
 

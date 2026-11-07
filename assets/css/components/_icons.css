@@ -16,16 +16,17 @@ span.icon svg {
 
 span.icon-live {
   font-weight: bold;
-  color: white;
-  background-color: #d40000;
+  color: var(--color-live-contrast);
+  background-color: var(--color-live);
   padding: 0.1em 0.3em;
-  border-radius: 3px;
+  border-radius: var(--border-radius-sm);
 }
 
 span.icon-offline {
   font-weight: bold;
-  color: white;
-  background-color: #666;
+  color: var(--color-text-muted);
+  background-color: transparent;
+  border: 1px solid var(--color-border);
   padding: 0.1em 0.3em;
-  border-radius: 3px;
+  border-radius: var(--border-radius-sm);
 }

@@ -284,9 +284,9 @@ defmodule AsciinemaWeb.Features.RecordingsTest do
 
       conn
       |> visit(~p"/a/#{asciicast}")
-      |> assert_has("section.more-by h2", text: "More recordings by")
+      |> assert_has(".related-recordings h2", text: "More recordings by")
       |> assert_has(
-        "section.more-by a[href='#{~p"/~owner/recordings"}']",
+        ".related-recordings a[href='#{~p"/~owner/recordings"}']",
         text: "Browse all"
       )
     end
@@ -298,9 +298,9 @@ defmodule AsciinemaWeb.Features.RecordingsTest do
 
       conn
       |> visit(~p"/a/#{asciicast}")
-      |> assert_has("section.more-by h2", text: "More recordings by")
+      |> assert_has(".related-recordings h2", text: "More recordings by")
       |> refute_has(
-        "section.more-by a[href='#{~p"/~owner/recordings"}']",
+        ".related-recordings a[href='#{~p"/~owner/recordings"}']",
         text: "Browse all"
       )
     end
@@ -311,7 +311,7 @@ defmodule AsciinemaWeb.Features.RecordingsTest do
 
       conn
       |> visit(~p"/a/#{asciicast}")
-      |> refute_has("section.more-by")
+      |> refute_has(".related-recordings")
     end
   end
 

@@ -1,14 +1,17 @@
+<% colors = card_colors(@theme) %>
 <div
   class="asciicast-card"
-  style={"--term-color-foreground: #{@theme.fg}; --term-color-background: #{@theme.bg}"}
+  style={
+    "--term-color-foreground: #{@theme.fg}; --term-color-background: #{@theme.bg}; " <>
+      "--info-fg: #{colors.foreground}; --info-fg-muted: #{colors.muted}; " <>
+      "--info-badge-fg: #{colors.badge_foreground}; --info-badge-bg: #{colors.badge_background}"
+  }
 >
   <.link href={@url} class="thumbnail-link">
     <div :if={!@no_play_overlay} class="play-button">
-      <span class="arrow">
-        <svg version="1.1" viewBox="0 0 12 12">
-          <path d="M1,0 L11,6 L1,12 Z" />
-        </svg>
-      </span>
+      <svg viewBox="0 0 12 12">
+        <path d="M1,0 L11,6 L1,12 Z" />
+      </svg>
     </div>
 
     <div class="thumbnail">

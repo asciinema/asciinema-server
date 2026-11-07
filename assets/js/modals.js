@@ -21,22 +21,6 @@ function openModal(modalId, triggerElement = null) {
   }
 }
 
-function closeModal(modalId) {
-  const modal = document.getElementById(modalId);
-  if (!modal) {
-    console.warn(`Modal with id "${modalId}" not found`);
-    return;
-  }
-
-  if (modal && modal.open) {
-    try {
-      modal.close();
-    } catch (error) {
-      console.error(`Failed to close modal "${modalId}":`, error);
-    }
-  }
-}
-
 document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('click', (e) => {
     const trigger = e.target.closest('[data-modal]');
@@ -82,7 +66,12 @@ document.addEventListener('DOMContentLoaded', () => {
         // Small delay to ensure modal is fully closed before focus shift
         setTimeout(() => {
           try {
-            triggerElement.focus();
+            // Menu launchers are hidden after activation; focus the visible summary.
+            const dropdown = triggerElement.closest('details.dropdown');
+            const focusTarget = dropdown && !dropdown.open
+              ? dropdown.querySelector('summary')
+              : triggerElement;
+            focusTarget?.focus();
           } catch (error) {
             // Element may have been removed from DOM
             console.warn('Could not restore focus to trigger element:', error);
@@ -92,5 +81,3 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
-
-export { openModal, closeModal };

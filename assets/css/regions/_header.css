@@ -11,8 +11,8 @@ header nav {
   align-items: center;
   justify-content: space-between;
   padding: var(--space-2) var(--space-4);
-  background-color: var(--color-bg-black);
-  color: rgba(255, 255, 255, 0.9);
+  background-color: var(--color-bg-chrome);
+  border-bottom: 2px solid var(--color-border-chrome);
 }
 
 header nav > .container {
@@ -101,27 +101,29 @@ header nav > .container {
 
 /* == Header search == */
 
+.search-form form {
+  position: relative;
+}
+
+/* Use a mask so the icon follows the theme color. */
+.search-form form::before {
+  content: '';
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  width: 20px;
+  height: 20px;
+  transform: translateY(-50%);
+  background-color: var(--color-text-muted);
+  mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z" clip-rule="evenodd" /></svg>') center / contain no-repeat;
+  pointer-events: none;
+}
+
 .search-form input.q {
   width: 100%;
-  border: 1px solid #333;
-  color: rgba(255, 255, 255, 0.85);
-  background-color: #161616;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="%23fffa" class="size-4"><path fill-rule="evenodd" d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z" clip-rule="evenodd" /></svg>');
-  background-repeat: no-repeat;
-  background-position: 10px 63%;
-  background-size: 20px 20px;
   padding-left: 40px;
-}
-
-.search-form input.q:focus {
-  color: #fff;
-  border: 1px solid #444;
-  background-color: #222;
-  box-shadow: none;
-}
-
-.search-form input.q::placeholder {
-  color: rgba(255, 255, 255, 0.65);
+  background-color: var(--color-bg-contrast-subtle);
+  border-color: var(--color-border-contrast);
 }
 
 header .search-form input {
@@ -149,24 +151,24 @@ header .search-form input {
 
 header .nav-link,
 header .dropdown summary {
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--color-text-default);
 }
 
 header .nav-link:hover,
 header .nav-link:focus,
 header .dropdown summary:hover,
 header .dropdown summary:focus {
-  color: #fff;
+  color: var(--color-text-hl);
 }
 
 header a.nav-link:hover,
 header a.nav-link:focus {
-  background-color: #181818;
+  background-color: var(--color-bg-contrast-subtle);
   border-radius: 6px;
 }
 
 header .nav-link.active {
-  color: #fff;
+  color: var(--color-primary);
 }
 
 header .dropdown summary {
@@ -213,7 +215,7 @@ header .session-info .dropdown-menu {
   width: 24px;
   height: 2px;
   margin: 0;
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: var(--color-text-default);
   position: relative;
   border-radius: 999px;
   transition: background-color var(--transition-base);
@@ -225,7 +227,7 @@ header .session-info .dropdown-menu {
   position: absolute;
   width: 24px;
   height: 2px;
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: var(--color-text-default);
   left: 0;
   border-radius: 999px;
   transition: transform var(--transition-base);

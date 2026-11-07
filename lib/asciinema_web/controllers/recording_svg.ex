@@ -70,7 +70,7 @@ defmodule AsciinemaWeb.RecordingSVG do
   end
 
   # Bump when SVG rendering output can change without recording data changes.
-  @svg_renderer_salt 7
+  @svg_renderer_salt 8
 
   def svg_cache_key(asciicast) do
     key =

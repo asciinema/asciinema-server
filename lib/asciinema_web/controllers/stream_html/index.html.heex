@@ -64,7 +64,7 @@
             <a href={~p"/s/#{stream}"}><strong>{short_public_token(stream)}</strong></a>
           </td>
           <td>
-            <a :if={stream.live} href={~p"/s/#{stream}"}><.live_icon /></a>
+            <a :if={stream.live} href={~p"/s/#{stream}"} class="status-link"><.live_icon /></a>
             <.offline_icon :if={!stream.live} />
           </td>
           <td>{stream.title}</td>

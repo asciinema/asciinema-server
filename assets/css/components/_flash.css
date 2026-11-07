@@ -29,13 +29,13 @@ section.flash {
   }
 
   &.notice {
-    color: white;
-    background-color: #06989a;
+    color: var(--color-primary-contrast);
+    background-color: var(--color-success);
   }
 
   &.alert {
     color: black;
-    background-color: #c4a000;
+    background-color: var(--color-warning);
   }
 
   /* Reset default spacing and borders for flash section */
@@ -48,19 +48,19 @@ section.flash {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 1.75rem;
-    height: 1.75rem;
+    width: 2rem;
+    height: 2rem;
     flex-shrink: 0;
-    border-radius: 999px;
-    border: 1px solid currentColor;
+    border-radius: var(--border-radius-sm);
+    border: 0;
     background-color: transparent;
     color: inherit;
     line-height: 1;
-    font-size: 1.125rem;
+    font-size: var(--font-size-2xl);
     transition: background-color var(--transition-base), color var(--transition-base);
 
     &:hover {
-      background-color: rgba(255, 255, 255, 0.15);
+      background-color: light-dark(rgb(255 255 255 / 0.15), rgb(0 0 0 / 0.15));
     }
   }
 }

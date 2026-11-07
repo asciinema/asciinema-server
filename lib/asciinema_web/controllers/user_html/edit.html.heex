@@ -7,7 +7,7 @@
       id="account-form"
       novalidate="novalidate"
     >
-      <legend>Account</legend>
+      <h2 class="form-heading">Account</h2>
 
       <div class={["form-field", error_class(f, :email)]}>
         <.label for={f[:email]}>Email</.label>
@@ -60,7 +60,7 @@
     </.form>
 
     <.form :let={f} for={@changeset} action={~p"/user"} id="profile-form" novalidate="novalidate">
-      <legend>Profile</legend>
+      <h2 class="form-heading">Profile</h2>
 
       <div class={["form-field", error_class(f, :username)]}>
         <.label for={f[:username]}>
@@ -89,8 +89,52 @@
       </div>
     </.form>
 
+    <.form :let={f} for={@changeset} action={~p"/user"} id="ui-form" novalidate="novalidate">
+      <h2 class="form-heading">UI</h2>
+
+      <div
+        class={["form-field", error_class(f, :ui_color_scheme)]}
+        role="group"
+        aria-labelledby="ui-color-scheme-label"
+      >
+        <span id="ui-color-scheme-label" class="form-field-label">Color scheme</span>
+
+        <div>
+          <div class="radios">
+            <div
+              :for={
+                {value, label} <- [
+                  auto: "Auto - use system setting",
+                  dark: "Dark",
+                  light: "Light"
+                ]
+              }
+              class="form-option"
+            >
+              <input
+                type="radio"
+                name="user[ui_color_scheme]"
+                id={"user_ui_color_scheme_#{value}"}
+                value={value}
+                checked={f[:ui_color_scheme].value == value}
+              />
+              <label for={"user_ui_color_scheme_#{value}"}>
+                {label}
+              </label>
+            </div>
+          </div>
+          <.error field={f[:ui_color_scheme]} />
+        </div>
+      </div>
+      <div class="form-actions">
+        <div class="form-actions-buttons">
+          <.button type="submit" class="btn btn-primary">Update</.button>
+        </div>
+      </div>
+    </.form>
+
     <.form :let={f} for={@changeset} action={~p"/user"} id="defaults-form" novalidate="novalidate">
-      <legend>Defaults</legend>
+      <h2 class="form-heading">Defaults</h2>
 
       <p>
         The settings below control the defaults for <strong>new</strong>
@@ -102,7 +146,7 @@
         <.label for={f[:default_recording_visibility]}>
           Recording visibility
         </.label>
-        <div class="radios visibility-radios">
+        <div class="radios">
           <div class="form-option">
             <input
               type="radio"
@@ -158,7 +202,7 @@
         <.label for={f[:default_stream_visibility]}>
           Stream visibility
         </.label>
-        <div class="radios visibility-radios">
+        <div class="radios">
           <div class="form-option">
             <input
               type="radio"
@@ -301,7 +345,7 @@
       action={~p"/user"}
       novalidate="novalidate"
     >
-      <legend>Streaming</legend>
+      <h2 class="form-heading">Streaming</h2>
 
       <div class={["form-field", error_class(f, :live_stream_limit)]}>
         <.label for={f[:live_stream_limit]}>
@@ -323,7 +367,7 @@
           Recording
         </.label>
         <div class="form-option-offset">
-          <div class="form-option form-option-box">
+          <div class="form-option">
             <.input
               :if={@stream_recording_mode == :allowed}
               type="checkbox"
@@ -358,7 +402,7 @@
 
   <div>
     <form>
-      <legend>CLI</legend>
+      <h2 class="form-heading">CLI</h2>
 
       <p>To associate the uploaded recordings with your account, you need to
         authenticate asciinema CLI on every new system from which you upload.</p>
@@ -376,7 +420,7 @@
         <table class="table install-ids">
           <thead>
             <th>Installation ID</th>
-            <th>Registered at</th>
+            <th>Registered</th>
             <th></th>
           </thead>
           <tbody>
@@ -385,7 +429,7 @@
                 <code>{t.token}</code>
               </td>
               <td>
-                {time_tag(t.inserted_at)}
+                {time_ago_tag(t.inserted_at)}
               </td>
               <td>
                 <.link
@@ -404,7 +448,7 @@
                 <code>{t.token}</code>
               </td>
               <td>
-                {time_tag(t.inserted_at)}
+                {time_ago_tag(t.inserted_at)}
               </td>
               <td>
                 Revoked {time_ago_tag(t.revoked_at)}
@@ -415,11 +459,11 @@
 
         <p>
           The installation ID of your local system is stored in:
-          <ul>
-            <li><code>$HOME/.local/state/asciinema/install-id</code> for asciinema CLI 3.x</li>
-            <li><code>$HOME/.config/asciinema/install-id</code> for asciinema CLI 2.x</li>
-          </ul>
         </p>
+        <ul>
+          <li><code>$HOME/.local/state/asciinema/install-id</code> for asciinema CLI 3.x</li>
+          <li><code>$HOME/.config/asciinema/install-id</code> for asciinema CLI 2.x</li>
+        </ul>
       <% else %>
         <p>There is currently no CLI authenticated with this account.</p>
       <% end %>
@@ -428,7 +472,7 @@
 
   <div class="danger-zone">
     <form>
-      <legend>Delete account</legend>
+      <h2 class="form-heading">Delete account</h2>
     </form>
 
     <p>

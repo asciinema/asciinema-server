@@ -21,8 +21,8 @@
   line-height: 1.25;
   color: var(--color-primary);
   text-decoration: none;
-  background-color: #fff;
-  border: 1px solid #dee2e6;
+  background-color: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
   transition: color var(--transition-fast),
               background-color var(--transition-fast),
               border-color var(--transition-fast);
@@ -34,15 +34,13 @@
 
 .pagination > a:hover {
   color: var(--color-primary-hover);
-  background-color: #e9ecef;
-  border-color: #dee2e6;
+  background-color: var(--color-bg-hover);
+  border-color: var(--color-border);
   text-decoration: none;
 }
 
 .pagination > a:focus {
   z-index: 2;
-  outline: 0;
-  box-shadow: 0 0 0 0.2rem var(--color-primary-alpha-soft);
 }
 
 /* == Border radius for first/last items == */
@@ -61,7 +59,7 @@
 
 .pagination > a.active {
   z-index: 1;
-  color: #fff;
+  color: var(--color-primary-contrast);
   background-color: var(--color-primary);
   border-color: var(--color-primary);
   font-weight: var(--font-weight-semibold);
@@ -72,13 +70,12 @@
   border-color: var(--color-primary-hover);
 }
 
-/* == Ellipsis (disabled) state == */
+/* == Ellipsis == */
 
 .pagination > span.ellipsis {
-  color: #6c757d;
+  color: var(--color-text-muted);
   pointer-events: none;
   cursor: not-allowed;
-  background-color: #fff;
-  border-color: #dee2e6;
-  opacity: 0.6;
+  background-color: var(--color-bg-secondary);
+  border-color: var(--color-border);
 }

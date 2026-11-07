@@ -4,29 +4,45 @@
 
 /* == Document scaffolding == */
 
-html {
-  height: 100%;
+:root {
+  color: var(--color-text-default);
+  background-color: var(--color-bg-primary);
 }
 
 body {
   font-family: var(--font-family-base);
-  position: relative;
   margin: 0;
-  padding-bottom: 12rem;
-  min-height: 100%;
 }
 
-@media (max-width: 480px) {
-  body {
-    padding-bottom: 24rem;
-  }
+body.l-app {
+  display: flex;
+  flex-direction: column;
+}
+
+body.l-app > main {
+  flex: 1;
+}
+
+button, input, select, textarea, dialog {
+  color: inherit;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--color-primary);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
 }
 
 /* == Links and text elements == */
 
 a {
   color: var(--color-link);
-  text-decoration: none;
+  text-decoration: underline;
+  text-underline-offset: 0.1em;
 }
 
 a:hover {
@@ -40,6 +56,10 @@ p {
   line-height: var(--line-height-normal);
 }
 
+main :is(ul, ol) > li + li {
+  margin-top: var(--space-2);
+}
+
 small {
   font-size: var(--font-size-base);
   line-height: var(--line-height-normal);
@@ -48,7 +68,7 @@ small {
 hr {
   margin: var(--space-4) 0;
   border: none;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  border-top: 1px solid var(--color-border);
 }
 
 h1, h2, h3 {
@@ -63,7 +83,7 @@ h1 {
 }
 
 h2 {
-  font-size: 1.5rem;
+  font-size: var(--font-size-2xl);
   margin: 2em 0 1em 0;
 }
 
@@ -74,14 +94,16 @@ h3 {
 /* == Inline code, code blocks, keyboard shortcuts == */
 
 code {
-  background-color: var(--color-bg-code-inline);
+  background-color: var(--color-bg-code);
+  border: 1px solid var(--color-border-contrast);
   padding: 2px 4px;
-  border-radius: 4px;
+  border-radius: var(--border-radius-md);
   font-size: 87.5%;
 }
 
 pre code {
-  background-color: inherit;
+  background-color: transparent;
+  border: none;
   padding: 0;
   font-size: inherit;
 }
@@ -91,59 +113,33 @@ pre, code {
 }
 
 kbd {
-  background-color: var(--color-bg-white);
-  color: black;
-  border: 1px solid #bbb;
-  border-radius: 4px;
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-default);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
   padding: 0.1rem 0.2rem;
   margin-left: 0.1rem;
   margin-right: 0.1rem;
 }
 
 pre {
-  background-color: var(--color-bg-code-block);
-  border-color: var(--color-border-gray);
-  border-radius: 3px;
-  border: 1px solid var(--color-border-gray);
+  background-color: var(--color-bg-code);
+  border: 1px solid var(--color-border-contrast);
+  border-radius: var(--border-radius-sm);
   padding: 9.5px;
   margin: 0 0 10px;
   font-size: 87.5%;
-}
-
-body, main {
-  background-color: var(--color-bg-body);
 }
 
 /* == Sections and hero rows == */
 
 section.cinema {
   color: #fff;
-  padding: calc(min(4vh, 4vw)) 0;
-}
-
-section.odd, section.even {
-  padding: 1.4rem 0;
-}
-
-section.odd {
-  background-color: var(--color-bg-white);
-  border-top: 1px solid var(--color-border-gray);
-  border-bottom: 1px solid var(--color-border-gray);
+  padding: min(4vh, 4vw) 0;
 }
 
 section h1 {
   margin-top: 1rem;
-}
-
-section.top {
-  color: #fff;
-  background-color: #222;
-  padding: 25px 0;
-
-  h1 {
-    font-size: 2.5rem;
-    margin: 0;
-  }
 }
 
 main {
@@ -156,11 +152,11 @@ main {
 
 .special-label {
   font-size: 12px;
-  background-color: rgb(255, 239, 198);
-  color: rgb(161, 136, 43);
+  background-color: light-dark(#fff0c2, #3a3320);
+  color: light-dark(#665000, #e3c466);
   margin-left: 6px;
   padding: 2px 5px;
-  border-radius: 4px;
+  border-radius: var(--border-radius-md);
   vertical-align: middle;
   cursor: help;
 }
@@ -173,11 +169,6 @@ main .nav-item {
   .nav-link.active {
     font-weight: bold;
   }
-}
-
-body pre {
-  background-color: #fff;
-  border-color: var(--color-border-gray);
 }
 
 span.email b {

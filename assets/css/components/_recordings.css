@@ -7,8 +7,10 @@
 .asciicast-list {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1.75rem;
-  margin: 2rem 0;
+  column-gap: 1.75rem;
+  /* Match the pagination spacing to the row gap. */
+  row-gap: 3.5rem;
+  margin: 2rem 0 3.5rem;
 }
 
 .asciicast-list > div {
@@ -25,8 +27,9 @@
 /* == Recording card == */
 
 div.asciicast-card {
-  overflow: hidden;
-  border: 1px solid #eee;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 
   .thumbnail-link {
     display: block;
@@ -35,47 +38,25 @@ div.asciicast-card {
 
     .play-button {
       display: none;
-      z-index: 1;
       position: absolute;
-      left: 0;
-      top: 0;
-      right: 0;
-      bottom: 0;
+      inset: 0;
+      place-items: center;
+      z-index: 1;
       color: white;
 
-      .arrow {
-        display: block;
-        width: 100%;
-        height: 100%;
-        position: relative;
-
-        svg {
-          fill: white;
-          position: absolute;
-          left: 50%;
-          top: 50%;
-          width: 4rem;
-          margin-left: -2rem;
-          margin-top: -2rem;
-          filter: drop-shadow(0px 0px 5px rgba(0, 0, 0, 0.4));
-        }
+      svg {
+        width: 4rem;
+        fill: currentColor;
+        filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.4));
       }
     }
 
-    &:hover {
-      .play-button {
-        display: block;
-      }
+    &:hover .play-button {
+      display: grid;
     }
 
-    &:active {
-      .play-button {
-        svg {
-          width: 5rem;
-          margin-left: -2.5rem;
-          margin-top: -2.5rem;
-        }
-      }
+    &:active .play-button svg {
+      width: 5rem;
     }
   }
 
@@ -87,9 +68,8 @@ div.asciicast-card {
     padding: 0;
     background-color: var(--term-color-background);
     border-right: 1ch solid var(--term-color-background);
-    border-radius: 3px;
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
+    border-radius: var(--border-radius-sm) var(--border-radius-sm) 0 0;
+    box-shadow: var(--box-shadow-card), 0 0 0 1px var(--color-card-ring);
   }
 
   .thumbnail img,
@@ -130,18 +110,28 @@ div.asciicast-card {
   }
 
   .info {
-    background-color: #fff;
+    /* Cover the preceding thumbnail's shadow instead of receiving it. */
+    position: relative;
+    background: var(--term-color-background);
+    color: var(--info-fg-muted);
     padding: 10px;
-    border-bottom-left-radius: 3px;
-    border-bottom-right-radius: 3px;
-    border-bottom: 1px solid #ddd;
-    border-top: 1px solid #eee;
+    border-radius: 0 0 var(--border-radius-sm) var(--border-radius-sm);
+    box-shadow: var(--box-shadow-card), 0 0 0 1px var(--color-card-ring);
+
+    a:hover {
+      color: var(--info-fg);
+      text-decoration: underline;
+    }
 
     .author-avatar {
       float: left;
       width: 20px;
       height: 20px;
       margin-top: 4px;
+
+      a {
+        text-decoration: none;
+      }
 
       img, svg {
         width: 100%;
@@ -155,7 +145,15 @@ div.asciicast-card {
       font-size: 18px;
       display: flex;
 
+      a {
+        min-width: 0;
+        overflow-wrap: anywhere;
+        color: var(--info-fg);
+        text-decoration: none;
+      }
+
       .duration {
+        flex-shrink: 0;
         margin: auto 0 auto auto;
         padding-left: 1em;
         font-size: 14px;
@@ -166,7 +164,11 @@ div.asciicast-card {
     small {
       margin-left: 5px;
       font-size: 14px;
-      color: #333;
+      color: var(--info-fg-muted);
+
+      a {
+        color: var(--info-fg-muted);
+      }
 
       abbr {
         border-bottom: 0;
@@ -174,6 +176,8 @@ div.asciicast-card {
 
       .special-label {
         float: right;
+        color: var(--info-badge-fg);
+        background-color: var(--info-badge-bg);
       }
     }
   }

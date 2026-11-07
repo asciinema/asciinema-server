@@ -18,9 +18,39 @@
     }
   }
 
-  /* == Metadata/info column == */
+  /* == Content below player == */
 
-  section.info {
+  .medium-content {
+    padding-bottom: 1.4rem;
+  }
+
+  .stream-instructions,
+  .related-recordings {
+    padding-top: 3rem;
+  }
+
+  .medium-metadata,
+  .medium-description,
+  .medium-description + .stream-instructions,
+  .related-recordings {
+    border-top: 1px solid var(--color-border);
+  }
+
+  :is(.medium-description, .stream-instructions, .related-recordings) {
+    > :first-child {
+      margin-top: 0;
+    }
+
+    > :last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  /* == Title, author, and actions == */
+
+  .medium-header {
+    padding-top: var(--space-5);
+
     small {
       font-size: 14px;
     }
@@ -30,47 +60,46 @@
       float: left;
       width: 42px;
       height: 42px;
-      margin-right: 10px;
+      margin-right: var(--space-4);
+
+      a {
+        text-decoration: none;
+      }
 
       img {
         width: 100%;
         height: 100%;
-        border-radius: 3px;
+        border-radius: var(--border-radius-sm);
       }
     }
 
     h2 {
-      margin: -0.1rem 0 0 0;
+      margin: -0.15rem 0 0 0;
       font-size: 1.4rem;
       position: relative;
     }
 
     .actions {
-      .btn-group {
-        display: flex;
-        justify-content: flex-end;
-        gap: var(--space-3, 1rem);
-        flex-wrap: nowrap;
-      }
+      display: flex;
+      justify-content: flex-end;
+      align-items: flex-start;
+      gap: var(--space-3);
 
       @media (max-width: 575px) {
-        .btn-group {
-          flex-wrap: wrap;
-        }
+        flex-wrap: wrap;
       }
 
-      .btn-group > * {
+      > * {
         flex: 0 0 auto;
       }
     }
   }
 
-  /* == Meta details rows == */
+  /* == Structured metadata == */
 
-  section.meta {
-    pre {
-      background-color: #f7f7f7;
-    }
+  .medium-metadata {
+    margin-top: 1.4rem;
+    padding: var(--space-3) 0;
 
     .status-line-item {
       white-space: nowrap;
@@ -100,23 +129,18 @@
     .status-line {
       display: flex;
       flex-wrap: wrap;
-      column-gap: 2em;
-      row-gap: 1em;
-    }
-
-    .description {
-      h1, h2 {
-        margin-top: 2rem;
-        margin-bottom: 1rem;
-      }
+      gap: 1em 2em;
     }
   }
 
-  section.more-by {
-    padding-top: 0;
-  }
+  /* == Description == */
 
-  .heading:first-child {
-    margin-top: 3rem;
+  .medium-description {
+    padding: var(--space-6) 0;
+
+    h1, h2 {
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+    }
   }
 }

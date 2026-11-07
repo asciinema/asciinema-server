@@ -1,13 +1,13 @@
 <div class="container">
   <div class="form-container">
     <.form :let={f} for={@changeset} action={~p"/s/#{@changeset.data}"}>
-      <legend>Stream settings</legend>
+      <h2 class="form-heading">Stream settings</h2>
 
       <div class="form-field">
         <.label for={f[:visibility]}>
           Visibility
         </.label>
-        <div class="radios visibility-radios">
+        <div class="radios">
           <div class="form-option">
             <input
               type="radio"
@@ -84,9 +84,9 @@
         <div>
           <div class="schedule-input">
             <.input field={f[:schedule]} placeholder="none" autocomplete="off" />
-            <.link href="#" data-modal="schedule-modal">
+            <button type="button" class="btn btn-sm btn-quiet" data-modal="schedule-modal">
               <.info_outline_icon /> Syntax & examples
-            </.link>
+            </button>
           </div>
 
           {live_render(@conn, AsciinemaWeb.SchedulePreviewLive,
@@ -241,7 +241,7 @@
           Keystroke overlay
         </.label>
         <div class="form-option-offset">
-          <div class="form-option form-option-box">
+          <div class="form-option">
             <.input type="checkbox" field={f[:keystroke_overlay]} />
             <.label for={f[:keystroke_overlay]}>
               Show pressed keys during playback
@@ -276,7 +276,7 @@
       <div class="form-actions">
         <div class="form-actions-buttons">
           <.button type="submit" class="btn btn-primary">Save</.button>
-          <.link navigate={~p"/s/#{@changeset.data}"} class="btn">Cancel</.link>
+          <.link navigate={~p"/s/#{@changeset.data}"} class="btn btn-link">Cancel</.link>
         </div>
       </div>
     </.form>
