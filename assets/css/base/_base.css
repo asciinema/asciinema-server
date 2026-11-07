@@ -73,7 +73,7 @@ small {
 hr {
   margin: var(--space-4) 0;
   border: none;
-  border-top: 1px solid var(--color-border-subtle);
+  border-top: 1px solid var(--color-border);
 }
 
 h1, h2, h3 {

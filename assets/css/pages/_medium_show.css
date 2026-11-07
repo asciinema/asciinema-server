@@ -33,7 +33,7 @@
   .medium-description,
   .medium-description + .stream-instructions,
   .related-recordings {
-    border-top: 1px solid var(--color-border-subtle);
+    border-top: 1px solid var(--color-border);
   }
 
   :is(.medium-description, .stream-instructions, .related-recordings) {

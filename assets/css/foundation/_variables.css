@@ -34,7 +34,6 @@
 
   /* == Colors: borders == */
   --color-border: light-dark(#dddddd, #363b44);                /* default */
-  --color-border-subtle: light-dark(#eeeeee, #292d34);         /* hairline */
   --color-border-control: light-dark(#c4c4c4, #464c56);
   --color-card-ring: light-dark(transparent, rgba(255, 255, 255, 0.06));  /* card edge, dark only - drop shadows don't read there */
   --color-border-chrome: light-dark(#dddddd, transparent);             /* header/footer bar edge */

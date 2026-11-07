@@ -64,7 +64,7 @@
 .btn-secondary {
   color: var(--color-text-default);
   background-color: light-dark(var(--color-bg-secondary), var(--color-bg-overlay));
-  border-color: light-dark(var(--color-border), var(--color-border-subtle));
+  border-color: var(--color-border);
 }
 
 .btn-secondary:hover {
