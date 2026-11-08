@@ -9,8 +9,8 @@
   grid-template-columns: repeat(2, 1fr);
   column-gap: 1.75rem;
   /* Match the pagination spacing to the row gap. */
-  row-gap: 3.5rem;
-  margin: 2rem 0 3.5rem;
+  row-gap: var(--space-8);
+  margin: var(--space-8) 0;
 }
 
 .asciicast-list > div {

@@ -28,3 +28,11 @@
 .heading:first-child {
   margin-top: 0;
 }
+
+.heading:has(+ .asciicast-list) {
+  margin-bottom: var(--space-8);
+}
+
+.heading + .asciicast-list {
+  margin-top: 0;
+}
