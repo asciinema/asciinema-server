@@ -5,8 +5,14 @@
 /* == Cinema/player block == */
 
 .c-recording.a-show, .c-stream.a-show {
+  &:has(section.cinema) > header nav {
+    border-bottom: 0;
+  }
+
   section.cinema {
-    background-color: color-mix(in oklab, var(--term-color-background) 80%, black);
+    --cinema-bg: color-mix(in oklab, var(--term-color-background) 80%, black);
+    background-color: var(--cinema-bg);
+    border-block: 1px solid color-mix(in srgb, var(--cinema-bg) 92%, var(--term-color-foreground));
 
     .ap-player {
       border-radius: 0;

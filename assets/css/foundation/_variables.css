@@ -33,7 +33,7 @@
   /* == Colors: borders == */
   --color-border: light-dark(#dddddd, #363b45);                /* default */
   --color-border-control: light-dark(#c4c4c4, #474c56);
-  --color-border-chrome: light-dark(#dddddd, transparent);             /* header/footer bar edge */
+  --color-border-chrome: light-dark(#dddddd, #252930);                 /* header bar edge */
 
   /* == Colors: text == */
   --color-text-default: light-dark(#18181a, #dee0e4);   /* body text */
