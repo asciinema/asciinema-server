@@ -41,7 +41,11 @@
 
         <div class="asciicast-list">
           <div :for={asciicast <- @featured_asciicasts.items}>
-            <RecordingHTML.card asciicast={asciicast} show_created_at={false} />
+            <RecordingHTML.card
+              asciicast={asciicast}
+              show_created_at={false}
+              show_featured_badge={false}
+            />
           </div>
         </div>
       <% end %>
@@ -56,7 +60,11 @@
 
         <div class="asciicast-list">
           <div :for={asciicast <- @popular_asciicasts.items}>
-            <RecordingHTML.card asciicast={asciicast} show_created_at={false} />
+            <RecordingHTML.card
+              asciicast={asciicast}
+              show_created_at={false}
+              show_featured_badge={false}
+            />
           </div>
         </div>
       <% end %>
@@ -71,7 +79,7 @@
 
         <div class="asciicast-list">
           <div :for={asciicast <- @recent_asciicasts.items}>
-            <RecordingHTML.card asciicast={asciicast} />
+            <RecordingHTML.card asciicast={asciicast} show_featured_badge={false} />
           </div>
         </div>
       <% end %>

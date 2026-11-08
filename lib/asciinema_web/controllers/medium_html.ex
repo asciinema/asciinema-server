@@ -13,6 +13,7 @@ defmodule AsciinemaWeb.MediumHTML do
   attr :inserted_at, :any, default: nil
   slot :preview, required: true
   slot :duration
+  slot :schedule
   slot :badges
   def card(assigns)
 

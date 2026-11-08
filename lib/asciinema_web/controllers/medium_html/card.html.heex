@@ -17,8 +17,10 @@
   <div class="info">
     <h3>
       <.link href={@url}>{@title}</.link>
-      <span class="duration">{render_slot(@duration)}</span>
+      <span :if={@duration != []} class="duration">{render_slot(@duration)}</span>
     </h3>
+
+    <div :if={@schedule != []} class="schedule">{render_slot(@schedule)}</div>
 
     <span class="author-avatar">
       <.link href={@author_profile_url} title={@author_username}>

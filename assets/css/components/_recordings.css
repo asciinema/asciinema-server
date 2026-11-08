@@ -163,6 +163,13 @@ div.asciicast-card {
       }
     }
 
+    .schedule {
+      grid-column: 1 / -1;
+      font-family: var(--font-family-mono);
+      font-size: 0.75rem;
+      overflow-wrap: anywhere;
+    }
+
     small {
       display: flex;
       flex-wrap: wrap;

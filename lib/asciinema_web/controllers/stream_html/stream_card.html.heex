@@ -15,15 +15,15 @@
     <% end %>
   </:preview>
 
-  <:duration>
-    <%= case @status do %>
-      <% :live -> %>
-        <.live_icon />
-      <% {:waiting, _} -> %>
-        Scheduled for {format_start_time(@stream)}
-      <% :ended -> %>
-    <% end %>
+  <:duration :if={@status == :live}>
+    <.live_icon />
   </:duration>
+
+  <:schedule :if={match?({:waiting, _}, @status)}>
+    <time datetime={DateTime.to_iso8601(@stream.next_start_at)}>
+      Scheduled for {format_start_time(@stream)}
+    </time>
+  </:schedule>
 
   <:badges>
     <.visibility_badge :if={@show_visibility_badge} visibility={@stream.visibility} />
