@@ -25,6 +25,11 @@
   gap: var(--space-8);
 }
 
+.login-form + .text-danger,
+.username-form .text-danger {
+  margin-top: var(--space-2);
+}
+
 /* == Username picker == */
 
 .username-form {
@@ -34,6 +39,11 @@
 }
 
 /* == Page layout tweaks == */
+
+.c-login h1,
+.c-username h1 {
+  margin-bottom: var(--space-6);
+}
 
 .c-login {
   h2 {
