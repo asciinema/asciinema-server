@@ -112,8 +112,8 @@ defmodule AsciinemaWeb.CoreComponents do
     <div class={["code-with-copy", @class]}>
       <pre><code>{trim_code(render_slot(@inner_block))}</code></pre>
       <button type="button" class="copy-control" aria-label="Copy to clipboard">
-        <span class="copy-label" aria-hidden="true">[copy]</span>
-        <span class="copy-done" aria-hidden="true">[done]</span>
+        <span class="copy-label" aria-hidden="true"><AsciinemaWeb.Icons.copy_icon /></span>
+        <span class="copy-done" aria-hidden="true"><AsciinemaWeb.Icons.check_icon /></span>
       </button>
       <span class="copy-notice visually-hidden" role="status" aria-live="polite"></span>
     </div>

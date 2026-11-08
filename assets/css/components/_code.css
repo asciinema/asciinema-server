@@ -29,13 +29,19 @@
   border: 0;
   background: transparent;
   color: var(--color-text-muted);
-  font-family: var(--font-family-mono);
-  font-size: 0.75rem;
-  line-height: 1.5;
+  line-height: 1;
   cursor: pointer;
 
   > span {
+    display: flex;
     grid-area: 1 / 1;
+  }
+
+  svg {
+    display: block;
+    width: 1rem;
+    height: 1rem;
+    margin: 0;
   }
 }
 
