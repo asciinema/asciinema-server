@@ -10,16 +10,10 @@
 
     .recording-index-layout {
       display: grid;
-      grid-template-columns: auto minmax(0, 1fr);
+      grid-template-columns: minmax(0, 1fr);
       gap: var(--space-6);
       align-items: flex-start;
       margin: 2rem 0 1rem 0;
-    }
-
-    @media (max-width: 991px) {
-      .recording-index-layout {
-        grid-template-columns: 1fr;
-      }
     }
 
     .sidebar {

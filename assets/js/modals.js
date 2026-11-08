@@ -44,6 +44,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.querySelectorAll('dialog.modal').forEach(dialog => {
     dialog.addEventListener('click', (e) => {
+      if (e.target !== dialog) return;
+
       // Only close if clicking directly on the dialog (the backdrop area)
       // Not if clicking on dialog content
       const rect = dialog.getBoundingClientRect();

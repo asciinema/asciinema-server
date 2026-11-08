@@ -10,6 +10,8 @@
   margin: 4rem 0 2rem 0;
 
   h2 {
+    min-width: 0;
+    overflow-wrap: anywhere;
     flex-grow: 1;
     margin: 0;
 

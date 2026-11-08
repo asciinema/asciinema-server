@@ -1,22 +1,7 @@
 defmodule AsciinemaWeb.MediumHTML do
   use AsciinemaWeb, :html
 
-  alias Asciinema.{Colors, Themes}
-
   embed_templates "medium_html/*"
-
-  def card_colors(theme) do
-    yellow = Themes.ansi_yellow(theme)
-    muted = Colors.mix_oklab(theme.fg, theme.bg, 0.65)
-    badge_bg = Colors.mix_oklab(yellow, theme.bg, 0.22)
-
-    %{
-      foreground: Colors.ensure_contrast(theme.fg, theme.bg),
-      muted: Colors.ensure_contrast(muted, theme.bg),
-      badge_foreground: Colors.ensure_contrast(yellow, badge_bg),
-      badge_background: badge_bg
-    }
-  end
 
   attr :url, :string, required: true
   attr :title, :string, required: true

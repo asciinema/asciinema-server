@@ -9,7 +9,7 @@ footer {
   background-color: var(--color-bg-chrome);
   padding: 2rem 0;
   margin-top: 6rem;
-  border-top: 2px solid var(--color-border-chrome);
+  border-top: 1px solid var(--color-border);
 
   a {
     text-decoration: none;

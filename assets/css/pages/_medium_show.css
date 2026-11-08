@@ -6,10 +6,12 @@
 
 .c-recording.a-show, .c-stream.a-show {
   section.cinema {
-    background-color: color-mix(in oklab, var(--term-color-background) 80%, black);
+    background: var(--color-bg-secondary);
+    border-bottom: 1px solid var(--color-border);
 
     .ap-player {
-      box-shadow: color-mix(in oklab, var(--term-color-background) 50%, black) 0px 0px 60px 5px;
+      border-radius: 0;
+      box-shadow: none;
       border: 1px solid color-mix(in oklab,var(--term-color-background) 90%, var(--term-color-foreground));
     }
 
@@ -49,7 +51,7 @@
   /* == Title, author, and actions == */
 
   .medium-header {
-    padding-top: var(--space-5);
+    padding-top: var(--space-6);
 
     small {
       font-size: 14px;
@@ -75,7 +77,8 @@
 
     h2 {
       margin: -0.15rem 0 0 0;
-      font-size: 1.4rem;
+      font-size: 1.5rem;
+      overflow-wrap: anywhere;
       position: relative;
     }
 
@@ -84,6 +87,12 @@
       justify-content: flex-end;
       align-items: flex-start;
       gap: var(--space-3);
+
+      .btn {
+        font-family: var(--font-family-mono);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+      }
 
       @media (max-width: 575px) {
         flex-wrap: wrap;
@@ -100,9 +109,14 @@
   .medium-metadata {
     margin-top: 1.4rem;
     padding: var(--space-3) 0;
+    font-family: var(--font-family-mono);
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
 
     .status-line-item {
-      white-space: nowrap;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      min-width: 0;
 
       .icon {
         position: relative;

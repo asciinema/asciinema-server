@@ -2,7 +2,13 @@
  * User settings/edit/delete pages.
  * ========================================================================== */
 
-.c-user.a-edit {
+.c-user.a-edit, .c-user.a-update {
+  @media (min-width: 992px) {
+    .edit-page > div {
+      width: 75%;
+    }
+  }
+
   .user-form {
     form {
       margin-bottom: 3em;

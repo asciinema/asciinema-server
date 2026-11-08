@@ -1,11 +1,6 @@
-<% colors = card_colors(@theme) %>
 <div
   class="asciicast-card"
-  style={
-    "--term-color-foreground: #{@theme.fg}; --term-color-background: #{@theme.bg}; " <>
-      "--info-fg: #{colors.foreground}; --info-fg-muted: #{colors.muted}; " <>
-      "--info-badge-fg: #{colors.badge_foreground}; --info-badge-bg: #{colors.badge_background}"
-  }
+  style={"--term-color-foreground: #{@theme.fg}; --term-color-background: #{@theme.bg}"}
 >
   <.link href={@url} class="thumbnail-link">
     <div :if={!@no_play_overlay} class="play-button">
@@ -32,12 +27,13 @@
     </span>
 
     <small>
-      by <.link href={@author_profile_url}>{@author_username}</.link>
-      <%= if @inserted_at do %>
-        {time_ago_tag(@inserted_at)}
-      <% end %>
-
-      {render_slot(@badges)}
+      <span class="attribution">
+        by <.link href={@author_profile_url}>{@author_username}</.link>
+        <%= if @inserted_at do %>
+          {time_ago_tag(@inserted_at)}
+        <% end %>
+      </span>
+      <span class="card-badges">{render_slot(@badges)}</span>
     </small>
   </div>
 </div>

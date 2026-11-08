@@ -6,15 +6,6 @@
 
 .c-stream {
   &.a-index {
-    h2 {
-      margin: 2rem 0 3rem;
-    }
-
-    .create-stream {
-      float: right;
-      margin-right: 10px;
-    }
-
     .stream-list {
       .status-link,
       .status-link:hover {
@@ -43,7 +34,6 @@
         text-align: right;
 
         > * {
-          visibility: hidden;
           margin-left: 1em;
         }
       }
@@ -52,9 +42,6 @@
     tr:hover {
       background-color: var(--color-bg-contrast-subtle);
 
-      .action > * {
-        visibility: visible;
-      }
     }
   }
 }

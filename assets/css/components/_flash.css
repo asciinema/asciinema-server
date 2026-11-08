@@ -20,28 +20,28 @@ section.flash {
     gap: var(--space-3);
     padding-top: 10px;
     padding-bottom: 10px;
-    font-weight: bold;
+    font-weight: var(--font-weight-normal);
   }
 
   .flash-message {
     flex: 1;
-    text-align: center;
+    text-align: left;
   }
 
   &.notice {
-    color: var(--color-primary-contrast);
-    background-color: var(--color-success);
+    color: var(--color-success-text);
+    background-color: color-mix(in srgb, var(--color-success) 10%, var(--color-bg-primary));
   }
 
   &.alert {
-    color: black;
-    background-color: var(--color-warning);
+    color: var(--color-warning-text);
+    background-color: color-mix(in srgb, var(--color-warning) 10%, var(--color-bg-primary));
   }
 
   /* Reset default spacing and borders for flash section */
   margin-bottom: 0;
   padding: 0;
-  border: 0;
+  border-bottom: 1px solid currentColor;
   border-radius: 0;
 
   .flash-close {

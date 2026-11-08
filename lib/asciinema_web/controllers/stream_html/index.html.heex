@@ -1,10 +1,10 @@
 <div class="container">
-  <h2>
-    Your streams
+  <div class="heading">
+    <h2>Your streams</h2>
     <.link href={~p"/user/streams"} method="post" class="btn btn-primary create-stream">
       Create new stream
     </.link>
-  </h2>
+  </div>
 
   <div :if={@streams.total_entries == 0}>
     <p>
@@ -73,7 +73,7 @@
           <td>{@rec_count_by_stream_id[stream.id] || 0}</td>
           <td class="action">
             <details class="dropdown" style="display: inline-block">
-              <summary class="btn btn-sm btn-secondary">
+              <summary class="btn btn-sm btn-secondary" aria-label="Stream actions">
                 <.cog_8_tooth_mini_icon />
               </summary>
 
@@ -104,7 +104,6 @@
         </tr>
       </tbody>
     </table>
-
     <.pagination_links page={@streams} />
   </div>
 </div>

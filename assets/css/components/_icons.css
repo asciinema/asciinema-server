@@ -14,6 +14,11 @@ span.icon svg {
 
 /* == Status pills == */
 
+span.icon-live, span.icon-offline {
+  font-family: var(--font-family-mono);
+  font-size: 0.75rem;
+}
+
 span.icon-live {
   font-weight: bold;
   color: var(--color-live-contrast);

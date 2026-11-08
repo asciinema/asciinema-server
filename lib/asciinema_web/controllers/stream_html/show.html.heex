@@ -71,7 +71,7 @@
   </div>
 
   <%= if desc = render_markdown(@stream.description) do %>
-    <div class="medium-description">{desc}</div>
+    <div class="medium-description prose">{desc}</div>
   <% end %>
 
   <div :if={@user_is_self} class="stream-instructions">
@@ -121,12 +121,13 @@
     <%= if !@user_is_self && length(@other_asciicasts.items) > 0 do %>
       <div class="heading">
         <h2 :if={length(@stream_asciicasts.items) == 0}>
-          Recordings by <a href={author_profile_path(@stream)}>{author_username(@stream)}</a>
+          Recordings by
+          <a class="heading-value" href={author_profile_path(@stream)}>{author_username(@stream)}</a>
         </h2>
 
         <h2 :if={length(@stream_asciicasts.items) > 0}>
           Other recordings by
-          <a href={author_profile_path(@stream)}>{author_username(@stream)}</a>
+          <a class="heading-value" href={author_profile_path(@stream)}>{author_username(@stream)}</a>
         </h2>
 
         <a :if={@other_asciicasts.has_more} href={~p"/~#{@stream.user}/recordings"}>

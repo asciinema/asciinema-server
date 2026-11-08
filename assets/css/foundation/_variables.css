@@ -33,7 +33,6 @@
   /* == Colors: borders == */
   --color-border: light-dark(#dddddd, #363b45);                /* default */
   --color-border-control: light-dark(#c4c4c4, #474c56);
-  --color-card-ring: light-dark(transparent, rgba(255, 255, 255, 0.06));  /* card edge, dark only - drop shadows don't read there */
   --color-border-chrome: light-dark(#dddddd, transparent);             /* header/footer bar edge */
 
   /* == Colors: text == */
@@ -70,6 +69,7 @@
 
   /* -- Font families -- */
   --font-family-base: 'Fira Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-family-heading: 'National Park', 'Fira Sans', sans-serif;
   --font-family-mono: 'JetBrains Mono', 'Cascadia Code', Menlo, Consolas, 'DejaVu Sans Mono', monospace, 'Symbols Nerd Font';
 
   /* -- Font sizes -- */
@@ -94,13 +94,11 @@
   /* == Border radius & shadows == */
 
   /* -- Border radius -- */
-  --border-radius-sm: 3px;
-  --border-radius-md: 4px;
+  --border-radius-sm: 0;
+  --border-radius-md: 0;
 
   /* -- Box shadows -- */
   --box-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.15);
-  --box-shadow-card: 0 2px 4px light-dark(rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.3)),
-    0 6px 16px light-dark(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.3));
 
   /* == Transition timing == */
   --transition-fast: 75ms ease-in-out;

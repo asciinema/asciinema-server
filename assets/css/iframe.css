@@ -27,6 +27,11 @@ body.iframe {
     width: 100%;
   }
 
+  .ap-player {
+    border-radius: 0;
+    box-shadow: none;
+  }
+
   &.fit-both {
     display: flex;
     flex-direction: column;

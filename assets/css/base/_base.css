@@ -82,6 +82,28 @@ h1 {
   margin-top: 2rem;
 }
 
+h1, h2 {
+  font-family: var(--font-family-heading);
+  text-transform: uppercase;
+}
+
+.heading-value,
+.prose :is(h1, h2, h3),
+.medium-header h2,
+.profile-hero h1 {
+  font-family: var(--font-family-base);
+  text-transform: none;
+  overflow-wrap: anywhere;
+}
+
+.prose {
+  overflow-wrap: anywhere;
+
+  > :is(p, ul, ol, blockquote) {
+    max-width: 70ch;
+  }
+}
+
 h2 {
   font-size: var(--font-size-2xl);
   margin: 2em 0 1em 0;
@@ -94,6 +116,7 @@ h3 {
 /* == Inline code, code blocks, keyboard shortcuts == */
 
 code {
+  overflow-wrap: anywhere;
   background-color: var(--color-bg-code);
   border: 1px solid var(--color-border-contrast);
   padding: 2px 4px;
@@ -129,6 +152,7 @@ pre {
   padding: 9.5px;
   margin: 0 0 10px;
   font-size: 87.5%;
+  overflow-x: auto;
 }
 
 /* == Sections and hero rows == */
@@ -151,11 +175,13 @@ main {
 /* == Utility selectors == */
 
 .special-label {
+  font-family: var(--font-family-mono);
   font-size: 12px;
-  background-color: light-dark(#fff0c2, #3a3320);
-  color: light-dark(#665000, #e3c466);
+  text-transform: uppercase;
+  background-color: transparent;
+  color: var(--color-text-muted);
   margin-left: 6px;
-  padding: 2px 5px;
+  padding: 0;
   border-radius: var(--border-radius-md);
   vertical-align: middle;
   cursor: help;

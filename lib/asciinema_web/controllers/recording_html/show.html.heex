@@ -104,14 +104,16 @@
   </div>
 
   <%= if desc = render_markdown(@asciicast.description) do %>
-    <div class="medium-description">{desc}</div>
+    <div class="medium-description prose">{desc}</div>
   <% end %>
 
   <div :if={length(@other_asciicasts.items) > 0} class="related-recordings">
     <div class="heading">
       <h2>
         More recordings by
-        <a href={author_profile_path(@asciicast)}>{author_username(@asciicast)}</a>
+        <a class="heading-value" href={author_profile_path(@asciicast)}>{author_username(
+          @asciicast
+        )}</a>
       </h2>
       <a :if={@other_asciicasts.has_more} href={~p"/~#{@asciicast.user}/recordings"}>
         Browse all

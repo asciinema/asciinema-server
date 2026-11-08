@@ -417,45 +417,47 @@
           The following asciinema CLI installations have been authenticated with your account:
         </p>
 
-        <table class="table install-ids">
-          <thead>
-            <th>Installation ID</th>
-            <th>Registered</th>
-            <th></th>
-          </thead>
-          <tbody>
-            <tr :for={t <- active_clis(@clis)}>
-              <td>
-                <code>{t.token}</code>
-              </td>
-              <td>
-                {time_ago_tag(t.inserted_at)}
-              </td>
-              <td>
-                <.link
-                  href={~p"/clis/#{t}"}
-                  class="delete"
-                  method="delete"
-                  data-confirm="Are you sure? This will prevent future uploads from that system."
-                >
-                  Revoke
-                </.link>
-              </td>
-            </tr>
+        <div class="table-scroll" tabindex="0" role="region" aria-label="CLI installations">
+          <table class="table install-ids">
+            <thead>
+              <th>Installation ID</th>
+              <th>Registered</th>
+              <th></th>
+            </thead>
+            <tbody>
+              <tr :for={t <- active_clis(@clis)}>
+                <td>
+                  <code>{t.token}</code>
+                </td>
+                <td>
+                  {time_ago_tag(t.inserted_at)}
+                </td>
+                <td>
+                  <.link
+                    href={~p"/clis/#{t}"}
+                    class="delete"
+                    method="delete"
+                    data-confirm="Are you sure? This will prevent future uploads from that system."
+                  >
+                    Revoke
+                  </.link>
+                </td>
+              </tr>
 
-            <tr :for={t <- revoked_clis(@clis)} class="revoked">
-              <td>
-                <code>{t.token}</code>
-              </td>
-              <td>
-                {time_ago_tag(t.inserted_at)}
-              </td>
-              <td>
-                Revoked {time_ago_tag(t.revoked_at)}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+              <tr :for={t <- revoked_clis(@clis)} class="revoked">
+                <td>
+                  <code>{t.token}</code>
+                </td>
+                <td>
+                  {time_ago_tag(t.inserted_at)}
+                </td>
+                <td>
+                  Revoked {time_ago_tag(t.revoked_at)}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
         <p>
           The installation ID of your local system is stored in:

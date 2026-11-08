@@ -2,7 +2,6 @@
   <div class="grid-cols-2">
     <div>
       <h1><.user_circle_outline_icon /> Log in</h1>
-      <br />
 
       <.form
         :let={f}
@@ -10,7 +9,7 @@
         action={~p"/login"}
         class="login-form"
       >
-        <.label for={f[:email]} style="display: none">E-mail or username</.label>
+        <.label for={f[:email]} class="visually-hidden">E-mail or username</.label>
 
         <.input
           field={f[:email]}
@@ -31,11 +30,8 @@
       </.form>
 
       <%= if error = assigns[:error] do %>
-        <br />
         <p class="text-danger">{error}</p>
       <% end %>
-
-      <br /><br />
     </div>
 
     <div>
