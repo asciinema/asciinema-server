@@ -21,6 +21,21 @@ form textarea {
   border-radius: var(--border-radius-sm);
 }
 
+form input:is(
+  :not([type]),
+  [type="text"],
+  [type="email"],
+  [type="password"],
+  [type="search"],
+  [type="tel"],
+  [type="url"],
+  [type="number"]
+),
+form select,
+form textarea {
+  box-shadow: inset 2px 2px 0 var(--color-shadow-inset);
+}
+
 form input:not([type="checkbox"], [type="radio"]),
 form select {
   height: calc(1.5em + 0.75rem + 2px);

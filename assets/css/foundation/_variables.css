@@ -98,6 +98,7 @@
   --border-radius-md: 0;
 
   /* -- Box shadows -- */
+  --color-shadow-inset: light-dark(rgb(0 0 0 / 0.15), rgb(0 0 0 / 0.4));
   --box-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.15);
 
   /* == Transition timing == */
