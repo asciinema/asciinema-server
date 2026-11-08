@@ -49,13 +49,7 @@ defmodule Asciinema.Media do
   @doc "CSS palette for playback, including URL overrides and embedded-theme fallbacks."
   def player_theme(medium, override \\ nil)
 
-  def player_theme(medium, nil) do
-    if Map.get(medium, :term_theme_prefer_original) do
-      named_player_theme(medium, term_theme_name(medium))
-    else
-      theme(medium)
-    end
-  end
+  def player_theme(medium, nil), do: player_theme(medium, player_theme_name(medium))
 
   def player_theme(medium, "auto/" <> name), do: named_player_theme(medium, name)
 

@@ -251,9 +251,6 @@ defmodule Asciinema.Themes do
     Enum.map(0..7, &color(theme, &1))
   end
 
-  @doc "The theme's ANSI yellow (palette index 3)."
-  def ansi_yellow(theme), do: color(theme, 3)
-
   def display_name("original"), do: "Original terminal theme"
   def display_name(theme), do: Map.fetch!(@themes, theme).name
 
