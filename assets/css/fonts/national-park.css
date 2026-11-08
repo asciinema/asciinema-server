@@ -1,0 +1,8 @@
+/* National Park. Provenance and license: /fonts/NationalPark-README.md */
+@font-face {
+  font-family: 'National Park';
+  src: url('/fonts/NationalPark-Variable.ttf') format('truetype');
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
