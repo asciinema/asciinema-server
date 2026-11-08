@@ -30,7 +30,11 @@
 }
 
 .heading:has(+ .asciicast-list) {
-  margin-bottom: var(--space-8);
+  margin-bottom: 2.5rem;
+}
+
+.asciicast-list + .heading {
+  margin-top: 5rem;
 }
 
 .heading + .asciicast-list {

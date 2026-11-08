@@ -16,6 +16,7 @@ dialog.modal {
   /* Prevent content overflow */
   max-height: 90vh;
   overflow-y: auto;
+  overscroll-behavior-y: contain;
 }
 
 /* Large modal variant */
@@ -116,6 +117,10 @@ dialog.modal pre,
 .modal-body pre {
   margin-bottom: var(--space-4);
   text-wrap: auto;
+}
+
+.modal-body .code-with-copy pre {
+  margin-bottom: 0;
 }
 
 dialog.modal .modal-body h2:first-child {

@@ -1,7 +1,7 @@
 .code-with-copy {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  align-items: stretch;
+  align-items: start;
   border: 1px solid var(--color-border-control);
   background: var(--color-bg-code);
   margin-bottom: var(--space-4);
@@ -23,17 +23,15 @@
 .code-with-copy .copy-control {
   display: grid;
   place-items: center;
-  align-content: start;
-  min-width: 5rem;
+  min-width: 2.75rem;
   min-height: 2.75rem;
   padding: var(--space-3) var(--space-2);
   border: 0;
-  border-left: 1px solid var(--color-border-control);
   background: transparent;
-  color: var(--color-text-default);
+  color: var(--color-text-muted);
   font-family: var(--font-family-mono);
   font-size: 0.75rem;
-  text-transform: uppercase;
+  line-height: 1.5;
   cursor: pointer;
 
   > span {
@@ -41,10 +39,19 @@
   }
 }
 
-.code-with-copy .copy-control:hover {
-  background: var(--color-bg-hover);
+.code-with-copy .copy-control:hover,
+.code-with-copy .copy-control:focus-visible {
+  color: var(--color-text-default);
+}
+
+.code-with-copy .copy-done {
+  visibility: hidden;
 }
 
 .code-with-copy.copied .copy-label {
   visibility: hidden;
+}
+
+.code-with-copy.copied .copy-done {
+  visibility: visible;
 }
