@@ -6,12 +6,11 @@
 
 .c-recording.a-show, .c-stream.a-show {
   section.cinema {
-    background: var(--color-bg-secondary);
-    border-bottom: 1px solid var(--color-border);
+    background-color: color-mix(in oklab, var(--term-color-background) 80%, black);
 
     .ap-player {
       border-radius: 0;
-      box-shadow: none;
+      box-shadow: color-mix(in oklab, var(--term-color-background) 50%, black) 0px 0px 60px 5px;
       border: 1px solid color-mix(in oklab,var(--term-color-background) 90%, var(--term-color-foreground));
     }
 
