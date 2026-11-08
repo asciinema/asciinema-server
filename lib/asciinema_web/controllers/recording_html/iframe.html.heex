@@ -1,4 +1,6 @@
-<.theme_style theme={theme(@asciicast)} />
+<AsciinemaWeb.TerminalTheme.style theme={
+  Media.player_theme(@asciicast, Keyword.get(@player_opts, :theme))
+} />
 
 <div id="player"></div>
 

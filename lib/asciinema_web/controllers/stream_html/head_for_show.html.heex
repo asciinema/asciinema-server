@@ -10,4 +10,6 @@
   <meta name="referrer" content="origin" />
 <% end %>
 
-<.theme_style theme={theme(@stream)} />
+<AsciinemaWeb.TerminalTheme.style theme={
+  Media.player_theme(@stream, Keyword.get(@player_opts, :theme))
+} />

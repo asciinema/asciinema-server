@@ -263,7 +263,7 @@
             type="select"
             field={f[:term_theme_name]}
             options={theme_options()}
-            prompt="Default (asciinema)"
+            prompt={"Default (#{Asciinema.Themes.display_name(Asciinema.Themes.default_name())})"}
           />
           <small class="form-hint text-muted">
             Default theme for recordings that don't explicitly override it.

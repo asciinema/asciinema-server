@@ -70,9 +70,11 @@ defmodule AsciinemaWeb.RecordingSVG do
   end
 
   # Bump when SVG rendering output can change without recording data changes.
-  @svg_renderer_salt 8
+  @svg_renderer_salt 9
 
   def svg_cache_key(asciicast) do
+    theme = Media.theme(asciicast)
+
     key =
       if snapshot = asciicast.snapshot do
         Snapshot.seq(snapshot)
@@ -83,7 +85,9 @@ defmodule AsciinemaWeb.RecordingSVG do
         to_string(asciicast.term_bold_is_bright) <>
         "\u0000" <>
         to_string(asciicast.term_adaptive_palette) <>
-        "\u0000" <> Integer.to_string(@svg_renderer_salt)
+        "\u0000" <>
+        Integer.to_string(@svg_renderer_salt) <>
+        "\u0000" <> :erlang.term_to_binary({theme.fg, theme.bg, theme.palette})
 
     :crypto.hash(:sha256, key)
     |> binary_part(0, 12)

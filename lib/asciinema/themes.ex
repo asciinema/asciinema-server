@@ -7,7 +7,7 @@ defmodule Asciinema.Themes do
 
   @themes %{
     "asciinema" => %{
-      name: "asciinema",
+      name: "asciinema classic",
       fg: "#cccccc",
       bg: "#121314",
       palette: {
@@ -26,6 +26,52 @@ defmodule Asciinema.Themes do
         "#26b0d7",
         "#b954e1",
         "#54e1b9",
+        "#ffffff"
+      }
+    },
+    "asciinema-neo-dark" => %{
+      name: "asciinema neo dark",
+      fg: "#dee0e4",
+      bg: "#191c22",
+      palette: {
+        "#292e38",
+        "#da8282",
+        "#79af6d",
+        "#ba9a56",
+        "#7d9de3",
+        "#b38bd2",
+        "#5eadb1",
+        "#c4c8ce",
+        "#858d9b",
+        "#f69a9a",
+        "#91c985",
+        "#d3b36e",
+        "#95b6fe",
+        "#cda4ec",
+        "#78c7cb",
+        "#f4f4f5"
+      }
+    },
+    "asciinema-neo-light" => %{
+      name: "asciinema neo light",
+      fg: "#18181a",
+      bg: "#f7f7f7",
+      palette: {
+        "#24272e",
+        "#914043",
+        "#386c2d",
+        "#765809",
+        "#3f5b9b",
+        "#714a8c",
+        "#0e6b6f",
+        "#c4c8ce",
+        "#606970",
+        "#a35052",
+        "#487c3c",
+        "#866821",
+        "#4e6bad",
+        "#815a9d",
+        "#277b7f",
         "#ffffff"
       }
     },
@@ -192,10 +238,13 @@ defmodule Asciinema.Themes do
     }
   }
 
-  def terminal_themes, do: Map.keys(@themes)
+  def terminal_themes do
+    first = ["asciinema-neo-dark", "asciinema-neo-light", "asciinema"]
+    first ++ Enum.sort_by(Map.keys(@themes) -- first, &display_name/1)
+  end
 
   @doc "Name of the app-wide default theme, used when neither the medium nor its owner sets one."
-  def default_name, do: "asciinema"
+  def default_name, do: "asciinema-neo-dark"
 
   @doc "The theme's first eight ANSI colors, for compact palette previews."
   def preview_colors(theme) do
