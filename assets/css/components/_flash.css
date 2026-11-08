@@ -12,6 +12,7 @@ section.flash {
 
   &.hidden {
     max-height: 0px;
+    border-bottom-width: 0;
   }
 
   .container {
