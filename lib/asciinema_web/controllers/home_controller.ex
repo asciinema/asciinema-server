@@ -5,15 +5,6 @@ defmodule AsciinemaWeb.HomeController do
   alias Asciinema.Streaming.Query, as: StreamQuery
 
   def show(conn, _params) do
-    asciicast =
-      if id = Application.get_env(:asciinema, :home_asciicast_id) do
-        Recordings.get_asciicast(id, load_snapshot: true)
-      else
-        %RecordingQuery{scope: :public_listing}
-        |> Recordings.list(1)
-        |> List.first()
-      end
-
     live_streams = fetch_live_streams()
     featured_asciicasts = fetch_featured_asciicasts()
     popular_asciicasts = fetch_popular_asciicasts()
@@ -21,7 +12,6 @@ defmodule AsciinemaWeb.HomeController do
     render(
       conn,
       :show,
-      asciicast: asciicast,
       live_streams: live_streams,
       featured_asciicasts: featured_asciicasts,
       popular_asciicasts: popular_asciicasts

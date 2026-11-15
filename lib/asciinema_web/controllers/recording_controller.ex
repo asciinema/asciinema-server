@@ -489,7 +489,7 @@ defmodule AsciinemaWeb.RecordingController do
   def example(conn, _params) do
     conn
     |> put_layout("example.html")
-    |> render("example.html", home_asciicast: nil)
+    |> render("example.html")
   end
 
   defp attachment_filename(%Asciicast{version: version, id: id}, %{"dl" => _}) do

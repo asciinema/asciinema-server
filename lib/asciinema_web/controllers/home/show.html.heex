@@ -15,11 +15,11 @@
       <p class="hero-note">Free and open source.</p>
     </div>
 
-    <figure :if={@asciicast} class="home-demo">
+    <AsciinemaWeb.TerminalTheme.homepage />
+    <figure class="home-demo">
       <div class="demo-frame">
         <div class="demo-heading">
           <span>Try the player</span>
-          <a href={~p"/a/#{@asciicast}"}>About this demo</a>
         </div>
         <div class="player-wrapper" id="player"></div>
       </div>
@@ -196,17 +196,25 @@
   </div>
 </section>
 
-<script :if={@asciicast}>
+<script>
   window.addEventListener('load', async function() {
-    const opts = <%= safe_json(player_opts(@asciicast, [])) %>;
+    const preference = document.querySelector('meta[name="color-scheme"]').content;
+    const dark = preference === 'dark' ||
+      (preference !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
 
     await window.createPlayer(
-      <%= safe_json(player_src(@asciicast)) %>,
+      <%= safe_json(~p"/demo/homepage.cast") %>,
       document.getElementById('player'),
       {
-        ...opts,
+        cols: 72,
+        rows: 18,
+        theme: dark ? 'asciinema-neo-dark' : 'asciinema-neo-light',
         preload: true,
-        poster: opts.poster ?? 'npt:5',
+        poster: 'npt:28.449',
+        fit: 'width',
+        speed: 1,
+        boldIsBright: false,
+        adaptivePalette: false,
         logger: console
       }
     );
