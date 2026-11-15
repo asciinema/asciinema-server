@@ -4,6 +4,19 @@
 
 /* == Base table == */
 
+.table-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+
+  .table {
+    min-width: 36rem;
+  }
+
+  .dropdown-menu {
+    position: static;
+  }
+}
+
 .table {
   width: 100%;
   margin-bottom: var(--space-4);
@@ -28,4 +41,13 @@
 
 .table tbody + tbody {
   border-top: 2px solid var(--color-border);
+}
+
+.table th {
+  font-size: 0.875rem;
+  font-weight: var(--font-weight-semibold);
+}
+
+.table td {
+  font-variant-numeric: tabular-nums;
 }

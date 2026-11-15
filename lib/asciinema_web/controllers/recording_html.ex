@@ -7,6 +7,12 @@ defmodule AsciinemaWeb.RecordingHTML do
 
   embed_templates "recording_html/*"
 
+  attr :asciicast, :any, required: true
+  attr :show_created_at, :boolean, default: true
+  attr :show_visibility_badge, :boolean, default: false
+  attr :show_featured_badge, :boolean, default: true
+  def card(assigns)
+
   defdelegate author_username(asciicast), to: MediaView
   defdelegate author_avatar_url(asciicast), to: MediaView
   defdelegate author_profile_path(asciicast), to: MediaView

@@ -46,6 +46,32 @@ defmodule Asciinema.Media do
     end
   end
 
+  @doc "CSS palette for playback, including URL overrides and embedded-theme fallbacks."
+  def player_theme(medium, override \\ nil)
+
+  def player_theme(medium, nil) do
+    if Map.get(medium, :term_theme_prefer_original) do
+      named_player_theme(medium, term_theme_name(medium))
+    else
+      theme(medium)
+    end
+  end
+
+  def player_theme(medium, "auto/" <> name), do: named_player_theme(medium, name)
+
+  def player_theme(medium, "original"),
+    do: original_theme(medium) || named_player_theme(medium, "original")
+
+  def player_theme(medium, name), do: named_player_theme(medium, name)
+
+  defp named_player_theme(medium, "original") do
+    Themes.named_theme(Accounts.default_term_theme_name(medium.user))
+  end
+
+  defp named_player_theme(medium, name) do
+    if name in Themes.terminal_themes(), do: Themes.named_theme(name), else: theme(medium)
+  end
+
   def font_family(medium) do
     case medium.term_font_family || Accounts.default_font_family(medium.user) do
       "default" -> nil

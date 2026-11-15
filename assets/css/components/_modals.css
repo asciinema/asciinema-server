@@ -7,15 +7,16 @@
 dialog.modal {
   /* Reset dialog defaults */
   max-width: 600px;
-  width: 100%;
-  border: none;
+  width: calc(100% - 2rem);
+  border: 1px solid var(--color-border-control);
   border-radius: var(--border-radius-md);
   padding: 0;
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5);
+  box-shadow: var(--box-shadow-md);
 
   /* Prevent content overflow */
   max-height: 90vh;
   overflow-y: auto;
+  overscroll-behavior-y: contain;
 }
 
 /* Large modal variant */
@@ -26,7 +27,6 @@ dialog.modal-lg {
 /* Backdrop (background overlay) */
 dialog.modal::backdrop {
   background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(2px);
   /* Smooth backdrop fade */
   animation: backdrop-fade-in 0.2s ease-in-out;
 }
@@ -43,13 +43,11 @@ dialog.modal::backdrop {
 /* Smooth open/close animation */
 dialog.modal {
   opacity: 0;
-  transform: scale(0.95);
-  transition: opacity 0.15s ease-out, transform 0.15s ease-out;
+  transition: opacity 0.15s ease-out;
 }
 
 dialog.modal[open] {
   opacity: 1;
-  transform: scale(1);
 }
 
 /* == Modal structure classes == */
@@ -75,9 +73,11 @@ dialog.modal[open] {
 }
 
 .modal-title {
+  font-family: var(--font-family-heading);
+  text-transform: uppercase;
   margin: 0;
   font-size: var(--font-size-xl);
-  font-weight: 500;
+  font-weight: 400;
   line-height: 1.5;
 }
 
@@ -117,6 +117,10 @@ dialog.modal pre,
 .modal-body pre {
   margin-bottom: var(--space-4);
   text-wrap: auto;
+}
+
+.modal-body .code-with-copy pre {
+  margin-bottom: 0;
 }
 
 dialog.modal .modal-body h2:first-child {

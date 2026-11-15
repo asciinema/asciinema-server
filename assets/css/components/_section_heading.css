@@ -10,6 +10,8 @@
   margin: 4rem 0 2rem 0;
 
   h2 {
+    min-width: 0;
+    overflow-wrap: anywhere;
     flex-grow: 1;
     margin: 0;
 
@@ -24,5 +26,17 @@
 }
 
 .heading:first-child {
+  margin-top: 0;
+}
+
+.heading:has(+ .asciicast-list) {
+  margin-bottom: 2.5rem;
+}
+
+.asciicast-list + .heading {
+  margin-top: 5rem;
+}
+
+.heading + .asciicast-list {
   margin-top: 0;
 }

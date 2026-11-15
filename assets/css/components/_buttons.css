@@ -17,14 +17,22 @@
   border-radius: var(--border-radius-sm);
   transition: color var(--transition-fast),
               background-color var(--transition-fast),
-              border-color var(--transition-fast),
-              box-shadow var(--transition-fast);
+              border-color var(--transition-fast);
   cursor: pointer;
   text-decoration: none;
 }
 
 .btn:hover {
   text-decoration: none;
+}
+
+.btn:is(.btn-primary, .btn-secondary, .btn-danger) {
+  box-shadow: 2px 2px 0 var(--color-border-control);
+}
+
+.btn:is(.btn-primary, .btn-secondary, .btn-danger):not(:disabled, .disabled):active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
 }
 
 .btn-link,
@@ -45,6 +53,7 @@
 
 .btn:disabled,
 .btn.disabled {
+  box-shadow: none;
   opacity: 0.65;
   cursor: not-allowed;
 }

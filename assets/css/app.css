@@ -52,6 +52,7 @@
 /* == Self-hosted fonts == */
 
 @import "./fonts/fira-sans.css";
+@import "./fonts/national-park.css";
 @import "./fonts/fira-code.css";
 @import "./fonts/jetbrains-mono.css";
 @import "./fonts/symbols-nerd-font.css";

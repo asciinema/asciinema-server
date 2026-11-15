@@ -3,7 +3,7 @@
     <div class="container">
       <div class="header-row">
         <a class="brand" href={~p"/"}>
-          <img src={~p"/images/logo-red.svg"} />
+          <img src={~p"/images/logo-red.svg"} alt="asciinema" />
         </a>
 
         <!-- Accessible mobile navigation toggle button -->
@@ -69,8 +69,8 @@
           <li :if={@current_user} class="nav-item">
             <details class="dropdown">
               <summary class="nav-link">
-                <img class="avatar" src={avatar_url(@current_user)} />{@current_user.username ||
-                  @current_user.email}
+                <img class="avatar" src={avatar_url(@current_user)} alt="" />
+                <span class="account-name">{@current_user.username || @current_user.email}</span>
               </summary>
 
               <div class="dropdown-menu">

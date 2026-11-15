@@ -12,13 +12,17 @@
 
   .email-field {
     width: 250px;
-    margin-right: 10px;
+    max-width: 100%;
   }
 
   .hpf-wrapper {
     position: absolute;
     left: -9999px;
   }
+}
+
+.c-login .grid-cols-2 {
+  gap: var(--space-8);
 }
 
 /* == Username picker == */

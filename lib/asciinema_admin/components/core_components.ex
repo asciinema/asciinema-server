@@ -428,18 +428,10 @@ defmodule AsciinemaAdmin.CoreComponents do
   attr :medium, :any, required: true
 
   def term_theme_style(assigns) do
-    assigns = assign(assigns, :theme, Asciinema.Media.theme(assigns.medium))
+    assigns = assign(assigns, :theme, Asciinema.Media.player_theme(assigns.medium))
 
     ~H"""
-    <style>
-      .admin-player div.ap-player {
-        --term-color-foreground: <%= @theme.fg %>;
-        --term-color-background: <%= @theme.bg %>;
-        <%= for {c, i} <- Enum.with_index(Tuple.to_list(@theme.palette)) do %>
-        --term-color-<%= i %>: <%= c %>;
-        <% end %>
-      }
-    </style>
+    <AsciinemaWeb.TerminalTheme.style theme={@theme} selector=".admin-player div.ap-player" />
     """
   end
 

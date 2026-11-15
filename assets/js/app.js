@@ -49,23 +49,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Copy-to-clipboard handler for code blocks
   document.querySelectorAll(".code-with-copy").forEach(container => {
-    const link = container.querySelector("a");
+    const button = container.querySelector(".copy-control");
     const code = container.querySelector("code");
     const notice = container.querySelector(".copy-notice");
     let resetTimer;
 
-    if (!(link && code && notice)) return;
+    if (!(button && code && notice)) return;
 
-    link.addEventListener('click', (e) => {
-      e.preventDefault();
-
+    button.addEventListener('click', () => {
       copyText(code.innerText)
         .then(() => {
           container.classList.add("copied");
+          notice.textContent = "Copied";
 
           clearTimeout(resetTimer);
           resetTimer = setTimeout(() => {
             container.classList.remove("copied");
+            notice.textContent = "";
           }, 2000);
         })
         .catch((err) => {

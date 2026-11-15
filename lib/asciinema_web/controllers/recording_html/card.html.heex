@@ -5,7 +5,7 @@
   author_profile_url={author_profile_path(@asciicast)}
   author_username={author_username(@asciicast)}
   author_avatar_url={author_avatar_url(@asciicast)}
-  inserted_at={if !assigns[:no_created_at], do: @asciicast.inserted_at}
+  inserted_at={if @show_created_at, do: @asciicast.inserted_at}
 >
   <:preview>
     <object
@@ -22,7 +22,7 @@
   </:duration>
 
   <:badges>
-    <.visibility_badge :if={assigns[:show_visibility_badge]} visibility={@asciicast.visibility} />
-    <.featured_badge :if={@asciicast.featured} />
+    <.visibility_badge :if={@show_visibility_badge} visibility={@asciicast.visibility} />
+    <.featured_badge :if={@show_featured_badge && @asciicast.featured} />
   </:badges>
 </MediumHTML.card>
