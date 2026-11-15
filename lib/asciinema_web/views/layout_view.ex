@@ -1,5 +1,6 @@
 defmodule AsciinemaWeb.LayoutView do
   use AsciinemaWeb, :view
+  import AsciinemaWeb.Logos, only: [brightbox_logo: 1]
   import AsciinemaWeb.UserHTML, only: [avatar_url: 1]
 
   @shade_divider String.duplicate("▒░ ░▒  ░▒░  ▒░ ░  ", 20)

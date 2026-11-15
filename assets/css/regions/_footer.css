@@ -79,6 +79,11 @@ footer {
       display: inline-block;
       margin-top: 10px;
     }
+
+    svg {
+      display: block;
+      color: var(--color-text-hl);
+    }
   }
 }
 
