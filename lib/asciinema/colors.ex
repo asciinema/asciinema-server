@@ -1,7 +1,4 @@
 defmodule Asciinema.Colors do
-  @contrast_search_iterations 24
-  @minimum_contrast 4.5
-
   def mix(c1, c2, ratio) do
     {r1, g1, b1} = parse(c1)
     {r2, g2, b2} = parse(c2)
@@ -10,32 +7,6 @@ defmodule Asciinema.Colors do
     b = hex(floor(b1 * ratio + b2 * (1 - ratio)))
 
     "##{r}#{g}#{b}"
-  end
-
-  def mix_oklab(c1, c2, ratio) do
-    c1 = c1 |> parse() |> rgb_to_hex() |> hex_to_oklab()
-    c2 = c2 |> parse() |> rgb_to_hex() |> hex_to_oklab()
-
-    lerp_oklab(1 - ratio, c1, c2) |> oklab_to_hex()
-  end
-
-  def contrast_ratio(c1, c2) do
-    {l1, l2} = {relative_luminance(c1), relative_luminance(c2)}
-
-    (max(l1, l2) + 0.05) / (min(l1, l2) + 0.05)
-  end
-
-  def ensure_contrast(foreground, background) do
-    if contrast_ratio(foreground, background) >= @minimum_contrast do
-      foreground
-    else
-      foreground = foreground |> parse() |> rgb_to_hex()
-
-      ["#000000", "#ffffff"]
-      |> Enum.filter(&(contrast_ratio(&1, background) >= @minimum_contrast))
-      |> Enum.map(&nearest_passing_color(foreground, &1, background))
-      |> Enum.min_by(fn color -> oklab_distance(foreground, color) end)
-    end
   end
 
   def lerp_oklab(t, {l1, a1, b1}, {l2, a2, b2}) do
@@ -84,8 +55,6 @@ defmodule Asciinema.Colors do
   end
 
   def rgb_to_hex(r, g, b), do: "##{to_hex_byte(r)}#{to_hex_byte(g)}#{to_hex_byte(b)}"
-  def rgb_to_hex({r, g, b}), do: rgb_to_hex(r, g, b)
-  def rgb_to_hex([r, g, b]), do: rgb_to_hex(r, g, b)
 
   def hex(r, g, b), do: "##{hex(r)}#{hex(g)}#{hex(b)}"
   def hex({r, g, b}), do: hex(r, g, b)
@@ -108,42 +77,6 @@ defmodule Asciinema.Colors do
     |> String.split(",", parts: 3)
     |> Enum.map(&String.to_integer(String.trim(&1)))
     |> List.to_tuple()
-  end
-
-  defp nearest_passing_color(foreground, endpoint, background) do
-    foreground_lab = hex_to_oklab(foreground)
-    endpoint_lab = hex_to_oklab(endpoint)
-
-    {_low, _high, result} =
-      Enum.reduce(1..@contrast_search_iterations, {0.0, 1.0, endpoint}, fn _,
-                                                                           {low, high, result} ->
-        mid = (low + high) / 2
-        candidate = mid |> lerp_oklab(foreground_lab, endpoint_lab) |> oklab_to_hex()
-
-        # Check the serialized color: rounding can cross the contrast threshold.
-        if contrast_ratio(candidate, background) >= @minimum_contrast do
-          {low, mid, candidate}
-        else
-          {mid, high, result}
-        end
-      end)
-
-    result
-  end
-
-  defp oklab_distance(c1, c2) do
-    {l1, a1, b1} = hex_to_oklab(c1)
-    {l2, a2, b2} = hex_to_oklab(c2)
-
-    :math.sqrt(:math.pow(l2 - l1, 2) + :math.pow(a2 - a1, 2) + :math.pow(b2 - b1, 2))
-  end
-
-  defp relative_luminance(color) do
-    {r, g, b} = parse(color)
-
-    0.2126 * srgb_to_linear(r / 255) +
-      0.7152 * srgb_to_linear(g / 255) +
-      0.0722 * srgb_to_linear(b / 255)
   end
 
   defp fit_oklch_chroma(_l, _c, _h, 0, {low, high, best}), do: {low, high, best}
