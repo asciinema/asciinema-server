@@ -70,7 +70,7 @@ footer {
       list-style: none;
       margin: 0;
       padding: 0;
-      line-height: var(--line-height-relaxed);
+      line-height: 1.75;
     }
   }
 

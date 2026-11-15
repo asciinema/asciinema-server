@@ -350,7 +350,7 @@ header .session-info .dropdown-menu {
 
 /* == Search width scaling == */
 
-@media (min-width: 768px) {
+@media (min-width: 992px) {
   .search-form form {
     display: none;
   }
