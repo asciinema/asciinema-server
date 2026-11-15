@@ -4,9 +4,6 @@
 
 .c-page {
   main {
-    > .container {
-      max-width: 76ch;
-    }
     h1 {
       font-size: 2rem;
       margin: 4rem 0 2rem;
