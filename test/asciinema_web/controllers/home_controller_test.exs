@@ -5,7 +5,7 @@ defmodule AsciinemaWeb.HomeControllerTest do
     html = conn |> get(~p"/") |> html_response(200)
 
     assert html =~ "/demo/homepage.cast"
-    assert html =~ "npt:28.449"
+    assert html =~ "npt:34.477"
     assert html =~ "asciinema-neo-dark"
     assert html =~ "asciinema-neo-light"
     refute html =~ "About this demo"
