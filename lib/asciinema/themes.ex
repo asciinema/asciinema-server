@@ -7,7 +7,7 @@ defmodule Asciinema.Themes do
 
   @themes %{
     "asciinema" => %{
-      name: "asciinema classic",
+      name: "asciinema Classic",
       fg: "#cccccc",
       bg: "#121314",
       palette: {
@@ -30,7 +30,7 @@ defmodule Asciinema.Themes do
       }
     },
     "asciinema-neo-dark" => %{
-      name: "asciinema neo dark",
+      name: "asciinema Neo Dark",
       fg: "#cdd0d6",
       bg: "#191c22",
       palette: {
@@ -53,7 +53,7 @@ defmodule Asciinema.Themes do
       }
     },
     "asciinema-neo-light" => %{
-      name: "asciinema neo light",
+      name: "asciinema Neo Light",
       fg: "#34363c",
       bg: "#f7f7f7",
       palette: {

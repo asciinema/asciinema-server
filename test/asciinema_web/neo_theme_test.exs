@@ -7,11 +7,11 @@ defmodule AsciinemaWeb.NeoThemeTest do
 
   test "inherits Neo Dark, while explicit Classic and account preferences retain their meaning" do
     recording = build(:asciicast)
-    assert Media.theme(recording).name == "asciinema neo dark"
+    assert Media.theme(recording).name == "asciinema Neo Dark"
     account = %{recording.user | term_theme_name: "asciinema-neo-light"}
     assert Media.theme(%{recording | user: account}).bg == "#f7f7f7"
     classic = %{recording | user: account, term_theme_name: "asciinema"}
-    assert Media.theme(classic).name == "asciinema classic"
+    assert Media.theme(classic).name == "asciinema Classic"
     assert Media.theme(classic).bg == "#121314"
   end
 
