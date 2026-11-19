@@ -216,9 +216,5 @@ div.asciicast-card {
         text-transform: uppercase;
       }
     }
-
-    .icon-live {
-      border-radius: 0;
-    }
   }
 }
