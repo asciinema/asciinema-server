@@ -36,6 +36,7 @@ div.asciicast-card {
     position: relative;
     text-decoration: none;
     border: 1px solid color-mix(in oklab, var(--term-color-background) 90%, var(--term-color-foreground));
+    box-shadow: 0 2px 6px light-dark(rgb(0 0 0 / 0.12), rgb(0 0 0 / 0.24));
 
     .play-button {
       display: none;
