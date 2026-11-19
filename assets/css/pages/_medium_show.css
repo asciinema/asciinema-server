@@ -42,9 +42,13 @@
     padding-top: 3rem;
   }
 
+  .stream-instructions {
+    padding-bottom: 3rem;
+  }
+
   .medium-metadata,
   .medium-description,
-  .medium-description + .stream-instructions,
+  .stream-instructions,
   .related-recordings {
     border-top: 1px solid var(--color-border);
   }
