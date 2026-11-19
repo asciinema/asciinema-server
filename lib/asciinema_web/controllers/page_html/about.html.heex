@@ -1,53 +1,50 @@
 <div class="container">
-  <h2>About <span class="heading-value">{@server_name}</span></h2>
+  <h2>This server</h2>
 
   <p>
     <strong>{@server_name}</strong>
     is a platform for hosting and sharing
     terminal session recordings, powered by
     <%= if @server_version do %>
-      <a href="https://docs.asciinema.org/manual/server/">asciinema server</a>
+      <a href="https://github.com/asciinema/asciinema-server">asciinema server</a>
       ({@server_version}).
     <% else %>
-      <a href="https://docs.asciinema.org/manual/server/">asciinema server</a>.
+      <a href="https://github.com/asciinema/asciinema-server">asciinema server</a>.
     <% end %>
   </p>
 
   <%= if @contact_email_address do %>
-    <h2><span class="heading-value">{@server_name}</span> admin contact</h2>
+    <h2>Contact</h2>
 
     <p>
-      You can reach the administrator of this server at <strong><.obfuscated_email address={
-          @contact_email_address
-        } /></strong>.
-    </p>
-
-    <p>
-      Consider contacting the admin in the following cases:
+      You can reach this server's administrator at
+      <strong><.obfuscated_email address={@contact_email_address} /></strong>
+      for help with:
     </p>
 
     <ul>
       <li>account access problems,</li>
       <li>recording recovery,</li>
-      <li>content reporting,</li>
-      <li>security vulnerability, which may affect {@server_name} users.</li>
+      <li>reporting inappropriate content,</li>
+      <li>reporting security vulnerabilities.</li>
     </ul>
 
     <p>
-      For other topics, check asciinema's <a href="https://docs.asciinema.org/faq/">FAQ</a>, or reach out to the <a href="https://docs.asciinema.org/community/">asciinema community</a>.
+      For other questions, check the asciinema <a href="https://docs.asciinema.org/faq/">FAQ</a>
+      or reach out to the <a href="https://docs.asciinema.org/community/">asciinema community</a>.
     </p>
   <% end %>
 
-  <h2>About asciinema</h2>
+  <h2>The asciinema project</h2>
 
   <p>
     <strong>asciinema</strong> is a suite of tools
-    for recording, replaying, and sharing terminal sessions. It is free and open-source software (FOSS), created by <a href="https://hachyderm.io/@ku1ik">Marcin Kulik</a>.
+    for recording, replaying, and sharing terminal sessions. It is free and open-source software, created by <a href="https://hachyderm.io/@ku1ik">Marcin Kulik</a>.
   </p>
 
   <p>
-    To learn more about the project, check out the documentation at <a href="https://docs.asciinema.org">docs.asciinema.org</a>.
-    There you can find information on how asciinema works, how to engage with the community,
-    what integrations people have built around the project, how to self-host your own asciinema server, and last but not least, how to support the project.
+    Visit <a href="https://docs.asciinema.org">docs.asciinema.org</a>
+    to learn how asciinema works, explore integrations, or set up your own server.
+    You can also find ways to get involved in the community and support the project.
   </p>
 </div>
