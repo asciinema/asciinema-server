@@ -96,6 +96,7 @@
   /* -- Border radius -- */
   --border-radius-sm: 0;
   --border-radius-md: 0;
+  --border-radius-control: 2px;
 
   /* -- Box shadows -- */
   --color-shadow-inset: light-dark(rgb(0 0 0 / 0.15), rgb(0 0 0 / 0.4));

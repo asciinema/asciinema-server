@@ -14,7 +14,7 @@
   padding: 0.375rem 0.75rem;
   font-size: var(--font-size-md);
   line-height: 1.5;
-  border-radius: var(--border-radius-sm);
+  border-radius: var(--border-radius-control);
   transition: color var(--transition-fast),
               background-color var(--transition-fast),
               border-color var(--transition-fast);
@@ -122,5 +122,5 @@
   padding: 0.25rem 0.5rem;
   font-size: var(--font-size-base);
   line-height: 1.5;
-  border-radius: var(--border-radius-sm);
+  border-radius: var(--border-radius-control);
 }

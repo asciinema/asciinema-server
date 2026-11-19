@@ -9,7 +9,7 @@ dialog.modal {
   max-width: 600px;
   width: calc(100% - 2rem);
   border: 1px solid var(--color-border-control);
-  border-radius: var(--border-radius-md);
+  border-radius: 3px;
   padding: 0;
   box-shadow: var(--box-shadow-md);
 
@@ -59,7 +59,7 @@ dialog.modal[open] {
   width: 100%;
   background-color: var(--color-bg-overlay);
   background-clip: padding-box;
-  border-radius: var(--border-radius-md);
+  border-radius: 2px;
 }
 
 .modal-header {
@@ -68,8 +68,8 @@ dialog.modal[open] {
   justify-content: space-between;
   padding: var(--space-4);
   border-bottom: 1px solid var(--color-border);
-  border-top-left-radius: var(--border-radius-md);
-  border-top-right-radius: var(--border-radius-md);
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
 }
 
 .modal-title {
@@ -93,6 +93,7 @@ dialog.modal .modal-close,
 .modal-header button.modal-close {
   background: none;
   border: none;
+  border-radius: 0 2px 0 0;
   font-size: var(--font-size-2xl);
   line-height: 1;
   color: var(--color-text-muted);
