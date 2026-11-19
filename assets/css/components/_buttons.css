@@ -14,7 +14,7 @@
   padding: 0.375rem 0.75rem;
   font-size: var(--font-size-md);
   line-height: 1.5;
-  border-radius: var(--border-radius-sm);
+  border-radius: var(--border-radius-control);
   transition: color var(--transition-fast),
               background-color var(--transition-fast),
               border-color var(--transition-fast);
@@ -27,7 +27,11 @@
 }
 
 .btn:is(.btn-primary, .btn-secondary, .btn-danger) {
-  box-shadow: 2px 2px 0 var(--color-border-control);
+  box-shadow: 2px 2px 0 var(--color-shadow-button);
+}
+
+.btn:is(.btn-primary, .btn-danger) {
+  --color-shadow-button: var(--color-border-control);
 }
 
 .btn:is(.btn-primary, .btn-secondary, .btn-danger):not(:disabled, .disabled):active {
@@ -122,5 +126,5 @@
   padding: 0.25rem 0.5rem;
   font-size: var(--font-size-base);
   line-height: 1.5;
-  border-radius: var(--border-radius-sm);
+  border-radius: var(--border-radius-control);
 }

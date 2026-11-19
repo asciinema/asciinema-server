@@ -120,13 +120,14 @@ code {
   background-color: var(--color-bg-code);
   border: 1px solid var(--color-border-contrast);
   padding: 2px 4px;
-  border-radius: var(--border-radius-md);
+  border-radius: 2px;
   font-size: 87.5%;
 }
 
 pre code {
   background-color: transparent;
   border: none;
+  border-radius: 0;
   padding: 0;
   font-size: inherit;
 }
@@ -139,7 +140,7 @@ kbd {
   background-color: var(--color-bg-secondary);
   color: var(--color-text-default);
   border: 1px solid var(--color-border);
-  border-radius: var(--border-radius-md);
+  border-radius: 2px;
   padding: 0.1rem 0.2rem;
   margin-left: 0.1rem;
   margin-right: 0.1rem;
@@ -148,7 +149,7 @@ kbd {
 pre {
   background-color: var(--color-bg-code);
   border: 1px solid var(--color-border-contrast);
-  border-radius: var(--border-radius-sm);
+  border-radius: 2px;
   padding: 9.5px;
   margin: 0 0 10px;
   font-size: 87.5%;

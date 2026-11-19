@@ -21,7 +21,7 @@ defmodule Asciinema.MediaTest do
           term_theme_palette: nil
         )
 
-      assert Media.theme(stream).name == "asciinema neo dark"
+      assert Media.theme(stream).name == "asciinema Neo Dark"
     end
 
     test "prefers the captured palette over a named theme when so configured" do

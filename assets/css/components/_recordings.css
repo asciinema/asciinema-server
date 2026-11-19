@@ -35,7 +35,10 @@ div.asciicast-card {
     display: block;
     position: relative;
     text-decoration: none;
-    border: 1px solid var(--color-border);
+    border: 1px solid color-mix(in oklab, var(--term-color-background) 90%, var(--term-color-foreground));
+    border-radius: 3px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px light-dark(rgb(0 0 0 / 0.12), rgb(0 0 0 / 0.24));
 
     .play-button {
       display: none;
@@ -212,10 +215,6 @@ div.asciicast-card {
         font-size: 0.75rem;
         text-transform: uppercase;
       }
-    }
-
-    .icon-live {
-      border-radius: 0;
     }
   }
 }

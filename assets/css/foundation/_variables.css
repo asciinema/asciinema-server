@@ -96,8 +96,10 @@
   /* -- Border radius -- */
   --border-radius-sm: 0;
   --border-radius-md: 0;
+  --border-radius-control: 2px;
 
   /* -- Box shadows -- */
+  --color-shadow-button: light-dark(#c4c4c4, rgb(0 0 0 / 0.45));
   --color-shadow-inset: light-dark(rgb(0 0 0 / 0.15), rgb(0 0 0 / 0.4));
   --box-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.15);
 

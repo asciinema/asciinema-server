@@ -58,7 +58,7 @@
   background-color: var(--color-bg-overlay);
   background-clip: padding-box;
   border: 1px solid var(--color-border);
-  border-radius: var(--border-radius-md);
+  border-radius: var(--border-radius-control);
   box-shadow: var(--box-shadow-md);
   opacity: 0;
   transform: translateY(-10px);
@@ -82,6 +82,7 @@
   white-space: nowrap;
   background-color: transparent;
   border: 0;
+  border-radius: 0;
 }
 
 .dropdown-item:hover,

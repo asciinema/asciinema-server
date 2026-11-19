@@ -8,7 +8,7 @@
   display: flex;
   margin: var(--space-6) 0;
   gap: 0;
-  border-radius: var(--border-radius-sm);
+  border-radius: var(--border-radius-control);
 }
 
 /* == Page links & ellipsis == */
@@ -46,13 +46,13 @@
 /* == Border radius for first/last items == */
 
 .pagination > :first-child {
-  border-top-left-radius: var(--border-radius-sm);
-  border-bottom-left-radius: var(--border-radius-sm);
+  border-top-left-radius: var(--border-radius-control);
+  border-bottom-left-radius: var(--border-radius-control);
 }
 
 .pagination > :last-child {
-  border-top-right-radius: var(--border-radius-sm);
-  border-bottom-right-radius: var(--border-radius-sm);
+  border-top-right-radius: var(--border-radius-control);
+  border-bottom-right-radius: var(--border-radius-control);
 }
 
 /* == Active state == */

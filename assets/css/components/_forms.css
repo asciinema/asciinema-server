@@ -18,7 +18,7 @@ form textarea {
   background-color: var(--color-bg-secondary);
   background-clip: padding-box;
   border: 1px solid var(--color-border-control);
-  border-radius: var(--border-radius-sm);
+  border-radius: var(--border-radius-control);
 }
 
 form input:is(

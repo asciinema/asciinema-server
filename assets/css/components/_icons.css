@@ -17,6 +17,7 @@ span.icon svg {
 span.icon-live, span.icon-offline {
   font-family: var(--font-family-mono);
   font-size: 0.75rem;
+  border-radius: 2px;
 }
 
 span.icon-live {
@@ -24,7 +25,6 @@ span.icon-live {
   color: var(--color-live-contrast);
   background-color: var(--color-live);
   padding: 0.1em 0.3em;
-  border-radius: var(--border-radius-sm);
 }
 
 span.icon-offline {
@@ -33,5 +33,4 @@ span.icon-offline {
   background-color: transparent;
   border: 1px solid var(--color-border);
   padding: 0.1em 0.3em;
-  border-radius: var(--border-radius-sm);
 }
