@@ -491,6 +491,7 @@ defmodule Asciinema.Recordings do
   def stream(%Query{} = spec) do
     spec
     |> query()
+    |> Ecto.Queryable.to_query()
     |> stream()
   end
 

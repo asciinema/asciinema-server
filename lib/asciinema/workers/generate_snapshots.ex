@@ -7,10 +7,14 @@ defmodule Asciinema.Workers.GenerateSnapshots do
   alias Asciinema.Workers.UpdateSnapshot
 
   @impl Oban.Worker
-  def perform(_job) do
-    asciicasts =
-      %RecordingQuery{scope: :system, filters: [:snapshotless]}
-      |> Recordings.stream()
+  def perform(%Oban.Job{args: args}) do
+    query =
+      case args do
+        %{"all" => true} -> %RecordingQuery{scope: :system, archived: :include}
+        _ -> %RecordingQuery{scope: :system, filters: [:snapshotless]}
+      end
+
+    asciicasts = Recordings.stream(query)
 
     Enum.each(asciicasts, fn asciicast ->
       Oban.insert!(UpdateSnapshot.new(%{asciicast_id: asciicast.id}))
