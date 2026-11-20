@@ -16,9 +16,12 @@ mod atoms {
 type Rgb8 = (u8, u8, u8);
 type BgRun = (usize, usize, usize, Rgb8);
 type MosaicBlock = (usize, usize, u32, Rgb8);
+type CursorOverlay = (usize, usize, usize, Rgb8, Option<(u32, Rgb8)>);
 
 const CELL_X_RES: usize = 8;
 const CELL_Y_RES: usize = 24;
+const PADDING_X: usize = CELL_X_RES;
+const PADDING_Y: usize = CELL_Y_RES / 2;
 const MAX_TERM_COLS: usize = 720;
 const MAX_TERM_ROWS: usize = 200;
 const PNG_SIGNATURE: [u8; 8] = [137, 80, 78, 71, 13, 10, 26, 10];
@@ -31,13 +34,14 @@ fn render_png<'a>(
     default_bg: Rgb8,
     bg_runs: Vec<BgRun>,
     mosaic_blocks: Vec<MosaicBlock>,
+    cursor_overlay: Option<CursorOverlay>,
 ) -> NifResult<Binary<'a>> {
     if cols == 0 || rows == 0 || cols > MAX_TERM_COLS || rows > MAX_TERM_ROWS {
         return Err(Error::Term(Box::new(atoms::invalid_size())));
     }
 
-    let img_w = cols * CELL_X_RES;
-    let img_h = rows * CELL_Y_RES;
+    let img_w = cols * CELL_X_RES + 2 * PADDING_X;
+    let img_h = rows * CELL_Y_RES + 2 * PADDING_Y;
     let pixel_count = img_w * img_h;
     let rgb_len = pixel_count * 3;
     let mut pixels = vec![0u8; rgb_len];
@@ -55,13 +59,15 @@ fn render_png<'a>(
             continue;
         }
 
-        fill_rect(
+        fill_background_rect(
             &mut pixels,
             img_w,
-            start_x * CELL_X_RES,
-            y * CELL_Y_RES,
-            end_x * CELL_X_RES,
-            (y + 1) * CELL_Y_RES,
+            (
+                PADDING_X + start_x * CELL_X_RES,
+                PADDING_Y + y * CELL_Y_RES,
+                PADDING_X + end_x * CELL_X_RES,
+                PADDING_Y + (y + 1) * CELL_Y_RES,
+            ),
             color,
         );
     }
@@ -71,7 +77,36 @@ fn render_png<'a>(
             continue;
         }
 
-        draw_mosaic_block(&mut pixels, img_w, x, y, cp, color);
+        if cp == 0x2588 {
+            let x0 = PADDING_X + x * CELL_X_RES;
+            let y0 = PADDING_Y + y * CELL_Y_RES;
+
+            fill_background_rect(
+                &mut pixels,
+                img_w,
+                (x0, y0, x0 + CELL_X_RES, y0 + CELL_Y_RES),
+                color,
+            );
+        } else {
+            draw_mosaic_block(&mut pixels, img_w, x, y, cp, color);
+        }
+    }
+
+    // Cursor paint is a grid-only overlay on the original content and its padding.
+    if let Some((y, x, width, color, mosaic)) = cursor_overlay {
+        let end_x = x.saturating_add(width).min(cols);
+
+        if y < rows && x < end_x {
+            let x0 = PADDING_X + x * CELL_X_RES;
+            let x1 = PADDING_X + end_x * CELL_X_RES;
+            let y0 = PADDING_Y + y * CELL_Y_RES;
+            let y1 = y0 + CELL_Y_RES;
+
+            fill_rect(&mut pixels, img_w, x0, y0, x1, y1, color);
+            if let Some((cp, fg)) = mosaic {
+                draw_mosaic_block(&mut pixels, img_w, x, y, cp, fg);
+            }
+        }
     }
 
     let png = encode_png_rgb8(img_w, img_h, &pixels)?;
@@ -150,8 +185,8 @@ fn draw_mosaic_block(
     cp: u32,
     color: Rgb8,
 ) {
-    let base_x = cell_x * CELL_X_RES;
-    let base_y = cell_y * CELL_Y_RES;
+    let base_x = PADDING_X + cell_x * CELL_X_RES;
+    let base_y = PADDING_Y + cell_y * CELL_Y_RES;
     let origin = (base_x, base_y);
     let unit_x = CELL_X_RES / 8;
     let unit_y = CELL_Y_RES / 8;
@@ -492,6 +527,22 @@ fn fill_cell_sextants(
             color,
         );
     }
+}
+
+// Extend full-cell backgrounds touching the grid edges into the padding.
+fn fill_background_rect(
+    pixels: &mut [u8],
+    img_w: usize,
+    (x0, y0, x1, y1): (usize, usize, usize, usize),
+    color: Rgb8,
+) {
+    let img_h = pixels.len() / (img_w * 3);
+    let x0 = if x0 == PADDING_X { 0 } else { x0 };
+    let y0 = if y0 == PADDING_Y { 0 } else { y0 };
+    let x1 = if x1 == img_w - PADDING_X { img_w } else { x1 };
+    let y1 = if y1 == img_h - PADDING_Y { img_h } else { y1 };
+
+    fill_rect(pixels, img_w, x0, y0, x1, y1, color);
 }
 
 fn fill_rect(

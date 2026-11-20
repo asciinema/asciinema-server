@@ -8,6 +8,36 @@ defmodule AsciinemaWeb.RecordingSvgTest do
   alias AsciinemaWeb.RecordingSVG
 
   describe "full/1" do
+    test "extends underlying colors rather than cursor paint into padding" do
+      attrs = %{"fg" => "#abcdef", "bg" => "#123456"}
+
+      for {segments, padding, cursor_color} <- [
+            {[{"  ", attrs, 1}], {18, 52, 86}, {171, 205, 239}},
+            {[{"  ", Map.put(attrs, "inverse", true), 1}], {171, 205, 239}, {18, 52, 86}},
+            {[{"全", attrs, 2}], {18, 52, 86}, {171, 205, 239}},
+            {[{"██", attrs, 1}], {171, 205, 239}, {18, 52, 86}},
+            {[{"▀▀", attrs, 1}], {18, 52, 86}, {171, 205, 239}},
+            {[], {18, 19, 20}, {204, 204, 204}}
+          ] do
+        png =
+          build(:asciicast,
+            term_cols: 2,
+            term_rows: 1,
+            term_theme_name: "asciinema",
+            snapshot: Snapshot.from_segments([segments], {1, 0})
+          )
+          |> render_full()
+          |> decode_embedded_png()
+
+        # Bottom half also checks the background of the partial block.
+        assert grid_rgb_at(png, 8, 18) == cursor_color
+
+        for {x, y} <- [{0, 0}, {16, 0}, {31, 0}, {0, 24}, {31, 24}, {16, 47}, {31, 47}] do
+          assert rgb_at(png, x, y) == padding
+        end
+      end
+    end
+
     test "renders a pending-wrap cursor on the last visible cell" do
       {:ok, vt} = Asciinema.Vt.new(3, 1, 0)
       Asciinema.Vt.feed(vt, "abc")
@@ -136,8 +166,8 @@ defmodule AsciinemaWeb.RecordingSvgTest do
       svg = render_full(asciicast)
       png = decode_embedded_png(svg)
 
-      assert png.width == 24
-      assert png.height == 24
+      assert png.width == 40
+      assert png.height == 48
       assert rgb_at(png, 0, 0) == {17, 34, 51}
       assert rgb_at(png, 23, 23) == {17, 34, 51}
     end
@@ -195,8 +225,8 @@ defmodule AsciinemaWeb.RecordingSvgTest do
       svg = render_full(asciicast)
       png = decode_embedded_png(svg)
 
-      assert png.width == 16
-      assert png.height == 24
+      assert png.width == 32
+      assert png.height == 48
       refute svg =~ "▀"
       refute svg =~ "█"
       assert cell_contains_color?(png, 0, 0, {170, 85, 0})
@@ -214,8 +244,8 @@ defmodule AsciinemaWeb.RecordingSvgTest do
       svg = render_full(asciicast)
       png = decode_embedded_png(svg)
 
-      assert rgb_at(png, 7, 12) == {51, 102, 204}
-      assert rgb_at(png, 8, 12) == {51, 102, 204}
+      assert grid_rgb_at(png, 7, 12) == {51, 102, 204}
+      assert grid_rgb_at(png, 8, 12) == {51, 102, 204}
     end
 
     test "renders heavy box drawing vertical lines in mosaic layer" do
@@ -289,8 +319,8 @@ defmodule AsciinemaWeb.RecordingSvgTest do
       png = decode_embedded_png(svg)
 
       refute svg =~ sextant_ul
-      assert png.width == 8
-      assert png.height == 24
+      assert png.width == 24
+      assert png.height == 48
       assert cell_contains_color?(png, 0, 0, {0, 170, 238})
     end
 
@@ -432,8 +462,8 @@ defmodule AsciinemaWeb.RecordingSvgTest do
       svg = render_thumbnail(asciicast)
       png = decode_embedded_png(svg)
 
-      assert png.width == 80 * 8
-      assert png.height == 15 * 24
+      assert png.width == 82 * 8
+      assert png.height == 16 * 24
     end
 
     test "uses square corners" do
@@ -500,7 +530,7 @@ defmodule AsciinemaWeb.RecordingSvgTest do
     decode_png(Base.decode64!(encoded))
   end
 
-  defp rgb_at_cell(png, x, y), do: rgb_at(png, x * 8, y * 24)
+  defp rgb_at_cell(png, x, y), do: grid_rgb_at(png, x * 8, y * 24)
 
   defp logo_present(svg), do: svg =~ "small-triangle-mask"
 

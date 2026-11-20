@@ -27,19 +27,24 @@
     <% end %>
   </style>
 
-  <rect width="100%" height="100%" style={"fill: " <> @theme.bg} rx={@rx || 4} ry={@ry || 4} />
+  <% clip_id = "terminal-background-#{@cols}-#{@rows}-#{@rx || 4}-#{@ry || 4}" %>
+  <defs>
+    <clipPath id={clip_id}>
+      <rect width={w(@cols + 2)} height={h(@rows + 1)} rx={@rx || 4} ry={@ry || 4} />
+    </clipPath>
+  </defs>
+  <image
+    x="0"
+    y="0"
+    width={w(@cols + 2)}
+    height={h(@rows + 1)}
+    href={@image_href}
+    preserveAspectRatio="none"
+    clip-path={"url(##{clip_id})"}
+    style="image-rendering: pixelated; image-rendering: crisp-edges;"
+  />
 
   <svg x={x(1)} y={y(0.5)} class="default-text-fill">
-    <image
-      x="0"
-      y="0"
-      width={w(@cols)}
-      height={h(@rows)}
-      href={@image_href}
-      preserveAspectRatio="none"
-      style="image-rendering: pixelated; image-rendering: crisp-edges;"
-    />
-
     <%= for %{y: y, segments: segments} <- @coords.vector_symbols do %>
       <%= for %{x: x, text: char, attrs: attrs} <- segments do %>
         <.vector_symbol char={char} x={x} y={y} attrs={attrs} theme={@theme} />

@@ -70,7 +70,7 @@ defmodule AsciinemaWeb.RecordingSVG do
   end
 
   # Bump when SVG rendering output can change without recording data changes.
-  @svg_renderer_salt 11
+  @svg_renderer_salt 12
 
   def svg_cache_key(asciicast) do
     theme = Media.theme(asciicast)
@@ -148,7 +148,7 @@ defmodule AsciinemaWeb.RecordingSVG do
       rows: rows,
       coords: coords,
       theme: theme,
-      image_href: image_href(coords.bg, coords.mosaic_blocks, cols, rows, theme),
+      image_href: image_href(coords, cols, rows, theme),
       logo: logo_overlay(cols, rows)
     }
   end
@@ -164,7 +164,7 @@ defmodule AsciinemaWeb.RecordingSVG do
       rows: rows,
       coords: coords,
       theme: theme,
-      image_href: image_href(coords.bg, coords.mosaic_blocks, cols, rows, theme),
+      image_href: image_href(coords, cols, rows, theme),
       logo: nil
     }
   end
@@ -182,20 +182,26 @@ defmodule AsciinemaWeb.RecordingSVG do
         _ -> nil
       end
 
-    {{bg, text, mosaic_blocks, vector_symbols}, cursor_drawn?} =
+    {{bg, text, mosaic_blocks, vector_symbols}, cursor_overlay} =
       snapshot
       |> Enum.with_index()
-      |> Enum.reduce({{[], [], [], []}, false}, fn {line, y},
-                                                   {{bg, text, mosaic_blocks, vector_symbols},
-                                                    cursor_drawn?} ->
+      |> Enum.reduce({{[], [], [], []}, nil}, fn {line, y},
+                                                 {{bg, text, mosaic_blocks, vector_symbols},
+                                                  cursor_overlay} ->
         cursor_x =
           case cursor do
             {x, ^y} -> x
             _ -> nil
           end
 
-        {{line_bg, line_text, line_mosaic, line_vector}, line_cursor_drawn?} =
+        {{line_bg, line_text, line_mosaic, line_vector}, line_cursor_overlay} =
           line_coords(line, cursor_x, theme)
+
+        cursor_overlay =
+          case line_cursor_overlay do
+            {x, width, color, mosaic} -> {y, x, width, color, mosaic}
+            nil -> cursor_overlay
+          end
 
         {
           {
@@ -204,53 +210,61 @@ defmodule AsciinemaWeb.RecordingSVG do
             prepend_line(mosaic_blocks, y, Enum.reverse(line_mosaic)),
             prepend_line(vector_symbols, y, Enum.reverse(line_vector))
           },
-          cursor_drawn? or line_cursor_drawn?
+          cursor_overlay
         }
       end)
 
-    bg =
-      case {cursor, cursor_drawn?} do
-        {{x, y}, false} ->
-          prepend_line(bg, y, [%{x: x, width: 1, attrs: %{"bg" => theme.fg}}])
+    cursor_overlay =
+      case {cursor, cursor_overlay} do
+        {{x, y}, nil} ->
+          {y, x, 1, Colors.parse(theme.fg), nil}
 
         _ ->
-          bg
+          cursor_overlay
       end
 
     %{
       bg: Enum.reverse(bg),
       text: Enum.reverse(text),
       mosaic_blocks: Enum.reverse(mosaic_blocks),
-      vector_symbols: Enum.reverse(vector_symbols)
+      vector_symbols: Enum.reverse(vector_symbols),
+      cursor_overlay: cursor_overlay
     }
   end
 
   defp line_coords(line, cursor_x, theme) do
-    {state, pending, cursor_drawn?} =
+    {state, pending, cursor_overlay} =
       Enum.reduce(
         line,
-        {{[], [], [], []}, nil, false},
-        fn {x, cp, attrs, char_width}, {state, pending, cursor_drawn?} ->
+        {{[], [], [], []}, nil, nil},
+        fn {x, cp, attrs, char_width}, {state, pending, cursor_overlay} ->
           char = <<cp::utf8>>
           cursor_here? = is_integer(cursor_x) and cursor_x >= x and cursor_x < x + char_width
 
-          attrs =
+          {fg_attrs, cursor_overlay} =
             if cursor_here? do
-              Map.merge(attrs, %{
-                "fg" => bg_color(attrs, theme),
-                "bg" => fg_color(attrs, theme, true)
-              })
+              cursor_attrs =
+                Map.merge(attrs, %{
+                  "fg" => bg_color(attrs, theme),
+                  "bg" => fg_color(attrs, theme, true)
+                })
+
+              mosaic =
+                if mosaic_block?(char),
+                  do: {cp, mosaic_block_color_tuple(char, cursor_attrs, theme)}
+
+              {cursor_attrs, {x, char_width, bg_color_tuple(cursor_attrs, theme), mosaic}}
             else
-              attrs
+              {attrs, cursor_overlay}
             end
 
           {state, pending} =
             cond do
-              positioning_split?(cp, char_width) ->
+              cursor_here? or positioning_split?(cp, char_width) ->
                 state =
                   pending
                   |> flush_coords_segment(state)
-                  |> add_coords_segment(x, char, attrs, char_width)
+                  |> add_coords_segment(x, char, attrs, char_width, fg_attrs)
 
                 {state, nil}
 
@@ -264,11 +278,11 @@ defmodule AsciinemaWeb.RecordingSVG do
                 {flush_coords_segment(pending, state), {x, [char], attrs, char_width}}
             end
 
-          {state, pending, cursor_drawn? or cursor_here?}
+          {state, pending, cursor_overlay}
         end
       )
 
-    {flush_coords_segment(pending, state), cursor_drawn?}
+    {flush_coords_segment(pending, state), cursor_overlay}
   end
 
   defp same_segment?({_x, _chars, attrs, char_width}, attrs, char_width), do: true
@@ -289,7 +303,14 @@ defmodule AsciinemaWeb.RecordingSVG do
     |> IO.iodata_to_binary()
   end
 
-  defp add_coords_segment({bg, text, mosaics, vectors}, x, segment_text, attrs, char_width) do
+  defp add_coords_segment(
+         {bg, text, mosaics, vectors},
+         x,
+         segment_text,
+         attrs,
+         char_width,
+         fg_attrs \\ nil
+       ) do
     width = String.length(segment_text) * char_width
 
     bg =
@@ -298,8 +319,11 @@ defmodule AsciinemaWeb.RecordingSVG do
         _ -> [%{attrs: attrs, x: x, width: width} | bg]
       end
 
+    # Raster content stays cursor-free; its cursor styling is drawn by the overlay.
+    fg_attrs = if mosaic_block?(segment_text), do: attrs, else: fg_attrs || attrs
+
     {text, mosaics, vectors} =
-      emit_fg_segments(segment_text, attrs, char_width, x, {text, mosaics, vectors})
+      emit_fg_segments(segment_text, fg_attrs, char_width, x, {text, mosaics, vectors})
 
     {bg, text, mosaics, vectors}
   end
@@ -461,22 +485,23 @@ defmodule AsciinemaWeb.RecordingSVG do
 
   defp round_float(value), do: Float.round(value, 3)
 
-  defp image_href(bg_coords, mosaic_block_coords, cols, rows, theme) do
+  defp image_href(coords, cols, rows, theme) do
     default_bg = Colors.parse(theme.bg)
 
     bg_runs =
-      for %{y: y, segments: segments} <- bg_coords,
+      for %{y: y, segments: segments} <- coords.bg,
           %{x: x, width: width, attrs: attrs} <- segments do
         {y, x, width, bg_color_tuple(attrs, theme)}
       end
 
     mosaic_blocks =
-      for %{y: y, segments: segments} <- mosaic_block_coords,
+      for %{y: y, segments: segments} <- coords.mosaic_blocks,
           %{x: x, text: char, attrs: attrs} <- segments do
         {y, x, codepoint(char), mosaic_block_color_tuple(char, attrs, theme)}
       end
 
-    png = SvgRaster.render_png(cols, rows, default_bg, bg_runs, mosaic_blocks)
+    png =
+      SvgRaster.render_png(cols, rows, default_bg, bg_runs, mosaic_blocks, coords.cursor_overlay)
 
     "data:image/png;base64," <> Base.encode64(png)
   end
