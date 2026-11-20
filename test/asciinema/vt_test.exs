@@ -77,6 +77,26 @@ defmodule Asciinema.VtTest do
       assert {_, nil} = Vt.dump_screen(vt)
     end
 
+    test "captures pending-wrap cursors in the last visible column" do
+      for {cols, text} <- [{1, "a"}, {3, "abc"}, {3, "a全"}] do
+        {:ok, vt} = Vt.new(cols, 2, 0)
+        Vt.feed(vt, text)
+        {_, cursor} = Vt.dump_screen(vt)
+        assert cursor == {cols - 1, 0}
+
+        # Capturing a snapshot must not consume the terminal's pending wrap.
+        Vt.feed(vt, "x")
+        expected_cursor = {min(1, cols - 1), 1}
+        assert {_, ^expected_cursor} = Vt.dump_screen(vt)
+      end
+    end
+
+    test "keeps a pending-wrap cursor hidden when capturing" do
+      {:ok, vt} = Vt.new(3, 1, 0)
+      Vt.feed(vt, "abc\e[?25l")
+      assert {_, nil} = Vt.dump_screen(vt)
+    end
+
     test "supports unlimited, disabled, and bounded primary history" do
       for {limit, expected} <- [
             {nil, "first\nsecond\nthird\nfourth\n"},

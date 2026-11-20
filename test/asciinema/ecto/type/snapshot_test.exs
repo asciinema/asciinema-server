@@ -9,14 +9,15 @@ defmodule Asciinema.Ecto.Type.SnapshotTest do
   ]
 
   describe "cast/1" do
-    test "builds a snapshot and applies cursor inversion" do
+    test "builds a snapshot and preserves cursor separately" do
       assert {:ok, snapshot} = EctoSnapshot.cast({@segment_lines, {2, 0}})
+      assert snapshot.cursor == {2, 0}
 
       assert cells(snapshot) == [
                [
                  {"a", %{"fg" => 1}, 1},
                  {"b", %{"fg" => 1}, 1},
-                 {"全", %{"fg" => 1, "inverse" => true}, 2},
+                 {"全", %{"fg" => 1}, 2},
                  {"c", %{}, 1}
                ],
                [
@@ -29,6 +30,23 @@ defmodule Asciinema.Ecto.Type.SnapshotTest do
   end
 
   describe "load/1" do
+    test "loads legacy baked cursor styling without inventing coordinates" do
+      json = Jason.encode!([[["x", %{"inverse" => true}, 1]]])
+      assert {:ok, snapshot} = EctoSnapshot.load(json)
+      assert snapshot.cursor == nil
+      assert Snapshot.to_segments(snapshot) == [[["x", %{"inverse" => true}, 1]]]
+    end
+
+    test "round-trips visible and hidden cursor metadata with original styles" do
+      for cursor <- [nil, {3, 0}] do
+        snapshot = Snapshot.from_segments(@segment_lines, cursor)
+        assert {:ok, json} = EctoSnapshot.dump(snapshot)
+        assert {:ok, loaded} = EctoSnapshot.load(json)
+        assert loaded == snapshot
+        assert Jason.decode!(json)["cursor"] == if(cursor, do: Tuple.to_list(cursor))
+      end
+    end
+
     test "deserializes JSON into a snapshot with the expected cells" do
       json = Jason.encode!(@segment_lines)
 
@@ -53,7 +71,7 @@ defmodule Asciinema.Ecto.Type.SnapshotTest do
   describe "dump/1" do
     test "serializes a snapshot into grouped segments" do
       snapshot =
-        Snapshot.new([
+        Snapshot.from_segments([
           [
             {"a", %{"fg" => 1}, 1},
             {"b", %{"fg" => 1}, 1},
@@ -66,19 +84,22 @@ defmodule Asciinema.Ecto.Type.SnapshotTest do
 
       assert {:ok, json} = EctoSnapshot.dump(snapshot)
 
-      assert Jason.decode!(json) == [
-               [
-                 ["ab", %{"fg" => 1}, 1],
-                 ["全", %{"fg" => 1}, 2],
-                 ["c", %{"fg" => 1}, 1],
-                 ["de", %{"bg" => "#102030"}, 1]
+      assert Jason.decode!(json) == %{
+               "cursor" => nil,
+               "rows" => [
+                 [
+                   ["ab", %{"fg" => 1}, 1],
+                   ["全", %{"fg" => 1}, 2],
+                   ["c", %{"fg" => 1}, 1],
+                   ["de", %{"bg" => "#102030"}, 1]
+                 ]
                ]
-             ]
+             }
     end
 
     test "round-trips through dump and load" do
       snapshot =
-        Snapshot.new([
+        Snapshot.from_segments([
           [
             {"a", %{"fg" => 1}, 1},
             {"b", %{"fg" => 1}, 1},

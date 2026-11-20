@@ -454,7 +454,7 @@ defmodule Asciinema.RecordingsTest do
       result = Recordings.lookup_asciicast(id, load_snapshot: true)
       assert result.id == asciicast.id
       assert %Asciinema.Recordings.Snapshot{} = result.snapshot
-      assert length(result.snapshot.lines) == 1
+      assert length(result.snapshot.rows) == 1
     end
   end
 

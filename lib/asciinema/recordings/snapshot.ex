@@ -1,56 +1,38 @@
 defmodule Asciinema.Recordings.Snapshot do
-  @enforce_keys [:lines, :attrs]
-  defstruct [:lines, :attrs, widths: %{}]
+  @enforce_keys [:rows, :attrs]
+  defstruct [:rows, :attrs, widths: %{}, cursor: nil]
 
-  def new(lines) do
-    lines
-    |> Enum.map(fn line -> Enum.map(line, &normalize_segment/1) end)
-    |> build_dense_snapshot()
+  @doc "Builds dense rows from text/style/width segments, preserving the cursor separately."
+  def from_segments(rows, cursor \\ nil) do
+    {attrs, _attr_ids, _next_id, widths, rows} =
+      Enum.reduce(rows, {[], %{}, 0, %{}, []}, fn row, {attrs, attr_ids, next_id, widths, rows} ->
+        {attrs, attr_ids, next_id, widths, dense_row} =
+          build_dense_row(row, attrs, attr_ids, next_id, widths)
+
+        {attrs, attr_ids, next_id, widths, [dense_row | rows]}
+      end)
+
+    %__MODULE__{
+      rows: Enum.reverse(rows),
+      attrs: attrs |> Enum.reverse() |> List.to_tuple(),
+      widths: widths,
+      cursor: cursor
+    }
   end
-
-  def build({lines, {col, row}}) do
-    lines
-    |> invert_cell(col, row)
-    |> build_dense_snapshot()
-  end
-
-  def build({lines, nil}), do: build_dense_snapshot(lines)
 
   defp normalize_segment([t, a, w]), do: {t, a, w}
   defp normalize_segment([t, a]), do: {t, a, 1}
   defp normalize_segment({t, a, w}), do: {t, a, w}
+  defp normalize_segment({t, a}), do: {t, a, 1}
 
   def normalize_colors(%__MODULE__{} = snapshot, bold_is_bright, theme) do
-    {attrs, remap} =
+    attrs =
       snapshot.attrs
       |> Tuple.to_list()
-      |> Enum.reduce({[], %{}, [], 0}, fn attrs_map, {attrs, attr_ids, remap, next_id} ->
-        normalized_attrs = do_normalize_colors(attrs_map, bold_is_bright, theme)
+      |> Enum.map(&do_normalize_colors(&1, bold_is_bright, theme))
+      |> List.to_tuple()
 
-        case Map.fetch(attr_ids, normalized_attrs) do
-          {:ok, id} ->
-            {attrs, attr_ids, [id | remap], next_id}
-
-          :error ->
-            {[normalized_attrs | attrs], Map.put(attr_ids, normalized_attrs, next_id),
-             [next_id | remap], next_id + 1}
-        end
-      end)
-      |> then(fn {attrs, _attr_ids, remap, _next_id} ->
-        {attrs |> Enum.reverse() |> List.to_tuple(), remap |> Enum.reverse() |> List.to_tuple()}
-      end)
-
-    lines =
-      Enum.map(snapshot.lines, fn {codepoints, attr_ids} ->
-        remapped_attr_ids =
-          for <<attr_id::16 <- attr_ids>>, into: <<>> do
-            <<elem(remap, attr_id)::16>>
-          end
-
-        {codepoints, remapped_attr_ids}
-      end)
-
-    %__MODULE__{snapshot | lines: lines, attrs: attrs}
+    %__MODULE__{snapshot | attrs: attrs}
   end
 
   defp do_normalize_colors(attrs, true, theme) do
@@ -79,31 +61,14 @@ defmodule Asciinema.Recordings.Snapshot do
 
   defp invert_colors(attrs, _theme), do: attrs
 
-  defp build_dense_snapshot(cell_lines) do
-    {attrs, _attr_ids, _next_id, widths, lines} =
-      Enum.reduce(cell_lines, {[], %{}, 0, %{}, []}, fn line,
-                                                        {attrs, attr_ids, next_id, widths, lines} ->
-        {attrs, attr_ids, next_id, widths, dense_line} =
-          build_dense_line(line, attrs, attr_ids, next_id, widths)
-
-        {attrs, attr_ids, next_id, widths, [dense_line | lines]}
-      end)
-
-    %__MODULE__{
-      lines: Enum.reverse(lines),
-      attrs: attrs |> Enum.reverse() |> List.to_tuple(),
-      widths: widths
-    }
-  end
-
-  defp build_dense_line(line, attrs, attr_ids, next_id, widths) do
-    {attrs, attr_ids, next_id, widths, codepoints, line_attr_ids} =
+  defp build_dense_row(row, attrs, attr_ids, next_id, widths) do
+    {attrs, attr_ids, next_id, widths, codepoints, row_attr_ids} =
       Enum.reduce(
-        line,
+        row,
         {attrs, attr_ids, next_id, widths, [], []},
-        fn {text, attrs_map, char_width},
-           {attrs, attr_ids, next_id, widths, codepoints, line_attr_ids} ->
-          codepoint = codepoint(text)
+        fn segment, {attrs, attr_ids, next_id, widths, codepoints, row_attr_ids} ->
+          {text, attrs_map, char_width} = normalize_segment(segment)
+          encoded = for <<cp::utf8 <- text>>, into: <<>>, do: <<cp::32>>
 
           {attr_id, attrs, attr_ids, next_id} =
             case Map.fetch(attr_ids, attrs_map) do
@@ -118,36 +83,63 @@ defmodule Asciinema.Recordings.Snapshot do
             if char_width == 1 do
               widths
             else
-              Map.put(widths, codepoint, char_width)
+              for <<cp::32 <- encoded>>, reduce: widths do
+                widths -> Map.put(widths, cp, char_width)
+              end
             end
 
-          {attrs, attr_ids, next_id, widths, [<<codepoint::32>> | codepoints],
-           [<<attr_id::16>> | line_attr_ids]}
+          ids = :binary.copy(<<attr_id::16>>, div(byte_size(encoded), 4))
+
+          {attrs, attr_ids, next_id, widths, [encoded | codepoints], [ids | row_attr_ids]}
         end
       )
 
-    dense_line =
+    dense_row =
       {codepoints |> Enum.reverse() |> IO.iodata_to_binary(),
-       line_attr_ids |> Enum.reverse() |> IO.iodata_to_binary()}
+       row_attr_ids |> Enum.reverse() |> IO.iodata_to_binary()}
 
-    {attrs, attr_ids, next_id, widths, dense_line}
+    {attrs, attr_ids, next_id, widths, dense_row}
   end
+
+  def to_segments(snapshot), do: Enum.map(snapshot, &row_segments/1)
+
+  defp row_segments(row) do
+    {segments, pending} =
+      Enum.reduce(row, {[], nil}, fn {_x, cp, attrs, width}, {segments, pending} ->
+        char = <<cp::utf8>>
+
+        case pending do
+          nil -> {segments, {[char], attrs, width}}
+          {chars, ^attrs, ^width} -> {segments, {[char | chars], attrs, width}}
+          previous -> {[segment(previous) | segments], {[char], attrs, width}}
+        end
+      end)
+
+    segments = if pending, do: [segment(pending) | segments], else: segments
+    Enum.reverse(segments)
+  end
+
+  defp segment({chars, attrs, width}), do: [chars_to_text(chars), attrs, width]
 
   @csi_init "\x1b["
   @sgr_reset "\x1b[0m"
 
-  def seq(snapshot) do
+  @doc "Emits terminal content followed by cursor position and visibility."
+  def to_ansi(snapshot) do
     seq =
       snapshot
-      |> Enum.map_join("\r\n", &line_seq/1)
+      |> Enum.map_join("\r\n", &row_ansi/1)
       |> String.trim_trailing("\r\n")
 
-    seq <> @csi_init <> "?25l"
+    case snapshot.cursor do
+      nil -> seq <> @csi_init <> "?25l"
+      {col, row} -> seq <> "#{@csi_init}#{row + 1};#{col + 1}H#{@csi_init}?25h"
+    end
   end
 
-  defp line_seq(line) do
+  defp row_ansi(row) do
     {segments, pending} =
-      Enum.reduce(line, {[], nil}, fn {_x, cp, cell_attrs, _width}, {segments, pending} ->
+      Enum.reduce(row, {[], nil}, fn {_x, cp, cell_attrs, _width}, {segments, pending} ->
         char = <<cp::utf8>>
 
         case pending do
@@ -237,38 +229,70 @@ defmodule Asciinema.Recordings.Snapshot do
     |> Enum.join(";")
   end
 
-  def crop(%__MODULE__{} = snapshot, width, height) do
-    lines =
-      snapshot
-      |> Map.get(:lines)
-      |> Enum.map(&crop_line(&1, width))
-      |> Enum.reverse()
-      |> Enum.drop_while(&blank_line?(&1, snapshot.attrs))
-      |> Enum.reverse()
-      |> fill_to_height(height)
-      |> Enum.reverse()
-      |> Enum.take(height)
-      |> Enum.reverse()
+  @doc "Clips to display columns, trims blank trailing rows, and keeps the bottom viewport."
+  def crop_for_thumbnail(%__MODULE__{} = snapshot, width, height)
+      when width > 0 and height > 0 do
+    cursor =
+      case snapshot.cursor do
+        {x, y} when x >= 0 and x < width and y >= 0 ->
+          if y < length(snapshot.rows), do: {x, y}
 
-    %__MODULE__{snapshot | lines: lines}
+        _ ->
+          nil
+      end
+
+    rows =
+      snapshot.rows
+      |> Enum.map(&crop_row(&1, width, snapshot.widths))
+      |> Enum.with_index()
+      |> Enum.reverse()
+      |> Enum.drop_while(fn {row, y} ->
+        not match?({_, ^y}, cursor) and blank_row?(row, snapshot.attrs)
+      end)
+      |> Enum.reverse()
+      |> Enum.map(&elem(&1, 0))
+
+    offset = max(length(rows) - height, 0)
+    rows = Enum.drop(rows, offset)
+    rows = rows ++ List.duplicate({<<>>, <<>>}, height - length(rows))
+
+    cursor =
+      case cursor do
+        {x, y} when y >= offset -> {x, y - offset}
+        _ -> nil
+      end
+
+    %__MODULE__{snapshot | rows: rows, cursor: cursor}
   end
 
-  defp crop_line({codepoints, attr_ids}, width) do
-    width = min(width, div(byte_size(codepoints), 4))
+  defp crop_row({codepoints, ids}, width, widths) do
+    {count, remaining} = fitting_cells(codepoints, width, widths, 0)
+    prefix = binary_part(codepoints, 0, count * 4)
+    attr_ids = binary_part(ids, 0, count * 2)
 
-    {
-      binary_part(codepoints, 0, width * 4),
-      binary_part(attr_ids, 0, width * 2)
-    }
+    # A wide character cut by the viewport becomes spaces with its background.
+    if remaining > 0 and count * 4 < byte_size(codepoints) do
+      id = binary_part(ids, count * 2, 2)
+      {prefix <> :binary.copy(<<32::32>>, remaining), attr_ids <> :binary.copy(id, remaining)}
+    else
+      {prefix, attr_ids}
+    end
   end
 
-  defp blank_line?({codepoints, attr_ids}, attrs) do
-    blank_line?(codepoints, attr_ids, attrs)
+  defp fitting_cells(<<cp::32, rest::binary>>, remaining, widths, count) do
+    width = Map.get(widths, cp, 1)
+
+    if width <= remaining,
+      do: fitting_cells(rest, remaining - width, widths, count + 1),
+      else: {count, remaining}
   end
 
-  defp blank_line?(<<>>, <<>>, _attrs), do: true
+  defp fitting_cells(<<>>, remaining, _widths, count), do: {count, remaining}
 
-  defp blank_line?(
+  defp blank_row?({codepoints, attr_ids}, attrs), do: blank_row?(codepoints, attr_ids, attrs)
+  defp blank_row?(<<>>, <<>>, _attrs), do: true
+
+  defp blank_row?(
          <<cp::32, codepoints::binary>>,
          <<attr_id::16, attr_ids::binary>>,
          attrs
@@ -277,53 +301,7 @@ defmodule Asciinema.Recordings.Snapshot do
 
     cp == 0x20 &&
       cell_attrs["bg"] == nil &&
-      blank_line?(codepoints, attr_ids, attrs)
+      cell_attrs["inverse"] != true &&
+      blank_row?(codepoints, attr_ids, attrs)
   end
-
-  defp fill_to_height(lines, height) do
-    if height - Enum.count(lines) > 0 do
-      enums = [lines, Stream.cycle([empty_line()])]
-
-      enums
-      |> Stream.concat()
-      |> Enum.take(height)
-    else
-      lines
-    end
-  end
-
-  defp empty_line, do: {<<>>, <<>>}
-
-  defp invert_cell(lines, col, row) do
-    List.update_at(lines, row, fn line ->
-      case cell_index_at_col(line, col) do
-        nil ->
-          line
-
-        index ->
-          List.update_at(line, index, fn {text, attrs, char_width} ->
-            attrs = Map.put(attrs, "inverse", !(attrs["inverse"] || false))
-            {text, attrs, char_width}
-          end)
-      end
-    end)
-  end
-
-  defp cell_index_at_col(line, col) when is_integer(col) and col >= 0 do
-    do_cell_index_at_col(line, col, 0, 0)
-  end
-
-  defp cell_index_at_col(_line, _col), do: nil
-
-  defp do_cell_index_at_col([], _col, _offset, _index), do: nil
-
-  defp do_cell_index_at_col([{_, _, char_width} | rest], col, offset, index) do
-    if col < offset + char_width do
-      index
-    else
-      do_cell_index_at_col(rest, col, offset + char_width, index + 1)
-    end
-  end
-
-  defp codepoint(<<cp::utf8>>), do: cp
 end

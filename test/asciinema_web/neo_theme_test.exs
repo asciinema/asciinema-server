@@ -67,7 +67,7 @@ defmodule AsciinemaWeb.NeoThemeTest do
   end
 
   test "image keys follow effective colours, including inherited account changes" do
-    recording = build(:asciicast, snapshot: Asciinema.Recordings.Snapshot.new([]))
+    recording = build(:asciicast, snapshot: Asciinema.Recordings.Snapshot.from_segments([]))
     light = %{recording | user: %{recording.user | term_theme_name: "asciinema-neo-light"}}
 
     for key <- [&RecordingSVG.svg_cache_key/1, &PngGenerator.png_cache_key/1] do

@@ -70,14 +70,14 @@ defmodule AsciinemaWeb.RecordingSVG do
   end
 
   # Bump when SVG rendering output can change without recording data changes.
-  @svg_renderer_salt 9
+  @svg_renderer_salt 11
 
   def svg_cache_key(asciicast) do
     theme = Media.theme(asciicast)
 
     key =
       if snapshot = asciicast.snapshot do
-        Snapshot.seq(snapshot)
+        Snapshot.to_ansi(snapshot)
       else
         to_string(asciicast.updated_at)
       end <>
@@ -172,23 +172,50 @@ defmodule AsciinemaWeb.RecordingSVG do
   defp coords(asciicast, crop_size, theme) do
     asciicast
     |> snapshot(crop_size, theme)
-    |> coords_from_snapshot()
+    |> coords_from_snapshot(theme, crop_size || {term_cols(asciicast), term_rows(asciicast)})
   end
 
-  defp coords_from_snapshot(snapshot) do
-    {bg, text, mosaic_blocks, vector_symbols} =
+  defp coords_from_snapshot(snapshot, theme, {cols, rows}) do
+    cursor =
+      case snapshot.cursor do
+        {x, y} when x >= 0 and x < cols and y >= 0 and y < rows -> {x, y}
+        _ -> nil
+      end
+
+    {{bg, text, mosaic_blocks, vector_symbols}, cursor_drawn?} =
       snapshot
       |> Enum.with_index()
-      |> Enum.reduce({[], [], [], []}, fn {line, y}, {bg, text, mosaic_blocks, vector_symbols} ->
-        {line_bg, line_text, line_mosaic, line_vector} = line_coords(line)
+      |> Enum.reduce({{[], [], [], []}, false}, fn {line, y},
+                                                   {{bg, text, mosaic_blocks, vector_symbols},
+                                                    cursor_drawn?} ->
+        cursor_x =
+          case cursor do
+            {x, ^y} -> x
+            _ -> nil
+          end
+
+        {{line_bg, line_text, line_mosaic, line_vector}, line_cursor_drawn?} =
+          line_coords(line, cursor_x, theme)
 
         {
-          prepend_line(bg, y, Enum.reverse(line_bg)),
-          prepend_line(text, y, Enum.reverse(line_text)),
-          prepend_line(mosaic_blocks, y, Enum.reverse(line_mosaic)),
-          prepend_line(vector_symbols, y, Enum.reverse(line_vector))
+          {
+            prepend_line(bg, y, Enum.reverse(line_bg)),
+            prepend_line(text, y, Enum.reverse(line_text)),
+            prepend_line(mosaic_blocks, y, Enum.reverse(line_mosaic)),
+            prepend_line(vector_symbols, y, Enum.reverse(line_vector))
+          },
+          cursor_drawn? or line_cursor_drawn?
         }
       end)
+
+    bg =
+      case {cursor, cursor_drawn?} do
+        {{x, y}, false} ->
+          prepend_line(bg, y, [%{x: x, width: 1, attrs: %{"bg" => theme.fg}}])
+
+        _ ->
+          bg
+      end
 
     %{
       bg: Enum.reverse(bg),
@@ -198,36 +225,50 @@ defmodule AsciinemaWeb.RecordingSVG do
     }
   end
 
-  defp line_coords(line) do
-    {state, pending} =
+  defp line_coords(line, cursor_x, theme) do
+    {state, pending, cursor_drawn?} =
       Enum.reduce(
         line,
-        {{[], [], [], []}, nil},
-        fn {x, cp, attrs, char_width}, {state, pending} ->
+        {{[], [], [], []}, nil, false},
+        fn {x, cp, attrs, char_width}, {state, pending, cursor_drawn?} ->
           char = <<cp::utf8>>
+          cursor_here? = is_integer(cursor_x) and cursor_x >= x and cursor_x < x + char_width
 
-          cond do
-            positioning_split?(cp, char_width) ->
-              state =
-                pending
-                |> flush_coords_segment(state)
-                |> add_coords_segment(x, char, attrs, char_width)
+          attrs =
+            if cursor_here? do
+              Map.merge(attrs, %{
+                "fg" => bg_color(attrs, theme),
+                "bg" => fg_color(attrs, theme, true)
+              })
+            else
+              attrs
+            end
 
-              {state, nil}
+          {state, pending} =
+            cond do
+              positioning_split?(cp, char_width) ->
+                state =
+                  pending
+                  |> flush_coords_segment(state)
+                  |> add_coords_segment(x, char, attrs, char_width)
 
-            pending == nil ->
-              {state, {x, [char], attrs, char_width}}
+                {state, nil}
 
-            same_segment?(pending, attrs, char_width) ->
-              {state, append_char(pending, char)}
+              pending == nil ->
+                {state, {x, [char], attrs, char_width}}
 
-            true ->
-              {flush_coords_segment(pending, state), {x, [char], attrs, char_width}}
-          end
+              same_segment?(pending, attrs, char_width) ->
+                {state, append_char(pending, char)}
+
+              true ->
+                {flush_coords_segment(pending, state), {x, [char], attrs, char_width}}
+            end
+
+          {state, pending, cursor_drawn? or cursor_here?}
         end
       )
 
-    flush_coords_segment(pending, state)
+    {flush_coords_segment(pending, state), cursor_drawn?}
   end
 
   defp same_segment?({_x, _chars, attrs, char_width}, attrs, char_width), do: true
@@ -459,7 +500,7 @@ defmodule AsciinemaWeb.RecordingSVG do
   end
 
   defp snapshot(asciicast, crop_size, theme) do
-    (asciicast.snapshot || Snapshot.new([]))
+    (asciicast.snapshot || Snapshot.from_segments([]))
     |> maybe_crop(crop_size)
     |> Snapshot.normalize_colors(asciicast.term_bold_is_bright, theme)
   end
@@ -471,7 +512,7 @@ defmodule AsciinemaWeb.RecordingSVG do
   end
 
   defp maybe_crop(snapshot, nil), do: snapshot
-  defp maybe_crop(snapshot, {cols, rows}), do: Snapshot.crop(snapshot, cols, rows)
+  defp maybe_crop(snapshot, {cols, rows}), do: Snapshot.crop_for_thumbnail(snapshot, cols, rows)
 
   defp codepoint(<<cp::utf8, _::binary>>), do: cp
 end

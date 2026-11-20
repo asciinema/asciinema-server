@@ -8,6 +8,82 @@ defmodule AsciinemaWeb.RecordingSvgTest do
   alias AsciinemaWeb.RecordingSVG
 
   describe "full/1" do
+    test "renders a pending-wrap cursor on the last visible cell" do
+      {:ok, vt} = Asciinema.Vt.new(3, 1, 0)
+      Asciinema.Vt.feed(vt, "abc")
+      {rows, cursor} = Asciinema.Vt.dump_screen(vt)
+      assert cursor == {2, 0}
+
+      png =
+        build(:asciicast,
+          term_cols: 3,
+          term_rows: 1,
+          term_theme_name: "asciinema",
+          snapshot: Snapshot.from_segments(rows, cursor)
+        )
+        |> render_full()
+        |> decode_embedded_png()
+
+      assert rgb_at_cell(png, 2, 0) == {204, 204, 204}
+      refute rgb_at_cell(png, 1, 0) == {204, 204, 204}
+    end
+
+    test "renders implicit blank cursor cells like explicit spaces" do
+      for {sparse, padded, cursor} <- [
+            {[[{"a", %{}, 1}], [], []], [[{"a", %{}, 1}], [], [{"   ", %{}, 1}]], {2, 2}},
+            {[[{"a", %{}, 1}]], [[{"a   ", %{}, 1}]], {3, 0}},
+            {[], [[], [{" ", %{}, 1}]], {0, 1}}
+          ] do
+        pngs =
+          for rows <- [sparse, padded] do
+            build(:asciicast,
+              term_cols: 4,
+              term_rows: 3,
+              term_theme_name: "asciinema",
+              snapshot: Snapshot.from_segments(rows, cursor)
+            )
+            |> render_full()
+            |> decode_embedded_png()
+          end
+
+        [png, padded_png] = pngs
+        assert png == padded_png
+        {x, y} = cursor
+        assert rgb_at_cell(png, x, y) == {204, 204, 204}
+      end
+    end
+
+    test "renders the cursor over original cell colors including inverse video" do
+      for {inverse, expected} <- [{false, {204, 204, 204}}, {true, {18, 52, 86}}] do
+        {:ok, snapshot} =
+          EctoSnapshot.cast({[[["  ", %{"bg" => "#123456", "inverse" => inverse}, 1]]], {0, 0}})
+
+        asciicast =
+          build(:asciicast,
+            term_theme_name: "asciinema",
+            term_cols: 2,
+            term_rows: 1,
+            snapshot: snapshot
+          )
+
+        png = asciicast |> render_full() |> decode_embedded_png()
+        assert rgb_at_cell(png, 0, 0) == expected
+        assert snapshot.cursor == {0, 0}
+      end
+    end
+
+    test "cursor coordinates contribute to SVG cache identity" do
+      rows = [[{"  ", %{}, 1}]]
+
+      keys =
+        for cursor <- [nil, {0, 0}, {1, 0}] do
+          build(:asciicast, snapshot: Snapshot.from_segments(rows, cursor))
+          |> RecordingSVG.svg_cache_key()
+        end
+
+      assert length(Enum.uniq(keys)) == 3
+    end
+
     test "renders SVG document" do
       asciicast =
         build(:asciicast,
@@ -320,6 +396,18 @@ defmodule AsciinemaWeb.RecordingSvgTest do
   end
 
   describe "thumbnail/1" do
+    test "renders a cursor on an empty row retained by thumbnail cropping" do
+      png =
+        build(:asciicast,
+          term_theme_name: "asciinema",
+          snapshot: Snapshot.from_segments([[{"a", %{}, 1}], [], []], {2, 2})
+        )
+        |> render_thumbnail()
+        |> decode_embedded_png()
+
+      assert rgb_at_cell(png, 2, 2) == {204, 204, 204}
+    end
+
     test "renders SVG element" do
       asciicast =
         build(:asciicast,
@@ -426,7 +514,7 @@ defmodule AsciinemaWeb.RecordingSvgTest do
     fg_row = Enum.map(indices, &{"█", %{"fg" => &1}, 1})
     bg_row = Enum.map(indices, &{" ", %{"bg" => &1}, 1})
 
-    Snapshot.new([fg_row, bg_row])
+    Snapshot.from_segments([fg_row, bg_row])
   end
 
   defp assert_palette_rows(png, colors) do
