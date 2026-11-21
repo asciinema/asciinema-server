@@ -27,6 +27,8 @@ const MAX_TERM_ROWS: usize = 200;
 const PNG_SIGNATURE: [u8; 8] = [137, 80, 78, 71, 13, 10, 26, 10];
 
 #[rustler::nif(schedule = "DirtyCpu")]
+// Match the Elixir NIF arguments, including its optional cursor and edge flags.
+#[allow(clippy::too_many_arguments)]
 fn render_png<'a>(
     env: Env<'a>,
     cols: usize,
@@ -35,6 +37,7 @@ fn render_png<'a>(
     bg_runs: Vec<BgRun>,
     mosaic_blocks: Vec<MosaicBlock>,
     cursor_overlay: Option<CursorOverlay>,
+    (top_has_powerline, bottom_has_powerline): (bool, bool),
 ) -> NifResult<Binary<'a>> {
     if cols == 0 || rows == 0 || cols > MAX_TERM_COLS || rows > MAX_TERM_ROWS {
         return Err(Error::Term(Box::new(atoms::invalid_size())));
@@ -48,6 +51,8 @@ fn render_png<'a>(
     fill_rect(&mut pixels, img_w, 0, 0, img_w, img_h, default_bg);
 
     let (extend_top, extend_bottom) = vertical_extension(cols, rows, default_bg, &bg_runs);
+    let extend_top = extend_top && !top_has_powerline;
+    let extend_bottom = extend_bottom && !bottom_has_powerline;
 
     for (y, x, width, color) in bg_runs {
         if y >= rows || width == 0 {

@@ -8,6 +8,66 @@ defmodule AsciinemaWeb.RecordingSvgTest do
   alias AsciinemaWeb.RecordingSVG
 
   describe "full/1" do
+    test "Powerline separators veto only their edge row's vertical extension" do
+      attrs = %{"bg" => "#123456"}
+
+      for row <- [0, 1], cp <- [0xE0B0, 0xE0C8, 0xE0CA, 0xE0CC, 0xE0D2, 0xE0D4] do
+        rows =
+          List.replace_at([[{"   ", attrs, 1}], [{"   ", attrs, 1}]], row, [
+            {" #{<<cp::utf8>>} ", attrs, 1}
+          ])
+
+        png =
+          build(:asciicast,
+            term_cols: 3,
+            term_rows: 2,
+            term_theme_name: "asciinema",
+            snapshot: Snapshot.from_segments(rows)
+          )
+          |> render_full()
+          |> decode_embedded_png()
+
+        for x <- 0..(png.width - 1) do
+          assert rgb_at(png, x, 0) == if(row == 0, do: {18, 19, 20}, else: {18, 52, 86})
+
+          assert rgb_at(png, x, png.height - 1) ==
+                   if(row == 1, do: {18, 19, 20}, else: {18, 52, 86})
+        end
+
+        for y <- [24, 48] do
+          assert rgb_at(png, 0, y) == {18, 52, 86}
+          assert rgb_at(png, png.width - 1, y) == {18, 52, 86}
+        end
+      end
+    end
+
+    test "ignores Powerline symbols outside edge rows or columns and unlisted codepoints" do
+      for {text, row} <- [
+            {" \uE0B0 ", 1},
+            {"   \uE0B0", 0},
+            {" \uE0C9 ", 0},
+            {" \uE0CB ", 0},
+            {" \uE0D3 ", 0},
+            {" \uE0D5 ", 0}
+          ] do
+        attrs = %{"bg" => "#123456"}
+        rows = List.duplicate([{"   ", attrs, 1}], 3) |> List.replace_at(row, [{text, attrs, 1}])
+
+        png =
+          build(:asciicast,
+            term_cols: 3,
+            term_rows: 3,
+            term_theme_name: "asciinema",
+            snapshot: Snapshot.from_segments(rows)
+          )
+          |> render_full()
+          |> decode_embedded_png()
+
+        assert rgb_at(png, 0, 0) == {18, 52, 86}
+        assert rgb_at(png, 0, png.height - 1) == {18, 52, 86}
+      end
+    end
+
     test "extends underlying colors rather than cursor paint into padding" do
       attrs = %{"fg" => "#abcdef", "bg" => "#123456"}
 
@@ -429,6 +489,27 @@ defmodule AsciinemaWeb.RecordingSvgTest do
   end
 
   describe "thumbnail/1" do
+    test "checks Powerline symbols on the cropped boundary rows" do
+      attrs = %{"bg" => "#123456"}
+
+      rows =
+        List.duplicate([{String.duplicate(" ", 80), attrs, 1}], 17)
+        |> List.replace_at(2, [{" \uE0B0" <> String.duplicate(" ", 78), attrs, 1}])
+
+      png =
+        build(:asciicast,
+          term_cols: 80,
+          term_rows: 17,
+          term_theme_name: "asciinema",
+          snapshot: Snapshot.from_segments(rows)
+        )
+        |> render_thumbnail()
+        |> decode_embedded_png()
+
+      assert rgb_at(png, 0, 0) == {18, 19, 20}
+      assert rgb_at(png, 0, png.height - 1) == {18, 52, 86}
+    end
+
     test "renders a cursor on an empty row retained by thumbnail cropping" do
       png =
         build(:asciicast,

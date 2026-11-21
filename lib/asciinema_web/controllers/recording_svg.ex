@@ -70,7 +70,7 @@ defmodule AsciinemaWeb.RecordingSVG do
   end
 
   # Bump when SVG rendering output can change without recording data changes.
-  @svg_renderer_salt 15
+  @svg_renderer_salt 16
 
   def svg_cache_key(asciicast) do
     theme = Media.theme(asciicast)
@@ -235,8 +235,22 @@ defmodule AsciinemaWeb.RecordingSVG do
       text: Enum.reverse(text),
       mosaic_blocks: Enum.reverse(mosaic_blocks),
       vector_symbols: Enum.reverse(vector_symbols),
-      cursor_overlay: cursor_overlay
+      cursor_overlay: cursor_overlay,
+      powerline_edges: {
+        row_has_padding_powerline?(Enum.at(snapshot, 0, []), cols),
+        row_has_padding_powerline?(Enum.at(snapshot, rows - 1, []), cols)
+      }
     }
+  end
+
+  defp row_has_padding_powerline?(line, cols) do
+    Enum.any?(line, fn {x, cp, _attrs, _width} ->
+      x < cols && padding_powerline_symbol?(cp)
+    end)
+  end
+
+  defp padding_powerline_symbol?(cp) do
+    cp in 0xE0B0..0xE0C8 or cp == 0xE0CA or cp in 0xE0CC..0xE0D2 or cp == 0xE0D4
   end
 
   defp line_coords(line, cursor_x, theme) do
@@ -508,7 +522,15 @@ defmodule AsciinemaWeb.RecordingSVG do
       end
 
     png =
-      SvgRaster.render_png(cols, rows, default_bg, bg_runs, mosaic_blocks, coords.cursor_overlay)
+      SvgRaster.render_png(
+        cols,
+        rows,
+        default_bg,
+        bg_runs,
+        mosaic_blocks,
+        coords.cursor_overlay,
+        coords.powerline_edges
+      )
 
     "data:image/png;base64," <> Base.encode64(png)
   end
