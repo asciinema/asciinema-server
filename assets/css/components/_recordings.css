@@ -71,7 +71,6 @@ div.asciicast-card {
     overflow: hidden;
     padding: 0;
     background-color: var(--term-color-background);
-    border-right: 1ch solid var(--term-color-background);
   }
 
   .thumbnail img,
@@ -79,7 +78,6 @@ div.asciicast-card {
   .thumbnail object {
     display: block;
     width: auto;
-    /* keep intrinsic width so overflow + border-right look correct */
     max-width: none;
     height: auto;
   }
