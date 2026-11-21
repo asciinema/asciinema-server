@@ -73,13 +73,13 @@ div.asciicast-card {
     background-color: var(--term-color-background);
   }
 
-  .thumbnail img,
-  .thumbnail svg,
-  .thumbnail object {
+  .thumbnail > img,
+  .thumbnail > svg,
+  .thumbnail > object {
     display: block;
-    width: auto;
-    max-width: none;
-    height: auto;
+    width: 100%;
+    /* Resize the SVG viewport, keeping its text at the native size. */
+    height: calc(1.333333 * 16em);
   }
 
   .thumbnail object {

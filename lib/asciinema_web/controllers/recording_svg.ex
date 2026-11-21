@@ -70,7 +70,7 @@ defmodule AsciinemaWeb.RecordingSVG do
   end
 
   # Bump when SVG rendering output can change without recording data changes.
-  @svg_renderer_salt 12
+  @svg_renderer_salt 13
 
   def svg_cache_key(asciicast) do
     theme = Media.theme(asciicast)
@@ -116,7 +116,13 @@ defmodule AsciinemaWeb.RecordingSVG do
 
   def thumbnail(assigns) do
     ~H"""
-    <.preview {attrs_for_thumbnail(@asciicast)} rx={0} ry={0} standalone={@standalone} />
+    <.preview
+      {attrs_for_thumbnail(@asciicast)}
+      rx={0}
+      ry={0}
+      standalone={@standalone}
+      responsive={true}
+    />
     """
   end
 
@@ -127,6 +133,7 @@ defmodule AsciinemaWeb.RecordingSVG do
   attr :image_href, :string, required: true
   attr :standalone, :boolean, required: true
   attr :logo, :any, default: nil
+  attr :responsive, :boolean, default: false
   attr :font_family, :string, default: nil
   attr :rx, :integer, default: nil
   attr :ry, :integer, default: nil
