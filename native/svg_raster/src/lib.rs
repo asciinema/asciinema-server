@@ -47,6 +47,8 @@ fn render_png<'a>(
     let mut pixels = vec![0u8; rgb_len];
     fill_rect(&mut pixels, img_w, 0, 0, img_w, img_h, default_bg);
 
+    let (extend_top, extend_bottom) = vertical_extension(cols, rows, default_bg, &bg_runs);
+
     for (y, x, width, color) in bg_runs {
         if y >= rows || width == 0 {
             continue;
@@ -69,6 +71,8 @@ fn render_png<'a>(
                 PADDING_Y + (y + 1) * CELL_Y_RES,
             ),
             color,
+            extend_top,
+            extend_bottom,
         );
     }
 
@@ -86,6 +90,8 @@ fn render_png<'a>(
                 img_w,
                 (x0, y0, x0 + CELL_X_RES, y0 + CELL_Y_RES),
                 color,
+                extend_top,
+                extend_bottom,
             );
         } else {
             draw_mosaic_block(&mut pixels, img_w, x, y, cp, color);
@@ -529,18 +535,49 @@ fn fill_cell_sextants(
     }
 }
 
+// A default-background cell anywhere in an edge row disables vertical extension.
+// Decide from the original backgrounds, ignoring foreground glyphs and cursor paint.
+fn vertical_extension(
+    cols: usize,
+    rows: usize,
+    default_bg: Rgb8,
+    bg_runs: &[BgRun],
+) -> (bool, bool) {
+    let row_extends = |row| {
+        let mut non_default = vec![false; cols];
+
+        for &(y, x, width, color) in bg_runs {
+            if y == row {
+                non_default[x.min(cols)..x.saturating_add(width).min(cols)]
+                    .fill(color != default_bg);
+            }
+        }
+
+        non_default.into_iter().all(|cell| cell)
+    };
+
+    (row_extends(0), row_extends(rows - 1))
+}
+
 // Extend full-cell backgrounds touching the grid edges into the padding.
 fn fill_background_rect(
     pixels: &mut [u8],
     img_w: usize,
     (x0, y0, x1, y1): (usize, usize, usize, usize),
     color: Rgb8,
+    extend_top: bool,
+    extend_bottom: bool,
 ) {
     let img_h = pixels.len() / (img_w * 3);
     let x0 = if x0 == PADDING_X { 0 } else { x0 };
-    let y0 = if y0 == PADDING_Y { 0 } else { y0 };
+    let y0 = if extend_top && y0 == PADDING_Y { 0 } else { y0 };
     let x1 = if x1 == img_w - PADDING_X { img_w } else { x1 };
-    let y1 = if y1 == img_h - PADDING_Y { img_h } else { y1 };
+
+    let y1 = if extend_bottom && y1 == img_h - PADDING_Y {
+        img_h
+    } else {
+        y1
+    };
 
     fill_rect(pixels, img_w, x0, y0, x1, y1, color);
 }

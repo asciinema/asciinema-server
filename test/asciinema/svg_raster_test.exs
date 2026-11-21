@@ -158,15 +158,49 @@ defmodule Asciinema.SvgRasterTest do
     end
   end
 
-  test "extends full blocks but only the backgrounds of partial blocks" do
+  test "default backgrounds suppress vertical extension independently at each edge" do
+    bg = {1, 2, 3}
+    color = {100, 150, 200}
+
+    for mixed_row <- [0, 1], explicit_default? <- [false, true] do
+      mixed_runs =
+        if explicit_default? do
+          [{mixed_row, 0, 3, color}, {mixed_row, 1, 1, bg}]
+        else
+          [{mixed_row, 0, 1, color}, {mixed_row, 2, 1, color}]
+        end
+
+      runs = [{1 - mixed_row, 0, 3, color} | mixed_runs]
+      png = SvgRaster.render_png(3, 2, bg, runs, []) |> decode_png()
+
+      for x <- 0..(png.width - 1) do
+        assert rgb_at(png, x, 0) == if(mixed_row == 0, do: bg, else: color)
+        assert rgb_at(png, x, png.height - 1) == if(mixed_row == 1, do: bg, else: color)
+      end
+
+      for y <- [24, 48] do
+        assert rgb_at(png, 0, y) == color
+        assert rgb_at(png, png.width - 1, y) == color
+      end
+    end
+  end
+
+  test "extends only full blocks horizontally over default backgrounds" do
     bg = {1, 2, 3}
     fg = {4, 5, 6}
-    full = SvgRaster.render_png(1, 1, bg, [], [{0, 0, 0x2588, fg}]) |> decode_png()
+
+    for cp <- [0x2588, 0x2591, 0x2592, 0x2593] do
+      png = SvgRaster.render_png(1, 1, bg, [], [{0, 0, cp, fg}]) |> decode_png()
+
+      for y <- 0..47, x <- 0..23 do
+        expected = if y in 12..35 and (cp == 0x2588 or x in 8..15), do: fg, else: bg
+        assert rgb_at(png, x, y) == expected
+      end
+    end
+
     half = SvgRaster.render_png(1, 1, bg, [], [{0, 0, 0x2580, fg}]) |> decode_png()
 
     for y <- 0..47, x <- 0..23 do
-      assert rgb_at(full, x, y) == fg
-
       expected = if x in 8..15 and y in 12..23, do: fg, else: bg
       assert rgb_at(half, x, y) == expected
     end
@@ -179,7 +213,8 @@ defmodule Asciinema.SvgRasterTest do
     png = SvgRaster.render_png(3, 2, bg, runs, []) |> decode_png()
 
     assert rgb_at(png, 0, 0) == bg
-    assert rgb_at(png, 39, 0) == fg
+    assert rgb_at(png, 39, 0) == bg
+    assert rgb_at(png, 39, 12) == fg
     assert rgb_at(png, 39, 35) == fg
     assert rgb_at(png, 39, 36) == bg
     assert rgb_at(png, 0, 71) == bg
