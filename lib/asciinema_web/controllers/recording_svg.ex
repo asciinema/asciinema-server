@@ -202,7 +202,7 @@ defmodule AsciinemaWeb.RecordingSVG do
           end
 
         {{line_bg, line_text, line_mosaic, line_vector}, line_cursor_overlay} =
-          line_coords(line, cursor_x, theme)
+          line_coords(line, y, cursor_x, theme)
 
         cursor_overlay =
           case line_cursor_overlay do
@@ -212,9 +212,9 @@ defmodule AsciinemaWeb.RecordingSVG do
 
         {
           {
-            prepend_line(bg, y, Enum.reverse(line_bg)),
+            line_bg ++ bg,
             prepend_line(text, y, Enum.reverse(line_text)),
-            prepend_line(mosaic_blocks, y, Enum.reverse(line_mosaic)),
+            line_mosaic ++ mosaic_blocks,
             prepend_line(vector_symbols, y, Enum.reverse(line_vector))
           },
           cursor_overlay
@@ -231,7 +231,7 @@ defmodule AsciinemaWeb.RecordingSVG do
       end
 
     %{
-      bg: Enum.reverse(bg),
+      bg_runs: Enum.reverse(bg),
       text: Enum.reverse(text),
       mosaic_blocks: Enum.reverse(mosaic_blocks),
       vector_symbols: Enum.reverse(vector_symbols),
@@ -253,7 +253,7 @@ defmodule AsciinemaWeb.RecordingSVG do
     cp in 0xE0B0..0xE0C8 or cp == 0xE0CA or cp in 0xE0CC..0xE0D2 or cp == 0xE0D4
   end
 
-  defp line_coords(line, cursor_x, theme) do
+  defp line_coords(line, y, cursor_x, theme) do
     {state, pending, cursor_overlay} =
       Enum.reduce(
         line,
@@ -284,8 +284,8 @@ defmodule AsciinemaWeb.RecordingSVG do
               cursor_here? or positioning_split?(cp, char_width) ->
                 state =
                   pending
-                  |> flush_coords_segment(state)
-                  |> add_coords_segment(x, char, attrs, char_width, fg_attrs)
+                  |> flush_coords_segment(state, y, theme)
+                  |> add_coords_segment({x, char, attrs, char_width}, y, theme, fg_attrs)
 
                 {state, nil}
 
@@ -296,14 +296,14 @@ defmodule AsciinemaWeb.RecordingSVG do
                 {state, append_char(pending, char)}
 
               true ->
-                {flush_coords_segment(pending, state), {x, [char], attrs, char_width}}
+                {flush_coords_segment(pending, state, y, theme), {x, [char], attrs, char_width}}
             end
 
           {state, pending, cursor_overlay}
         end
       )
 
-    {flush_coords_segment(pending, state), cursor_overlay}
+    {flush_coords_segment(pending, state, y, theme), cursor_overlay}
   end
 
   defp same_segment?({_x, _chars, attrs, char_width}, attrs, char_width), do: true
@@ -312,10 +312,10 @@ defmodule AsciinemaWeb.RecordingSVG do
   defp append_char({x, chars, attrs, char_width}, char),
     do: {x, [char | chars], attrs, char_width}
 
-  defp flush_coords_segment(nil, state), do: state
+  defp flush_coords_segment(nil, state, _y, _theme), do: state
 
-  defp flush_coords_segment({x, chars, attrs, char_width}, state) do
-    add_coords_segment(state, x, chars_to_text(chars), attrs, char_width)
+  defp flush_coords_segment({x, chars, attrs, char_width}, state, y, theme) do
+    add_coords_segment(state, {x, chars_to_text(chars), attrs, char_width}, y, theme)
   end
 
   defp chars_to_text(chars) do
@@ -326,10 +326,9 @@ defmodule AsciinemaWeb.RecordingSVG do
 
   defp add_coords_segment(
          {bg, text, mosaics, vectors},
-         x,
-         segment_text,
-         attrs,
-         char_width,
+         {x, segment_text, attrs, char_width},
+         y,
+         theme,
          fg_attrs \\ nil
        ) do
     width = String.length(segment_text) * char_width
@@ -337,39 +336,24 @@ defmodule AsciinemaWeb.RecordingSVG do
     bg =
       case attrs["bg"] do
         nil -> bg
-        _ -> [%{attrs: attrs, x: x, width: width} | bg]
+        _ -> [{y, x, width, bg_color_tuple(attrs, theme)} | bg]
       end
 
-    # Raster content stays cursor-free; its cursor styling is drawn by the overlay.
-    fg_attrs = if mosaic_block?(segment_text), do: attrs, else: fg_attrs || attrs
+    if mosaic_block?(segment_text) do
+      # Raster content stays cursor-free; its cursor styling is drawn by the overlay.
+      mosaic =
+        {y, x, codepoint(segment_text), mosaic_block_color_tuple(segment_text, attrs, theme)}
 
-    {text, mosaics, vectors} =
-      emit_fg_segments(segment_text, fg_attrs, char_width, x, {text, mosaics, vectors})
+      {bg, text, [mosaic | mosaics], vectors}
+    else
+      segment = %{text: segment_text, attrs: fg_attrs || attrs, x: x, width: width}
 
-    {bg, text, mosaics, vectors}
-  end
-
-  defp emit_fg_segments(segment_text, attrs, char_width, x, {text, mosaics, vectors}) do
-    segment = %{
-      text: segment_text,
-      attrs: attrs,
-      x: x,
-      width: String.length(segment_text) * char_width
-    }
-
-    {text, mosaics, vectors} =
-      cond do
-        mosaic_block?(segment_text) ->
-          {text, [segment | mosaics], vectors}
-
-        vector_symbol?(segment_text) ->
-          {text, mosaics, [segment | vectors]}
-
-        true ->
-          {[segment | text], mosaics, vectors}
+      if vector_symbol?(segment_text) do
+        {bg, text, mosaics, [segment | vectors]}
+      else
+        {bg, [segment | text], mosaics, vectors}
       end
-
-    {text, mosaics, vectors}
+    end
   end
 
   defp prepend_line(lines, _y, []), do: lines
@@ -507,27 +491,13 @@ defmodule AsciinemaWeb.RecordingSVG do
   defp round_float(value), do: Float.round(value, 3)
 
   defp image_href(coords, cols, rows, theme) do
-    default_bg = Colors.parse(theme.bg)
-
-    bg_runs =
-      for %{y: y, segments: segments} <- coords.bg,
-          %{x: x, width: width, attrs: attrs} <- segments do
-        {y, x, width, bg_color_tuple(attrs, theme)}
-      end
-
-    mosaic_blocks =
-      for %{y: y, segments: segments} <- coords.mosaic_blocks,
-          %{x: x, text: char, attrs: attrs} <- segments do
-        {y, x, codepoint(char), mosaic_block_color_tuple(char, attrs, theme)}
-      end
-
     png =
       SvgRaster.render_png(
         cols,
         rows,
-        default_bg,
-        bg_runs,
-        mosaic_blocks,
+        Colors.parse(theme.bg),
+        coords.bg_runs,
+        coords.mosaic_blocks,
         coords.cursor_overlay,
         coords.powerline_edges
       )
