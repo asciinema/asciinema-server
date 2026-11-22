@@ -4,14 +4,14 @@ defmodule Asciinema.Recordings.SnapshotTest do
 
   describe "from_segments/2" do
     test "stores cells densely and exposes them via Enumerable" do
-      lines = [[[" foo bar ", %{fg: 1}, 1]]]
+      rows = [[[" foo bar ", %{fg: 1}, 1]]]
 
-      lines =
-        lines
+      rows =
+        rows
         |> snapshot()
         |> cells()
 
-      assert lines == [
+      assert rows == [
                [
                  {" ", %{fg: 1}, 1},
                  {"f", %{fg: 1}, 1},
@@ -219,7 +219,7 @@ defmodule Asciinema.Recordings.SnapshotTest do
              ]
     end
 
-    test "taller terminal with trailing blank lines" do
+    test "taller terminal with trailing blank rows" do
       assert crop(
                [
                  [["foobar", %{}, 1]],
@@ -248,7 +248,7 @@ defmodule Asciinema.Recordings.SnapshotTest do
              ]
     end
 
-    test "shorter terminal with trailing blank lines" do
+    test "shorter terminal with trailing blank rows" do
       assert crop(
                [
                  [["foobar", %{}, 1]],
@@ -279,7 +279,7 @@ defmodule Asciinema.Recordings.SnapshotTest do
     end
   end
 
-  @lines [
+  @rows [
     [[" foo bar  baz", %{"bg" => 2}, 1], ["!", %{"fg" => 1}, 1]],
     [["qux", %{"bg" => "#102030"}, 1], ["连", %{}, 2], ["接", %{}, 2]]
   ]
@@ -327,14 +327,14 @@ defmodule Asciinema.Recordings.SnapshotTest do
 
     test "dumps snapshot as an ANSI sequence" do
       seq =
-        @lines
+        @rows
         |> snapshot()
         |> Snapshot.to_ansi()
 
       assert seq == "\e[42m foo bar  baz\e[0m\e[31m!\e[0m\r\n\e[48;2;16;32;48mqux\e[0m连接\e[?25l"
     end
 
-    test "trims plain trailing spaces on each line" do
+    test "trims plain trailing spaces on each row" do
       seq =
         [
           [["foo", %{}, 1]],
@@ -348,7 +348,7 @@ defmodule Asciinema.Recordings.SnapshotTest do
       assert seq == "foo\r\n\r\nbar\e[?25l"
     end
 
-    test "drops trailing empty lines" do
+    test "drops trailing empty rows" do
       seq =
         [
           [["foo", %{}, 1]],
@@ -361,7 +361,7 @@ defmodule Asciinema.Recordings.SnapshotTest do
       assert seq == "foo\e[?25l"
     end
 
-    test "trims plain whitespace after ANSI reset at each line end" do
+    test "trims plain whitespace after ANSI reset at each row end" do
       seq =
         [
           [["foo", %{"fg" => 1}, 1], ["   ", %{}, 1]],
@@ -381,13 +381,13 @@ defmodule Asciinema.Recordings.SnapshotTest do
     |> cells()
   end
 
-  defp snapshot(lines) do
-    Snapshot.from_segments(lines)
+  defp snapshot(rows) do
+    Snapshot.from_segments(rows)
   end
 
   defp cells(snapshot) do
-    for line <- snapshot do
-      for {_x, cp, attrs, width} <- line, do: {<<cp::utf8>>, attrs, width}
+    for row <- snapshot do
+      for {_x, cp, attrs, width} <- row, do: {<<cp::utf8>>, attrs, width}
     end
   end
 end

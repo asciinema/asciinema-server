@@ -235,13 +235,13 @@ defmodule AsciinemaWeb.TerminalSVGTest do
     test "routes only supported rasterized glyph groups to embedded PNG layer" do
       fg = {255, 85, 0}
       sextant_ul = <<0x1FB00::utf8>>
-      line = "█│┃╵╷╹╻■" <> sextant_ul
+      row = "█│┃╵╷╹╻■" <> sextant_ul
 
       terminal =
         terminal(
           cols: 9,
           rows: 1,
-          snapshot: snapshot([[[line, %{"fg" => "#ff5500"}, 1]]])
+          snapshot: snapshot([[[row, %{"fg" => "#ff5500"}, 1]]])
         )
 
       svg = render_full(terminal)
@@ -387,13 +387,13 @@ defmodule AsciinemaWeb.TerminalSVGTest do
     test "routes full Powerline range (U+E0B0..U+E0BF) to vector SVG layer" do
       fg = {255, 85, 0}
       codepoints = Enum.to_list(0xE0B0..0xE0BF)
-      line = for cp <- codepoints, into: "", do: <<cp::utf8>>
+      row = for cp <- codepoints, into: "", do: <<cp::utf8>>
 
       terminal =
         terminal(
           cols: length(codepoints),
           rows: 1,
-          snapshot: snapshot([[[line, %{"fg" => "#ff5500"}, 1]]])
+          snapshot: snapshot([[[row, %{"fg" => "#ff5500"}, 1]]])
         )
 
       svg = render_full(terminal)
@@ -610,8 +610,8 @@ defmodule AsciinemaWeb.TerminalSVGTest do
 
   defp logo_present(svg), do: svg =~ "small-triangle-mask"
 
-  defp snapshot(lines) do
-    Snapshot.from_segments(lines)
+  defp snapshot(rows) do
+    Snapshot.from_segments(rows)
   end
 
   defp palette_index_snapshot do

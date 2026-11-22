@@ -31,7 +31,7 @@ struct TextIndex {
     transcript: Transcript,
     dirty_rows: BTreeSet<usize>,
     content: CappedString,
-    alt_screen_lines: BTreeMap<usize, Vec<String>>,
+    alt_screen_rows: BTreeMap<usize, Vec<String>>,
     alt_screen_words: CappedIndexSet,
 }
 
@@ -60,7 +60,7 @@ impl TextIndex {
             transcript: Transcript::new(),
             dirty_rows: BTreeSet::new(),
             content: CappedString::new(MAX_TEXT_LEN),
-            alt_screen_lines: BTreeMap::new(),
+            alt_screen_rows: BTreeMap::new(),
             alt_screen_words: CappedIndexSet::new(MAX_TEXT_LEN),
         }
     }
@@ -71,13 +71,13 @@ impl TextIndex {
         let dirty_rows = std::mem::take(&mut self.dirty_rows);
 
         if terminal.active_screen_kind() == ScreenKind::Alternate {
-            for line_no in dirty_rows {
-                // get current words for the line
+            for row_index in dirty_rows {
+                // get current words for the row
                 let mut cur_words: Vec<_> =
-                    split_words(&terminal.screen().row(line_no).unwrap().text()).collect();
+                    split_words(&terminal.screen().row(row_index).unwrap().text()).collect();
 
-                // get previous words for the line
-                let old_words = self.alt_screen_lines.entry(line_no).or_default();
+                // get previous words for the row
+                let old_words = self.alt_screen_rows.entry(row_index).or_default();
 
                 // find common prefix length
 
@@ -129,7 +129,7 @@ impl TextIndex {
 
         // flush alternate screen buffer
 
-        for words in std::mem::take(&mut self.alt_screen_lines).into_values() {
+        for words in std::mem::take(&mut self.alt_screen_rows).into_values() {
             self.alt_screen_words.extend(words);
         }
 
@@ -166,8 +166,8 @@ impl Observer for TextIndex {
     }
 }
 
-fn split_words(line: &str) -> impl Iterator<Item = String> + '_ {
-    line.split(|c: char| !c.is_alphanumeric())
+fn split_words(text: &str) -> impl Iterator<Item = String> + '_ {
+    text.split(|c: char| !c.is_alphanumeric())
         .filter(|s| s.len() > 1)
         .map(|s| s.chars().take(32).collect::<String>().to_lowercase())
 }

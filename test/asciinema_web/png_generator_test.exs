@@ -388,8 +388,8 @@ defmodule AsciinemaWeb.PngGeneratorTest do
     abs(r1 - r2) + abs(g1 - g2) + abs(b1 - b2) <= threshold
   end
 
-  defp snapshot(lines) do
-    {:ok, snapshot} = EctoSnapshot.cast({lines, nil})
+  defp snapshot(rows) do
+    {:ok, snapshot} = EctoSnapshot.cast({rows, nil})
 
     snapshot
   end

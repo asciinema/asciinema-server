@@ -10,9 +10,9 @@ defmodule Asciinema.VtTest do
         assert {:ok, vt} = Vt.new(cols, rows, 0)
         assert :ok = Vt.resize(vt, 80, 24)
         assert :ok = Vt.resize(vt, cols, rows)
-        {lines, _} = Vt.dump_screen(vt)
-        assert length(lines) == rows
-        assert [{text, %{}, 1}] = hd(lines)
+        {screen_rows, _} = Vt.dump_screen(vt)
+        assert length(screen_rows) == rows
+        assert [{text, %{}, 1}] = hd(screen_rows)
         assert String.length(text) == cols
       end
     end

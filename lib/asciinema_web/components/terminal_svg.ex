@@ -136,7 +136,7 @@ defmodule AsciinemaWeb.TerminalSVG do
     {{bg, text, mosaic_blocks, vector_symbols}, cursor_overlay} =
       snapshot
       |> Enum.with_index()
-      |> Enum.reduce({{[], [], [], []}, nil}, fn {line, y},
+      |> Enum.reduce({{[], [], [], []}, nil}, fn {row, y},
                                                  {{bg, text, mosaic_blocks, vector_symbols},
                                                   cursor_overlay} ->
         cursor_x =
@@ -145,21 +145,21 @@ defmodule AsciinemaWeb.TerminalSVG do
             _ -> nil
           end
 
-        {{line_bg, line_text, line_mosaic, line_vector}, line_cursor_overlay} =
-          line_coords(line, y, cursor_x, theme)
+        {{row_bg, row_text, row_mosaic, row_vector}, row_cursor_overlay} =
+          row_coords(row, y, cursor_x, theme)
 
         cursor_overlay =
-          case line_cursor_overlay do
+          case row_cursor_overlay do
             {x, width, color, mosaic} -> {y, x, width, color, mosaic}
             nil -> cursor_overlay
           end
 
         {
           {
-            line_bg ++ bg,
-            prepend_line(text, y, Enum.reverse(line_text)),
-            line_mosaic ++ mosaic_blocks,
-            prepend_line(vector_symbols, y, Enum.reverse(line_vector))
+            row_bg ++ bg,
+            prepend_row(text, y, Enum.reverse(row_text)),
+            row_mosaic ++ mosaic_blocks,
+            prepend_row(vector_symbols, y, Enum.reverse(row_vector))
           },
           cursor_overlay
         }
@@ -187,8 +187,8 @@ defmodule AsciinemaWeb.TerminalSVG do
     }
   end
 
-  defp row_has_padding_powerline?(line, cols) do
-    Enum.any?(line, fn {x, cp, _attrs, _width} ->
+  defp row_has_padding_powerline?(row, cols) do
+    Enum.any?(row, fn {x, cp, _attrs, _width} ->
       x < cols && padding_powerline_symbol?(cp)
     end)
   end
@@ -197,10 +197,10 @@ defmodule AsciinemaWeb.TerminalSVG do
     cp in 0xE0B0..0xE0C8 or cp == 0xE0CA or cp in 0xE0CC..0xE0D2 or cp == 0xE0D4
   end
 
-  defp line_coords(line, y, cursor_x, theme) do
+  defp row_coords(row, y, cursor_x, theme) do
     {state, pending, cursor_overlay} =
       Enum.reduce(
-        line,
+        row,
         {{[], [], [], []}, nil, nil},
         fn {x, cp, attrs, char_width}, {state, pending, cursor_overlay} ->
           char = <<cp::utf8>>
@@ -302,8 +302,8 @@ defmodule AsciinemaWeb.TerminalSVG do
     end
   end
 
-  defp prepend_line(lines, _y, []), do: lines
-  defp prepend_line(lines, y, segments), do: [%{y: y, segments: segments} | lines]
+  defp prepend_row(rows, _y, []), do: rows
+  defp prepend_row(rows, y, segments), do: [%{y: y, segments: segments} | rows]
 
   @box_drawing_first 0x2500
   @box_drawing_last 0x257F

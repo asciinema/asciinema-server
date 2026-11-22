@@ -55,7 +55,7 @@ defmodule Asciinema.FtsTest do
     assert Fts.dump(fts) == "before after "
   end
 
-  test "collects primary lines evicted by resize without another feed" do
+  test "collects primary rows evicted by resize without another feed" do
     {:ok, fts} = Fts.new(16, 200)
     lines = Enum.map(1..1010, &"line#{&1}")
 

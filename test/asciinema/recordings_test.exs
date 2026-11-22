@@ -872,7 +872,7 @@ defmodule Asciinema.RecordingsTest do
 
   describe "generate_snapshot/4" do
     @tag :vt
-    test "returns list of screen lines" do
+    test "returns list of screen rows" do
       output = [{1.0, "a"}, {2.4, "b"}, {2.6, "c"}]
       snapshot = Recordings.generate_snapshot(output, 4, 2, 2.5)
 

@@ -3,14 +3,14 @@ defmodule Asciinema.Ecto.Type.SnapshotTest do
   alias Asciinema.Ecto.Type.Snapshot, as: EctoSnapshot
   alias Asciinema.Recordings.Snapshot
 
-  @segment_lines [
+  @segment_rows [
     [["ab", %{"fg" => 1}, 1], ["全", %{"fg" => 1}, 2], ["c", %{}, 1]],
     [["xy", %{"bg" => "#102030"}, 1], ["z", %{}, 1]]
   ]
 
   describe "cast/1" do
     test "builds a snapshot and preserves cursor separately" do
-      assert {:ok, snapshot} = EctoSnapshot.cast({@segment_lines, {2, 0}})
+      assert {:ok, snapshot} = EctoSnapshot.cast({@segment_rows, {2, 0}})
       assert snapshot.cursor == {2, 0}
 
       assert cells(snapshot) == [
@@ -39,7 +39,7 @@ defmodule Asciinema.Ecto.Type.SnapshotTest do
 
     test "round-trips visible and hidden cursor metadata with original styles" do
       for cursor <- [nil, {3, 0}] do
-        snapshot = Snapshot.from_segments(@segment_lines, cursor)
+        snapshot = Snapshot.from_segments(@segment_rows, cursor)
         assert {:ok, json} = EctoSnapshot.dump(snapshot)
         assert {:ok, loaded} = EctoSnapshot.load(json)
         assert loaded == snapshot
@@ -48,7 +48,7 @@ defmodule Asciinema.Ecto.Type.SnapshotTest do
     end
 
     test "deserializes JSON into a snapshot with the expected cells" do
-      json = Jason.encode!(@segment_lines)
+      json = Jason.encode!(@segment_rows)
 
       assert {:ok, snapshot} = EctoSnapshot.load(json)
 
@@ -121,8 +121,8 @@ defmodule Asciinema.Ecto.Type.SnapshotTest do
   end
 
   defp cells(snapshot) do
-    for line <- snapshot do
-      for {_x, cp, attrs, width} <- line, do: {<<cp::utf8>>, attrs, width}
+    for row <- snapshot do
+      for {_x, cp, attrs, width} <- row, do: {<<cp::utf8>>, attrs, width}
     end
   end
 end
