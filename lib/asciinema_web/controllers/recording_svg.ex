@@ -331,12 +331,14 @@ defmodule AsciinemaWeb.RecordingSVG do
          theme,
          fg_attrs \\ nil
        ) do
-    width = String.length(segment_text) * char_width
-
     bg =
       case attrs["bg"] do
-        nil -> bg
-        _ -> [{y, x, width, bg_color_tuple(attrs, theme)} | bg]
+        nil ->
+          bg
+
+        _ ->
+          width = String.length(segment_text) * char_width
+          [{y, x, width, bg_color_tuple(attrs, theme)} | bg]
       end
 
     if mosaic_block?(segment_text) do
@@ -346,7 +348,7 @@ defmodule AsciinemaWeb.RecordingSVG do
 
       {bg, text, [mosaic | mosaics], vectors}
     else
-      segment = %{text: segment_text, attrs: fg_attrs || attrs, x: x, width: width}
+      segment = %{text: segment_text, attrs: fg_attrs || attrs, x: x}
 
       if vector_symbol?(segment_text) do
         {bg, text, mosaics, [segment | vectors]}
