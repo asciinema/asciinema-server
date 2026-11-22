@@ -792,6 +792,19 @@ defmodule Asciinema.RecordingsTest do
     end
   end
 
+  describe "stream_ids/1" do
+    test "streams every ID across page boundaries" do
+      recordings = insert_list(101, :asciicast, user: insert(:user))
+
+      ids =
+        %Query{scope: :system, archived: :include}
+        |> Recordings.stream_ids()
+        |> Enum.to_list()
+
+      assert ids == Enum.map(recordings, & &1.id)
+    end
+  end
+
   describe "delete_asciicast/1" do
     test "v1/v2" do
       asciicast = insert(:asciicast_v1) |> with_file()

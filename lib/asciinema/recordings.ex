@@ -502,6 +502,15 @@ defmodule Asciinema.Recordings do
     |> Stream.flat_map(& &1)
   end
 
+  def stream_ids(%Query{} = spec) do
+    spec
+    |> query()
+    |> select([a], %{id: a.id})
+    |> Repo.pages(100)
+    |> Stream.flat_map(& &1)
+    |> Stream.map(& &1.id)
+  end
+
   def uncompressed_asciicast_ids_stream do
     from(a in Asciicast,
       where: a.compressed == false,

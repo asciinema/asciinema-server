@@ -14,10 +14,10 @@ defmodule Asciinema.Workers.GenerateSnapshots do
         _ -> %RecordingQuery{scope: :system, filters: [:snapshotless]}
       end
 
-    asciicasts = Recordings.stream(query)
-
-    Enum.each(asciicasts, fn asciicast ->
-      Oban.insert!(UpdateSnapshot.new(%{asciicast_id: asciicast.id}))
+    query
+    |> Recordings.stream_ids()
+    |> Enum.each(fn id ->
+      Oban.insert!(UpdateSnapshot.new(%{asciicast_id: id}))
     end)
 
     :ok
