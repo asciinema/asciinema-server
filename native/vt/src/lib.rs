@@ -94,7 +94,13 @@ fn dump_screen(env: Env, resource: ResourceArc<TerminalResource>) -> NifResult<T
         .map(|line| line_to_terms(line, env))
         .collect::<Vec<_>>();
 
-    let cursor = terminal.cursor().position();
+    // Snapshots use visible cell coordinates, including while wrap is pending.
+    let (cols, _) = terminal.size();
+
+    let cursor = terminal
+        .cursor()
+        .position()
+        .map(|(col, row)| (col.min(cols - 1), row));
 
     Ok((lines, cursor).encode(env))
 }

@@ -1,19 +1,19 @@
-defmodule Asciinema.Recordings.Snapshot.Line do
+defmodule Asciinema.Recordings.Snapshot.Row do
   @enforce_keys [:codepoints, :attr_ids, :attrs, :widths]
   defstruct [:codepoints, :attr_ids, :attrs, :widths]
 end
 
-defimpl Enumerable, for: Asciinema.Recordings.Snapshot.Line do
-  alias Asciinema.Recordings.Snapshot.Line
+defimpl Enumerable, for: Asciinema.Recordings.Snapshot.Row do
+  alias Asciinema.Recordings.Snapshot.Row
 
-  def reduce(%Line{} = line, acc, fun) do
-    %Line{codepoints: codepoints, attr_ids: attr_ids, attrs: attrs, widths: widths} = line
+  def reduce(%Row{} = row, acc, fun) do
+    %Row{codepoints: codepoints, attr_ids: attr_ids, attrs: attrs, widths: widths} = row
     reduce_cells(codepoints, attr_ids, attrs, widths, 0, acc, fun)
   end
 
-  def count(%Line{codepoints: codepoints}), do: {:ok, div(byte_size(codepoints), 4)}
-  def member?(_line, _value), do: {:error, __MODULE__}
-  def slice(_line), do: {:error, __MODULE__}
+  def count(%Row{codepoints: codepoints}), do: {:ok, div(byte_size(codepoints), 4)}
+  def member?(_row, _value), do: {:error, __MODULE__}
+  def slice(_row), do: {:error, __MODULE__}
 
   defp reduce_cells(_codepoints, _attr_ids, _attrs, _widths, _x, {:halt, acc}, _fun),
     do: {:halted, acc}

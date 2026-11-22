@@ -9,7 +9,12 @@
 >
   <:preview>
     <%= if @status == :live do %>
-      <RecordingSVG.thumbnail asciicast={@stream} />
+      <TerminalSVG.thumbnail
+        snapshot={@stream.snapshot}
+        theme={theme(@stream)}
+        bold_is_bright={@stream.term_bold_is_bright}
+        adaptive_palette={@stream.term_adaptive_palette}
+      />
     <% else %>
       <.countdown status={@status} />
     <% end %>

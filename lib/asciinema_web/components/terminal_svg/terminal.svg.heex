@@ -1,0 +1,80 @@
+{if @standalone, do: raw("<?xml version=\"1.0\"?>")}
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  width={if @responsive, do: "100%", else: w(@cols + 2)}
+  height={h(@rows + 1)}
+  font-family={
+    {:safe,
+     @font_family ||
+       "'Cascadia Code','Source Code Pro',Menlo,Consolas,'DejaVu Sans Mono',monospace,'Symbols Nerd Font'"}
+  }
+  font-size={"#{font_size()}px"}
+  style={@rx == 0 && "background-color: " <> @theme.bg}
+>
+  <style>
+    .br { font-weight: bold }
+    .fa { fill-opacity: 0.5 }
+    .it { font-style: italic }
+    .un { text-decoration: underline }
+    .term-text tspan tspan { white-space: pre }
+
+    <%= if @standalone do %>
+    @font-face {
+      font-family: "Symbols Nerd Font";
+      src: url("<%= url(~p"/fonts/SymbolsNerdFont-Regular.woff2") %>") format("woff2");
+    }
+    <% end %>
+  </style>
+
+  <% clip_id = "terminal-background-#{@cols}-#{@rows}-#{@rx || 4}-#{@ry || 4}" %>
+  <defs>
+    <clipPath id={clip_id}>
+      <rect width={w(@cols + 2)} height={h(@rows + 1)} rx={@rx || 4} ry={@ry || 4} />
+    </clipPath>
+  </defs>
+  <image
+    x="0"
+    y="0"
+    width={w(@cols + 2)}
+    height={h(@rows + 1)}
+    href={@image_href}
+    preserveAspectRatio="none"
+    clip-path={"url(##{clip_id})"}
+    style="image-rendering: pixelated; image-rendering: crisp-edges;"
+  />
+
+  <g style={
+    @responsive &&
+      "mask-image: linear-gradient(to right, black calc(100% - #{w(3)}px), transparent calc(100% - #{w(1)}px)); mask-origin: view-box; mask-clip: view-box;"
+  }>
+    <%!-- Anchor the masked group's bounds at x=0. Firefox otherwise shifts the mask
+    left by the nested SVG's padding, clipping an extra strip at the right edge. --%>
+    <rect :if={@responsive} width="100%" height="100%" fill="none" />
+    <svg x={x(1)} y={y(0.5)} class="default-text-fill">
+      <%= for %{y: y, segments: segments} <- @coords.vector_symbols do %>
+        <%= for %{x: x, text: char, attrs: attrs} <- segments do %>
+          <.vector_symbol char={char} x={x} y={y} attrs={attrs} theme={@theme} />
+        <% end %>
+      <% end %>
+
+      <text xml:space="preserve" class="term-text" style={"fill: " <> @theme.fg}>
+        <tspan :for={%{y: y, segments: segments} <- @coords.text} y={y(y)}>
+          <tspan
+            :for={{%{x: x, text: text, attrs: attrs}, i} <- Enum.with_index(segments)}
+            dy={
+              if i == 0 do
+                "1em"
+              end
+            }
+            x={x(x)}
+            {text_extra_attrs(attrs, @theme)}
+            phx-no-format
+          >{html_escape(text)}</tspan>
+        </tspan>
+      </text>
+    </svg>
+  </g>
+
+  {render_slot(@overlay, @viewport)}
+</svg>

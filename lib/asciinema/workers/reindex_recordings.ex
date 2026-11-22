@@ -8,10 +8,10 @@ defmodule Asciinema.Workers.ReindexRecordings do
 
   @impl Oban.Worker
   def perform(_job) do
-    asciicasts = Recordings.stream(%RecordingQuery{scope: :system})
-
-    Enum.each(asciicasts, fn asciicast ->
-      Oban.insert!(UpdateFtsContent.new(%{asciicast_id: asciicast.id}))
+    %RecordingQuery{scope: :system}
+    |> Recordings.stream_ids()
+    |> Enum.each(fn id ->
+      Oban.insert!(UpdateFtsContent.new(%{asciicast_id: id}))
     end)
 
     :ok

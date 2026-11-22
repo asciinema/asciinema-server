@@ -491,6 +491,7 @@ defmodule Asciinema.Recordings do
   def stream(%Query{} = spec) do
     spec
     |> query()
+    |> Ecto.Queryable.to_query()
     |> stream()
   end
 
@@ -499,6 +500,15 @@ defmodule Asciinema.Recordings do
     |> maybe_preload([:user])
     |> Repo.pages(100)
     |> Stream.flat_map(& &1)
+  end
+
+  def stream_ids(%Query{} = spec) do
+    spec
+    |> query()
+    |> select([a], %{id: a.id})
+    |> Repo.pages(100)
+    |> Stream.flat_map(& &1)
+    |> Stream.map(& &1.id)
   end
 
   def uncompressed_asciicast_ids_stream do

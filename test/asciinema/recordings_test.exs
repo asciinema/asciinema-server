@@ -454,7 +454,7 @@ defmodule Asciinema.RecordingsTest do
       result = Recordings.lookup_asciicast(id, load_snapshot: true)
       assert result.id == asciicast.id
       assert %Asciinema.Recordings.Snapshot{} = result.snapshot
-      assert length(result.snapshot.lines) == 1
+      assert length(result.snapshot.rows) == 1
     end
   end
 
@@ -789,6 +789,19 @@ defmodule Asciinema.RecordingsTest do
         |> Recordings.list(10)
 
       assert Enum.map(results, & &1.id) == [high.id, mid.id, low.id]
+    end
+  end
+
+  describe "stream_ids/1" do
+    test "streams every ID across page boundaries" do
+      recordings = insert_list(101, :asciicast, user: insert(:user))
+
+      ids =
+        %Query{scope: :system, archived: :include}
+        |> Recordings.stream_ids()
+        |> Enum.to_list()
+
+      assert ids == Enum.map(recordings, & &1.id)
     end
   end
 
