@@ -78,7 +78,10 @@ defmodule AsciinemaWeb.TerminalSVG do
     |> render_snapshot()
   end
 
-  @doc "Renders a responsive 80x15 thumbnail, cropping before color normalization."
+  @thumbnail_cols 70
+  @thumbnail_rows 15
+
+  @doc "Renders a responsive #{@thumbnail_cols}x#{@thumbnail_rows} thumbnail, cropping before color normalization."
   attr :snapshot, :any, required: true
   attr :theme, :map, required: true
   attr :bold_is_bright, :boolean, default: false
@@ -88,13 +91,13 @@ defmodule AsciinemaWeb.TerminalSVG do
   def thumbnail(assigns) do
     snapshot =
       (assigns.snapshot || Snapshot.from_segments([]))
-      |> Snapshot.crop_for_thumbnail(80, 15)
+      |> Snapshot.crop_for_thumbnail(@thumbnail_cols, @thumbnail_rows)
 
     assigns
     |> assign(
       snapshot: snapshot,
-      cols: 80,
-      rows: 15,
+      cols: @thumbnail_cols,
+      rows: @thumbnail_rows,
       rx: 0,
       ry: 0,
       font_family: nil,

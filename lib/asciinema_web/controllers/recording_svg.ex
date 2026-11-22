@@ -20,7 +20,7 @@ defmodule AsciinemaWeb.RecordingSVG do
   end
 
   # Bump when SVG rendering output can change without recording data changes.
-  @svg_renderer_salt 17
+  @svg_renderer_salt 18
 
   def svg_cache_key(asciicast) do
     theme = Media.theme(asciicast)

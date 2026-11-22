@@ -530,7 +530,7 @@ defmodule AsciinemaWeb.TerminalSVGTest do
       assert svg =~ "data:image/png;base64,"
     end
 
-    test "crops snapshot to 80x15" do
+    test "crops snapshot to 70x15" do
       terminal =
         terminal(
           cols: 200,
@@ -541,7 +541,7 @@ defmodule AsciinemaWeb.TerminalSVGTest do
       svg = render_thumbnail(terminal)
       png = decode_embedded_png(svg)
 
-      assert png.width == 82 * 8
+      assert png.width == 72 * 8
       assert png.height == 16 * 24
     end
 

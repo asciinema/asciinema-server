@@ -62,7 +62,7 @@ defmodule AsciinemaWeb.StreamCardLiveTest do
 
       [_, encoded] = Regex.run(~r/href="data:image\/png;base64,([^"]+)"/, html)
       png = decode_png(Base.decode64!(encoded))
-      assert {png.width, png.height} == {656, 384}
+      assert {png.width, png.height} == {576, 384}
       assert cell_contains_color?(png, 0, 0, {171, 205, 239})
       assert cell_contains_color?(png, 1, 0, {18, 52, 86})
       refute html =~ "<?xml"
