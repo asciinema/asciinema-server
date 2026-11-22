@@ -88,10 +88,10 @@ fn dump(resource: ResourceArc<TerminalResource>) -> NifResult<String> {
 fn dump_screen(env: Env, resource: ResourceArc<TerminalResource>) -> NifResult<Term> {
     let terminal = convert_err(resource.terminal.read(), "rw_lock")?;
 
-    let lines = terminal
+    let rows = terminal
         .screen()
-        .visible_lines()
-        .map(|line| line_to_terms(line, env))
+        .visible_rows()
+        .map(|row| row_to_terms(row, env))
         .collect::<Vec<_>>();
 
     // Snapshots use visible cell coordinates, including while wrap is pending.
@@ -102,11 +102,11 @@ fn dump_screen(env: Env, resource: ResourceArc<TerminalResource>) -> NifResult<T
         .position()
         .map(|(col, row)| (col.min(cols - 1), row));
 
-    Ok((lines, cursor).encode(env))
+    Ok((rows, cursor).encode(env))
 }
 
-fn line_to_terms<'a>(line: &avt::Line, env: Env<'a>) -> Vec<Term<'a>> {
-    line.chunks(|c1, c2| c1.pen() != c2.pen() || c1.width() != c2.width())
+fn row_to_terms<'a>(row: &avt::Row, env: Env<'a>) -> Vec<Term<'a>> {
+    row.chunks(|c1, c2| c1.pen() != c2.pen() || c1.width() != c2.width())
         .map(|cells| chunk_to_term(cells, env))
         .collect::<Vec<_>>()
 }

@@ -3,7 +3,7 @@ use std::ops::Range;
 use std::sync::Mutex;
 
 use avt::observer::Transcript;
-use avt::{Line, Observation, Observer, Operation, ScreenKind, Terminal};
+use avt::{Observation, Observer, Operation, Row, ScreenKind, Terminal};
 use indexmap::IndexSet;
 use rustler::{Atom, Binary, Env, Error, NifResult, Resource, ResourceArc, Term};
 
@@ -74,7 +74,7 @@ impl TextIndex {
             for line_no in dirty_rows {
                 // get current words for the line
                 let mut cur_words: Vec<_> =
-                    split_words(&terminal.screen().line(line_no).unwrap().text()).collect();
+                    split_words(&terminal.screen().row(line_no).unwrap().text()).collect();
 
                 // get previous words for the line
                 let old_words = self.alt_screen_lines.entry(line_no).or_default();
@@ -154,8 +154,8 @@ impl Observer for TextIndex {
         self.dirty_rows.extend(rows);
     }
 
-    fn evicted(&mut self, context: &mut Observation<'_>, line: &Line) {
-        self.transcript.evicted(context, line);
+    fn evicted(&mut self, context: &mut Observation<'_>, row: &Row) {
+        self.transcript.evicted(context, row);
     }
 
     fn end(&mut self, context: &mut Observation<'_>) {
