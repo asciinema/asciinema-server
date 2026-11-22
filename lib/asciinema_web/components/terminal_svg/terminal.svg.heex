@@ -76,7 +76,5 @@
     </svg>
   </g>
 
-  <svg :if={@logo} x={@logo.x} y={@logo.y} width={@logo.size} height={@logo.size}>
-    <.logo />
-  </svg>
+  {render_slot(@overlay, @viewport)}
 </svg>

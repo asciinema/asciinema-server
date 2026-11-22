@@ -3,7 +3,7 @@ defmodule AsciinemaWeb.StreamHTML do
   import AsciinemaWeb.ErrorHelpers
   alias Asciinema.{Accounts, Fonts, Media, Streaming, Themes}
   alias Asciinema.Streaming.Stream
-  alias AsciinemaWeb.{MediaView, MediumHTML, RecordingHTML, RecordingSVG}
+  alias AsciinemaWeb.{MediaView, MediumHTML, RecordingHTML, TerminalSVG}
 
   embed_templates "stream_html/*"
 
